@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>空间首页 · Open Ontology</title>
+<link rel="stylesheet" href="../assets/style.css" />
+<style>
+  .mod-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  .mod-card {
+    background: #fff; border-radius: 10px; box-shadow: var(--shadow); padding: 18px;
+    border-top: 3px solid var(--primary); display: block; color: var(--text); transition: .15s;
+  }
+  .mod-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-lg); }
+  .mod-card.c2 { border-top-color: var(--purple); }
+  .mod-card.c3 { border-top-color: var(--cyan); }
+  .mod-card.c4 { border-top-color: var(--danger); }
+  .mod-card.c5 { border-top-color: var(--success); }
+  .mod-card.c6 { border-top-color: var(--warning); }
+  .mod-card .ico { font-size: 20px; }
+  .mod-card h3 { margin: 8px 0 6px; font-size: 14px; display: flex; align-items: center; }
+  .mod-card h3 .arrow { margin-left: auto; color: var(--text-3); font-weight: 400; }
+  .mod-card:hover h3 .arrow { color: var(--primary); }
+  .mod-card ul { margin: 0; padding-left: 16px; font-size: 12px; color: var(--text-2); line-height: 2; }
+  @media (max-width: 1100px) { .mod-grid { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script src="../assets/app.js"></script>
+<script>
+const WS_NAME = App.workspace;
+
+// 各模块空间内快捷入口
+const spaceModules = [
+  ['◈', '本体资产管理', '类 / 属性 / 关系 / 规则 / 动作 / 函数', '../ontology/ontology-graph.html',
+    ['本体图谱', '关联关系（含 RDF）', '共享属性 · 枚举类 · 值约束规则', '动作 · 函数'], 'c2'],
+  ['⛃', '数据管理', '数据源 / 数据集 / Pipeline / 探查', '../data/data-sources.html',
+    ['数据源管理', '数据集管理', 'Pipeline 管理', '数据探查'], 'c3'],
+  ['⛨', '安全管理', '标记 / 数据权限 / 加密 / 脱敏', '../security/sec-marks.html',
+    ['标记管理', '数据权限', '加密 · 脱敏'], 'c4'],
+  ['❖', '应用管理', 'API Key / Workflow / Skills', '../application/app-apikeys.html',
+    ['API Key', 'Workflow 编排', 'Skills'], 'c5'],
+  ['☰', '审计管理', '日志 / 资产统计 / 运行与调用', '../audit/audit-logs.html',
+    ['审计日志', '本体资产统计', 'Pipeline 运行 · 应用调用'], 'c6'],
+];
+
+App.mount({
+  page: 'ws-home',
+  crumbs: [WS_NAME, '空间首页'],
+  title: `${WS_NAME} · 空间首页`,
+  desc: '当前空间内本体资产、数据、应用与安全策略的统一概览。可通过顶栏切换空间，或返回平台首页管理其他空间。',
+  actions: `<a class="btn" href="../index.html">⌂ 返回平台首页</a>`,
+  content: `
+  <div class="stat-grid">
+    <div class="stat"><div class="label">空间成员</div><div class="val">12</div><div class="delta up">▲ +2</div></div>
+    <div class="stat"><div class="label">本体资产</div><div class="val">86</div><div class="delta up">▲ +6</div></div>
+    <div class="stat"><div class="label">数据集 / Pipeline</div><div class="val">45 / 18</div></div>
+    <div class="stat"><div class="label">今日 API 调用</div><div class="val">16,296</div><div class="delta up">▲ 8.2%</div></div>
+  </div>
+
+  <div class="mod-grid">
+    ${spaceModules.map((m) => `
+    <a class="mod-card ${m[5]}" href="${m[3]}">
+      <div class="ico">${m[0]}</div>
+      <h3>${m[1]} <span class="arrow">→</span></h3>
+      <div class="fs12 text-2 mb8">${m[2]}</div>
+      <ul>${m[4].map((x) => `<li>${x}</li>`).join('')}</ul>
+    </a>`).join('')}
+  </div>
+
+  <div class="row mt16">
+    <div class="card col">
+      <div class="card-h"><h3>进行中的 Pipeline</h3><div class="right"><a class="btn btn-sm" href="../data/data-pipeline.html">全部 →</a></div></div>
+      <table class="table">
+        <tr><th>Pipeline</th><th>状态</th><th>进度</th><th>开始时间</th></tr>
+        <tr><td><b>设备实时数据接入</b></td><td><span class="badge b-blue">运行中</span></td><td>68%</td><td class="text-2 fs12">09:12</td></tr>
+        <tr><td><b>物料主数据映射</b></td><td><span class="badge b-green">成功</span></td><td>100%</td><td class="text-2 fs12">08:40</td></tr>
+        <tr><td><b>质量检测结果回写</b></td><td><span class="badge b-orange">重试中</span></td><td>82%</td><td class="text-2 fs12">07:55</td></tr>
+        <tr><td><b>工艺路线全量同步</b></td><td><span class="badge b-gray">排队</span></td><td>—</td><td class="text-2 fs12">—</td></tr>
+      </table>
+    </div>
+    <div class="card col">
+      <div class="card-h"><h3>近期动态</h3></div>
+      <div class="card-b">
+        <div class="timeline">
+          <div class="tl-item">
+            <div class="tl-time">10:21</div>
+            <div class="tl-title">张伟 发布了本体类「质检报告」</div>
+            <div class="tl-desc">含 14 个属性，映射 MES 系统字段</div>
+          </div>
+          <div class="tl-item">
+            <div class="tl-time">09:47</div>
+            <div class="tl-title">李静 更新了数据源「MES-产线库」连接配置</div>
+            <div class="tl-desc">连接测试通过，已重新探查 Schema</div>
+          </div>
+          <div class="tl-item warn">
+            <div class="tl-time">08:55</div>
+            <div class="tl-title">Pipeline「质量检测结果回写」第 3 次重试</div>
+            <div class="tl-desc">目标表锁等待超时，自动重试中</div>
+          </div>
+          <div class="tl-item">
+            <div class="tl-time">昨天 18:30</div>
+            <div class="tl-title">周杰 新建 API Key「mes-integration」</div>
+            <div class="tl-desc">授权范围：本体数据只读</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>`,
+});
+</script>
+</body>
+</html>

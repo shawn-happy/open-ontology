@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<title>枚举类 · Open Ontology</title>
+<link rel="stylesheet" href="../assets/style.css" />
+</head>
+<body>
+<div id="root"></div>
+
+<!-- 新建枚举类 -->
+<div class="mask" id="enumModal" data-close-mask>
+  <div class="modal">
+    <div class="modal-h">新建枚举类<span class="x" onclick="App.closeModal('enumModal')">×</span></div>
+    <div class="modal-b">
+      <div class="form-row">
+        <div class="form-item"><label><span class="req">*</span>枚举名称</label><input type="text" placeholder="如：运行状态" /></div>
+        <div class="form-item"><label><span class="req">*</span>API 名称</label><input type="text" class="mono" placeholder="如：RunStatus" /></div>
+      </div>
+      <div class="form-item"><label>取值类型</label><select><option>String</option><option>Integer</option></select></div>
+      <div class="form-item"><label>枚举值（每行一个：值 | 显示名 | 排序）</label>
+        <textarea rows="6" class="mono">RUNNING | 运行中 | 1
+IDLE | 空闲 | 2
+MAINTENANCE | 保养中 | 3
+FAULT | 故障 | 4</textarea>
+      </div>
+      <div class="form-item"><label>数据来源</label><select><option>手工维护</option><option>从数据集字典表同步</option></select></div>
+    </div>
+    <div class="modal-f"><button class="btn" onclick="App.closeModal('enumModal')">取消</button><button class="btn btn-primary" onclick="App.closeModal('enumModal');toast('枚举类已创建')">确定</button></div>
+  </div>
+</div>
+
+<script src="../assets/app.js"></script>
+<script>
+const enums = {
+  'RunStatus': ['运行状态', ['RUNNING / 运行中', 'IDLE / 空闲', 'MAINTENANCE / 保养中', 'FAULT / 故障'], 4, '手工维护'],
+  'EquipmentType': ['设备类型', ['CNC / 加工中心', 'INJECTION / 注塑机', 'SMT / 贴片机', 'TESTER / 测试台', 'AGV / 物流车'], 5, '字典表同步'],
+  'DataLevel': ['数据密级', ['L1 / 公开', 'L2 / 内部', 'L3 / 秘密', 'L4 / 机密'], 4, '手工维护'],
+  'QualityGrade': ['质量等级', ['A / 优等', 'B / 合格', 'C / 让步接收', 'D / 不合格'], 4, '手工维护'],
+};
+
+App.mount({
+  page: 'ontology-enums',
+  crumbs: ['智能制造空间', '本体资产管理', '枚举类'],
+  title: '枚举类',
+  desc: '集中管理受限取值集合（Enum Types），供对象属性、动作参数与值约束引用。',
+  actions: `<button class="btn btn-primary" onclick="App.openModal('enumModal')">+ 新建枚举类</button>`,
+  content: `
+  <div class="row">
+    <div class="card" style="width:280px;flex-shrink:0;">
+      <div class="card-h"><h3>枚举类列表</h3></div>
+      <div class="card-b"><div class="tree" id="enumTree"></div></div>
+    </div>
+    <div class="card col">
+      <div class="card-h">
+        <h3 id="enumTitle">运行状态</h3>
+        <span class="badge b-orange no-dot mono">RunStatus</span>
+        <span class="badge b-gray no-dot" id="enumSrc">手工维护</span>
+        <div class="right">
+          <button class="btn btn-sm" onclick="toast('同步字典表')">从字典表同步</button>
+          <button class="btn btn-sm btn-primary" onclick="toast('新增枚举值')">+ 枚举值</button>
+        </div>
+      </div>
+      <div class="card-b">
+        <table class="table">
+          <tr><th>枚举值</th><th>显示名</th><th>排序</th><th>使用该枚举的属性</th><th>启用</th><th class="actions-cell">操作</th></tr>
+          <tr><td class="mono">RUNNING</td><td>运行中</td><td>1</td><td><span class="tag blue">Equipment.status</span></td><td><span class="switch on" onclick="this.classList.toggle('on')"></span></td><td class="actions-cell"><button class="btn-link btn-sm">编辑</button> <button class="btn-link btn-sm btn-danger">停用</button></td></tr>
+          <tr><td class="mono">IDLE</td><td>空闲</td><td>2</td><td><span class="tag blue">Equipment.status</span></td><td><span class="switch on" onclick="this.classList.toggle('on')"></span></td><td class="actions-cell"><button class="btn-link btn-sm">编辑</button> <button class="btn-link btn-sm btn-danger">停用</button></td></tr>
+          <tr><td class="mono">MAINTENANCE</td><td>保养中</td><td>3</td><td><span class="tag blue">Equipment.status</span></td><td><span class="switch on" onclick="this.classList.toggle('on')"></span></td><td class="actions-cell"><button class="btn-link btn-sm">编辑</button> <button class="btn-link btn-sm btn-danger">停用</button></td></tr>
+          <tr><td class="mono">FAULT</td><td>故障</td><td>4</td><td><span class="tag blue">Equipment.status</span> <span class="tag blue">WorkOrder.type</span></td><td><span class="switch on" onclick="this.classList.toggle('on')"></span></td><td class="actions-cell"><button class="btn-link btn-sm">编辑</button> <button class="btn-link btn-sm btn-danger">停用</button></td></tr>
+        </table>
+        <div class="tip mt16 text-2">已使用的枚举值不建议物理删除，可「停用」使其不可再被新数据选择。</div>
+      </div>
+    </div>
+  </div>`,
+
+  onMount() {
+    const tree = document.getElementById('enumTree');
+    Object.entries(enums).forEach(([api, e], i) => {
+      const node = document.createElement('div');
+      node.className = 'tree-node' + (i === 0 ? ' sel' : '');
+      node.innerHTML = `<span class="text-3">☰</span> ${e[0]} <span class="badge-mini" style="margin-left:auto;background:#eef2ff;color:#4f46e5;border-radius:8px;font-size:10px;padding:0 6px;">${e[2]}</span>`;
+      node.onclick = () => {
+        tree.querySelectorAll('.tree-node').forEach(n => n.classList.remove('sel'));
+        node.classList.add('sel');
+        document.getElementById('enumTitle').textContent = e[0];
+        document.getElementById('enumSrc').textContent = e[3];
+        toast('已切换枚举类：' + api);
+      };
+      tree.appendChild(node);
+    });
+  },
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<title>Pipeline 运行 · Open Ontology</title>
+<link rel="stylesheet" href="../assets/style.css" />
+</head>
+<body>
+<div id="root"></div>
+<script src="../assets/app.js"></script>
+<script>
+App.mount({
+  page: 'audit-pipelines',
+  crumbs: ['智能制造空间', '审计管理', 'Pipeline 运行'],
+  title: 'Pipeline 运行',
+  desc: '空间内数据 Pipeline 的运行情况统计与失败明细。',
+  actions: `<button class="btn" onclick="toast('导出运行报告')">导出报告</button>`,
+  content: `
+  <div class="stat-grid">
+    <div class="stat"><div class="label">今日运行次数</div><div class="val">127</div></div>
+    <div class="stat"><div class="label">成功率</div><div class="val" style="color:var(--success)">98.4%</div></div>
+    <div class="stat"><div class="label">平均时长</div><div class="val">2m 18s</div></div>
+    <div class="stat"><div class="label">失败 / 隔离</div><div class="val" style="color:var(--danger)">2</div></div>
+  </div>
+  <div class="card">
+    <div class="card-h"><h3>近 7 天运行趋势</h3>
+      <div class="right legend"><span><i style="background:#2563eb"></i>成功</span><span><i style="background:#dc2626"></i>失败</span></div>
+    </div>
+    <div class="card-b">
+      <div class="bars">
+        ${[['09-03', 96, 2], ['09-04', 110, 1], ['09-05', 105, 3], ['09-06', 118, 0], ['09-07', 122, 1], ['09-08', 131, 4], ['09-09', 125, 2]].map(b => `
+        <div class="bar-col"><div class="num">${b[1]}</div><div class="bar" style="height:${b[1] * 0.75}%"></div>
+        <div class="bar" style="height:${Math.max(b[2] * 8, 2)}%;width:30%;background:linear-gradient(180deg,#f87171,#dc2626)"></div>
+        <div class="lbl">${b[0]}</div></div>`).join('')}
+      </div>
+    </div>
+  </div>
+  <div class="card mt16">
+    <div class="card-h">
+      <select><option>全部 Pipeline</option><option>pl-dq-check</option><option>pl-graph-import</option></select>
+      <input type="text" style="width:220px" placeholder="时间范围" />
+    </div>
+    <div class="card-b" style="padding-top:0;">
+      <table class="table">
+        <tr><th>时间</th><th>Pipeline</th><th>实例</th><th>时长</th><th>结果</th><th>失败原因</th><th class="actions-cell">操作</th></tr>
+        <tr><td class="mono fs12">09-09 02:05</td><td class="mono">pl-dq-check</td><td class="mono">#8821</td><td class="mono">4m47s</td><td><span class="badge b-orange">部分失败</span></td><td>3 条记录未通过「物料外键校验」→ 隔离区</td><td class="actions-cell"><button class="btn-link btn-sm" onclick="toast('查看隔离区记录')">隔离区</button><button class="btn-link btn-sm" onclick="toast('重新运行')">重跑</button></td></tr>
+        <tr><td class="mono fs12">09-08 14:22</td><td class="mono">pl-graph-import</td><td class="mono">#8790</td><td class="mono">3m05s</td><td><span class="badge b-orange">重试成功</span></td><td>NebulaGraph 写入超时（已自动重试）</td><td class="actions-cell"><button class="btn-link btn-sm" onclick="toast('查看日志')">日志</button></td></tr>
+        <tr><td class="mono fs12">09-09 10:30</td><td class="mono">pl-equipment-cdc</td><td class="mono">#8835</td><td class="mono">41s</td><td><span class="badge b-green">成功</span></td><td>—</td><td class="actions-cell"><button class="btn-link btn-sm" onclick="toast('查看日志')">日志</button></td></tr>
+      </table>
+    </div>
+  </div>`,
+});
+</script>
+</body>
+</html>

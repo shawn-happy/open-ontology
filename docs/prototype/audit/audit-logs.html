@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<title>审计日志 · Open Ontology</title>
+<link rel="stylesheet" href="../assets/style.css" />
+</head>
+<body>
+<div id="root"></div>
+<script src="../assets/app.js"></script>
+<script>
+const logs = [
+  ['09-09 10:42:11', '李静', '本体图谱', '编辑属性 Equipment.yield_rate（衍生属性函数变更）', '变更', '已留痕'],
+  ['09-09 10:31:07', 'MES 集成 Key', '应用 API', '对象点查 Equipment EQP-0012', '查询', '通过'],
+  ['09-09 10:30:41', '系统', 'Pipeline', 'pl-equipment-cdc 运行成功（1,204 行）', '运行', '成功'],
+  ['09-09 10:29:55', '吴娜', '数据探查', '执行 SQL（L2 数据集 · 自动脱敏 2 字段）', '查询', '通过'],
+  ['09-09 10:12:33', '张伟', '动作', '执行动作 reportEquipmentFault → 工单 WO-20260909-031', '写入', '通过'],
+  ['09-09 10:05:19', 'API Key bi-report', '应用 API', '关联查询被拒：越权访问 L3 数据集', '鉴权', '<b style="color:var(--danger)">拒绝</b>'],
+  ['09-09 09:58:02', 'shawn', '安全管理', '修改脱敏规则「成本数值区间化」豁免角色', '变更', '已留痕'],
+];
+
+App.mount({
+  page: 'audit-logs',
+  crumbs: ['智能制造空间', '审计管理', '审计日志'],
+  title: '审计日志',
+  desc: '空间内全部操作、查询、鉴权与变更留痕，支持追溯与导出。',
+  actions: `<button class="btn" onclick="toast('导出 CSV')">导出</button><button class="btn btn-primary" onclick="toast('配置审计保留策略')">保留策略</button>`,
+  content: `
+  <div class="stat-grid">
+    <div class="stat"><div class="label">今日日志量</div><div class="val">3,842</div></div>
+    <div class="stat"><div class="label">鉴权拒绝</div><div class="val" style="color:var(--danger)">12</div></div>
+    <div class="stat"><div class="label">敏感操作（变更）</div><div class="val">86</div></div>
+    <div class="stat"><div class="label">日志保留</div><div class="val fs13" style="font-size:18px;">180 天</div></div>
+  </div>
+  <div class="card">
+    <div class="card-h">
+      <input class="search" type="text" placeholder="搜索操作内容…" />
+      <select><option>全部模块</option><option>本体图谱</option><option>数据管理</option><option>应用 API</option><option>动作</option><option>安全管理</option></select>
+      <select><option>全部类型</option><option>查询</option><option>写入</option><option>变更</option><option>鉴权</option></select>
+      <input type="text" style="width:230px" placeholder="时间范围 09-09 00:00 ~ now" />
+    </div>
+    <table class="table">
+      <tr><th>时间</th><th>操作者</th><th>模块</th><th>操作内容</th><th>类型</th><th>结果</th><th class="actions-cell">操作</th></tr>
+      ${logs.map(l => `
+      <tr>
+        <td class="mono fs12">${l[0]}</td>
+        <td><b>${l[1]}</b></td>
+        <td><span class="tag">${l[2]}</span></td>
+        <td class="fs12">${l[3]}</td>
+        <td><span class="badge b-gray no-dot">${l[4]}</span></td>
+        <td>${l[5]}</td>
+        <td class="actions-cell"><button class="btn-link btn-sm" onclick="toast('查看上下文与请求详情')">详情</button></td>
+      </tr>`).join('')}
+    </table>
+    <div class="pager">共 48,210 条<span style="flex:1"></span><span class="pg">‹</span><span class="pg cur">1</span><span class="pg">2</span><span class="pg">3</span><span class="pg">…</span><span class="pg">›</span></div>
+  </div>`,
+});
+</script>
+</body>
+</html>

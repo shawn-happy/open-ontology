@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<title>本体图谱 · Open Ontology</title>
+<link rel="stylesheet" href="../assets/style.css" />
+</head>
+<body>
+<div id="root"></div>
+
+<div class="drawer-mask" id="classDrawer-mask" onclick="App.closeDrawer('classDrawer')"></div>
+<div class="drawer" id="classDrawer">
+  <div class="drawer-h">
+    <h3>类详情 · <span id="drawerClassName">设备</span></h3>
+    <span class="badge b-blue no-dot" id="drawerClassKind">类 (Object Type)</span>
+    <span class="x" onclick="App.closeDrawer('classDrawer')">×</span>
+  </div>
+  <div class="drawer-b">
+    <div class="tabs" data-group="cls">
+      <div class="tab active" data-pane="base" data-group="cls">基本信息</div>
+      <div class="tab" data-pane="props" data-group="cls">属性管理 <span class="cnt">9</span></div>
+      <div class="tab" data-pane="mapping" data-group="cls">数据映射</div>
+      <div class="tab" data-pane="data" data-group="cls">对象数据查询</div>
+      <div class="tab" data-pane="perm" data-group="cls">控制属性权限</div>
+    </div>
+
+    <!-- 基本信息 -->
+    <div class="tab-pane active" data-group="cls" data-pane="base">
+      <dl class="desc-list mt16">
+        <dt>显示名</dt><dd id="ddName">设备</dd>
+        <dt>API 名称</dt><dd class="mono" id="ddApi">Equipment</dd>
+        <dt>类型</dt><dd>类（可实例化）</dd>
+        <dt>继承</dt><dd><span class="tag blue">接口: Asset</span>（implements）</dd>
+        <dt>主键属性</dt><dd class="mono">equipment_id</dd>
+        <dt>标题属性</dt><dd class="mono">equipment_name</dd>
+        <dt>主数据集</dt><dd class="mono">doris.equipment_master</dd>
+        <dt>版本</dt><dd>v3 · <span class="badge b-green">已发布</span>（草稿 v4）</dd>
+        <dt>描述</dt><dd>产线设备实体，关联工艺、物料与质量检测数据。</dd>
+      </dl>
+      <div class="flex mt16"><button class="btn btn-sm" onclick="toast('保存为新版本草稿')">另存新版本</button><button class="btn btn-sm btn-primary" onclick="toast('已提交发布审批')">提交发布</button></div>
+    </div>
+
+    <!-- 属性管理 -->
+    <div class="tab-pane" data-group="cls" data-pane="props">
+      <div class="flex mt16 mb8">
+        <button class="btn btn-sm btn-primary" onclick="toast('新建属性')">+ 新建属性</button>
+        <button class="btn btn-sm" onclick="toast('关联共享属性')">关联共享属性</button>
+        <button class="btn btn-sm" onclick="toast('新建衍生属性')">+ 衍生属性</button>
+      </div>
+      <table class="table">
+        <tr><th>属性名</th><th>API 名称</th><th>数据类型</th><th>属性种类</th><th>必填</th><th>约束</th><th class="actions-cell">操作</th></tr>
+        <tbody id="propRows"></tbody>
+      </table>
+    </div>
+
+    <!-- 数据映射 -->
+    <div class="tab-pane" data-group="cls" data-pane="mapping">
+      <div class="tip mt16 text-2">将类 / 属性映射到数据源数据集与字段，支持 Doris（结构化）与 NebulaGraph（图数据）。</div>
+      <table class="table mt8">
+        <tr><th>属性</th><th>数据源</th><th>数据集</th><th>字段</th><th>同步策略</th><th class="actions-cell">操作</th></tr>
+        <tr><td>equipment_id</td><td>Doris-生产</td><td class="mono">equipment_master</td><td class="mono">eqp_id</td><td><span class="badge b-green">实时 CDC</span></td><td class="actions-cell"><button class="btn-link btn-sm">编辑</button></td></tr>
+        <tr><td>equipment_name</td><td>Doris-生产</td><td class="mono">equipment_master</td><td class="mono">eqp_name</td><td><span class="badge b-green">实时 CDC</span></td><td class="actions-cell"><button class="btn-link btn-sm">编辑</button></td></tr>
+        <tr><td>status</td><td>Doris-生产</td><td class="mono">equipment_master</td><td class="mono">run_status</td><td><span class="badge b-blue">每日 T+1</span></td><td class="actions-cell"><button class="btn-link btn-sm">编辑</button></td></tr>
+        <tr><td>related_process</td><td>NebulaGraph</td><td class="mono">eqp_proc_edge</td><td class="mono">dst_id</td><td><span class="badge b-purple">图关系</span></td><td class="actions-cell"><button class="btn-link btn-sm">编辑</button></td></tr>
+      </table>
+      <div class="mt8"><button class="btn btn-sm" onclick="toast('打开映射向导')">+ 添加映射</button></div>
+    </div>
+
+    <!-- 对象数据查询 -->
+    <div class="tab-pane" data-group="cls" data-pane="data">
+      <div class="form-inline mt16 mb8">
+        <select><option>Equipment</option><option>Process</option><option>Material</option></select>
+        <input type="text" placeholder='过滤条件，如 status = "运行中"' style="min-width:260px" />
+        <select><option>50 条</option><option>100 条</option><option>1000 条</option></select>
+        <button class="btn btn-sm btn-primary" onclick="toast('查询已执行')">执行查询</button>
+      </div>
+      <table class="table">
+        <tr><th class="mono">equipment_id</th><th class="mono">equipment_name</th><th class="mono">type</th><th class="mono">status</th><th class="mono">line</th></tr>
+        <tr><td class="mono">EQP-0012</td><td>CNC 加工中心 A12</td><td>CNC</td><td><span class="badge b-green">运行中</span></td><td>L1</td></tr>
+        <tr><td class="mono">EQP-0013</td><td>注塑机 B03</td><td>注塑机</td><td><span class="badge b-orange">保养中</span></td><td>L2</td></tr>
+        <tr><td class="mono">EQP-0031</td><td>贴片机 S7</td><td>SMT</td><td><span class="badge b-green">运行中</span></td><td>L1</td></tr>
+        <tr><td class="mono">EQP-0045</td><td>老化测试台 T2</td><td>测试台</td><td><span class="badge b-red">故障</span></td><td>L3</td></tr>
+      </table>
+      <div class="result-meta"><span>返回 4 / 1,286 条</span><span>耗时 38 ms</span><span>数据来源：Doris-生产</span></div>
+    </div>
+
+    <!-- 控制属性权限 -->
+    <div class="tab-pane" data-group="cls" data-pane="perm">
+      <div class="tip mt16 text-2">控制属性（Mandatory Control Properties）：标记为控制的属性仅授权角色可见/可用，常用于成本、良率等敏感指标。</div>
+      <table class="table mt8">
+        <tr><th>属性</th><th>控制标记</th><th>可见角色</th><th class="actions-cell">操作</th></tr>
+        <tr><td class="mono">unit_cost</td><td><span class="badge b-red">控制属性</span></td><td><span class="tag blue">空间管理员</span><span class="tag blue">成本分析员</span></td><td class="actions-cell"><button class="btn-link btn-sm">配置</button></td></tr>
+        <tr><td class="mono">yield_rate</td><td><span class="badge b-red">控制属性</span></td><td><span class="tag blue">空间管理员</span><span class="tag blue">质量工程师</span></td><td class="actions-cell"><button class="btn-link btn-sm">配置</button></td></tr>
+        <tr><td class="mono">equipment_name</td><td><span class="badge b-gray">普通</span></td><td>全部空间成员</td><td class="actions-cell"><button class="btn-link btn-sm">配置</button></td></tr>
+      </table>
+    </div>
+  </div>
+  <div class="drawer-f">
+    <button class="btn" onclick="App.closeDrawer('classDrawer')">关闭</button>
+    <button class="btn btn-primary" onclick="toast('变更已保存为草稿 v4')">保存变更</button>
+  </div>
+</div>
+
+<script src="../assets/app.js"></script>
+<script>
+const pRows = [
+  ['设备编号','equipment_id','String','主键属性','<span class="badge b-green">是</span>','值约束: EQP-####','<button class="btn-link btn-sm">编辑</button>'],
+  ['设备名称','equipment_name','String','普通属性','<span class="badge b-green">是</span>','—','<button class="btn-link btn-sm">编辑</button>'],
+  ['设备类型','type','Enum: EquipmentType','普通属性','<span class="badge b-green">是</span>','枚举类','<button class="btn-link btn-sm">编辑</button>'],
+  ['运行状态','status','Enum: RunStatus','普通属性','<span class="badge b-gray">否</span>','枚举类','<button class="btn-link btn-sm">编辑</button>'],
+  ['所属产线','line','Link → ProductionLine','对象属性','<span class="badge b-gray">否</span>','基数 1..1','<button class="btn-link btn-sm">编辑</button>'],
+  ['工艺路线','related_process','Link → Process[]','对象属性','<span class="badge b-gray">否</span>','基数 0..n','<button class="btn-link btn-sm">编辑</button>'],
+  ['资产编号','asset_no','String','共享属性','<span class="badge b-gray">否</span>','来自 SharedProp: assetNo','<button class="btn-link btn-sm">编辑</button>'],
+  ['综合良率','yield_rate','Double','衍生属性','<span class="badge b-gray">否</span>','函数: calcYield()','<button class="btn-link btn-sm">编辑</button>'],
+  ['单位成本','unit_cost','Decimal','控制属性','<span class="badge b-gray">否</span>','权限控制','<button class="btn-link btn-sm">编辑</button>'],
+].map(r => `<tr><td><b>${r[0]}</b></td><td class="mono">${r[1]}</td><td class="mono fs12">${r[2]}</td><td>${r[3]}</td><td>${r[4]}</td><td class="fs12 text-2">${r[5]}</td><td class="actions-cell">${r[6]}<button class="btn-link btn-sm btn-danger">删除</button></td></tr>`).join('');
+
+const classes = [
+  ['设备', 'Equipment', '类', '类', 'primary', 12, 'v3 已发布'],
+  ['工艺', 'Process', '类', '类', 'primary', 8, 'v2 已发布'],
+  ['物料', 'Material', '类', '类', 'primary', 10, 'v3 已发布'],
+  ['质检报告', 'QualityReport', '类', '类', 'primary', 7, 'v1 已发布'],
+  ['资产', 'Asset', '接口', '接口', 'purple', 4, 'v1 已发布'],
+  ['可追溯对象', 'Traceable', '接口', '接口', 'purple', 2, 'v1 已发布'],
+  ['生产单元', 'ProductionUnit', '抽象类', '抽象类', 'cyan', 3, 'v1 已发布'],
+  ['设备类型', 'EquipmentType', '枚举类', '枚举类', 'orange', 8, 'v1 已发布'],
+];
+
+App.mount({
+  page: 'ontology-graph',
+  crumbs: ['智能制造空间', '本体资产管理', '本体图谱'],
+  title: '本体图谱',
+  desc: '管理类 / 接口 / 抽象类 / 枚举类，及其属性、数据映射与对象数据查询。参考 Palantir Foundry Object Types。',
+  actions: `
+    <div class="btn-group">
+      <button class="btn btn-sm on" onclick="viewToggle(this,'list')">列表视图</button>
+      <button class="btn btn-sm" onclick="viewToggle(this,'graph')">图谱视图</button>
+    </div>
+    <button class="btn" onclick="toast('导入本体定义（OWL / JSON）')">导入</button>
+    <button class="btn btn-primary" onclick="toast('新建本体类向导')">+ 新建类</button>`,
+  content: `
+  <!-- 列表视图 -->
+  <div id="view-list">
+    <div class="row">
+      <div class="card" style="width:250px;flex-shrink:0;">
+        <div class="card-h"><h3>类目树</h3></div>
+        <div class="card-b">
+          <div class="tree">
+            <div class="tree-node sel">◈ 全部（8）</div>
+            <div class="tree-children">
+              <div class="tree-node">生产域（4）</div>
+              <div class="tree-node">质量域（1）</div>
+              <div class="tree-node">资产域（2）</div>
+              <div class="tree-node">基础类型（1）</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="card col">
+        <div class="card-h">
+          <input class="search" type="text" placeholder="搜索类名 / API 名称…" />
+          <div class="right">
+            <select><option>全部类型</option><option>类</option><option>接口</option><option>抽象类</option><option>枚举类</option></select>
+            <select><option>全部状态</option><option>已发布</option><option>草稿</option></select>
+          </div>
+        </div>
+        <table class="table">
+          <tr><th>显示名</th><th>API 名称</th><th>类型</th><th>属性数</th><th>状态</th><th>主数据集</th><th class="actions-cell">操作</th></tr>
+          ${classes.map(c => `
+          <tr>
+            <td><b>${c[0]}</b></td><td class="mono">${c[1]}</td>
+            <td><span class="badge b-${c[4]} no-dot">${c[2]}</span></td>
+            <td>${c[5]}</td>
+            <td><span class="badge b-green no-dot">${c[6]}</span></td>
+            <td class="mono fs12">${c[1]==='Equipment' ? 'doris.equipment_master' : c[1]==='Process' ? 'doris.process_master' : c[1]==='EquipmentType' ? '—（内置枚举）' : 'doris.' + c[1].toLowerCase()}</td>
+            <td class="actions-cell">
+              <button class="btn-link btn-sm" onclick="openClass('${c[0]}','${c[1]}','${c[2]}')">详情</button>
+              <button class="btn-link btn-sm" onclick="toast('定位到图谱视图')">查看图谱</button>
+              <button class="btn-link btn-sm btn-danger" onclick="toast('删除需先解除关联')">删除</button>
+            </td>
+          </tr>`).join('')}
+        </table>
+        <div class="pager">共 8 个类<span style="flex:1"></span><span class="pg">‹</span><span class="pg cur">1</span><span class="pg">›</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 图谱视图 -->
+  <div id="view-graph" style="display:none">
+    <div class="card">
+      <div class="card-h">
+        <h3>本体关系图</h3><span class="sub">实线：对象链接 · 虚线框：接口 · 橙色：枚举类</span>
+        <div class="right"><button class="btn btn-sm" onclick="toast('放大')">＋</button><button class="btn btn-sm" onclick="toast('缩小')">－</button><button class="btn btn-sm" onclick="toast('导出 PNG')">导出</button></div>
+      </div>
+      <div class="card-b">
+        <div class="graph-canvas">
+          <svg viewBox="0 0 900 420" width="100%">
+            <defs>
+              <marker id="arrow" markerWidth="9" markerHeight="9" refX="8" refY="3" orient="auto"><path d="M0,0 L0,6 L9,3 z" fill="#94a3b8"/></marker>
+            </defs>
+            <path class="g-edge" d="M310,110 C 400,110 440,150 520,150"/>
+            <text class="g-edge-label" x="402" y="122">belongs_to 1..n</text>
+            <path class="g-edge" d="M310,190 C 400,190 440,200 520,205"/>
+            <text class="g-edge-label" x="400" y="188">uses 0..n</text>
+            <path class="g-edge" d="M660,110 C 740,110 750,180 660,220"/>
+            <text class="g-edge-label" x="742" y="170">produces</text>
+            <path class="g-edge" d="M300,300 C 380,300 470,255 540,230"/>
+            <text class="g-edge-label" x="390" y="285">has_report 0..n</text>
+            <path class="g-edge" d="M160,80 C 120,140 140,260 210,290" stroke-dasharray="5 3"/>
+            <text class="g-edge-label" x="88" y="200">implements</text>
+
+            <g class="g-node iface" transform="translate(70,40)"><rect width="130" height="46" rx="8"/><text x="12" y="20">«interface» Asset</text><text class="sub" x="12" y="36">资产编号 / 责任人</text></g>
+            <g class="g-node" transform="translate(240,80)"><rect width="140" height="52" rx="8"/><text x="12" y="22">设备 Equipment</text><text class="sub" x="12" y="38">12 属性 · v3</text></g>
+            <g class="g-node" transform="translate(520,120)"><rect width="140" height="52" rx="8"/><text x="12" y="22">工艺 Process</text><text class="sub" x="12" y="38">8 属性 · v2</text></g>
+            <g class="g-node" transform="translate(600,40)"><rect width="130" height="46" rx="8"/><text x="12" y="20">物料 Material</text><text class="sub" x="12" y="36">10 属性 · v3</text></g>
+            <g class="g-node" transform="translate(250,270)"><rect width="150" height="52" rx="8"/><text x="12" y="22">质检报告 QualityReport</text><text class="sub" x="12" y="38">7 属性 · v1</text></g>
+            <g class="g-node enum" transform="translate(70,330)"><rect width="150" height="46" rx="8"/><text x="12" y="20">«enum» EquipmentType</text><text class="sub" x="12" y="36">CNC / 注塑机 / SMT …</text></g>
+            <g class="g-node iface" transform="translate(600,300)"><rect width="150" height="46" rx="8"/><text x="12" y="20">«abstract» ProductionUnit</text><text class="sub" x="12" y="36">产线 / 车间公共抽象</text></g>
+          </svg>
+        </div>
+      </div>
+    </div>
+  </div>`,
+
+  onMount() {
+    window.openClass = openClass;
+    document.getElementById('propRows').innerHTML = pRows;
+  },
+});
+
+function openClass(name, api, kind) {
+  document.getElementById('drawerClassName').textContent = name;
+  document.getElementById('ddName').textContent = name;
+  document.getElementById('ddApi').textContent = api;
+  document.getElementById('drawerClassKind').textContent = kind + ' Type';
+  App.openDrawer('classDrawer');
+}
+function viewToggle(btn, v) {
+  btn.parentElement.querySelectorAll('.btn').forEach(b => b.classList.remove('on'));
+  btn.classList.add('on');
+  document.getElementById('view-list').style.display = v === 'list' ? '' : 'none';
+  document.getElementById('view-graph').style.display = v === 'graph' ? '' : 'none';
+}
+</script>
+</body>
+</html>

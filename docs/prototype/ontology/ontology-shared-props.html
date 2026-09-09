@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<title>共享属性 · Open Ontology</title>
+<link rel="stylesheet" href="../assets/style.css" />
+</head>
+<body>
+<div id="root"></div>
+
+<!-- 新建共享属性 -->
+<div class="mask" id="spModal" data-close-mask>
+  <div class="modal">
+    <div class="modal-h">新建共享属性<span class="x" onclick="App.closeModal('spModal')">×</span></div>
+    <div class="modal-b">
+      <div class="form-item"><label><span class="req">*</span>属性名称</label><input type="text" placeholder="如：资产编号" /></div>
+      <div class="form-item"><label><span class="req">*</span>API 名称</label><input type="text" class="mono" placeholder="如：asset_no" /></div>
+      <div class="form-row">
+        <div class="form-item"><label><span class="req">*</span>数据类型</label><select><option>String</option><option>Integer</option><option>Double</option><option>Date</option><option>Boolean</option><option>Enum</option></select></div>
+        <div class="form-item"><label>值约束</label><select><option>无</option><option>关联值约束规则…</option></select></div>
+      </div>
+      <div class="form-item"><label>说明</label><textarea rows="2" placeholder="共享属性可被多个对象类型复用，修改一处全局生效"></textarea></div>
+    </div>
+    <div class="modal-f"><button class="btn" onclick="App.closeModal('spModal')">取消</button><button class="btn btn-primary" onclick="App.closeModal('spModal');toast('共享属性已创建')">确定</button></div>
+  </div>
+</div>
+
+<!-- 关联管理 -->
+<div class="mask" id="bindModal" data-close-mask>
+  <div class="modal lg">
+    <div class="modal-h">关联管理 · 共享属性 <span class="mono">asset_no</span><span class="x" onclick="App.closeModal('bindModal')">×</span></div>
+    <div class="modal-b">
+      <div class="tip mb8 text-2">将该共享属性关联到对象类型后，各类型中的同名属性由本定义统一管控（类型、约束、语义）。</div>
+      <div class="transfer">
+        <div class="transfer-panel">
+          <div class="tp-h">可关联对象类型</div>
+          <div class="tp-list">
+            <div class="tp-item"><input type="checkbox" />设备 Equipment</div>
+            <div class="tp-item"><input type="checkbox" />工艺 Process</div>
+            <div class="tp-item"><input type="checkbox" />质检报告 QualityReport</div>
+          </div>
+        </div>
+        <div class="transfer-mid">
+          <button class="btn btn-sm btn-primary" onclick="toast('已关联（原型演示）')">关联 ›</button>
+          <button class="btn btn-sm">‹ 解除</button>
+        </div>
+        <div class="transfer-panel">
+          <div class="tp-h">已关联（3）</div>
+          <div class="tp-list">
+            <div class="tp-item"><input type="checkbox" checked />物料 Material</div>
+            <div class="tp-item"><input type="checkbox" checked />产线 ProductionLine</div>
+            <div class="tp-item"><input type="checkbox" checked />工单 WorkOrder</div>
+          </div>
+        </div>
+      </div>
+      <div class="tip mt16 text-2">关联时可选「复用已有字段映射」或「在各类型中重新映射数据集字段」。</div>
+    </div>
+    <div class="modal-f"><button class="btn" onclick="App.closeModal('bindModal')">取消</button><button class="btn btn-primary" onclick="App.closeModal('bindModal');toast('关联已保存')">保存</button></div>
+  </div>
+</div>
+
+<script src="../assets/app.js"></script>
+<script>
+const sps = [
+  ['资产编号', 'asset_no', 'String', 'EQP-{SEQ}', 3, '张伟', '2026-08-02'],
+  ['责任人', 'owner', 'String', '—', 5, '李静', '2026-07-15'],
+  ['创建时间', 'created_at', 'Timestamp', 'ISO 8601', 6, '李静', '2026-06-20'],
+  ['数据密级', 'data_level', 'Enum: DataLevel', '枚举校验', 4, 'shawn', '2026-09-01'],
+  ['外部编码', 'external_code', 'String', '正则 ^[A-Z]{2}-\\d{6}$', 2, '周杰', '2026-08-25'],
+];
+
+App.mount({
+  page: 'ontology-shared-props',
+  crumbs: ['智能制造空间', '本体资产管理', '共享属性'],
+  title: '共享属性',
+  desc: '跨对象类型复用的属性定义，一处修改、多处生效。参考 Palantir Shared Property Types。',
+  actions: `<button class="btn btn-primary" onclick="App.openModal('spModal')">+ 新建共享属性</button>`,
+  content: `
+  <div class="card">
+    <div class="card-h">
+      <input class="search" type="text" placeholder="搜索属性名 / API 名称…" />
+      <div class="right"><select><option>按关联数排序</option><option>按更新时间排序</option></select></div>
+    </div>
+    <table class="table">
+      <tr><th>属性名称</th><th>API 名称</th><th>数据类型</th><th>值约束</th><th>已关联类型数</th><th>维护人</th><th>更新时间</th><th class="actions-cell">操作</th></tr>
+      ${sps.map(s => `
+      <tr>
+        <td><b>${s[0]}</b></td><td class="mono">${s[1]}</td><td class="mono fs12">${s[2]}</td>
+        <td class="mono fs12 text-2">${s[3]}</td>
+        <td><span class="badge b-blue no-dot">${s[4]} 个类型</span></td>
+        <td>${s[5]}</td><td class="text-2 fs12">${s[6]}</td>
+        <td class="actions-cell">
+          <button class="btn-link btn-sm" onclick="App.openModal('bindModal')">关联管理</button>
+          <button class="btn-link btn-sm" onclick="toast('编辑共享属性')">编辑</button>
+          <button class="btn-link btn-sm btn-danger" onclick="toast('解除全部关联后才可删除')">删除</button>
+        </td>
+      </tr>`).join('')}
+    </table>
+    <div class="pager">共 5 条<span style="flex:1"></span><span class="pg">‹</span><span class="pg cur">1</span><span class="pg">›</span></div>
+  </div>
+
+  <div class="card mt16">
+    <div class="card-h"><h3>共享属性关联视图 · asset_no（资产编号）</h3></div>
+    <div class="card-b">
+      <table class="table">
+        <tr><th>关联对象类型</th><th>类型内属性名</th><th>数据集字段映射</th><th>同步状态</th></tr>
+        <tr><td><b>物料 Material</b></td><td class="mono">material_asset_no</td><td class="mono fs12">doris.material_master.asset_id</td><td><span class="badge b-green">正常</span></td></tr>
+        <tr><td><b>产线 ProductionLine</b></td><td class="mono">line_asset_no</td><td class="mono fs12">doris.production_line.asset_id</td><td><span class="badge b-green">正常</span></td></tr>
+        <tr><td><b>工单 WorkOrder</b></td><td class="mono">wo_asset_no</td><td class="mono fs12">doris.work_order.asset_id</td><td><span class="badge b-orange">昨日映射校验告警</span></td></tr>
+      </table>
+    </div>
+  </div>`,
+});
+</script>
+</body>
+</html>

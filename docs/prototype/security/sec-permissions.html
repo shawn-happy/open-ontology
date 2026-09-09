@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<title>数据权限 · Open Ontology</title>
+<link rel="stylesheet" href="../assets/style.css" />
+</head>
+<body>
+<div id="root"></div>
+<script src="../assets/app.js"></script>
+<script>
+App.mount({
+  page: 'sec-permissions',
+  crumbs: ['智能制造空间', '安全管理', '数据权限'],
+  title: '数据权限',
+  desc: '空间内行级过滤与列级控制策略，查询与 Pipeline 执行时统一校验。',
+  actions: `<button class="btn btn-primary" onclick="toast('新建数据权限策略')">+ 新建策略</button>`,
+  content: `
+  <div class="card">
+    <div class="card-h">
+      <input class="search" type="text" placeholder="搜索策略…" />
+      <select><option>全部类型</option><option>行级</option><option>列级</option></select>
+    </div>
+    <table class="table">
+      <tr><th>策略名称</th><th>范围</th><th>类型</th><th>规则</th><th>授权对象</th><th>状态</th><th class="actions-cell">操作</th></tr>
+      <tr>
+        <td><b>L3 数据仅质量域可见</b></td><td>quality_report 及关联属性</td>
+        <td><span class="badge b-blue no-dot">行级</span></td>
+        <td class="mono fs12">domain = 'QUALITY'</td>
+        <td><span class="tag blue">质量工程师</span></td>
+        <td><span class="badge b-green">生效中</span></td>
+        <td class="actions-cell"><button class="btn-link btn-sm" onclick="toast('编辑策略')">编辑</button><button class="btn-link btn-sm btn-danger" onclick="toast('停用策略')">停用</button></td>
+      </tr>
+      <tr>
+        <td><b>成本属性按角色可见</b></td><td>Equipment.unit_cost / yield_rate</td>
+        <td><span class="badge b-purple no-dot">列级</span></td>
+        <td class="fs12">控制属性权限矩阵（见<a href="../ontology/ontology-graph.html">本体图谱 → 控制属性</a>）</td>
+        <td><span class="tag blue">空间管理员</span><span class="tag blue">成本分析员</span></td>
+        <td><span class="badge b-green">生效中</span></td>
+        <td class="actions-cell"><button class="btn-link btn-sm" onclick="toast('编辑策略')">编辑</button><button class="btn-link btn-sm btn-danger" onclick="toast('停用策略')">停用</button></td>
+      </tr>
+      <tr>
+        <td><b>产线数据隔离</b></td><td>equipment_master</td>
+        <td><span class="badge b-blue no-dot">行级</span></td>
+        <td class="mono fs12">line IN (user.dept_lines)</td>
+        <td><span class="tag blue">按部门动态</span></td>
+        <td><span class="badge b-green">生效中</span></td>
+        <td class="actions-cell"><button class="btn-link btn-sm" onclick="toast('编辑策略')">编辑</button><button class="btn-link btn-sm btn-danger" onclick="toast('停用策略')">停用</button></td>
+      </tr>
+    </table>
+    <div class="pager">共 3 条<span style="flex:1"></span><span class="pg">‹</span><span class="pg cur">1</span><span class="pg">›</span></div>
+  </div>
+  <div class="card mt16">
+    <div class="card-h"><h3>校验优先级说明</h3></div>
+    <div class="card-b text-2 fs13">权限校验优先级：对象权限（本体图谱）&gt; 数据集权限 &gt; 字段 / 标记策略，全部通过才放行，命中即记录<a href="../audit/audit-logs.html">审计日志</a>。</div>
+  </div>`,
+});
+</script>
+</body>
+</html>

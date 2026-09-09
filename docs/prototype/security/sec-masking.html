@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<title>脱敏 · Open Ontology</title>
+<link rel="stylesheet" href="../assets/style.css" />
+</head>
+<body>
+<div id="root"></div>
+<script src="../assets/app.js"></script>
+<script>
+App.mount({
+  page: 'sec-masking',
+  crumbs: ['智能制造空间', '安全管理', '脱敏'],
+  title: '脱敏',
+  desc: '动态脱敏规则：查询时按角色实时脱敏，不改变底层数据。',
+  actions: `<button class="btn btn-primary" onclick="toast('新建脱敏规则')">+ 新建规则</button>`,
+  content: `
+  <div class="card">
+    <div class="card-h">
+      <input class="search" type="text" placeholder="搜索规则…" />
+      <select><option>全部状态</option><option>启用</option><option>停用</option></select>
+    </div>
+    <table class="table">
+      <tr><th>规则</th><th>脱敏字段</th><th>算法</th><th>示例</th><th>豁免角色</th><th>启用</th><th class="actions-cell">操作</th></tr>
+      <tr><td><b>手机号掩码</b></td><td class="mono">QualityReport.contact_phone</td><td>保留前 3 后 4</td><td class="mono">138****5678</td><td><span class="tag blue">空间管理员</span></td><td><span class="switch on" onclick="this.classList.toggle('on')"></span></td><td class="actions-cell"><button class="btn-link btn-sm" onclick="toast('编辑规则')">编辑</button><button class="btn-link btn-sm" onclick="toast('试脱敏样例')">试脱敏</button></td></tr>
+      <tr><td><b>成本数值区间化</b></td><td class="mono">Equipment.unit_cost</td><td>区间桶（0-1k / 1k-5k）</td><td class="mono">1k-5k</td><td><span class="tag blue">空间管理员</span><span class="tag blue">成本分析员</span></td><td><span class="switch on" onclick="this.classList.toggle('on')"></span></td><td class="actions-cell"><button class="btn-link btn-sm" onclick="toast('编辑规则')">编辑</button><button class="btn-link btn-sm" onclick="toast('试脱敏样例')">试脱敏</button></td></tr>
+      <tr><td><b>姓名打码</b></td><td class="mono">*PII 标记字段</td><td>保留姓氏</td><td class="mono">张**</td><td>—</td><td><span class="switch on" onclick="this.classList.toggle('on')"></span></td><td class="actions-cell"><button class="btn-link btn-sm" onclick="toast('编辑规则')">编辑</button><button class="btn-link btn-sm" onclick="toast('试脱敏样例')">试脱敏</button></td></tr>
+      <tr><td><b>哈希脱敏</b></td><td class="mono">external_code</td><td>SHA-256 截断 8 位</td><td class="mono">a3f9c1d2</td><td><span class="tag blue">数据工程师</span></td><td><span class="switch" onclick="this.classList.toggle('on')"></span></td><td class="actions-cell"><button class="btn-link btn-sm" onclick="toast('编辑规则')">编辑</button><button class="btn-link btn-sm" onclick="toast('试脱敏样例')">试脱敏</button></td></tr>
+    </table>
+    <div class="pager">共 4 条<span style="flex:1"></span><span class="pg">‹</span><span class="pg cur">1</span><span class="pg">›</span></div>
+  </div>
+  <div class="card mt16">
+    <div class="card-h"><h3>脱敏效果预览（以当前登录身份）</h3></div>
+    <div class="card-b">
+      <table class="table">
+        <tr><th>字段</th><th>原始值</th><th>脱敏后（空间管理员）</th><th>脱敏后（普通成员）</th></tr>
+        <tr><td class="mono">contact_phone</td><td class="mono">13812345678</td><td class="mono">13812345678</td><td class="mono">138****5678</td></tr>
+        <tr><td class="mono">unit_cost</td><td class="mono">3,280.00</td><td class="mono">3,280.00</td><td class="mono">1k-5k</td></tr>
+        <tr><td class="mono">owner_name</td><td class="mono">张伟</td><td class="mono">张**</td><td class="mono">张**</td></tr>
+      </table>
+    </div>
+  </div>`,
+});
+</script>
+</body>
+</html>

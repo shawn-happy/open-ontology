@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<title>Workflow 编排 · Open Ontology</title>
+<link rel="stylesheet" href="../assets/style.css" />
+</head>
+<body>
+<div id="root"></div>
+<script src="../assets/app.js"></script>
+<script>
+App.mount({
+  page: 'app-workflow',
+  crumbs: ['智能制造空间', '应用管理', 'Workflow 编排'],
+  title: 'Workflow 编排',
+  desc: '将对象点查、关联查询、规则、动作、函数编排为可调用的自动化工作流。',
+  actions: `<button class="btn btn-primary" onclick="toast('新建 Workflow')">+ 新建 Workflow</button>`,
+  content: `
+  <div class="card">
+    <div class="card-h">
+      <select><option>良率预警工作流</option><option>故障工单自动派发</option><option>物料成本月度汇总</option></select>
+      <span class="badge b-green">已发布 v2</span>
+      <div class="right">
+        <button class="btn btn-sm" onclick="toast('试运行')">试运行</button>
+        <button class="btn btn-sm" onclick="toast('发布新版本')">发布</button>
+        <button class="btn btn-sm btn-primary" onclick="toast('添加节点')">+ 节点</button>
+      </div>
+    </div>
+    <div class="card-b">
+      <div class="wf-canvas">
+        <svg class="wf-svg" width="100%" height="100%">
+          <defs><marker id="wfa" markerWidth="9" markerHeight="9" refX="8" refY="3" orient="auto"><path d="M0,0 L0,6 L9,3 z" fill="#94a3b8"/></marker></defs>
+          <path d="M 260 60 C 320 60 320 60 380 60" stroke="#94a3b8" stroke-width="1.6" fill="none" marker-end="url(#wfa)"/>
+          <path d="M 260 210 C 320 210 320 60 380 60" stroke="#94a3b8" stroke-width="1.6" fill="none" marker-end="url(#wfa)"/>
+          <path d="M 540 60 C 600 60 600 140 660 140" stroke="#94a3b8" stroke-width="1.6" fill="none" marker-end="url(#wfa)"/>
+        </svg>
+        <div class="wf-node c-cyan" style="left:100px;top:36px;">
+          <div class="wf-head">⏱ 触发器</div>
+          <div class="wf-body">定时 · 每日 08:00<br />或 API 触发</div>
+        </div>
+        <div class="wf-node c-blue" style="left:380px;top:36px;">
+          <div class="wf-head">◈ 对象点查</div>
+          <div class="wf-body">Equipment<br />filter: status=运行中</div>
+        </div>
+        <div class="wf-node c-blue" style="left:100px;top:186px;">
+          <div class="wf-head">⇄ 关联查询</div>
+          <div class="wf-body">→ QualityReport<br />近 7 天良率</div>
+        </div>
+        <div class="wf-node c-purple" style="left:660px;top:116px;">
+          <div class="wf-head">ƒ 函数 · 规则判断</div>
+          <div class="wf-body">calcEquipmentYield()<br />yield_rate &lt; 95 ? 告警</div>
+        </div>
+      </div>
+      <div class="row mt16">
+        <div class="col card" style="box-shadow:none;border:1px solid var(--border);">
+          <div class="card-b" style="padding:12px;">
+            <div class="bold mb8">节点类型</div>
+            <span class="tag">对象点查</span><span class="tag">关联查询</span><span class="tag">规则判断</span><span class="tag">动作执行</span><span class="tag">函数</span><span class="tag">条件分支</span><span class="tag">通知</span><span class="tag">HTTP 调用</span>
+          </div>
+        </div>
+        <div class="col card" style="box-shadow:none;border:1px solid var(--border);">
+          <div class="card-b" style="padding:12px;">
+            <div class="bold mb8">最近执行</div>
+            <div class="fs13"><span class="badge b-green">成功</span> 09-09 08:00 · 42 个对象 · 3 个触发告警</div>
+            <div class="fs13 mt8"><span class="badge b-green">成功</span> 09-08 08:00 · 40 个对象 · 5 个触发告警</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card mt16">
+    <div class="card-h"><h3>Workflow 列表</h3></div>
+    <div class="card-b" style="padding-top:0;">
+      <table class="table">
+        <tr><th>名称</th><th>节点数</th><th>触发方式</th><th>版本</th><th>状态</th><th>今日调用</th><th class="actions-cell">操作</th></tr>
+        <tr><td><b>良率预警工作流</b></td><td>6</td><td>定时 / API</td><td class="mono">v2</td><td><span class="badge b-green">已发布</span></td><td class="mono">1</td><td class="actions-cell"><button class="btn-link btn-sm" onclick="toast('打开编排画布')">编排</button><button class="btn-link btn-sm" onclick="toast('查看日志')">日志</button><button class="btn-link btn-sm btn-danger" onclick="toast('下线')">下线</button></td></tr>
+        <tr><td><b>故障工单自动派发</b></td><td>8</td><td>动作触发（报修设备）</td><td class="mono">v3</td><td><span class="badge b-green">已发布</span></td><td class="mono">36</td><td class="actions-cell"><button class="btn-link btn-sm" onclick="toast('打开编排画布')">编排</button><button class="btn-link btn-sm" onclick="toast('查看日志')">日志</button><button class="btn-link btn-sm btn-danger" onclick="toast('下线')">下线</button></td></tr>
+        <tr><td><b>物料成本月度汇总</b></td><td>5</td><td>定时 · 每月 1 日</td><td class="mono">v1</td><td><span class="badge b-orange">草稿</span></td><td class="mono">—</td><td class="actions-cell"><button class="btn-link btn-sm" onclick="toast('打开编排画布')">编排</button><button class="btn-link btn-sm" onclick="toast('发布')">发布</button></td></tr>
+      </table>
+    </div>
+  </div>`,
+});
+</script>
+</body>
+</html>

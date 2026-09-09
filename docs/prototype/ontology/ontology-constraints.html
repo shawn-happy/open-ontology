@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<title>值约束规则 · Open Ontology</title>
+<link rel="stylesheet" href="../assets/style.css" />
+</head>
+<body>
+<div id="root"></div>
+
+<!-- 新建值约束 -->
+<div class="mask" id="vcModal" data-close-mask>
+  <div class="modal lg">
+    <div class="modal-h">新建值约束规则<span class="x" onclick="App.closeModal('vcModal')">×</span></div>
+    <div class="modal-b">
+      <div class="form-row">
+        <div class="form-item"><label><span class="req">*</span>规则名称</label><input type="text" placeholder="如：设备编号格式" /></div>
+        <div class="form-item"><label>约束类型</label><select><option>正则表达式</option><option>数值范围</option><option>枚举引用</option><option>外键引用（值必须存在于某数据集）</option><option>唯一性</option><option>非空 / 必填</option><option>自定义函数校验</option></select></div>
+      </div>
+      <div class="form-item"><label>约束表达式</label>
+        <div class="code-editor mb8"><span class="cm">// 正则约束示例</span>^EQP-\d{4}$</div>
+        <input type="text" class="mono" value="^EQP-\d{4}$" />
+      </div>
+      <div class="form-item"><label>错误提示</label><input type="text" value="设备编号必须为 EQP- 开头 + 4 位数字，如 EQP-0012" /></div>
+      <div class="form-row">
+        <div class="form-item"><label>校验时机</label><select><option>写入时校验（强约束）</option><option>Pipeline 校验（准实时）</option><option>查询时校验（弱约束）</option></select></div>
+        <div class="form-item"><label>校验失败动作</label><select><option>拒绝写入</option><option>写入隔离区并告警</option><option>仅记录审计日志</option></select></div>
+      </div>
+    </div>
+    <div class="modal-f"><button class="btn" onclick="App.closeModal('vcModal')">取消</button><button class="btn btn-primary" onclick="App.closeModal('vcModal');toast('值约束已创建')">确定</button></div>
+  </div>
+</div>
+
+<script src="../assets/app.js"></script>
+<script>
+const rules = [
+  ['设备编号格式', 'EQP-####', '正则表达式', ['Equipment.equipment_id'], '写入时', '拒绝写入', '正常', '99.7%'],
+  ['良率范围', '0 ≤ yield ≤ 100', '数值范围', ['Equipment.yield_rate'], 'Pipeline 校验', '隔离区 + 告警', '正常', '99.9%'],
+  ['设备类型引用', 'ref: EquipmentType', '枚举引用', ['Equipment.type'], '写入时', '拒绝写入', '正常', '100%'],
+  ['物料外键校验', 'ref: doris.material_master', '外键引用', ['BOM.material_id'], 'Pipeline 校验', '隔离区 + 告警', '昨日 3 条失败', '99.2%'],
+  ['工单号唯一', 'unique: wo_code', '唯一性', ['WorkOrder.wo_code'], '写入时', '拒绝写入', '正常', '100%'],
+  ['综合成本上限', 'cost ≤ 5000', '自定义函数校验', ['Equipment.unit_cost'], '查询时', '仅记录审计日志', '草稿', '—'],
+];
+
+App.mount({
+  page: 'ontology-constraints',
+  crumbs: ['智能制造空间', '本体资产管理', '值约束规则'],
+  title: '值约束规则',
+  desc: '为对象属性定义取值合法性约束，在写入、Pipeline 与查询阶段执行校验。参考 Palantir Value Type Constraints。',
+  actions: `<button class="btn btn-primary" onclick="App.openModal('vcModal')">+ 新建约束规则</button>`,
+  content: `
+  <div class="stat-grid">
+    <div class="stat"><div class="label">生效中规则</div><div class="val">5</div></div>
+    <div class="stat"><div class="label">今日校验次数</div><div class="val">1.2M</div></div>
+    <div class="stat"><div class="label">拦截脏数据</div><div class="val" style="color:var(--danger)">213</div></div>
+    <div class="stat"><div class="label">整体通过率</div><div class="val" style="color:var(--success)">99.6%</div></div>
+  </div>
+  <div class="card">
+    <div class="card-h">
+      <input class="search" type="text" placeholder="搜索规则…" />
+      <select><option>全部类型</option><option>正则表达式</option><option>数值范围</option><option>枚举引用</option><option>外键引用</option><option>唯一性</option><option>自定义函数</option></select>
+      <div class="right"><button class="btn" onclick="toast('对全部规则执行回刷校验')">全量回刷校验</button></div>
+    </div>
+    <table class="table">
+      <tr><th>规则名称</th><th>表达式</th><th>约束类型</th><th>应用于属性</th><th>校验时机</th><th>失败动作</th><th>运行状态</th><th>通过率</th><th class="actions-cell">操作</th></tr>
+      ${rules.map(r => `
+      <tr>
+        <td><b>${r[0]}</b></td><td class="mono fs12">${r[1]}</td>
+        <td><span class="badge b-blue no-dot">${r[2]}</span></td>
+        <td>${r[3].map(a => `<span class="tag mono">${a}</span>`).join('')}</td>
+        <td>${r[4]}</td><td class="fs12">${r[5]}</td>
+        <td><span class="badge ${r[6]==='正常' ? 'b-green' : r[6]==='草稿' ? 'b-gray' : 'b-orange'}">${r[6]}</span></td>
+        <td class="mono">${r[7]}</td>
+        <td class="actions-cell">
+          <button class="btn-link btn-sm" onclick="toast('编辑规则')">编辑</button>
+          <button class="btn-link btn-sm" onclick="toast('查看最近校验日志')">日志</button>
+          <button class="btn-link btn-sm" onclick="toast('试运行样本校验')">试运行</button>
+        </td>
+      </tr>`).join('')}
+    </table>
+  </div>
+
+  <div class="card mt16">
+    <div class="card-h"><h3>最近校验拦截记录</h3><div class="right"><button class="btn btn-sm" onclick="toast('导出 CSV')">导出</button></div></div>
+    <div class="card-b" style="padding-top:0;">
+      <table class="table">
+        <tr><th>时间</th><th>规则</th><th>对象 / 记录</th><th>非法值</th><th>处理动作</th></tr>
+        <tr><td class="mono fs12">09-09 10:32:18</td><td>设备编号格式</td><td class="mono">Equipment / batch#20260909</td><td class="mono text-2">EQ12</td><td><span class="badge b-red">拒绝写入</span></td></tr>
+        <tr><td class="mono fs12">09-09 10:28:04</td><td>物料外键校验</td><td class="mono">BOM / row#88213</td><td class="mono text-2">MAT-999999</td><td><span class="badge b-orange">隔离区</span></td></tr>
+        <tr><td class="mono fs12">09-09 09:51:41</td><td>良率范围</td><td class="mono">Equipment.yield_rate / EQP-0031</td><td class="mono text-2">128.5</td><td><span class="badge b-orange">隔离区</span></td></tr>
+      </table>
+    </div>
+  </div>`,
+});
+</script>
+</body>
+</html>

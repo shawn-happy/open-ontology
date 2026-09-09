@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<title>动作 · Open Ontology</title>
+<link rel="stylesheet" href="../assets/style.css" />
+</head>
+<body>
+<div id="root"></div>
+
+<!-- 新建动作 -->
+<div class="mask" id="actionModal" data-close-mask>
+  <div class="modal lg">
+    <div class="modal-h">新建动作（Action Type）<span class="x" onclick="App.closeModal('actionModal')">×</span></div>
+    <div class="modal-b">
+      <div class="form-row">
+        <div class="form-item"><label><span class="req">*</span>动作名称</label><input type="text" placeholder="如：报修设备" /></div>
+        <div class="form-item"><label><span class="req">*</span>API 名称</label><input type="text" class="mono" placeholder="如：reportEquipmentFault" /></div>
+      </div>
+      <div class="form-item"><label>动作类型</label>
+        <select><option>对象写入（创建 / 编辑 / 删除对象）</option><option>调用函数（执行业务逻辑）</option><option>发送通知</option><option>调用外部系统 API</option></select>
+      </div>
+      <div class="card-b card mb16" style="box-shadow:none;border:1px solid var(--border);">
+        <div class="bold mb8">参数定义</div>
+        <table class="table">
+          <tr><th>参数</th><th>API 名称</th><th>类型</th><th>必填</th><th>默认值 / 约束</th></tr>
+          <tr><td>目标设备</td><td class="mono">equipment</td><td class="mono">Equipment（对象引用）</td><td><span class="badge b-green">是</span></td><td class="mono fs12">—</td></tr>
+          <tr><td>故障类型</td><td class="mono">faultType</td><td class="mono">Enum: FaultType</td><td><span class="badge b-green">是</span></td><td class="mono fs12">枚举校验</td></tr>
+          <tr><td>故障描述</td><td class="mono">description</td><td class="mono">String</td><td><span class="badge b-gray">否</span></td><td class="mono fs12">≤ 500 字</td></tr>
+        </table>
+        <div class="mt8"><button class="btn btn-sm" onclick="toast('添加参数')">+ 添加参数</button></div>
+      </div>
+      <div class="form-item"><label>提交校验（规则）</label>
+        <select multiple size="3" style="height:auto;"><option selected>设备编号格式（通过）</option><option selected>非空校验：description（通过）</option><option>自定义：设备必须处于运行/空闲状态</option></select>
+      </div>
+      <div class="form-row">
+        <div class="form-item"><label>审批流</label><select><option>无（直接执行）</option><option>需空间管理员审批</option><option>自定义审批流…</option></select></div>
+        <div class="form-item"><label>执行后事件</label><select><option>创建故障工单 + 发送通知</option><option>仅写入审计日志</option></select></div>
+      </div>
+    </div>
+    <div class="modal-f"><button class="btn" onclick="App.closeModal('actionModal')">取消</button><button class="btn btn-primary" onclick="App.closeModal('actionModal');toast('动作已创建')">确定</button></div>
+  </div>
+</div>
+
+<!-- 试运行 -->
+<div class="mask" id="tryModal" data-close-mask>
+  <div class="modal">
+    <div class="modal-h">动作试运行 · <span class="mono">reportEquipmentFault</span><span class="x" onclick="App.closeModal('tryModal')">×</span></div>
+    <div class="modal-b">
+      <div class="form-item"><label>equipment（对象引用）</label><input type="text" value="EQP-0045 · 老化测试台 T2" /></div>
+      <div class="form-item"><label>faultType</label><select><option>ELEC / 电气故障</option><option>MECH / 机械故障</option><option>SOFT / 软件故障</option></select></div>
+      <div class="form-item"><label>description</label><textarea rows="2">主控板指示灯异常闪烁，无法启动自检。</textarea></div>
+      <div class="code-editor"><span class="cm">// 校验结果</span>
+<span class="kw">✔</span> 规则「设备编号格式」通过
+<span class="kw">✔</span> 规则「非空校验」通过
+<span class="kw">✔</span> 自定义规则「设备状态检查」通过
+<span class="fn">→ 将执行：</span>创建 WorkOrder(WO-20260909-031) + 通知设备组</div>
+    </div>
+    <div class="modal-f"><button class="btn" onclick="App.closeModal('tryModal')">关闭</button><button class="btn btn-primary" onclick="App.closeModal('tryModal');toast('动作已执行（试运行模式，不写库）')">执行</button></div>
+  </div>
+</div>
+
+<script src="../assets/app.js"></script>
+<script>
+const actions = [
+  ['报修设备', 'reportEquipmentFault', '对象写入 + 函数', 'Equipment', 3, '需空间管理员审批', '启用', '今天 36 次'],
+  ['变更运行状态', 'changeRunStatus', '对象写入', 'Equipment', 2, '无', '启用', '今天 412 次'],
+  ['创建质检报告', 'createQualityReport', '对象写入', 'QualityReport', 5, '无', '启用', '今天 58 次'],
+  ['调整单位成本', 'updateUnitCost', '对象写入', 'Equipment', 2, '需超级管理员审批', '启用', '今天 2 次'],
+  ['批量同步资产编号', 'syncAssetNo', '调用函数', '—', 1, '无', '草稿', '—'],
+];
+
+App.mount({
+  page: 'ontology-actions',
+  crumbs: ['智能制造空间', '本体资产管理', '动作'],
+  title: '动作',
+  desc: '定义对本体对象的安全写回操作：参数、校验规则、审批流与副作用。参考 Palantir Action Types。',
+  actions: `<button class="btn btn-primary" onclick="App.openModal('actionModal')">+ 新建动作</button>`,
+  content: `
+  <div class="card">
+    <div class="card-h">
+      <input class="search" type="text" placeholder="搜索动作…" />
+      <select><option>全部类型</option><option>对象写入</option><option>调用函数</option><option>通知</option><option>外部 API</option></select>
+    </div>
+    <table class="table">
+      <tr><th>动作名称</th><th>API 名称</th><th>类型</th><th>作用对象</th><th>参数数</th><th>审批</th><th>状态</th><th>调用量</th><th class="actions-cell">操作</th></tr>
+      ${actions.map(a => `
+      <tr>
+        <td><b>${a[0]}</b></td><td class="mono">${a[1]}</td>
+        <td><span class="badge b-blue no-dot">${a[2]}</span></td>
+        <td class="mono fs12">${a[3]}</td><td>${a[4]}</td>
+        <td class="fs12">${a[5]}</td>
+        <td><span class="badge ${a[6]==='启用' ? 'b-green' : 'b-gray'}">${a[6]}</span></td>
+        <td class="mono fs12">${a[7]}</td>
+        <td class="actions-cell">
+          <button class="btn-link btn-sm" onclick="App.openModal('tryModal')">试运行</button>
+          <button class="btn-link btn-sm" onclick="toast('编辑动作')">编辑</button>
+          <button class="btn-link btn-sm" onclick="toast('查看调用日志')">日志</button>
+          <button class="btn-link btn-sm btn-danger" onclick="toast('下线动作')">下线</button>
+        </td>
+      </tr>`).join('')}
+    </table>
+    <div class="pager">共 5 条<span style="flex:1"></span><span class="pg">‹</span><span class="pg cur">1</span><span class="pg">›</span></div>
+  </div>
+
+  <div class="card mt16">
+    <div class="card-h"><h3>动作与校验规则 / 函数的绑定关系</h3></div>
+    <div class="card-b">
+      <table class="table">
+        <tr><th>动作</th><th>绑定校验规则</th><th>绑定函数</th><th>副作用</th></tr>
+        <tr><td><b>报修设备</b></td><td><span class="tag mono">设备编号格式</span><span class="tag mono">设备状态检查(自定义)</span></td><td class="mono fs12">createWorkOrder()</td><td>创建工单对象 + 站内通知</td></tr>
+        <tr><td><b>变更运行状态</b></td><td><span class="tag mono">ref: RunStatus 枚举</span></td><td class="mono fs12">—</td><td>写审计日志</td></tr>
+        <tr><td><b>调整单位成本</b></td><td><span class="tag mono">cost ≤ 5000</span></td><td class="mono fs12">recalcYield()</td><td>触发衍生属性重算 + 审批留痕</td></tr>
+      </table>
+    </div>
+  </div>`,
+});
+</script>
+</body>
+</html>

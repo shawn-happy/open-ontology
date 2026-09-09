@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<title>应用调用 · Open Ontology</title>
+<link rel="stylesheet" href="../assets/style.css" />
+</head>
+<body>
+<div id="root"></div>
+<script src="../assets/app.js"></script>
+<script>
+App.mount({
+  page: 'audit-apps',
+  crumbs: ['智能制造空间', '审计管理', '应用调用'],
+  title: '应用调用',
+  desc: '空间内 API Key、Workflow 与 Skill 的调用情况与质量指标。',
+  actions: `<button class="btn" onclick="toast('导出调用报表')">导出报表</button>`,
+  content: `
+  <div class="stat-grid">
+    <div class="stat"><div class="label">今日 API 调用</div><div class="val">16,296</div><div class="delta up">▲ 8.2%</div></div>
+    <div class="stat"><div class="label">鉴权失败</div><div class="val" style="color:var(--danger)">12</div></div>
+    <div class="stat"><div class="label">P95 延迟</div><div class="val">142 ms</div></div>
+    <div class="stat"><div class="label">限流触发</div><div class="val">3</div></div>
+  </div>
+  <div class="row">
+    <div class="card col">
+      <div class="card-h"><h3>按调用方统计（今日）</h3></div>
+      <div class="card-b" style="padding-top:0;">
+        <table class="table">
+          <tr><th>调用方</th><th>调用数</th><th>占比</th><th>失败</th><th>P95</th><th class="actions-cell">操作</th></tr>
+          <tr><td class="mono">mes-system</td><td class="mono">12,483</td><td>76.6%</td><td><span class="badge b-green">0</span></td><td class="mono">128 ms</td><td class="actions-cell"><button class="btn-link btn-sm" onclick="toast('查看调用明细')">明细</button></td></tr>
+          <tr><td class="mono">bi-report</td><td class="mono">3,201</td><td>19.6%</td><td><span class="badge b-red">11</span></td><td class="mono">203 ms</td><td class="actions-cell"><button class="btn-link btn-sm" onclick="toast('查看调用明细')">明细</button></td></tr>
+          <tr><td class="mono">ops-bot</td><td class="mono">612</td><td>3.8%</td><td><span class="badge b-green">1</span></td><td class="mono">96 ms</td><td class="actions-cell"><button class="btn-link btn-sm" onclick="toast('查看调用明细')">明细</button></td></tr>
+        </table>
+      </div>
+    </div>
+    <div class="card col">
+      <div class="card-h"><h3>按接口类型统计（今日）</h3></div>
+      <div class="card-b">
+        <div class="bars" style="height:170px;">
+          ${[['对象点查', 88], ['关联查询', 46], ['动作执行', 12], ['Workflow', 9], ['其他', 6]].map(b => `
+          <div class="bar-col"><div class="num">${b[1] * 180}</div><div class="bar" style="height:${b[1]}%"></div><div class="lbl">${b[0]}</div></div>`).join('')}
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="card mt16">
+    <div class="card-h"><h3>Workflow / Skill 调用排行（今日）</h3></div>
+    <div class="card-b" style="padding-top:0;">
+      <table class="table">
+        <tr><th>名称</th><th>类型</th><th>调用数</th><th>成功率</th><th>平均耗时</th></tr>
+        <tr><td><b>自然语言查数</b></td><td><span class="badge b-blue no-dot">Skill</span></td><td class="mono">1,042</td><td class="mono">99.1%</td><td class="mono">1.8s</td></tr>
+        <tr><td><b>故障工单自动派发</b></td><td><span class="badge b-purple no-dot">Workflow</span></td><td class="mono">36</td><td class="mono">100%</td><td class="mono">2.4s</td></tr>
+        <tr><td><b>良率分析 Skill</b></td><td><span class="badge b-blue no-dot">Skill</span></td><td class="mono">320</td><td class="mono">98.4%</td><td class="mono">3.1s</td></tr>
+        <tr><td><b>良率预警工作流</b></td><td><span class="badge b-purple no-dot">Workflow</span></td><td class="mono">1</td><td class="mono">100%</td><td class="mono">42s</td></tr>
+      </table>
+    </div>
+  </div>`,
+});
+</script>
+</body>
+</html>

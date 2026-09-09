@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<title>Skills · Open Ontology</title>
+<link rel="stylesheet" href="../assets/style.css" />
+</head>
+<body>
+<div id="root"></div>
+<script src="../assets/app.js"></script>
+<script>
+App.mount({
+  page: 'app-skills',
+  crumbs: ['智能制造空间', '应用管理', 'Skills'],
+  title: 'Skills',
+  desc: '基于本体资产与函数封装的高层能力单元，可被应用、Workflow 与对话式入口调用。',
+  actions: `<button class="btn" onclick="toast('从 Skill 市场安装')">Skill 市场</button><button class="btn btn-primary" onclick="toast('注册本地 Skill')">+ 注册 Skill</button>`,
+  content: `
+  <div class="card">
+    <div class="card-h">
+      <input class="search" type="text" placeholder="搜索 Skill…" />
+      <select><option>全部状态</option><option>已启用</option><option>审核中</option><option>已停用</option></select>
+    </div>
+    <div class="card-b">
+      <div class="grid-3">
+        ${[
+          ['良率分析 Skill', '输入设备对象，输出良率诊断报告与改进建议', 'ƒ calcEquipmentYield', '已启用', '调用 320 次'],
+          ['故障根因推荐', '基于故障知识图谱推荐根因与处置方案', '⇄ queryFaultGraph', '已启用', '调用 156 次'],
+          ['成本核算助手', '汇总物料 BOM 成本，支持 What-if 模拟', 'ƒ sumMaterialCost', '已启用', '调用 89 次'],
+          ['工艺路线优化', '基于历史质检数据推荐最优工艺路线', 'ƒ recommendProcessRoute', '审核中', '—'],
+          ['自然语言查数', 'NL2Object：自然语言转对象点查/关联查询', 'API only', '已启用', '调用 1,042 次'],
+          ['供应商风险扫描', '结合供应链空间数据生成风险画像', '跨空间只读', '已停用', '—'],
+        ].map(s => `
+        <div style="border:1px solid var(--border);border-radius:8px;padding:14px;">
+          <div class="flex"><b>${s[0]}</b><span class="badge ${s[3]==='已启用' ? 'b-green' : s[3]==='审核中' ? 'b-orange' : 'b-gray'}" style="margin-left:auto">${s[3]}</span></div>
+          <div class="fs12 text-2 mt8" style="min-height:48px">${s[1]}</div>
+          <div class="fs12 mono text-3">${s[2]}</div>
+          <div class="flex mt8" style="justify-content:space-between;">
+            <span class="fs12 text-3">${s[4]}</span>
+            <span><button class="btn-link btn-sm" onclick="toast('配置 Skill')">配置</button><button class="btn-link btn-sm btn-danger" onclick="toast('${s[3]==='已停用' ? '删除' : '停用'} Skill')">${s[3]==='已停用' ? '删除' : '停用'}</button></span>
+          </div>
+        </div>`).join('')}
+      </div>
+    </div>
+  </div>`,
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<title>函数 · Open Ontology</title>
+<link rel="stylesheet" href="../assets/style.css" />
+</head>
+<body>
+<div id="root"></div>
+
+<!-- 函数详情 -->
+<div class="mask" id="fnModal" data-close-mask>
+  <div class="modal lg">
+    <div class="modal-h">函数详情 · <span class="mono">calcEquipmentYield</span><span class="x" onclick="App.closeModal('fnModal')">×</span></div>
+    <div class="modal-b">
+      <dl class="desc-list mb16">
+        <dt>显示名</dt><dd>计算设备综合良率</dd>
+        <dt>签名</dt><dd class="mono">calcEquipmentYield(equipment: Equipment, windowDays: Integer = 30): YieldResult</dd>
+        <dt>用途</dt><dd><span class="tag blue">衍生属性</span> <span class="tag blue">动作</span> <span class="tag blue">Workflow</span></dd>
+        <dt>语言</dt><dd>Python 3.11（沙箱执行）</dd>
+      </dl>
+      <div class="code-editor mb16"><span class="kw">from</span> ontology.types <span class="kw">import</span> Equipment, YieldResult
+
+<span class="kw">def</span> <span class="fn">calc_equipment_yield</span>(equipment: Equipment, window_days: int = 30) -> YieldResult:
+    <span class="str">"""统计设备近 N 天的产出与不良，计算综合良率"""</span>
+    reports = equipment.quality_reports.where(
+        created_at >= now() - timedelta(days=window_days))
+    total = reports.count()
+    good = reports.where(grade == QualityGrade.A).count() \
+        + reports.where(grade == QualityGrade.B).count()
+    <span class="kw">return</span> YieldResult(
+        yield_rate=<span class="num">round</span>(good / total * <span class="num">100</span>, <span class="num">2</span>) <span class="kw">if</span> total <span class="kw">else</span> <span class="kw">None</span>,
+        sample_size=total,
+        equipment_id=equipment.equipment_id,
+    )</div>
+      <div class="result-meta">
+        <span>单元测试：<span class="badge b-green">18 / 18 通过</span></span>
+        <span>最近执行：09-09 10:30 · 214ms</span>
+        <span>被引用：Equipment.yield_rate（衍生属性）、动作 updateUnitCost、Workflow「良率预警」</span>
+      </div>
+    </div>
+    <div class="modal-f"><button class="btn" onclick="App.closeModal('fnModal')">关闭</button><button class="btn btn-primary" onclick="App.closeModal('fnModal');toast('函数已保存为新版本')">保存</button></div>
+  </div>
+</div>
+
+<script src="../assets/app.js"></script>
+<script>
+const fns = [
+  ['计算设备综合良率', 'calcEquipmentYield', 'Python', '衍生属性 / 动作', 'v3', '正常', '今天 1.2K 次'],
+  ['推荐工艺路线', 'recommendProcessRoute', 'Python', 'Workflow / API', 'v1', '正常', '今天 86 次'],
+  ['关联设备故障图谱查询', 'queryFaultGraph', 'SQL(Nebula nGQL)', 'Workflow', 'v2', '正常', '今天 214 次'],
+  ['物料成本汇总', 'sumMaterialCost', 'Python', '衍生属性', 'v1', '正常', '今天 512 次'],
+  ['批量校验 BOM 外键', 'validateBomRef', 'Python', '值约束 / Pipeline', 'v1', '停用', '—'],
+];
+
+App.mount({
+  page: 'ontology-functions',
+  crumbs: ['智能制造空间', '本体资产管理', '函数'],
+  title: '函数',
+  desc: '编写作用于本体对象的业务逻辑函数（Python / SQL），可被衍生属性、动作、Workflow 与 API 复用。参考 Palantir Functions。',
+  actions: `<button class="btn" onclick="toast('从代码仓库导入')">从仓库导入</button><button class="btn btn-primary" onclick="toast('新建函数')">+ 新建函数</button>`,
+  content: `
+  <div class="card">
+    <div class="card-h">
+      <input class="search" type="text" placeholder="搜索函数…" />
+      <select><option>全部语言</option><option>Python</option><option>SQL</option></select>
+      <div class="right"><button class="btn" onclick="toast('运行全部单元测试')">运行全部测试</button></div>
+    </div>
+    <table class="table">
+      <tr><th>函数名</th><th>API 名称</th><th>语言</th><th>被引用场景</th><th>版本</th><th>状态</th><th>调用量（今日）</th><th class="actions-cell">操作</th></tr>
+      ${fns.map(f => `
+      <tr>
+        <td><b>${f[0]}</b></td><td class="mono">${f[1]}</td>
+        <td><span class="badge ${f[2].startsWith('Python') ? 'b-cyan' : 'b-purple'} no-dot">${f[2]}</span></td>
+        <td>${f[3]}</td><td class="mono">${f[4]}</td>
+        <td><span class="badge ${f[5]==='正常' ? 'b-green' : 'b-gray'}">${f[5]}</span></td>
+        <td class="mono fs12">${f[6]}</td>
+        <td class="actions-cell">
+          <button class="btn-link btn-sm" onclick="App.openModal('fnModal')">代码</button>
+          <button class="btn-link btn-sm" onclick="toast('在线调试')">调试</button>
+          <button class="btn-link btn-sm" onclick="toast('查看调用日志')">日志</button>
+          <button class="btn-link btn-sm btn-danger" onclick="toast('下线函数')">下线</button>
+        </td>
+      </tr>`).join('')}
+    </table>
+    <div class="pager">共 5 条<span style="flex:1"></span><span class="pg">‹</span><span class="pg cur">1</span><span class="pg">›</span></div>
+  </div>
+
+  <div class="card mt16">
+    <div class="card-h"><h3>执行趋势（近 7 天）</h3>
+      <div class="right legend"><span><i style="background:#2563eb"></i>调用次数</span><span><i style="background:#7c3aed"></i>失败次数</span></div>
+    </div>
+    <div class="card-b">
+      <div class="bars">
+        ${[['09-03', 98, 6], ['09-04', 120, 3], ['09-05', 86, 2], ['09-06', 142, 8], ['09-07', 131, 4], ['09-08', 155, 2], ['09-09', 150, 1]].map(b => `
+        <div class="bar-col">
+          <div class="num">${b[1] * 20}</div>
+          <div class="bar" style="height:${b[1]}%"></div>
+          <div class="bar alt" style="height:${Math.max(b[2] * 3, 3)}%;width:30%"></div>
+          <div class="lbl">${b[0]}</div>
+        </div>`).join('')}
+      </div>
+    </div>
+  </div>`,
+});
+</script>
+</body>
+</html>

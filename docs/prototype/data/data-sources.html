@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<title>数据源管理 · Open Ontology</title>
+<link rel="stylesheet" href="../assets/style.css" />
+</head>
+<body>
+<div id="root"></div>
+
+<!-- 新建数据源 -->
+<div class="mask" id="dsModal" data-close-mask>
+  <div class="modal">
+    <div class="modal-h">新建数据源<span class="x" onclick="App.closeModal('dsModal')">×</span></div>
+    <div class="modal-b">
+      <div class="form-item"><label><span class="req">*</span>类型</label>
+        <select><option>Doris（MySQL 协议）</option><option>NebulaGraph</option><option>Kafka</option><option>API 数据源</option></select>
+      </div>
+      <div class="form-item"><label><span class="req">*</span>名称</label><input type="text" placeholder="如：Doris-生产" /></div>
+      <div class="form-row">
+        <div class="form-item"><label><span class="req">*</span>地址</label><input type="text" class="mono" placeholder="fe-host:9030" /></div>
+        <div class="form-item"><label>账号</label><input type="text" /></div>
+      </div>
+      <div class="form-item"><label>密码</label><input type="password" /><div class="tip">密码加密存储于平台凭据库（见 安全管理 → 加密）</div></div>
+      <div class="form-item"><label>密级标记</label><select><option>L2 / 内部</option><option>L3 / 秘密</option></select></div>
+    </div>
+    <div class="modal-f"><button class="btn" onclick="toast('连接测试通过')">测试连接</button><button class="btn" onclick="App.closeModal('dsModal')">取消</button><button class="btn btn-primary" onclick="App.closeModal('dsModal');toast('数据源已创建')">确定</button></div>
+  </div>
+</div>
+
+<script src="../assets/app.js"></script>
+<script>
+App.mount({
+  page: 'data-sources',
+  crumbs: ['智能制造空间', '数据管理', '数据源管理'],
+  title: '数据源管理',
+  desc: '管理空间内可连接的数据源：Doris、NebulaGraph、Kafka 等。',
+  actions: `<button class="btn btn-primary" onclick="App.openModal('dsModal')">+ 新建数据源</button>`,
+  content: `
+  <div class="card">
+    <div class="card-h">
+      <input class="search" type="text" placeholder="搜索数据源…" />
+      <select><option>全部类型</option><option>Doris</option><option>NebulaGraph</option><option>Kafka</option></select>
+    </div>
+    <table class="table">
+      <tr><th>名称</th><th>类型</th><th>地址</th><th>数据集数</th><th>密级</th><th>状态</th><th class="actions-cell">操作</th></tr>
+      <tr><td><b>Doris-生产</b></td><td><span class="badge b-blue no-dot">Doris</span></td><td class="mono fs12">doris-prod.fe:9030</td><td>5</td><td><span class="badge b-orange">L2</span></td><td><span class="badge b-green">连接正常</span></td><td class="actions-cell"><button class="btn-link btn-sm" onclick="toast('连接测试通过')">测试</button><button class="btn-link btn-sm" onclick="toast('编辑数据源')">编辑</button><button class="btn-link btn-sm btn-danger" onclick="toast('删除数据源')">删除</button></td></tr>
+      <tr><td><b>NebulaGraph-图空间</b></td><td><span class="badge b-purple no-dot">NebulaGraph</span></td><td class="mono fs12">nebula-graphd:9669 · space mfg</td><td>1</td><td><span class="badge b-red">L3</span></td><td><span class="badge b-green">连接正常</span></td><td class="actions-cell"><button class="btn-link btn-sm" onclick="toast('连接测试通过')">测试</button><button class="btn-link btn-sm" onclick="toast('编辑数据源')">编辑</button><button class="btn-link btn-sm btn-danger" onclick="toast('删除数据源')">删除</button></td></tr>
+      <tr><td><b>Kafka-IoT</b></td><td><span class="badge b-cyan no-dot">Kafka</span></td><td class="mono fs12">kafka:9092 · topic iot_metric</td><td>—</td><td><span class="badge b-orange">L2</span></td><td><span class="badge b-orange">消费者组延迟</span></td><td class="actions-cell"><button class="btn-link btn-sm" onclick="toast('连接测试通过')">测试</button><button class="btn-link btn-sm" onclick="toast('编辑数据源')">编辑</button><button class="btn-link btn-sm btn-danger" onclick="toast('删除数据源')">删除</button></td></tr>
+    </table>
+    <div class="pager">共 3 条<span style="flex:1"></span><span class="pg">‹</span><span class="pg cur">1</span><span class="pg">›</span></div>
+  </div>`,
+});
+</script>
+</body>
+</html>

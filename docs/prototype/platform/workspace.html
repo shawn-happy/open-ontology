@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>工作空间 · Open Ontology</title>
+<link rel="stylesheet" href="../assets/style.css" />
+</head>
+<body>
+<div id="root"></div>
+
+<!-- 创建/编辑工作空间 -->
+<div class="mask" id="wsModal" data-close-mask>
+  <div class="modal">
+    <div class="modal-h"><span id="wsModalTitle">创建工作空间</span><span class="x" onclick="App.closeModal('wsModal')">×</span></div>
+    <div class="modal-b">
+      <div class="form-item"><label><span class="req">*</span>空间名称</label><input type="text" id="wsName" placeholder="如：智能制造空间" /></div>
+      <div class="form-item"><label><span class="req">*</span>空间编码</label><input type="text" id="wsCode" placeholder="如：smart-mfg（唯一标识）" /><div class="tip">创建后不可修改</div></div>
+      <div class="form-item"><label>描述</label><textarea id="wsDesc" rows="3" placeholder="空间用途说明"></textarea></div>
+      <div class="form-row">
+        <div class="form-item">
+          <label><span class="req">*</span>空间管理员</label>
+          <select id="wsAdmin"><option>请选择</option><option>shawn（超级管理员）</option><option>张伟</option><option>李静</option><option>周杰</option></select>
+          <div class="tip">仅超级管理员 / 空间管理员可创建工作空间</div>
+        </div>
+        <div class="form-item">
+          <label>状态</label>
+          <select id="wsStatus"><option>启用</option><option>停用</option></select>
+        </div>
+      </div>
+    </div>
+    <div class="modal-f">
+      <button class="btn" onclick="App.closeModal('wsModal')">取消</button>
+      <button class="btn btn-primary" onclick="wsSave()">确定</button>
+    </div>
+  </div>
+</div>
+
+<!-- 成员分配（用户 / 角色 / 部门） -->
+<div class="mask" id="memberModal" data-close-mask>
+  <div class="modal lg">
+    <div class="modal-h">成员与权限分配 · <span class="text-2" id="memberWsName">智能制造空间</span><span class="x" onclick="App.closeModal('memberModal')">×</span></div>
+    <div class="modal-b">
+      <div class="tabs" data-group="mem">
+        <div class="tab active" data-pane="user" data-group="mem">用户 <span class="cnt">12</span></div>
+        <div class="tab" data-pane="role" data-group="mem">角色 <span class="cnt">4</span></div>
+        <div class="tab" data-pane="dept" data-group="mem">部门 <span class="cnt">3</span></div>
+      </div>
+      <div class="tab-pane active" data-group="mem" data-pane="user">
+        <div class="transfer mt16">
+          <div class="transfer-panel">
+            <div class="tp-h"><input type="text" class="search" style="flex:1" placeholder="搜索用户…" /><span class="text-3">18</span></div>
+            <div class="tp-list">
+              <div class="tp-item"><input type="checkbox" />王强 · 算法工程师</div>
+              <div class="tp-item"><input type="checkbox" />赵敏 · 数据分析师</div>
+              <div class="tp-item"><input type="checkbox" />刘洋 · 数据工程师</div>
+              <div class="tp-item"><input type="checkbox" />陈晨 · 平台运维</div>
+              <div class="tp-item"><input type="checkbox" />孙丽 · 业务专家</div>
+            </div>
+          </div>
+          <div class="transfer-mid">
+            <button class="btn btn-sm btn-primary" onclick="toast('已添加（原型演示）')">添加 ›</button>
+            <button class="btn btn-sm">‹ 移除</button>
+          </div>
+          <div class="transfer-panel">
+            <div class="tp-h">已选用户（12）</div>
+            <div class="tp-list">
+              <div class="tp-item"><input type="checkbox" checked />张伟 · 空间管理员</div>
+              <div class="tp-item"><input type="checkbox" checked />李静 · 本体建模员</div>
+              <div class="tp-item"><input type="checkbox" checked />周杰 · 数据工程师</div>
+              <div class="tp-item"><input type="checkbox" checked />吴娜 · 数据分析师</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="tab-pane" data-group="mem" data-pane="role">
+        <table class="table mt16">
+          <tr><th>角色</th><th>编码</th><th>空间内权限</th><th>成员数</th><th class="actions-cell">操作</th></tr>
+          <tr><td><b>空间管理员</b></td><td class="mono">ws_admin</td><td>全部功能 + 成员管理</td><td>2</td><td class="actions-cell"><button class="btn-link btn-sm">配置权限</button></td></tr>
+          <tr><td><b>本体建模员</b></td><td class="mono">ont_modeler</td><td>本体资产读写</td><td>3</td><td class="actions-cell"><button class="btn-link btn-sm">配置权限</button></td></tr>
+          <tr><td><b>数据工程师</b></td><td class="mono">data_eng</td><td>数据管理读写</td><td>4</td><td class="actions-cell"><button class="btn-link btn-sm">配置权限</button></td></tr>
+          <tr><td><b>只读访客</b></td><td class="mono">viewer</td><td>全部只读</td><td>3</td><td class="actions-cell"><button class="btn-link btn-sm">配置权限</button></td></tr>
+        </table>
+        <div class="mt8"><button class="btn btn-sm" onclick="toast('新建空间角色（原型演示）')">+ 新建空间角色</button></div>
+      </div>
+      <div class="tab-pane" data-group="mem" data-pane="dept">
+        <table class="table mt16">
+          <tr><th>部门</th><th>部门主管</th><th>默认角色</th><th>人数</th><th class="actions-cell">操作</th></tr>
+          <tr><td>智能制造事业部</td><td>张伟</td><td>数据工程师</td><td>8</td><td class="actions-cell"><button class="btn-link btn-sm">移除</button></td></tr>
+          <tr><td>数据平台部</td><td>李静</td><td>本体建模员</td><td>6</td><td class="actions-cell"><button class="btn-link btn-sm">移除</button></td></tr>
+          <tr><td>供应链中心</td><td>周杰</td><td>只读访客</td><td>4</td><td class="actions-cell"><button class="btn-link btn-sm">移除</button></td></tr>
+        </table>
+        <div class="mt8"><button class="btn btn-sm" onclick="toast('关联部门（原型演示）')">+ 关联部门</button></div>
+      </div>
+    </div>
+    <div class="modal-f">
+      <button class="btn" onclick="App.closeModal('memberModal')">关闭</button>
+      <button class="btn btn-primary" onclick="App.closeModal('memberModal');toast('成员配置已保存')">保存</button>
+    </div>
+  </div>
+</div>
+
+<script src="../assets/app.js"></script>
+<script>
+// 模拟工作空间数据：[名称, 编码, 管理员, 描述, 成员数, 资产数, 状态]
+let wsRows = [
+  ['智能制造空间', 'smart-mfg', '张伟', '设备、工艺、物料、质量等本体建模与产线数据分析', 12, 86, '启用'],
+  ['供应链分析空间', 'supply-chain', '李静', '供应商、订单、物流全链路关联分析', 8, 42, '启用'],
+  ['设备运维空间', 'device-ops', '周杰', '设备台账、故障知识图谱与预测性维护', 6, 31, '启用'],
+  ['测试沙箱空间', 'sandbox', 'shawn', '功能验证与培训环境', 3, 5, '停用'],
+  ['质量追溯空间', 'quality-trace', '吴娜', '来料、制程、出货全流程质量追溯分析', 5, 24, '启用'],
+  ['能源管理空间', 'energy-mgmt', '王强', '能耗采集、能效指标与碳排放本体建模', 4, 18, '启用'],
+  ['研发协作空间', 'rd-collab', '陈晨', '研发项目、实验数据与知识沉淀', 7, 36, '启用'],
+  ['物流仿真空间', 'logis-sim', '孙丽', '仓储布局、运输路径与配送时效仿真', 2, 9, '停用'],
+];
+
+// 查询状态：模糊关键字 + 状态过滤 + 分页
+const wsState = { kw: '', status: '全部', page: 1, pageSize: 5 };
+let editingCode = null; // null = 新建，否则为正在编辑的空间编码
+
+function wsFiltered() {
+  return wsRows.filter((r) =>
+    (wsState.status === '全部' || r[6] === wsState.status) &&
+    (!wsState.kw || r[0].includes(wsState.kw) || r[1].includes(wsState.kw) || (r[3] || '').includes(wsState.kw))
+  );
+}
+
+function wsRender() {
+  const list = wsFiltered();
+  const pages = Math.max(1, Math.ceil(list.length / wsState.pageSize));
+  if (wsState.page > pages) wsState.page = pages;
+  const rows = list.slice((wsState.page - 1) * wsState.pageSize, wsState.page * wsState.pageSize);
+  document.getElementById('wsTableWrap').innerHTML = `
+    <table class="table">
+      <tr><th>空间名称</th><th>编码</th><th>管理员</th><th>描述</th><th>成员数</th><th>本体资产数</th><th>状态</th><th class="actions-cell">操作</th></tr>
+      ${rows.length ? rows.map((r) => `
+      <tr>
+        <td><b>${r[0]}</b></td>
+        <td class="mono">${r[1]}</td>
+        <td>${r[2]}</td>
+        <td class="text-2">${r[3]}</td>
+        <td>${r[4]}</td><td>${r[5]}</td>
+        <td><span class="badge ${r[6] === '启用' ? 'b-green' : 'b-gray'}">${r[6]}</span></td>
+        <td class="actions-cell">
+          <button class="btn-link btn-sm" onclick="wsOpenMember('${r[0]}')">分配成员</button>
+          <button class="btn-link btn-sm" onclick="App.enterWs('${r[0]}')">进入空间</button>
+          <button class="btn-link btn-sm" onclick="wsOpenEdit('${r[1]}')">编辑</button>
+          <button class="btn-link btn-sm" onclick="wsToggle('${r[1]}')">${r[6] === '启用' ? '停用' : '启用'}</button>
+          <button class="btn-link btn-sm btn-danger" onclick="wsDelete('${r[1]}')">删除</button>
+        </td>
+      </tr>`).join('') : '<tr><td colspan="8"><div class="empty">未找到匹配的工作空间</div></td></tr>'}
+    </table>
+    <div class="pager">共 ${list.length} 条<span style="flex:1"></span>
+      <span class="pg ${wsState.page === 1 ? 'dis' : ''}" onclick="wsGo(${wsState.page - 1})">‹</span>
+      ${Array.from({ length: pages }, (_, i) =>
+        `<span class="pg ${wsState.page === i + 1 ? 'cur' : ''}" onclick="wsGo(${i + 1})">${i + 1}</span>`).join('')}
+      <span class="pg ${wsState.page === pages ? 'dis' : ''}" onclick="wsGo(${wsState.page + 1})">›</span>
+    </div>`;
+}
+
+function wsGo(p) {
+  const pages = Math.max(1, Math.ceil(wsFiltered().length / wsState.pageSize));
+  if (p < 1 || p > pages) return;
+  wsState.page = p;
+  wsRender();
+}
+
+function wsOpenCreate() {
+  editingCode = null;
+  document.getElementById('wsModalTitle').textContent = '创建工作空间';
+  ['wsName', 'wsCode', 'wsDesc'].forEach((id) => (document.getElementById(id).value = ''));
+  document.getElementById('wsCode').disabled = false;
+  document.getElementById('wsAdmin').selectedIndex = 0;
+  document.getElementById('wsStatus').selectedIndex = 0;
+  App.openModal('wsModal');
+}
+
+function wsOpenEdit(code) {
+  const r = wsRows.find((x) => x[1] === code);
+  if (!r) return;
+  editingCode = code;
+  document.getElementById('wsModalTitle').textContent = '编辑工作空间';
+  document.getElementById('wsName').value = r[0];
+  document.getElementById('wsCode').value = r[1];
+  document.getElementById('wsCode').disabled = true;
+  document.getElementById('wsDesc').value = r[3];
+  document.getElementById('wsAdmin').value = r[2];
+  document.getElementById('wsStatus').value = r[6];
+  App.openModal('wsModal');
+}
+
+function wsSave() {
+  const name = document.getElementById('wsName').value.trim();
+  const code = document.getElementById('wsCode').value.trim();
+  const desc = document.getElementById('wsDesc').value.trim();
+  const admin = document.getElementById('wsAdmin').value;
+  const status = document.getElementById('wsStatus').value;
+  if (!name || !code || admin === '请选择') { toast('请填写空间名称 / 编码 / 管理员'); return; }
+  if (editingCode) {
+    const r = wsRows.find((x) => x[1] === editingCode);
+    Object.assign(r, { 0: name, 2: admin === 'shawn（超级管理员）' ? 'shawn' : admin, 3: desc, 6: status });
+    toast('工作空间已更新（原型演示）');
+  } else {
+    if (wsRows.some((x) => x[1] === code)) { toast('空间编码已存在'); return; }
+    wsRows.push([name, code, admin === 'shawn（超级管理员）' ? 'shawn' : admin, desc, 0, 0, status]);
+    toast('工作空间已创建（原型演示）');
+  }
+  App.closeModal('wsModal');
+  wsState.page = 1;
+  wsRender();
+}
+
+function wsToggle(code) {
+  const r = wsRows.find((x) => x[1] === code);
+  r[6] = r[6] === '启用' ? '停用' : '启用';
+  toast(`空间「${r[0]}」已${r[6]}`);
+  wsRender();
+}
+
+function wsDelete(code) {
+  const i = wsRows.findIndex((x) => x[1] === code);
+  if (i < 0) return;
+  if (!confirm(`确定删除工作空间「${wsRows[i][0]}」？删除后空间内资产与数据将不可恢复。`)) return;
+  wsRows.splice(i, 1);
+  toast('工作空间已删除（原型演示）');
+  wsRender();
+}
+
+function wsOpenMember(name) {
+  document.getElementById('memberWsName').textContent = name;
+  App.openModal('memberModal');
+}
+
+App.mount({
+  page: 'workspace',
+  crumbs: ['平台管理', '工作空间'],
+  title: '工作空间',
+  desc: '工作空间是本体资产、数据、应用与安全策略的顶层隔离单元。支持创建、编辑、删除、启停用、成员分配与进入操作。',
+  actions: `<button class="btn btn-primary" onclick="wsOpenCreate()">+ 创建工作空间</button>`,
+  content: `
+  <div class="stat-grid">
+    <div class="stat"><div class="label">工作空间总数</div><div class="val" id="wsTotalStat">8</div><div class="delta up">▲ 较上月 +2</div></div>
+    <div class="stat"><div class="label">空间成员总数</div><div class="val">47</div><div class="delta up">▲ +5</div></div>
+    <div class="stat"><div class="label">本体资产总数</div><div class="val">251</div><div class="delta up">▲ +12</div></div>
+    <div class="stat"><div class="label">活跃空间（30天）</div><div class="val">6 / 8</div><div class="delta down">▼ 2 个空间停用</div></div>
+  </div>
+  <div class="card">
+    <div class="card-h">
+      <h3>空间列表</h3>
+      <input class="search" type="text" placeholder="模糊搜索：名称 / 编码 / 描述…"
+        oninput="wsState.kw=this.value.trim(); wsState.page=1; wsRender()" />
+      <div class="right">
+        <select onchange="wsState.status=this.value; wsState.page=1; wsRender()">
+          <option>全部状态</option><option>启用</option><option>停用</option>
+        </select>
+      </div>
+    </div>
+    <div id="wsTableWrap"></div>
+  </div>
+  <div class="card mt16">
+    <div class="card-h"><h3>权限说明</h3></div>
+    <div class="card-b">
+      <table class="table">
+        <tr><th>能力</th><th>超级管理员</th><th>空间管理员</th><th>普通成员</th></tr>
+        <tr><td>创建 / 删除工作空间</td><td><span class="badge b-green">✔</span></td><td><span class="badge b-green">✔</span></td><td><span class="badge b-gray">✘</span></td></tr>
+        <tr><td>空间内成员 / 角色分配</td><td><span class="badge b-green">✔</span></td><td><span class="badge b-green">✔（本空间）</span></td><td><span class="badge b-gray">✘</span></td></tr>
+        <tr><td>空间内本体 / 数据 / 应用管理</td><td><span class="badge b-green">✔</span></td><td><span class="badge b-green">✔</span></td><td>按空间角色</td></tr>
+        <tr><td>跨空间数据访问</td><td><span class="badge b-green">✔</span></td><td><span class="badge b-gray">✘</span></td><td><span class="badge b-gray">✘</span></td></tr>
+      </table>
+    </div>
+  </div>`,
+  onMount() {
+    wsRender();
+  },
+});
+</script>
+</body>
+</html>

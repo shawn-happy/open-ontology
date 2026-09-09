@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<title>数据集管理 · Open Ontology</title>
+<link rel="stylesheet" href="../assets/style.css" />
+</head>
+<body>
+<div id="root"></div>
+<script src="../assets/app.js"></script>
+<script>
+const datasets = [
+  ['equipment_master', 'Doris-生产', '设备主数据表', '12.8 万行', '38 字段', '每日 T+1', 'L2', '正常'],
+  ['process_master', 'Doris-生产', '工艺主数据表', '3,420 行', '26 字段', '每日 T+1', 'L2', '正常'],
+  ['quality_report', 'Doris-生产', '质检报告明细', '890 万行', '45 字段', '实时 CDC', 'L3', '正常'],
+  ['eqp_proc_rel', 'Doris-生产', '设备-工艺关联表', '21 万行', '5 字段', '实时 CDC', 'L2', '正常'],
+  ['eqp_fault_graph', 'NebulaGraph-图空间', '设备故障知识图谱', '12.4 万点 / 30 万边', '6 标签 / 9 边类型', '实时写入', 'L3', '正常'],
+  ['iot_metric_wide', 'Doris-分析', 'IoT 指标宽表', '2.1 亿行', '120 字段', '分钟级', 'L2', '延迟 12min'],
+];
+
+App.mount({
+  page: 'data-datasets',
+  crumbs: ['智能制造空间', '数据管理', '数据集管理'],
+  title: '数据集管理',
+  desc: '注册与治理空间内数据集，管理字段、密级与本体映射。',
+  actions: `<button class="btn" onclick="toast('查看血缘图谱')">血缘视图</button><button class="btn btn-primary" onclick="toast('注册数据集')">+ 注册数据集</button>`,
+  content: `
+  <div class="card">
+    <div class="card-h">
+      <input class="search" type="text" placeholder="搜索数据集…" />
+      <select><option>全部数据源</option><option>Doris-生产</option><option>NebulaGraph-图空间</option></select>
+      <select><option>全部健康状态</option><option>正常</option><option>异常</option></select>
+    </div>
+    <table class="table">
+      <tr><th>数据集</th><th>数据源</th><th>说明</th><th>数据量</th><th>字段</th><th>同步策略</th><th>密级</th><th>健康</th><th class="actions-cell">操作</th></tr>
+      ${datasets.map(d => `
+      <tr>
+        <td><b class="mono">${d[0]}</b></td><td>${d[1]}</td><td class="text-2">${d[2]}</td>
+        <td class="mono fs12">${d[3]}</td><td class="mono fs12">${d[4]}</td>
+        <td><span class="badge ${d[5].includes('CDC')||d[5].includes('实时') ? 'b-green' : 'b-blue'} no-dot">${d[5]}</span></td>
+        <td><span class="badge ${d[6]==='L3' ? 'b-red' : 'b-orange'}">${d[6]}</span></td>
+        <td><span class="badge ${d[7]==='正常' ? 'b-green' : 'b-orange'}">${d[7]}</span></td>
+        <td class="actions-cell">
+          <button class="btn-link btn-sm" onclick="toast('预览数据')">预览</button>
+          <button class="btn-link btn-sm" onclick="toast('字段管理')">字段</button>
+          <button class="btn-link btn-sm" onclick="toast('映射到本体类')">映射</button>
+          <button class="btn-link btn-sm btn-danger" onclick="toast('删除数据集')">删除</button>
+        </td>
+      </tr>`).join('')}
+    </table>
+    <div class="pager">共 6 条<span style="flex:1"></span><span class="pg">‹</span><span class="pg cur">1</span><span class="pg">›</span></div>
+  </div>
+
+  <div class="card mt16">
+    <div class="card-h"><h3>字段详情 · <span class="mono">equipment_master</span></h3><span class="sub">38 字段，此处展示前 5 个</span></div>
+    <div class="card-b" style="padding-top:0;">
+      <table class="table">
+        <tr><th>字段</th><th>类型</th><th>说明</th><th>密级 / 标记</th><th>映射到本体属性</th></tr>
+        <tr><td class="mono">eqp_id</td><td class="mono">VARCHAR(16)</td><td>设备唯一编号</td><td><span class="badge b-orange">L2</span></td><td class="mono fs12">Equipment.equipment_id</td></tr>
+        <tr><td class="mono">eqp_name</td><td class="mono">VARCHAR(64)</td><td>设备名称</td><td><span class="badge b-orange">L2</span></td><td class="mono fs12">Equipment.equipment_name</td></tr>
+        <tr><td class="mono">run_status</td><td class="mono">VARCHAR(16)</td><td>运行状态（字典）</td><td><span class="badge b-orange">L2</span></td><td class="mono fs12">Equipment.status</td></tr>
+        <tr><td class="mono">unit_cost</td><td class="mono">DECIMAL(12,2)</td><td>单位成本</td><td><span class="badge b-blue">EQP-COST</span></td><td class="mono fs12">Equipment.unit_cost（控制属性）</td></tr>
+        <tr><td class="mono">owner_phone</td><td class="mono">VARCHAR(16)</td><td>责任人电话</td><td><span class="badge b-purple">PII</span></td><td class="mono fs12">—（未映射）</td></tr>
+      </table>
+    </div>
+  </div>`,
+});
+</script>
+</body>
+</html>

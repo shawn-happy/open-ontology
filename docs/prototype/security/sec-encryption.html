@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<title>加密 · Open Ontology</title>
+<link rel="stylesheet" href="../assets/style.css" />
+</head>
+<body>
+<div id="root"></div>
+<script src="../assets/app.js"></script>
+<script>
+App.mount({
+  page: 'sec-encryption',
+  crumbs: ['智能制造空间', '安全管理', '加密'],
+  title: '加密',
+  desc: '敏感字段的存储加密与查询解密配置，密钥统一托管于 KMS。',
+  actions: `<button class="btn" onclick="toast('轮换主密钥（KMIP / KMS）')">轮换密钥</button><button class="btn btn-primary" onclick="toast('新建加密配置')">+ 新建加密配置</button>`,
+  content: `
+  <div class="card">
+    <div class="card-h">
+      <input class="search" type="text" placeholder="搜索加密配置…" />
+      <select><option>全部模式</option><option>存储加密 + 查询解密</option><option>仅存储加密</option></select>
+    </div>
+    <table class="table">
+      <tr><th>加密配置</th><th>算法</th><th>密钥</th><th>加密范围</th><th>模式</th><th>状态</th><th class="actions-cell">操作</th></tr>
+      <tr><td><b>设备资产编号加密</b></td><td class="mono">AES-256-GCM</td><td class="mono fs12">kms/key-eqp-01</td><td>Material.asset_no 等 4 个共享属性</td><td><span class="badge b-blue no-dot">存储加密 + 查询解密</span></td><td><span class="badge b-green">生效中</span></td><td class="actions-cell"><button class="btn-link btn-sm" onclick="toast('编辑配置')">编辑</button><button class="btn-link btn-sm" onclick="toast('轮换该配置密钥')">轮换</button></td></tr>
+      <tr><td><b>质检报告手机号</b></td><td class="mono">AES-256-GCM</td><td class="mono fs12">kms/key-pii-01</td><td>QualityReport.contact_phone</td><td><span class="badge b-purple no-dot">仅存储加密</span></td><td><span class="badge b-green">生效中</span></td><td class="actions-cell"><button class="btn-link btn-sm" onclick="toast('编辑配置')">编辑</button><button class="btn-link btn-sm" onclick="toast('轮换该配置密钥')">轮换</button></td></tr>
+      <tr><td><b>成本字段</b></td><td class="mono">SM4</td><td class="mono fs12">kms/key-fin-01（国密）</td><td>Equipment.unit_cost</td><td><span class="badge b-blue no-dot">存储加密 + 查询解密</span></td><td><span class="badge b-orange">密钥 92 天未轮换</span></td><td class="actions-cell"><button class="btn-link btn-sm" onclick="toast('编辑配置')">编辑</button><button class="btn-link btn-sm" onclick="toast('轮换该配置密钥')">轮换</button></td></tr>
+    </table>
+    <div class="pager">共 3 条<span style="flex:1"></span><span class="pg">‹</span><span class="pg cur">1</span><span class="pg">›</span></div>
+  </div>
+  <div class="card mt16">
+    <div class="card-h"><h3>密钥管理</h3></div>
+    <div class="card-b">
+      <div class="grid-3">
+        <div class="stat" style="box-shadow:none;border:1px solid var(--border);"><div class="label">主密钥</div><div class="val fs13 mono" style="font-size:14px;">kms/root-oo-2026</div><div class="delta">上次轮换：2026-06-01 · 90 天周期</div></div>
+        <div class="stat" style="box-shadow:none;border:1px solid var(--border);"><div class="label">数据密钥数</div><div class="val">7</div><div class="delta">按数据集 / 字段隔离</div></div>
+        <div class="stat" style="box-shadow:none;border:1px solid var(--border);"><div class="label">待轮换</div><div class="val" style="color:var(--warning)">1</div><div class="delta">kms/key-fin-01 已超期</div></div>
+      </div>
+    </div>
+  </div>`,
+});
+</script>
+</body>
+</html>

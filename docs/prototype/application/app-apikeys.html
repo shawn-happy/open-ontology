@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<title>API Key · Open Ontology</title>
+<link rel="stylesheet" href="../assets/style.css" />
+</head>
+<body>
+<div id="root"></div>
+
+<!-- 新建 API Key -->
+<div class="mask" id="keyModal" data-close-mask>
+  <div class="modal">
+    <div class="modal-h">新建 API Key<span class="x" onclick="App.closeModal('keyModal')">×</span></div>
+    <div class="modal-b">
+      <div class="form-item"><label><span class="req">*</span>名称</label><input type="text" placeholder="如：MES 集成 Key" /></div>
+      <div class="form-item"><label><span class="req">*</span>调用方应用</label><input type="text" placeholder="如：mes-system" /></div>
+      <div class="form-item"><label>授权范围（Scope）</label>
+        <div class="wrap">
+          <label class="ck"><input type="checkbox" checked />对象点查</label>
+          <label class="ck"><input type="checkbox" checked />关联查询</label>
+          <label class="ck"><input type="checkbox" />动作执行</label>
+          <label class="ck"><input type="checkbox" />Workflow 调用</label>
+          <label class="ck"><input type="checkbox" />数据探查</label>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-item"><label>有效期</label><select><option>90 天</option><option>180 天</option><option>365 天</option><option>永久</option></select></div>
+        <div class="form-item"><label>限流（QPS）</label><input type="number" value="50" /></div>
+      </div>
+      <div class="form-item"><label>IP 白名单</label><input type="text" class="mono" placeholder="10.0.0.0/8, 172.16.2.15" /></div>
+    </div>
+    <div class="modal-f"><button class="btn" onclick="App.closeModal('keyModal')">取消</button><button class="btn btn-primary" onclick="App.closeModal('keyModal');toast('API Key 已生成（仅展示一次）')">生成</button></div>
+  </div>
+</div>
+
+<script src="../assets/app.js"></script>
+<script>
+App.mount({
+  page: 'app-apikeys',
+  crumbs: ['智能制造空间', '应用管理', 'API Key'],
+  title: 'API Key',
+  desc: '为外部应用签发空间内本体访问凭证，按 Scope 授权并限流。',
+  actions: `<button class="btn btn-primary" onclick="App.openModal('keyModal')">+ 新建 API Key</button>`,
+  content: `
+  <div class="card">
+    <div class="card-h">
+      <input class="search" type="text" placeholder="搜索 Key / 调用方…" />
+      <select><option>全部状态</option><option>启用</option><option>已过期</option><option>已吊销</option></select>
+    </div>
+    <table class="table">
+      <tr><th>名称</th><th>Key（掩码）</th><th>调用方</th><th>Scope</th><th>限流</th><th>调用（今日）</th><th>到期</th><th>状态</th><th class="actions-cell">操作</th></tr>
+      <tr><td><b>MES 集成 Key</b></td><td class="mono">sk-oo-****-9f2a</td><td class="mono">mes-system</td><td><span class="tag">点查</span><span class="tag">关联查询</span></td><td>50 QPS</td><td class="mono">12,483</td><td class="mono">2027-01-08</td><td><span class="badge b-green">启用</span></td><td class="actions-cell"><button class="btn-link btn-sm" onclick="toast('已复制（演示）')">复制</button><button class="btn-link btn-sm" onclick="toast('轮换 Key')">轮换</button><button class="btn-link btn-sm" onclick="toast('查看调用统计')">统计</button><button class="btn-link btn-sm btn-danger" onclick="toast('吊销 Key')">吊销</button></td></tr>
+      <tr><td><b>BI 报表 Key</b></td><td class="mono">sk-oo-****-c81e</td><td class="mono">bi-report</td><td><span class="tag">关联查询</span></td><td>20 QPS</td><td class="mono">3,201</td><td class="mono">2026-12-01</td><td><span class="badge b-green">启用</span></td><td class="actions-cell"><button class="btn-link btn-sm" onclick="toast('已复制（演示）')">复制</button><button class="btn-link btn-sm" onclick="toast('轮换 Key')">轮换</button><button class="btn-link btn-sm" onclick="toast('查看调用统计')">统计</button><button class="btn-link btn-sm btn-danger" onclick="toast('吊销 Key')">吊销</button></td></tr>
+      <tr><td><b>运维机器人 Key</b></td><td class="mono">sk-oo-****-77b3</td><td class="mono">ops-bot</td><td><span class="tag">点查</span><span class="tag">动作执行</span></td><td>10 QPS</td><td class="mono">612</td><td class="mono">2026-10-15</td><td><span class="badge b-green">启用</span></td><td class="actions-cell"><button class="btn-link btn-sm" onclick="toast('已复制（演示）')">复制</button><button class="btn-link btn-sm" onclick="toast('轮换 Key')">轮换</button><button class="btn-link btn-sm" onclick="toast('查看调用统计')">统计</button><button class="btn-link btn-sm btn-danger" onclick="toast('吊销 Key')">吊销</button></td></tr>
+      <tr><td><b>旧版集成 Key</b></td><td class="mono">sk-oo-****-04d9</td><td class="mono">legacy-erp</td><td><span class="tag">点查</span></td><td>5 QPS</td><td class="mono">0</td><td class="mono">2026-08-30</td><td><span class="badge b-gray">已过期</span></td><td class="actions-cell"><button class="btn-link btn-sm btn-danger" onclick="toast('删除 Key')">删除</button></td></tr>
+    </table>
+    <div class="pager">共 4 条<span style="flex:1"></span><span class="pg">‹</span><span class="pg cur">1</span><span class="pg">›</span></div>
+  </div>
+  <div class="card mt16">
+    <div class="card-h"><h3>调用示例</h3></div>
+    <div class="card-b">
+      <div class="code-editor">curl -H <span class="str">"Authorization: Bearer sk-oo-****-9f2a"</span> \
+  <span class="str">"https://oo.example/api/v1/objects/Equipment/EQP-0012?fields=equipment_name,status"</span></div>
+    </div>
+  </div>`,
+});
+</script>
+</body>
+</html>

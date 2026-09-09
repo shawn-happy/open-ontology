@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<title>关联关系 · Open Ontology</title>
+<link rel="stylesheet" href="../assets/style.css" />
+</head>
+<body>
+<div id="root"></div>
+
+<!-- 新建关联关系 -->
+<div class="mask" id="linkModal" data-close-mask>
+  <div class="modal lg">
+    <div class="modal-h">新建关联关系（Link Type）<span class="x" onclick="App.closeModal('linkModal')">×</span></div>
+    <div class="modal-b">
+      <div class="steps mb16">
+        <div class="step done"><div><div class="dot">1</div>选择对象类型</div></div>
+        <div class="step cur"><div><div class="dot">2</div>定义语义与基数</div></div>
+        <div class="step"><div><div class="dot">3</div>配置外键 / 映射</div></div>
+      </div>
+      <div class="form-row">
+        <div class="form-item"><label><span class="req">*</span>源对象类型</label><select><option>设备 Equipment</option></select></div>
+        <div class="form-item"><label><span class="req">*</span>目标对象类型</label><select><option>工艺 Process</option><option>物料 Material</option><option>质检报告 QualityReport</option></select></div>
+      </div>
+      <div class="form-row">
+        <div class="form-item"><label><span class="req">*</span>正向语义（源→目标）</label><input type="text" value="uses（使用）" /></div>
+        <div class="form-item"><label>反向语义（目标→源）</label><input type="text" value="used_by（被使用）" /></div>
+      </div>
+      <div class="form-row">
+        <div class="form-item"><label>源基数</label><select><option>0..n（多）</option><option>1..1（单）</option><option>1..n</option></select></div>
+        <div class="form-item"><label>目标基数</label><select><option>0..n（多）</option><option>1..1（单）</option><option>1..n</option></select></div>
+      </div>
+      <div class="form-item"><label>关系类型</label>
+        <select><option>外键关联（FK，基于数据集字段）</option><option>多对多关联表</option><option>图边（NebulaGraph Edge）</option><option>衍生关联（基于函数计算）</option></select>
+      </div>
+      <div class="form-item"><label>RDF 谓词（可选）</label><input type="text" class="mono" placeholder="oo:uses" /></div>
+    </div>
+    <div class="modal-f"><button class="btn" onclick="App.closeModal('linkModal')">上一步</button><button class="btn btn-primary" onclick="App.closeModal('linkModal');toast('关联关系已创建')">完成</button></div>
+  </div>
+</div>
+
+<script src="../assets/app.js"></script>
+<script>
+const links = [
+  ['设备 → 工艺', 'uses / used_by', 'Equipment → Process', '0..n → 0..n', '多对多关联表', 'oo:uses', '启用'],
+  ['设备 → 产线', 'belongs_to / contains', 'Equipment → ProductionLine', '1..1 → 0..n', '外键关联（FK）', 'oo:belongsTo', '启用'],
+  ['工艺 → 物料', 'consumes / used_in', 'Process → Material', '0..n → 0..n', '图边（NebulaGraph）', 'oo:consumes', '启用'],
+  ['质检报告 → 设备', 'inspects / has_report', 'QualityReport → Equipment', '0..n → 0..n', '外键关联（FK）', 'oo:inspects', '启用'],
+  ['设备 → 故障工单', 'generates / generated_by', 'Equipment → WorkOrder', '0..n → 0..n', '衍生关联（函数）', 'oo:generates', '草稿'],
+];
+
+App.mount({
+  page: 'ontology-relations',
+  crumbs: ['智能制造空间', '本体资产管理', '关联关系'],
+  title: '关联关系',
+  desc: '维护对象类型之间的语义关系（Link Types）与 RDF 三元组定义。参考 Palantir Foundry Link Types。',
+  actions: `<button class="btn btn-primary" onclick="App.openModal('linkModal')">+ 新建关联关系</button>`,
+  content: `
+  <div class="tabs" data-group="rel">
+    <div class="tab active" data-pane="links" data-group="rel">对象关系 <span class="cnt">5</span></div>
+    <div class="tab" data-pane="rdf" data-group="rel">RDF 维护</div>
+  </div>
+
+  <div class="tab-pane active" data-group="rel" data-pane="links">
+    <div class="card" style="border-radius:0 0 8px 8px;">
+      <div class="card-h">
+        <input class="search" type="text" placeholder="搜索关系…" />
+        <select><option>全部类型</option><option>外键关联</option><option>多对多关联表</option><option>图边</option><option>衍生关联</option></select>
+      </div>
+      <table class="table">
+        <tr><th>关系名称</th><th>语义（正向 / 反向）</th><th>对象类型对</th><th>基数</th><th>实现方式</th><th>RDF 谓词</th><th>状态</th><th class="actions-cell">操作</th></tr>
+        ${links.map(l => `
+        <tr>
+          <td><b>${l[0]}</b></td>
+          <td class="mono fs12">${l[1]}</td>
+          <td class="mono fs12">${l[2]}</td>
+          <td class="mono fs12">${l[3]}</td>
+          <td><span class="badge b-blue no-dot">${l[4]}</span></td>
+          <td class="mono fs12">${l[5]}</td>
+          <td><span class="badge ${l[6]==='启用' ? 'b-green' : 'b-orange'}">${l[6]}</span></td>
+          <td class="actions-cell">
+            <button class="btn-link btn-sm" onclick="toast('编辑关联关系')">编辑</button>
+            <button class="btn-link btn-sm" onclick="toast('在图谱中高亮此关系')">图谱定位</button>
+            <button class="btn-link btn-sm btn-danger" onclick="toast('删除关联关系')">删除</button>
+          </td>
+        </tr>`).join('')}
+      </table>
+    </div>
+    <div class="card mt16">
+      <div class="card-h"><h3>关系图预览</h3><span class="sub"> Equipment 与 Process 的多对多关联（经关联表 eqp_proc_rel）</span></div>
+      <div class="card-b">
+        <div class="graph-canvas">
+          <svg viewBox="0 0 900 200" width="100%">
+            <defs><marker id="arrow2" markerWidth="9" markerHeight="9" refX="8" refY="3" orient="auto"><path d="M0,0 L0,6 L9,3 z" fill="#94a3b8"/></marker></defs>
+            <path class="g-edge" d="M270,80 L 400,80" marker-end="url(#arrow2)"/>
+            <path class="g-edge" d="M600,80 L 730,80" marker-end="url(#arrow2)"/>
+            <g class="g-node" transform="translate(130,55)"><rect width="140" height="52" rx="8"/><text x="12" y="22">设备 Equipment</text><text class="sub" x="12" y="38">PK: equipment_id</text></g>
+            <g class="g-node" transform="translate(400,55)"><rect width="200" height="52" rx="8"/><text x="12" y="22">关联表 eqp_proc_rel</text><text class="sub" x="12" y="38">eqp_id · proc_id · since</text></g>
+            <g class="g-node" transform="translate(730,55)"><rect width="140" height="52" rx="8"/><text x="12" y="22">工艺 Process</text><text class="sub" x="12" y="38">PK: process_id</text></g>
+          </svg>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="tab-pane" data-group="rel" data-pane="rdf">
+    <div class="row" style="margin-top:16px;">
+      <div class="card col">
+        <div class="card-h"><h3>RDF 命名空间</h3><div class="right"><button class="btn btn-sm" onclick="toast('添加命名空间')">+ 添加</button></div></div>
+        <div class="card-b">
+          <table class="table">
+            <tr><th>前缀</th><th>URI</th><th class="actions-cell">操作</th></tr>
+            <tr><td class="mono">oo</td><td class="mono fs12">http://open-ontology.example/smart-mfg#</td><td class="actions-cell"><button class="btn-link btn-sm">编辑</button></td></tr>
+            <tr><td class="mono">rdf</td><td class="mono fs12">http://www.w3.org/1999/02/22-rdf-syntax-ns#</td><td class="actions-cell"><button class="btn-link btn-sm">编辑</button></td></tr>
+            <tr><td class="mono">rdfs</td><td class="mono fs12">http://www.w3.org/2000/01/rdf-schema#</td><td class="actions-cell"><button class="btn-link btn-sm">编辑</button></td></tr>
+            <tr><td class="mono">owl</td><td class="mono fs12">http://www.w3.org/2002/07/owl#</td><td class="actions-cell"><button class="btn-link btn-sm">编辑</button></td></tr>
+          </table>
+        </div>
+      </div>
+      <div class="card col">
+        <div class="card-h"><h3>三元组 / 本体定义（Turtle）</h3><div class="right"><button class="btn btn-sm btn-primary" onclick="toast('语法校验通过，已保存')">保存并校验</button></div></div>
+        <div class="card-b">
+          <div class="code-editor"><span class="cm"># 设备-工艺 关系语义定义</span>
+oo:uses <span class="kw">a</span> owl:ObjectProperty ;
+    rdfs:label <span class="str">"uses（使用）"</span>@zh ;
+    rdfs:domain oo:Equipment ;
+    rdfs:range oo:Process ;
+    owl:inverseOf oo:used_by .
+
+oo:Equipment <span class="kw">a</span> owl:Class ;
+    rdfs:subClassOf oo:ProductionUnit , oo:Asset ;
+    rdfs:label <span class="str">"设备"</span>@zh .</div>
+          <div class="result-meta"><span>实体数 42</span><span>谓词数 17</span><span><span class="badge b-green">OWL 语法校验通过</span></span></div>
+        </div>
+      </div>
+    </div>
+  </div>`,
+});
+</script>
+</body>
+</html>

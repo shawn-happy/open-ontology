@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>首页 · Open Ontology</title>
+<link rel="stylesheet" href="assets/style.css" />
+<style>
+  .mod-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  .mod-card {
+    background: #fff; border-radius: 10px; box-shadow: var(--shadow); padding: 18px;
+    border-top: 3px solid var(--primary); display: block; color: var(--text); transition: .15s;
+  }
+  .mod-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-lg); }
+  .mod-card.c2 { border-top-color: var(--purple); }
+  .mod-card.c3 { border-top-color: var(--cyan); }
+  .mod-card.c4 { border-top-color: var(--danger); }
+  .mod-card.c5 { border-top-color: var(--success); }
+  .mod-card.c6 { border-top-color: var(--warning); }
+  .mod-card .ico { font-size: 20px; }
+  .mod-card h3 { margin: 8px 0 6px; font-size: 14px; display: flex; align-items: center; }
+  .mod-card h3 .arrow { margin-left: auto; color: var(--text-3); font-weight: 400; }
+  .mod-card:hover h3 .arrow { color: var(--primary); }
+  .mod-card ul { margin: 0; padding-left: 16px; font-size: 12px; color: var(--text-2); line-height: 2; }
+  @media (max-width: 1100px) { .mod-grid { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script src="assets/app.js"></script>
+<script>
+const modules = [
+  ['▦', '平台管理', '工作空间与系统级配置', 'platform/workspace.html', ['工作空间（列表 / CRUD / 成员分配）', '系统管理（用户 / 角色 / 权限 / 部门）'], ''],
+  ['◈', '本体资产管理', '类 / 属性 / 关系 / 规则 / 动作 / 函数', 'ontology/ontology-graph.html',
+    ['本体图谱', '关联关系（含 RDF）', '共享属性 · 枚举类 · 值约束规则', '动作 · 函数'], 'c2'],
+  ['⛃', '数据管理', '数据源 / 数据集 / Pipeline / 探查', 'data/data-sources.html',
+    ['数据源管理', '数据集管理', 'Pipeline 管理', '数据探查'], 'c3'],
+  ['⛨', '安全管理', '标记 / 数据权限 / 加密 / 脱敏', 'security/sec-marks.html',
+    ['标记管理', '数据权限', '加密 · 脱敏'], 'c4'],
+  ['❖', '应用管理', 'API Key / Workflow / Skills', 'application/app-apikeys.html',
+    ['API Key', 'Workflow 编排', 'Skills'], 'c5'],
+  ['☰', '审计管理', '日志 / 资产统计 / 运行与调用', 'audit/audit-logs.html',
+    ['审计日志', '本体资产统计', 'Pipeline 运行 · 应用调用'], 'c6'],
+];
+
+App.mount({
+  page: 'home',
+  crumbs: ['首页'],
+  title: '欢迎使用 Open Ontology 本体语义平台',
+  desc: '以本体为核心，将多源数据映射为可查询、可关联、可写回的业务对象。点击「工作空间」进入空间列表，选择空间后即可开始工作。',
+  actions: `<a class="btn btn-primary" href="platform/workspace.html">进入工作空间列表 →</a>`,
+  content: `
+  <div class="stat-grid">
+    <div class="stat"><div class="label">工作空间</div><div class="val">4</div></div>
+    <div class="stat"><div class="label">本体资产</div><div class="val">164</div></div>
+    <div class="stat"><div class="label">今日 API 调用</div><div class="val">16,296</div><div class="delta up">▲ 8.2%</div></div>
+    <div class="stat"><div class="label">Pipeline 成功率</div><div class="val" style="color:var(--success)">98.4%</div></div>
+  </div>
+
+  <div class="mod-grid">
+    ${modules.map(m => `
+    <a class="mod-card ${m[5]}" href="${m[3]}">
+      <div class="ico">${m[0]}</div>
+      <h3>${m[1]} <span class="arrow">→</span></h3>
+      <div class="fs12 text-2 mb8">${m[2]}</div>
+      <ul>${m[4].map(x => `<li>${x}</li>`).join('')}</ul>
+    </a>`).join('')}
+  </div>
+
+  <div class="card mt16">
+    <div class="card-h"><h3>快捷入口</h3></div>
+    <div class="card-b flex wrap">
+      <a class="btn btn-sm" href="ontology/ontology-graph.html">◈ 本体图谱</a>
+      <a class="btn btn-sm" href="data/data-explore.html">⌨ 数据探查</a>
+      <a class="btn btn-sm" href="application/app-workflow.html">❖ Workflow 编排</a>
+      <a class="btn btn-sm" href="audit/audit-logs.html">☰ 审计日志</a>
+      <a class="btn btn-sm" href="audit/audit-assets.html">◔ 本体资产统计</a>
+    </div>
+  </div>`,
+});
+</script>
+</body>
+</html>

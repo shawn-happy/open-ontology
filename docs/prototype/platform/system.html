@@ -1,0 +1,829 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<title>系统管理 · Open Ontology</title>
+<link rel="stylesheet" href="../assets/style.css" />
+<style>
+  .user-link { color: var(--primary); cursor: pointer; text-decoration: none; }
+  .user-link:hover { text-decoration: underline; }
+  .check-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .check-grid label { display: flex; align-items: center; gap: 8px; font-size: 13px; cursor: pointer; }
+  .radio-col { display: flex; flex-direction: column; gap: 8px; }
+  .radio-col label { display: flex; align-items: center; gap: 8px; font-size: 13px; cursor: pointer; }
+  .perm-tree label { display: flex; align-items: center; gap: 6px; padding: 3px 4px; font-size: 13px; cursor: pointer; }
+  .perm-tree .pt-children { margin-left: 22px; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+
+<!-- 新增/编辑用户 -->
+<div class="mask" id="userModal" data-close-mask>
+  <div class="modal">
+    <div class="modal-h"><span id="userModalTitle">新增用户</span><span class="x" onclick="App.closeModal('userModal')">×</span></div>
+    <div class="modal-b">
+      <div class="form-row">
+        <div class="form-item"><label><span class="req">*</span>姓名</label><input type="text" id="uName" placeholder="如：王强" /></div>
+        <div class="form-item"><label><span class="req">*</span>账号</label><input type="text" id="uAccount" placeholder="如：wangqiang" /></div>
+      </div>
+      <div class="form-row">
+        <div class="form-item"><label><span class="req">*</span>手机号</label><input type="text" id="uPhone" placeholder="如：138 0000 0000" /></div>
+        <div class="form-item"><label><span class="req">*</span>性别</label><select id="uGender"><option>男</option><option>女</option></select></div>
+      </div>
+      <div class="form-row">
+        <div class="form-item"><label><span class="req">*</span>所属部门</label><select id="uDept"><option>数据平台部</option><option>智能制造事业部</option><option>工艺数字化组</option><option>质量分析组</option><option>供应链中心</option><option>IT 基础设施部</option></select></div>
+        <div class="form-item"><label>全局角色</label><select id="uRole"><option>普通用户</option><option>系统运维</option><option>空间管理员</option></select></div>
+      </div>
+      <div class="form-item"><label>邮箱</label><input type="text" id="uEmail" placeholder="name@company.com" /></div>
+      <div class="tip">初始密码由后端统一配置（配置文件下发），不在此展示；用户首次登录需修改密码。</div>
+    </div>
+    <div class="modal-f"><button class="btn" onclick="App.closeModal('userModal')">取消</button><button class="btn btn-primary" onclick="userSave()">确定</button></div>
+  </div>
+</div>
+
+<!-- 查看用户 -->
+<div class="mask" id="userViewModal" data-close-mask>
+  <div class="modal">
+    <div class="modal-h">用户详情<span class="x" onclick="App.closeModal('userViewModal')">×</span></div>
+    <div class="modal-b">
+      <dl class="desc-list">
+        <dt>姓名</dt><dd id="vName"></dd>
+        <dt>账号</dt><dd class="mono" id="vAccount"></dd>
+        <dt>手机号</dt><dd class="mono" id="vPhone"></dd>
+        <dt>性别</dt><dd id="vGender"></dd>
+        <dt>所属部门</dt><dd id="vDept"></dd>
+        <dt>全局角色</dt><dd id="vRole"></dd>
+        <dt>邮箱</dt><dd class="mono" id="vEmail"></dd>
+        <dt>状态</dt><dd id="vStatus"></dd>
+        <dt>最近登录</dt><dd id="vLast"></dd>
+      </dl>
+    </div>
+    <div class="modal-f"><button class="btn" onclick="App.closeModal('userViewModal')">关闭</button><button class="btn btn-primary" onclick="App.closeModal('userViewModal');userEdit(viewIndex)">编辑</button></div>
+  </div>
+</div>
+
+<!-- 分配角色 -->
+<div class="mask" id="userRoleModal" data-close-mask>
+  <div class="modal">
+    <div class="modal-h">分配角色 · <span id="userRoleName"></span><span class="x" onclick="App.closeModal('userRoleModal')">×</span></div>
+    <div class="modal-b">
+      <div class="tip mb16 text-2">勾选该用户拥有的全局角色；空间角色请在各工作空间内单独分配。</div>
+      <div class="check-grid">
+        <label><input type="checkbox" class="role-cb" value="超级管理员" /> 超级管理员</label>
+        <label><input type="checkbox" class="role-cb" value="系统运维" /> 系统运维</label>
+        <label><input type="checkbox" class="role-cb" value="空间管理员" /> 空间管理员</label>
+        <label><input type="checkbox" class="role-cb" value="本体建模员" /> 本体建模员</label>
+        <label><input type="checkbox" class="role-cb" value="数据工程师" /> 数据工程师</label>
+        <label><input type="checkbox" class="role-cb" value="只读访客" /> 只读访客</label>
+      </div>
+    </div>
+    <div class="modal-f"><button class="btn" onclick="App.closeModal('userRoleModal')">取消</button><button class="btn btn-primary" onclick="App.closeModal('userRoleModal');toast('角色分配已保存（原型演示）')">确定</button></div>
+  </div>
+</div>
+
+<!-- 新增/编辑角色 -->
+<div class="mask" id="roleModal" data-close-mask>
+  <div class="modal">
+    <div class="modal-h"><span id="roleModalTitle">新增角色</span><span class="x" onclick="App.closeModal('roleModal')">×</span></div>
+    <div class="modal-b">
+      <div class="form-item"><label><span class="req">*</span>角色名称</label><input type="text" id="rName" placeholder="如：本体建模员" /></div>
+      <div class="form-item"><label><span class="req">*</span>角色编码</label><input type="text" id="rCode" placeholder="如：ont_modeler" /></div>
+      <div class="form-item"><label>角色类型</label><select id="rType"><option>全局角色</option><option>空间角色（在各空间内独立分配）</option></select></div>
+      <div class="form-item"><label>备注</label><textarea id="rRemark" rows="2"></textarea></div>
+    </div>
+    <div class="modal-f"><button class="btn" onclick="App.closeModal('roleModal')">取消</button><button class="btn btn-primary" onclick="roleSave()">确定</button></div>
+  </div>
+</div>
+
+<!-- 角色配置权限（菜单权限 + 空间权限） -->
+<div class="mask" id="rolePermModal" data-close-mask>
+  <div class="modal">
+    <div class="modal-h">配置权限 · <span id="permRoleName"></span><span class="x" onclick="App.closeModal('rolePermModal')">×</span></div>
+    <div class="modal-b">
+      <h4 style="margin:0 0 8px;">菜单权限</h4>
+      <div class="perm-tree" style="border:1px solid var(--border);border-radius:8px;padding:10px 12px;max-height:220px;overflow:auto;">
+        <label><input type="checkbox" checked /> <b>平台管理（全部）</b></label>
+        <div class="pt-children">
+          <label><input type="checkbox" checked /> 工作空间管理</label>
+          <label><input type="checkbox" checked /> 系统管理</label>
+          <div class="pt-children">
+            <label><input type="checkbox" checked /> 用户管理</label>
+            <label><input type="checkbox" checked /> 角色管理</label>
+            <label><input type="checkbox" checked /> 权限管理</label>
+            <label><input type="checkbox" checked /> 部门管理</label>
+          </div>
+          <label><input type="checkbox" checked /> 本体图谱</label>
+          <label><input type="checkbox" /> 数据管理</label>
+          <label><input type="checkbox" /> 安全管理</label>
+          <label><input type="checkbox" /> 应用管理</label>
+          <label><input type="checkbox" /> 审计管理</label>
+        </div>
+      </div>
+      <h4 style="margin:16px 0 8px;">空间权限 <span class="text-3 fs12">（决定该角色可见的空间范围）</span></h4>
+      <div class="radio-col">
+        <label><input type="radio" name="wsScope" value="ALL_SUB" /> 可查看所有子部门的空间（父部门可见子部门全部空间）</label>
+        <label><input type="radio" name="wsScope" value="DEPT_ONLY" checked /> 仅可查看自己部门的空间</label>
+        <label><input type="radio" name="wsScope" value="OWN_ONLY" /> 仅可查看自己创建的空间</label>
+      </div>
+    </div>
+    <div class="modal-f"><button class="btn" onclick="App.closeModal('rolePermModal')">取消</button><button class="btn btn-primary" onclick="rolePermSave()">确定</button></div>
+  </div>
+</div>
+
+<!-- 角色分配用户 -->
+<div class="mask" id="roleUserModal" data-close-mask>
+  <div class="modal">
+    <div class="modal-h">分配用户 · <span id="roleUserName"></span><span class="x" onclick="App.closeModal('roleUserModal')">×</span></div>
+    <div class="modal-b">
+      <div class="tip mb16 text-2">勾选拥有该角色的用户；全局角色对全部空间生效，空间角色仅在其所属空间内生效。</div>
+      <div class="check-grid" id="roleUserList"></div>
+    </div>
+    <div class="modal-f"><button class="btn" onclick="App.closeModal('roleUserModal')">取消</button><button class="btn btn-primary" onclick="App.closeModal('roleUserModal');toast('用户分配已保存（原型演示）')">确定</button></div>
+  </div>
+</div>
+
+<!-- 新增/编辑部门 -->
+<div class="mask" id="deptModal" data-close-mask>
+  <div class="modal">
+    <div class="modal-h"><span id="deptModalTitle">新增部门</span><span class="x" onclick="App.closeModal('deptModal')">×</span></div>
+    <div class="modal-b">
+      <div class="form-row">
+        <div class="form-item"><label><span class="req">*</span>部门名称</label><input type="text" id="dName" placeholder="如：质量分析组" /></div>
+        <div class="form-item"><label><span class="req">*</span>部门编码</label><input type="text" id="dCode" placeholder="如：quality-analysis" /></div>
+      </div>
+      <div class="form-row">
+        <div class="form-item"><label>上级部门</label><select id="dParent"></select></div>
+        <div class="form-item"><label>部门主管</label><select id="dLeader"><option>shawn</option><option>zhangwei</option><option>lijing</option><option>wuna</option></select></div>
+      </div>
+      <div class="form-item"><label>排序</label><input type="number" id="dSort" value="1" /></div>
+    </div>
+    <div class="modal-f"><button class="btn" onclick="App.closeModal('deptModal')">取消</button><button class="btn btn-primary" onclick="deptSave()">确定</button></div>
+  </div>
+</div>
+
+<!-- 新增目录/菜单/按钮 -->
+<div class="mask" id="menuModal" data-close-mask>
+  <div class="modal">
+    <div class="modal-h"><span id="menuModalTitle">新增权限节点</span><span class="x" onclick="App.closeModal('menuModal')">×</span></div>
+    <div class="modal-b">
+      <div class="form-row">
+        <div class="form-item"><label><span class="req">*</span>名称</label><input type="text" id="mName" placeholder="如：导出本体定义" /></div>
+        <div class="form-item"><label><span class="req">*</span>类型</label><select id="mType"><option>目录</option><option>菜单</option><option>按钮</option></select></div>
+      </div>
+      <div class="form-item"><label>上级节点</label><select id="mParent"></select></div>
+      <div class="form-item"><label>权限标识</label><input type="text" id="mAuth" placeholder="如：ontology:export" /><div class="tip">参考 RuoYi：目录/菜单用于路由与侧边栏展示，按钮用于接口鉴权；目录节点可留空。</div></div>
+    </div>
+    <div class="modal-f"><button class="btn" onclick="App.closeModal('menuModal')">取消</button><button class="btn btn-primary" onclick="menuSave()">确定</button></div>
+  </div>
+</div>
+
+<script src="../assets/app.js"></script>
+<script>
+// ===== 用户管理数据（需在 App.mount 之前声明，onMount 会用到）=====
+const USERS = [
+  { name: 'shawn', account: 'shawn', phone: '138 0000 1234', gender: '男', dept: '数据平台部', role: '超级管理员', email: 'shawn@company.com', on: true, last: '2026-09-09 10:21' },
+  { name: '张伟', account: 'zhangwei', phone: '139 1234 5678', gender: '男', dept: '智能制造事业部', role: '空间管理员', email: 'zhangwei@company.com', on: true, last: '2026-09-09 09:47' },
+  { name: '李静', account: 'lijing', phone: '137 2345 6789', gender: '女', dept: '数据平台部', role: '空间管理员', email: 'lijing@company.com', on: true, last: '2026-09-08 17:32' },
+  { name: '周杰', account: 'zhoujie', phone: '136 3456 7890', gender: '男', dept: '供应链中心', role: '普通用户', email: 'zhoujie@company.com', on: true, last: '2026-09-08 14:05' },
+  { name: '吴娜', account: 'wuna', phone: '135 4567 8901', gender: '女', dept: '智能制造事业部', role: '普通用户', email: 'wuna@company.com', on: true, last: '2026-09-07 11:58' },
+  { name: '王强', account: 'wangqiang', phone: '134 5678 9012', gender: '男', dept: '数据平台部', role: '普通用户', email: 'wangqiang@company.com', on: false, last: '2026-08-12 16:40' },
+  { name: '赵敏', account: 'zhaomin', phone: '133 6789 0123', gender: '女', dept: '工艺数字化组', role: '普通用户', email: 'zhaomin@company.com', on: true, last: '2026-09-05 09:12' },
+  { name: '孙立', account: 'sunli', phone: '132 7890 1234', gender: '男', dept: 'IT 基础设施部', role: '系统运维', email: 'sunli@company.com', on: true, last: '2026-09-02 15:44' },
+];
+let userFilter = { kw: '', dept: '', status: '' };
+let editingUserIndex = null;
+let viewIndex = null;
+
+// ===== 角色 / 部门 / 权限数据（onMount 会用到，需在 App.mount 之前声明）=====
+const ROLES = [
+  { name: '超级管理员', code: 'super_admin', type: '全局', members: 1, remark: '拥有平台全部权限，内置不可删除', builtin: true, on: true, scope: 'ALL_SUB' },
+  { name: '系统运维', code: 'sys_ops', type: '全局', members: 2, remark: '平台监控、审计与系统配置', on: true, scope: 'DEPT_ONLY' },
+  { name: '空间管理员', code: 'ws_admin', type: '全局', members: 2, remark: '可创建空间并管理本空间全部资源', on: true, scope: 'DEPT_ONLY' },
+  { name: '本体建模员', code: 'ont_modeler', type: '空间', members: 0, remark: '空间内本体资产建模', on: true, scope: 'OWN_ONLY' },
+  { name: '数据工程师', code: 'data_eng', type: '空间', members: 0, remark: '空间内数据源 / 数据集 / pipeline', on: true, scope: 'OWN_ONLY' },
+  { name: '只读访客', code: 'viewer', type: '空间', members: 0, remark: '空间内全部只读', on: true, scope: 'OWN_ONLY' },
+];
+const SCOPE_LABEL = { ALL_SUB: '所有子部门空间', DEPT_ONLY: '本部门空间', OWN_ONLY: '仅自己创建的空间' };
+
+const DEPT_TREE = {
+  name: 'XX 集团', code: 'group', leader: 'shawn', sort: 0, on: true, children: [
+    { name: '数据平台部', code: 'data-platform', leader: 'shawn', sort: 1, on: true },
+    { name: '智能制造事业部', code: 'smart-mfg', leader: 'zhangwei', sort: 2, on: true, children: [
+      { name: '工艺数字化组', code: 'craft-digital', leader: 'wuna', sort: 1, on: true },
+      { name: '质量分析组', code: 'quality', leader: 'zhaomin', sort: 2, on: true },
+    ]},
+    { name: '供应链中心', code: 'scm', leader: 'zhoujie', sort: 3, on: true },
+    { name: 'IT 基础设施部', code: 'it-infra', leader: 'sunli', sort: 4, on: true },
+  ]
+};
+const DEPT_SPACES = {
+  'XX 集团': ['全部空间'],
+  '数据平台部': ['智能制造空间', '供应链分析空间'],
+  '智能制造事业部': ['智能制造空间'],
+  '供应链中心': ['供应链分析空间'],
+};
+
+const PERM_DATA = {
+  name: '平台管理', type: '目录', auth: '', children: [
+    { name: '工作空间管理', type: '菜单', auth: 'platform:ws:list', children: [
+      { name: '新建空间', type: '按钮', auth: 'platform:ws:create', on: true },
+      { name: '编辑空间', type: '按钮', auth: 'platform:ws:update', on: true },
+      { name: '停用空间', type: '按钮', auth: 'platform:ws:disable', on: true },
+      { name: '分配成员', type: '按钮', auth: 'platform:ws:member', on: true },
+    ]},
+    { name: '系统管理', type: '目录', auth: '', children: [
+      { name: '用户管理', type: '菜单', auth: 'system:user:list', children: [
+        { name: '新增用户', type: '按钮', auth: 'system:user:create', on: true },
+        { name: '编辑用户', type: '按钮', auth: 'system:user:update', on: true },
+        { name: '重置密码', type: '按钮', auth: 'system:user:resetPwd', on: true },
+      ]},
+      { name: '角色管理', type: '菜单', auth: 'system:role:list', children: [
+        { name: '配置权限', type: '按钮', auth: 'system:role:perm', on: true },
+        { name: '分配用户', type: '按钮', auth: 'system:role:user', on: true },
+      ]},
+      { name: '权限管理', type: '菜单', auth: 'system:menu:list', children: [
+        { name: '新增节点', type: '按钮', auth: 'system:menu:create', on: true },
+      ]},
+      { name: '部门管理', type: '菜单', auth: 'system:dept:list', children: [
+        { name: '新增部门', type: '按钮', auth: 'system:dept:create', on: true },
+        { name: '停用部门', type: '按钮', auth: 'system:dept:disable', on: true },
+      ]},
+    ]},
+    { name: '本体图谱', type: '菜单', auth: 'ontology:list', sel: true, children: [
+      { name: '新建本体类', type: '按钮', auth: 'ontology:type:create', on: true },
+      { name: '编辑本体类', type: '按钮', auth: 'ontology:type:update', on: true },
+      { name: '删除本体类', type: '按钮', auth: 'ontology:type:delete', on: false },
+      { name: '发布本体类', type: '按钮', auth: 'ontology:type:publish', on: true },
+      { name: '对象数据查询', type: '按钮', auth: 'ontology:data:query', on: true },
+      { name: '导出本体定义', type: '按钮', auth: 'ontology:export', on: false },
+    ]},
+    { name: '数据管理', type: '菜单', auth: 'data:list' },
+    { name: '安全管理', type: '菜单', auth: 'security:list' },
+    { name: '应用管理', type: '菜单', auth: 'application:list' },
+    { name: '审计管理', type: '菜单', auth: 'audit:list' },
+  ]
+};
+let roleFilter = '';
+let editingRoleIndex = null;
+let permRoleIndex = null;
+let curDeptName = '数据平台部';
+let deptEditName = null;
+let PERM_INDEX = {};
+let curPermName = '本体图谱';
+
+App.mount({
+  page: 'system',
+  crumbs: ['平台管理', '系统管理'],
+  title: '系统管理',
+  desc: '平台级用户、角色、部门与菜单/按钮权限管理。',
+  actions: '',
+  content: `
+  <div class="tabs" data-group="sys">
+    <div class="tab active" data-pane="user" data-group="sys">用户管理 <span class="cnt">23</span></div>
+    <div class="tab" data-pane="role" data-group="sys">角色管理 <span class="cnt">6</span></div>
+    <div class="tab" data-pane="perm" data-group="sys">权限管理</div>
+    <div class="tab" data-pane="dept" data-group="sys">部门管理</div>
+  </div>
+
+  <!-- ===== 用户管理 ===== -->
+  <div class="tab-pane active" data-group="sys" data-pane="user">
+    <div class="row" style="margin-top:0;">
+      <div class="card col" style="max-width:280px;">
+        <div class="card-h"><h3>部门</h3></div>
+        <div class="card-b">
+          <div class="tree" id="userDeptTree"></div>
+          <div class="tip text-2" style="margin-top:10px;">点击部门仅查询该部门直属用户，不含子部门。</div>
+        </div>
+      </div>
+      <div class="card col">
+        <div class="card-h">
+          <input class="search" type="text" placeholder="搜索姓名 / 账号…" oninput="userFilter.kw=this.value.trim();renderUsers()" />
+          <select onchange="userFilter.status=this.value;renderUsers()"><option value="">全部状态</option><option value="1">启用</option><option value="0">停用</option></select>
+          <div class="right"><button class="btn btn-primary" onclick="userOpenCreate()">+ 新增用户</button></div>
+        </div>
+        <table class="table">
+          <tr><th><input type="checkbox" /></th><th>姓名</th><th>账号</th><th>手机号</th><th>性别</th><th>部门</th><th>全局角色</th><th>状态</th><th>最近登录</th><th class="actions-cell">操作</th></tr>
+          <tbody id="userTbody"></tbody>
+        </table>
+        <div class="pager"><span id="userCount">共 0 条</span><span style="flex:1"></span><span class="pg">‹</span><span class="pg cur">1</span><span class="pg">2</span><span class="pg">›</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== 角色管理 ===== -->
+  <div class="tab-pane" data-group="sys" data-pane="role">
+    <div class="card" style="border-radius:0 0 8px 8px;">
+      <div class="card-h">
+        <input class="search" type="text" placeholder="搜索角色名称 / 编码…" oninput="roleFilter=this.value.trim();renderRoles()" />
+        <div class="right"><button class="btn btn-primary" onclick="roleOpenCreate()">+ 新增角色</button></div>
+      </div>
+      <table class="table">
+        <tr><th>角色名称</th><th>编码</th><th>类型</th><th>空间权限</th><th>成员数</th><th>状态</th><th>备注</th><th class="actions-cell">操作</th></tr>
+        <tbody id="roleTbody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ===== 部门管理 ===== -->
+  <div class="tab-pane" data-group="sys" data-pane="dept">
+    <div class="row mt16" style="margin-top:0;">
+      <div class="card col" style="max-width:420px;">
+        <div class="card-h"><h3>部门树</h3><div class="right"><button class="btn btn-sm" onclick="deptOpenCreate('')">+ 一级部门</button></div></div>
+        <div class="card-b"><div class="tree" id="deptTree"></div></div>
+      </div>
+      <div class="card col">
+        <div class="card-h">
+          <h3>部门详情 · <span id="deptName" class="text-2">数据平台部</span></h3>
+          <div class="right">
+            <button class="btn btn-sm" onclick="deptOpenCreate(curDeptName)">+ 子部门</button>
+            <button class="btn btn-sm" onclick="deptOpenEdit(curDeptName)">编辑</button>
+          </div>
+        </div>
+        <div class="card-b">
+          <dl class="desc-list mb16">
+            <dt>部门编码</dt><dd class="mono" id="deptCode"></dd>
+            <dt>部门主管</dt><dd id="deptLeader"></dd>
+            <dt>成员数</dt><dd id="deptCount"></dd>
+            <dt>关联空间</dt><dd id="deptSpaces"></dd>
+            <dt>排序</dt><dd id="deptSort"></dd>
+            <dt>状态</dt><dd><span id="deptStatusBadge"></span> <span class="switch" id="deptStatusSwitch" onclick="deptToggle()"></span></dd>
+          </dl>
+          <div class="tip mb16 text-2" id="deptDisableTip">停用部门后，该部门（含所有子部门）下的用户将自动迁移至上级部门。</div>
+          <table class="table">
+            <tr><th>成员</th><th>账号</th><th>全局角色</th><th class="actions-cell">操作</th></tr>
+            <tbody id="deptMemberTbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== 权限管理 ===== -->
+  <div class="tab-pane" data-group="sys" data-pane="perm">
+    <div class="row mt16" style="margin-top:0;">
+      <div class="card col" style="max-width:480px;">
+        <div class="card-h"><h3>权限资源</h3>
+          <div class="right">
+            <button class="btn btn-sm" onclick="permOpenCreate('目录')">+ 目录</button>
+            <button class="btn btn-sm" onclick="permOpenCreate('菜单')">+ 菜单</button>
+            <button class="btn btn-sm" onclick="permOpenCreate('按钮')">+ 按钮</button>
+          </div>
+        </div>
+        <div class="card-b">
+          <div class="tree" id="permTree"></div>
+          <div class="tip text-2" style="margin-top:10px;">目录 → 菜单 → 按钮三级结构（参考 RuoYi）：目录/菜单决定侧边栏与路由，按钮/接口用于操作鉴权。</div>
+        </div>
+      </div>
+      <div class="card col">
+        <div class="card-h"><h3><span id="permTypeBadge"></span> <span id="permName" class="text-2">本体图谱</span></h3><div class="right"><button class="btn btn-sm btn-primary" onclick="toast('权限配置已保存')">保存</button></div></div>
+        <div class="card-b">
+          <dl class="desc-list mb16">
+            <dt>类型</dt><dd id="permType"></dd>
+            <dt>权限标识</dt><dd class="mono" id="permAuth"></dd>
+          </dl>
+          <div class="fs12 mb16" style="font-weight:600;">下级节点</div>
+          <table class="table">
+            <tr><th>名称</th><th>类型</th><th>权限标识</th><th>启用</th></tr>
+            <tbody id="permChildTbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>`,
+
+  onMount() {
+    // 用户管理：部门树（点击仅查本部门直属用户，不含子部门）+ 用户列表
+    renderTree(document.getElementById('userDeptTree'), {
+      name: '全部部门', children: [
+        { name: '数据平台部' },
+        { name: '智能制造事业部', children: [{ name: '工艺数字化组' }, { name: '质量分析组' }] },
+        { name: '供应链中心' },
+        { name: 'IT 基础设施部' },
+      ]
+    }, (n) => {
+      userFilter.dept = n === '全部部门' ? '' : n;
+      renderUsers();
+    });
+    renderUsers();
+    renderRoles();
+    // 部门树（含启停用与用户迁移）
+    renderDeptTree();
+    renderDeptDetail('数据平台部');
+    // 权限资源树（目录 / 菜单 / 按钮，参考 RuoYi）
+    buildPermIndex();
+    renderPermTree();
+    renderPermDetail(PERM_INDEX['本体图谱']);
+  },
+});
+
+// ===== 用户管理（用户 tab）=====
+
+const val = (id) => document.getElementById(id).value;
+
+function renderUsers() {
+  const tb = document.getElementById('userTbody');
+  const list = USERS.filter((u) =>
+    (!userFilter.dept || u.dept === userFilter.dept) &&
+    (userFilter.status === '' || u.on === (userFilter.status === '1')) &&
+    (!userFilter.kw || u.name.includes(userFilter.kw) || u.account.includes(userFilter.kw))
+  );
+  document.getElementById('userCount').textContent = '共 ' + list.length + ' 条';
+  if (!list.length) {
+    tb.innerHTML = '<tr><td colspan="10" class="text-2" style="text-align:center;padding:24px 0;">暂无符合条件的用户</td></tr>';
+    return;
+  }
+  tb.innerHTML = list.map((u) => {
+    const i = USERS.indexOf(u);
+    return `
+    <tr>
+      <td><input type="checkbox" /></td>
+      <td><a class="user-link" href="javascript:void(0)" onclick="userView(${i})"><b>${u.name}</b></a></td>
+      <td class="mono">${u.account}</td>
+      <td class="mono">${u.phone}</td>
+      <td>${u.gender}</td>
+      <td>${u.dept}</td>
+      <td>${u.role}</td>
+      <td><span class="switch ${u.on ? 'on' : ''}" title="${u.on ? '启用中，点击停用' : '已停用，点击启用'}" onclick="userToggle(${i})"></span></td>
+      <td class="text-2 fs12">${u.last}</td>
+      <td class="actions-cell">
+        <button class="btn-link btn-sm" onclick="userEdit(${i})">编辑</button>
+        <button class="btn-link btn-sm" onclick="toast('重置密码已发送至 ${u.phone}')">重置密码</button>
+        <button class="btn-link btn-sm" onclick="userRole(${i})">分配角色</button>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function userOpenCreate() {
+  editingUserIndex = null;
+  document.getElementById('userModalTitle').textContent = '新增用户';
+  ['uName', 'uAccount', 'uPhone', 'uEmail'].forEach((id) => (document.getElementById(id).value = ''));
+  App.openModal('userModal');
+}
+
+function userEdit(i) {
+  editingUserIndex = i;
+  const u = USERS[i];
+  document.getElementById('userModalTitle').textContent = '编辑用户 · ' + u.name;
+  document.getElementById('uName').value = u.name;
+  document.getElementById('uAccount').value = u.account;
+  document.getElementById('uPhone').value = u.phone;
+  document.getElementById('uGender').value = u.gender;
+  document.getElementById('uDept').value = u.dept;
+  document.getElementById('uRole').value = u.role;
+  document.getElementById('uEmail').value = u.email;
+  App.openModal('userModal');
+}
+
+function userView(i) {
+  viewIndex = i;
+  const u = USERS[i];
+  document.getElementById('vName').textContent = u.name;
+  document.getElementById('vAccount').textContent = u.account;
+  document.getElementById('vPhone').textContent = u.phone;
+  document.getElementById('vGender').textContent = u.gender;
+  document.getElementById('vDept').textContent = u.dept;
+  document.getElementById('vRole').textContent = u.role;
+  document.getElementById('vEmail').textContent = u.email;
+  document.getElementById('vStatus').innerHTML = u.on ? '<span class="badge b-green">启用</span>' : '<span class="badge b-gray">停用</span>';
+  document.getElementById('vLast').textContent = u.last;
+  App.openModal('userViewModal');
+}
+
+function userToggle(i) {
+  USERS[i].on = !USERS[i].on;
+  renderUsers();
+  toast(USERS[i].name + (USERS[i].on ? ' 已启用' : ' 已停用'));
+}
+
+function userRole(i) {
+  viewIndex = i;
+  const u = USERS[i];
+  document.getElementById('userRoleName').textContent = u.name + '（' + u.account + '）';
+  document.querySelectorAll('#userRoleModal .role-cb').forEach((cb) => (cb.checked = cb.value === u.role));
+  App.openModal('userRoleModal');
+}
+
+function userSave() {
+  const name = val('uName').trim(), account = val('uAccount').trim(), phone = val('uPhone').trim();
+  if (!name || !account || !phone) { toast('请填写姓名、账号与手机号'); return; }
+  const data = { name, account, phone, gender: val('uGender'), dept: val('uDept'), role: val('uRole'), email: val('uEmail') };
+  if (editingUserIndex != null) {
+    Object.assign(USERS[editingUserIndex], data);
+    toast('用户已更新（原型演示）');
+  } else {
+    USERS.push({ ...data, on: true, last: '—' });
+    toast('用户已创建，初始密码见后端配置文件（原型演示）');
+  }
+  App.closeModal('userModal');
+  renderUsers();
+}
+
+// ===== 角色管理（角色 tab）=====
+
+function renderRoles() {
+  const tb = document.getElementById('roleTbody');
+  const list = ROLES.filter((r) => !roleFilter || r.name.includes(roleFilter) || r.code.includes(roleFilter));
+  if (!list.length) { tb.innerHTML = '<tr><td colspan="8" class="text-2" style="text-align:center;padding:24px 0;">暂无符合条件的角色</td></tr>'; return; }
+  tb.innerHTML = list.map((r) => {
+    const i = ROLES.indexOf(r);
+    return `
+    <tr>
+      <td><b>${r.name}</b></td><td class="mono">${r.code}</td>
+      <td><span class="badge ${r.type === '全局' ? 'b-purple' : 'b-blue'}">${r.type}</span></td>
+      <td class="text-2">${SCOPE_LABEL[r.scope] || '—'}</td>
+      <td>${r.members || '—'}</td>
+      <td>${r.builtin
+        ? '<span class="badge b-green" title="内置角色不可停用">启用</span>'
+        : `<span class="switch ${r.on ? 'on' : ''}" title="${r.on ? '启用中，点击停用' : '已停用，点击启用'}" onclick="roleToggle(${i})"></span>`}</td>
+      <td class="text-2">${r.remark}</td>
+      <td class="actions-cell">
+        <button class="btn-link btn-sm" onclick="rolePerm(${i})">配置权限</button>
+        <button class="btn-link btn-sm" onclick="roleUser(${i})">分配用户</button>
+        <button class="btn-link btn-sm" onclick="roleOpenEdit(${i})">编辑</button>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function roleOpenCreate() {
+  editingRoleIndex = null;
+  document.getElementById('roleModalTitle').textContent = '新增角色';
+  document.getElementById('rName').value = '';
+  document.getElementById('rCode').value = '';
+  document.getElementById('rRemark').value = '';
+  App.openModal('roleModal');
+}
+
+function roleOpenEdit(i) {
+  editingRoleIndex = i;
+  const r = ROLES[i];
+  document.getElementById('roleModalTitle').textContent = '编辑角色 · ' + r.name;
+  document.getElementById('rName').value = r.name;
+  document.getElementById('rCode').value = r.code;
+  document.getElementById('rRemark').value = r.remark;
+  App.openModal('roleModal');
+}
+
+function roleSave() {
+  const name = val('rName').trim(), code = val('rCode').trim();
+  if (!name || !code) { toast('请填写角色名称与编码'); return; }
+  const data = { name, code, type: val('rType').startsWith('全局') ? '全局' : '空间', remark: val('rRemark').trim() };
+  if (editingRoleIndex != null) {
+    Object.assign(ROLES[editingRoleIndex], data);
+    toast('角色已更新（原型演示）');
+  } else {
+    if (ROLES.some((r) => r.code === code)) { toast('角色编码已存在'); return; }
+    ROLES.push({ ...data, members: 0, on: true, scope: 'DEPT_ONLY' });
+    toast('角色已创建（原型演示）');
+  }
+  App.closeModal('roleModal');
+  renderRoles();
+}
+
+function roleToggle(i) {
+  ROLES[i].on = !ROLES[i].on;
+  renderRoles();
+  toast('角色「' + ROLES[i].name + '」已' + (ROLES[i].on ? '启用' : '停用，该角色用户登录后不可见对应菜单'));
+}
+
+function rolePerm(i) {
+  permRoleIndex = i;
+  const r = ROLES[i];
+  document.getElementById('permRoleName').textContent = r.name;
+  const radio = document.querySelector(`input[name="wsScope"][value="${r.scope}"]`);
+  if (radio) radio.checked = true;
+  App.openModal('rolePermModal');
+}
+
+function rolePermSave() {
+  const scope = (document.querySelector('input[name="wsScope"]:checked') || {}).value;
+  if (permRoleIndex != null && scope) ROLES[permRoleIndex].scope = scope;
+  App.closeModal('rolePermModal');
+  renderRoles();
+  toast('权限配置已保存，空间权限：' + (SCOPE_LABEL[scope] || '—') + '（原型演示）');
+}
+
+function roleUser(i) {
+  const r = ROLES[i];
+  document.getElementById('roleUserName').textContent = r.name;
+  document.getElementById('roleUserList').innerHTML = USERS.map((u) => `
+    <label><input type="checkbox" ${u.role === r.name ? 'checked' : ''} /> ${u.name}（${u.account} · ${u.dept}）</label>`).join('');
+  App.openModal('roleUserModal');
+}
+
+// ===== 部门管理（部门 tab）=====
+
+function findDept(node, name) {
+  if (node.name === name) return node;
+  for (const c of node.children || []) { const r = findDept(c, name); if (r) return r; }
+  return null;
+}
+
+function findParent(node, name) {
+  for (const c of node.children || []) {
+    if (c.name === name) return node;
+    const r = findParent(c, name);
+    if (r) return r;
+  }
+  return null;
+}
+
+function deptDescendants(node) {
+  const names = [node.name];
+  (node.children || []).forEach((c) => names.push(...deptDescendants(c)));
+  return names;
+}
+
+function renderDeptTree() {
+  const el = document.getElementById('deptTree');
+  el.innerHTML = '';
+  renderTree(el, DEPT_TREE, (n) => renderDeptDetail(n));
+}
+
+function renderDeptDetail(name) {
+  curDeptName = name;
+  const node = findDept(DEPT_TREE, name);
+  if (!node) return;
+  const parent = findParent(DEPT_TREE, name);
+  document.getElementById('deptName').textContent = name;
+  document.getElementById('deptCode').textContent = node.code || '—';
+  document.getElementById('deptLeader').textContent = node.leader || '—';
+  document.getElementById('deptSort').textContent = node.sort != null ? node.sort : '—';
+  document.getElementById('deptCount').textContent = USERS.filter((u) => deptDescendants(node).includes(u.dept)).length + ' 人（含子部门）';
+  document.getElementById('deptSpaces').innerHTML = (DEPT_SPACES[name] || []).map((s) => `<span class="tag blue">${s}</span>`).join(' ') || '<span class="text-3">—</span>';
+  document.getElementById('deptStatusBadge').innerHTML = node.on ? '<span class="badge b-green">启用</span>' : '<span class="badge b-gray">停用</span>';
+  const sw = document.getElementById('deptStatusSwitch');
+  const tip = document.getElementById('deptDisableTip');
+  if (!parent) { sw.style.display = 'none'; tip.style.display = 'none'; } // 集团根节点不可停用
+  else { sw.style.display = ''; tip.style.display = node.on ? '' : 'none'; sw.classList.toggle('on', !!node.on); }
+  const members = USERS.filter((u) => u.dept === name);
+  document.getElementById('deptMemberTbody').innerHTML = members.length
+    ? members.map((u) => `
+      <tr><td>${u.name}</td><td class="mono">${u.account}</td><td>${u.role}</td>
+      <td class="actions-cell"><button class="btn-link btn-sm" onclick="toast('已移出部门（原型演示）')">移出部门</button></td></tr>`).join('')
+    : '<tr><td colspan="4" class="text-2" style="text-align:center;padding:14px 0;">该部门暂无直属成员</td></tr>';
+}
+
+function fillDeptParentOptions(selected) {
+  const sel = document.getElementById('dParent');
+  sel.innerHTML = deptDescendants(DEPT_TREE).map((n) => `<option>${n}</option>`).join('');
+  if (selected) sel.value = selected;
+}
+
+function deptOpenCreate(parentName) {
+  deptEditName = null;
+  document.getElementById('deptModalTitle').textContent = '新增部门';
+  document.getElementById('dName').value = '';
+  document.getElementById('dCode').value = '';
+  document.getElementById('dSort').value = 1;
+  fillDeptParentOptions(parentName || 'XX 集团');
+  App.openModal('deptModal');
+}
+
+function deptOpenEdit(name) {
+  const node = findDept(DEPT_TREE, name);
+  if (!node) return;
+  deptEditName = name;
+  document.getElementById('deptModalTitle').textContent = '编辑部门 · ' + name;
+  document.getElementById('dName').value = name;
+  document.getElementById('dCode').value = node.code || '';
+  document.getElementById('dSort').value = node.sort != null ? node.sort : 1;
+  const parent = findParent(DEPT_TREE, name);
+  fillDeptParentOptions(parent ? parent.name : 'XX 集团');
+  App.openModal('deptModal');
+}
+
+function deptSave() {
+  const name = val('dName').trim(), code = val('dCode').trim();
+  if (!name || !code) { toast('请填写部门名称与编码'); return; }
+  if (name !== deptEditName && findDept(DEPT_TREE, name)) { toast('部门名称已存在'); return; }
+  if (deptEditName) {
+    const node = findDept(DEPT_TREE, deptEditName);
+    Object.assign(node, { name, code, leader: val('dLeader'), sort: Number(val('dSort')) || 1 });
+    toast('部门已更新（原型演示）');
+  } else {
+    const parent = findDept(DEPT_TREE, val('dParent'));
+    if (!parent.children) parent.children = [];
+    parent.children.push({ name, code, leader: val('dLeader'), sort: Number(val('dSort')) || 1, on: true });
+    DEPT_SPACES[name] = [];
+    toast('部门已创建（原型演示）');
+  }
+  App.closeModal('deptModal');
+  renderDeptTree();
+  const show = deptEditName ? name : curDeptName;
+  renderDeptDetail(findDept(DEPT_TREE, show) ? show : '数据平台部');
+}
+
+function deptToggle() {
+  const node = findDept(DEPT_TREE, curDeptName);
+  if (!node) return;
+  if (!node.on) { node.on = true; toast('部门「' + node.name + '」已启用'); renderDeptDetail(curDeptName); return; }
+  const parent = findParent(DEPT_TREE, curDeptName);
+  if (!parent) { toast('集团根节点不可停用'); return; }
+  const movers = USERS.filter((u) => deptDescendants(node).includes(u.dept));
+  const ok = confirm(`确认停用「${node.name}」？\n该部门及其子部门下的 ${movers.length} 名用户将迁移至上级部门「${parent.name}」。`);
+  if (!ok) return;
+  movers.forEach((u) => (u.dept = parent.name));
+  node.on = false;
+  renderDeptDetail(curDeptName);
+  renderUsers();
+  toast(`部门已停用，${movers.length} 名用户（含子部门）已迁移至「${parent.name}」`);
+}
+
+// ===== 权限管理（权限 tab，目录 / 菜单 / 按钮）=====
+
+function buildPermIndex() {
+  PERM_INDEX = {};
+  (function walk(n) { PERM_INDEX[n.name] = n; (n.children || []).forEach(walk); })(PERM_DATA);
+}
+
+function renderPermTree() {
+  const el = document.getElementById('permTree');
+  el.innerHTML = '';
+  renderTree(el, PERM_DATA, (n) => renderPermDetail(PERM_INDEX[n.name]));
+}
+
+function renderPermDetail(node) {
+  if (!node) return;
+  curPermName = node.name;
+  const badge = `<span class="badge ${node.type === '目录' ? 'b-purple' : node.type === '菜单' ? 'b-blue' : 'b-cyan'}">${node.type}</span>`;
+  document.getElementById('permName').textContent = node.name;
+  document.getElementById('permTypeBadge').innerHTML = badge;
+  document.getElementById('permType').innerHTML = badge;
+  document.getElementById('permAuth').textContent = node.auth || '—';
+  const kids = node.children || [];
+  const tb = document.getElementById('permChildTbody');
+  if (!kids.length) {
+    tb.innerHTML = '<tr><td colspan="4" class="text-2" style="text-align:center;padding:18px 0;">暂无下级节点</td></tr>';
+    return;
+  }
+  tb.innerHTML = kids.map((k) => `
+    <tr>
+      <td><b>${k.name}</b></td>
+      <td><span class="badge ${k.type === '目录' ? 'b-purple' : k.type === '菜单' ? 'b-blue' : 'b-cyan'}">${k.type}</span></td>
+      <td class="mono">${k.auth || '—'}</td>
+      <td><span class="switch ${k.on === false ? '' : 'on'}" onclick="permChildToggle('${k.name}')"></span></td>
+    </tr>`).join('');
+}
+
+function permChildToggle(name) {
+  const n = PERM_INDEX[name];
+  if (!n) return;
+  n.on = n.on === false;
+  renderPermDetail(PERM_INDEX[curPermName]);
+}
+
+function permOpenCreate(type) {
+  document.getElementById('menuModalTitle').textContent = '新增' + type;
+  document.getElementById('mType').value = type;
+  document.getElementById('mName').value = '';
+  document.getElementById('mAuth').value = '';
+  const sel = document.getElementById('mParent');
+  sel.innerHTML = Object.keys(PERM_INDEX).map((n) => `<option>${n}</option>`).join('');
+  sel.value = curPermName;
+  App.openModal('menuModal');
+}
+
+function menuSave() {
+  const name = val('mName').trim();
+  if (!name) { toast('请填写名称'); return; }
+  if (PERM_INDEX[name]) { toast('节点名称已存在'); return; }
+  const parent = PERM_INDEX[val('mParent')];
+  if (!parent) { toast('请选择上级节点'); return; }
+  if (!parent.children) parent.children = [];
+  parent.children.push({ name, type: val('mType'), auth: val('mAuth').trim(), on: true });
+  buildPermIndex();
+  renderPermTree();
+  App.closeModal('menuModal');
+  toast('权限节点已创建（原型演示）');
+}
+
+function renderTree(el, node, onSelect, depth = 0) {
+  const div = document.createElement('div');
+  if (depth > 0) div.className = 'tree-children';
+  const item = document.createElement('div');
+  item.className = 'tree-node' + (node.sel ? ' sel' : '');
+  const hasKids = node.children && node.children.length;
+  const badge = node.type ? `<span class="badge ${node.type === '目录' ? 'b-purple' : node.type === '菜单' ? 'b-blue' : 'b-cyan'}" style="margin-left:6px;">${node.type}</span>` : '';
+  const auth = node.auth ? `<span class="mono text-3" style="margin-left:8px;font-size:12px;">${node.auth}</span>` : '';
+  item.innerHTML = `<span class="text-3">${hasKids ? '▾' : '·'}</span> ${node.name}${badge}${auth}`;
+  item.onclick = () => { el.querySelectorAll('.tree-node').forEach(n => n.classList.remove('sel')); item.classList.add('sel'); onSelect && onSelect(node.name); };
+  div.appendChild(item);
+  if (hasKids) {
+    const kids = document.createElement('div');
+    kids.className = 'tree-children';
+    node.children.forEach(c => kids.appendChild(wrapNode(c)));
+    div.appendChild(kids);
+  }
+  el.appendChild(div);
+  function wrapNode(c) {
+    const holder = document.createElement('div');
+    renderTree(holder, c, onSelect, 1);
+    return holder;
+  }
+}
+</script>
+</body>
+</html>

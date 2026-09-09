@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<title>标记管理 · Open Ontology</title>
+<link rel="stylesheet" href="../assets/style.css" />
+</head>
+<body>
+<div id="root"></div>
+
+<!-- 新建标记 -->
+<div class="mask" id="markModal" data-close-mask>
+  <div class="modal">
+    <div class="modal-h">新建标记<span class="x" onclick="App.closeModal('markModal')">×</span></div>
+    <div class="modal-b">
+      <div class="form-item"><label><span class="req">*</span>标记名称</label><input type="text" placeholder="如：PII / 商密 / 财务敏感" /></div>
+      <div class="form-item"><label>标记类型</label><select><option>密级标记（L1-L4）</option><option>业务标记（PII / 财务 / 商密）</option><option>自定义标记</option></select></div>
+      <div class="form-item"><label>默认策略</label><select><option>仅授权角色可见</option><option>可见但脱敏</option><option>可见但不可导出</option></select></div>
+      <div class="form-item"><label>说明</label><textarea rows="2"></textarea></div>
+    </div>
+    <div class="modal-f"><button class="btn" onclick="App.closeModal('markModal')">取消</button><button class="btn btn-primary" onclick="App.closeModal('markModal');toast('标记已创建')">确定</button></div>
+  </div>
+</div>
+
+<script src="../assets/app.js"></script>
+<script>
+App.mount({
+  page: 'sec-marks',
+  crumbs: ['智能制造空间', '安全管理', '标记管理'],
+  title: '标记管理',
+  desc: '密级与业务标记的定义与打标管理，是数据权限、加密、脱敏策略的基础。',
+  actions: `<button class="btn btn-primary" onclick="App.openModal('markModal')">+ 新建标记</button>`,
+  content: `
+  <div class="card">
+    <div class="card-h">
+      <input class="search" type="text" placeholder="搜索标记…" />
+      <select><option>全部类型</option><option>密级标记</option><option>业务标记</option><option>自定义标记</option></select>
+    </div>
+    <table class="table">
+      <tr><th>标记</th><th>类型</th><th>默认策略</th><th>已打标对象</th><th>启用</th><th class="actions-cell">操作</th></tr>
+      <tr><td><span class="badge b-gray">L1 公开</span></td><td>密级</td><td>全部可见</td><td>12</td><td><span class="switch on" onclick="this.classList.toggle('on')"></span></td><td class="actions-cell"><button class="btn-link btn-sm" onclick="toast('编辑标记')">编辑</button></td></tr>
+      <tr><td><span class="badge b-orange">L2 内部</span></td><td>密级</td><td>空间成员可见</td><td>38</td><td><span class="switch on" onclick="this.classList.toggle('on')"></span></td><td class="actions-cell"><button class="btn-link btn-sm" onclick="toast('编辑标记')">编辑</button></td></tr>
+      <tr><td><span class="badge b-red">L3 秘密</span></td><td>密级</td><td>仅授权角色可见</td><td>9</td><td><span class="switch on" onclick="this.classList.toggle('on')"></span></td><td class="actions-cell"><button class="btn-link btn-sm" onclick="toast('编辑标记')">编辑</button></td></tr>
+      <tr><td><span class="badge b-purple">PII 个人信息</span></td><td>业务标记</td><td>可见但脱敏</td><td>4</td><td><span class="switch on" onclick="this.classList.toggle('on')"></span></td><td class="actions-cell"><button class="btn-link btn-sm" onclick="toast('编辑标记')">编辑</button></td></tr>
+      <tr><td><span class="badge b-cyan">FIN 财务敏感</span></td><td>业务标记</td><td>可见但不可导出</td><td>6</td><td><span class="switch on" onclick="this.classList.toggle('on')"></span></td><td class="actions-cell"><button class="btn-link btn-sm" onclick="toast('编辑标记')">编辑</button></td></tr>
+      <tr><td><span class="badge b-blue">EQP-COST 成本类</span></td><td>自定义</td><td>仅授权角色可见</td><td>3</td><td><span class="switch on" onclick="this.classList.toggle('on')"></span></td><td class="actions-cell"><button class="btn-link btn-sm" onclick="toast('编辑标记')">编辑</button></td></tr>
+    </table>
+    <div class="pager">共 6 条<span style="flex:1"></span><span class="pg">‹</span><span class="pg cur">1</span><span class="pg">›</span></div>
+  </div>
+  <div class="card mt16">
+    <div class="card-h"><h3>打标范围说明</h3></div>
+    <div class="card-b text-2 fs13">标记可打在：数据源 / 数据集 / 字段 / 本体类 / 属性 / 动作 上，策略在查询与 Pipeline 执行时统一生效。</div>
+  </div>`,
+});
+</script>
+</body>
+</html>

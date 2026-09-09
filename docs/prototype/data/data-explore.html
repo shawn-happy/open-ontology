@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<title>数据探查 · Open Ontology</title>
+<link rel="stylesheet" href="../assets/style.css" />
+</head>
+<body>
+<div id="root"></div>
+<script src="../assets/app.js"></script>
+<script>
+App.mount({
+  page: 'data-explore',
+  crumbs: ['智能制造空间', '数据管理', '数据探查'],
+  title: '数据探查',
+  desc: '通过 SQL 脚本只读探查空间内数据，结果可保存为片段或提交为数据集。',
+  actions: `
+    <button class="btn" onclick="toast('已保存到我的脚本')">保存脚本</button>
+    <button class="btn btn-primary" onclick="toast('查询完成 · 3.2s')">▶ 运行（Limit 200）</button>`,
+  content: `
+  <div class="card">
+    <div class="card-h">
+      <select><option>Doris-生产</option><option>NebulaGraph-图空间</option></select>
+      <select><option>我的脚本</option><option>各产线故障良率.sql</option><option>设备清单.sql</option></select>
+      <div class="right"><button class="btn btn-sm" onclick="toast('SQL 已格式化')">格式化</button><button class="btn btn-sm" onclick="toast('查询计划')">执行计划</button></div>
+    </div>
+    <div class="card-b">
+      <div class="code-editor mb16"><span class="cm">-- 各产线近 7 天设备故障数与平均良率</span>
+<span class="kw">SELECT</span> e.line,
+       <span class="fn">count</span>(w.wo_id)                        <span class="kw">AS</span> fault_cnt,
+       <span class="fn">round</span>(<span class="fn">avg</span>(r.yield_rate), <span class="num">2</span>)           <span class="kw">AS</span> avg_yield
+<span class="kw">FROM</span> equipment_master e
+<span class="kw">LEFT JOIN</span> work_order w  <span class="kw">ON</span> w.eqp_id = e.eqp_id <span class="kw">AND</span> w.type = <span class="str">'FAULT'</span>
+<span class="kw">LEFT JOIN</span> quality_report r <span class="kw">ON</span> r.eqp_id = e.eqp_id
+<span class="kw">WHERE</span> r.created_at >= <span class="fn">date_sub</span>(<span class="fn">now</span>(), <span class="kw">INTERVAL</span> <span class="num">7</span> <span class="kw">DAY</span>)
+<span class="kw">GROUP BY</span> e.line
+<span class="kw">ORDER BY</span> fault_cnt <span class="kw">DESC</span>;</div>
+      <div class="result-meta">
+        <span>返回 3 行</span><span>耗时 3.2 s</span><span>扫描 1.8 GB</span>
+        <span>密级 L2 · 已脱敏字段：cost 类字段自动掩码</span>
+      </div>
+      <table class="table">
+        <tr><th class="mono">line</th><th class="mono">fault_cnt</th><th class="mono">avg_yield</th></tr>
+        <tr><td class="mono">L3</td><td class="mono">14</td><td class="mono">93.21</td></tr>
+        <tr><td class="mono">L2</td><td class="mono">6</td><td class="mono">96.88</td></tr>
+        <tr><td class="mono">L1</td><td class="mono">3</td><td class="mono">98.40</td></tr>
+      </table>
+      <div class="flex mt16">
+        <button class="btn btn-sm" onclick="toast('结果已提交为新数据集')">提交为数据集</button>
+        <button class="btn btn-sm" onclick="toast('导出 CSV')">导出 CSV</button>
+        <button class="btn btn-sm" onclick="toast('保存查询片段')">保存片段</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="card mt16">
+    <div class="card-h"><h3>查询历史</h3></div>
+    <div class="card-b" style="padding-top:0;">
+      <table class="table">
+        <tr><th>时间</th><th>脚本</th><th>数据源</th><th>耗时</th><th>状态</th></tr>
+        <tr><td class="mono fs12">10:29:55</td><td class="fs12">各产线故障良率.sql</td><td>Doris-生产</td><td class="mono">3.2s</td><td><span class="badge b-green">成功</span></td></tr>
+        <tr><td class="mono fs12">10:11:32</td><td class="fs12">设备清单.sql</td><td>Doris-生产</td><td class="mono">0.4s</td><td><span class="badge b-green">成功</span></td></tr>
+        <tr><td class="mono fs12">09:47:10</td><td class="fs12">（临时查询）故障图谱邻接探查</td><td>NebulaGraph-图空间</td><td class="mono">1.1s</td><td><span class="badge b-orange">部分字段已脱敏</span></td></tr>
+      </table>
+    </div>
+  </div>`,
+});
+</script>
+</body>
+</html>

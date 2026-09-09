@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<title>本体资产统计 · Open Ontology</title>
+<link rel="stylesheet" href="../assets/style.css" />
+</head>
+<body>
+<div id="root"></div>
+<script src="../assets/app.js"></script>
+<script>
+App.mount({
+  page: 'audit-assets',
+  crumbs: ['智能制造空间', '审计管理', '本体资产统计'],
+  title: '本体资产统计',
+  desc: '空间内本体对象 / 属性 / 动作 / 函数等资产的数量与活跃度统计。',
+  actions: `<button class="btn" onclick="toast('导出统计报表')">导出报表</button>`,
+  content: `
+  <div class="stat-grid">
+    <div class="stat"><div class="label">对象类</div><div class="val">4</div></div>
+    <div class="stat"><div class="label">接口 / 抽象类</div><div class="val">3</div></div>
+    <div class="stat"><div class="label">枚举类</div><div class="val">4</div></div>
+    <div class="stat"><div class="label">属性总数</div><div class="val">41</div></div>
+    <div class="stat"><div class="label">动作 / 函数</div><div class="val">5 / 5</div></div>
+  </div>
+  <div class="row">
+    <div class="card col">
+      <div class="card-h"><h3>对象实例数（Top 5）</h3></div>
+      <div class="card-b">
+        <div class="bars" style="height:200px;">
+          ${[['设备', 86], ['物料', 74], ['质检报告', 58], ['工艺', 32], ['工单', 21]].map(b => `
+          <div class="bar-col"><div class="num">${b[1] * 120}</div><div class="bar" style="height:${b[1]}%"></div><div class="lbl">${b[0]}</div></div>`).join('')}
+        </div>
+      </div>
+    </div>
+    <div class="card col">
+      <div class="card-h"><h3>资产活跃度（近 30 天被查询次数）</h3></div>
+      <div class="card-b">
+        <table class="table">
+          <tr><th>资产</th><th>类型</th><th>查询次数</th><th>趋势</th></tr>
+          <tr><td class="mono">Equipment</td><td>对象类</td><td class="mono">48,210</td><td><span class="badge b-green">▲ 12%</span></td></tr>
+          <tr><td class="mono">QualityReport</td><td>对象类</td><td class="mono">31,584</td><td><span class="badge b-green">▲ 5%</span></td></tr>
+          <tr><td class="mono">Material</td><td>对象类</td><td class="mono">18,233</td><td><span class="badge b-green">▲ 2%</span></td></tr>
+          <tr><td class="mono">calcEquipmentYield</td><td>函数</td><td class="mono">8,442</td><td><span class="badge b-orange">▼ 3%</span></td></tr>
+          <tr><td class="mono">reportEquipmentFault</td><td>动作</td><td class="mono">612</td><td><span class="badge b-green">▲ 22%</span></td></tr>
+        </table>
+      </div>
+    </div>
+  </div>
+  <div class="card mt16">
+    <div class="card-h"><h3>资产维护情况</h3></div>
+    <div class="card-b" style="padding-top:0;">
+      <table class="table">
+        <tr><th>资产域</th><th>类数</th><th>属性数</th><th>最近变更</th><th>变更人</th><th>草稿版本</th></tr>
+        <tr><td>生产域</td><td>4</td><td>27</td><td class="mono fs12">09-09 10:42</td><td>李静</td><td>1（Equipment v4）</td></tr>
+        <tr><td>质量域</td><td>1</td><td>7</td><td class="mono fs12">09-02 15:20</td><td>吴娜</td><td>0</td></tr>
+        <tr><td>资产域</td><td>2</td><td>5</td><td class="mono fs12">08-28 09:11</td><td>shawn</td><td>0</td></tr>
+        <tr><td>基础类型</td><td>4</td><td>2</td><td class="mono fs12">08-12 11:03</td><td>shawn</td><td>0</td></tr>
+      </table>
+    </div>
+  </div>`,
+});
+</script>
+</body>
+</html>

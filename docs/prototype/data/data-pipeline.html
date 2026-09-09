@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<title>Pipeline 管理 · Open Ontology</title>
+<link rel="stylesheet" href="../assets/style.css" />
+</head>
+<body>
+<div id="root"></div>
+<script src="../assets/app.js"></script>
+<script>
+const pipelines = [
+  ['pl-equipment-cdc', '数据集成 · 设备主数据 CDC', '集成', 'Flink CDC → Doris', '每 5 分钟', '正常', '09-09 10:30'],
+  ['pl-quality-clean', '数据开发 · 质检数据清洗', '开发', 'SQL → Doris dwd 层', '每日 01:00', '正常', '09-09 01:12'],
+  ['pl-graph-import', '数据集成 · 故障图谱构建', '集成', 'Doris → NebulaGraph', '每小时', '正常', '09-09 10:00'],
+  ['pl-dq-check', '数据质量 · BOM 外键校验', '质量', '值约束规则回刷', '每日 02:00', '昨日 3 条隔离', '09-09 02:05'],
+  ['pl-lineage', '数据治理 · 血缘采集', '治理', '元数据血缘解析', '每日 03:00', '正常', '09-09 03:02'],
+];
+
+App.mount({
+  page: 'data-pipeline',
+  crumbs: ['智能制造空间', '数据管理', 'Pipeline 管理'],
+  title: 'Pipeline 管理',
+  desc: '数据集成、数据开发、数据质量与数据治理任务的 DAG 编排与调度。',
+  actions: `<button class="btn btn-primary" onclick="toast('新建 Pipeline（DAG 编排画布）')">+ 新建 Pipeline</button>`,
+  content: `
+  <div class="card">
+    <div class="card-h">
+      <select><option>全部类别</option><option>数据集成</option><option>数据开发</option><option>数据质量</option><option>数据治理</option></select>
+      <select><option>全部状态</option><option>正常</option><option>异常</option></select>
+      <input class="search" type="text" placeholder="搜索 Pipeline…" />
+    </div>
+    <table class="table">
+      <tr><th>Pipeline</th><th>类别</th><th>执行引擎</th><th>调度</th><th>状态</th><th>最近运行</th><th class="actions-cell">操作</th></tr>
+      ${pipelines.map(p => `
+      <tr>
+        <td><b class="mono">${p[0]}</b> <div class="fs12 text-2">${p[1]}</div></td>
+        <td><span class="badge b-${p[2]==='集成' ? 'blue' : p[2]==='开发' ? 'cyan' : p[2]==='质量' ? 'orange' : 'purple'} no-dot">${p[2]}</span></td>
+        <td class="fs12">${p[3]}</td><td class="fs12">${p[4]}</td>
+        <td><span class="badge ${p[5]==='正常' ? 'b-green' : 'b-orange'}">${p[5]}</span></td>
+        <td class="mono fs12">${p[6]}</td>
+        <td class="actions-cell">
+          <button class="btn-link btn-sm" onclick="toast('打开 DAG 编排画布')">编排</button>
+          <button class="btn-link btn-sm" onclick="toast('手动触发')">运行</button>
+          <button class="btn-link btn-sm" onclick="toast('查看运行历史')">历史</button>
+          <button class="btn-link btn-sm" onclick="toast('编辑调度配置')">调度</button>
+        </td>
+      </tr>`).join('')}
+    </table>
+    <div class="pager">共 5 条<span style="flex:1"></span><span class="pg">‹</span><span class="pg cur">1</span><span class="pg">›</span></div>
+  </div>
+
+  <div class="card mt16">
+    <div class="card-h"><h3>最近运行实例</h3><div class="right"><a href="../audit/audit-pipelines.html" class="fs12">全部运行 →</a></div></div>
+    <div class="card-b" style="padding-top:0;">
+      <div class="timeline">
+        <div class="tl-item"><div class="tl-time">09-09 10:30:00 → 10:30:41（41s）</div><div class="tl-title">pl-equipment-cdc · 成功</div><div class="tl-desc">同步 1,204 行增量 · 目标 equipment_master</div></div>
+        <div class="tl-item"><div class="tl-time">09-09 10:00:00 → 10:03:12（3m12s）</div><div class="tl-title">pl-graph-import · 成功</div><div class="tl-desc">写入点 312 · 边 894 · NebulaGraph space mfg</div></div>
+        <div class="tl-item"><div class="tl-time">09-09 03:00:00 → 03:01:48</div><div class="tl-title">pl-lineage · 成功</div><div class="tl-desc">解析血缘关系 46 条，覆盖 6 个数据集</div></div>
+        <div class="tl-item warn"><div class="tl-time">09-09 02:05:00 → 02:09:47</div><div class="tl-title">pl-dq-check · 部分失败</div><div class="tl-desc">3 条记录未通过「物料外键校验」进入隔离区，已通知 @周杰</div></div>
+        <div class="tl-item"><div class="tl-time">09-09 01:00:00 → 01:12:33（12m33s）</div><div class="tl-title">pl-quality-clean · 成功</div><div class="tl-desc">清洗 246,802 行 · 产出 dwd_quality_detail</div></div>
+      </div>
+    </div>
+  </div>`,
+});
+</script>
+</body>
+</html>
