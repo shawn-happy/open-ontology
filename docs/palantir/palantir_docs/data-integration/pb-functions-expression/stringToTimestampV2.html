@@ -1,0 +1,748 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Convert a string to timestamp</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Convert a string to timestamp</h1>
+<blockquote>
+<p>Supported in: Batch, Faster, Streaming</p>
+</blockquote>
+<p>Returns the timestamp given a formatted string in accordance to the Java DateTimeFormatter. The default formats are <code>yyyy-MM-dd'T'HH:mm:ss.SSSXXX</code> and <code>yyyy-MM-dd</code>. The formats are run in order, the first matching format will be returned.</p>
+<p><strong>Expression categories:</strong> Cast, Datetime</p>
+<h2>Declared arguments</h2>
+<ul>
+<li><strong>String:</strong> String column to convert to timestamp.<br><em>Expression\<String></em></li>
+<li><em>optional</em> <strong>Formats:</strong> Format defaults to ISO8601 <code>yyyy-MM-dd'T'HH:mm:ss.SSSXXX</code> and <code>yyyy-MM-dd</code>.<br><em>List\<Literal\\<String>></em></li>
+<li><em>optional</em> <strong>Time zone:</strong> Used to parse formats that do not include a timezone. If the format also includes a zone, this parameter will override it - see examples for details.<br><em>TimeZone</em></li>
+</ul>
+<p><strong>Output type:</strong> <em>Timestamp</em></p>
+<h2>Examples</h2>
+<h3>Example 1: Base case</h3>
+<p><strong>Argument values:</strong></p>
+<ul>
+<li><strong>String:</strong> <code>timestamp</code></li>
+<li><strong>Formats:</strong> [yyyy-MM-dd'T'HH\:mm:ss.SSSSSSX]</li>
+<li><strong>Time zone:</strong> <em>null</em></li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>timestamp</th>
+<th><strong>Output</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>2020-04-28T01:30:02.005110Z</td>
+<td>2020-04-28T01:30:02.00511Z</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3>Example 2: Base case</h3>
+<p><strong>Argument values:</strong></p>
+<ul>
+<li><strong>String:</strong> <code>timestamp</code></li>
+<li><strong>Formats:</strong> <em>null</em></li>
+<li><strong>Time zone:</strong> <em>null</em></li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>timestamp</th>
+<th><strong>Output</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>2020-04-28T01:30:02.005Z</td>
+<td>2020-04-28T01:30:02.005Z</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3>Example 3: Base case</h3>
+<p><strong>Argument values:</strong></p>
+<ul>
+<li><strong>String:</strong> <code>timestamp</code></li>
+<li><strong>Formats:</strong> <em>null</em></li>
+<li><strong>Time zone:</strong> <em>null</em></li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>timestamp</th>
+<th><strong>Output</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>2020-04-28</td>
+<td>2020-04-28T00:00:00Z</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3>Example 4: Base case</h3>
+<p><strong>Argument values:</strong></p>
+<ul>
+<li><strong>String:</strong> <code>timestamp</code></li>
+<li><strong>Formats:</strong> [dd-yyyy-MM HH\:mm:ss, yyyy-MM-dd]</li>
+<li><strong>Time zone:</strong> <em>null</em></li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>timestamp</th>
+<th><strong>Output</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>28-2020-04 10:09:00</td>
+<td>2020-04-28T10:09:00Z</td>
+</tr>
+<tr>
+<td>2020-04-28</td>
+<td>2020-04-28T00:00:00Z</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3>Example 5: Base case</h3>
+<p><strong>Argument values:</strong></p>
+<ul>
+<li><strong>String:</strong> <code>timestamp</code></li>
+<li><strong>Formats:</strong> [yyyy-DDD HH\:mm:ss]</li>
+<li><strong>Time zone:</strong> <em>null</em></li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>timestamp</th>
+<th><strong>Output</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>2022-334 10:09:00</td>
+<td>2022-11-30T10:09:00Z</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3>Example 6: Base case</h3>
+<p><strong>Argument values:</strong></p>
+<ul>
+<li><strong>String:</strong> <code>timestamp</code></li>
+<li><strong>Formats:</strong> [dd MMMM yyyy HH\:mm:ss]</li>
+<li><strong>Time zone:</strong> <em>null</em></li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>timestamp</th>
+<th><strong>Output</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>30 November 2022 10:09:00</td>
+<td>2022-11-30T10:09:00Z</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3>Example 7: Base case</h3>
+<p><strong>Argument values:</strong></p>
+<ul>
+<li><strong>String:</strong> <code>timestamp</code></li>
+<li><strong>Formats:</strong> [yyyy-MM-dd h\:mm:ss a]</li>
+<li><strong>Time zone:</strong> <em>null</em></li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>timestamp</th>
+<th><strong>Output</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>2022-11-30 1:30:00 PM</td>
+<td>2022-11-30T13:30:00Z</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3>Example 8: Base case</h3>
+<p><strong>Argument values:</strong></p>
+<ul>
+<li><strong>String:</strong> <code>timestamp</code></li>
+<li><strong>Formats:</strong> [yyyy-MM-dd HH\:m:ss]</li>
+<li><strong>Time zone:</strong> <em>null</em></li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>timestamp</th>
+<th><strong>Output</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>2022-11-30 13:9:00</td>
+<td>2022-11-30T13:09:00Z</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3>Example 9: Base case</h3>
+<p><strong>Argument values:</strong></p>
+<ul>
+<li><strong>String:</strong> <code>timestamp</code></li>
+<li><strong>Formats:</strong> [dd-MMM-yyyy HH\:mm:ss]</li>
+<li><strong>Time zone:</strong> <em>null</em></li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>timestamp</th>
+<th><strong>Output</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>30-Nov-2022 10:09:00</td>
+<td>2022-11-30T10:09:00Z</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3>Example 10: Base case</h3>
+<p><strong>Argument values:</strong></p>
+<ul>
+<li><strong>String:</strong> <code>timestamp</code></li>
+<li><strong>Formats:</strong> [yyyy-DDD]</li>
+<li><strong>Time zone:</strong> <em>null</em></li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>timestamp</th>
+<th><strong>Output</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>2022-334</td>
+<td>2022-11-30T00:00:00Z</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3>Example 11: Base case</h3>
+<p><strong>Argument values:</strong></p>
+<ul>
+<li><strong>String:</strong> <code>timestamp</code></li>
+<li><strong>Formats:</strong> [yyyy-MM-dd HH\:mm:s]</li>
+<li><strong>Time zone:</strong> <em>null</em></li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>timestamp</th>
+<th><strong>Output</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>2022-11-30 13:09:0</td>
+<td>2022-11-30T13:09:00Z</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3>Example 12: Base case</h3>
+<p><strong>Argument values:</strong></p>
+<ul>
+<li><strong>String:</strong> <code>timestamp</code></li>
+<li><strong>Formats:</strong> [yy-MM-dd HH\:mm:ss]</li>
+<li><strong>Time zone:</strong> <em>null</em></li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>timestamp</th>
+<th><strong>Output</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>22-11-30 10:09:00</td>
+<td>2022-11-30T10:09:00Z</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3>Example 13: Base case</h3>
+<p><strong>Argument values:</strong></p>
+<ul>
+<li><strong>String:</strong> <code>timestamp</code></li>
+<li><strong>Formats:</strong> [dd-MMM-yyyy HH\:mm:ss]</li>
+<li><strong>Time zone:</strong> <em>null</em></li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>timestamp</th>
+<th><strong>Output</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>01-Nov-2023 10:09:00</td>
+<td>2023-11-01T10:09:00Z</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3>Example 14: Base case</h3>
+<p><strong>Argument values:</strong></p>
+<ul>
+<li><strong>String:</strong> <code>timestamp</code></li>
+<li><strong>Formats:</strong> [dd-MMM-yyyy HH\:mm:ss]</li>
+<li><strong>Time zone:</strong> <em>null</em></li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>timestamp</th>
+<th><strong>Output</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>01-NOV-2023 10:09:00</td>
+<td>2023-11-01T10:09:00Z</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3>Example 15: Base case</h3>
+<p><strong>Argument values:</strong></p>
+<ul>
+<li><strong>String:</strong> <code>timestamp</code></li>
+<li><strong>Formats:</strong> [yyyy-MM-dd HH\:mm:ss z]</li>
+<li><strong>Time zone:</strong> <em>null</em></li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>timestamp</th>
+<th><strong>Output</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>2022-11-30 10:09:00 PST</td>
+<td>2022-11-30T18:09:00Z</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3>Example 16: Base case</h3>
+<p><strong>Argument values:</strong></p>
+<ul>
+<li><strong>String:</strong> <code>timestamp</code></li>
+<li><strong>Formats:</strong> [yyyy-MM-dd'T'HH\:mm:ss.SSS;z]</li>
+<li><strong>Time zone:</strong> <em>null</em></li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>timestamp</th>
+<th><strong>Output</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>2022-11-29T09:50:04.187;EST</td>
+<td>2022-11-29T14:50:04.187Z</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3>Example 17: Base case</h3>
+<p><strong>Argument values:</strong></p>
+<ul>
+<li><strong>String:</strong> <code>timestamp</code></li>
+<li><strong>Formats:</strong> [yyyy-MM-dd'T'HH\:mm:ss.SSSXXX]</li>
+<li><strong>Time zone:</strong> <em>null</em></li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>timestamp</th>
+<th><strong>Output</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>2022-11-29T09:50:04.187-05:00</td>
+<td>2022-11-29T14:50:04.187Z</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3>Example 18: Base case</h3>
+<p><strong>Argument values:</strong></p>
+<ul>
+<li><strong>String:</strong> <code>timestamp</code></li>
+<li><strong>Formats:</strong> [dd-yyyy-MM HH\:mm:ss]</li>
+<li><strong>Time zone:</strong> Australia/Sydney</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>timestamp</th>
+<th><strong>Output</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>28-2020-04 04:12:00</td>
+<td>2020-04-28T04:12:00+10:00</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3>Example 19: Base case</h3>
+<p><strong>Argument values:</strong></p>
+<ul>
+<li><strong>String:</strong> <code>timestamp</code></li>
+<li><strong>Formats:</strong> [dd-yyyy-MM HH\:mm:ss]</li>
+<li><strong>Time zone:</strong> +10</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>timestamp</th>
+<th><strong>Output</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>28-2020-04 04:12:00</td>
+<td>2020-04-28T04:12:00+10:00</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3>Example 20: Null case</h3>
+<p><strong>Argument values:</strong></p>
+<ul>
+<li><strong>String:</strong> <code>timestamp</code></li>
+<li><strong>Formats:</strong> [dd-yyyy-MM HH\:mm:ss, yyyy-MM-dd]</li>
+<li><strong>Time zone:</strong> <em>null</em></li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>timestamp</th>
+<th><strong>Output</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>202021-04-28</td>
+<td><em>null</em></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3>Example 21: Edge case</h3>
+<p><strong>Argument values:</strong></p>
+<ul>
+<li><strong>String:</strong> <code>timestamp</code></li>
+<li><strong>Formats:</strong> [yyyy-MM-dd'T'HH\:mm:ss.SSS;v]</li>
+<li><strong>Time zone:</strong> <em>null</em></li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>timestamp</th>
+<th><strong>Output</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>2022-11-29T09:50:04.187;Australia/Sydney</td>
+<td>2022-11-28T22:50:04.187Z</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3>Example 22: Edge case</h3>
+<p><strong>Argument values:</strong></p>
+<ul>
+<li><strong>String:</strong> <code>timestamp</code></li>
+<li><strong>Formats:</strong> [yyyy-MM-dd'T'HH\:mm:ss.SSS;ZZZ]</li>
+<li><strong>Time zone:</strong> Australia/Sydney</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>timestamp</th>
+<th><strong>Output</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>2022-11-29T09:50:04.187;-0500</td>
+<td>2022-11-29T03:50:04.187Z</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3>Example 23: Edge case</h3>
+<p><strong>Argument values:</strong></p>
+<ul>
+<li><strong>String:</strong> <code>timestamp</code></li>
+<li><strong>Formats:</strong> [yyyy-MM-dd'T'HH\:mm:ss.SSS;z]</li>
+<li><strong>Time zone:</strong> Australia/Sydney</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>timestamp</th>
+<th><strong>Output</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>2022-11-29T09:50:04.187;EST</td>
+<td>2022-11-28T22:50:04.187Z</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3>Example 24: Edge case</h3>
+<p><strong>Argument values:</strong></p>
+<ul>
+<li><strong>String:</strong> <code>timestamp</code></li>
+<li><strong>Formats:</strong> [yyyy-MM-dd hh\:mm:ss a]</li>
+<li><strong>Time zone:</strong> <em>null</em></li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>timestamp</th>
+<th><strong>Output</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>2022-11-30 10:09:00 AM</td>
+<td>2022-11-30T10:09:00Z</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3>Example 25: Edge case</h3>
+<p><strong>Argument values:</strong></p>
+<ul>
+<li><strong>String:</strong> <code>timestamp</code></li>
+<li><strong>Formats:</strong> [yyyy-MM-dd hh\:mm:ss a]</li>
+<li><strong>Time zone:</strong> <em>null</em></li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>timestamp</th>
+<th><strong>Output</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>2022-11-30 10:09:00 PM</td>
+<td>2022-11-30T22:09:00Z</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3>Example 26: Edge case</h3>
+<p><strong>Argument values:</strong></p>
+<ul>
+<li><strong>String:</strong> <code>timestamp</code></li>
+<li><strong>Formats:</strong> [yyyyDDD]</li>
+<li><strong>Time zone:</strong> UTC</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>timestamp</th>
+<th><strong>Output</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>2023010</td>
+<td>2023-01-10T00:00:00Z</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3>Example 27: Edge case</h3>
+<p><strong>Argument values:</strong></p>
+<ul>
+<li><strong>String:</strong> <code>timestamp</code></li>
+<li><strong>Formats:</strong> [yyyyDDD]</li>
+<li><strong>Time zone:</strong> EST</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>timestamp</th>
+<th><strong>Output</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>2023010</td>
+<td>2023-01-10T05:00:00Z</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3>Example 28: Edge case</h3>
+<p><strong>Argument values:</strong></p>
+<ul>
+<li><strong>String:</strong> <code>timestamp</code></li>
+<li><strong>Formats:</strong> [yyyyDDD]</li>
+<li><strong>Time zone:</strong> <em>null</em></li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>timestamp</th>
+<th><strong>Output</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>2023010</td>
+<td>2023-01-10T00:00:00Z</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3>Example 29: Edge case</h3>
+<p><strong>Argument values:</strong></p>
+<ul>
+<li><strong>String:</strong> <code>timestamp</code></li>
+<li><strong>Formats:</strong> [yyyyMMddHHmmss]</li>
+<li><strong>Time zone:</strong> UTC</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>timestamp</th>
+<th><strong>Output</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>20230110000000</td>
+<td>2023-01-10T00:00:00Z</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3>Example 30: Edge case</h3>
+<p><strong>Argument values:</strong></p>
+<ul>
+<li><strong>String:</strong> <code>timestamp</code></li>
+<li><strong>Formats:</strong> [yyyyMMddHHmmss]</li>
+<li><strong>Time zone:</strong> <em>null</em></li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>timestamp</th>
+<th><strong>Output</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>20230110000000</td>
+<td>2023-01-10T00:00:00Z</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3>Example 31: Edge case</h3>
+<p><strong>Argument values:</strong></p>
+<ul>
+<li><strong>String:</strong> <code>timestamp</code></li>
+<li><strong>Formats:</strong> [yyyy-MM-dd'T'HH\:mm:ss.SSSXXX;z]</li>
+<li><strong>Time zone:</strong> <em>null</em></li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>timestamp</th>
+<th><strong>Output</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>2022-11-29T09:50:04.187Z;EST</td>
+<td>2022-11-29T09:50:04.187Z</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3>Example 32: Edge case</h3>
+<p><strong>Argument values:</strong></p>
+<ul>
+<li><strong>String:</strong> <code>timestamp</code></li>
+<li><strong>Formats:</strong> [yyyy-MM-dd'T'HH\:mm:ss.SSSSSSX]</li>
+<li><strong>Time zone:</strong> <em>null</em></li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>timestamp</th>
+<th><strong>Output</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>2020-04-28T01:30:02.005112Z</td>
+<td>2020-04-28T01:30:02.005112Z</td>
+</tr>
+</tbody>
+</table>
+<hr />
+</body>
+</html>

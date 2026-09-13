@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Preview transforms in local development</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Preview transforms in local development</h1>
+<p>There are two main ways to preview transforms in local development with VS Code:</p>
+<ul>
+<li><a href="#preview-with-the-palantir-extension-for-visual-studio-code-python-only">Preview transforms with the Palantir extension for Visual Studio Code for Python</a></li>
+<li><a href="#gradle-based-local-preview-for-java">Preview transforms with Gradle-based local preview for Java</a></li>
+</ul>
+<h2>Preview with the Palantir extension for Visual Studio Code (Python only)</h2>
+<p>The Palantir extension for Visual Studio Code supports local preview functionality. Refer to the <a href="https://www.palantir.com/docs/foundry/palantir-extension-for-visual-studio-code/overview/">extension documentation</a> for installation instructions. Once the extension has been installed and the environment is ready for preview, your transforms should be automatically discovered in the <strong>Preview</strong> tab as shown below.</p>
+<p><img alt="Preview functionality for a Python transforms repository in the extension for Visual Studio Code." src="../../_resources/foundry/transforms-common/vscode-transforms-preview.png" /></p>
+<p>You can also run local preview for Python transforms. When running preview locally, parts of the datasets are streamed to your machine. For more information, review the <a href="https://www.palantir.com/docs/foundry/palantir-extension-for-visual-studio-code/transforms-preview/">documentation for transforms preview</a>.</p>
+<h2>Gradle-based local preview for Java</h2>
+<p>This section details the steps required to preview Python and Java transforms in local development. For additional context, review our documentation for <a href="https://www.palantir.com/docs/foundry/transforms-java/local-development/">Java local development</a>. You can also learn more about <a href="https://www.palantir.com/docs/foundry/code-repositories/preview-transforms/">how to preview transforms</a>. Gradle-based local preview executes the preview remotely, inside of Foundry.</p>
+<h3>Prerequisites and limitations</h3>
+<p>Local preview support requires that the local branch must be tracking a remote branch such that the local branch needs to be pushed at least once, on top of existing prerequisites for local development. Note the following additional limitations:</p>
+<ul>
+<li>The preview URI can only be accessed by the user who ran the preview and is available on a temporary basis.</li>
+</ul>
+<h3>Run dataset preview</h3>
+<p>Before running the preview, you must set up the environment for local development and ensure that your repository is <a href="https://www.palantir.com/docs/foundry/code-repositories/repository-upgrades/#manual-branch-upgrade">upgraded to the latest template version</a>.</p>
+<ol>
+<li>
+<p>Run <code>./gradlew displayTransformsList</code> which will return a list of all available transforms.
+   <img alt="Use datasetPreview task to list all available transforms" src="../../_resources/foundry/transforms-common/display-transforms-list.png" /></p>
+</li>
+<li>
+<p>Run <code>./gradlew datasetPreview --transformId=&lt;transformId&gt;</code> with <code>&lt;transformId&gt;</code> replaced by one of the transform ids (blue text on the screenshot above), which will return a link to Foundry where the already-computed preview can be accessed.
+   <img alt="Use datasetPreview task to run preview and get Foundry link" src="../../_resources/foundry/transforms-common/dataset-preview-result-in-terminal-as-uri.png" />
+   <img alt="Precomputed dataset preview in Foundry" src="../../_resources/foundry/transforms-common/dataset-preview-result-in-foundry.png" /></p>
+</li>
+<li>
+<p>(Optional) Add <code>--printMode=table</code> flag to the command above to print the first 10 rows of all previewed datasets directly in your terminal instead of being provided a link to the preview.
+   <img alt="Use datasetPreview task to run preview and print to terminal" src="../../_resources/foundry/transforms-common/dataset-preview-result-in-terminal-as-table.png" /></p>
+</li>
+<li>
+<p>(Optional) To include input files in the preview, add <code>--inputFiles=&lt;datasetAlias&gt;:&lt;path&gt;</code> where <code>&lt;datasetAlias&gt;</code> is one of the input datasets from the selected transform function and <code>&lt;path&gt;</code> is the file path within the input dataset.
+   <img alt="Use input files arguments to include dataset's files" src="../../_resources/foundry/transforms-common/dataset-preview-file-input-arguments.png" /></p>
+</li>
+<li>
+<p>(Optional) To include output files in the preview, add <code>--outputFiles=&lt;datasetAlias&gt;:&lt;path&gt;</code> where <code>&lt;datasetAlias&gt;</code> is one of the output datasets from the selected transform function and <code>&lt;path&gt;</code> is the file path within the output dataset.
+   <img alt="Use output files arguments to include dataset's files" src="../../_resources/foundry/transforms-common/dataset-preview-file-output-arguments.png" /></p>
+</li>
+</ol>
+</body>
+</html>

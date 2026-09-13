@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sample architecture</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Sample architecture</h1>
+<p>The diagram below illustrates how Ontology MCP (OMCP) and <a href="https://www.palantir.com/docs/foundry/palantir-mcp/overview/">Palantir MCP</a> (PMCP) fit into a broader agentic architecture that spans Palantir Foundry and external clouds.</p>
+<p><img alt="A reference architecture diagram showing four sections: External agent applications on the upper left (Microsoft Copilot Studio, Claude Cowork, and Google Gemini Enterprise) connecting via OMCP; Cloud A (Azure / GCP) on the upper right with AlertCreator and AlertResolver agents built on LangChain connecting via OMCP and PMCP respectively; Palantir Foundry in the center with an Ontology and an Orchestration Agent that reads from the ontology and delegates work; and Cloud B (GCP) on the right with an MCP server that reads from a PostgreSQL database exposed through MCP." src="../../_resources/foundry/ontology-mcp/mcp-sample-architecture.png" /></p>
+<h2>Agents consuming the ontology</h2>
+<p>The diagram shows two integration paths into the Foundry ontology.</p>
+<p>The first is a no-code integration from the <strong>External agent applications</strong> section. Platforms such as Microsoft Copilot Studio, <a href="https://claude.ai/">Claude Cowork â</a>, and Google Gemini Enterprise connect to the ontology directly through Ontology MCP (OMCP), without requiring any custom agent code. This makes OMCP a practical entry point for teams that want to expose ontology data and actions to existing enterprise AI assistants.</p>
+<p>The second is a pro-code integration from <strong>Cloud A (Azure / GCP)</strong>. Two agents,<code>AlertCreator</code> and <code>AlertResolver</code>, run outside of Foundry and are built with a framework such as <a href="https://www.langchain.com/">LangChain â</a>. They could also be hosted inside Foundry as a <a href="https://www.palantir.com/docs/foundry/compute-modules/overview/">compute module</a>. Regardless of where they run, each agent connects to the Foundry ontology through one of two MCP servers:</p>
+<ul>
+<li><strong>Ontology MCP (OMCP):</strong> <code>AlertCreator</code> uses Ontology MCP to write data into the ontology, executing predefined actions to create new <code>Alert</code> objects. Ontology MCP exposes object types, action types, and query functions defined for the Developer Console application, which makes it well suited for agents that must safely <em>write</em> data through controlled, restricted actions.</li>
+<li><strong>Palantir MCP (PMCP):</strong> <code>AlertResolver</code> uses Palantir MCP to interact with the platform itself, for example, to update ontology <em>types</em> or work with datasets, transforms, and other platform resources during development workflows.</li>
+</ul>
+<p>Inside Foundry, an <strong>orchestration agent</strong> runs in a container, reads from the ontology, and delegates work to other agents. This pattern lets you keep the ontology as the system of record while letting specialized agents handle individual tasks.</p>
+<h2>Foundry-hosted agents consuming external MCP servers</h2>
+<p>The orchestration agent illustrates the outgoing direction of MCP. Rather than exposing Foundry resources to an external client, the Foundry-hosted agent acts as an MCP client and connects out to an MCP server running in <strong>Cloud B (GCP)</strong>. The MCP server in turn reads from a PostgreSQL database that is itself exposed through an MCP server. This pattern lets Foundry-hosted agents reach external systems and remote agents through a standardized MCP interface, without requiring custom connectors for each backend.</p>
+<h2>Tools exposed through Ontology MCP</h2>
+<p>Ontology MCP turns the resources you have configured in your Developer Console application into MCP tools that an agent can call:</p>
+<ul>
+<li><strong>Object types:</strong> Every object type included in the Developer Console application is reachable through a SQL tool, which lets agents read ontology data by issuing SQL queries against the exposed object types.</li>
+<li><strong>Action types:</strong> Each action type included in the application becomes its own MCP tool, so agents can invoke a specific, predefined action to write data into the ontology.</li>
+<li><strong>Query functions:</strong> Individual query functions can be exposed as their own MCP tools, giving agents access to bespoke read or compute logic that you have authored.</li>
+</ul>
+<h3>Agents as tools</h3>
+<p>Ontology MCP also supports exposing other agents as tools. When you build agentic logic with <a href="https://www.palantir.com/docs/foundry/logic/overview/">AIP Logic</a> or an <a href="https://www.palantir.com/docs/foundry/chatbot-studio/overview/">AIP chatbot</a>, you can save that logic as a function and then expose it through MCP. From the perspective of the calling agent, the AIP Logic function or chatbot is just another tool it can invoke, letting you compose higher-level agents on top of agents you have already built in Foundry.</p>
+<p>For a side-by-side comparison of Ontology MCP and Palantir MCP, see the <a href="https://www.palantir.com/docs/foundry/ontology-mcp/overview/#ontology-mcp-vs-palantir-mcp">overview</a>.</p>
+</body>
+</html>

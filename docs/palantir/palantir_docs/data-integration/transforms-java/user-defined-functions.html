@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>User-defined functions (UDF)</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>User-defined functions (UDF)</h1>
+<p>:::callout{theme="neutral"}
+Pipeline Builder supports both Java and Python user-defined functions (UDFs). <a href="https://www.palantir.com/docs/foundry/functions/python-functions-builder/">Learn more about using Python UDFs in Pipeline Builder</a>.
+:::</p>
+<p>If you cannot manipulate your data with existing transformation options in Pipeline Builder, want to incorporate external Java or Python libraries, or have complex logic you want to reuse across pipelines, you can create your own user-defined function (UDF). User-defined functions let you run your own arbitrary Java or Python code in Pipeline Builder or in Code Repositories that can be versioned and upgraded.</p>
+<p>:::callout{theme="warning"}
+User-defined functions should only be applied when necessary, and we recommend using existing transformations in <a href="https://www.palantir.com/docs/foundry/pipeline-builder/transforms-transform-data/">Pipeline Builder</a> or <a href="https://www.palantir.com/docs/foundry/transforms-java/transforms-pipelines/">Java transform repositories</a> when possible.</p>
+<p>Enrollments must be on Palantir's cloud-hosted infrastructure to use UDFs. Row map, flat map, keyed process, and keyed co-process UDFs are currently supported in Pipeline Builder; async UDFs are not yet supported. User-defined functions are an advanced feature. Be sure to thoroughly review the following documentation to understand the impact of using user-defined functions in your pipeline.
+:::</p>
+<h2>Create a user-defined function (UDF)</h2>
+<p>To create a user-defined function repository, first navigate to a Project where you would like to save the repository.</p>
+<p>Then, select <strong>New</strong> and choose <strong>Code Repository</strong>. Under the <strong>Foundry UDF Definitions</strong> option, select <strong>Map UDF Definition/Implementation</strong> to bootstrap your repository with a UDF template. Finally, select <strong>Initialize repository</strong>.</p>
+<p>You can choose to work locally with your own local environment (recommended) or directly in <a href="https://www.palantir.com/docs/foundry/code-repositories/overview/">Code Repositories</a>.</p>
+<h3>Set up local developer environment (recommended)</h3>
+<p>We recommend working locally to create UDFs. Follow the steps below to set up your local environment.</p>
+<ol>
+<li>To clone your repository, select <strong>Work locally</strong> in the upper right of the screen, then copy the URL.</li>
+</ol>
+<p><img alt="Clone the repository using the remote URL. " src="../../_resources/foundry/transforms-java/work-locally-and-clone.png" /></p>
+<ol start="2">
+<li>
+<p>Open your command line interface (CLI) and run <code>git clone &lt;repo url&gt;</code>.</p>
+</li>
+<li>
+<p>Open the project in your developer environment with the following commands:</p>
+</li>
+</ol>
+<ul>
+<li>IntelliJ IDEA: <code>./gradlew idea open</code></li>
+<li>Eclipse IDE: <code>./gradlew eclipse open</code></li>
+</ul>
+<p>Key CLI commands:</p>
+<ul>
+<li>Re-run code generation files after editing UDF definitions or Java implementation files:</li>
+<li>IntelliJ IDEA: <code>./gradlew idea</code></li>
+<li>Eclipse IDE: <code>./gradlew eclipse</code>.</li>
+<li>Create a lockfile to publish to Pipeline Builder:</li>
+<li><code>./gradlew generateEddieLockfile</code></li>
+<li>Run tests:</li>
+<li>Run only testExamples: <code>./gradlew test --tests examples.ExamplesTest.testExamples</code></li>
+<li>Run all tests: <code>./gradlew test</code></li>
+</ul>
+<h3>Set up Code Repositories environment</h3>
+<p>If you are unable to work in your local IDE, you can edit files directly in Code Repositories and run the key commands in Task Runner.</p>
+<p><img alt="The Task Runner in a Java code repository displaying a successful build." src="../../_resources/foundry/transforms-java/task-runner.png" /></p>
+<p>Key commands:</p>
+<ul>
+<li>Re-run code generation files after editing UDF definitions or Java implementation files:</li>
+<li><code>generateUdfResources</code></li>
+<li>Create a lockfile to publish to Pipeline Builder:</li>
+<li><code>generateEddieLockfile</code></li>
+<li>Run tests:</li>
+<li>Run all tests: <code>test</code></li>
+</ul>
+<h3>Define a user-defined function</h3>
+<p>UDFs are defined in a file that specifies its name, input schema, output schema, and argument types. Java classes will be generated based on this file, and the file name will be visible in Pipeline Builder once you publish.</p>
+<p>To create a new UDF, add a file called <code>&lt;YourUdfName&gt;.yml</code> under <code>src/main/resources/udfs/definitions/</code> with the following fields:</p>
+<ul>
+<li><code>name</code>: The name for the UDF that will be used by code generation to create classes describing its inputs, outputs, and arguments. This name will also be used to refer to this UDF in the <code>deployment.yml</code> file of the deployment repository and is visible as a transform in Pipeline Builder.</li>
+<li><code>customTypes</code> (optional): A block to define custom types that can be reused throughout the <code>inputSchema</code> and <code>outputSchema</code> definitions. See the <a href="#custom-types">Custom types</a> section below for details.</li>
+<li><code>inputSchema</code>: The schema to which input rows must adhere to run against the UDF. Datasets with more columns than this schema are accepted if the runtime can select into this schema. Code generation will create strongly-typed input objects against this schema. Parameters will be visible in Pipeline Builder. See <a href="#schema-definition-yaml">the schema definition section</a> below for details.</li>
+<li><code>outputSchema</code>: The schema for rows output by this UDF. Code generation will create strongly-typed output objects against this schema. See <a href="#schema-definition-yaml">the schema definition section</a> below for details.</li>
+<li><code>arguments</code>: A description of parameters for the UDF. These arguments will be specified by a user at build time in Pipeline Builder or a corresponding deployment repository. Code generation will create a strongly-typed arguments object against this definition.</li>
+</ul>
+<p>An example definition is provided in your repository template under <code>src/main/resources/udfs/definitions/Multiply.yml</code>. Read more about arguments in <a href="#user-defined-function-definition-yaml">the UDF definition section below</a>.</p>
+<p>You can define multiple UDFs in this repository by adding another definition file in <code>src/main/resources/udfs/definitions</code>.</p>
+<h2>Implement a user-defined function</h2>
+<p>Once you create or edit your UDF definition file, run code generation with the commands below. Code generation will create strongly-typed objects from your definition file and place them in <code>udf-definitions-map-udf-definition/build/generated/sources/udf/main/java</code>. The generated classes include input and output objects that match your definition's schema as well as interfaces to implement for your transformation creation and logic. You should also re-run code generation any time you make changes to your <code>YourUdfNameMapUdfFactoryImpl</code> or <code>YourUdfNameMapUdfImpl</code> classes so it can compile your Java package and provide errors if checks do not pass.</p>
+<p>Local environment:</p>
+<ul>
+<li>IntelliJ IDEA: <code>./gradlew idea</code></li>
+<li>Eclipse IDE: <code>./gradlew eclipse</code></li>
+</ul>
+<p>Code Repositories:</p>
+<ul>
+<li>Run <code>generateUdfResources</code> in the Java Task Runner. Generated files are not visible in Code Repositories, but this command provides code completion.</li>
+</ul>
+<p><img alt="Task Runner" src="../../_resources/foundry/transforms-java/task-runner.png" /></p>
+<h3>Implement a row map user-defined function</h3>
+<p>Row map UDFs take one row as input, then output exactly one row per input. Row map is the default UDF type.</p>
+<p>To implement your UDF creation and transformation logic, create two new Java class files under <code>src/main/resources/java/myproject</code>with the following:</p>
+<ul>
+<li><code>YourUdfNameMapUdfFactoryImpl.java</code>: Responsible for creating an instance of the UDF and providing it any parameters for execution.</li>
+<li>This class should implement the generated <code>YourUdfNameMapUdfFactory</code> interface.</li>
+<li>Any UDF arguments are available through the <code>args.config()</code> parameter.</li>
+<li>The <code>create</code> method will be invoked once at runtime to instantiate the UDF.</li>
+<li><code>YourUdfNameMapUdfImpl.java</code>: Implements the actual transformation logic from the input object to the output object.</li>
+<li>This class should implement the generated <code>YourUdfNameMapUdf</code> interface.</li>
+<li>This logic will be called once for every row passing through the transform.</li>
+<li>Input and output class properties and configuration arguments can be accessed with methods of the same name, but in camelCase. For example, <code>argument_one</code> will have a matching method of <code>argumentOne()</code>.</li>
+</ul>
+<p>The repository template includes example implementations of the Java classes listed below. You can use these examples to model your own implementations. Re-run code generation after editing to ensure there are no issues.</p>
+<ul>
+<li><code>src/main/java/myproject/MultiplyMapUdfFactoryImpl.java</code></li>
+<li><code>src/main/java/myproject/MultiplyMapUdfImpl.java</code></li>
+</ul>
+<h3>Implement a flat map user-defined function</h3>
+<p>Flat map UDFs take one row as input and can output 0, 1, or many rows per input.</p>
+<p>To implement your flat map UDF creation and transformation logic, create two new Java class files under <code>src/main/resources/java/myproject</code> using the examples below.</p>
+<p><code>YourUdfNameFlatMapUdfFactoryImpl.java</code>: Responsible for creating an instance of the UDF and providing it parameters for execution.</p>
+<ul>
+<li>This class should implement the generated <code>YourUdfNameFlatMapUdfFactory</code> interface.</li>
+<li>Any UDF arguments are available through the <code>args.config()</code> parameter.</li>
+<li>The <code>create</code> method will be invoked once at runtime to instantiate the UDF.</li>
+</ul>
+<p>Example: DuplicateRowsFlatMapUdfFactoryImpl.java</p>
+<pre><code class="language-java">package myproject;
+
+import com.google.auto.service.AutoService;
+import com.palantir.foundry.duplicaterows.config.DuplicateRowsConfiguration;
+import com.palantir.foundry.duplicaterows.DuplicateRowsFlatMapUdf;
+import com.palantir.foundry.duplicaterows.DuplicateRowsFlatMapUdfAdapter;
+import com.palantir.foundry.duplicaterows.DuplicateRowsFlatMapUdfFactory;
+import com.palantir.foundry.udf.api.flatmap.FoundryRowFlatMapUdf;
+import com.palantir.foundry.udf.api.flatmap.FoundryRowFlatMapUdfFactory;
+
+/**
+ * Factory for creating the &quot;ChangeMe&quot; UDF.
+ */
+@AutoService(FoundryRowFlatMapUdfFactory.class)
+public final class DuplicateRowsFlatMapUdfFactoryImpl implements DuplicateRowsFlatMapUdfFactory {
+
+    /**
+     * Service-loading at runtime requires a public, no-arg constructor.
+     */
+    public DuplicateRowsFlatMapUdfFactoryImpl() {}
+
+    /**
+     * Creates the UDF implementation to use at runtime. Authors should return the adapter wrapping their UDF implementation.
+     */
+    @Override
+    public final FoundryRowFlatMapUdf create(FoundryRowFlatMapUdfFactory.Arguments&lt;DuplicateRowsConfiguration&gt; args) {
+        DuplicateRowsFlatMapUdf impl = new DuplicateRowsFlatMapUdfImpl(args.config());
+        return new DuplicateRowsFlatMapUdfAdapter(impl);
+    }
+}
+</code></pre>
+<p><code>YourUdfNameFlatMapUdfImpl.java</code>: Implements the actual transformation logic from the input object to the output object.</p>
+<ul>
+<li>This class should implement the generated <code>YourUdfNameFlatMapUdf</code> interface.</li>
+<li>This logic will be called once for every row passing through the transform.</li>
+<li>Input and output class properties and configuration arguments can be accessed with methods of the same name, but in camelCase. For example, <code>argument_one</code> will have a matching method of <code>argumentOne()</code>.</li>
+</ul>
+<p>Example: DuplicateRowsFlatMapUdfImpl.java</p>
+<pre><code class="language-java">package myproject;
+
+import com.palantir.foundry.duplicaterows.config.DuplicateRowsConfiguration;
+import com.palantir.foundry.duplicaterows.DuplicateRowsFlatMapUdf;
+import com.palantir.foundry.duplicaterows.input.InputRow;
+import com.palantir.foundry.duplicaterows.output.OutputRow;
+import com.palantir.foundry.udf.api.flatmap.Collector;
+/**
+ * Implementation for the &quot;DuplicateRows&quot; UDF logic.
+ */
+public final class DuplicateRowsFlatMapUdfImpl implements DuplicateRowsFlatMapUdf {
+
+    private final DuplicateRowsConfiguration config;
+
+    public DuplicateRowsFlatMapUdfImpl(DuplicateRowsConfiguration config) {
+        this.config = config;
+    }
+
+    @Override
+    public void flatMap(Context ctx, InputRow input, Collector&lt;OutputRow&gt; out) throws Exception {
+        OutputRow outputRow = OutputRow.create(ctx.getRowBuilderFactory())
+                .key(input.key())
+                .value(input.value());
+        // Duplicate all input rows by collecting twice
+        out.collect(outputRow);
+        out.collect(outputRow);
+    }
+}
+</code></pre>
+<h3>Write examples for row map user-defined functions</h3>
+<p>Examples provide information on a given user-defined function and can be used as a unit testing framework. These examples also appear in Pipeline Builder when importing a UDF into a pipeline, making it easier to understand UDF functionality. Only row map user defined functions are supported by the Examples framework, for flat map user defined functions we recommend writing your own JUnit tests, these will not be visible in the Builder transform documentation.</p>
+<p>Defining an Example test case is optional but it is strongly recommended as it will be visible in Pipeline Builder, under the transform documentation, making it a lot easier for users to understand what the UDF does. If you do not want to include an Example, delete the folder <code>src/test</code> and continue on to the next section.</p>
+<p>You can find a sample <code>Examples</code> class in the default template of the <code>Map UDF Definition/Implementation</code> repository.</p>
+<ul>
+<li><code>src/test/java/examples/registry/MultiplyExamples.java</code></li>
+</ul>
+<p>To define new examples for a UDF, create a class under <code>examples.registry</code> that implements the <code>Examples</code> interface. Refer to <code>MultiplyExamples.java</code> for interface expectations.</p>
+<p>:::callout{theme="warning"}
+The <code>name()</code> method of the examples implementation must return the same name as the UDF being tested. Otherwise, the examples will not be properly registered or published to the Pipeline Builder interface.
+:::</p>
+<p>Actual examples should be defined in the <code>examples()</code> method. The following is the <code>examples()</code> method implementation as defined in the default <code>MultiplyExamples</code> class:</p>
+<pre><code class="language-java">@Override
+public List&lt;UdfExample&lt;SettableMultiplicand, Product, MultiplyConfiguration&gt;&gt; examples() {
+    return List.of(UdfExample.&lt;SettableMultiplicand, Product, MultiplyConfiguration&gt;builder()
+            // A unique ID for this example
+            .id(ExampleId.of(&quot;baseCase&quot;))
+            // Optional: A description of what this example represents
+            .description(&quot;Multiply values by 2.&quot;)
+            // Whether this example should have PROMINENT or DEFAULT visibility in Pipeline Builder
+            .visibility(ExampleVisibility.DEFAULT)
+            // The case that this example illustrates (base case, null case, edge case)
+            .category(ExampleCategory.BASE)
+            // The arguments to pass to the UDF that this example illustrates
+            .configuration(MultiplyConfiguration.builder().multiplier(2.0d).build())
+            // The example input rows to the UDF
+            .input(
+                    SettableMultiplicand.create(ctx().getRowBuilderFactory())
+                            .key(&quot;key&quot;)
+                            .value(1.5d),
+                    SettableMultiplicand.create(ctx().getRowBuilderFactory())
+                            .key(&quot;key&quot;)
+                            .value(3.0d))
+            // The example output rows (what the input rows should look like after the UDF has been called on them)
+            .output(
+                    Product.create(ctx().getRowBuilderFactory()).key(&quot;key&quot;).value(3.0d),
+                    Product.create(ctx().getRowBuilderFactory()).key(&quot;key&quot;).value(6.0d))
+            .build());
+}
+</code></pre>
+<p>Once you define your examples, you can run all tests.</p>
+<ul>
+<li>Local environment:</li>
+<li>Run just testExamples: <code>./gradlew test --tests examples.ExamplesTest.testExamples</code></li>
+<li>Run all tests: <code>./gradlew test</code></li>
+<li>Code Repositories:</li>
+<li>Run all tests: Run <code>test</code> in the Java Task Runner.</li>
+</ul>
+<p>Running <code>ExamplesTest.testExamples()</code> will load implementations of <code>Examples</code> under the <code>examples.registry</code> package and check for their validity. In the case of the <code>MultiplyExamples.examples()</code> method shown above, it will execute the UDF on the two <code>input</code> rows (<code>["key", 1.5d]</code> and <code>["key", 3.0d]</code>) using the arguments provided in <code>configuration</code> (<code>multiplier = 2.0d</code>), and verify that it results in the specified output rows (<code>["key", 3.0d]</code> and <code>["key", 6.0d]</code>).</p>
+<h3>Save changes</h3>
+<p>Once your development work is complete, be sure to commit your changes.</p>
+<p>Local environment: Push the changes back to Foundry Code Repositories by running the following commands in order.</p>
+<ol>
+<li><code>git add .</code></li>
+<li><code>git commit -m "&lt;commit message&gt;"</code></li>
+<li><code>git push</code></li>
+<li>A blue pop-up window in Code Repositories will appear, stating that  âA new commit has been made to this branchâ. Select <strong>Update to most recent version</strong> to view your changes.</li>
+</ol>
+<p>Code Repositories: Select <strong>Commit</strong>.</p>
+<h2>Deploy a user-defined function</h2>
+<p>You can deploy a UDF through Pipeline Builder (recommended) or a standard UDF deployment repository.</p>
+<h3>Publish to Pipeline Builder (recommended)</h3>
+<p>:::callout{theme="warning"}
+Publishing to Pipeline Builder is currently available for row map, flat map, keyed process, and keyed co-process UDFs on Rubix enrollments. Async UDFs (async custom and async deployed app) are not yet supported.
+:::</p>
+<p>Follow the steps below to publish your UDF to Pipeline Builder:</p>
+<ol>
+<li>Open Task Runner from the bottom panel. Then, select the <strong>Java</strong> tab and enter <code>generateEddieLockfile</code> to generate a file containing a unique identifier for Pipeline Builder to register each of the UDFs in your repository.</li>
+</ol>
+<p>:::callout{theme="warning"}
+The <code>generateEddieLockfile</code> command returns a random unique identifier based on the UDF name. If you rename the UDF after publishing, the code will publish as a new UDF rather than overwriting the previous UDF. Similarly, if you delete and regenerate the lockfile, the UDFs will receive new unique identifiers and register as new UDFs. All versions of the UDF, including old names, new names, and new lockfiles, will appear in the pop-up window that appears when importing a UDF in Pipeline Builder.
+:::</p>
+<ol start="2">
+<li>Commit the lockfile and your changes.</li>
+<li>Tag your release with a version (<code>0.0.1</code>, for example).</li>
+<li>Verify that checks pass. If checks fail, the UDF will not publish to Pipeline Builder.</li>
+</ol>
+<p>:::callout{theme="warning"}
+If a lockfile is not present, the UDF will not register to Pipeline Builder for import into a pipeline. To generate a lockfile, run <code>generateEddieLockfile</code>. You do not need a lockfile if you are working in Code Repositories.
+:::</p>
+<ol start="5">
+<li>Once checks pass, navigate to a current or new Pipeline Builder pipeline.</li>
+<li>Go to <strong>Reusables &gt; User-defined functions &gt; Import UDF</strong>.</li>
+<li>Choose your UDF from the list, then select <code>Add</code>. Your UDF should appear in the Pipeline Builder transform picker and can be used like any other transform in your pipeline.</li>
+</ol>
+<p>To deploy new changes or fixes after the first version of your UDF, including edits to the definition YML, repeat the implementation and publishing steps above. Then, in your Pipeline Builder pipeline:</p>
+<ol>
+<li>Go to <strong>Reusables &gt; User-defined functions</strong>.</li>
+<li>Select <strong>Edit version</strong> for your UDF, and choose the updated version.</li>
+</ol>
+<h3>Publish to a deployment repository</h3>
+<p>Follow the steps below to publish your UDF to Code Repositories:</p>
+<ol>
+<li>Choose to <strong>Commit</strong> your changes and <strong>Tag version</strong> to set a version for your release.</li>
+<li>After tag checks pass, create another repository using a <strong>Foundry UDF Definitions &gt; Foundry Streaming UDF Deployment</strong> template for streaming or a <strong>Foundry UDF Definitions &gt; Foundry Batch UDF Deployment</strong> template for batch</li>
+<li>Follow the instructions in the template to deploy the UDF.</li>
+</ol>
+<p>To deploy new changes or fixes after the first version of your UDF, including edits to the definition YAML, repeat the implementation and publishing steps above. Then, update the tag version referenced in the deployment repository's build.gradle dependencies.</p>
+<h2>User-defined function definition YAML</h2>
+<p>UDF definition YAML files take the following shape:</p>
+<pre><code class="language-yaml">name: # (string) The name for this UDF.
+customTypes: # (optional&lt;CustomTypes&gt;) Custom types that can be referenced within the current UDF definition. See the [Custom Types](#custom-types) section below for details.
+inputSchema: # (Schema) The schema to which input rows must adhere to run against this UDF. See the [Schema YAML definition](#schema-yaml-definition-documentation) section below for details.
+outputSchema: # (Schema) The schema for output rows of this UDF. See the [Schema YAML definition](#schema-yaml-definition-documentation) section below for details.
+arguments: # (map&lt;ArgumentId, Argument&gt;) The arguments specified at build time and made available to the UDF author at deployment time.
+  # (ArgumentId: string) A locally-unique name for an argument.
+  [ArgumentId]:
+    required: # (Boolean) Whether this argument is required
+    description: # (optional&lt;string&gt;) A description to be displayed in Pipeline Builder to help users understand how this argument is used.
+    type: # (FieldType) The data type of the argument.
+# Specific to Keyed Process UDFs
+keyColumns: # (list&lt;string&gt;) Key columns for partitioning. The columns must exist in the input schema.
+eventTimeColumn: # (string) The column containing event time. This column must exist in the input schema.
+# Specific to all other UDF types
+description: # (optional&lt;string&gt;) A description of this UDF to be displayed in Pipeline Builder to help users understand what this UDF is.
+type: # (optional&lt;Type&gt;) The type of this UDF which determines how the UDF's logic will be defined and executed.
+  # Allowed values for Type enum:
+  # - DEFAULT
+  # - ASYNC_DEPLOYED_APP_UDF
+  # - ASYNC_CUSTOM_UDF
+  # - FLAT_MAP_UDF
+</code></pre>
+<p>:::callout{theme="warning"}
+We highly recommend including the optional <code>description</code> fields for the UDF and its arguments, especially if the UDF will be deployed in Pipeline Builder. These descriptions can increase user understanding on what the UDF does and how changing arguments can affect the output.
+:::</p>
+<h2>Schema definition YAML</h2>
+<p>UDF schemas take the following shape:</p>
+<pre><code class="language-yaml">name: # (string) A project-unique name for the schema that code generation will used to prefix generated objects.
+description: # (optional&lt;string&gt;) A description for this schema that is displayed for context when using this UDF in Pipeline Builder.
+fields: # (list&lt;Field&gt;) All the fields in this schema
+  - name: # (string) A locally-unique name for this field
+    nullable: # (boolean) Whether the value is possibly null
+    type: # (FieldType) The data type of this field, along with any associated metadata. For example:
+      type: double
+      double: {}
+</code></pre>
+<p>As mentioned above, we highly recommend that you include a description for each schema to help users in Pipeline Builder understand input and output expectations.</p>
+<p>All Foundry dataset types are supported by UDF <code>FieldType</code>s and take the following shapes:</p>
+<pre><code class="language-yaml"># arrays
+type: array
+array:
+  elementType:
+    type: &lt;FieldType&gt;
+    nullable: # (boolean) Whether the array values are possibly null
+# binary
+type: binary
+binary: {}
+# boolean
+type: boolean
+boolean: {}
+# byte
+type: byte
+byte: {}
+# custom
+type: custom
+custom: # (string) The name of the custom type defined in the `customTypes` block.
+# date
+type: date
+date: {}
+# decimal
+type: decimal
+decimal:
+  precision: # (integer) An integer between 1 and 38 (inclusive).
+  scale: # (integer) An integer between 0 and precision (inclusive).
+# double
+type: double
+double: {}
+# float
+type: float
+float: {}
+# integer
+type: integer
+integer: {}
+# long
+type: long
+long: {}
+# map
+type: map
+map:
+  keyType:
+    type: &lt;FieldType&gt;
+    nullable: # (boolean) Whether the map keys are possibly null
+  valueType:
+    type: &lt;FieldType&gt;
+    nullable: # (boolean) Whether the map values are possibly null
+# short
+type: short
+short: {}
+# string
+type: string
+string: {}
+# timestamp
+type: timestamp
+timestamp: {}
+# struct
+type: struct
+struct:
+  fields: [] # (list&lt;Field&gt;)
+</code></pre>
+<h2>Custom types</h2>
+<p>Custom types in UDFs allow for defining types that can be repeatedly referenced throughout a schema definition.</p>
+<pre><code class="language-yaml">customTypes: # This block is optional and does not need to be included if no custom types are being used.
+  types: # Do not forget this `types` block! This block is here in case we add later support for additional fields in `customTypes`, such as `imports`.
+    customType: # The key should be a unique name for this custom type
+      # (FieldType) the data type of this custom field,  along with any associated metadata. For example:
+      type: double
+      double: {}
+    anotherCustomType:
+      # define the custom type
+      # ...
+</code></pre>
+<p>Custom types can be defined as an alias for any field type, including primitives, arrays, maps, and structs. In general, however, custom types are most useful when defining struct types that are repeated throughout input and output schemas.</p>
+<pre><code class="language-yaml">customTypes:
+  types:
+    customStruct:
+      type: struct
+      struct:
+        fields:
+          - name: &quot;doubleField&quot;
+            nullable: false
+            type:
+              type: double
+              double: {}
+</code></pre>
+<p>The custom type can be referenced within a schema as follows:</p>
+<pre><code class="language-yaml">inputSchema:
+  name: &quot;Input&quot;
+  fields:
+    - name: &quot;inputStruct&quot;
+      nullable: false
+      type:
+        type: custom
+        custom: customStruct # The name of the custom type defined above
+outputSchema:
+  name: &quot;Output&quot;
+  fields:
+    - name: &quot;outputStruct&quot;
+      nullable: false
+      type:
+        type: custom
+        custom: customStruct # The name of the custom type defined above
+</code></pre>
+<p>When a custom struct is referenced within a UDF schema as above, code generation does not create separate classes for <code>InputStruct</code> and <code>OutputStruct</code>. Instead, both input and output objects reference the same code generation class for the custom type being referenced (<code>CustomStruct</code>, in the example below):</p>
+<pre><code class="language-java">public final Output map(FoundryRowMapUdf.Context ctx, Input input) {
+    // A no-op UDF that passes the input struct field to the output struct field
+    Output output = Output.create(ctx.getRowBuilderFactory());
+    CustomStruct inputStruct = input.inputStruct(); // Returns a `CustomStruct`
+    output.outputStruct(inputStruct); // Expects a `CustomStruct` arg
+    return output;
+}
+</code></pre>
+<p>Custom structs are a major benefit of using custom types; no additional work needs to be done to convert the input code generation type into the output code generation type when they are structurally the same.</p>
+<h2>Troubleshooting</h2>
+<p>This section describes some common issues with user-defined function implementation and deployment, with steps to debug.</p>
+<h3>Code generation is not running</h3>
+<p>Usually, this is caused by an unparseable UDF definition YAML.</p>
+<p>Follow the steps below to resolve:</p>
+<ol>
+<li>Check Code Assist for any identifiable errors in a red <code>Code Assist task failed</code> pop-up.</li>
+<li>Verify all fields are provided and that there are no typos. You can cross-check against the initial example definition.</li>
+<li>If failures persist, refresh Code Assist by hovering over the <code>Code Assist running</code> message at the bottom of the code editor and selecting <strong>Refresh</strong>.</li>
+<li><a href="#set-up-local-developer-environment-recommended">Download the repository locally</a>, and execute the <code>./gradlew idea</code> or <code>./gradlew eclipse</code> commands to see errors produced to the console.</li>
+</ol>
+<h3>Can I unregister a UDF?</h3>
+<p>Once published, UDFs cannot be unpublished from Pipeline Builder. If you delete the lockfile entry and re-run the <code>generateEddieLockfile</code> command on your repository, a new ID will be granted to your UDF that will cause it to surface twice in the <strong>UDFs</strong> section of the Pipeline Builder transform list.</p>
+<h3>Local environment: Unsupported class file major version</h3>
+<p>If <code>./gradlew idea open</code> or <code>./gradlew eclipse open</code> fails with the error <code>Could not open proj generic class cache for build file &lt;build.gradle&gt; ... Unsupported class file major version</code> you are likely running a Java version that is incompatible with Gradle.</p>
+<p>Follow the steps below to resolve:</p>
+<ul>
+<li>Check your Java and Gradle version by running <code>./gradlew --version</code>.</li>
+<li>Cross-check that your JVM version is compatible with the Gradle version listed in the <a href="https://docs.gradle.org/current/userguide/compatibility.html">Gradle documentation â</a>.</li>
+<li>If your JVM version is not compatible and you do not already have another compatible version locally available, <a href="https://www.oracle.com/uk/java/technologies/downloads/">download a compatible Java version â</a>.</li>
+<li>Set your JAVA_HOME to <code>export JAVA_HOME=&lt;jdk install directory&gt;/Contents/Home/</code>.</li>
+</ul>
+<p>You should now be able to successfully run the open commands.</p>
+<h3>I cannot run the generateEddieLockfile task in Task Runner</h3>
+<p>If you receive a <code>Failed to start Java server</code> error, or if you cannot run the command in Task Runner, verify the following:</p>
+<ol>
+<li>Your repository template is on version 0.517.0 or higher.
+   * To check this, navigate to the file editor, then select <strong>Display settings &gt; Show hidden files and folders</strong>. The  templateConfig.json file will appear in the file list.
+   * If the repository is not on a compatible version, select <strong>... &gt; Upgrade</strong> from the far right or your repository view to generate a pull request with the latest template. Approve the pull request, then rebuild your workspace once the request is merged and checks pass.</li>
+</ol>
+<p><img alt="The Upgrade option in the code repository." src="../../_resources/foundry/transforms-java/upgrade.png" /></p>
+<ol start="2">
+<li>Your workspace is connected.
+   * If your workspace is not connected, rebuild your workspace.</li>
+<li>You selected the <strong>Java</strong> tab in Task Runner, not <strong>Eclipse Java</strong>.</li>
+</ol>
+</body>
+</html>

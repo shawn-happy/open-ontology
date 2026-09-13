@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Actions on interfaces</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Actions on interfaces</h1>
+<p>You can create generic actions that apply to all objects of a chosen interface. There are two main ways you can use interfaces from within actions:</p>
+<ul>
+<li><strong>Interface action rules:</strong> To create, modify, delete, and link objects of the configured interface.</li>
+<li><strong>Interface reference parameters:</strong> To reference objects of the configured interface. This parameter is required by the "Modify" and "Delete" interface action rules, but can also be used by any other action rules.</li>
+</ul>
+<p>Interfaces can also define <a href="https://www.palantir.com/docs/foundry/interfaces/interface-action-type-constraints/">interface action type constraints</a>, which describe expected action capabilities that implementing object types can satisfy with concrete action types.</p>
+<p>Action type constraints define an interface-level action contract; action rules define the edits performed when an action type is submitted.</p>
+<p>Interface action type constraints are currently an Ontology Manager modeling and mapping feature, not an end-user application or Ontology SDK invocation surface.</p>
+<p>:::callout{theme="warning"}
+Interface action submission criteria apply uniformly to all object types that implement the interface. Before you create an interface action, carefully review which users will have permission to create, modify, or delete objects across all object types that implement the interface. <a href="#limitations-of-interface-action-rules">Learn more about establishing control over interface actions</a>.
+:::</p>
+<h2>Using action on interface rules</h2>
+<p>You can use interface action rules whenever the edits can apply to all the object types that implement the interface. In other words, you can use interface action rules only to modify the <em>interface shared properties</em> or to delete objects. For example, if âFeature requestâ and âBugâ are object types of the âTicketâ interface, you can use a âCreate a ticketâ action type to create bugs and feature requests, but you cannot create any property types that are specific to bugs or feature requests.</p>
+<p><img alt="Using action on interface rules" src="../../_resources/foundry/action-types/action_on_interface_rules.png" /></p>
+<h3>Creating a new interface action type</h3>
+<p>To set up a new interface action type, choose <strong>Action type</strong> from the <strong>New</strong> menu in Ontology Manager.</p>
+<ol>
+<li>Under <strong>Interfaces</strong>, pick the desired interface and rule type.</li>
+</ol>
+<p><img alt="Creating new interface" src="../../_resources/foundry/action-types/action_on_interface_new_interface.png" /></p>
+<ol start="2">
+<li>Add the shared properties that you want to include in the action (if applicable).</li>
+<li>Add metadata to describe your action type. Remember that this metadata should apply to all the object types that implement the interface.</li>
+<li>Under <strong>Submission criteria</strong>, choose the users that can execute the action (you can apply more complex criteria later on). Remember that these permissions will apply to all object types that implement the interface, as long as the user has permissions to edit them.</li>
+<li>Select <strong>Create</strong> to finalize the action type.</li>
+</ol>
+<h3>âCreateâ actions on interfaces</h3>
+<p>Because the action type is only associated with an interface, an âObject typeâ parameter will be automatically generated to indicate the object type that should be created. If using a form or a table, the user will be prompted to pick an object type from a list.</p>
+<p><img alt="Create actions on interface" src="../../_resources/foundry/action-types/action_on_interface_create_action.png" /></p>
+<p>Note that <strong>objects cannot be created without a primary key</strong>. Therefore, any object type without a primary key assigned in the rule will fail during submission. To avoid failures of this type, make sure that both the interface and the Create rule include an interface property that can be used as the primary key in the object types that implement the interface.</p>
+<p><img alt="Action on interface without primary key" src="../../_resources/foundry/action-types/action_on_interface_primary_key.png" /></p>
+<h3>âModifyâ actions on interfaces</h3>
+<p>"Modify" rules on an interface can modify any object of the configured interface. An âinterface referenceâ parameter will be generated, constrained to the selected interface. The "interface reference" parameter is similar to the âobject referenceâ parameter, with the exception that the "interface reference" parameter shows objects of any type that implements the interface. If using a form or a table, the user could then pick an object from a list.</p>
+<p>Note that primary key values <em>cannot be modified</em> by any action type.  Therefore, an action will fail on submission if the action tries to modify a primary key property for a selected object type. Always ensure that the action rule does not modify properties that are likely to be used as a primary key by some of the object types that implement the interface.</p>
+<p>In the example below, the âTitleâ property is incorrectly used as the primary key for the âBugâ object type. The âEdit ticketâ action will fail on submission because the action attempts to change the primary key of the bug.</p>
+<p><img alt="Action on interface modify primary key" src="../../_resources/foundry/action-types/action_on_interface_primary_key_modify.png" /></p>
+<h3>"Delete" actions on interfaces</h3>
+<p>"Delete" action rules can have an "interface reference" parameter assigned to them, instead of an object reference parameter. This interface reference, constrained to a specific interface, will indicate the object to be deleted. If using a form or a table, the user could then pick an object from a list.</p>
+<h3>"Create link" actions on interfaces</h3>
+<p>"Create interface link" rules allow you to create links using an interface link constraint defined on an interface. To configure a "Create interface link" rule:</p>
+<ol>
+<li>Select the interface you want to create links on.</li>
+<li>Select the interface link constraint defined on the interface. If the link constraint is between two interfaces, both the source and destination parameters will be automatically generated as interface reference parameters. If the link constraint is between an interface and an object type, the source will be an interface reference parameter and the destination will be an object reference parameter.</li>
+</ol>
+<p>Optionally, you can also configure the source and destination objects manually if you do not want to use the parameters autogenerated by actions. These can be:</p>
+<ul>
+<li>An interface reference or object reference parameter referencing an existing object.</li>
+<li>An object created by a "Create object" or "Create object(s) of interface" rule within the same action type.</li>
+</ul>
+<p>:::callout{theme="warning"}
+If there are multiple concrete link implementations on the object type for the link constraint, the action will fail. Additionally, creating a one-to-many link modifies the foreign key on the many side of the relationship. Ensure there are no conflicts if your action type also modifies the foreign key using a "Create object" or "Modify object(s)" rule.
+:::</p>
+<h3>"Delete link" actions on interfaces</h3>
+<p>"Delete interface link" rules allow you to delete links using an interface link constraint defined on an interface. To configure a "Delete interface link" rule:</p>
+<ol>
+<li>Select the interface you want to delete links on.</li>
+<li>Select the interface link constraint defined on the interface. If the link constraint is between two interfaces, both the source and destination parameters will be automatically generated as interface reference parameters. If the link constraint is between an interface and an object type, the source will be an interface reference parameter and the destination will be an object reference parameter.</li>
+</ol>
+<p>Optionally, you can also manually configure the source and destination objects instead of using the autogenerated parameters. These must be parameters referencing existing objects â either interface reference or object reference parameters.</p>
+<p>:::callout{theme="warning"}
+If there are multiple concrete link implementations on the object type for the link constraint, the action will attempt to delete all the concrete link implementations.
+:::</p>
+<h3>Executing actions on interfaces</h3>
+<p>Actions created with interface action rules can be applied to objects whose object type implements the interface, just like any object-specific action type. For a given object, all object-type-specific and interface-based actions that can be applied to that object will appear in the action dropdown.</p>
+<h2>Permissions</h2>
+<p>Interface action rules follow the same permissions as object action types.</p>
+<p>See the documentation on <a href="https://www.palantir.com/docs/foundry/action-types/permissions/">action type permissions</a> for more details.</p>
+<h2>Level of support</h2>
+<p>As support for interface action rules and reference parameters expands, availability will vary across the Palantir platform.</p>
+<h3>Supported applications and services</h3>
+<ul>
+<li><strong>Ontology Manager:</strong> Creation of interface action types and configuration of interface parameters in submission criteria and overrides.</li>
+<li><strong>Object Explorer and Object Views:</strong> Rendering of actions defined on interfaces.</li>
+</ul>
+<h3>Limitations of interface action rules</h3>
+<ul>
+<li>Submission criteria apply uniformly across all object types that implement the interface, so you cannot configure different permissions per object type within a single interface action. To restrict access, disable interface actions for specific object types in <a href="https://www.palantir.com/docs/foundry/ontology-manager/overview/">Ontology Manager</a> by selecting its <strong>Interfaces</strong> tab and establishing control over actions inherited from an interface in the <strong>Interface action control</strong> section. The ability to apply more granular permission controls to interface actions is under active development.</li>
+<li>Action logs are not yet supported.</li>
+<li>Actions on interfaces cannot be used with functions.</li>
+</ul>
+</body>
+</html>

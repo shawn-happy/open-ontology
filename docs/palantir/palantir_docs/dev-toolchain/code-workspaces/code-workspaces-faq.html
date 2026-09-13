@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FAQ</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>FAQ</h1>
+<h3>Can I use PySpark in Code Workspaces?</h3>
+<p>Yes, you can use PySpark in JupyterÂ® Code Workspaces. However, it runs in local mode inside your workspace container and uses only the available CPUs and memory; it does not run on a distributed Spark cluster. We recommend Foundry applications like <a href="https://www.palantir.com/docs/foundry/pipeline-builder/overview/">Pipeline Builder</a> and <a href="https://www.palantir.com/docs/foundry/code-repositories/overview/">Code Repositories</a> to run distributed Spark workloads.</p>
+<p>To install PySpark in your JupyterLabÂ® Notebook, navigate to the <strong>Libraries</strong> tab and install both <code>pyspark</code> and <code>openjdk</code>. The following OpenJDK versions are supported:</p>
+<ul>
+<li><strong>PySpark &lt; 4.0.0:</strong> OpenJDK <code>8.x</code>, <code>11.x</code>, or <code>17.x</code></li>
+<li><strong>PySpark 4.0.0 and above:</strong> OpenJDK <code>17.x</code> or <code>21.x</code></li>
+</ul>
+<p>:::callout{theme="neutral"}
+If you encounter an error such as <code>java.lang.UnsupportedOperationException: getSubject is supported only if a security manager is allowed</code>, ensure that OpenJDK is pinned to a supported version for your PySpark release.
+:::</p>
+<p>Use the following code to create a Spark session, read raw parquet files into a Spark dataframe, and then apply transformations. This approach is useful for drafting PySpark transformations that you want to apply in a Code Repositories PySpark transform.</p>
+<pre><code class="language-python">from foundry.transforms import Dataset
+from pyspark.sql import SparkSession
+import pyspark.sql.functions as F
+
+# Create the Spark context. The example below shows a 2 CPU, 16 GB workspace.
+spark = (SparkSession.builder
+    .appName(&quot;ParquetExample&quot;)
+    .master(&quot;local[2]&quot;)  # Set to the CPUs available.
+    .config(&quot;spark.driver.memory&quot;, &quot;10g&quot;)  # Define the driver memory, around 50-65% of the container's total.
+    .config(&quot;spark.driver.memoryOverhead&quot;, &quot;4g&quot;)  # Define the overhead memory, about 20-35% of the container's total.
+    .config(&quot;spark.sql.shuffle.partitions&quot;, &quot;6&quot;)  # Optionally define partition count, ~3x the CPU total.
+    .getOrCreate())
+sc = spark.sparkContext
+
+# Download a Foundry dataset of parquet files into the notebook.
+parquet_foundry = Dataset.get(&quot;parquet_foundry_dataset&quot;)
+files = parquet_foundry.files().download()
+
+# Read the files into a Spark dataframe.
+spark_df = spark.read.parquet(*list(files.values()))
+
+# Apply PySpark transformations.
+df_processed = spark_df.filter(F.col(&quot;col1&quot;) == 1)
+
+# Write your output dataset.
+spark_output = Dataset.get(&quot;spark_output&quot;)
+spark_output.write_table(df_processed.toArrow())
+</code></pre>
+<h3>Can I make API calls in Code Workspaces?</h3>
+<p>Yes, you can make API calls in Code Workspaces using <a href="https://www.palantir.com/docs/foundry/code-workspaces/external-systems/">external systems</a>, which have succeeded network policies as the preferred method of egress from a workspace. For <a href="https://www.palantir.com/docs/foundry/security/classification-based-access-controls/">CBAC-enabled environments</a> you should use network policies configured in <a href="https://www.palantir.com/docs/foundry/administration/configure-egress/">Control Panel</a>.</p>
+<h3>Which IDEs are supported by Code Workspaces?</h3>
+<p>Code Workspaces currently supports <a href="https://www.palantir.com/docs/foundry/vs-code/overview/">VS Code</a>, <a href="https://www.palantir.com/docs/foundry/code-workspaces/jupyterlab/">JupyterLabÂ®</a>, and <a href="https://www.palantir.com/docs/foundry/code-workspaces/rstudio/">RStudioÂ® Workbench</a>.</p>
+<h3>What code appears in the code viewer?</h3>
+<p><a href="https://www.palantir.com/docs/foundry/code-workspaces/code-viewer/">The code viewer</a> shows the committed state stored in the repository. Changes made in VS Code, JupyterLabÂ®, RStudioÂ® Workbench, Code Repositories, or a local development environment appear only after they are committed and synchronized.</p>
+<h3>Does the code viewer require an existing or running workspace?</h3>
+<p>No. You can browse a repository in the code viewer without creating or starting an editor workspace.</p>
+<h3>Why does the code viewer open when I start a VS Code workspace?</h3>
+<p>By default, when you open a <a href="https://www.palantir.com/docs/foundry/code-workspaces/getting-started/#code-workspace-lifecycle">stopped VS Code workspace</a>, the code viewer opens while its workspace session starts in the background. The <strong>VS Code</strong> tab icon shows the workspace status. The code viewer remains open until you select the <strong>VS Code</strong> tab.</p>
+<p>To disable this behavior, follow the instructions in <a href="https://www.palantir.com/docs/foundry/code-workspaces/code-viewer/#continue-in-an-editor">Continue in an editor</a>.</p>
+<h3>Which packages are not supported by Code Workspaces?</h3>
+<p>Due to security reasons, the following Python packages are not supported:</p>
+<ul>
+<li>folium</li>
+<li>pandasgui</li>
+</ul>
+<p>Contact your Palantir representative if you have any concerns about the packages above.</p>
+<h3>Why does the code in my repository have JSON formatting?</h3>
+<p>The Code Repositories application receives code from associated Code Workspaces in an IPython format, which renders the code at a cell-by-cell level in JSON format.</p>
+<h3>Can I use my own packages?</h3>
+<p>Yes; see the documentation on <a href="https://www.palantir.com/docs/foundry/code-workspaces/getting-started/#import-packages">importing packages</a>. If your package is hosted on an organizational Conda/PyPI/CRAN channel, it is possible for Foundry to proxy the channel and make it available to your projects. Contact your Palantir representative for more information.</p>
+<h3>Why does the Code Repository backing my Code Workspace not have a <strong>Libraries</strong> tab?</h3>
+<p>To import libraries into your Code Workspace, <a href="https://www.palantir.com/docs/foundry/code-workspaces/getting-started/#import-packages">use the <strong>Packages</strong> tab</a> located in the left panel of your workspace.</p>
+<h3>Can I write or edit code in Code Repositories that does not come from my Code Workspace?</h3>
+<p>Yes, you can edit code directly in Code Repositories when the code originates in Code Workspaces. Once committed, you can use the <strong>Sync</strong> or <strong>Reset changes</strong> functionality in the Code Workspace to pick up the remote changes in the Workspace.</p>
+<p>Conceptually, you can think of Code Repositories as the version control manager for Code Workspaces, handling pull requests, conflict resolution, and administration, while code development can occur in Code Workspaces.</p>
+<h3>Why do my colleagues see a different view compared to mine?</h3>
+<p>For security purposes, users are isolated when working in JupyterLabÂ® or RStudioÂ®. This means each user accessing the same Code Workspace will have their own environment. Collaboration happens through git workflows: if you wish to make your latest code available to colleagues, select <strong>Sync Changes</strong> to synchronize your changes with the backing code repository and the changes will become available to your colleagues when they select <strong>Sync</strong> or <strong>Reset changes</strong>. When multiple users work on the same workspace, we recommend they work on independent branches.</p>
+<p>Note that we ignore some files by default using <code>.gitignore</code> to ensure that no data is synchronized with the git repository, and to limit the size of the git repository. We also remove all outputs from JupyterLabÂ® <code>.ipynb</code> files.</p>
+<h3>Can I import extra LaTeX packages to render my R Markdown file?</h3>
+<p>Yes. By default, Code Workspaces only pre-installs the requirements to render common R Markdown files (as defined in <a href="https://github.com/rstudio/tinytex-releases">TinyTex-1 â</a>), but you can install other LaTeX packages on your own:</p>
+<ol>
+<li>Download or create the TDS archive. For instance, you can download a <code>.tds.zip</code> file from <a href="https://ctan.org/pkg">CTAN â</a>.</li>
+<li>Upload the TDS archives to a new or existing Foundry dataset. You can drag and drop files in a folder to upload them to a new Foundry dataset.</li>
+<li>Select <strong>Upload to a dataset without a schema</strong>. You may upload multiple TDS archives simultaneously to the same dataset.</li>
+<li>In Code Workspaces, go to the <strong>Data</strong> tab, then <strong>Read existing datasets</strong>. Select the dataset containing the TDS archives.</li>
+<li>Optionally, update the dataset alias. In this example, we assume you named your dataset alias <code>my_latex_packages</code>.</li>
+<li>Copy the code snippet, paste it in your <code>.Rprofile</code>, and update it to also extract the files to the correct location. You will need to replace <code>my_latex_packages</code> with your dataset alias in the below snippet:</li>
+</ol>
+<pre><code>library(foundry)
+my_latex_packages_files &lt;- datasets.list_files(&quot;my_latex_packages&quot;)
+my_latex_packages_local_files &lt;- datasets.download_files(&quot;my_latex_packages&quot;, my_latex_packages_files)
+texmflocal &lt;- system(&quot;kpsewhich --var-value TEXMFLOCAL&quot;, intern = TRUE)
+sapply(my_latex_packages_local_files, function(tds_file) { unzip(tds_file, exdir = texmflocal) })
+</code></pre>
+<ol start="7">
+<li>You can now include your package in the R Markdown header to use it:</li>
+</ol>
+<pre><code>headers-include:
+ - \usepackage{my_package}
+</code></pre>
+<h3>Can I use custom fonts in my R Markdown file?</h3>
+<p>Yes.</p>
+<ol>
+<li>Download or create the TTF files you want to use.</li>
+<li>Upload the TTF files to a new or existing Foundry dataset. You can drag and drop files in a folder to upload them to a new Foundry dataset.</li>
+<li>Select <strong>Upload to a dataset without a schema</strong>. You may upload multiple TTF files simultaneously to the same dataset.</li>
+<li>In Code Workspaces, go to the <strong>Data</strong> tab, then <strong>Read existing datasets</strong>. Select the dataset containing the TTF files.</li>
+<li>Optionally, update the dataset alias. In this example, we assume you named your dataset alias <code>my_fonts</code>.</li>
+<li>Copy the code snippet, run it in the R Console, and copy the files to your repo so they can be tracked by the version control. You will need to replace <code>my_fonts</code> with your dataset alias in the below snippet:</li>
+</ol>
+<pre><code>my_fonts_files &lt;- datasets.list_files(&quot;my_fonts&quot;)
+my_fonts_local_files &lt;- datasets.download_files(&quot;my_fonts&quot;, my_fonts_files)
+dir.create(&quot;fonts&quot;)
+file.copy(unlist(my_fonts_local_files), &quot;fonts&quot;)
+</code></pre>
+<ol start="7">
+<li>You can now reference the fonts in the <code>/home/user/repo/fonts</code> directory so they can be used in your HTML or PDF outputs following the R Markdown recommendations.</li>
+</ol>
+<p>To change the font for HTML, set the <code>font-family</code> in a <a href="https://bookdown.org/yihui/rmarkdown-cookbook/html-css.html">custom CSS â</a>.</p>
+<p>To change the font for PDFs, you can load the font in LaTeX with <code>\newfontfamily</code> using <a href="https://bookdown.org/yihui/rmarkdown-cookbook/latex-preamble.html">custom LaTeX code â</a> in the preamble.</p>
+<h3>How can I prevent my JupyterÂ® workspace from pausing while my code is running?</h3>
+<p>You can leverage the <code>%%keep_alive</code> cell magic to prevent Code Workspaces from pausing a JupyterÂ® notebook while the code in the cell is running.</p>
+<pre><code class="language-python">%%keep_alive
+
+long_running_process()
+</code></pre>
+<p>This will keep the cell alive for up to 24 hours while the cell code is running. If your browser tab is closed or left idle for too long, JupyterLabÂ® will stop displaying and persisting the cell's output. If you would like to view the cell's output later, you may use the <code>%%capture</code> cell magic to store the output in a variable:</p>
+<pre><code class="language-python">%%keep_alive
+%%capture cell_output
+
+long_running_process()
+</code></pre>
+<p>In a different cell, write the output of the above variable to a file so it can be viewed later:</p>
+<pre><code class="language-python">with open('cell_output.txt', 'w+') as f:
+    f.write(cell_output.stdout)
+    f.write(cell_output.stderr)
+</code></pre>
+<h3>How can I download files from my Jupyter or RStudio Code Workspace?</h3>
+<p>The IDE native file downloads are disabled in the Palantir platform to ensure that download restrictions configured by administrators are enforced.</p>
+<p>In order to download files, write the files back to a Foundry dataset. To do so, in the Code Workspaces sidebar, navigate to the <strong>Data</strong> tab, then <strong>Write data to new dataset</strong>, and enter a name for the new dataset. After confirming the alias for the dataset, select <strong>Non-tabular dataset</strong> as dataset type, enter the location of the files or directory you wish to upload and run the generated code snippet.</p>
+<p>Once the files have been uploaded to the Foundry dataset, you can navigate to the dataset preview by selecting on the dataset link and download the files from there.
+Remember that your administrator may require a justification before exporting data from the platform or limit the amount of data exported.</p>
+<hr />
+<p><em>RStudioÂ® and ShinyÂ® are trademarks of Positâ¢.</em></p>
+<p><em>JupyterÂ®, JupyterLabÂ®, and the JupyterÂ® logos are trademarks or registered trademarks of NumFOCUS.</em></p>
+<p>All third-party trademarks (including logos and icons) referenced remain the property of their respective owners. No affiliation or endorsement is implied.</p>
+</body>
+</html>

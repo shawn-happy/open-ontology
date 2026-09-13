@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Edit an interface definition</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Edit an interface definition</h1>
+<p>:::callout{theme="warning" title="Breaking" changes}
+Given that interfaces expose API names, any change to an interface definition has the potential to break downstream applications and will necessarily break existing object implementations. When adding a new required property, link type constraint, or action type constraint to an interface, all implementations for object types that use the interface <strong>must</strong> be made in the same update to your Ontology. We also recommend updating your interface definitions and consumers at the same time. <br> <br>
+If your downstream applications cannot be updated at the same time as interface changes, you can alternatively create a new version of the interface (as an <a href="https://www.palantir.com/docs/foundry/interfaces/extend-interface/">extension</a> or a standalone interface) and migrate to the new interface definition as soon as possible.
+:::</p>
+<h2>Add new properties</h2>
+<p>From the <strong>Properties</strong> tab of the interface configuration, choose <strong>New property</strong>. This will open an interface property configuration side panel.</p>
+<p><img src="../../_resources/external-dfcfdc5c9ed8.png" alt="Edit interface properties." width="800" /></p>
+<p>The available options for editing property metadata are clustered into four different tabs which give access to the following configurations:</p>
+<ol>
+<li><strong>Display name and description:</strong> Select into the existing display name or description to edit the text.</li>
+<li><strong>API name:</strong> Select into the existing API name to change its value.</li>
+<li><strong>Property base type:</strong> Select the propertyâs base type from the dropdown menu. The type of the property constrains the possible set of operations that can be done on the propertyâs values.
+   * For example, a property with base type <code>timestamp</code> can be shown in a timeline widget in Object Explorer.</li>
+<li><strong>Primary key constraint:</strong> Indicate whether a property should be a primary key or cannot be a primary key.</li>
+</ol>
+<p>:::callout{theme="warning"}
+If you make a change to the interface property types, you must also update all object types implementing this interface.
+:::</p>
+<ol start="5">
+<li><strong>Type classes:</strong> Apply type classes as additional metadata that can be interpreted by applications.
+   * Review the <a href="https://www.palantir.com/docs/foundry/object-link-types/metadata-typeclasses/">type classes documentation</a> for a list of available type classes.</li>
+<li><strong>Render hints:</strong> Improve how a property value is rendered and indexed into Object Storage v1 (Phonograph) by selecting render hints from the checklist.
+   * See the <a href="https://www.palantir.com/docs/foundry/object-link-types/metadata-render-hints/">render hints documentation</a> for descriptions of the available render hints.</li>
+<li><strong>Visibility:</strong> Select the existing visibility to open a dropdown menu of available visibilities. A <code>prominent</code> property will lead applications to show this property first to users. A <code>hidden</code> property will not appear in user applications.</li>
+</ol>
+<h2>Add shared properties</h2>
+<p>From the <strong>Properties</strong> tab of the interface configuration, select <strong>Add shared properties</strong> and choose a shared property to add to the interface.</p>
+<h2>Add a link type constraint</h2>
+<p>From the <strong>Link type constraints</strong> tab, select <strong>Create new link type constraint</strong> and add the necessary <a href="https://www.palantir.com/docs/foundry/interfaces/create-interface/#create-interface-link-types-optional">constraint metadata</a>.</p>
+<h2>Add an action type constraint</h2>
+<p>From the <strong>Action type constraints</strong> tab, select <strong>Create new action type constraint</strong> and add the necessary <a href="https://www.palantir.com/docs/foundry/interfaces/interface-action-type-constraints/#action-type-constraints">constraint metadata</a> and <a href="https://www.palantir.com/docs/foundry/interfaces/interface-action-type-constraints/#parameter-constraints">parameter constraints</a>.</p>
+<h2>Remove properties</h2>
+<p>From the <strong>Properties</strong> tab, select <strong>...</strong> next to the property you wish to remove from the interface. Alternatively, open the interface property side panel and select the trash icon in the upper right corner.</p>
+<p><img src="../../_resources/external-1e043dbd9f3d.png" alt="Remove property from an interface." width="800" /></p>
+<h2>Remove or edit link type constraints</h2>
+<p>From the <strong>Link type constraint</strong> tab, select <strong>...</strong> next to the link type constraint you wish to edit or remove from the interface.</p>
+<p><img src="../../_resources/external-1bc9ffa238f8.png" alt="Remove or edit a link type constraint." width="800" /></p>
+<p>If editing a constraint, you can update the metadata as you would if you were <a href="https://www.palantir.com/docs/foundry/interfaces/create-interface/#create-interface-link-types-optional">creating the link type constraint</a> for the first time.</p>
+<h2>Remove or edit action type constraints</h2>
+<p>From the <strong>Action type constraints</strong> tab, select <strong>...</strong> next to the action type constraint you wish to edit or remove from the interface.</p>
+<p>If editing a constraint, you can update the metadata and parameter configuration as you would if you were <a href="https://www.palantir.com/docs/foundry/interfaces/interface-action-type-constraints/#action-type-constraints">creating the action type constraint</a> for the first time.</p>
+</body>
+</html>

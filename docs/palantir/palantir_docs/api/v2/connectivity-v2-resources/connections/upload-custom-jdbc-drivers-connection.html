@@ -1,0 +1,1261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Upload Custom Jdbc Drivers Connection</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../../../index.html">返回目录</a></div>
+<p><code>POST /api/v2/connectivity/connections/{connectionRid}/uploadCustomJdbcDrivers</code></p>
+<p>Upload custom jdbc drivers to an existing JDBC connection.
+The body of the request must contain the binary content of the file and the <code>Content-Type</code> header must be <code>application/octet-stream</code>.</p>
+<p>Third-party applications using this endpoint via OAuth2 must request the following operation scope: <code>api:connectivity-connection-write</code>.</p>
+<p><strong>OAuth2 scopes</strong>: <code>api:connectivity-connection-write</code></p>
+<h2>Path parameters</h2>
+<table>
+<thead>
+<tr>
+<th>参数</th>
+<th>类型</th>
+<th>必填</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>connectionRid</code></td>
+<td>string</td>
+<td>是</td>
+<td>The Resource Identifier (RID) of a Connection (also known as a source).<br>示例: <code>ri.magritte..source.c078b71b-92f9-41b6-b0df-3760f411120b</code></td>
+</tr>
+</tbody>
+</table>
+<h2>Query parameters</h2>
+<table>
+<thead>
+<tr>
+<th>参数</th>
+<th>类型</th>
+<th>必填</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>fileName</code></td>
+<td>string</td>
+<td>是</td>
+<td>The file name of the uploaded JDBC driver. Must end with .jar<br>示例: <code>cdata.jdbc.oracle.jar</code></td>
+</tr>
+</tbody>
+</table>
+<h2>Request body</h2>
+<h2>Response</h2>
+<p><strong>Connection</strong></p>
+<table>
+<thead>
+<tr>
+<th>参数</th>
+<th>类型</th>
+<th>必填</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Connection</code></td>
+<td>object</td>
+<td>是</td>
+<td>示例: <code>{"parentFolderRid":"ri.compass.main.folder.c410f510-2937-420e-8ea3-8c9bcb3c1791","configuration":{"type":"jdbc","url":"jdbc:postgresql://localhost:5432/test","driverClass":"org.postgresql.Driver"},"displayName":"Connection to my external system","exportSettings":{"exportsEnabled":true,"exportEnabledWithoutMarkingsValidation":false},"rid":"ri.magritte..source.c078b71b-92f9-41b6-b0df-3760f411120b"}</code></td>
+</tr>
+<tr>
+<td><code>Connection.rid</code></td>
+<td>string</td>
+<td>是</td>
+<td>The Resource Identifier (RID) of a Connection (also known as a source).<br>示例: <code>ri.magritte..source.c078b71b-92f9-41b6-b0df-3760f411120b</code></td>
+</tr>
+<tr>
+<td><code>Connection.parentFolderRid</code></td>
+<td>string</td>
+<td>是</td>
+<td>The unique resource identifier (RID) of a Folder.<br>示例: <code>ri.compass.main.folder.c410f510-2937-420e-8ea3-8c9bcb3c1791</code></td>
+</tr>
+<tr>
+<td><code>Connection.displayName</code></td>
+<td>string</td>
+<td>是</td>
+<td>The display name of the Connection. The display name must not be blank.<br>示例: <code>Connection to my external system</code></td>
+</tr>
+<tr>
+<td><code>Connection.exportSettings</code></td>
+<td>object</td>
+<td>是</td>
+<td>The <a href="https://www.palantir.com/docs/foundry/data-connection/export-overview/#enable-exports-for-source">export settings of a Connection</a>.<br>示例: <code>{"exportsEnabled":true,"exportEnabledWithoutMarkingsValidation":false}</code></td>
+</tr>
+<tr>
+<td><code>Connection.exportSettings.exportsEnabled</code></td>
+<td>boolean</td>
+<td>是</td>
+<td>Allow exporting datasets from Foundry to this Connection.<br>示例: <code>true</code></td>
+</tr>
+<tr>
+<td><code>Connection.exportSettings.exportEnabledWithoutMarkingsValidation</code></td>
+<td>boolean</td>
+<td>是</td>
+<td>In certain interactive workflows the Connection can be used in, it is not currently possible to validate the<br>security markings of the data being exported.<br>By enabling exports without markings validation, you acknowledge that you are responsible for ensuring<br>that the data being exported is compliant with your organization's policies.<br>示例: <code>false</code></td>
+</tr>
+<tr>
+<td><code>Connection.worker</code></td>
+<td>union</td>
+<td>是</td>
+<td><a href="https://www.palantir.com/docs/foundry/data-connection/core-concepts/#workers">The worker of a Connection</a>, which defines where<br>compute for capabilities are run.</td>
+</tr>
+<tr>
+<td><code>Connection.worker.unknownWorker</code></td>
+<td>object</td>
+<td>否</td>
+<td>A ConnectionWorker that is not supported in the Platform APIs. This can happen because either the<br>ConnectionWorker configuration is malformed, or because the ConnectionWorker is a legacy one.<br>The ConnectionWorker should be updated to use the <a href="https://www.palantir.com/docs/foundry/data-connection/core-concepts/#foundry-worker">Foundry worker</a><br>with either direct egress policies or agent proxy egress policies.</td>
+</tr>
+<tr>
+<td><code>Connection.worker.foundryWorker</code></td>
+<td>object</td>
+<td>否</td>
+<td>The <a href="https://www.palantir.com/docs/foundry/data-connection/core-concepts/#foundry-worker">Foundry worker</a> is used to run capabilities<br>in Foundry.<br>This is the preferred method for connections, as these connections benefit from Foundry's containerized<br>and scalable job execution, improved stability and do not incur the maintenance overhead associated with agents.</td>
+</tr>
+<tr>
+<td><code>Connection.worker.foundryWorker.networkEgressPolicyRids</code></td>
+<td>list<NetworkEgressPolicyRid></td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>Connection.worker.foundryWorker.networkEgressPolicyRids.NetworkEgressPolicyRid</code></td>
+<td>string</td>
+<td>是</td>
+<td>The Resource Identifier (RID) of a Network Egress Policy.</td>
+</tr>
+<tr>
+<td><code>Connection.configuration</code></td>
+<td>union</td>
+<td>是</td>
+<td>示例: <code>{"type":"jdbc","url":"jdbc:postgresql://localhost:5432/test","driverClass":"org.postgresql.Driver"}</code></td>
+</tr>
+<tr>
+<td><code>Connection.configuration.s3</code></td>
+<td>object</td>
+<td>否</td>
+<td>The configuration needed to connect to an <a href="https://www.palantir.com/docs/foundry/available-connectors/amazon-s3/#amazon-s3">AWS S3 external system (or any other S3-like external systems that<br>implement the s3a protocol)</a>.</td>
+</tr>
+<tr>
+<td><code>Connection.configuration.s3.bucketUrl</code></td>
+<td>string</td>
+<td>是</td>
+<td>The URL of the S3 bucket. The URL should contain a trailing slash.<br>示例: <code>s3://my-test-bucket/</code></td>
+</tr>
+<tr>
+<td><code>Connection.configuration.s3.s3Endpoint</code></td>
+<td>string</td>
+<td>否</td>
+<td>The endpoint of the S3 service. This is used to connect to a custom S3 service that is not AWS S3.<br>If not specified, defaults to the <a href="https://docs.aws.amazon.com/general/latest/gr/s3.html">AWS S3 endpoint</a>.<br>Warning: Specifying a region and a custom endpoint containing a region can lead to unexpected behavior.<br>示例: <code>https://my-custom-s3-endpoint.com</code></td>
+</tr>
+<tr>
+<td><code>Connection.configuration.s3.region</code></td>
+<td>string</td>
+<td>否</td>
+<td>The region representing the location of the S3 bucket.<br>Warning: Specifying a region and a custom endpoint containing a region can lead to unexpected behavior.<br>示例: <code>us-west-1</code></td>
+</tr>
+<tr>
+<td><code>Connection.configuration.s3.authenticationMode</code></td>
+<td>union</td>
+<td>否</td>
+<td>The authentication mode to use to connect to the S3 external system. No authentication mode is required<br>to connect to publicly accessible AWS S3 buckets.</td>
+</tr>
+<tr>
+<td><code>Connection.configuration.s3.authenticationMode.awsAccessKey</code></td>
+<td>object</td>
+<td>否</td>
+<td><a href="https://docs.aws.amazon.com/IAM/latest/UserGuide/id_credentials_access-keys.html">Access keys</a> are long-term<br>credentials for an IAM user or the AWS account root user.<br>Access keys consist of two parts: an access key ID (for example, AKIAIOSFODNN7EXAMPLE) and a secret access<br>key (for example, wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY). You must use both the access key ID and<br>secret access key together to authenticate your requests.</td>
+</tr>
+<tr>
+<td><code>Connection.configuration.s3.authenticationMode.awsAccessKey.accessKeyId</code></td>
+<td>string</td>
+<td>是</td>
+<td>示例: <code>AKIAIOSFODNN7EXAMPLE</code></td>
+</tr>
+<tr>
+<td><code>Connection.configuration.s3.authenticationMode.awsAccessKey.secretAccessKey</code></td>
+<td>union</td>
+<td>是</td>
+<td>When reading an encrypted property, the secret name representing the encrypted value will be returned.<br>When writing to an encrypted property:<br>- If a plaintext value is passed as an input, the plaintext value will be encrypted and saved to the property.<br>- If a secret name is passed as an input, the secret name must match the existing secret name of the property<br>and the property will retain its previously encrypted value.<br>示例: <code>{"type":"asPlaintextValue","value":"myPlaintextSecret"}</code></td>
+</tr>
+<tr>
+<td><code>Connection.configuration.s3.authenticationMode.awsAccessKey.secretAccessKey.asSecretName</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>Connection.configuration.s3.authenticationMode.awsAccessKey.secretAccessKey.asSecretName.value</code></td>
+<td>string</td>
+<td>是</td>
+<td>示例: <code>Password</code></td>
+</tr>
+<tr>
+<td><code>Connection.configuration.s3.authenticationMode.awsAccessKey.secretAccessKey.asPlaintextValue</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>Connection.configuration.s3.authenticationMode.awsAccessKey.secretAccessKey.asPlaintextValue.value</code></td>
+<td>string</td>
+<td>是</td>
+<td>示例: <code>MySecretPassword</code></td>
+</tr>
+<tr>
+<td><code>Connection.configuration.s3.authenticationMode.cloudIdentity</code></td>
+<td>object</td>
+<td>否</td>
+<td><a href="https://www.palantir.com/docs/foundry/administration/configure-cloud-identities/">Cloud identities</a> allow you to authenticate to<br>cloud provider resources without the use of static credentials.</td>
+</tr>
+<tr>
+<td><code>Connection.configuration.s3.authenticationMode.cloudIdentity.cloudIdentityRid</code></td>
+<td>string</td>
+<td>是</td>
+<td>The Resource Identifier (RID) of a Cloud Identity.<br>示例: <code>ri.resource-policy-manager.global.cloud-identity.9dfdc25e-c506-4757-96d5-d22be70d596d</code></td>
+</tr>
+<tr>
+<td><code>Connection.configuration.s3.authenticationMode.oidc</code></td>
+<td>object</td>
+<td>否</td>
+<td><a href="https://www.palantir.com/docs/foundry/data-connection/oidc/">OpenID Connect (OIDC)</a> is an open authentication protocol that allows<br>you to authenticate to external system resources without the use of static credentials.</td>
+</tr>
+<tr>
+<td><code>Connection.configuration.s3.authenticationMode.oidc.audience</code></td>
+<td>string</td>
+<td>是</td>
+<td>The configured audience that identifies the external system.<br>示例: <code>sts.amazonaws.com</code></td>
+</tr>
+<tr>
+<td><code>Connection.configuration.s3.authenticationMode.oidc.issuerUrl</code></td>
+<td>string</td>
+<td>是</td>
+<td>The URL that identifies Foundry as an OIDC identity provider.<br>示例: <code>https://pltroidcpublicexample.blob.store.com/foundry</code></td>
+</tr>
+<tr>
+<td><code>Connection.configuration.s3.authenticationMode.oidc.subject</code></td>
+<td>string</td>
+<td>是</td>
+<td>The RID of the Connection that is connecting to the external system.<br>示例: <code>ri.magritte..source.c078b71b-92f9-41b6-b0df-3760f411120b</code></td>
+</tr>
+<tr>
+<td><code>Connection.configuration.s3.s3EndpointSigningRegion</code></td>
+<td>string</td>
+<td>否</td>
+<td>The region used when constructing the S3 client using a custom endpoint.<br>This is often not required and would only be needed if you are using the S3 connector with an S3-compliant third-party API,<br>and are also setting a custom endpoint that requires a non-default region.<br>示例: <code>us-west-1</code></td>
+</tr>
+<tr>
+<td><code>Connection.configuration.s3.clientKmsConfiguration</code></td>
+<td>object</td>
+<td>否</td>
+<td>The client-side KMS key to use for encryption and decryption of data in the S3 bucket.<br>If not specified, the default KMS key for the bucket is used.<br>示例: <code>{"kmsRegion":"us-west-1","kmsKey":"arn:aws:kms:us-west-1:123456789012:key/1234abcd-12ab-34cd-56ef-1234567890ab"}</code></td>
+</tr>
+<tr>
+<td><code>Connection.configuration.s3.clientKmsConfiguration.kmsKey</code></td>
+<td>string</td>
+<td>是</td>
+<td>The client-side KMS key to use for encryption and decryption of data in the S3 bucket.<br>If not specified, the default KMS key for the bucket is used.<br>示例: <code>arn:aws:kms:us-west-1:123456789012:key/1234abcd-12ab-34cd-56ef-1234567890ab</code></td>
+</tr>
+<tr>
+<td><code>Connection.configuration.s3.clientKmsConfiguration.kmsRegion</code></td>
+<td>string</td>
+<td>否</td>
+<td>The region of the client-side KMS key to use for encryption and decryption of data in the S3 bucket.<br>If not specified, the default KMS key region for the bucket is used.<br>示例: <code>us-west-1</code></td>
+</tr>
+<tr>
+<td><code>Connection.configuration.s3.stsRoleConfiguration</code></td>
+<td>object</td>
+<td>否</td>
+<td>The configuration needed to assume a role to connect to the S3 external system.<br>示例: <code>{"stsEndpoint":"https://sts.us-west-1.amazonaws.com","roleArn":"arn:aws:iam::123456789012:role/my-role","roleSessionDuration":{"unit":"SECONDS","value":30}}</code></td>
+</tr>
+<tr>
+<td><code>Connection.configuration.s3.stsRoleConfiguration.roleArn</code></td>
+<td>string</td>
+<td>是</td>
+<td>The Amazon Resource Name (ARN) of the role to assume.<br>For more information, see the official <a href="https://docs.aws.amazon.com/IAM/latest/UserGuide/reference_policies_elements_principal.html#principal-arn-format">AWS documentation</a>.<br>示例: <code>arn:aws:iam::123456789012:role/my-role</code></td>
+</tr>
+<tr>
+<td><code>Connection.configuration.s3.stsRoleConfiguration.roleSessionName</code></td>
+<td>string</td>
+<td>是</td>
+<td>An identifier for the assumed role session.<br>The value can be any string that you assume will be unique within the AWS account.<br>For more information, see the official <a href="https://docs.aws.amazon.com/STS/latest/APIReference/API_AssumeRole.html#API_AssumeRole_RequestParameters">AWS documentation</a>.</td>
+</tr>
+<tr>
+<td><code>Connection.configuration.s3.stsRoleConfiguration.roleSessionDuration</code></td>
+<td>object</td>
+<td>否</td>
+<td>The duration of the role session.<br>The value specified can range from 900 seconds (15 minutes) up to the maximum session duration set for the role.<br>The maximum session duration setting can have a value from 1 hour to 12 hours. For more details see the official <a href="https://docs.aws.amazon.com/STS/latest/APIReference/API_AssumeRole.html#API_AssumeRole_RequestParameters">AWS documentation</a>.<br>示例: <code>{"unit":"SECONDS","value":30}</code></td>
+</tr>
+<tr>
+<td><code>Connection.configuration.s3.stsRoleConfiguration.roleSessionDuration.value</code></td>
+<td>integer</td>
+<td>是</td>
+<td>The duration value.<br>示例: <code>30</code></td>
+</tr>
+<tr>
+<td><code>Connection.configuration.s3.stsRoleConfiguration.roleSessionDuration.unit</code></td>
+<td>enum</td>
+<td>是</td>
+<td>The unit of duration.<br>示例: <code>SECONDS</code></td>
+</tr>
+<tr>
+<td><code>Connection.configuration.s3.stsRoleConfiguration.externalId</code></td>
+<td>string</td>
+<td>否</td>
+<td>A unique identifier that is used by third parties when assuming roles in their customers' accounts.<br>For more information, see the official <a href="https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles_create_for-user_externalid.html">AWS documentation</a>.</td>
+</tr>
+<tr>
+<td><code>Connection.configuration.s3.stsRoleConfiguration.stsEndpoint</code></td>
+<td>string</td>
+<td>否</td>
+<td>By default, the AWS Security Token Service (AWS STS) is available as a global service, and all AWS STS requests go to a single endpoint at https://sts.amazonaws.com.<br>AWS recommends using Regional AWS STS endpoints instead of the global endpoint to reduce latency, build in redundancy, and increase session token validity.<br>示例: <code>https://sts.us-west-1.amazonaws.com</code></td>
+</tr>
+<tr>
+<td><code>Connection.configuration.s3.proxyConfiguration</code></td>
+<td>object</td>
+<td>否</td>
+<td>The configuration needed to connect to the S3 external system through a proxy.<br>示例: <code>{"protocol":"HTTP","credentials":{"password":{"type":"asPlaintextValue","value":"myPlaintextSecret"}}}</code></td>
+</tr>
+<tr>
+<td><code>Connection.configuration.s3.proxyConfiguration.host</code></td>
+<td>string</td>
+<td>是</td>
+<td>Domain name, IPv4, or IPv6 address.<br><code>protocol</code> and <code>port</code> must be specified separately.</td>
+</tr>
+<tr>
+<td><code>Connection.configuration.s3.proxyConfiguration.port</code></td>
+<td>integer</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>Connection.configuration.s3.proxyConfiguration.nonProxyHosts</code></td>
+<td>list<string></td>
+<td>否</td>
+<td>A list of hosts that can bypass the proxy, such as those used for STS Role. You can also use "*" wildcards.</td>
+</tr>
+<tr>
+<td><code>Connection.configuration.s3.proxyConfiguration.protocol</code></td>
+<td>enum</td>
+<td>否</td>
+<td>If defined, must be "HTTP" or "HTTPS". Defaults to "HTTPS".<br>示例: <code>HTTP</code></td>
+</tr>
+<tr>
+<td><code>Connection.configuration.s3.proxyConfiguration.credentials</code></td>
+<td>object</td>
+<td>否</td>
+<td>示例: <code>{"password":{"type":"asPlaintextValue","value":"myPlaintextSecret"}}</code></td>
+</tr>
+<tr>
+<td><code>Connection.configuration.s3.proxyConfiguration.credentials.username</code></td>
+<td>string</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>Connection.configuration.s3.proxyConfiguration.credentials.password</code></td>
+<td>union</td>
+<td>是</td>
+<td>When reading an encrypted property, the secret name representing the encrypted value will be returned.<br>When writing to an encrypted property:<br>- If a plaintext value is passed as an input, the plaintext value will be encrypted and saved to the property.<br>- If a secret name is passed as an input, the secret name must match the existing secret name of the property<br>and the property will retain its previously encrypted value.<br>示例: <code>{"type":"asPlaintextValue","value":"myPlaintextSecret"}</code></td>
+</tr>
+<tr>
+<td><code>Connection.configuration.s3.proxyConfiguration.credentials.password.asSecretName</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>Connection.configuration.s3.proxyConfiguration.credentials.password.asSecretName.value</code></td>
+<td>string</td>
+<td>是</td>
+<td>示例: <code>Password</code></td>
+</tr>
+<tr>
+<td><code>Connection.configuration.s3.proxyConfiguration.credentials.password.asPlaintextValue</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>Connection.configuration.s3.proxyConfiguration.credentials.password.asPlaintextValue.value</code></td>
+<td>string</td>
+<td>是</td>
+<td>示例: <code>MySecretPassword</code></td>
+</tr>
+<tr>
+<td><code>Connection.configuration.s3.maxConnections</code></td>
+<td>integer</td>
+<td>否</td>
+<td>The maximum number of HTTP connections to the S3 service per sync.<br>If not specified, defaults to 50 as defined by the <a href="https://docs.aws.amazon.com/AWSJavaSDK/latest/javadoc/com/amazonaws/ClientConfiguration.html#DEFAULT_MAX_CONNECTIONS">AWS SDK default</a>.</td>
+</tr>
+<tr>
+<td><code>Connection.configuration.s3.connectionTimeoutMillis</code></td>
+<td>string</td>
+<td>否</td>
+<td>The amount of time (in milliseconds) to wait when initially establishing a connection before giving up and timing out.<br>If not specified, defaults to 10000 as defined by the <a href="https://docs.aws.amazon.com/AWSJavaSDK/latest/javadoc/com/amazonaws/ClientConfiguration.html#DEFAULT_CONNECTION_TIMEOUT">AWS SDK default</a>.</td>
+</tr>
+<tr>
+<td><code>Connection.configuration.s3.socketTimeoutMillis</code></td>
+<td>string</td>
+<td>否</td>
+<td>The amount of time (in milliseconds) to wait for data to be transferred over an established, open connection.<br>If not specified, defaults to 50000 as defined by the <a href="https://docs.aws.amazon.com/AWSJavaSDK/latest/javadoc/com/amazonaws/ClientConfiguration.html#DEFAULT_SOCKET_TIMEOUT">AWS SDK default</a>.</td>
+</tr>
+<tr>
+<td><code>Connection.configuration.s3.maxErrorRetry</code></td>
+<td>integer</td>
+<td>否</td>
+<td>The maximum number of retry attempts for failed requests to the S3 service.<br>If not specified, defaults to 3 as defined by the <a href="https://docs.aws.amazon.com/sdk-for-java/latest/developer-guide/retry-strategy.html#retry-strategies">AWS SDK default</a>.</td>
+</tr>
+<tr>
+<td><code>Connection.configuration.s3.matchSubfolderExactly</code></td>
+<td>boolean</td>
+<td>否</td>
+<td>If true, only files in the subfolder specified in the bucket URL will be synced.<br>If false, all files in the bucket will be synced.<br>If not specified, defaults to false.</td>
+</tr>
+<tr>
+<td><code>Connection.configuration.s3.enableRequesterPays</code></td>
+<td>boolean</td>
+<td>否</td>
+<td>Defaults to false, unless set and overwritten.<br>If true, includes the <a href="https://docs.aws.amazon.com/AmazonS3/latest/userguide/RequesterPaysBuckets.html">requester pays header</a><br>in requests, allowing reads from requester pays buckets.</td>
+</tr>
+<tr>
+<td><code>Connection.configuration.rest</code></td>
+<td>object</td>
+<td>否</td>
+<td>The configuration needed to connect to a <a href="https://www.palantir.com/docs/foundry/available-connectors/rest-apis">REST external system</a>.</td>
+</tr>
+<tr>
+<td><code>Connection.configuration.rest.domains</code></td>
+<td>list<Domain></td>
+<td>否</td>
+<td>The domains that the connection is allowed to access.<br>At least one domain must be specified.</td>
+</tr>
+<tr>
+<td><code>Connection.configuration.rest.domains.Domain</code></td>
+<td>object</td>
+<td>是</td>
+<td>The domain that the connection is allowed to access.</td>
+</tr>
+<tr>
+<td><code>Connection.configuration.rest.domains.Domain.scheme</code></td>
+<td>enum</td>
+<td>否</td>
+<td>The scheme of the domain that the connection is allowed to access.<br>If not specified, defaults to HTTPS.<br>示例: <code>HTTP</code></td>
+</tr>
+<tr>
+<td><code>Connection.configuration.rest.domains.Domain.host</code></td>
+<td>string</td>
+<td>是</td>
+<td>The domain name, IPv4, or IPv6 address.<br>示例: <code>my-rest-api.com</code></td>
+</tr>
+<tr>
+<td><code>Connection.configuration.rest.domains.Domain.port</code></td>
+<td>integer</td>
+<td>否</td>
+<td>The port number of the domain that the connection is allowed to access.<br>示例: <code>443</code></td>
+</tr>
+<tr>
+<td><code>Connection.configuration.rest.domains.Domain.auth</code></td>
+<td>union</td>
+<td>否</td>
+<td>The URI scheme must be HTTPS if using any authentication.<br>If not specified, no authentication is required.</td>
+</tr>
+<tr>
+<td><code>Connection.configuration.rest.domains.Domain.auth.bearerToken</code></td>
+<td>object</td>
+<td>否</td>
+<td>The bearer token used to authenticate to the external system.</td>
+</tr>
+<tr>
+<td><code>Connection.configuration.rest.domains.Domain.auth.bearerToken.bearerToken</code></td>
+<td>union</td>
+<td>是</td>
+<td>When reading an encrypted property, the secret name representing the encrypted value will be returned.<br>When writing to an encrypted property:<br>- If a plaintext value is passed as an input, the plaintext value will be encrypted and saved to the property.<br>- If a secret name is passed as an input, the secret name must match the existing secret name of the property<br>and the property will retain its previously encrypted value.<br>示例: <code>{"type":"asPlaintextValue","value":"myPlaintextSecret"}</code></td>
+</tr>
+<tr>
+<td><code>Connection.configuration.rest.domains.Domain.auth.bearerToken.bearerToken.asSecretName</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>Connection.configuration.rest.domains.Domain.auth.bearerToken.bearerToken.asSecretName.value</code></td>
+<td>string</td>
+<td>是</td>
+<td>示例: <code>Password</code></td>
+</tr>
+<tr>
+<td><code>Connection.configuration.rest.domains.Domain.auth.bearerToken.bearerToken.asPlaintextValue</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>Connection.configuration.rest.domains.Domain.auth.bearerToken.bearerToken.asPlaintextValue.value</code></td>
+<td>string</td>
+<td>是</td>
+<td>示例: <code>MySecretPassword</code></td>
+</tr>
+<tr>
+<td><code>Connection.configuration.rest.domains.Domain.auth.apiKey</code></td>
+<td>object</td>
+<td>否</td>
+<td>The API key used to authenticate to the external system.<br>This can be configured as a header or query parameter.</td>
+</tr>
+<tr>
+<td><code>Connection.configuration.rest.domains.Domain.auth.apiKey.location</code></td>
+<td>union</td>
+<td>是</td>
+<td>The location of the API key in the request.</td>
+</tr>
+<tr>
+<td><code>Connection.configuration.rest.domains.Domain.auth.apiKey.location.header</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>Connection.configuration.rest.domains.Domain.auth.apiKey.location.header.headerName</code></td>
+<td>string</td>
+<td>是</td>
+<td>The name of the header that the API key is passed in.<br>示例: <code>X-API-KEY</code></td>
+</tr>
+<tr>
+<td><code>Connection.configuration.rest.domains.Domain.auth.apiKey.location.queryParameter</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>Connection.configuration.rest.domains.Domain.auth.apiKey.location.queryParameter.queryParameterName</code></td>
+<td>string</td>
+<td>是</td>
+<td>The name of the query parameter that the API key is passed in.<br>示例: <code>api_key</code></td>
+</tr>
+<tr>
+<td><code>Connection.configuration.rest.domains.Domain.auth.apiKey.apiKey</code></td>
+<td>union</td>
+<td>是</td>
+<td>The value of the API key.<br>示例: <code>{"type":"asPlaintextValue","value":"myPlaintextSecret"}</code></td>
+</tr>
+<tr>
+<td><code>Connection.configuration.rest.domains.Domain.auth.apiKey.apiKey.asSecretName</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>Connection.configuration.rest.domains.Domain.auth.apiKey.apiKey.asSecretName.value</code></td>
+<td>string</td>
+<td>是</td>
+<td>示例: <code>Password</code></td>
+</tr>
+<tr>
+<td><code>Connection.configuration.rest.domains.Domain.auth.apiKey.apiKey.asPlaintextValue</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>Connection.configuration.rest.domains.Domain.auth.apiKey.apiKey.asPlaintextValue.value</code></td>
+<td>string</td>
+<td>是</td>
+<td>示例: <code>MySecretPassword</code></td>
+</tr>
+<tr>
+<td><code>Connection.configuration.rest.domains.Domain.auth.basic</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>Connection.configuration.rest.domains.Domain.auth.basic.username</code></td>
+<td>string</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>Connection.configuration.rest.domains.Domain.auth.basic.password</code></td>
+<td>union</td>
+<td>是</td>
+<td>When reading an encrypted property, the secret name representing the encrypted value will be returned.<br>When writing to an encrypted property:<br>- If a plaintext value is passed as an input, the plaintext value will be encrypted and saved to the property.<br>- If a secret name is passed as an input, the secret name must match the existing secret name of the property<br>and the property will retain its previously encrypted value.<br>示例: <code>{"type":"asPlaintextValue","value":"myPlaintextSecret"}</code></td>
+</tr>
+<tr>
+<td><code>Connection.configuration.rest.domains.Domain.auth.basic.password.asSecretName</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>Connection.configuration.rest.domains.Domain.auth.basic.password.asSecretName.value</code></td>
+<td>string</td>
+<td>是</td>
+<td>示例: <code>Password</code></td>
+</tr>
+<tr>
+<td><code>Connection.configuration.rest.domains.Domain.auth.basic.password.asPlaintextValue</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>Connection.configuration.rest.domains.Domain.auth.basic.password.asPlaintextValue.value</code></td>
+<td>string</td>
+<td>是</td>
+<td>示例: <code>MySecretPassword</code></td>
+</tr>
+<tr>
+<td><code>Connection.configuration.rest.domains.Domain.auth.oauth2</code></td>
+<td>object</td>
+<td>否</td>
+<td>In order to use OAuth2 you must have an Outbound application configured in the <a href="https://www.palantir.com/docs/foundry/administration/configure-outbound-applications#create-an-outbound-application">Foundry Control Panel Organization settings</a>.<br>The RID of the Outbound application must be configured in the RestConnectionConfiguration in the <code>oauth2ClientRid</code> field.</td>
+</tr>
+<tr>
+<td><code>Connection.configuration.rest.additionalSecrets</code></td>
+<td>union</td>
+<td>否</td>
+<td>Additional secrets that can be referenced in code and webhook configurations.<br>If not provided, no additional secrets will be created.</td>
+</tr>
+<tr>
+<td><code>Connection.configuration.rest.additionalSecrets.asSecretsWithPlaintextValues</code></td>
+<td>object</td>
+<td>否</td>
+<td>A map representing secret name to plaintext secret value pairs.<br>This should be used when creating or updating additional secrets for a REST connection.</td>
+</tr>
+<tr>
+<td><code>Connection.configuration.rest.additionalSecrets.asSecretsWithPlaintextValues.secrets</code></td>
+<td>map</td>
+<td>否</td>
+<td>The additional secrets that can be referenced in code and webhook configurations.</td>
+</tr>
+<tr>
+<td><code>Connection.configuration.rest.additionalSecrets.asSecretsWithPlaintextValues.secrets.SecretName</code></td>
+<td>string</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>Connection.configuration.rest.additionalSecrets.asSecretsWithPlaintextValues.secrets.PlaintextValue</code></td>
+<td>string</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>Connection.configuration.rest.additionalSecrets.asSecretsNames</code></td>
+<td>object</td>
+<td>否</td>
+<td>A list of secret names that can be referenced in code and webhook configurations.<br>This will be provided to the client when fetching the RestConnectionConfiguration.</td>
+</tr>
+<tr>
+<td><code>Connection.configuration.rest.additionalSecrets.asSecretsNames.secretNames</code></td>
+<td>list<SecretName></td>
+<td>否</td>
+<td>The names of the additional secrets that can be referenced in code and webhook configurations.</td>
+</tr>
+<tr>
+<td><code>Connection.configuration.rest.additionalSecrets.asSecretsNames.secretNames.SecretName</code></td>
+<td>string</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>Connection.configuration.rest.oauth2ClientRid</code></td>
+<td>string</td>
+<td>否</td>
+<td>The RID of the <a href="https://www.palantir.com/docs/foundry/administration/configure-outbound-applications">Outbound application</a> that is used to authenticate to the external system via OAuth2.<br>Currently, a connection may use only one outbound application for OAuth 2.0 authentication.<br>Selecting a different outbound application will update the configuration for all domains with OAuth 2.0 as the selected authorization.</td>
+</tr>
+<tr>
+<td><code>Connection.configuration.snowflake</code></td>
+<td>object</td>
+<td>否</td>
+<td>The configuration needed to connect to a Snowflake database.</td>
+</tr>
+<tr>
+<td><code>Connection.configuration.snowflake.accountIdentifier</code></td>
+<td>string</td>
+<td>是</td>
+<td>An <a href="https://docs.snowflake.com/en/user-guide/admin-account-identifier">account identifier</a> uniquely<br>identifies a Snowflake account within your organization, as well as throughout the global network of<br>Snowflake-supported cloud platforms and cloud regions.<br>The URL for an account uses the following format: <account_identifier>.snowflakecomputing.com.<br>An example URL is https://acme-test_aws_us_east_2.snowflakecomputing.com.<br>示例: <code>acme-test_aws_us_east_2</code></td>
+</tr>
+<tr>
+<td><code>Connection.configuration.snowflake.database</code></td>
+<td>string</td>
+<td>否</td>
+<td>Specifies the default database to use once connected. If unspecified, defaults to the empty string.<br>The specified database should be an existing database for which the specified default role has privileges.<br>See https://docs.snowflake.com/developer-guide/jdbc/jdbc-parameters#db<br>示例: <code>mydatabase</code></td>
+</tr>
+<tr>
+<td><code>Connection.configuration.snowflake.role</code></td>
+<td>string</td>
+<td>否</td>
+<td>Specifies the default access control role to use in the Snowflake session initiated by the driver.<br>If unspecified, no role will be used when the session is initiated by the driver.<br>The specified role should be an existing role that has already been assigned to the specified user for<br>the driver. If the specified role has not already been assigned to the user, the role is not used when<br>the session is initiated by the driver.<br>See https://docs.snowflake.com/developer-guide/jdbc/jdbc-parameters#role<br>示例: <code>myrole</code></td>
+</tr>
+<tr>
+<td><code>Connection.configuration.snowflake.schema</code></td>
+<td>string</td>
+<td>否</td>
+<td>Specifies the default schema to use for the specified database once connected. If unspecified,<br>defaults to the empty string.<br>The specified schema should be an existing schema for which the specified default role has privileges.<br>See https://docs.snowflake.com/developer-guide/jdbc/jdbc-parameters#schema<br>示例: <code>myschema</code></td>
+</tr>
+<tr>
+<td><code>Connection.configuration.snowflake.warehouse</code></td>
+<td>string</td>
+<td>否</td>
+<td>Specifies the virtual warehouse to use once connected. If unspecified, defaults to the empty string.<br>The specified warehouse should be an existing warehouse for which the specified default role has privileges.<br>See https://docs.snowflake.com/developer-guide/jdbc/jdbc-parameters#warehouse<br>示例: <code>mywarehouse</code></td>
+</tr>
+<tr>
+<td><code>Connection.configuration.snowflake.authenticationMode</code></td>
+<td>union</td>
+<td>是</td>
+<td>The authentication mode to use to connect to the Snowflake database.</td>
+</tr>
+<tr>
+<td><code>Connection.configuration.snowflake.authenticationMode.externalOauth</code></td>
+<td>object</td>
+<td>否</td>
+<td>Use an External OAuth security integration to connect and authenticate to Snowflake.<br>See https://docs.snowflake.com/en/user-guide/oauth-ext-custom</td>
+</tr>
+<tr>
+<td><code>Connection.configuration.snowflake.authenticationMode.externalOauth.audience</code></td>
+<td>string</td>
+<td>是</td>
+<td>Identifies the recipients that the access token is intended for as a string URI.<br>示例: <code>https://example.east-us-1.azure.snowflakecomputing.com</code></td>
+</tr>
+<tr>
+<td><code>Connection.configuration.snowflake.authenticationMode.externalOauth.issuerUrl</code></td>
+<td>string</td>
+<td>是</td>
+<td>Identifies the principal that issued the access token as a string URI.<br>示例: <code>https://pltroidcpublicexample.blob.store.com/foundry</code></td>
+</tr>
+<tr>
+<td><code>Connection.configuration.snowflake.authenticationMode.externalOauth.subject</code></td>
+<td>string</td>
+<td>是</td>
+<td>The RID of the Connection that is connecting to the external system.<br>示例: <code>ri.magritte..source.c078b71b-92f9-41b6-b0df-3760f411120b</code></td>
+</tr>
+<tr>
+<td><code>Connection.configuration.snowflake.authenticationMode.keyPair</code></td>
+<td>object</td>
+<td>否</td>
+<td>Use a key-pair to connect and authenticate to Snowflake.<br>See https://docs.snowflake.com/en/user-guide/key-pair-auth</td>
+</tr>
+<tr>
+<td><code>Connection.configuration.snowflake.authenticationMode.keyPair.user</code></td>
+<td>string</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>Connection.configuration.snowflake.authenticationMode.keyPair.privateKey</code></td>
+<td>union</td>
+<td>是</td>
+<td>When reading an encrypted property, the secret name representing the encrypted value will be returned.<br>When writing to an encrypted property:<br>- If a plaintext value is passed as an input, the plaintext value will be encrypted and saved to the property.<br>- If a secret name is passed as an input, the secret name must match the existing secret name of the property<br>and the property will retain its previously encrypted value.<br>示例: <code>{"type":"asPlaintextValue","value":"myPlaintextSecret"}</code></td>
+</tr>
+<tr>
+<td><code>Connection.configuration.snowflake.authenticationMode.keyPair.privateKey.asSecretName</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>Connection.configuration.snowflake.authenticationMode.keyPair.privateKey.asSecretName.value</code></td>
+<td>string</td>
+<td>是</td>
+<td>示例: <code>Password</code></td>
+</tr>
+<tr>
+<td><code>Connection.configuration.snowflake.authenticationMode.keyPair.privateKey.asPlaintextValue</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>Connection.configuration.snowflake.authenticationMode.keyPair.privateKey.asPlaintextValue.value</code></td>
+<td>string</td>
+<td>是</td>
+<td>示例: <code>MySecretPassword</code></td>
+</tr>
+<tr>
+<td><code>Connection.configuration.snowflake.authenticationMode.basic</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>Connection.configuration.snowflake.authenticationMode.basic.username</code></td>
+<td>string</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>Connection.configuration.snowflake.authenticationMode.basic.password</code></td>
+<td>union</td>
+<td>是</td>
+<td>When reading an encrypted property, the secret name representing the encrypted value will be returned.<br>When writing to an encrypted property:<br>- If a plaintext value is passed as an input, the plaintext value will be encrypted and saved to the property.<br>- If a secret name is passed as an input, the secret name must match the existing secret name of the property<br>and the property will retain its previously encrypted value.<br>示例: <code>{"type":"asPlaintextValue","value":"myPlaintextSecret"}</code></td>
+</tr>
+<tr>
+<td><code>Connection.configuration.snowflake.authenticationMode.basic.password.asSecretName</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>Connection.configuration.snowflake.authenticationMode.basic.password.asSecretName.value</code></td>
+<td>string</td>
+<td>是</td>
+<td>示例: <code>Password</code></td>
+</tr>
+<tr>
+<td><code>Connection.configuration.snowflake.authenticationMode.basic.password.asPlaintextValue</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>Connection.configuration.snowflake.authenticationMode.basic.password.asPlaintextValue.value</code></td>
+<td>string</td>
+<td>是</td>
+<td>示例: <code>MySecretPassword</code></td>
+</tr>
+<tr>
+<td><code>Connection.configuration.snowflake.jdbcProperties</code></td>
+<td>map</td>
+<td>否</td>
+<td>A map of <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/Properties.html">properties</a> passed<br>to the JDBC driver to configure behavior. Refer to the documentation of your specific connection type for additional<br>available JDBC properties to add to your connection configuration.<br>This should only contain unencrypted properties, all values specified here are sent unencrypted to Foundry.<br>示例: <code>{"propertyName1":"propertyValue1","propertyName2":"propertyValue2"}</code></td>
+</tr>
+<tr>
+<td><code>Connection.configuration.databricks</code></td>
+<td>object</td>
+<td>否</td>
+<td>The configuration needed to connect to a <a href="https://www.palantir.com/docs/foundry/available-connectors/databricks">Databricks external system</a>.<br>Refer to the <a href="https://docs.databricks.com/aws/en/integrations/compute-details">official Databricks documentation</a><br>for more information on how to obtain connection details for your system.</td>
+</tr>
+<tr>
+<td><code>Connection.configuration.databricks.hostName</code></td>
+<td>string</td>
+<td>是</td>
+<td>The hostname of the Databricks workspace.<br>示例: <code>west-us-2.azuredatabricks.net</code></td>
+</tr>
+<tr>
+<td><code>Connection.configuration.databricks.httpPath</code></td>
+<td>string</td>
+<td>是</td>
+<td>The Databricks compute resourceâs HTTP Path value.<br>示例: <code>/sql/1.0/warehouses/1234</code></td>
+</tr>
+<tr>
+<td><code>Connection.configuration.databricks.authentication</code></td>
+<td>union</td>
+<td>是</td>
+<td>The method of authentication to use.</td>
+</tr>
+<tr>
+<td><code>Connection.configuration.databricks.authentication.workflowIdentityFederation</code></td>
+<td>object</td>
+<td>否</td>
+<td>Authenticate as a service principal using workload identity federation. This is the recommended way to connect to Databricks.<br>Workload identity federation allows workloads running in Foundry to access Databricks APIs without the need for Databricks secrets.<br>Refer to our <a href="https://www.palantir.com/docs/foundry/data-connection/oidc">OIDC documentation</a> for an overview of how OpenID Connect is supported in Foundry.<br>A service principal federation policy must exist in Databricks to allow Foundry to act as an identity provider.<br>Refer to the <a href="https://docs.databricks.com/aws/en/dev-tools/auth/oauth-federation">official documentation</a> for guidance.</td>
+</tr>
+<tr>
+<td><code>Connection.configuration.databricks.authentication.workflowIdentityFederation.servicePrincipalApplicationId</code></td>
+<td>string</td>
+<td>否</td>
+<td>The ID of the Databricks <a href="https://docs.databricks.com/aws/en/admin/users-groups/service-principals">service principal</a>.<br>If provided, a federated JWT token is exchanged using a<br>service principal federation policy. If not provided, a federated JWT token is exchanged using an account<br>federation policy.</td>
+</tr>
+<tr>
+<td><code>Connection.configuration.databricks.authentication.workflowIdentityFederation.issuerUrl</code></td>
+<td>string</td>
+<td>是</td>
+<td>Identifies the principal that issued the access token as a string URI.<br>示例: <code>https://pltroidcpublicexample.s3.us-east-1.amazonaws.com/foundry</code></td>
+</tr>
+<tr>
+<td><code>Connection.configuration.databricks.authentication.workflowIdentityFederation.audience</code></td>
+<td>string</td>
+<td>是</td>
+<td>Identifies the recipients that the access token is intended for as a string URI.<br>This should be the primary host name where the Connection lives.<br>示例: <code>https://example.palantirfoundry.com</code></td>
+</tr>
+<tr>
+<td><code>Connection.configuration.databricks.authentication.workflowIdentityFederation.subject</code></td>
+<td>string</td>
+<td>是</td>
+<td>The RID of the Connection that is connecting to the external system.<br>示例: <code>ri.magritte..source.c078b71b-92f9-41b6-b0df-3760f411120b</code></td>
+</tr>
+<tr>
+<td><code>Connection.configuration.databricks.authentication.oauthM2M</code></td>
+<td>object</td>
+<td>否</td>
+<td>Authenticate as a service principal using OAuth. Create a service principal in Databricks and generate an OAuth secret to obtain a client ID and secret.<br>Read the <a href="https://docs.databricks.com/aws/en/dev-tools/auth/oauth-m2m">official Databricks documentation</a> for more information about OAuth machine-to-machine<br>authentication.</td>
+</tr>
+<tr>
+<td><code>Connection.configuration.databricks.authentication.oauthM2M.clientID</code></td>
+<td>string</td>
+<td>是</td>
+<td>The client ID for the service principal.</td>
+</tr>
+<tr>
+<td><code>Connection.configuration.databricks.authentication.oauthM2M.clientSecret</code></td>
+<td>union</td>
+<td>是</td>
+<td>The value of the client secret.<br>示例: <code>{"type":"asPlaintextValue","value":"myPlaintextSecret"}</code></td>
+</tr>
+<tr>
+<td><code>Connection.configuration.databricks.authentication.oauthM2M.clientSecret.asSecretName</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>Connection.configuration.databricks.authentication.oauthM2M.clientSecret.asSecretName.value</code></td>
+<td>string</td>
+<td>是</td>
+<td>示例: <code>Password</code></td>
+</tr>
+<tr>
+<td><code>Connection.configuration.databricks.authentication.oauthM2M.clientSecret.asPlaintextValue</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>Connection.configuration.databricks.authentication.oauthM2M.clientSecret.asPlaintextValue.value</code></td>
+<td>string</td>
+<td>是</td>
+<td>示例: <code>MySecretPassword</code></td>
+</tr>
+<tr>
+<td><code>Connection.configuration.databricks.authentication.personalAccessToken</code></td>
+<td>object</td>
+<td>否</td>
+<td>Authenticate as a user or service principal using a personal access token.<br>Read the <a href="https://docs.databricks.com/aws/en/dev-tools/auth/pat">official Databricks documentation</a> for information on generating a personal access token.</td>
+</tr>
+<tr>
+<td><code>Connection.configuration.databricks.authentication.personalAccessToken.personalAccessToken</code></td>
+<td>union</td>
+<td>是</td>
+<td>When reading an encrypted property, the secret name representing the encrypted value will be returned.<br>When writing to an encrypted property:<br>- If a plaintext value is passed as an input, the plaintext value will be encrypted and saved to the property.<br>- If a secret name is passed as an input, the secret name must match the existing secret name of the property<br>and the property will retain its previously encrypted value.<br>示例: <code>{"type":"asPlaintextValue","value":"myPlaintextSecret"}</code></td>
+</tr>
+<tr>
+<td><code>Connection.configuration.databricks.authentication.personalAccessToken.personalAccessToken.asSecretName</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>Connection.configuration.databricks.authentication.personalAccessToken.personalAccessToken.asSecretName.value</code></td>
+<td>string</td>
+<td>是</td>
+<td>示例: <code>Password</code></td>
+</tr>
+<tr>
+<td><code>Connection.configuration.databricks.authentication.personalAccessToken.personalAccessToken.asPlaintextValue</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>Connection.configuration.databricks.authentication.personalAccessToken.personalAccessToken.asPlaintextValue.value</code></td>
+<td>string</td>
+<td>是</td>
+<td>示例: <code>MySecretPassword</code></td>
+</tr>
+<tr>
+<td><code>Connection.configuration.databricks.authentication.basic</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>Connection.configuration.databricks.authentication.basic.username</code></td>
+<td>string</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>Connection.configuration.databricks.authentication.basic.password</code></td>
+<td>union</td>
+<td>是</td>
+<td>When reading an encrypted property, the secret name representing the encrypted value will be returned.<br>When writing to an encrypted property:<br>- If a plaintext value is passed as an input, the plaintext value will be encrypted and saved to the property.<br>- If a secret name is passed as an input, the secret name must match the existing secret name of the property<br>and the property will retain its previously encrypted value.<br>示例: <code>{"type":"asPlaintextValue","value":"myPlaintextSecret"}</code></td>
+</tr>
+<tr>
+<td><code>Connection.configuration.databricks.authentication.basic.password.asSecretName</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>Connection.configuration.databricks.authentication.basic.password.asSecretName.value</code></td>
+<td>string</td>
+<td>是</td>
+<td>示例: <code>Password</code></td>
+</tr>
+<tr>
+<td><code>Connection.configuration.databricks.authentication.basic.password.asPlaintextValue</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>Connection.configuration.databricks.authentication.basic.password.asPlaintextValue.value</code></td>
+<td>string</td>
+<td>是</td>
+<td>示例: <code>MySecretPassword</code></td>
+</tr>
+<tr>
+<td><code>Connection.configuration.databricks.jdbcProperties</code></td>
+<td>map</td>
+<td>否</td>
+<td>A map of <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/Properties.html">properties</a> passed<br>to the JDBC driver to configure behavior. Refer to the documentation of your specific connection type for additional<br>available JDBC properties to add to your connection configuration.<br>This should only contain unencrypted properties, all values specified here are sent unencrypted to Foundry.<br>示例: <code>{"propertyName1":"propertyValue1","propertyName2":"propertyValue2"}</code></td>
+</tr>
+<tr>
+<td><code>Connection.configuration.smb</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>Connection.configuration.smb.hostname</code></td>
+<td>string</td>
+<td>是</td>
+<td>Any identifier that can resolve to a server hosting an SMB share. This includes IP addresses, local<br>network names (e.g. FS-SERVER-01) or FQDNs. Should not include any protocol information like https://, smb://, etc</td>
+</tr>
+<tr>
+<td><code>Connection.configuration.smb.port</code></td>
+<td>integer</td>
+<td>否</td>
+<td>445 by default</td>
+</tr>
+<tr>
+<td><code>Connection.configuration.smb.proxy</code></td>
+<td>object</td>
+<td>否</td>
+<td>Egress proxy to pass all traffic through.<br>示例: <code>{"protocol":"HTTP"}</code></td>
+</tr>
+<tr>
+<td><code>Connection.configuration.smb.proxy.hostname</code></td>
+<td>string</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>Connection.configuration.smb.proxy.port</code></td>
+<td>integer</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>Connection.configuration.smb.proxy.protocol</code></td>
+<td>enum</td>
+<td>是</td>
+<td>示例: <code>HTTP</code></td>
+</tr>
+<tr>
+<td><code>Connection.configuration.smb.share</code></td>
+<td>string</td>
+<td>是</td>
+<td>Must be a valid SMB share name.<br>https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-fscc/dc9978d7-6299-4c5a-a22d-a039cdc716ea</td>
+</tr>
+<tr>
+<td><code>Connection.configuration.smb.baseDirectory</code></td>
+<td>string</td>
+<td>否</td>
+<td>All reads and writes in this source will happen in this subdirectory</td>
+</tr>
+<tr>
+<td><code>Connection.configuration.smb.auth</code></td>
+<td>union</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>Connection.configuration.smb.auth.usernamePassword</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>Connection.configuration.smb.auth.usernamePassword.username</code></td>
+<td>string</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>Connection.configuration.smb.auth.usernamePassword.password</code></td>
+<td>union</td>
+<td>是</td>
+<td>When reading an encrypted property, the secret name representing the encrypted value will be returned.<br>When writing to an encrypted property:<br>- If a plaintext value is passed as an input, the plaintext value will be encrypted and saved to the property.<br>- If a secret name is passed as an input, the secret name must match the existing secret name of the property<br>and the property will retain its previously encrypted value.<br>示例: <code>{"type":"asPlaintextValue","value":"myPlaintextSecret"}</code></td>
+</tr>
+<tr>
+<td><code>Connection.configuration.smb.auth.usernamePassword.password.asSecretName</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>Connection.configuration.smb.auth.usernamePassword.password.asSecretName.value</code></td>
+<td>string</td>
+<td>是</td>
+<td>示例: <code>Password</code></td>
+</tr>
+<tr>
+<td><code>Connection.configuration.smb.auth.usernamePassword.password.asPlaintextValue</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>Connection.configuration.smb.auth.usernamePassword.password.asPlaintextValue.value</code></td>
+<td>string</td>
+<td>是</td>
+<td>示例: <code>MySecretPassword</code></td>
+</tr>
+<tr>
+<td><code>Connection.configuration.smb.auth.usernamePassword.domain</code></td>
+<td>string</td>
+<td>否</td>
+<td>Optionally specify a Windows domain to use when authenticating. Normal DNS domain restrictions apply<br>but the top-level domain might be something non-standard like .local. Defaults to WORKGROUP</td>
+</tr>
+<tr>
+<td><code>Connection.configuration.smb.requireMessageSigning</code></td>
+<td>boolean</td>
+<td>否</td>
+<td>If true, the client will request that the server sign all messages. If the server does not support<br>message signing, the connection will fail. Defaults to true.</td>
+</tr>
+<tr>
+<td><code>Connection.configuration.jdbc</code></td>
+<td>object</td>
+<td>否</td>
+<td>The configuration needed to connect to an external system using the JDBC protocol.</td>
+</tr>
+<tr>
+<td><code>Connection.configuration.jdbc.url</code></td>
+<td>string</td>
+<td>是</td>
+<td>The URL that the JDBC driver uses to connect to a database.<br>示例: <code>jdbc:postgresql://localhost:5432/test</code></td>
+</tr>
+<tr>
+<td><code>Connection.configuration.jdbc.driverClass</code></td>
+<td>string</td>
+<td>是</td>
+<td>The fully-qualified driver class name that is used to connect to the database.<br>示例: <code>org.postgresql.Driver</code></td>
+</tr>
+<tr>
+<td><code>Connection.configuration.jdbc.uploadedJdbcDrivers</code></td>
+<td>list<JdbcDriverArtifactName></td>
+<td>否</td>
+<td>The list of uploaded JDBC driver names.<br>To upload drivers to a JDBC connection, use the uploadCustomJdbcDrivers endpoint</td>
+</tr>
+<tr>
+<td><code>Connection.configuration.jdbc.uploadedJdbcDrivers.JdbcDriverArtifactName</code></td>
+<td>string</td>
+<td>是</td>
+<td>The name of the uploaded JDBC artifact.</td>
+</tr>
+<tr>
+<td><code>Connection.configuration.jdbc.jdbcProperties</code></td>
+<td>map</td>
+<td>否</td>
+<td>A map of <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/Properties.html">properties</a> passed<br>to the JDBC driver to configure behavior. Refer to the documentation of your specific connection type for additional<br>available JDBC properties to add to your connection configuration.<br>This should only contain unencrypted properties, all values specified here are sent unencrypted to Foundry.<br>示例: <code>{"propertyName1":"propertyValue1","propertyName2":"propertyValue2"}</code></td>
+</tr>
+<tr>
+<td><code>Connection.configuration.jdbc.credentials</code></td>
+<td>object</td>
+<td>否</td>
+<td>示例: <code>{"password":{"type":"asPlaintextValue","value":"myPlaintextSecret"}}</code></td>
+</tr>
+<tr>
+<td><code>Connection.configuration.jdbc.credentials.username</code></td>
+<td>string</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>Connection.configuration.jdbc.credentials.password</code></td>
+<td>union</td>
+<td>是</td>
+<td>When reading an encrypted property, the secret name representing the encrypted value will be returned.<br>When writing to an encrypted property:<br>- If a plaintext value is passed as an input, the plaintext value will be encrypted and saved to the property.<br>- If a secret name is passed as an input, the secret name must match the existing secret name of the property<br>and the property will retain its previously encrypted value.<br>示例: <code>{"type":"asPlaintextValue","value":"myPlaintextSecret"}</code></td>
+</tr>
+<tr>
+<td><code>Connection.configuration.jdbc.credentials.password.asSecretName</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>Connection.configuration.jdbc.credentials.password.asSecretName.value</code></td>
+<td>string</td>
+<td>是</td>
+<td>示例: <code>Password</code></td>
+</tr>
+<tr>
+<td><code>Connection.configuration.jdbc.credentials.password.asPlaintextValue</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>Connection.configuration.jdbc.credentials.password.asPlaintextValue.value</code></td>
+<td>string</td>
+<td>是</td>
+<td>示例: <code>MySecretPassword</code></td>
+</tr>
+</tbody>
+</table>
+<pre><code class="language-json">{
+  &quot;parentFolderRid&quot;: &quot;ri.compass.main.folder.c410f510-2937-420e-8ea3-8c9bcb3c1791&quot;,
+  &quot;configuration&quot;: {
+    &quot;type&quot;: &quot;jdbc&quot;,
+    &quot;url&quot;: &quot;jdbc:postgresql://localhost:5432/test&quot;,
+    &quot;driverClass&quot;: &quot;org.postgresql.Driver&quot;
+  },
+  &quot;displayName&quot;: &quot;Connection to my external system&quot;,
+  &quot;exportSettings&quot;: {
+    &quot;exportsEnabled&quot;: true,
+    &quot;exportEnabledWithoutMarkingsValidation&quot;: false
+  },
+  &quot;rid&quot;: &quot;ri.magritte..source.c078b71b-92f9-41b6-b0df-3760f411120b&quot;
+}
+</code></pre>
+<h2>Error responses</h2>
+<table>
+<thead>
+<tr>
+<th>错误码</th>
+<th>错误名称</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>PERMISSION_DENIED</td>
+<td><code>UploadCustomJdbcDriversConnectionPermissionDenied</code></td>
+<td>Could not uploadCustomJdbcDrivers the Connection.</td>
+</tr>
+<tr>
+<td>NOT_FOUND</td>
+<td><code>ConnectionNotFound</code></td>
+<td>The given Connection could not be found.</td>
+</tr>
+</tbody>
+</table>
+</body>
+</html>

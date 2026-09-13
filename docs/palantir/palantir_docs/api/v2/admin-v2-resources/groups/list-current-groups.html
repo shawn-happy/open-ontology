@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>List Current Groups</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../../../index.html">返回目录</a></div>
+<p><code>GET /api/v2/admin/groups/listCurrent</code></p>
+<p>:::callout{theme=warning title=Warning}
+  This endpoint is in preview and may be modified or removed at any time.
+  To use this endpoint, add <code>preview=true</code> to the request query parameters.
+:::</p>
+<p>Returns all Groups which contain the current user as a direct or transitive member. For example if the current user is a member of Group A and Group A is a member of Group B, this endpoint will return Group A and Group B.</p>
+<p>Unlike the list Group Memberships endpoint which requires the <code>api:admin-read</code> scope, this endpoint
+does not require any particular scopes and can be used by any authenticated user to retrieve their own
+group memberships.</p>
+<h2>Query parameters</h2>
+<table>
+<thead>
+<tr>
+<th>参数</th>
+<th>类型</th>
+<th>必填</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>preview</code></td>
+<td>boolean</td>
+<td>否</td>
+<td>Enables the use of preview functionality.<br>示例: <code>true</code></td>
+</tr>
+</tbody>
+</table>
+<h2>Response</h2>
+<p><strong>ListCurrentGroupsResponse</strong></p>
+<table>
+<thead>
+<tr>
+<th>参数</th>
+<th>类型</th>
+<th>必填</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ListCurrentGroupsResponse</code></td>
+<td>object</td>
+<td>是</td>
+<td>示例: <code>{"data":[{"name":"Data Source Admins","organizations":["ri.multipass..organization.c30ee6ad-b5e4-4afe-a74f-fe4a289f2faa"],"description":"Create and modify data sources in the platform","realm":"palantir-internal-realm","attributes":{"multipass:realm":["eab0a251-ca1a-4a84-a482-200edfb8026f"],"multipass:organization-rid":["ri.multipass..organization.c30ee6ad-b5e4-4afe-a74f-fe4a289f2faa"]},"id":"0d1fe74e-2b70-4a93-9b1a-80070637788b"}]}</code></td>
+</tr>
+<tr>
+<td><code>ListCurrentGroupsResponse.data</code></td>
+<td>list<Group></td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListCurrentGroupsResponse.data.Group</code></td>
+<td>object</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListCurrentGroupsResponse.data.Group.id</code></td>
+<td>string</td>
+<td>是</td>
+<td>A Foundry Group ID.<br>示例: <code>0d1fe74e-2b70-4a93-9b1a-80070637788b</code></td>
+</tr>
+<tr>
+<td><code>ListCurrentGroupsResponse.data.Group.name</code></td>
+<td>string</td>
+<td>是</td>
+<td>The name of the Group.<br>示例: <code>Data Source Admins</code></td>
+</tr>
+<tr>
+<td><code>ListCurrentGroupsResponse.data.Group.description</code></td>
+<td>string</td>
+<td>否</td>
+<td>A description of the Group.<br>示例: <code>Create and modify data sources in the platform</code></td>
+</tr>
+<tr>
+<td><code>ListCurrentGroupsResponse.data.Group.realm</code></td>
+<td>string</td>
+<td>是</td>
+<td>Identifies which Realm a User or Group is a member of.<br>The <code>palantir-internal-realm</code> is used for Users or Groups that are created in Foundry by administrators and not associated with any SSO provider.<br>示例: <code>palantir-internal-realm</code></td>
+</tr>
+<tr>
+<td><code>ListCurrentGroupsResponse.data.Group.organizations</code></td>
+<td>list<OrganizationRid></td>
+<td>否</td>
+<td>The RIDs of the Organizations whose members can see this group. At least one Organization RID must be listed.</td>
+</tr>
+<tr>
+<td><code>ListCurrentGroupsResponse.data.Group.organizations.OrganizationRid</code></td>
+<td>string</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListCurrentGroupsResponse.data.Group.attributes</code></td>
+<td>map</td>
+<td>否</td>
+<td>A map of the Group's attributes. Attributes prefixed with "multipass:" are reserved for internal use by Foundry and are subject to change.<br>示例: <code>{"multipass:realm":["eab0a251-ca1a-4a84-a482-200edfb8026f"],"multipass:organization-rid":["ri.multipass..organization.c30ee6ad-b5e4-4afe-a74f-fe4a289f2faa"]}</code></td>
+</tr>
+<tr>
+<td><code>ListCurrentGroupsResponse.data.Group.attributes.AttributeName</code></td>
+<td>string</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListCurrentGroupsResponse.data.Group.attributes.AttributeValues</code></td>
+<td>list<AttributeValue></td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListCurrentGroupsResponse.data.Group.attributes.AttributeValues.AttributeValue</code></td>
+<td>string</td>
+<td>是</td>
+<td>—</td>
+</tr>
+</tbody>
+</table>
+<pre><code class="language-json">{
+  &quot;data&quot;: [
+    {
+      &quot;name&quot;: &quot;Data Source Admins&quot;,
+      &quot;organizations&quot;: [
+        &quot;ri.multipass..organization.c30ee6ad-b5e4-4afe-a74f-fe4a289f2faa&quot;
+      ],
+      &quot;description&quot;: &quot;Create and modify data sources in the platform&quot;,
+      &quot;realm&quot;: &quot;palantir-internal-realm&quot;,
+      &quot;attributes&quot;: {
+        &quot;multipass:realm&quot;: [
+          &quot;eab0a251-ca1a-4a84-a482-200edfb8026f&quot;
+        ],
+        &quot;multipass:organization-rid&quot;: [
+          &quot;ri.multipass..organization.c30ee6ad-b5e4-4afe-a74f-fe4a289f2faa&quot;
+        ]
+      },
+      &quot;id&quot;: &quot;0d1fe74e-2b70-4a93-9b1a-80070637788b&quot;
+    }
+  ]
+}
+</code></pre>
+<h2>Error responses</h2>
+<table>
+<thead>
+<tr>
+<th>错误码</th>
+<th>错误名称</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>PERMISSION_DENIED</td>
+<td><code>ListCurrentGroupsPermissionDenied</code></td>
+<td>Could not listCurrent the Group.</td>
+</tr>
+</tbody>
+</table>
+</body>
+</html>

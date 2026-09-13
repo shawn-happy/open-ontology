@@ -1,0 +1,967 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Geometry knn inner join</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Geometry knn inner join</h1>
+<blockquote>
+<p>Supported in: Batch</p>
+</blockquote>
+<p>Selects the k closest points from the neighbors dataset for each valid input geometry from the base dataset. Internally converts the input datasets to the given coordinate reference system, and back to WGS84. The entire neighbors dataset must be able to fit into driver and executor memory. A 3 gb executor should be able to handle up to 1 million points in the neighbors dataset.</p>
+<p><strong>Transform categories</strong>: Geospatial, Join</p>
+<h2>Declared arguments</h2>
+<ul>
+<li><strong>Base dataset:</strong> Base dataset to use in join.<br><em>Table</em></li>
+<li><strong>Condition for columns to select on the left:</strong> All columns in the left input schema will be tested to see if they match this condition. If they match, the column will be selected in the output.<br><em>ColumnPredicate</em></li>
+<li><strong>Condition for columns to select on the right:</strong> All columns in the right input schema will be tested to see if they match this condition. If they match, the column will be selected in the output.<br><em>ColumnPredicate</em></li>
+<li><strong>Join key:</strong> The GeoJSON column from the query dataset and the geopoint column from the neighbors dataset.<br><em>Tuple\<Column\\<Geometry>, Column\\<GeoPoint>></em></li>
+<li><strong>K:</strong> The number of neighbors to select from the right dataset for each valid geometry in the left dataset.<br><em>Literal\<Integer></em></li>
+<li><strong>Neighbors dataset:</strong> Dataset of potential neighbors to use in join.<br><em>Table</em></li>
+<li><strong>Projected coordinate system:</strong> Input geometries will be converted to this coordinate system prior to the join, and distance will be measured in the units of the given coordinate system. Formatted as "authority:id", so for example UTM zone 18N could be identified by EPSG:32618.<br><em>Literal\<String></em></li>
+<li><em>optional</em> <strong>Prefix for columns from right:</strong> Prefix to add to all column names on the right hand side.<br><em>Literal\<String></em></li>
+</ul>
+<h2>Examples</h2>
+<h3>Example 1: Base case</h3>
+<p><strong>Argument values:</strong></p>
+<ul>
+<li><strong>Base dataset:</strong> ri.foundry.main.dataset.left</li>
+<li><strong>Condition for columns to select on the left:</strong> <br>columnNameIsIn(<br>âcolumnNames: [geometryCol, lhsCol],<br>)</li>
+<li><strong>Condition for columns to select on the right:</strong> <br>columnNameIsIn(<br>âcolumnNames: [geometryCol, col],<br>)</li>
+<li><strong>Join key:</strong> (<code>geometryCol</code>, <code>geometryCol</code>)</li>
+<li><strong>K:</strong> 2</li>
+<li><strong>Neighbors dataset:</strong> ri.foundry.main.dataset.right</li>
+<li><strong>Projected coordinate system:</strong> epsg:2868</li>
+<li><strong>Prefix for columns from right:</strong> rhs_</li>
+</ul>
+<p><strong>Inputs:</strong></p>
+<p>ri.foundry.main.dataset.left</p>
+<table>
+<thead>
+<tr>
+<th>geometryCol</th>
+<th>lhsCol</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>{"coordinates": [-112.14843750000001,33.440609443703586], "type":"Point"}</td>
+<td>42.0</td>
+</tr>
+</tbody>
+</table>
+<p>ri.foundry.main.dataset.right</p>
+<table>
+<thead>
+<tr>
+<th>geometryCol</th>
+<th>col</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>{<br>â<strong>latitude</strong>: 33.440609443703586,<br>â<strong>longitude</strong>: -112.14843750000001,<br>}</td>
+<td>rhsVal1</td>
+</tr>
+<tr>
+<td>{<br>â<strong>latitude</strong>: 33.44082430962016,<br>â<strong>longitude</strong>: -112.14560508728029,<br>}</td>
+<td>rhsVal2</td>
+</tr>
+<tr>
+<td>{<br>â<strong>latitude</strong>: 33.440895931474124,<br>â<strong>longitude</strong>: -112.11796760559083,<br>}</td>
+<td>rhsVal3</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Output:</strong></p>
+<table>
+<thead>
+<tr>
+<th>geometryCol</th>
+<th>lhsCol</th>
+<th>rhs_geometryCol</th>
+<th>rhs_col</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>{"coordinates": [-112.14843750000001,33.440609443703586], "type":"Point"}</td>
+<td>42.0</td>
+<td>{<br>â<strong>latitude</strong>: 33.440609443703586,<br>â<strong>longitude</strong>: -112.14843750000001,<br>}</td>
+<td>rhsVal1</td>
+</tr>
+<tr>
+<td>{"coordinates": [-112.14843750000001,33.440609443703586], "type":"Point"}</td>
+<td>42.0</td>
+<td>{<br>â<strong>latitude</strong>: 33.44082430962016,<br>â<strong>longitude</strong>: -112.14560508728029,<br>}</td>
+<td>rhsVal2</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3>Example 2: Base case</h3>
+<p><strong>Argument values:</strong></p>
+<ul>
+<li><strong>Base dataset:</strong> ri.foundry.main.dataset.left</li>
+<li><strong>Condition for columns to select on the left:</strong> <br>columnNameIsIn(<br>âcolumnNames: [geometryColLhs, lhs-1],<br>)</li>
+<li><strong>Condition for columns to select on the right:</strong> <br>columnNameIsIn(<br>âcolumnNames: [geometryColRhs, rhs-1],<br>)</li>
+<li><strong>Join key:</strong> (<code>geometryColLhs</code>, <code>geometryColRhs</code>)</li>
+<li><strong>K:</strong> 1</li>
+<li><strong>Neighbors dataset:</strong> ri.foundry.main.dataset.right</li>
+<li><strong>Projected coordinate system:</strong> epsg:2868</li>
+<li><strong>Prefix for columns from right:</strong> <em>null</em></li>
+</ul>
+<p><strong>Inputs:</strong></p>
+<p>ri.foundry.main.dataset.left</p>
+<table>
+<thead>
+<tr>
+<th>geometryColLhs</th>
+<th>lhs-1</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p>ri.foundry.main.dataset.right</p>
+<table>
+<thead>
+<tr>
+<th>geometryColRhs</th>
+<th>rhs-1</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Output:</strong></p>
+<table>
+<thead>
+<tr>
+<th>geometryColLhs</th>
+<th>lhs-1</th>
+<th>geometryColRhs</th>
+<th>rhs-1</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3>Example 3: Base case</h3>
+<p><strong>Argument values:</strong></p>
+<ul>
+<li><strong>Base dataset:</strong> ri.foundry.main.dataset.left</li>
+<li><strong>Condition for columns to select on the left:</strong> <br>columnNameIsIn(<br>âcolumnNames: [geometryCol, lhsCol],<br>)</li>
+<li><strong>Condition for columns to select on the right:</strong> <br>columnNameIsIn(<br>âcolumnNames: [geometryCol, col],<br>)</li>
+<li><strong>Join key:</strong> (<code>geometryCol</code>, <code>geometryCol</code>)</li>
+<li><strong>K:</strong> 2</li>
+<li><strong>Neighbors dataset:</strong> ri.foundry.main.dataset.right</li>
+<li><strong>Projected coordinate system:</strong> epsg:2868</li>
+<li><strong>Prefix for columns from right:</strong> rhs_</li>
+</ul>
+<p><strong>Inputs:</strong></p>
+<p>ri.foundry.main.dataset.left</p>
+<table>
+<thead>
+<tr>
+<th>geometryCol</th>
+<th>lhsCol</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>{"coordinates": [-112.14843750000001,33.440609443703586], "type":"Point"}</td>
+<td>42.0</td>
+</tr>
+<tr>
+<td>{"coordinates": [-112.14843750000001,33.440609443703586], "type":"Point"}</td>
+<td>43.0</td>
+</tr>
+</tbody>
+</table>
+<p>ri.foundry.main.dataset.right</p>
+<table>
+<thead>
+<tr>
+<th>geometryCol</th>
+<th>col</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>{<br>â<strong>latitude</strong>: 33.440609443703586,<br>â<strong>longitude</strong>: -112.14843750000001,<br>}</td>
+<td>rhsVal1</td>
+</tr>
+<tr>
+<td>{<br>â<strong>latitude</strong>: 33.44082430962016,<br>â<strong>longitude</strong>: -112.14560508728029,<br>}</td>
+<td>rhsVal2</td>
+</tr>
+<tr>
+<td>{<br>â<strong>latitude</strong>: 33.440895931474124,<br>â<strong>longitude</strong>: -112.11796760559083,<br>}</td>
+<td>rhsVal3</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Output:</strong></p>
+<table>
+<thead>
+<tr>
+<th>geometryCol</th>
+<th>lhsCol</th>
+<th>rhs_geometryCol</th>
+<th>rhs_col</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>{"coordinates": [-112.14843750000001,33.440609443703586], "type":"Point"}</td>
+<td>42.0</td>
+<td>{<br>â<strong>latitude</strong>: 33.440609443703586,<br>â<strong>longitude</strong>: -112.14843750000001,<br>}</td>
+<td>rhsVal1</td>
+</tr>
+<tr>
+<td>{"coordinates": [-112.14843750000001,33.440609443703586], "type":"Point"}</td>
+<td>43.0</td>
+<td>{<br>â<strong>latitude</strong>: 33.440609443703586,<br>â<strong>longitude</strong>: -112.14843750000001,<br>}</td>
+<td>rhsVal1</td>
+</tr>
+<tr>
+<td>{"coordinates": [-112.14843750000001,33.440609443703586], "type":"Point"}</td>
+<td>42.0</td>
+<td>{<br>â<strong>latitude</strong>: 33.44082430962016,<br>â<strong>longitude</strong>: -112.14560508728029,<br>}</td>
+<td>rhsVal2</td>
+</tr>
+<tr>
+<td>{"coordinates": [-112.14843750000001,33.440609443703586], "type":"Point"}</td>
+<td>43.0</td>
+<td>{<br>â<strong>latitude</strong>: 33.44082430962016,<br>â<strong>longitude</strong>: -112.14560508728029,<br>}</td>
+<td>rhsVal2</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3>Example 4: Base case</h3>
+<p><strong>Argument values:</strong></p>
+<ul>
+<li><strong>Base dataset:</strong> ri.foundry.main.dataset.left</li>
+<li><strong>Condition for columns to select on the left:</strong> <br>columnNameIsIn(<br>âcolumnNames: [geometryCol, lhsCol],<br>)</li>
+<li><strong>Condition for columns to select on the right:</strong> <br>columnNameIsIn(<br>âcolumnNames: [geometryCol, col],<br>)</li>
+<li><strong>Join key:</strong> (<code>geometryCol</code>, <code>geometryCol</code>)</li>
+<li><strong>K:</strong> 3</li>
+<li><strong>Neighbors dataset:</strong> ri.foundry.main.dataset.right</li>
+<li><strong>Projected coordinate system:</strong> epsg:2868</li>
+<li><strong>Prefix for columns from right:</strong> rhs_</li>
+</ul>
+<p><strong>Inputs:</strong></p>
+<p>ri.foundry.main.dataset.left</p>
+<table>
+<thead>
+<tr>
+<th>geometryCol</th>
+<th>lhsCol</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>{"coordinates": [-112.14843750000001,33.440609443703586], "type":"Point"}</td>
+<td>42.0</td>
+</tr>
+</tbody>
+</table>
+<p>ri.foundry.main.dataset.right</p>
+<table>
+<thead>
+<tr>
+<th>geometryCol</th>
+<th>col</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>{<br>â<strong>latitude</strong>: 33.440609443703586,<br>â<strong>longitude</strong>: -112.14843750000001,<br>}</td>
+<td>rhsVal1</td>
+</tr>
+<tr>
+<td>{<br>â<strong>latitude</strong>: 33.440609443703586,<br>â<strong>longitude</strong>: -112.14843750000001,<br>}</td>
+<td>rhsVal1</td>
+</tr>
+<tr>
+<td>{<br>â<strong>latitude</strong>: 33.44082430962016,<br>â<strong>longitude</strong>: -112.14560508728029,<br>}</td>
+<td>rhsVal2</td>
+</tr>
+<tr>
+<td>{<br>â<strong>latitude</strong>: 33.44082430962016,<br>â<strong>longitude</strong>: -112.14560508728029,<br>}</td>
+<td>rhsVal2</td>
+</tr>
+<tr>
+<td>{<br>â<strong>latitude</strong>: 33.440895931474124,<br>â<strong>longitude</strong>: -112.11796760559083,<br>}</td>
+<td>rhsVal3</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Output:</strong></p>
+<table>
+<thead>
+<tr>
+<th>geometryCol</th>
+<th>lhsCol</th>
+<th>rhs_geometryCol</th>
+<th>rhs_col</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>{"coordinates": [-112.14843750000001,33.440609443703586], "type":"Point"}</td>
+<td>42.0</td>
+<td>{<br>â<strong>latitude</strong>: 33.440609443703586,<br>â<strong>longitude</strong>: -112.14843750000001,<br>}</td>
+<td>rhsVal1</td>
+</tr>
+<tr>
+<td>{"coordinates": [-112.14843750000001,33.440609443703586], "type":"Point"}</td>
+<td>42.0</td>
+<td>{<br>â<strong>latitude</strong>: 33.440609443703586,<br>â<strong>longitude</strong>: -112.14843750000001,<br>}</td>
+<td>rhsVal1</td>
+</tr>
+<tr>
+<td>{"coordinates": [-112.14843750000001,33.440609443703586], "type":"Point"}</td>
+<td>42.0</td>
+<td>{<br>â<strong>latitude</strong>: 33.44082430962016,<br>â<strong>longitude</strong>: -112.14560508728029,<br>}</td>
+<td>rhsVal2</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3>Example 5: Base case</h3>
+<p><strong>Argument values:</strong></p>
+<ul>
+<li><strong>Base dataset:</strong> ri.foundry.main.dataset.left</li>
+<li><strong>Condition for columns to select on the left:</strong> <br>columnNameIsIn(<br>âcolumnNames: [geometryColLhs, lhs-1],<br>)</li>
+<li><strong>Condition for columns to select on the right:</strong> <br>columnNameIsIn(<br>âcolumnNames: [geometryColRhs, rhs-1],<br>)</li>
+<li><strong>Join key:</strong> (<code>geometryColLhs</code>, <code>geometryColRhs</code>)</li>
+<li><strong>K:</strong> 1</li>
+<li><strong>Neighbors dataset:</strong> ri.foundry.main.dataset.right</li>
+<li><strong>Projected coordinate system:</strong> epsg:2868</li>
+<li><strong>Prefix for columns from right:</strong> <em>null</em></li>
+</ul>
+<p><strong>Inputs:</strong></p>
+<p>ri.foundry.main.dataset.left</p>
+<table>
+<thead>
+<tr>
+<th>geometryColLhs</th>
+<th>lhs-1</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p>ri.foundry.main.dataset.right</p>
+<table>
+<thead>
+<tr>
+<th>geometryColRhs</th>
+<th>rhs-1</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>{<br>â<strong>latitude</strong>: 33.44082430962016,<br>â<strong>longitude</strong>: -112.14560508728029,<br>}</td>
+<td><em>null</em></td>
+</tr>
+<tr>
+<td>{<br>â<strong>latitude</strong>: 33.440895931474124,<br>â<strong>longitude</strong>: -112.11796760559083,<br>}</td>
+<td>rhsVal2</td>
+</tr>
+<tr>
+<td><em>null</em></td>
+<td>rhsVal3</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Output:</strong></p>
+<table>
+<thead>
+<tr>
+<th>geometryColLhs</th>
+<th>lhs-1</th>
+<th>geometryColRhs</th>
+<th>rhs-1</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3>Example 6: Base case</h3>
+<p><strong>Argument values:</strong></p>
+<ul>
+<li><strong>Base dataset:</strong> ri.foundry.main.dataset.left</li>
+<li><strong>Condition for columns to select on the left:</strong> <br>columnNameIsIn(<br>âcolumnNames: [geometryColLhs, lhs-1],<br>)</li>
+<li><strong>Condition for columns to select on the right:</strong> <br>columnNameIsIn(<br>âcolumnNames: [geometryColRhs, rhs-1],<br>)</li>
+<li><strong>Join key:</strong> (<code>geometryColLhs</code>, <code>geometryColRhs</code>)</li>
+<li><strong>K:</strong> 1</li>
+<li><strong>Neighbors dataset:</strong> ri.foundry.main.dataset.right</li>
+<li><strong>Projected coordinate system:</strong> epsg:2868</li>
+<li><strong>Prefix for columns from right:</strong> <em>null</em></li>
+</ul>
+<p><strong>Inputs:</strong></p>
+<p>ri.foundry.main.dataset.left</p>
+<table>
+<thead>
+<tr>
+<th>geometryColLhs</th>
+<th>lhs-1</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>{"coordinates": [-112.14843750000001,33.440609443703586], "type":"Point"}</td>
+<td>42.0</td>
+</tr>
+<tr>
+<td>{"coordinates": [-112.14560508728029,33.44082430962016], "type":"Point"}</td>
+<td>43.0</td>
+</tr>
+</tbody>
+</table>
+<p>ri.foundry.main.dataset.right</p>
+<table>
+<thead>
+<tr>
+<th>geometryColRhs</th>
+<th>rhs-1</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Output:</strong></p>
+<table>
+<thead>
+<tr>
+<th>geometryColLhs</th>
+<th>lhs-1</th>
+<th>geometryColRhs</th>
+<th>rhs-1</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3>Example 7: Base case</h3>
+<p><strong>Argument values:</strong></p>
+<ul>
+<li><strong>Base dataset:</strong> ri.foundry.main.dataset.left</li>
+<li><strong>Condition for columns to select on the left:</strong> <br>columnNameIsIn(<br>âcolumnNames: [geometryCol, lhsCol],<br>)</li>
+<li><strong>Condition for columns to select on the right:</strong> <br>columnNameIsIn(<br>âcolumnNames: [geometryCol, col1, arrayCol],<br>)</li>
+<li><strong>Join key:</strong> (<code>geometryCol</code>, <code>geometryCol</code>)</li>
+<li><strong>K:</strong> 5</li>
+<li><strong>Neighbors dataset:</strong> ri.foundry.main.dataset.right</li>
+<li><strong>Projected coordinate system:</strong> epsg:4326</li>
+<li><strong>Prefix for columns from right:</strong> rhs_</li>
+</ul>
+<p><strong>Inputs:</strong></p>
+<p>ri.foundry.main.dataset.left</p>
+<table>
+<thead>
+<tr>
+<th>geometryCol</th>
+<th>lhsCol</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>{"type":"Polygon","coordinates":[[[0.0,0.0],[0.0,10.0],[10.0,10.0],[10.0,0.0],[0.0,0.0]]]}</td>
+<td>42.0</td>
+</tr>
+</tbody>
+</table>
+<p>ri.foundry.main.dataset.right</p>
+<table>
+<thead>
+<tr>
+<th>geometryCol</th>
+<th>col1</th>
+<th>arrayCol</th>
+<th>toDrop</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>{<br>â<strong>latitude</strong>: 33.440609443703586,<br>â<strong>longitude</strong>: -112.14843750000001,<br>}</td>
+<td>rhsVal1</td>
+<td>[ 0.0, 1.1 ]</td>
+<td>1.0</td>
+</tr>
+<tr>
+<td>{<br>â<strong>latitude</strong>: 33.44082430962016,<br>â<strong>longitude</strong>: -112.14560508728029,<br>}</td>
+<td>rhsVal2</td>
+<td>[ 0.0, 1.1 ]</td>
+<td>1.0</td>
+</tr>
+<tr>
+<td>{<br>â<strong>latitude</strong>: 33.440895931474124,<br>â<strong>longitude</strong>: -112.11796760559083,<br>}</td>
+<td>rhsVal3</td>
+<td>[ 0.0, 1.1 ]</td>
+<td>1.0</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Output:</strong></p>
+<table>
+<thead>
+<tr>
+<th>geometryCol</th>
+<th>lhsCol</th>
+<th>rhs_geometryCol</th>
+<th>rhs_col1</th>
+<th>rhs_arrayCol</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>{"type":"Polygon","coordinates":[[[0.0,0.0],[0.0,10.0],[10.0,10.0],[10.0,0.0],[0.0,0.0]]]}</td>
+<td>42.0</td>
+<td>{<br>â<strong>latitude</strong>: 33.440609443703586,<br>â<strong>longitude</strong>: -112.14843750000001,<br>}</td>
+<td>rhsVal1</td>
+<td>[ 0.0, 1.1 ]</td>
+</tr>
+<tr>
+<td>{"type":"Polygon","coordinates":[[[0.0,0.0],[0.0,10.0],[10.0,10.0],[10.0,0.0],[0.0,0.0]]]}</td>
+<td>42.0</td>
+<td>{<br>â<strong>latitude</strong>: 33.44082430962016,<br>â<strong>longitude</strong>: -112.14560508728029,<br>}</td>
+<td>rhsVal2</td>
+<td>[ 0.0, 1.1 ]</td>
+</tr>
+<tr>
+<td>{"type":"Polygon","coordinates":[[[0.0,0.0],[0.0,10.0],[10.0,10.0],[10.0,0.0],[0.0,0.0]]]}</td>
+<td>42.0</td>
+<td>{<br>â<strong>latitude</strong>: 33.440895931474124,<br>â<strong>longitude</strong>: -112.11796760559083,<br>}</td>
+<td>rhsVal3</td>
+<td>[ 0.0, 1.1 ]</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3>Example 8: Base case</h3>
+<p><strong>Argument values:</strong></p>
+<ul>
+<li><strong>Base dataset:</strong> ri.foundry.main.dataset.left</li>
+<li><strong>Condition for columns to select on the left:</strong> <br>columnNameIsIn(<br>âcolumnNames: [geometryColLhs, lhs-1],<br>)</li>
+<li><strong>Condition for columns to select on the right:</strong> <br>columnNameIsIn(<br>âcolumnNames: [geometryColRhs, rhs-1],<br>)</li>
+<li><strong>Join key:</strong> (<code>geometryColLhs</code>, <code>geometryColRhs</code>)</li>
+<li><strong>K:</strong> 1</li>
+<li><strong>Neighbors dataset:</strong> ri.foundry.main.dataset.right</li>
+<li><strong>Projected coordinate system:</strong> epsg:2868</li>
+<li><strong>Prefix for columns from right:</strong> <em>null</em></li>
+</ul>
+<p><strong>Inputs:</strong></p>
+<p>ri.foundry.main.dataset.left</p>
+<table>
+<thead>
+<tr>
+<th>geometryColLhs</th>
+<th>lhs-1</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>{"coordinates": [-112.14843750000001,33.440609443703586], "type":"Point"}</td>
+<td>42.0</td>
+</tr>
+<tr>
+<td><em>null</em></td>
+<td>43.0</td>
+</tr>
+</tbody>
+</table>
+<p>ri.foundry.main.dataset.right</p>
+<table>
+<thead>
+<tr>
+<th>geometryColRhs</th>
+<th>rhs-1</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>{<br>â<strong>latitude</strong>: 33.44082430962016,<br>â<strong>longitude</strong>: -112.14560508728029,<br>}</td>
+<td><em>null</em></td>
+</tr>
+<tr>
+<td>{<br>â<strong>latitude</strong>: 33.440895931474124,<br>â<strong>longitude</strong>: -112.11796760559083,<br>}</td>
+<td>rhsVal2</td>
+</tr>
+<tr>
+<td><em>null</em></td>
+<td>rhsVal3</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Output:</strong></p>
+<table>
+<thead>
+<tr>
+<th>geometryColLhs</th>
+<th>lhs-1</th>
+<th>geometryColRhs</th>
+<th>rhs-1</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>{"coordinates": [-112.14843750000001,33.440609443703586], "type":"Point"}</td>
+<td>42.0</td>
+<td>{<br>â<strong>latitude</strong>: 33.44082430962016,<br>â<strong>longitude</strong>: -112.14560508728029,<br>}</td>
+<td><em>null</em></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3>Example 9: Base case</h3>
+<p><strong>Argument values:</strong></p>
+<ul>
+<li><strong>Base dataset:</strong> ri.foundry.main.dataset.left</li>
+<li><strong>Condition for columns to select on the left:</strong> <br>columnNameIsIn(<br>âcolumnNames: [geometryColLhs, lhs-1],<br>)</li>
+<li><strong>Condition for columns to select on the right:</strong> <br>columnNameIsIn(<br>âcolumnNames: [],<br>)</li>
+<li><strong>Join key:</strong> (<code>geometryColLhs</code>, <code>geometryColRhs</code>)</li>
+<li><strong>K:</strong> 1</li>
+<li><strong>Neighbors dataset:</strong> ri.foundry.main.dataset.right</li>
+<li><strong>Projected coordinate system:</strong> epsg:2868</li>
+<li><strong>Prefix for columns from right:</strong> <em>null</em></li>
+</ul>
+<p><strong>Inputs:</strong></p>
+<p>ri.foundry.main.dataset.left</p>
+<table>
+<thead>
+<tr>
+<th>geometryColLhs</th>
+<th>lhs-1</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>{"coordinates": [-112.14843750000001,33.440609443703586], "type":"Point"}</td>
+<td>42.0</td>
+</tr>
+<tr>
+<td>{"coordinates": [-112.14560508728029,33.44082430962016], "type":"Point"}</td>
+<td>43.0</td>
+</tr>
+</tbody>
+</table>
+<p>ri.foundry.main.dataset.right</p>
+<table>
+<thead>
+<tr>
+<th>geometryColRhs</th>
+<th>rhs-1</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>{<br>â<strong>latitude</strong>: 33.44082430962016,<br>â<strong>longitude</strong>: -112.14560508728029,<br>}</td>
+<td><em>null</em></td>
+</tr>
+<tr>
+<td>{<br>â<strong>latitude</strong>: 33.440895931474124,<br>â<strong>longitude</strong>: -112.11796760559083,<br>}</td>
+<td>rhsVal2</td>
+</tr>
+<tr>
+<td><em>null</em></td>
+<td>rhsVal3</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Output:</strong></p>
+<table>
+<thead>
+<tr>
+<th>geometryColLhs</th>
+<th>lhs-1</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>{"coordinates": [-112.14843750000001,33.440609443703586], "type":"Point"}</td>
+<td>42.0</td>
+</tr>
+<tr>
+<td>{"coordinates": [-112.14560508728029,33.44082430962016], "type":"Point"}</td>
+<td>43.0</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3>Example 10: Base case</h3>
+<p><strong>Argument values:</strong></p>
+<ul>
+<li><strong>Base dataset:</strong> ri.foundry.main.dataset.left</li>
+<li><strong>Condition for columns to select on the left:</strong> <br>columnNameIsIn(<br>âcolumnNames: [],<br>)</li>
+<li><strong>Condition for columns to select on the right:</strong> <br>columnNameIsIn(<br>âcolumnNames: [geometryColRhs, rhs-1],<br>)</li>
+<li><strong>Join key:</strong> (<code>geometryColLhs</code>, <code>geometryColRhs</code>)</li>
+<li><strong>K:</strong> 1</li>
+<li><strong>Neighbors dataset:</strong> ri.foundry.main.dataset.right</li>
+<li><strong>Projected coordinate system:</strong> epsg:2868</li>
+<li><strong>Prefix for columns from right:</strong> <em>null</em></li>
+</ul>
+<p><strong>Inputs:</strong></p>
+<p>ri.foundry.main.dataset.left</p>
+<table>
+<thead>
+<tr>
+<th>geometryColLhs</th>
+<th>lhs-1</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>{"coordinates": [-112.14843750000001,33.440609443703586], "type":"Point"}</td>
+<td>42.0</td>
+</tr>
+<tr>
+<td>{"coordinates": [-112.14560508728029,33.44082430962016], "type":"Point"}</td>
+<td>43.0</td>
+</tr>
+</tbody>
+</table>
+<p>ri.foundry.main.dataset.right</p>
+<table>
+<thead>
+<tr>
+<th>geometryColRhs</th>
+<th>rhs-1</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>{<br>â<strong>latitude</strong>: 33.44082430962016,<br>â<strong>longitude</strong>: -112.14560508728029,<br>}</td>
+<td><em>null</em></td>
+</tr>
+<tr>
+<td>{<br>â<strong>latitude</strong>: 33.440895931474124,<br>â<strong>longitude</strong>: -112.11796760559083,<br>}</td>
+<td>rhsVal2</td>
+</tr>
+<tr>
+<td><em>null</em></td>
+<td>rhsVal3</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Output:</strong></p>
+<table>
+<thead>
+<tr>
+<th>geometryColRhs</th>
+<th>rhs-1</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>{<br>â<strong>latitude</strong>: 33.44082430962016,<br>â<strong>longitude</strong>: -112.14560508728029,<br>}</td>
+<td><em>null</em></td>
+</tr>
+<tr>
+<td>{<br>â<strong>latitude</strong>: 33.44082430962016,<br>â<strong>longitude</strong>: -112.14560508728029,<br>}</td>
+<td><em>null</em></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3>Example 11: Base case</h3>
+<p><strong>Argument values:</strong></p>
+<ul>
+<li><strong>Base dataset:</strong> ri.foundry.main.dataset.left</li>
+<li><strong>Condition for columns to select on the left:</strong> <br>allColumns(<br><br>)</li>
+<li><strong>Condition for columns to select on the right:</strong> <br>columnNameIsIn(<br>âcolumnNames: [geometryCol, col1, arrayCol],<br>)</li>
+<li><strong>Join key:</strong> (<code>geometryCol</code>, <code>geometryCol</code>)</li>
+<li><strong>K:</strong> 1</li>
+<li><strong>Neighbors dataset:</strong> ri.foundry.main.dataset.right</li>
+<li><strong>Projected coordinate system:</strong> epsg:4326</li>
+<li><strong>Prefix for columns from right:</strong> rhs_</li>
+</ul>
+<p><strong>Inputs:</strong></p>
+<p>ri.foundry.main.dataset.left</p>
+<table>
+<thead>
+<tr>
+<th>geometryCol</th>
+<th>lhsCol</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>{"type":"Polygon","coordinates":[[[0.0,0.0],[0.0,10.0],[10.0,10.0],[10.0,0.0],[0.0,0.0]]]}</td>
+<td>42.0</td>
+</tr>
+<tr>
+<td>{"coordinates": [55.0, 5.0], "type":"Point"}</td>
+<td>43.0</td>
+</tr>
+<tr>
+<td>{"coordinates": [[40.0, 0.0], [0.0, 40.0]], "type":"LineString"}</td>
+<td>44.0</td>
+</tr>
+<tr>
+<td>{"coordinates": [[[20.0, 10.0], [27.0, 10.0], [27.0, 17.0], [20.0, 17.0], [20.0, 10.0]]], "type": "Polygon"}</td>
+<td>45.0</td>
+</tr>
+<tr>
+<td>{"coordinates": [[[21.0, 21.0], [27.0, 21.0], [27.0, 27.0], [21.0, 27.0], [21.0, 21.0]]], "type": "Polygon"}</td>
+<td>46.0</td>
+</tr>
+<tr>
+<td>{"coordinates": [[[[2.0, 2.0], [7.0, 2.0], [7.0, 7.0], [2.0, 7.0], [2.0, 2.0]]], [[[12.0, 12.0], [17.0, 12.0], [17.0, 17.0], [12.0, 17.0], [12.0, 12.0]]]], "type":"MultiPolygon"}</td>
+<td>47.0</td>
+</tr>
+<tr>
+<td>{"coordinates": [[[[170.0, 170.0], [190.0, 170.0], [190.0, 190.0], [170.0, 190.0], [170.0, 170.0]]], [[[12.0, 12.0], [17.0, 12.0], [17.0, 17.0], [12.0, 17.0], [12.0, 12.0]]]], "type":"MultiPolygon"}</td>
+<td>48.0</td>
+</tr>
+</tbody>
+</table>
+<p>ri.foundry.main.dataset.right</p>
+<table>
+<thead>
+<tr>
+<th>geometryCol</th>
+<th>col1</th>
+<th>arrayCol</th>
+<th>toDrop</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>{<br>â<strong>latitude</strong>: 5.0,<br>â<strong>longitude</strong>: 5.0,<br>}</td>
+<td>rhsVal1</td>
+<td>[ 0.0, 1.1 ]</td>
+<td>1.0</td>
+</tr>
+<tr>
+<td>{<br>â<strong>latitude</strong>: 100.0,<br>â<strong>longitude</strong>: 100.0,<br>}</td>
+<td>rhsVal2</td>
+<td>[ 0.0, 1.1 ]</td>
+<td>1.0</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Output:</strong></p>
+<table>
+<thead>
+<tr>
+<th>geometryCol</th>
+<th>lhsCol</th>
+<th>rhs_geometryCol</th>
+<th>rhs_col1</th>
+<th>rhs_arrayCol</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>{"type":"Polygon","coordinates":[[[0.0,0.0],[0.0,10.0],[10.0,10.0],[10.0,0.0],[0.0,0.0]]]}</td>
+<td>42.0</td>
+<td>{<br>â<strong>latitude</strong>: 5.0,<br>â<strong>longitude</strong>: 5.0,<br>}</td>
+<td>rhsVal1</td>
+<td>[ 0.0, 1.1 ]</td>
+</tr>
+<tr>
+<td>{"coordinates": [55.0, 5.0], "type":"Point"}</td>
+<td>43.0</td>
+<td>{<br>â<strong>latitude</strong>: 5.0,<br>â<strong>longitude</strong>: 5.0,<br>}</td>
+<td>rhsVal1</td>
+<td>[ 0.0, 1.1 ]</td>
+</tr>
+<tr>
+<td>{"coordinates": [[40.0, 0.0], [0.0, 40.0]], "type":"LineString"}</td>
+<td>44.0</td>
+<td>{<br>â<strong>latitude</strong>: 5.0,<br>â<strong>longitude</strong>: 5.0,<br>}</td>
+<td>rhsVal1</td>
+<td>[ 0.0, 1.1 ]</td>
+</tr>
+<tr>
+<td>{"coordinates": [[[20.0, 10.0], [27.0, 10.0], [27.0, 17.0], [20.0, 17.0], [20.0, 10.0]]], "type": "Polygon"}</td>
+<td>45.0</td>
+<td>{<br>â<strong>latitude</strong>: 5.0,<br>â<strong>longitude</strong>: 5.0,<br>}</td>
+<td>rhsVal1</td>
+<td>[ 0.0, 1.1 ]</td>
+</tr>
+<tr>
+<td>{"coordinates": [[[21.0, 21.0], [27.0, 21.0], [27.0, 27.0], [21.0, 27.0], [21.0, 21.0]]], "type": "Polygon"}</td>
+<td>46.0</td>
+<td>{<br>â<strong>latitude</strong>: 5.0,<br>â<strong>longitude</strong>: 5.0,<br>}</td>
+<td>rhsVal1</td>
+<td>[ 0.0, 1.1 ]</td>
+</tr>
+<tr>
+<td>{"coordinates": [[[[2.0, 2.0], [7.0, 2.0], [7.0, 7.0], [2.0, 7.0], [2.0, 2.0]]], [[[12.0, 12.0], [17.0, 12.0], [17.0, 17.0], [12.0, 17.0], [12.0, 12.0]]]], "type":"MultiPolygon"}</td>
+<td>47.0</td>
+<td>{<br>â<strong>latitude</strong>: 5.0,<br>â<strong>longitude</strong>: 5.0,<br>}</td>
+<td>rhsVal1</td>
+<td>[ 0.0, 1.1 ]</td>
+</tr>
+<tr>
+<td>{"coordinates": [[[[170.0, 170.0], [190.0, 170.0], [190.0, 190.0], [170.0, 190.0], [170.0, 170.0]]], [[[12.0, 12.0], [17.0, 12.0], [17.0, 17.0], [12.0, 17.0], [12.0, 12.0]]]], "type":"MultiPolygon"}</td>
+<td>48.0</td>
+<td>{<br>â<strong>latitude</strong>: 5.0,<br>â<strong>longitude</strong>: 5.0,<br>}</td>
+<td>rhsVal1</td>
+<td>[ 0.0, 1.1 ]</td>
+</tr>
+</tbody>
+</table>
+<hr />
+</body>
+</html>

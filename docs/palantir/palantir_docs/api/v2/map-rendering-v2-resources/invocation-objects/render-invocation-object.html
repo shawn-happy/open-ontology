@@ -1,0 +1,2884 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Render Invocation Object</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../../../index.html">返回目录</a></div>
+<p><code>PUT /api/v2/mapRendering/invocationObject/render</code></p>
+<p>:::callout{theme=warning title=Warning}
+  This endpoint is in preview and may be modified or removed at any time.
+  To use this endpoint, add <code>preview=true</code> to the request query parameters.
+:::</p>
+<p>Third-party applications using this endpoint via OAuth2 must request the following operation scope: <code>api:map-read</code>.</p>
+<p><strong>OAuth2 scopes</strong>: <code>api:map-read</code></p>
+<h2>Query parameters</h2>
+<table>
+<thead>
+<tr>
+<th>参数</th>
+<th>类型</th>
+<th>必填</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>preview</code></td>
+<td>boolean</td>
+<td>否</td>
+<td>Enables the use of preview functionality.<br>示例: <code>true</code></td>
+</tr>
+</tbody>
+</table>
+<h2>Request body</h2>
+<pre><code class="language-json">{
+  &quot;capabilities&quot;: {
+    &quot;supportedRenderableContent&quot;: [
+      &quot;GEOMETRY&quot;
+    ]
+  },
+  &quot;invocations&quot;: [
+    {
+      &quot;id&quot;: &quot;InvocationOne&quot;,
+      &quot;sourcingOnly&quot;: false,
+      &quot;objects&quot;: {
+        &quot;type&quot;: &quot;objectSet&quot;,
+        &quot;objectSetRid&quot;: &quot;ri.object-set.main.versioned-object-set.51060b6a-42de-4a2c-8a03-cc5e80a1b610&quot;
+      },
+      &quot;renderer&quot;: {
+        &quot;type&quot;: &quot;standard&quot;,
+        &quot;get&quot;: {}
+      }
+    }
+  ]
+}
+</code></pre>
+<h2>Response</h2>
+<p><strong>RenderObjectsResponse</strong></p>
+<table>
+<thead>
+<tr>
+<th>参数</th>
+<th>类型</th>
+<th>必填</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>RenderObjectsResponse</code></td>
+<td>object</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables</code></td>
+<td>list<Renderable></td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable</code></td>
+<td>object</td>
+<td>是</td>
+<td>A set of RenderableContent that represents a property of a Foundry object (i.e. the sourcing) for an invocation.</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.id</code></td>
+<td>string</td>
+<td>是</td>
+<td>Globally unique ID for a renderable within a session. The ID is opaque and not meant to be parsed in any way.</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.invocation</code></td>
+<td>string</td>
+<td>是</td>
+<td>Client supplied session-unique identifier for a specific invocation of a render function.</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.sourcing</code></td>
+<td>string</td>
+<td>是</td>
+<td>Globally unique ID for the sourcing within a session. The ID is opaque and not meant to be parsed in any way.</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content</code></td>
+<td>map</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderablePartId</code></td>
+<td>string</td>
+<td>是</td>
+<td>Locally unique identifier for a part of a renderable.</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent</code></td>
+<td>union</td>
+<td>是</td>
+<td>Represents a set of geopositioned geometries and their corresponding style to be rendered on to a map.</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.geometry</code></td>
+<td>object</td>
+<td>否</td>
+<td>Renderable content represented with GeoJson geometry.</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.geometry.geometry</code></td>
+<td>union</td>
+<td>是</td>
+<td>GeoJSON object<br>The coordinate reference system for all GeoJSON coordinates is a<br>geographic coordinate reference system, using the World Geodetic System<br>1984 (WGS 84) datum, with longitude and latitude units of decimal<br>degrees.<br>This is equivalent to the coordinate reference system identified by the<br>Open Geospatial Consortium (OGC) URN<br>An OPTIONAL third-position element SHALL be the height in meters above<br>or below the WGS 84 reference ellipsoid.<br>In the absence of elevation values, applications sensitive to height or<br>depth SHOULD interpret positions as being at local ground or sea level.</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.geometry.geometry.MultiPoint</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.geometry.geometry.MultiPoint.coordinates</code></td>
+<td>list<Position></td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.geometry.geometry.MultiPoint.coordinates.Position</code></td>
+<td>list<Coordinate></td>
+<td>是</td>
+<td>GeoJSON fundamental geometry construct.<br>A position is an array of numbers. There MUST be two or more elements.<br>The first two elements are longitude and latitude, precisely in that order and using decimal numbers.<br>Altitude or elevation MAY be included as an optional third element.<br>Implementations SHOULD NOT extend positions beyond three elements<br>because the semantics of extra elements are unspecified and ambiguous.<br>Historically, some implementations have used a fourth element to carry<br>a linear referencing measure (sometimes denoted as "M") or a numerical<br>timestamp, but in most situations a parser will not be able to properly<br>interpret these values. The interpretation and meaning of additional<br>elements is beyond the scope of this specification, and additional<br>elements MAY be ignored by parsers.</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.geometry.geometry.MultiPoint.coordinates.Position.Coordinate</code></td>
+<td>number</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.geometry.geometry.MultiPoint.bbox</code></td>
+<td>list<Coordinate></td>
+<td>否</td>
+<td>A GeoJSON object MAY have a member named "bbox" to include<br>information on the coordinate range for its Geometries, Features, or<br>FeatureCollections. The value of the bbox member MUST be an array of<br>length 2*n where n is the number of dimensions represented in the<br>contained geometries, with all axes of the most southwesterly point<br>followed by all axes of the more northeasterly point. The axes order<br>of a bbox follows the axes order of geometries.</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.geometry.geometry.MultiPoint.bbox.Coordinate</code></td>
+<td>number</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.geometry.geometry.GeometryCollection</code></td>
+<td>object</td>
+<td>否</td>
+<td>GeoJSON geometry collection<br>GeometryCollections composed of a single part or a number of parts of a<br>single type SHOULD be avoided when that single part or a single object<br>of multipart type (MultiPoint, MultiLineString, or MultiPolygon) could<br>be used instead.</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.geometry.geometry.GeometryCollection.geometries</code></td>
+<td>list<Geometry></td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.geometry.geometry.GeometryCollection.geometries.Geometry</code></td>
+<td>union</td>
+<td>是</td>
+<td>Abstract type for all GeoJSON object except Feature and FeatureCollection</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.geometry.geometry.GeometryCollection.geometries.Geometry.MultiPoint</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.geometry.geometry.GeometryCollection.geometries.Geometry.MultiPoint.coordinates</code></td>
+<td>list<Position></td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.geometry.geometry.GeometryCollection.geometries.Geometry.MultiPoint.coordinates.Position</code></td>
+<td>list<Coordinate></td>
+<td>是</td>
+<td>GeoJSON fundamental geometry construct.<br>A position is an array of numbers. There MUST be two or more elements.<br>The first two elements are longitude and latitude, precisely in that order and using decimal numbers.<br>Altitude or elevation MAY be included as an optional third element.<br>Implementations SHOULD NOT extend positions beyond three elements<br>because the semantics of extra elements are unspecified and ambiguous.<br>Historically, some implementations have used a fourth element to carry<br>a linear referencing measure (sometimes denoted as "M") or a numerical<br>timestamp, but in most situations a parser will not be able to properly<br>interpret these values. The interpretation and meaning of additional<br>elements is beyond the scope of this specification, and additional<br>elements MAY be ignored by parsers.</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.geometry.geometry.GeometryCollection.geometries.Geometry.MultiPoint.coordinates.Position.Coordinate</code></td>
+<td>number</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.geometry.geometry.GeometryCollection.geometries.Geometry.MultiPoint.bbox</code></td>
+<td>list<Coordinate></td>
+<td>否</td>
+<td>A GeoJSON object MAY have a member named "bbox" to include<br>information on the coordinate range for its Geometries, Features, or<br>FeatureCollections. The value of the bbox member MUST be an array of<br>length 2*n where n is the number of dimensions represented in the<br>contained geometries, with all axes of the most southwesterly point<br>followed by all axes of the more northeasterly point. The axes order<br>of a bbox follows the axes order of geometries.</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.geometry.geometry.GeometryCollection.geometries.Geometry.MultiPoint.bbox.Coordinate</code></td>
+<td>number</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.geometry.geometry.GeometryCollection.geometries.Geometry.GeometryCollection</code></td>
+<td>object</td>
+<td>否</td>
+<td>GeoJSON geometry collection<br>GeometryCollections composed of a single part or a number of parts of a<br>single type SHOULD be avoided when that single part or a single object<br>of multipart type (MultiPoint, MultiLineString, or MultiPolygon) could<br>be used instead.</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.geometry.geometry.GeometryCollection.geometries.Geometry.MultiLineString</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.geometry.geometry.GeometryCollection.geometries.Geometry.MultiLineString.coordinates</code></td>
+<td>list<LineStringCoordinates></td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.geometry.geometry.GeometryCollection.geometries.Geometry.MultiLineString.coordinates.LineStringCoordinates</code></td>
+<td>list<Position></td>
+<td>是</td>
+<td>GeoJSON fundamental geometry construct, array of two or more positions.</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.geometry.geometry.GeometryCollection.geometries.Geometry.MultiLineString.coordinates.LineStringCoordinates.Position</code></td>
+<td>list<Coordinate></td>
+<td>是</td>
+<td>GeoJSON fundamental geometry construct.<br>A position is an array of numbers. There MUST be two or more elements.<br>The first two elements are longitude and latitude, precisely in that order and using decimal numbers.<br>Altitude or elevation MAY be included as an optional third element.<br>Implementations SHOULD NOT extend positions beyond three elements<br>because the semantics of extra elements are unspecified and ambiguous.<br>Historically, some implementations have used a fourth element to carry<br>a linear referencing measure (sometimes denoted as "M") or a numerical<br>timestamp, but in most situations a parser will not be able to properly<br>interpret these values. The interpretation and meaning of additional<br>elements is beyond the scope of this specification, and additional<br>elements MAY be ignored by parsers.</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.geometry.geometry.GeometryCollection.geometries.Geometry.MultiLineString.coordinates.LineStringCoordinates.Position.Coordinate</code></td>
+<td>number</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.geometry.geometry.GeometryCollection.geometries.Geometry.MultiLineString.bbox</code></td>
+<td>list<Coordinate></td>
+<td>否</td>
+<td>A GeoJSON object MAY have a member named "bbox" to include<br>information on the coordinate range for its Geometries, Features, or<br>FeatureCollections. The value of the bbox member MUST be an array of<br>length 2*n where n is the number of dimensions represented in the<br>contained geometries, with all axes of the most southwesterly point<br>followed by all axes of the more northeasterly point. The axes order<br>of a bbox follows the axes order of geometries.</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.geometry.geometry.GeometryCollection.geometries.Geometry.MultiLineString.bbox.Coordinate</code></td>
+<td>number</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.geometry.geometry.GeometryCollection.geometries.Geometry.LineString</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.geometry.geometry.GeometryCollection.geometries.Geometry.LineString.coordinates</code></td>
+<td>list<Position></td>
+<td>否</td>
+<td>GeoJSON fundamental geometry construct, array of two or more positions.</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.geometry.geometry.GeometryCollection.geometries.Geometry.LineString.coordinates.Position</code></td>
+<td>list<Coordinate></td>
+<td>是</td>
+<td>GeoJSON fundamental geometry construct.<br>A position is an array of numbers. There MUST be two or more elements.<br>The first two elements are longitude and latitude, precisely in that order and using decimal numbers.<br>Altitude or elevation MAY be included as an optional third element.<br>Implementations SHOULD NOT extend positions beyond three elements<br>because the semantics of extra elements are unspecified and ambiguous.<br>Historically, some implementations have used a fourth element to carry<br>a linear referencing measure (sometimes denoted as "M") or a numerical<br>timestamp, but in most situations a parser will not be able to properly<br>interpret these values. The interpretation and meaning of additional<br>elements is beyond the scope of this specification, and additional<br>elements MAY be ignored by parsers.</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.geometry.geometry.GeometryCollection.geometries.Geometry.LineString.coordinates.Position.Coordinate</code></td>
+<td>number</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.geometry.geometry.GeometryCollection.geometries.Geometry.LineString.bbox</code></td>
+<td>list<Coordinate></td>
+<td>否</td>
+<td>A GeoJSON object MAY have a member named "bbox" to include<br>information on the coordinate range for its Geometries, Features, or<br>FeatureCollections. The value of the bbox member MUST be an array of<br>length 2*n where n is the number of dimensions represented in the<br>contained geometries, with all axes of the most southwesterly point<br>followed by all axes of the more northeasterly point. The axes order<br>of a bbox follows the axes order of geometries.</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.geometry.geometry.GeometryCollection.geometries.Geometry.LineString.bbox.Coordinate</code></td>
+<td>number</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.geometry.geometry.GeometryCollection.geometries.Geometry.MultiPolygon</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.geometry.geometry.GeometryCollection.geometries.Geometry.MultiPolygon.coordinates</code></td>
+<td>list<array></td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.geometry.geometry.GeometryCollection.geometries.Geometry.MultiPolygon.coordinates.array</code></td>
+<td>list<LinearRing></td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.geometry.geometry.GeometryCollection.geometries.Geometry.MultiPolygon.coordinates.array.LinearRing</code></td>
+<td>list<Position></td>
+<td>是</td>
+<td>A linear ring is a closed LineString with four or more positions.<br>The first and last positions are equivalent, and they MUST contain<br>identical values; their representation SHOULD also be identical.<br>A linear ring is the boundary of a surface or the boundary of a hole in<br>a surface.<br>A linear ring MUST follow the right-hand rule with respect to the area<br>it bounds, i.e., exterior rings are counterclockwise, and holes are<br>clockwise.</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.geometry.geometry.GeometryCollection.geometries.Geometry.MultiPolygon.coordinates.array.LinearRing.Position</code></td>
+<td>list<Coordinate></td>
+<td>是</td>
+<td>GeoJSON fundamental geometry construct.<br>A position is an array of numbers. There MUST be two or more elements.<br>The first two elements are longitude and latitude, precisely in that order and using decimal numbers.<br>Altitude or elevation MAY be included as an optional third element.<br>Implementations SHOULD NOT extend positions beyond three elements<br>because the semantics of extra elements are unspecified and ambiguous.<br>Historically, some implementations have used a fourth element to carry<br>a linear referencing measure (sometimes denoted as "M") or a numerical<br>timestamp, but in most situations a parser will not be able to properly<br>interpret these values. The interpretation and meaning of additional<br>elements is beyond the scope of this specification, and additional<br>elements MAY be ignored by parsers.</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.geometry.geometry.GeometryCollection.geometries.Geometry.MultiPolygon.coordinates.array.LinearRing.Position.Coordinate</code></td>
+<td>number</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.geometry.geometry.GeometryCollection.geometries.Geometry.MultiPolygon.bbox</code></td>
+<td>list<Coordinate></td>
+<td>否</td>
+<td>A GeoJSON object MAY have a member named "bbox" to include<br>information on the coordinate range for its Geometries, Features, or<br>FeatureCollections. The value of the bbox member MUST be an array of<br>length 2*n where n is the number of dimensions represented in the<br>contained geometries, with all axes of the most southwesterly point<br>followed by all axes of the more northeasterly point. The axes order<br>of a bbox follows the axes order of geometries.</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.geometry.geometry.GeometryCollection.geometries.Geometry.MultiPolygon.bbox.Coordinate</code></td>
+<td>number</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.geometry.geometry.GeometryCollection.geometries.Geometry.Point</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.geometry.geometry.GeometryCollection.geometries.Geometry.Point.coordinates</code></td>
+<td>list<Coordinate></td>
+<td>否</td>
+<td>GeoJSON fundamental geometry construct.<br>A position is an array of numbers. There MUST be two or more elements.<br>The first two elements are longitude and latitude, precisely in that order and using decimal numbers.<br>Altitude or elevation MAY be included as an optional third element.<br>Implementations SHOULD NOT extend positions beyond three elements<br>because the semantics of extra elements are unspecified and ambiguous.<br>Historically, some implementations have used a fourth element to carry<br>a linear referencing measure (sometimes denoted as "M") or a numerical<br>timestamp, but in most situations a parser will not be able to properly<br>interpret these values. The interpretation and meaning of additional<br>elements is beyond the scope of this specification, and additional<br>elements MAY be ignored by parsers.</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.geometry.geometry.GeometryCollection.geometries.Geometry.Point.coordinates.Coordinate</code></td>
+<td>number</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.geometry.geometry.GeometryCollection.geometries.Geometry.Point.bbox</code></td>
+<td>list<Coordinate></td>
+<td>否</td>
+<td>A GeoJSON object MAY have a member named "bbox" to include<br>information on the coordinate range for its Geometries, Features, or<br>FeatureCollections. The value of the bbox member MUST be an array of<br>length 2*n where n is the number of dimensions represented in the<br>contained geometries, with all axes of the most southwesterly point<br>followed by all axes of the more northeasterly point. The axes order<br>of a bbox follows the axes order of geometries.</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.geometry.geometry.GeometryCollection.geometries.Geometry.Point.bbox.Coordinate</code></td>
+<td>number</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.geometry.geometry.GeometryCollection.geometries.Geometry.Polygon</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.geometry.geometry.GeometryCollection.geometries.Geometry.Polygon.coordinates</code></td>
+<td>list<LinearRing></td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.geometry.geometry.GeometryCollection.geometries.Geometry.Polygon.coordinates.LinearRing</code></td>
+<td>list<Position></td>
+<td>是</td>
+<td>A linear ring is a closed LineString with four or more positions.<br>The first and last positions are equivalent, and they MUST contain<br>identical values; their representation SHOULD also be identical.<br>A linear ring is the boundary of a surface or the boundary of a hole in<br>a surface.<br>A linear ring MUST follow the right-hand rule with respect to the area<br>it bounds, i.e., exterior rings are counterclockwise, and holes are<br>clockwise.</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.geometry.geometry.GeometryCollection.geometries.Geometry.Polygon.coordinates.LinearRing.Position</code></td>
+<td>list<Coordinate></td>
+<td>是</td>
+<td>GeoJSON fundamental geometry construct.<br>A position is an array of numbers. There MUST be two or more elements.<br>The first two elements are longitude and latitude, precisely in that order and using decimal numbers.<br>Altitude or elevation MAY be included as an optional third element.<br>Implementations SHOULD NOT extend positions beyond three elements<br>because the semantics of extra elements are unspecified and ambiguous.<br>Historically, some implementations have used a fourth element to carry<br>a linear referencing measure (sometimes denoted as "M") or a numerical<br>timestamp, but in most situations a parser will not be able to properly<br>interpret these values. The interpretation and meaning of additional<br>elements is beyond the scope of this specification, and additional<br>elements MAY be ignored by parsers.</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.geometry.geometry.GeometryCollection.geometries.Geometry.Polygon.coordinates.LinearRing.Position.Coordinate</code></td>
+<td>number</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.geometry.geometry.GeometryCollection.geometries.Geometry.Polygon.bbox</code></td>
+<td>list<Coordinate></td>
+<td>否</td>
+<td>A GeoJSON object MAY have a member named "bbox" to include<br>information on the coordinate range for its Geometries, Features, or<br>FeatureCollections. The value of the bbox member MUST be an array of<br>length 2*n where n is the number of dimensions represented in the<br>contained geometries, with all axes of the most southwesterly point<br>followed by all axes of the more northeasterly point. The axes order<br>of a bbox follows the axes order of geometries.</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.geometry.geometry.GeometryCollection.geometries.Geometry.Polygon.bbox.Coordinate</code></td>
+<td>number</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.geometry.geometry.GeometryCollection.bbox</code></td>
+<td>list<Coordinate></td>
+<td>否</td>
+<td>A GeoJSON object MAY have a member named "bbox" to include<br>information on the coordinate range for its Geometries, Features, or<br>FeatureCollections. The value of the bbox member MUST be an array of<br>length 2*n where n is the number of dimensions represented in the<br>contained geometries, with all axes of the most southwesterly point<br>followed by all axes of the more northeasterly point. The axes order<br>of a bbox follows the axes order of geometries.</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.geometry.geometry.GeometryCollection.bbox.Coordinate</code></td>
+<td>number</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.geometry.geometry.MultiLineString</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.geometry.geometry.MultiLineString.coordinates</code></td>
+<td>list<LineStringCoordinates></td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.geometry.geometry.MultiLineString.coordinates.LineStringCoordinates</code></td>
+<td>list<Position></td>
+<td>是</td>
+<td>GeoJSON fundamental geometry construct, array of two or more positions.</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.geometry.geometry.MultiLineString.coordinates.LineStringCoordinates.Position</code></td>
+<td>list<Coordinate></td>
+<td>是</td>
+<td>GeoJSON fundamental geometry construct.<br>A position is an array of numbers. There MUST be two or more elements.<br>The first two elements are longitude and latitude, precisely in that order and using decimal numbers.<br>Altitude or elevation MAY be included as an optional third element.<br>Implementations SHOULD NOT extend positions beyond three elements<br>because the semantics of extra elements are unspecified and ambiguous.<br>Historically, some implementations have used a fourth element to carry<br>a linear referencing measure (sometimes denoted as "M") or a numerical<br>timestamp, but in most situations a parser will not be able to properly<br>interpret these values. The interpretation and meaning of additional<br>elements is beyond the scope of this specification, and additional<br>elements MAY be ignored by parsers.</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.geometry.geometry.MultiLineString.coordinates.LineStringCoordinates.Position.Coordinate</code></td>
+<td>number</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.geometry.geometry.MultiLineString.bbox</code></td>
+<td>list<Coordinate></td>
+<td>否</td>
+<td>A GeoJSON object MAY have a member named "bbox" to include<br>information on the coordinate range for its Geometries, Features, or<br>FeatureCollections. The value of the bbox member MUST be an array of<br>length 2*n where n is the number of dimensions represented in the<br>contained geometries, with all axes of the most southwesterly point<br>followed by all axes of the more northeasterly point. The axes order<br>of a bbox follows the axes order of geometries.</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.geometry.geometry.MultiLineString.bbox.Coordinate</code></td>
+<td>number</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.geometry.geometry.FeatureCollection</code></td>
+<td>object</td>
+<td>否</td>
+<td>GeoJSON 'FeatureCollection' object</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.geometry.geometry.FeatureCollection.features</code></td>
+<td>list<FeatureCollectionTypes></td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.geometry.geometry.FeatureCollection.features.FeatureCollectionTypes</code></td>
+<td>union</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.geometry.geometry.FeatureCollection.features.FeatureCollectionTypes.Feature</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.geometry.geometry.FeatureCollection.features.FeatureCollectionTypes.Feature.geometry</code></td>
+<td>union</td>
+<td>否</td>
+<td>Abstract type for all GeoJSON object except Feature and FeatureCollection</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.geometry.geometry.FeatureCollection.features.FeatureCollectionTypes.Feature.geometry.MultiPoint</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.geometry.geometry.FeatureCollection.features.FeatureCollectionTypes.Feature.geometry.MultiPoint.coordinates</code></td>
+<td>list<Position></td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.geometry.geometry.FeatureCollection.features.FeatureCollectionTypes.Feature.geometry.MultiPoint.coordinates.Position</code></td>
+<td>list<Coordinate></td>
+<td>是</td>
+<td>GeoJSON fundamental geometry construct.<br>A position is an array of numbers. There MUST be two or more elements.<br>The first two elements are longitude and latitude, precisely in that order and using decimal numbers.<br>Altitude or elevation MAY be included as an optional third element.<br>Implementations SHOULD NOT extend positions beyond three elements<br>because the semantics of extra elements are unspecified and ambiguous.<br>Historically, some implementations have used a fourth element to carry<br>a linear referencing measure (sometimes denoted as "M") or a numerical<br>timestamp, but in most situations a parser will not be able to properly<br>interpret these values. The interpretation and meaning of additional<br>elements is beyond the scope of this specification, and additional<br>elements MAY be ignored by parsers.</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.geometry.geometry.FeatureCollection.features.FeatureCollectionTypes.Feature.geometry.MultiPoint.coordinates.Position.Coordinate</code></td>
+<td>number</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.geometry.geometry.FeatureCollection.features.FeatureCollectionTypes.Feature.geometry.MultiPoint.bbox</code></td>
+<td>list<Coordinate></td>
+<td>否</td>
+<td>A GeoJSON object MAY have a member named "bbox" to include<br>information on the coordinate range for its Geometries, Features, or<br>FeatureCollections. The value of the bbox member MUST be an array of<br>length 2*n where n is the number of dimensions represented in the<br>contained geometries, with all axes of the most southwesterly point<br>followed by all axes of the more northeasterly point. The axes order<br>of a bbox follows the axes order of geometries.</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.geometry.geometry.FeatureCollection.features.FeatureCollectionTypes.Feature.geometry.MultiPoint.bbox.Coordinate</code></td>
+<td>number</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.geometry.geometry.FeatureCollection.features.FeatureCollectionTypes.Feature.geometry.GeometryCollection</code></td>
+<td>object</td>
+<td>否</td>
+<td>GeoJSON geometry collection<br>GeometryCollections composed of a single part or a number of parts of a<br>single type SHOULD be avoided when that single part or a single object<br>of multipart type (MultiPoint, MultiLineString, or MultiPolygon) could<br>be used instead.</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.geometry.geometry.FeatureCollection.features.FeatureCollectionTypes.Feature.geometry.GeometryCollection.geometries</code></td>
+<td>list<Geometry></td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.geometry.geometry.FeatureCollection.features.FeatureCollectionTypes.Feature.geometry.GeometryCollection.geometries.Geometry</code></td>
+<td>union</td>
+<td>是</td>
+<td>Abstract type for all GeoJSON object except Feature and FeatureCollection</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.geometry.geometry.FeatureCollection.features.FeatureCollectionTypes.Feature.geometry.GeometryCollection.bbox</code></td>
+<td>list<Coordinate></td>
+<td>否</td>
+<td>A GeoJSON object MAY have a member named "bbox" to include<br>information on the coordinate range for its Geometries, Features, or<br>FeatureCollections. The value of the bbox member MUST be an array of<br>length 2*n where n is the number of dimensions represented in the<br>contained geometries, with all axes of the most southwesterly point<br>followed by all axes of the more northeasterly point. The axes order<br>of a bbox follows the axes order of geometries.</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.geometry.geometry.FeatureCollection.features.FeatureCollectionTypes.Feature.geometry.GeometryCollection.bbox.Coordinate</code></td>
+<td>number</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.geometry.geometry.FeatureCollection.features.FeatureCollectionTypes.Feature.geometry.MultiLineString</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.geometry.geometry.FeatureCollection.features.FeatureCollectionTypes.Feature.geometry.MultiLineString.coordinates</code></td>
+<td>list<LineStringCoordinates></td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.geometry.geometry.FeatureCollection.features.FeatureCollectionTypes.Feature.geometry.MultiLineString.coordinates.LineStringCoordinates</code></td>
+<td>list<Position></td>
+<td>是</td>
+<td>GeoJSON fundamental geometry construct, array of two or more positions.</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.geometry.geometry.FeatureCollection.features.FeatureCollectionTypes.Feature.geometry.MultiLineString.coordinates.LineStringCoordinates.Position</code></td>
+<td>list<Coordinate></td>
+<td>是</td>
+<td>GeoJSON fundamental geometry construct.<br>A position is an array of numbers. There MUST be two or more elements.<br>The first two elements are longitude and latitude, precisely in that order and using decimal numbers.<br>Altitude or elevation MAY be included as an optional third element.<br>Implementations SHOULD NOT extend positions beyond three elements<br>because the semantics of extra elements are unspecified and ambiguous.<br>Historically, some implementations have used a fourth element to carry<br>a linear referencing measure (sometimes denoted as "M") or a numerical<br>timestamp, but in most situations a parser will not be able to properly<br>interpret these values. The interpretation and meaning of additional<br>elements is beyond the scope of this specification, and additional<br>elements MAY be ignored by parsers.</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.geometry.geometry.FeatureCollection.features.FeatureCollectionTypes.Feature.geometry.MultiLineString.coordinates.LineStringCoordinates.Position.Coordinate</code></td>
+<td>number</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.geometry.geometry.FeatureCollection.features.FeatureCollectionTypes.Feature.geometry.MultiLineString.bbox</code></td>
+<td>list<Coordinate></td>
+<td>否</td>
+<td>A GeoJSON object MAY have a member named "bbox" to include<br>information on the coordinate range for its Geometries, Features, or<br>FeatureCollections. The value of the bbox member MUST be an array of<br>length 2*n where n is the number of dimensions represented in the<br>contained geometries, with all axes of the most southwesterly point<br>followed by all axes of the more northeasterly point. The axes order<br>of a bbox follows the axes order of geometries.</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.geometry.geometry.FeatureCollection.features.FeatureCollectionTypes.Feature.geometry.MultiLineString.bbox.Coordinate</code></td>
+<td>number</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.geometry.geometry.FeatureCollection.features.FeatureCollectionTypes.Feature.geometry.LineString</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.geometry.geometry.FeatureCollection.features.FeatureCollectionTypes.Feature.geometry.LineString.coordinates</code></td>
+<td>list<Position></td>
+<td>否</td>
+<td>GeoJSON fundamental geometry construct, array of two or more positions.</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.geometry.geometry.FeatureCollection.features.FeatureCollectionTypes.Feature.geometry.LineString.coordinates.Position</code></td>
+<td>list<Coordinate></td>
+<td>是</td>
+<td>GeoJSON fundamental geometry construct.<br>A position is an array of numbers. There MUST be two or more elements.<br>The first two elements are longitude and latitude, precisely in that order and using decimal numbers.<br>Altitude or elevation MAY be included as an optional third element.<br>Implementations SHOULD NOT extend positions beyond three elements<br>because the semantics of extra elements are unspecified and ambiguous.<br>Historically, some implementations have used a fourth element to carry<br>a linear referencing measure (sometimes denoted as "M") or a numerical<br>timestamp, but in most situations a parser will not be able to properly<br>interpret these values. The interpretation and meaning of additional<br>elements is beyond the scope of this specification, and additional<br>elements MAY be ignored by parsers.</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.geometry.geometry.FeatureCollection.features.FeatureCollectionTypes.Feature.geometry.LineString.coordinates.Position.Coordinate</code></td>
+<td>number</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.geometry.geometry.FeatureCollection.features.FeatureCollectionTypes.Feature.geometry.LineString.bbox</code></td>
+<td>list<Coordinate></td>
+<td>否</td>
+<td>A GeoJSON object MAY have a member named "bbox" to include<br>information on the coordinate range for its Geometries, Features, or<br>FeatureCollections. The value of the bbox member MUST be an array of<br>length 2*n where n is the number of dimensions represented in the<br>contained geometries, with all axes of the most southwesterly point<br>followed by all axes of the more northeasterly point. The axes order<br>of a bbox follows the axes order of geometries.</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.geometry.geometry.FeatureCollection.features.FeatureCollectionTypes.Feature.geometry.LineString.bbox.Coordinate</code></td>
+<td>number</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.geometry.geometry.FeatureCollection.features.FeatureCollectionTypes.Feature.geometry.MultiPolygon</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.geometry.geometry.FeatureCollection.features.FeatureCollectionTypes.Feature.geometry.MultiPolygon.coordinates</code></td>
+<td>list<array></td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.geometry.geometry.FeatureCollection.features.FeatureCollectionTypes.Feature.geometry.MultiPolygon.coordinates.array</code></td>
+<td>list<LinearRing></td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.geometry.geometry.FeatureCollection.features.FeatureCollectionTypes.Feature.geometry.MultiPolygon.coordinates.array.LinearRing</code></td>
+<td>list<Position></td>
+<td>是</td>
+<td>A linear ring is a closed LineString with four or more positions.<br>The first and last positions are equivalent, and they MUST contain<br>identical values; their representation SHOULD also be identical.<br>A linear ring is the boundary of a surface or the boundary of a hole in<br>a surface.<br>A linear ring MUST follow the right-hand rule with respect to the area<br>it bounds, i.e., exterior rings are counterclockwise, and holes are<br>clockwise.</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.geometry.geometry.FeatureCollection.features.FeatureCollectionTypes.Feature.geometry.MultiPolygon.coordinates.array.LinearRing.Position</code></td>
+<td>list<Coordinate></td>
+<td>是</td>
+<td>GeoJSON fundamental geometry construct.<br>A position is an array of numbers. There MUST be two or more elements.<br>The first two elements are longitude and latitude, precisely in that order and using decimal numbers.<br>Altitude or elevation MAY be included as an optional third element.<br>Implementations SHOULD NOT extend positions beyond three elements<br>because the semantics of extra elements are unspecified and ambiguous.<br>Historically, some implementations have used a fourth element to carry<br>a linear referencing measure (sometimes denoted as "M") or a numerical<br>timestamp, but in most situations a parser will not be able to properly<br>interpret these values. The interpretation and meaning of additional<br>elements is beyond the scope of this specification, and additional<br>elements MAY be ignored by parsers.</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.geometry.geometry.FeatureCollection.features.FeatureCollectionTypes.Feature.geometry.MultiPolygon.coordinates.array.LinearRing.Position.Coordinate</code></td>
+<td>number</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.geometry.geometry.FeatureCollection.features.FeatureCollectionTypes.Feature.geometry.MultiPolygon.bbox</code></td>
+<td>list<Coordinate></td>
+<td>否</td>
+<td>A GeoJSON object MAY have a member named "bbox" to include<br>information on the coordinate range for its Geometries, Features, or<br>FeatureCollections. The value of the bbox member MUST be an array of<br>length 2*n where n is the number of dimensions represented in the<br>contained geometries, with all axes of the most southwesterly point<br>followed by all axes of the more northeasterly point. The axes order<br>of a bbox follows the axes order of geometries.</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.geometry.geometry.FeatureCollection.features.FeatureCollectionTypes.Feature.geometry.MultiPolygon.bbox.Coordinate</code></td>
+<td>number</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.geometry.geometry.FeatureCollection.features.FeatureCollectionTypes.Feature.geometry.Point</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.geometry.geometry.FeatureCollection.features.FeatureCollectionTypes.Feature.geometry.Point.coordinates</code></td>
+<td>list<Coordinate></td>
+<td>否</td>
+<td>GeoJSON fundamental geometry construct.<br>A position is an array of numbers. There MUST be two or more elements.<br>The first two elements are longitude and latitude, precisely in that order and using decimal numbers.<br>Altitude or elevation MAY be included as an optional third element.<br>Implementations SHOULD NOT extend positions beyond three elements<br>because the semantics of extra elements are unspecified and ambiguous.<br>Historically, some implementations have used a fourth element to carry<br>a linear referencing measure (sometimes denoted as "M") or a numerical<br>timestamp, but in most situations a parser will not be able to properly<br>interpret these values. The interpretation and meaning of additional<br>elements is beyond the scope of this specification, and additional<br>elements MAY be ignored by parsers.</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.geometry.geometry.FeatureCollection.features.FeatureCollectionTypes.Feature.geometry.Point.coordinates.Coordinate</code></td>
+<td>number</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.geometry.geometry.FeatureCollection.features.FeatureCollectionTypes.Feature.geometry.Point.bbox</code></td>
+<td>list<Coordinate></td>
+<td>否</td>
+<td>A GeoJSON object MAY have a member named "bbox" to include<br>information on the coordinate range for its Geometries, Features, or<br>FeatureCollections. The value of the bbox member MUST be an array of<br>length 2*n where n is the number of dimensions represented in the<br>contained geometries, with all axes of the most southwesterly point<br>followed by all axes of the more northeasterly point. The axes order<br>of a bbox follows the axes order of geometries.</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.geometry.geometry.FeatureCollection.features.FeatureCollectionTypes.Feature.geometry.Point.bbox.Coordinate</code></td>
+<td>number</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.geometry.geometry.FeatureCollection.features.FeatureCollectionTypes.Feature.geometry.Polygon</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.geometry.geometry.FeatureCollection.features.FeatureCollectionTypes.Feature.geometry.Polygon.coordinates</code></td>
+<td>list<LinearRing></td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.geometry.geometry.FeatureCollection.features.FeatureCollectionTypes.Feature.geometry.Polygon.coordinates.LinearRing</code></td>
+<td>list<Position></td>
+<td>是</td>
+<td>A linear ring is a closed LineString with four or more positions.<br>The first and last positions are equivalent, and they MUST contain<br>identical values; their representation SHOULD also be identical.<br>A linear ring is the boundary of a surface or the boundary of a hole in<br>a surface.<br>A linear ring MUST follow the right-hand rule with respect to the area<br>it bounds, i.e., exterior rings are counterclockwise, and holes are<br>clockwise.</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.geometry.geometry.FeatureCollection.features.FeatureCollectionTypes.Feature.geometry.Polygon.coordinates.LinearRing.Position</code></td>
+<td>list<Coordinate></td>
+<td>是</td>
+<td>GeoJSON fundamental geometry construct.<br>A position is an array of numbers. There MUST be two or more elements.<br>The first two elements are longitude and latitude, precisely in that order and using decimal numbers.<br>Altitude or elevation MAY be included as an optional third element.<br>Implementations SHOULD NOT extend positions beyond three elements<br>because the semantics of extra elements are unspecified and ambiguous.<br>Historically, some implementations have used a fourth element to carry<br>a linear referencing measure (sometimes denoted as "M") or a numerical<br>timestamp, but in most situations a parser will not be able to properly<br>interpret these values. The interpretation and meaning of additional<br>elements is beyond the scope of this specification, and additional<br>elements MAY be ignored by parsers.</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.geometry.geometry.FeatureCollection.features.FeatureCollectionTypes.Feature.geometry.Polygon.coordinates.LinearRing.Position.Coordinate</code></td>
+<td>number</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.geometry.geometry.FeatureCollection.features.FeatureCollectionTypes.Feature.geometry.Polygon.bbox</code></td>
+<td>list<Coordinate></td>
+<td>否</td>
+<td>A GeoJSON object MAY have a member named "bbox" to include<br>information on the coordinate range for its Geometries, Features, or<br>FeatureCollections. The value of the bbox member MUST be an array of<br>length 2*n where n is the number of dimensions represented in the<br>contained geometries, with all axes of the most southwesterly point<br>followed by all axes of the more northeasterly point. The axes order<br>of a bbox follows the axes order of geometries.</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.geometry.geometry.FeatureCollection.features.FeatureCollectionTypes.Feature.geometry.Polygon.bbox.Coordinate</code></td>
+<td>number</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.geometry.geometry.FeatureCollection.features.FeatureCollectionTypes.Feature.properties</code></td>
+<td>map</td>
+<td>否</td>
+<td>A <code>Feature</code> object has a member with the name "properties".  The<br>value of the properties member is an object (any JSON object or a<br>JSON null value).</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.geometry.geometry.FeatureCollection.features.FeatureCollectionTypes.Feature.properties.FeaturePropertyKey</code></td>
+<td>string</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.geometry.geometry.FeatureCollection.features.FeatureCollectionTypes.Feature.id</code></td>
+<td>any</td>
+<td>否</td>
+<td>If a <code>Feature</code> has a commonly used identifier, that identifier<br>SHOULD be included as a member of the Feature object with the name<br>"id", and the value of this member is either a JSON string or<br>number.</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.geometry.geometry.FeatureCollection.features.FeatureCollectionTypes.Feature.bbox</code></td>
+<td>list<Coordinate></td>
+<td>否</td>
+<td>A GeoJSON object MAY have a member named "bbox" to include<br>information on the coordinate range for its Geometries, Features, or<br>FeatureCollections. The value of the bbox member MUST be an array of<br>length 2*n where n is the number of dimensions represented in the<br>contained geometries, with all axes of the most southwesterly point<br>followed by all axes of the more northeasterly point. The axes order<br>of a bbox follows the axes order of geometries.</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.geometry.geometry.FeatureCollection.features.FeatureCollectionTypes.Feature.bbox.Coordinate</code></td>
+<td>number</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.geometry.geometry.FeatureCollection.bbox</code></td>
+<td>list<Coordinate></td>
+<td>否</td>
+<td>A GeoJSON object MAY have a member named "bbox" to include<br>information on the coordinate range for its Geometries, Features, or<br>FeatureCollections. The value of the bbox member MUST be an array of<br>length 2*n where n is the number of dimensions represented in the<br>contained geometries, with all axes of the most southwesterly point<br>followed by all axes of the more northeasterly point. The axes order<br>of a bbox follows the axes order of geometries.</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.geometry.geometry.FeatureCollection.bbox.Coordinate</code></td>
+<td>number</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.geometry.geometry.LineString</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.geometry.geometry.LineString.coordinates</code></td>
+<td>list<Position></td>
+<td>否</td>
+<td>GeoJSON fundamental geometry construct, array of two or more positions.</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.geometry.geometry.LineString.coordinates.Position</code></td>
+<td>list<Coordinate></td>
+<td>是</td>
+<td>GeoJSON fundamental geometry construct.<br>A position is an array of numbers. There MUST be two or more elements.<br>The first two elements are longitude and latitude, precisely in that order and using decimal numbers.<br>Altitude or elevation MAY be included as an optional third element.<br>Implementations SHOULD NOT extend positions beyond three elements<br>because the semantics of extra elements are unspecified and ambiguous.<br>Historically, some implementations have used a fourth element to carry<br>a linear referencing measure (sometimes denoted as "M") or a numerical<br>timestamp, but in most situations a parser will not be able to properly<br>interpret these values. The interpretation and meaning of additional<br>elements is beyond the scope of this specification, and additional<br>elements MAY be ignored by parsers.</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.geometry.geometry.LineString.coordinates.Position.Coordinate</code></td>
+<td>number</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.geometry.geometry.LineString.bbox</code></td>
+<td>list<Coordinate></td>
+<td>否</td>
+<td>A GeoJSON object MAY have a member named "bbox" to include<br>information on the coordinate range for its Geometries, Features, or<br>FeatureCollections. The value of the bbox member MUST be an array of<br>length 2*n where n is the number of dimensions represented in the<br>contained geometries, with all axes of the most southwesterly point<br>followed by all axes of the more northeasterly point. The axes order<br>of a bbox follows the axes order of geometries.</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.geometry.geometry.LineString.bbox.Coordinate</code></td>
+<td>number</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.geometry.geometry.MultiPolygon</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.geometry.geometry.MultiPolygon.coordinates</code></td>
+<td>list<array></td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.geometry.geometry.MultiPolygon.coordinates.array</code></td>
+<td>list<LinearRing></td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.geometry.geometry.MultiPolygon.coordinates.array.LinearRing</code></td>
+<td>list<Position></td>
+<td>是</td>
+<td>A linear ring is a closed LineString with four or more positions.<br>The first and last positions are equivalent, and they MUST contain<br>identical values; their representation SHOULD also be identical.<br>A linear ring is the boundary of a surface or the boundary of a hole in<br>a surface.<br>A linear ring MUST follow the right-hand rule with respect to the area<br>it bounds, i.e., exterior rings are counterclockwise, and holes are<br>clockwise.</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.geometry.geometry.MultiPolygon.coordinates.array.LinearRing.Position</code></td>
+<td>list<Coordinate></td>
+<td>是</td>
+<td>GeoJSON fundamental geometry construct.<br>A position is an array of numbers. There MUST be two or more elements.<br>The first two elements are longitude and latitude, precisely in that order and using decimal numbers.<br>Altitude or elevation MAY be included as an optional third element.<br>Implementations SHOULD NOT extend positions beyond three elements<br>because the semantics of extra elements are unspecified and ambiguous.<br>Historically, some implementations have used a fourth element to carry<br>a linear referencing measure (sometimes denoted as "M") or a numerical<br>timestamp, but in most situations a parser will not be able to properly<br>interpret these values. The interpretation and meaning of additional<br>elements is beyond the scope of this specification, and additional<br>elements MAY be ignored by parsers.</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.geometry.geometry.MultiPolygon.coordinates.array.LinearRing.Position.Coordinate</code></td>
+<td>number</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.geometry.geometry.MultiPolygon.bbox</code></td>
+<td>list<Coordinate></td>
+<td>否</td>
+<td>A GeoJSON object MAY have a member named "bbox" to include<br>information on the coordinate range for its Geometries, Features, or<br>FeatureCollections. The value of the bbox member MUST be an array of<br>length 2*n where n is the number of dimensions represented in the<br>contained geometries, with all axes of the most southwesterly point<br>followed by all axes of the more northeasterly point. The axes order<br>of a bbox follows the axes order of geometries.</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.geometry.geometry.MultiPolygon.bbox.Coordinate</code></td>
+<td>number</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.geometry.geometry.Point</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.geometry.geometry.Point.coordinates</code></td>
+<td>list<Coordinate></td>
+<td>否</td>
+<td>GeoJSON fundamental geometry construct.<br>A position is an array of numbers. There MUST be two or more elements.<br>The first two elements are longitude and latitude, precisely in that order and using decimal numbers.<br>Altitude or elevation MAY be included as an optional third element.<br>Implementations SHOULD NOT extend positions beyond three elements<br>because the semantics of extra elements are unspecified and ambiguous.<br>Historically, some implementations have used a fourth element to carry<br>a linear referencing measure (sometimes denoted as "M") or a numerical<br>timestamp, but in most situations a parser will not be able to properly<br>interpret these values. The interpretation and meaning of additional<br>elements is beyond the scope of this specification, and additional<br>elements MAY be ignored by parsers.</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.geometry.geometry.Point.coordinates.Coordinate</code></td>
+<td>number</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.geometry.geometry.Point.bbox</code></td>
+<td>list<Coordinate></td>
+<td>否</td>
+<td>A GeoJSON object MAY have a member named "bbox" to include<br>information on the coordinate range for its Geometries, Features, or<br>FeatureCollections. The value of the bbox member MUST be an array of<br>length 2*n where n is the number of dimensions represented in the<br>contained geometries, with all axes of the most southwesterly point<br>followed by all axes of the more northeasterly point. The axes order<br>of a bbox follows the axes order of geometries.</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.geometry.geometry.Point.bbox.Coordinate</code></td>
+<td>number</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.geometry.geometry.Polygon</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.geometry.geometry.Polygon.coordinates</code></td>
+<td>list<LinearRing></td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.geometry.geometry.Polygon.coordinates.LinearRing</code></td>
+<td>list<Position></td>
+<td>是</td>
+<td>A linear ring is a closed LineString with four or more positions.<br>The first and last positions are equivalent, and they MUST contain<br>identical values; their representation SHOULD also be identical.<br>A linear ring is the boundary of a surface or the boundary of a hole in<br>a surface.<br>A linear ring MUST follow the right-hand rule with respect to the area<br>it bounds, i.e., exterior rings are counterclockwise, and holes are<br>clockwise.</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.geometry.geometry.Polygon.coordinates.LinearRing.Position</code></td>
+<td>list<Coordinate></td>
+<td>是</td>
+<td>GeoJSON fundamental geometry construct.<br>A position is an array of numbers. There MUST be two or more elements.<br>The first two elements are longitude and latitude, precisely in that order and using decimal numbers.<br>Altitude or elevation MAY be included as an optional third element.<br>Implementations SHOULD NOT extend positions beyond three elements<br>because the semantics of extra elements are unspecified and ambiguous.<br>Historically, some implementations have used a fourth element to carry<br>a linear referencing measure (sometimes denoted as "M") or a numerical<br>timestamp, but in most situations a parser will not be able to properly<br>interpret these values. The interpretation and meaning of additional<br>elements is beyond the scope of this specification, and additional<br>elements MAY be ignored by parsers.</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.geometry.geometry.Polygon.coordinates.LinearRing.Position.Coordinate</code></td>
+<td>number</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.geometry.geometry.Polygon.bbox</code></td>
+<td>list<Coordinate></td>
+<td>否</td>
+<td>A GeoJSON object MAY have a member named "bbox" to include<br>information on the coordinate range for its Geometries, Features, or<br>FeatureCollections. The value of the bbox member MUST be an array of<br>length 2*n where n is the number of dimensions represented in the<br>contained geometries, with all axes of the most southwesterly point<br>followed by all axes of the more northeasterly point. The axes order<br>of a bbox follows the axes order of geometries.</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.geometry.geometry.Polygon.bbox.Coordinate</code></td>
+<td>number</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.geometry.geometry.Feature</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.geometry.geometry.Feature.geometry</code></td>
+<td>union</td>
+<td>否</td>
+<td>Abstract type for all GeoJSON object except Feature and FeatureCollection</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.geometry.geometry.Feature.geometry.MultiPoint</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.geometry.geometry.Feature.geometry.MultiPoint.coordinates</code></td>
+<td>list<Position></td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.geometry.geometry.Feature.geometry.MultiPoint.coordinates.Position</code></td>
+<td>list<Coordinate></td>
+<td>是</td>
+<td>GeoJSON fundamental geometry construct.<br>A position is an array of numbers. There MUST be two or more elements.<br>The first two elements are longitude and latitude, precisely in that order and using decimal numbers.<br>Altitude or elevation MAY be included as an optional third element.<br>Implementations SHOULD NOT extend positions beyond three elements<br>because the semantics of extra elements are unspecified and ambiguous.<br>Historically, some implementations have used a fourth element to carry<br>a linear referencing measure (sometimes denoted as "M") or a numerical<br>timestamp, but in most situations a parser will not be able to properly<br>interpret these values. The interpretation and meaning of additional<br>elements is beyond the scope of this specification, and additional<br>elements MAY be ignored by parsers.</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.geometry.geometry.Feature.geometry.MultiPoint.coordinates.Position.Coordinate</code></td>
+<td>number</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.geometry.geometry.Feature.geometry.MultiPoint.bbox</code></td>
+<td>list<Coordinate></td>
+<td>否</td>
+<td>A GeoJSON object MAY have a member named "bbox" to include<br>information on the coordinate range for its Geometries, Features, or<br>FeatureCollections. The value of the bbox member MUST be an array of<br>length 2*n where n is the number of dimensions represented in the<br>contained geometries, with all axes of the most southwesterly point<br>followed by all axes of the more northeasterly point. The axes order<br>of a bbox follows the axes order of geometries.</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.geometry.geometry.Feature.geometry.MultiPoint.bbox.Coordinate</code></td>
+<td>number</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.geometry.geometry.Feature.geometry.GeometryCollection</code></td>
+<td>object</td>
+<td>否</td>
+<td>GeoJSON geometry collection<br>GeometryCollections composed of a single part or a number of parts of a<br>single type SHOULD be avoided when that single part or a single object<br>of multipart type (MultiPoint, MultiLineString, or MultiPolygon) could<br>be used instead.</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.geometry.geometry.Feature.geometry.GeometryCollection.geometries</code></td>
+<td>list<Geometry></td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.geometry.geometry.Feature.geometry.GeometryCollection.geometries.Geometry</code></td>
+<td>union</td>
+<td>是</td>
+<td>Abstract type for all GeoJSON object except Feature and FeatureCollection</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.geometry.geometry.Feature.geometry.GeometryCollection.bbox</code></td>
+<td>list<Coordinate></td>
+<td>否</td>
+<td>A GeoJSON object MAY have a member named "bbox" to include<br>information on the coordinate range for its Geometries, Features, or<br>FeatureCollections. The value of the bbox member MUST be an array of<br>length 2*n where n is the number of dimensions represented in the<br>contained geometries, with all axes of the most southwesterly point<br>followed by all axes of the more northeasterly point. The axes order<br>of a bbox follows the axes order of geometries.</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.geometry.geometry.Feature.geometry.GeometryCollection.bbox.Coordinate</code></td>
+<td>number</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.geometry.geometry.Feature.geometry.MultiLineString</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.geometry.geometry.Feature.geometry.MultiLineString.coordinates</code></td>
+<td>list<LineStringCoordinates></td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.geometry.geometry.Feature.geometry.MultiLineString.coordinates.LineStringCoordinates</code></td>
+<td>list<Position></td>
+<td>是</td>
+<td>GeoJSON fundamental geometry construct, array of two or more positions.</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.geometry.geometry.Feature.geometry.MultiLineString.coordinates.LineStringCoordinates.Position</code></td>
+<td>list<Coordinate></td>
+<td>是</td>
+<td>GeoJSON fundamental geometry construct.<br>A position is an array of numbers. There MUST be two or more elements.<br>The first two elements are longitude and latitude, precisely in that order and using decimal numbers.<br>Altitude or elevation MAY be included as an optional third element.<br>Implementations SHOULD NOT extend positions beyond three elements<br>because the semantics of extra elements are unspecified and ambiguous.<br>Historically, some implementations have used a fourth element to carry<br>a linear referencing measure (sometimes denoted as "M") or a numerical<br>timestamp, but in most situations a parser will not be able to properly<br>interpret these values. The interpretation and meaning of additional<br>elements is beyond the scope of this specification, and additional<br>elements MAY be ignored by parsers.</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.geometry.geometry.Feature.geometry.MultiLineString.coordinates.LineStringCoordinates.Position.Coordinate</code></td>
+<td>number</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.geometry.geometry.Feature.geometry.MultiLineString.bbox</code></td>
+<td>list<Coordinate></td>
+<td>否</td>
+<td>A GeoJSON object MAY have a member named "bbox" to include<br>information on the coordinate range for its Geometries, Features, or<br>FeatureCollections. The value of the bbox member MUST be an array of<br>length 2*n where n is the number of dimensions represented in the<br>contained geometries, with all axes of the most southwesterly point<br>followed by all axes of the more northeasterly point. The axes order<br>of a bbox follows the axes order of geometries.</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.geometry.geometry.Feature.geometry.MultiLineString.bbox.Coordinate</code></td>
+<td>number</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.geometry.geometry.Feature.geometry.LineString</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.geometry.geometry.Feature.geometry.LineString.coordinates</code></td>
+<td>list<Position></td>
+<td>否</td>
+<td>GeoJSON fundamental geometry construct, array of two or more positions.</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.geometry.geometry.Feature.geometry.LineString.coordinates.Position</code></td>
+<td>list<Coordinate></td>
+<td>是</td>
+<td>GeoJSON fundamental geometry construct.<br>A position is an array of numbers. There MUST be two or more elements.<br>The first two elements are longitude and latitude, precisely in that order and using decimal numbers.<br>Altitude or elevation MAY be included as an optional third element.<br>Implementations SHOULD NOT extend positions beyond three elements<br>because the semantics of extra elements are unspecified and ambiguous.<br>Historically, some implementations have used a fourth element to carry<br>a linear referencing measure (sometimes denoted as "M") or a numerical<br>timestamp, but in most situations a parser will not be able to properly<br>interpret these values. The interpretation and meaning of additional<br>elements is beyond the scope of this specification, and additional<br>elements MAY be ignored by parsers.</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.geometry.geometry.Feature.geometry.LineString.coordinates.Position.Coordinate</code></td>
+<td>number</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.geometry.geometry.Feature.geometry.LineString.bbox</code></td>
+<td>list<Coordinate></td>
+<td>否</td>
+<td>A GeoJSON object MAY have a member named "bbox" to include<br>information on the coordinate range for its Geometries, Features, or<br>FeatureCollections. The value of the bbox member MUST be an array of<br>length 2*n where n is the number of dimensions represented in the<br>contained geometries, with all axes of the most southwesterly point<br>followed by all axes of the more northeasterly point. The axes order<br>of a bbox follows the axes order of geometries.</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.geometry.geometry.Feature.geometry.LineString.bbox.Coordinate</code></td>
+<td>number</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.geometry.geometry.Feature.geometry.MultiPolygon</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.geometry.geometry.Feature.geometry.MultiPolygon.coordinates</code></td>
+<td>list<array></td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.geometry.geometry.Feature.geometry.MultiPolygon.coordinates.array</code></td>
+<td>list<LinearRing></td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.geometry.geometry.Feature.geometry.MultiPolygon.coordinates.array.LinearRing</code></td>
+<td>list<Position></td>
+<td>是</td>
+<td>A linear ring is a closed LineString with four or more positions.<br>The first and last positions are equivalent, and they MUST contain<br>identical values; their representation SHOULD also be identical.<br>A linear ring is the boundary of a surface or the boundary of a hole in<br>a surface.<br>A linear ring MUST follow the right-hand rule with respect to the area<br>it bounds, i.e., exterior rings are counterclockwise, and holes are<br>clockwise.</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.geometry.geometry.Feature.geometry.MultiPolygon.coordinates.array.LinearRing.Position</code></td>
+<td>list<Coordinate></td>
+<td>是</td>
+<td>GeoJSON fundamental geometry construct.<br>A position is an array of numbers. There MUST be two or more elements.<br>The first two elements are longitude and latitude, precisely in that order and using decimal numbers.<br>Altitude or elevation MAY be included as an optional third element.<br>Implementations SHOULD NOT extend positions beyond three elements<br>because the semantics of extra elements are unspecified and ambiguous.<br>Historically, some implementations have used a fourth element to carry<br>a linear referencing measure (sometimes denoted as "M") or a numerical<br>timestamp, but in most situations a parser will not be able to properly<br>interpret these values. The interpretation and meaning of additional<br>elements is beyond the scope of this specification, and additional<br>elements MAY be ignored by parsers.</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.geometry.geometry.Feature.geometry.MultiPolygon.coordinates.array.LinearRing.Position.Coordinate</code></td>
+<td>number</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.geometry.geometry.Feature.geometry.MultiPolygon.bbox</code></td>
+<td>list<Coordinate></td>
+<td>否</td>
+<td>A GeoJSON object MAY have a member named "bbox" to include<br>information on the coordinate range for its Geometries, Features, or<br>FeatureCollections. The value of the bbox member MUST be an array of<br>length 2*n where n is the number of dimensions represented in the<br>contained geometries, with all axes of the most southwesterly point<br>followed by all axes of the more northeasterly point. The axes order<br>of a bbox follows the axes order of geometries.</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.geometry.geometry.Feature.geometry.MultiPolygon.bbox.Coordinate</code></td>
+<td>number</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.geometry.geometry.Feature.geometry.Point</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.geometry.geometry.Feature.geometry.Point.coordinates</code></td>
+<td>list<Coordinate></td>
+<td>否</td>
+<td>GeoJSON fundamental geometry construct.<br>A position is an array of numbers. There MUST be two or more elements.<br>The first two elements are longitude and latitude, precisely in that order and using decimal numbers.<br>Altitude or elevation MAY be included as an optional third element.<br>Implementations SHOULD NOT extend positions beyond three elements<br>because the semantics of extra elements are unspecified and ambiguous.<br>Historically, some implementations have used a fourth element to carry<br>a linear referencing measure (sometimes denoted as "M") or a numerical<br>timestamp, but in most situations a parser will not be able to properly<br>interpret these values. The interpretation and meaning of additional<br>elements is beyond the scope of this specification, and additional<br>elements MAY be ignored by parsers.</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.geometry.geometry.Feature.geometry.Point.coordinates.Coordinate</code></td>
+<td>number</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.geometry.geometry.Feature.geometry.Point.bbox</code></td>
+<td>list<Coordinate></td>
+<td>否</td>
+<td>A GeoJSON object MAY have a member named "bbox" to include<br>information on the coordinate range for its Geometries, Features, or<br>FeatureCollections. The value of the bbox member MUST be an array of<br>length 2*n where n is the number of dimensions represented in the<br>contained geometries, with all axes of the most southwesterly point<br>followed by all axes of the more northeasterly point. The axes order<br>of a bbox follows the axes order of geometries.</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.geometry.geometry.Feature.geometry.Point.bbox.Coordinate</code></td>
+<td>number</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.geometry.geometry.Feature.geometry.Polygon</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.geometry.geometry.Feature.geometry.Polygon.coordinates</code></td>
+<td>list<LinearRing></td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.geometry.geometry.Feature.geometry.Polygon.coordinates.LinearRing</code></td>
+<td>list<Position></td>
+<td>是</td>
+<td>A linear ring is a closed LineString with four or more positions.<br>The first and last positions are equivalent, and they MUST contain<br>identical values; their representation SHOULD also be identical.<br>A linear ring is the boundary of a surface or the boundary of a hole in<br>a surface.<br>A linear ring MUST follow the right-hand rule with respect to the area<br>it bounds, i.e., exterior rings are counterclockwise, and holes are<br>clockwise.</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.geometry.geometry.Feature.geometry.Polygon.coordinates.LinearRing.Position</code></td>
+<td>list<Coordinate></td>
+<td>是</td>
+<td>GeoJSON fundamental geometry construct.<br>A position is an array of numbers. There MUST be two or more elements.<br>The first two elements are longitude and latitude, precisely in that order and using decimal numbers.<br>Altitude or elevation MAY be included as an optional third element.<br>Implementations SHOULD NOT extend positions beyond three elements<br>because the semantics of extra elements are unspecified and ambiguous.<br>Historically, some implementations have used a fourth element to carry<br>a linear referencing measure (sometimes denoted as "M") or a numerical<br>timestamp, but in most situations a parser will not be able to properly<br>interpret these values. The interpretation and meaning of additional<br>elements is beyond the scope of this specification, and additional<br>elements MAY be ignored by parsers.</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.geometry.geometry.Feature.geometry.Polygon.coordinates.LinearRing.Position.Coordinate</code></td>
+<td>number</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.geometry.geometry.Feature.geometry.Polygon.bbox</code></td>
+<td>list<Coordinate></td>
+<td>否</td>
+<td>A GeoJSON object MAY have a member named "bbox" to include<br>information on the coordinate range for its Geometries, Features, or<br>FeatureCollections. The value of the bbox member MUST be an array of<br>length 2*n where n is the number of dimensions represented in the<br>contained geometries, with all axes of the most southwesterly point<br>followed by all axes of the more northeasterly point. The axes order<br>of a bbox follows the axes order of geometries.</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.geometry.geometry.Feature.geometry.Polygon.bbox.Coordinate</code></td>
+<td>number</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.geometry.geometry.Feature.properties</code></td>
+<td>map</td>
+<td>否</td>
+<td>A <code>Feature</code> object has a member with the name "properties".  The<br>value of the properties member is an object (any JSON object or a<br>JSON null value).</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.geometry.geometry.Feature.properties.FeaturePropertyKey</code></td>
+<td>string</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.geometry.geometry.Feature.id</code></td>
+<td>any</td>
+<td>否</td>
+<td>If a <code>Feature</code> has a commonly used identifier, that identifier<br>SHOULD be included as a member of the Feature object with the name<br>"id", and the value of this member is either a JSON string or<br>number.</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.geometry.geometry.Feature.bbox</code></td>
+<td>list<Coordinate></td>
+<td>否</td>
+<td>A GeoJSON object MAY have a member named "bbox" to include<br>information on the coordinate range for its Geometries, Features, or<br>FeatureCollections. The value of the bbox member MUST be an array of<br>length 2*n where n is the number of dimensions represented in the<br>contained geometries, with all axes of the most southwesterly point<br>followed by all axes of the more northeasterly point. The axes order<br>of a bbox follows the axes order of geometries.</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.geometry.geometry.Feature.bbox.Coordinate</code></td>
+<td>number</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.geometry.style</code></td>
+<td>object</td>
+<td>是</td>
+<td>Styling information for GeoJson geometry objects.</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.geometry.style.symbolStyle</code></td>
+<td>object</td>
+<td>否</td>
+<td>Symbol to be rendered as part of the renderable content.</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.geometry.style.symbolStyle.symbol</code></td>
+<td>union</td>
+<td>是</td>
+<td>Information used load the symbol from the Symbol loading apis.</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.geometry.style.symbolStyle.symbol.solid</code></td>
+<td>object</td>
+<td>否</td>
+<td>Object for RGB value to use as union</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.geometry.style.symbolStyle.symbol.solid.rgb</code></td>
+<td>string</td>
+<td>是</td>
+<td>RGB values of the color encoded in hex as '#RRGGBB'</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.geometry.style.symbolStyle.symbol.sdf</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.geometry.style.symbolStyle.symbol.sdf.id</code></td>
+<td>string</td>
+<td>是</td>
+<td>Unique identifier for a SDF symbol that can be used to fetch the SDF as a PNG.</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.geometry.style.symbolStyle.symbol.sdf.color</code></td>
+<td>object</td>
+<td>是</td>
+<td>Color to be applied to some component of a renderable.</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.geometry.style.symbolStyle.symbol.sdf.color.rgb</code></td>
+<td>string</td>
+<td>是</td>
+<td>RGB values of the color encoded in hex as '#RRGGBB'</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.geometry.style.symbolStyle.symbol.sdf.color.alpha</code></td>
+<td>integer</td>
+<td>是</td>
+<td>Alpha value of the color in the [0, 255] range.</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.geometry.style.symbolStyle.symbol.generic</code></td>
+<td>object</td>
+<td>否</td>
+<td>Base generic symbol. Clients should always support rendering this symbol type.</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.geometry.style.symbolStyle.symbol.generic.id</code></td>
+<td>string</td>
+<td>是</td>
+<td>Unique identifier for a symbol that can be used to fetch the symbol as a PNG using loadGenericSymbol endpoint.<br>The ID is opaque and not meant to be parsed in any way.<br>示例: <code>temp</code></td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.geometry.style.symbolStyle.size</code></td>
+<td>number</td>
+<td>是</td>
+<td>Size in virtual pixels, accounting for high DPI displays. For browser applications these are CSS pixels or<br>devicePixelRatio.</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.geometry.style.symbolStyle.opacity</code></td>
+<td>integer</td>
+<td>是</td>
+<td>Alpha value of the color in the [0, 255] range.</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.geometry.style.strokeStyle</code></td>
+<td>object</td>
+<td>否</td>
+<td>Color to be applied to some component of a renderable.</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.geometry.style.strokeStyle.color</code></td>
+<td>object</td>
+<td>是</td>
+<td>This property is deprecated as reading it no longer encapsulates the full picture of a style. Opt to use pattern and opacity instead when possible.</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.geometry.style.strokeStyle.color.rgb</code></td>
+<td>string</td>
+<td>是</td>
+<td>RGB values of the color encoded in hex as '#RRGGBB'</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.geometry.style.strokeStyle.color.alpha</code></td>
+<td>integer</td>
+<td>是</td>
+<td>Alpha value of the color in the [0, 255] range.</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.geometry.style.strokeStyle.width</code></td>
+<td>number</td>
+<td>是</td>
+<td>Size in virtual pixels, accounting for high DPI displays. For browser applications these are CSS pixels or<br>devicePixelRatio.</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.geometry.style.strokeStyle.pattern</code></td>
+<td>union</td>
+<td>是</td>
+<td>Information used load the symbol from the Symbol loading apis.</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.geometry.style.strokeStyle.pattern.solid</code></td>
+<td>object</td>
+<td>否</td>
+<td>Object for RGB value to use as union</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.geometry.style.strokeStyle.pattern.solid.rgb</code></td>
+<td>string</td>
+<td>是</td>
+<td>RGB values of the color encoded in hex as '#RRGGBB'</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.geometry.style.strokeStyle.pattern.sdf</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.geometry.style.strokeStyle.pattern.sdf.id</code></td>
+<td>string</td>
+<td>是</td>
+<td>Unique identifier for a SDF symbol that can be used to fetch the SDF as a PNG.</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.geometry.style.strokeStyle.pattern.sdf.color</code></td>
+<td>object</td>
+<td>是</td>
+<td>Color to be applied to some component of a renderable.</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.geometry.style.strokeStyle.pattern.sdf.color.rgb</code></td>
+<td>string</td>
+<td>是</td>
+<td>RGB values of the color encoded in hex as '#RRGGBB'</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.geometry.style.strokeStyle.pattern.sdf.color.alpha</code></td>
+<td>integer</td>
+<td>是</td>
+<td>Alpha value of the color in the [0, 255] range.</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.geometry.style.strokeStyle.pattern.generic</code></td>
+<td>object</td>
+<td>否</td>
+<td>Base generic symbol. Clients should always support rendering this symbol type.</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.geometry.style.strokeStyle.pattern.generic.id</code></td>
+<td>string</td>
+<td>是</td>
+<td>Unique identifier for a symbol that can be used to fetch the symbol as a PNG using loadGenericSymbol endpoint.<br>The ID is opaque and not meant to be parsed in any way.<br>示例: <code>temp</code></td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.geometry.style.strokeStyle.opacity</code></td>
+<td>integer</td>
+<td>是</td>
+<td>Alpha value of the color in the [0, 255] range.</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.geometry.style.fillStyle</code></td>
+<td>object</td>
+<td>否</td>
+<td>Fill to be applied to some component of a renderable.</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.geometry.style.fillStyle.color</code></td>
+<td>object</td>
+<td>是</td>
+<td>This property is deprecated as reading it no longer encapsulates the full picture of a style. Opt to use pattern and opacity instead when possible.</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.geometry.style.fillStyle.color.rgb</code></td>
+<td>string</td>
+<td>是</td>
+<td>RGB values of the color encoded in hex as '#RRGGBB'</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.geometry.style.fillStyle.color.alpha</code></td>
+<td>integer</td>
+<td>是</td>
+<td>Alpha value of the color in the [0, 255] range.</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.geometry.style.fillStyle.pattern</code></td>
+<td>union</td>
+<td>是</td>
+<td>Information used load the symbol from the Symbol loading apis.</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.geometry.style.fillStyle.pattern.solid</code></td>
+<td>object</td>
+<td>否</td>
+<td>Object for RGB value to use as union</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.geometry.style.fillStyle.pattern.solid.rgb</code></td>
+<td>string</td>
+<td>是</td>
+<td>RGB values of the color encoded in hex as '#RRGGBB'</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.geometry.style.fillStyle.pattern.sdf</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.geometry.style.fillStyle.pattern.sdf.id</code></td>
+<td>string</td>
+<td>是</td>
+<td>Unique identifier for a SDF symbol that can be used to fetch the SDF as a PNG.</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.geometry.style.fillStyle.pattern.sdf.color</code></td>
+<td>object</td>
+<td>是</td>
+<td>Color to be applied to some component of a renderable.</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.geometry.style.fillStyle.pattern.sdf.color.rgb</code></td>
+<td>string</td>
+<td>是</td>
+<td>RGB values of the color encoded in hex as '#RRGGBB'</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.geometry.style.fillStyle.pattern.sdf.color.alpha</code></td>
+<td>integer</td>
+<td>是</td>
+<td>Alpha value of the color in the [0, 255] range.</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.geometry.style.fillStyle.pattern.generic</code></td>
+<td>object</td>
+<td>否</td>
+<td>Base generic symbol. Clients should always support rendering this symbol type.</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.geometry.style.fillStyle.pattern.generic.id</code></td>
+<td>string</td>
+<td>是</td>
+<td>Unique identifier for a symbol that can be used to fetch the symbol as a PNG using loadGenericSymbol endpoint.<br>The ID is opaque and not meant to be parsed in any way.<br>示例: <code>temp</code></td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.geometry.style.fillStyle.opacity</code></td>
+<td>integer</td>
+<td>是</td>
+<td>Alpha value of the color in the [0, 255] range.</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.geometry.style.labelStyle</code></td>
+<td>object</td>
+<td>否</td>
+<td>Text to be rendered as part of the renderable content.</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.geometry.style.labelStyle.color</code></td>
+<td>object</td>
+<td>是</td>
+<td>Color to be applied to some component of a renderable.</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.geometry.style.labelStyle.color.rgb</code></td>
+<td>string</td>
+<td>是</td>
+<td>RGB values of the color encoded in hex as '#RRGGBB'</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.geometry.style.labelStyle.color.alpha</code></td>
+<td>integer</td>
+<td>是</td>
+<td>Alpha value of the color in the [0, 255] range.</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.geometry.style.labelStyle.text</code></td>
+<td>string</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.geometry.style.labelStyle.size</code></td>
+<td>number</td>
+<td>是</td>
+<td>Size in virtual pixels, accounting for high DPI displays. For browser applications these are CSS pixels or<br>devicePixelRatio.</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.rasterTilesWebMercator</code></td>
+<td>object</td>
+<td>否</td>
+<td>Renderable content represented with raster tiles in the Web Mercator (EPSG:3857) projection, laid out with the<br>single root tile, (z=0, x=0, y=0), covering the whole world. Construct the url using the url template supplied<br>to load the raster tile.<br>See https://wiki.openstreetmap.org/wiki/Slippy_map_tilenames.</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.rasterTilesWebMercator.url</code></td>
+<td>string</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.rasterTilesWebMercator.tileDisplayResolution</code></td>
+<td>number</td>
+<td>是</td>
+<td>Size in virtual pixels, accounting for high DPI displays. For browser applications these are CSS pixels or<br>devicePixelRatio.</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.rasterTilesWebMercator.coveringGeometry</code></td>
+<td>union</td>
+<td>是</td>
+<td>GeoJSON object<br>The coordinate reference system for all GeoJSON coordinates is a<br>geographic coordinate reference system, using the World Geodetic System<br>1984 (WGS 84) datum, with longitude and latitude units of decimal<br>degrees.<br>This is equivalent to the coordinate reference system identified by the<br>Open Geospatial Consortium (OGC) URN<br>An OPTIONAL third-position element SHALL be the height in meters above<br>or below the WGS 84 reference ellipsoid.<br>In the absence of elevation values, applications sensitive to height or<br>depth SHOULD interpret positions as being at local ground or sea level.</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.rasterTilesWebMercator.coveringGeometry.MultiPoint</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.rasterTilesWebMercator.coveringGeometry.MultiPoint.coordinates</code></td>
+<td>list<Position></td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.rasterTilesWebMercator.coveringGeometry.MultiPoint.coordinates.Position</code></td>
+<td>list<Coordinate></td>
+<td>是</td>
+<td>GeoJSON fundamental geometry construct.<br>A position is an array of numbers. There MUST be two or more elements.<br>The first two elements are longitude and latitude, precisely in that order and using decimal numbers.<br>Altitude or elevation MAY be included as an optional third element.<br>Implementations SHOULD NOT extend positions beyond three elements<br>because the semantics of extra elements are unspecified and ambiguous.<br>Historically, some implementations have used a fourth element to carry<br>a linear referencing measure (sometimes denoted as "M") or a numerical<br>timestamp, but in most situations a parser will not be able to properly<br>interpret these values. The interpretation and meaning of additional<br>elements is beyond the scope of this specification, and additional<br>elements MAY be ignored by parsers.</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.rasterTilesWebMercator.coveringGeometry.MultiPoint.coordinates.Position.Coordinate</code></td>
+<td>number</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.rasterTilesWebMercator.coveringGeometry.MultiPoint.bbox</code></td>
+<td>list<Coordinate></td>
+<td>否</td>
+<td>A GeoJSON object MAY have a member named "bbox" to include<br>information on the coordinate range for its Geometries, Features, or<br>FeatureCollections. The value of the bbox member MUST be an array of<br>length 2*n where n is the number of dimensions represented in the<br>contained geometries, with all axes of the most southwesterly point<br>followed by all axes of the more northeasterly point. The axes order<br>of a bbox follows the axes order of geometries.</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.rasterTilesWebMercator.coveringGeometry.MultiPoint.bbox.Coordinate</code></td>
+<td>number</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.rasterTilesWebMercator.coveringGeometry.GeometryCollection</code></td>
+<td>object</td>
+<td>否</td>
+<td>GeoJSON geometry collection<br>GeometryCollections composed of a single part or a number of parts of a<br>single type SHOULD be avoided when that single part or a single object<br>of multipart type (MultiPoint, MultiLineString, or MultiPolygon) could<br>be used instead.</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.rasterTilesWebMercator.coveringGeometry.GeometryCollection.geometries</code></td>
+<td>list<Geometry></td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.rasterTilesWebMercator.coveringGeometry.GeometryCollection.geometries.Geometry</code></td>
+<td>union</td>
+<td>是</td>
+<td>Abstract type for all GeoJSON object except Feature and FeatureCollection</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.rasterTilesWebMercator.coveringGeometry.GeometryCollection.geometries.Geometry.MultiPoint</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.rasterTilesWebMercator.coveringGeometry.GeometryCollection.geometries.Geometry.MultiPoint.coordinates</code></td>
+<td>list<Position></td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.rasterTilesWebMercator.coveringGeometry.GeometryCollection.geometries.Geometry.MultiPoint.coordinates.Position</code></td>
+<td>list<Coordinate></td>
+<td>是</td>
+<td>GeoJSON fundamental geometry construct.<br>A position is an array of numbers. There MUST be two or more elements.<br>The first two elements are longitude and latitude, precisely in that order and using decimal numbers.<br>Altitude or elevation MAY be included as an optional third element.<br>Implementations SHOULD NOT extend positions beyond three elements<br>because the semantics of extra elements are unspecified and ambiguous.<br>Historically, some implementations have used a fourth element to carry<br>a linear referencing measure (sometimes denoted as "M") or a numerical<br>timestamp, but in most situations a parser will not be able to properly<br>interpret these values. The interpretation and meaning of additional<br>elements is beyond the scope of this specification, and additional<br>elements MAY be ignored by parsers.</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.rasterTilesWebMercator.coveringGeometry.GeometryCollection.geometries.Geometry.MultiPoint.coordinates.Position.Coordinate</code></td>
+<td>number</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.rasterTilesWebMercator.coveringGeometry.GeometryCollection.geometries.Geometry.MultiPoint.bbox</code></td>
+<td>list<Coordinate></td>
+<td>否</td>
+<td>A GeoJSON object MAY have a member named "bbox" to include<br>information on the coordinate range for its Geometries, Features, or<br>FeatureCollections. The value of the bbox member MUST be an array of<br>length 2*n where n is the number of dimensions represented in the<br>contained geometries, with all axes of the most southwesterly point<br>followed by all axes of the more northeasterly point. The axes order<br>of a bbox follows the axes order of geometries.</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.rasterTilesWebMercator.coveringGeometry.GeometryCollection.geometries.Geometry.MultiPoint.bbox.Coordinate</code></td>
+<td>number</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.rasterTilesWebMercator.coveringGeometry.GeometryCollection.geometries.Geometry.GeometryCollection</code></td>
+<td>object</td>
+<td>否</td>
+<td>GeoJSON geometry collection<br>GeometryCollections composed of a single part or a number of parts of a<br>single type SHOULD be avoided when that single part or a single object<br>of multipart type (MultiPoint, MultiLineString, or MultiPolygon) could<br>be used instead.</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.rasterTilesWebMercator.coveringGeometry.GeometryCollection.geometries.Geometry.MultiLineString</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.rasterTilesWebMercator.coveringGeometry.GeometryCollection.geometries.Geometry.MultiLineString.coordinates</code></td>
+<td>list<LineStringCoordinates></td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.rasterTilesWebMercator.coveringGeometry.GeometryCollection.geometries.Geometry.MultiLineString.coordinates.LineStringCoordinates</code></td>
+<td>list<Position></td>
+<td>是</td>
+<td>GeoJSON fundamental geometry construct, array of two or more positions.</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.rasterTilesWebMercator.coveringGeometry.GeometryCollection.geometries.Geometry.MultiLineString.coordinates.LineStringCoordinates.Position</code></td>
+<td>list<Coordinate></td>
+<td>是</td>
+<td>GeoJSON fundamental geometry construct.<br>A position is an array of numbers. There MUST be two or more elements.<br>The first two elements are longitude and latitude, precisely in that order and using decimal numbers.<br>Altitude or elevation MAY be included as an optional third element.<br>Implementations SHOULD NOT extend positions beyond three elements<br>because the semantics of extra elements are unspecified and ambiguous.<br>Historically, some implementations have used a fourth element to carry<br>a linear referencing measure (sometimes denoted as "M") or a numerical<br>timestamp, but in most situations a parser will not be able to properly<br>interpret these values. The interpretation and meaning of additional<br>elements is beyond the scope of this specification, and additional<br>elements MAY be ignored by parsers.</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.rasterTilesWebMercator.coveringGeometry.GeometryCollection.geometries.Geometry.MultiLineString.coordinates.LineStringCoordinates.Position.Coordinate</code></td>
+<td>number</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.rasterTilesWebMercator.coveringGeometry.GeometryCollection.geometries.Geometry.MultiLineString.bbox</code></td>
+<td>list<Coordinate></td>
+<td>否</td>
+<td>A GeoJSON object MAY have a member named "bbox" to include<br>information on the coordinate range for its Geometries, Features, or<br>FeatureCollections. The value of the bbox member MUST be an array of<br>length 2*n where n is the number of dimensions represented in the<br>contained geometries, with all axes of the most southwesterly point<br>followed by all axes of the more northeasterly point. The axes order<br>of a bbox follows the axes order of geometries.</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.rasterTilesWebMercator.coveringGeometry.GeometryCollection.geometries.Geometry.MultiLineString.bbox.Coordinate</code></td>
+<td>number</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.rasterTilesWebMercator.coveringGeometry.GeometryCollection.geometries.Geometry.LineString</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.rasterTilesWebMercator.coveringGeometry.GeometryCollection.geometries.Geometry.LineString.coordinates</code></td>
+<td>list<Position></td>
+<td>否</td>
+<td>GeoJSON fundamental geometry construct, array of two or more positions.</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.rasterTilesWebMercator.coveringGeometry.GeometryCollection.geometries.Geometry.LineString.coordinates.Position</code></td>
+<td>list<Coordinate></td>
+<td>是</td>
+<td>GeoJSON fundamental geometry construct.<br>A position is an array of numbers. There MUST be two or more elements.<br>The first two elements are longitude and latitude, precisely in that order and using decimal numbers.<br>Altitude or elevation MAY be included as an optional third element.<br>Implementations SHOULD NOT extend positions beyond three elements<br>because the semantics of extra elements are unspecified and ambiguous.<br>Historically, some implementations have used a fourth element to carry<br>a linear referencing measure (sometimes denoted as "M") or a numerical<br>timestamp, but in most situations a parser will not be able to properly<br>interpret these values. The interpretation and meaning of additional<br>elements is beyond the scope of this specification, and additional<br>elements MAY be ignored by parsers.</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.rasterTilesWebMercator.coveringGeometry.GeometryCollection.geometries.Geometry.LineString.coordinates.Position.Coordinate</code></td>
+<td>number</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.rasterTilesWebMercator.coveringGeometry.GeometryCollection.geometries.Geometry.LineString.bbox</code></td>
+<td>list<Coordinate></td>
+<td>否</td>
+<td>A GeoJSON object MAY have a member named "bbox" to include<br>information on the coordinate range for its Geometries, Features, or<br>FeatureCollections. The value of the bbox member MUST be an array of<br>length 2*n where n is the number of dimensions represented in the<br>contained geometries, with all axes of the most southwesterly point<br>followed by all axes of the more northeasterly point. The axes order<br>of a bbox follows the axes order of geometries.</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.rasterTilesWebMercator.coveringGeometry.GeometryCollection.geometries.Geometry.LineString.bbox.Coordinate</code></td>
+<td>number</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.rasterTilesWebMercator.coveringGeometry.GeometryCollection.geometries.Geometry.MultiPolygon</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.rasterTilesWebMercator.coveringGeometry.GeometryCollection.geometries.Geometry.MultiPolygon.coordinates</code></td>
+<td>list<array></td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.rasterTilesWebMercator.coveringGeometry.GeometryCollection.geometries.Geometry.MultiPolygon.coordinates.array</code></td>
+<td>list<LinearRing></td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.rasterTilesWebMercator.coveringGeometry.GeometryCollection.geometries.Geometry.MultiPolygon.coordinates.array.LinearRing</code></td>
+<td>list<Position></td>
+<td>是</td>
+<td>A linear ring is a closed LineString with four or more positions.<br>The first and last positions are equivalent, and they MUST contain<br>identical values; their representation SHOULD also be identical.<br>A linear ring is the boundary of a surface or the boundary of a hole in<br>a surface.<br>A linear ring MUST follow the right-hand rule with respect to the area<br>it bounds, i.e., exterior rings are counterclockwise, and holes are<br>clockwise.</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.rasterTilesWebMercator.coveringGeometry.GeometryCollection.geometries.Geometry.MultiPolygon.coordinates.array.LinearRing.Position</code></td>
+<td>list<Coordinate></td>
+<td>是</td>
+<td>GeoJSON fundamental geometry construct.<br>A position is an array of numbers. There MUST be two or more elements.<br>The first two elements are longitude and latitude, precisely in that order and using decimal numbers.<br>Altitude or elevation MAY be included as an optional third element.<br>Implementations SHOULD NOT extend positions beyond three elements<br>because the semantics of extra elements are unspecified and ambiguous.<br>Historically, some implementations have used a fourth element to carry<br>a linear referencing measure (sometimes denoted as "M") or a numerical<br>timestamp, but in most situations a parser will not be able to properly<br>interpret these values. The interpretation and meaning of additional<br>elements is beyond the scope of this specification, and additional<br>elements MAY be ignored by parsers.</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.rasterTilesWebMercator.coveringGeometry.GeometryCollection.geometries.Geometry.MultiPolygon.coordinates.array.LinearRing.Position.Coordinate</code></td>
+<td>number</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.rasterTilesWebMercator.coveringGeometry.GeometryCollection.geometries.Geometry.MultiPolygon.bbox</code></td>
+<td>list<Coordinate></td>
+<td>否</td>
+<td>A GeoJSON object MAY have a member named "bbox" to include<br>information on the coordinate range for its Geometries, Features, or<br>FeatureCollections. The value of the bbox member MUST be an array of<br>length 2*n where n is the number of dimensions represented in the<br>contained geometries, with all axes of the most southwesterly point<br>followed by all axes of the more northeasterly point. The axes order<br>of a bbox follows the axes order of geometries.</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.rasterTilesWebMercator.coveringGeometry.GeometryCollection.geometries.Geometry.MultiPolygon.bbox.Coordinate</code></td>
+<td>number</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.rasterTilesWebMercator.coveringGeometry.GeometryCollection.geometries.Geometry.Point</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.rasterTilesWebMercator.coveringGeometry.GeometryCollection.geometries.Geometry.Point.coordinates</code></td>
+<td>list<Coordinate></td>
+<td>否</td>
+<td>GeoJSON fundamental geometry construct.<br>A position is an array of numbers. There MUST be two or more elements.<br>The first two elements are longitude and latitude, precisely in that order and using decimal numbers.<br>Altitude or elevation MAY be included as an optional third element.<br>Implementations SHOULD NOT extend positions beyond three elements<br>because the semantics of extra elements are unspecified and ambiguous.<br>Historically, some implementations have used a fourth element to carry<br>a linear referencing measure (sometimes denoted as "M") or a numerical<br>timestamp, but in most situations a parser will not be able to properly<br>interpret these values. The interpretation and meaning of additional<br>elements is beyond the scope of this specification, and additional<br>elements MAY be ignored by parsers.</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.rasterTilesWebMercator.coveringGeometry.GeometryCollection.geometries.Geometry.Point.coordinates.Coordinate</code></td>
+<td>number</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.rasterTilesWebMercator.coveringGeometry.GeometryCollection.geometries.Geometry.Point.bbox</code></td>
+<td>list<Coordinate></td>
+<td>否</td>
+<td>A GeoJSON object MAY have a member named "bbox" to include<br>information on the coordinate range for its Geometries, Features, or<br>FeatureCollections. The value of the bbox member MUST be an array of<br>length 2*n where n is the number of dimensions represented in the<br>contained geometries, with all axes of the most southwesterly point<br>followed by all axes of the more northeasterly point. The axes order<br>of a bbox follows the axes order of geometries.</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.rasterTilesWebMercator.coveringGeometry.GeometryCollection.geometries.Geometry.Point.bbox.Coordinate</code></td>
+<td>number</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.rasterTilesWebMercator.coveringGeometry.GeometryCollection.geometries.Geometry.Polygon</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.rasterTilesWebMercator.coveringGeometry.GeometryCollection.geometries.Geometry.Polygon.coordinates</code></td>
+<td>list<LinearRing></td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.rasterTilesWebMercator.coveringGeometry.GeometryCollection.geometries.Geometry.Polygon.coordinates.LinearRing</code></td>
+<td>list<Position></td>
+<td>是</td>
+<td>A linear ring is a closed LineString with four or more positions.<br>The first and last positions are equivalent, and they MUST contain<br>identical values; their representation SHOULD also be identical.<br>A linear ring is the boundary of a surface or the boundary of a hole in<br>a surface.<br>A linear ring MUST follow the right-hand rule with respect to the area<br>it bounds, i.e., exterior rings are counterclockwise, and holes are<br>clockwise.</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.rasterTilesWebMercator.coveringGeometry.GeometryCollection.geometries.Geometry.Polygon.coordinates.LinearRing.Position</code></td>
+<td>list<Coordinate></td>
+<td>是</td>
+<td>GeoJSON fundamental geometry construct.<br>A position is an array of numbers. There MUST be two or more elements.<br>The first two elements are longitude and latitude, precisely in that order and using decimal numbers.<br>Altitude or elevation MAY be included as an optional third element.<br>Implementations SHOULD NOT extend positions beyond three elements<br>because the semantics of extra elements are unspecified and ambiguous.<br>Historically, some implementations have used a fourth element to carry<br>a linear referencing measure (sometimes denoted as "M") or a numerical<br>timestamp, but in most situations a parser will not be able to properly<br>interpret these values. The interpretation and meaning of additional<br>elements is beyond the scope of this specification, and additional<br>elements MAY be ignored by parsers.</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.rasterTilesWebMercator.coveringGeometry.GeometryCollection.geometries.Geometry.Polygon.coordinates.LinearRing.Position.Coordinate</code></td>
+<td>number</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.rasterTilesWebMercator.coveringGeometry.GeometryCollection.geometries.Geometry.Polygon.bbox</code></td>
+<td>list<Coordinate></td>
+<td>否</td>
+<td>A GeoJSON object MAY have a member named "bbox" to include<br>information on the coordinate range for its Geometries, Features, or<br>FeatureCollections. The value of the bbox member MUST be an array of<br>length 2*n where n is the number of dimensions represented in the<br>contained geometries, with all axes of the most southwesterly point<br>followed by all axes of the more northeasterly point. The axes order<br>of a bbox follows the axes order of geometries.</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.rasterTilesWebMercator.coveringGeometry.GeometryCollection.geometries.Geometry.Polygon.bbox.Coordinate</code></td>
+<td>number</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.rasterTilesWebMercator.coveringGeometry.GeometryCollection.bbox</code></td>
+<td>list<Coordinate></td>
+<td>否</td>
+<td>A GeoJSON object MAY have a member named "bbox" to include<br>information on the coordinate range for its Geometries, Features, or<br>FeatureCollections. The value of the bbox member MUST be an array of<br>length 2*n where n is the number of dimensions represented in the<br>contained geometries, with all axes of the most southwesterly point<br>followed by all axes of the more northeasterly point. The axes order<br>of a bbox follows the axes order of geometries.</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.rasterTilesWebMercator.coveringGeometry.GeometryCollection.bbox.Coordinate</code></td>
+<td>number</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.rasterTilesWebMercator.coveringGeometry.MultiLineString</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.rasterTilesWebMercator.coveringGeometry.MultiLineString.coordinates</code></td>
+<td>list<LineStringCoordinates></td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.rasterTilesWebMercator.coveringGeometry.MultiLineString.coordinates.LineStringCoordinates</code></td>
+<td>list<Position></td>
+<td>是</td>
+<td>GeoJSON fundamental geometry construct, array of two or more positions.</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.rasterTilesWebMercator.coveringGeometry.MultiLineString.coordinates.LineStringCoordinates.Position</code></td>
+<td>list<Coordinate></td>
+<td>是</td>
+<td>GeoJSON fundamental geometry construct.<br>A position is an array of numbers. There MUST be two or more elements.<br>The first two elements are longitude and latitude, precisely in that order and using decimal numbers.<br>Altitude or elevation MAY be included as an optional third element.<br>Implementations SHOULD NOT extend positions beyond three elements<br>because the semantics of extra elements are unspecified and ambiguous.<br>Historically, some implementations have used a fourth element to carry<br>a linear referencing measure (sometimes denoted as "M") or a numerical<br>timestamp, but in most situations a parser will not be able to properly<br>interpret these values. The interpretation and meaning of additional<br>elements is beyond the scope of this specification, and additional<br>elements MAY be ignored by parsers.</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.rasterTilesWebMercator.coveringGeometry.MultiLineString.coordinates.LineStringCoordinates.Position.Coordinate</code></td>
+<td>number</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.rasterTilesWebMercator.coveringGeometry.MultiLineString.bbox</code></td>
+<td>list<Coordinate></td>
+<td>否</td>
+<td>A GeoJSON object MAY have a member named "bbox" to include<br>information on the coordinate range for its Geometries, Features, or<br>FeatureCollections. The value of the bbox member MUST be an array of<br>length 2*n where n is the number of dimensions represented in the<br>contained geometries, with all axes of the most southwesterly point<br>followed by all axes of the more northeasterly point. The axes order<br>of a bbox follows the axes order of geometries.</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.rasterTilesWebMercator.coveringGeometry.MultiLineString.bbox.Coordinate</code></td>
+<td>number</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.rasterTilesWebMercator.coveringGeometry.FeatureCollection</code></td>
+<td>object</td>
+<td>否</td>
+<td>GeoJSON 'FeatureCollection' object</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.rasterTilesWebMercator.coveringGeometry.FeatureCollection.features</code></td>
+<td>list<FeatureCollectionTypes></td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.rasterTilesWebMercator.coveringGeometry.FeatureCollection.features.FeatureCollectionTypes</code></td>
+<td>union</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.rasterTilesWebMercator.coveringGeometry.FeatureCollection.features.FeatureCollectionTypes.Feature</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.rasterTilesWebMercator.coveringGeometry.FeatureCollection.features.FeatureCollectionTypes.Feature.geometry</code></td>
+<td>union</td>
+<td>否</td>
+<td>Abstract type for all GeoJSON object except Feature and FeatureCollection</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.rasterTilesWebMercator.coveringGeometry.FeatureCollection.features.FeatureCollectionTypes.Feature.geometry.MultiPoint</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.rasterTilesWebMercator.coveringGeometry.FeatureCollection.features.FeatureCollectionTypes.Feature.geometry.MultiPoint.coordinates</code></td>
+<td>list<Position></td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.rasterTilesWebMercator.coveringGeometry.FeatureCollection.features.FeatureCollectionTypes.Feature.geometry.MultiPoint.coordinates.Position</code></td>
+<td>list<Coordinate></td>
+<td>是</td>
+<td>GeoJSON fundamental geometry construct.<br>A position is an array of numbers. There MUST be two or more elements.<br>The first two elements are longitude and latitude, precisely in that order and using decimal numbers.<br>Altitude or elevation MAY be included as an optional third element.<br>Implementations SHOULD NOT extend positions beyond three elements<br>because the semantics of extra elements are unspecified and ambiguous.<br>Historically, some implementations have used a fourth element to carry<br>a linear referencing measure (sometimes denoted as "M") or a numerical<br>timestamp, but in most situations a parser will not be able to properly<br>interpret these values. The interpretation and meaning of additional<br>elements is beyond the scope of this specification, and additional<br>elements MAY be ignored by parsers.</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.rasterTilesWebMercator.coveringGeometry.FeatureCollection.features.FeatureCollectionTypes.Feature.geometry.MultiPoint.coordinates.Position.Coordinate</code></td>
+<td>number</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.rasterTilesWebMercator.coveringGeometry.FeatureCollection.features.FeatureCollectionTypes.Feature.geometry.MultiPoint.bbox</code></td>
+<td>list<Coordinate></td>
+<td>否</td>
+<td>A GeoJSON object MAY have a member named "bbox" to include<br>information on the coordinate range for its Geometries, Features, or<br>FeatureCollections. The value of the bbox member MUST be an array of<br>length 2*n where n is the number of dimensions represented in the<br>contained geometries, with all axes of the most southwesterly point<br>followed by all axes of the more northeasterly point. The axes order<br>of a bbox follows the axes order of geometries.</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.rasterTilesWebMercator.coveringGeometry.FeatureCollection.features.FeatureCollectionTypes.Feature.geometry.MultiPoint.bbox.Coordinate</code></td>
+<td>number</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.rasterTilesWebMercator.coveringGeometry.FeatureCollection.features.FeatureCollectionTypes.Feature.geometry.GeometryCollection</code></td>
+<td>object</td>
+<td>否</td>
+<td>GeoJSON geometry collection<br>GeometryCollections composed of a single part or a number of parts of a<br>single type SHOULD be avoided when that single part or a single object<br>of multipart type (MultiPoint, MultiLineString, or MultiPolygon) could<br>be used instead.</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.rasterTilesWebMercator.coveringGeometry.FeatureCollection.features.FeatureCollectionTypes.Feature.geometry.GeometryCollection.geometries</code></td>
+<td>list<Geometry></td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.rasterTilesWebMercator.coveringGeometry.FeatureCollection.features.FeatureCollectionTypes.Feature.geometry.GeometryCollection.geometries.Geometry</code></td>
+<td>union</td>
+<td>是</td>
+<td>Abstract type for all GeoJSON object except Feature and FeatureCollection</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.rasterTilesWebMercator.coveringGeometry.FeatureCollection.features.FeatureCollectionTypes.Feature.geometry.GeometryCollection.bbox</code></td>
+<td>list<Coordinate></td>
+<td>否</td>
+<td>A GeoJSON object MAY have a member named "bbox" to include<br>information on the coordinate range for its Geometries, Features, or<br>FeatureCollections. The value of the bbox member MUST be an array of<br>length 2*n where n is the number of dimensions represented in the<br>contained geometries, with all axes of the most southwesterly point<br>followed by all axes of the more northeasterly point. The axes order<br>of a bbox follows the axes order of geometries.</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.rasterTilesWebMercator.coveringGeometry.FeatureCollection.features.FeatureCollectionTypes.Feature.geometry.GeometryCollection.bbox.Coordinate</code></td>
+<td>number</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.rasterTilesWebMercator.coveringGeometry.FeatureCollection.features.FeatureCollectionTypes.Feature.geometry.MultiLineString</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.rasterTilesWebMercator.coveringGeometry.FeatureCollection.features.FeatureCollectionTypes.Feature.geometry.MultiLineString.coordinates</code></td>
+<td>list<LineStringCoordinates></td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.rasterTilesWebMercator.coveringGeometry.FeatureCollection.features.FeatureCollectionTypes.Feature.geometry.MultiLineString.coordinates.LineStringCoordinates</code></td>
+<td>list<Position></td>
+<td>是</td>
+<td>GeoJSON fundamental geometry construct, array of two or more positions.</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.rasterTilesWebMercator.coveringGeometry.FeatureCollection.features.FeatureCollectionTypes.Feature.geometry.MultiLineString.coordinates.LineStringCoordinates.Position</code></td>
+<td>list<Coordinate></td>
+<td>是</td>
+<td>GeoJSON fundamental geometry construct.<br>A position is an array of numbers. There MUST be two or more elements.<br>The first two elements are longitude and latitude, precisely in that order and using decimal numbers.<br>Altitude or elevation MAY be included as an optional third element.<br>Implementations SHOULD NOT extend positions beyond three elements<br>because the semantics of extra elements are unspecified and ambiguous.<br>Historically, some implementations have used a fourth element to carry<br>a linear referencing measure (sometimes denoted as "M") or a numerical<br>timestamp, but in most situations a parser will not be able to properly<br>interpret these values. The interpretation and meaning of additional<br>elements is beyond the scope of this specification, and additional<br>elements MAY be ignored by parsers.</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.rasterTilesWebMercator.coveringGeometry.FeatureCollection.features.FeatureCollectionTypes.Feature.geometry.MultiLineString.coordinates.LineStringCoordinates.Position.Coordinate</code></td>
+<td>number</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.rasterTilesWebMercator.coveringGeometry.FeatureCollection.features.FeatureCollectionTypes.Feature.geometry.MultiLineString.bbox</code></td>
+<td>list<Coordinate></td>
+<td>否</td>
+<td>A GeoJSON object MAY have a member named "bbox" to include<br>information on the coordinate range for its Geometries, Features, or<br>FeatureCollections. The value of the bbox member MUST be an array of<br>length 2*n where n is the number of dimensions represented in the<br>contained geometries, with all axes of the most southwesterly point<br>followed by all axes of the more northeasterly point. The axes order<br>of a bbox follows the axes order of geometries.</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.rasterTilesWebMercator.coveringGeometry.FeatureCollection.features.FeatureCollectionTypes.Feature.geometry.MultiLineString.bbox.Coordinate</code></td>
+<td>number</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.rasterTilesWebMercator.coveringGeometry.FeatureCollection.features.FeatureCollectionTypes.Feature.geometry.LineString</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.rasterTilesWebMercator.coveringGeometry.FeatureCollection.features.FeatureCollectionTypes.Feature.geometry.LineString.coordinates</code></td>
+<td>list<Position></td>
+<td>否</td>
+<td>GeoJSON fundamental geometry construct, array of two or more positions.</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.rasterTilesWebMercator.coveringGeometry.FeatureCollection.features.FeatureCollectionTypes.Feature.geometry.LineString.coordinates.Position</code></td>
+<td>list<Coordinate></td>
+<td>是</td>
+<td>GeoJSON fundamental geometry construct.<br>A position is an array of numbers. There MUST be two or more elements.<br>The first two elements are longitude and latitude, precisely in that order and using decimal numbers.<br>Altitude or elevation MAY be included as an optional third element.<br>Implementations SHOULD NOT extend positions beyond three elements<br>because the semantics of extra elements are unspecified and ambiguous.<br>Historically, some implementations have used a fourth element to carry<br>a linear referencing measure (sometimes denoted as "M") or a numerical<br>timestamp, but in most situations a parser will not be able to properly<br>interpret these values. The interpretation and meaning of additional<br>elements is beyond the scope of this specification, and additional<br>elements MAY be ignored by parsers.</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.rasterTilesWebMercator.coveringGeometry.FeatureCollection.features.FeatureCollectionTypes.Feature.geometry.LineString.coordinates.Position.Coordinate</code></td>
+<td>number</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.rasterTilesWebMercator.coveringGeometry.FeatureCollection.features.FeatureCollectionTypes.Feature.geometry.LineString.bbox</code></td>
+<td>list<Coordinate></td>
+<td>否</td>
+<td>A GeoJSON object MAY have a member named "bbox" to include<br>information on the coordinate range for its Geometries, Features, or<br>FeatureCollections. The value of the bbox member MUST be an array of<br>length 2*n where n is the number of dimensions represented in the<br>contained geometries, with all axes of the most southwesterly point<br>followed by all axes of the more northeasterly point. The axes order<br>of a bbox follows the axes order of geometries.</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.rasterTilesWebMercator.coveringGeometry.FeatureCollection.features.FeatureCollectionTypes.Feature.geometry.LineString.bbox.Coordinate</code></td>
+<td>number</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.rasterTilesWebMercator.coveringGeometry.FeatureCollection.features.FeatureCollectionTypes.Feature.geometry.MultiPolygon</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.rasterTilesWebMercator.coveringGeometry.FeatureCollection.features.FeatureCollectionTypes.Feature.geometry.MultiPolygon.coordinates</code></td>
+<td>list<array></td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.rasterTilesWebMercator.coveringGeometry.FeatureCollection.features.FeatureCollectionTypes.Feature.geometry.MultiPolygon.coordinates.array</code></td>
+<td>list<LinearRing></td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.rasterTilesWebMercator.coveringGeometry.FeatureCollection.features.FeatureCollectionTypes.Feature.geometry.MultiPolygon.coordinates.array.LinearRing</code></td>
+<td>list<Position></td>
+<td>是</td>
+<td>A linear ring is a closed LineString with four or more positions.<br>The first and last positions are equivalent, and they MUST contain<br>identical values; their representation SHOULD also be identical.<br>A linear ring is the boundary of a surface or the boundary of a hole in<br>a surface.<br>A linear ring MUST follow the right-hand rule with respect to the area<br>it bounds, i.e., exterior rings are counterclockwise, and holes are<br>clockwise.</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.rasterTilesWebMercator.coveringGeometry.FeatureCollection.features.FeatureCollectionTypes.Feature.geometry.MultiPolygon.coordinates.array.LinearRing.Position</code></td>
+<td>list<Coordinate></td>
+<td>是</td>
+<td>GeoJSON fundamental geometry construct.<br>A position is an array of numbers. There MUST be two or more elements.<br>The first two elements are longitude and latitude, precisely in that order and using decimal numbers.<br>Altitude or elevation MAY be included as an optional third element.<br>Implementations SHOULD NOT extend positions beyond three elements<br>because the semantics of extra elements are unspecified and ambiguous.<br>Historically, some implementations have used a fourth element to carry<br>a linear referencing measure (sometimes denoted as "M") or a numerical<br>timestamp, but in most situations a parser will not be able to properly<br>interpret these values. The interpretation and meaning of additional<br>elements is beyond the scope of this specification, and additional<br>elements MAY be ignored by parsers.</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.rasterTilesWebMercator.coveringGeometry.FeatureCollection.features.FeatureCollectionTypes.Feature.geometry.MultiPolygon.coordinates.array.LinearRing.Position.Coordinate</code></td>
+<td>number</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.rasterTilesWebMercator.coveringGeometry.FeatureCollection.features.FeatureCollectionTypes.Feature.geometry.MultiPolygon.bbox</code></td>
+<td>list<Coordinate></td>
+<td>否</td>
+<td>A GeoJSON object MAY have a member named "bbox" to include<br>information on the coordinate range for its Geometries, Features, or<br>FeatureCollections. The value of the bbox member MUST be an array of<br>length 2*n where n is the number of dimensions represented in the<br>contained geometries, with all axes of the most southwesterly point<br>followed by all axes of the more northeasterly point. The axes order<br>of a bbox follows the axes order of geometries.</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.rasterTilesWebMercator.coveringGeometry.FeatureCollection.features.FeatureCollectionTypes.Feature.geometry.MultiPolygon.bbox.Coordinate</code></td>
+<td>number</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.rasterTilesWebMercator.coveringGeometry.FeatureCollection.features.FeatureCollectionTypes.Feature.geometry.Point</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.rasterTilesWebMercator.coveringGeometry.FeatureCollection.features.FeatureCollectionTypes.Feature.geometry.Point.coordinates</code></td>
+<td>list<Coordinate></td>
+<td>否</td>
+<td>GeoJSON fundamental geometry construct.<br>A position is an array of numbers. There MUST be two or more elements.<br>The first two elements are longitude and latitude, precisely in that order and using decimal numbers.<br>Altitude or elevation MAY be included as an optional third element.<br>Implementations SHOULD NOT extend positions beyond three elements<br>because the semantics of extra elements are unspecified and ambiguous.<br>Historically, some implementations have used a fourth element to carry<br>a linear referencing measure (sometimes denoted as "M") or a numerical<br>timestamp, but in most situations a parser will not be able to properly<br>interpret these values. The interpretation and meaning of additional<br>elements is beyond the scope of this specification, and additional<br>elements MAY be ignored by parsers.</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.rasterTilesWebMercator.coveringGeometry.FeatureCollection.features.FeatureCollectionTypes.Feature.geometry.Point.coordinates.Coordinate</code></td>
+<td>number</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.rasterTilesWebMercator.coveringGeometry.FeatureCollection.features.FeatureCollectionTypes.Feature.geometry.Point.bbox</code></td>
+<td>list<Coordinate></td>
+<td>否</td>
+<td>A GeoJSON object MAY have a member named "bbox" to include<br>information on the coordinate range for its Geometries, Features, or<br>FeatureCollections. The value of the bbox member MUST be an array of<br>length 2*n where n is the number of dimensions represented in the<br>contained geometries, with all axes of the most southwesterly point<br>followed by all axes of the more northeasterly point. The axes order<br>of a bbox follows the axes order of geometries.</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.rasterTilesWebMercator.coveringGeometry.FeatureCollection.features.FeatureCollectionTypes.Feature.geometry.Point.bbox.Coordinate</code></td>
+<td>number</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.rasterTilesWebMercator.coveringGeometry.FeatureCollection.features.FeatureCollectionTypes.Feature.geometry.Polygon</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.rasterTilesWebMercator.coveringGeometry.FeatureCollection.features.FeatureCollectionTypes.Feature.geometry.Polygon.coordinates</code></td>
+<td>list<LinearRing></td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.rasterTilesWebMercator.coveringGeometry.FeatureCollection.features.FeatureCollectionTypes.Feature.geometry.Polygon.coordinates.LinearRing</code></td>
+<td>list<Position></td>
+<td>是</td>
+<td>A linear ring is a closed LineString with four or more positions.<br>The first and last positions are equivalent, and they MUST contain<br>identical values; their representation SHOULD also be identical.<br>A linear ring is the boundary of a surface or the boundary of a hole in<br>a surface.<br>A linear ring MUST follow the right-hand rule with respect to the area<br>it bounds, i.e., exterior rings are counterclockwise, and holes are<br>clockwise.</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.rasterTilesWebMercator.coveringGeometry.FeatureCollection.features.FeatureCollectionTypes.Feature.geometry.Polygon.coordinates.LinearRing.Position</code></td>
+<td>list<Coordinate></td>
+<td>是</td>
+<td>GeoJSON fundamental geometry construct.<br>A position is an array of numbers. There MUST be two or more elements.<br>The first two elements are longitude and latitude, precisely in that order and using decimal numbers.<br>Altitude or elevation MAY be included as an optional third element.<br>Implementations SHOULD NOT extend positions beyond three elements<br>because the semantics of extra elements are unspecified and ambiguous.<br>Historically, some implementations have used a fourth element to carry<br>a linear referencing measure (sometimes denoted as "M") or a numerical<br>timestamp, but in most situations a parser will not be able to properly<br>interpret these values. The interpretation and meaning of additional<br>elements is beyond the scope of this specification, and additional<br>elements MAY be ignored by parsers.</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.rasterTilesWebMercator.coveringGeometry.FeatureCollection.features.FeatureCollectionTypes.Feature.geometry.Polygon.coordinates.LinearRing.Position.Coordinate</code></td>
+<td>number</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.rasterTilesWebMercator.coveringGeometry.FeatureCollection.features.FeatureCollectionTypes.Feature.geometry.Polygon.bbox</code></td>
+<td>list<Coordinate></td>
+<td>否</td>
+<td>A GeoJSON object MAY have a member named "bbox" to include<br>information on the coordinate range for its Geometries, Features, or<br>FeatureCollections. The value of the bbox member MUST be an array of<br>length 2*n where n is the number of dimensions represented in the<br>contained geometries, with all axes of the most southwesterly point<br>followed by all axes of the more northeasterly point. The axes order<br>of a bbox follows the axes order of geometries.</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.rasterTilesWebMercator.coveringGeometry.FeatureCollection.features.FeatureCollectionTypes.Feature.geometry.Polygon.bbox.Coordinate</code></td>
+<td>number</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.rasterTilesWebMercator.coveringGeometry.FeatureCollection.features.FeatureCollectionTypes.Feature.properties</code></td>
+<td>map</td>
+<td>否</td>
+<td>A <code>Feature</code> object has a member with the name "properties".  The<br>value of the properties member is an object (any JSON object or a<br>JSON null value).</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.rasterTilesWebMercator.coveringGeometry.FeatureCollection.features.FeatureCollectionTypes.Feature.properties.FeaturePropertyKey</code></td>
+<td>string</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.rasterTilesWebMercator.coveringGeometry.FeatureCollection.features.FeatureCollectionTypes.Feature.id</code></td>
+<td>any</td>
+<td>否</td>
+<td>If a <code>Feature</code> has a commonly used identifier, that identifier<br>SHOULD be included as a member of the Feature object with the name<br>"id", and the value of this member is either a JSON string or<br>number.</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.rasterTilesWebMercator.coveringGeometry.FeatureCollection.features.FeatureCollectionTypes.Feature.bbox</code></td>
+<td>list<Coordinate></td>
+<td>否</td>
+<td>A GeoJSON object MAY have a member named "bbox" to include<br>information on the coordinate range for its Geometries, Features, or<br>FeatureCollections. The value of the bbox member MUST be an array of<br>length 2*n where n is the number of dimensions represented in the<br>contained geometries, with all axes of the most southwesterly point<br>followed by all axes of the more northeasterly point. The axes order<br>of a bbox follows the axes order of geometries.</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.rasterTilesWebMercator.coveringGeometry.FeatureCollection.features.FeatureCollectionTypes.Feature.bbox.Coordinate</code></td>
+<td>number</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.rasterTilesWebMercator.coveringGeometry.FeatureCollection.bbox</code></td>
+<td>list<Coordinate></td>
+<td>否</td>
+<td>A GeoJSON object MAY have a member named "bbox" to include<br>information on the coordinate range for its Geometries, Features, or<br>FeatureCollections. The value of the bbox member MUST be an array of<br>length 2*n where n is the number of dimensions represented in the<br>contained geometries, with all axes of the most southwesterly point<br>followed by all axes of the more northeasterly point. The axes order<br>of a bbox follows the axes order of geometries.</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.rasterTilesWebMercator.coveringGeometry.FeatureCollection.bbox.Coordinate</code></td>
+<td>number</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.rasterTilesWebMercator.coveringGeometry.LineString</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.rasterTilesWebMercator.coveringGeometry.LineString.coordinates</code></td>
+<td>list<Position></td>
+<td>否</td>
+<td>GeoJSON fundamental geometry construct, array of two or more positions.</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.rasterTilesWebMercator.coveringGeometry.LineString.coordinates.Position</code></td>
+<td>list<Coordinate></td>
+<td>是</td>
+<td>GeoJSON fundamental geometry construct.<br>A position is an array of numbers. There MUST be two or more elements.<br>The first two elements are longitude and latitude, precisely in that order and using decimal numbers.<br>Altitude or elevation MAY be included as an optional third element.<br>Implementations SHOULD NOT extend positions beyond three elements<br>because the semantics of extra elements are unspecified and ambiguous.<br>Historically, some implementations have used a fourth element to carry<br>a linear referencing measure (sometimes denoted as "M") or a numerical<br>timestamp, but in most situations a parser will not be able to properly<br>interpret these values. The interpretation and meaning of additional<br>elements is beyond the scope of this specification, and additional<br>elements MAY be ignored by parsers.</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.rasterTilesWebMercator.coveringGeometry.LineString.coordinates.Position.Coordinate</code></td>
+<td>number</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.rasterTilesWebMercator.coveringGeometry.LineString.bbox</code></td>
+<td>list<Coordinate></td>
+<td>否</td>
+<td>A GeoJSON object MAY have a member named "bbox" to include<br>information on the coordinate range for its Geometries, Features, or<br>FeatureCollections. The value of the bbox member MUST be an array of<br>length 2*n where n is the number of dimensions represented in the<br>contained geometries, with all axes of the most southwesterly point<br>followed by all axes of the more northeasterly point. The axes order<br>of a bbox follows the axes order of geometries.</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.rasterTilesWebMercator.coveringGeometry.LineString.bbox.Coordinate</code></td>
+<td>number</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.rasterTilesWebMercator.coveringGeometry.MultiPolygon</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.rasterTilesWebMercator.coveringGeometry.MultiPolygon.coordinates</code></td>
+<td>list<array></td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.rasterTilesWebMercator.coveringGeometry.MultiPolygon.coordinates.array</code></td>
+<td>list<LinearRing></td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.rasterTilesWebMercator.coveringGeometry.MultiPolygon.coordinates.array.LinearRing</code></td>
+<td>list<Position></td>
+<td>是</td>
+<td>A linear ring is a closed LineString with four or more positions.<br>The first and last positions are equivalent, and they MUST contain<br>identical values; their representation SHOULD also be identical.<br>A linear ring is the boundary of a surface or the boundary of a hole in<br>a surface.<br>A linear ring MUST follow the right-hand rule with respect to the area<br>it bounds, i.e., exterior rings are counterclockwise, and holes are<br>clockwise.</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.rasterTilesWebMercator.coveringGeometry.MultiPolygon.coordinates.array.LinearRing.Position</code></td>
+<td>list<Coordinate></td>
+<td>是</td>
+<td>GeoJSON fundamental geometry construct.<br>A position is an array of numbers. There MUST be two or more elements.<br>The first two elements are longitude and latitude, precisely in that order and using decimal numbers.<br>Altitude or elevation MAY be included as an optional third element.<br>Implementations SHOULD NOT extend positions beyond three elements<br>because the semantics of extra elements are unspecified and ambiguous.<br>Historically, some implementations have used a fourth element to carry<br>a linear referencing measure (sometimes denoted as "M") or a numerical<br>timestamp, but in most situations a parser will not be able to properly<br>interpret these values. The interpretation and meaning of additional<br>elements is beyond the scope of this specification, and additional<br>elements MAY be ignored by parsers.</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.rasterTilesWebMercator.coveringGeometry.MultiPolygon.coordinates.array.LinearRing.Position.Coordinate</code></td>
+<td>number</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.rasterTilesWebMercator.coveringGeometry.MultiPolygon.bbox</code></td>
+<td>list<Coordinate></td>
+<td>否</td>
+<td>A GeoJSON object MAY have a member named "bbox" to include<br>information on the coordinate range for its Geometries, Features, or<br>FeatureCollections. The value of the bbox member MUST be an array of<br>length 2*n where n is the number of dimensions represented in the<br>contained geometries, with all axes of the most southwesterly point<br>followed by all axes of the more northeasterly point. The axes order<br>of a bbox follows the axes order of geometries.</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.rasterTilesWebMercator.coveringGeometry.MultiPolygon.bbox.Coordinate</code></td>
+<td>number</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.rasterTilesWebMercator.coveringGeometry.Point</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.rasterTilesWebMercator.coveringGeometry.Point.coordinates</code></td>
+<td>list<Coordinate></td>
+<td>否</td>
+<td>GeoJSON fundamental geometry construct.<br>A position is an array of numbers. There MUST be two or more elements.<br>The first two elements are longitude and latitude, precisely in that order and using decimal numbers.<br>Altitude or elevation MAY be included as an optional third element.<br>Implementations SHOULD NOT extend positions beyond three elements<br>because the semantics of extra elements are unspecified and ambiguous.<br>Historically, some implementations have used a fourth element to carry<br>a linear referencing measure (sometimes denoted as "M") or a numerical<br>timestamp, but in most situations a parser will not be able to properly<br>interpret these values. The interpretation and meaning of additional<br>elements is beyond the scope of this specification, and additional<br>elements MAY be ignored by parsers.</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.rasterTilesWebMercator.coveringGeometry.Point.coordinates.Coordinate</code></td>
+<td>number</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.rasterTilesWebMercator.coveringGeometry.Point.bbox</code></td>
+<td>list<Coordinate></td>
+<td>否</td>
+<td>A GeoJSON object MAY have a member named "bbox" to include<br>information on the coordinate range for its Geometries, Features, or<br>FeatureCollections. The value of the bbox member MUST be an array of<br>length 2*n where n is the number of dimensions represented in the<br>contained geometries, with all axes of the most southwesterly point<br>followed by all axes of the more northeasterly point. The axes order<br>of a bbox follows the axes order of geometries.</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.rasterTilesWebMercator.coveringGeometry.Point.bbox.Coordinate</code></td>
+<td>number</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.rasterTilesWebMercator.coveringGeometry.Polygon</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.rasterTilesWebMercator.coveringGeometry.Polygon.coordinates</code></td>
+<td>list<LinearRing></td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.rasterTilesWebMercator.coveringGeometry.Polygon.coordinates.LinearRing</code></td>
+<td>list<Position></td>
+<td>是</td>
+<td>A linear ring is a closed LineString with four or more positions.<br>The first and last positions are equivalent, and they MUST contain<br>identical values; their representation SHOULD also be identical.<br>A linear ring is the boundary of a surface or the boundary of a hole in<br>a surface.<br>A linear ring MUST follow the right-hand rule with respect to the area<br>it bounds, i.e., exterior rings are counterclockwise, and holes are<br>clockwise.</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.rasterTilesWebMercator.coveringGeometry.Polygon.coordinates.LinearRing.Position</code></td>
+<td>list<Coordinate></td>
+<td>是</td>
+<td>GeoJSON fundamental geometry construct.<br>A position is an array of numbers. There MUST be two or more elements.<br>The first two elements are longitude and latitude, precisely in that order and using decimal numbers.<br>Altitude or elevation MAY be included as an optional third element.<br>Implementations SHOULD NOT extend positions beyond three elements<br>because the semantics of extra elements are unspecified and ambiguous.<br>Historically, some implementations have used a fourth element to carry<br>a linear referencing measure (sometimes denoted as "M") or a numerical<br>timestamp, but in most situations a parser will not be able to properly<br>interpret these values. The interpretation and meaning of additional<br>elements is beyond the scope of this specification, and additional<br>elements MAY be ignored by parsers.</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.rasterTilesWebMercator.coveringGeometry.Polygon.coordinates.LinearRing.Position.Coordinate</code></td>
+<td>number</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.rasterTilesWebMercator.coveringGeometry.Polygon.bbox</code></td>
+<td>list<Coordinate></td>
+<td>否</td>
+<td>A GeoJSON object MAY have a member named "bbox" to include<br>information on the coordinate range for its Geometries, Features, or<br>FeatureCollections. The value of the bbox member MUST be an array of<br>length 2*n where n is the number of dimensions represented in the<br>contained geometries, with all axes of the most southwesterly point<br>followed by all axes of the more northeasterly point. The axes order<br>of a bbox follows the axes order of geometries.</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.rasterTilesWebMercator.coveringGeometry.Polygon.bbox.Coordinate</code></td>
+<td>number</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.rasterTilesWebMercator.coveringGeometry.Feature</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.rasterTilesWebMercator.coveringGeometry.Feature.geometry</code></td>
+<td>union</td>
+<td>否</td>
+<td>Abstract type for all GeoJSON object except Feature and FeatureCollection</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.rasterTilesWebMercator.coveringGeometry.Feature.geometry.MultiPoint</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.rasterTilesWebMercator.coveringGeometry.Feature.geometry.MultiPoint.coordinates</code></td>
+<td>list<Position></td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.rasterTilesWebMercator.coveringGeometry.Feature.geometry.MultiPoint.coordinates.Position</code></td>
+<td>list<Coordinate></td>
+<td>是</td>
+<td>GeoJSON fundamental geometry construct.<br>A position is an array of numbers. There MUST be two or more elements.<br>The first two elements are longitude and latitude, precisely in that order and using decimal numbers.<br>Altitude or elevation MAY be included as an optional third element.<br>Implementations SHOULD NOT extend positions beyond three elements<br>because the semantics of extra elements are unspecified and ambiguous.<br>Historically, some implementations have used a fourth element to carry<br>a linear referencing measure (sometimes denoted as "M") or a numerical<br>timestamp, but in most situations a parser will not be able to properly<br>interpret these values. The interpretation and meaning of additional<br>elements is beyond the scope of this specification, and additional<br>elements MAY be ignored by parsers.</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.rasterTilesWebMercator.coveringGeometry.Feature.geometry.MultiPoint.coordinates.Position.Coordinate</code></td>
+<td>number</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.rasterTilesWebMercator.coveringGeometry.Feature.geometry.MultiPoint.bbox</code></td>
+<td>list<Coordinate></td>
+<td>否</td>
+<td>A GeoJSON object MAY have a member named "bbox" to include<br>information on the coordinate range for its Geometries, Features, or<br>FeatureCollections. The value of the bbox member MUST be an array of<br>length 2*n where n is the number of dimensions represented in the<br>contained geometries, with all axes of the most southwesterly point<br>followed by all axes of the more northeasterly point. The axes order<br>of a bbox follows the axes order of geometries.</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.rasterTilesWebMercator.coveringGeometry.Feature.geometry.MultiPoint.bbox.Coordinate</code></td>
+<td>number</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.rasterTilesWebMercator.coveringGeometry.Feature.geometry.GeometryCollection</code></td>
+<td>object</td>
+<td>否</td>
+<td>GeoJSON geometry collection<br>GeometryCollections composed of a single part or a number of parts of a<br>single type SHOULD be avoided when that single part or a single object<br>of multipart type (MultiPoint, MultiLineString, or MultiPolygon) could<br>be used instead.</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.rasterTilesWebMercator.coveringGeometry.Feature.geometry.GeometryCollection.geometries</code></td>
+<td>list<Geometry></td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.rasterTilesWebMercator.coveringGeometry.Feature.geometry.GeometryCollection.geometries.Geometry</code></td>
+<td>union</td>
+<td>是</td>
+<td>Abstract type for all GeoJSON object except Feature and FeatureCollection</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.rasterTilesWebMercator.coveringGeometry.Feature.geometry.GeometryCollection.bbox</code></td>
+<td>list<Coordinate></td>
+<td>否</td>
+<td>A GeoJSON object MAY have a member named "bbox" to include<br>information on the coordinate range for its Geometries, Features, or<br>FeatureCollections. The value of the bbox member MUST be an array of<br>length 2*n where n is the number of dimensions represented in the<br>contained geometries, with all axes of the most southwesterly point<br>followed by all axes of the more northeasterly point. The axes order<br>of a bbox follows the axes order of geometries.</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.rasterTilesWebMercator.coveringGeometry.Feature.geometry.GeometryCollection.bbox.Coordinate</code></td>
+<td>number</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.rasterTilesWebMercator.coveringGeometry.Feature.geometry.MultiLineString</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.rasterTilesWebMercator.coveringGeometry.Feature.geometry.MultiLineString.coordinates</code></td>
+<td>list<LineStringCoordinates></td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.rasterTilesWebMercator.coveringGeometry.Feature.geometry.MultiLineString.coordinates.LineStringCoordinates</code></td>
+<td>list<Position></td>
+<td>是</td>
+<td>GeoJSON fundamental geometry construct, array of two or more positions.</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.rasterTilesWebMercator.coveringGeometry.Feature.geometry.MultiLineString.coordinates.LineStringCoordinates.Position</code></td>
+<td>list<Coordinate></td>
+<td>是</td>
+<td>GeoJSON fundamental geometry construct.<br>A position is an array of numbers. There MUST be two or more elements.<br>The first two elements are longitude and latitude, precisely in that order and using decimal numbers.<br>Altitude or elevation MAY be included as an optional third element.<br>Implementations SHOULD NOT extend positions beyond three elements<br>because the semantics of extra elements are unspecified and ambiguous.<br>Historically, some implementations have used a fourth element to carry<br>a linear referencing measure (sometimes denoted as "M") or a numerical<br>timestamp, but in most situations a parser will not be able to properly<br>interpret these values. The interpretation and meaning of additional<br>elements is beyond the scope of this specification, and additional<br>elements MAY be ignored by parsers.</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.rasterTilesWebMercator.coveringGeometry.Feature.geometry.MultiLineString.coordinates.LineStringCoordinates.Position.Coordinate</code></td>
+<td>number</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.rasterTilesWebMercator.coveringGeometry.Feature.geometry.MultiLineString.bbox</code></td>
+<td>list<Coordinate></td>
+<td>否</td>
+<td>A GeoJSON object MAY have a member named "bbox" to include<br>information on the coordinate range for its Geometries, Features, or<br>FeatureCollections. The value of the bbox member MUST be an array of<br>length 2*n where n is the number of dimensions represented in the<br>contained geometries, with all axes of the most southwesterly point<br>followed by all axes of the more northeasterly point. The axes order<br>of a bbox follows the axes order of geometries.</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.rasterTilesWebMercator.coveringGeometry.Feature.geometry.MultiLineString.bbox.Coordinate</code></td>
+<td>number</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.rasterTilesWebMercator.coveringGeometry.Feature.geometry.LineString</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.rasterTilesWebMercator.coveringGeometry.Feature.geometry.LineString.coordinates</code></td>
+<td>list<Position></td>
+<td>否</td>
+<td>GeoJSON fundamental geometry construct, array of two or more positions.</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.rasterTilesWebMercator.coveringGeometry.Feature.geometry.LineString.coordinates.Position</code></td>
+<td>list<Coordinate></td>
+<td>是</td>
+<td>GeoJSON fundamental geometry construct.<br>A position is an array of numbers. There MUST be two or more elements.<br>The first two elements are longitude and latitude, precisely in that order and using decimal numbers.<br>Altitude or elevation MAY be included as an optional third element.<br>Implementations SHOULD NOT extend positions beyond three elements<br>because the semantics of extra elements are unspecified and ambiguous.<br>Historically, some implementations have used a fourth element to carry<br>a linear referencing measure (sometimes denoted as "M") or a numerical<br>timestamp, but in most situations a parser will not be able to properly<br>interpret these values. The interpretation and meaning of additional<br>elements is beyond the scope of this specification, and additional<br>elements MAY be ignored by parsers.</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.rasterTilesWebMercator.coveringGeometry.Feature.geometry.LineString.coordinates.Position.Coordinate</code></td>
+<td>number</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.rasterTilesWebMercator.coveringGeometry.Feature.geometry.LineString.bbox</code></td>
+<td>list<Coordinate></td>
+<td>否</td>
+<td>A GeoJSON object MAY have a member named "bbox" to include<br>information on the coordinate range for its Geometries, Features, or<br>FeatureCollections. The value of the bbox member MUST be an array of<br>length 2*n where n is the number of dimensions represented in the<br>contained geometries, with all axes of the most southwesterly point<br>followed by all axes of the more northeasterly point. The axes order<br>of a bbox follows the axes order of geometries.</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.rasterTilesWebMercator.coveringGeometry.Feature.geometry.LineString.bbox.Coordinate</code></td>
+<td>number</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.rasterTilesWebMercator.coveringGeometry.Feature.geometry.MultiPolygon</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.rasterTilesWebMercator.coveringGeometry.Feature.geometry.MultiPolygon.coordinates</code></td>
+<td>list<array></td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.rasterTilesWebMercator.coveringGeometry.Feature.geometry.MultiPolygon.coordinates.array</code></td>
+<td>list<LinearRing></td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.rasterTilesWebMercator.coveringGeometry.Feature.geometry.MultiPolygon.coordinates.array.LinearRing</code></td>
+<td>list<Position></td>
+<td>是</td>
+<td>A linear ring is a closed LineString with four or more positions.<br>The first and last positions are equivalent, and they MUST contain<br>identical values; their representation SHOULD also be identical.<br>A linear ring is the boundary of a surface or the boundary of a hole in<br>a surface.<br>A linear ring MUST follow the right-hand rule with respect to the area<br>it bounds, i.e., exterior rings are counterclockwise, and holes are<br>clockwise.</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.rasterTilesWebMercator.coveringGeometry.Feature.geometry.MultiPolygon.coordinates.array.LinearRing.Position</code></td>
+<td>list<Coordinate></td>
+<td>是</td>
+<td>GeoJSON fundamental geometry construct.<br>A position is an array of numbers. There MUST be two or more elements.<br>The first two elements are longitude and latitude, precisely in that order and using decimal numbers.<br>Altitude or elevation MAY be included as an optional third element.<br>Implementations SHOULD NOT extend positions beyond three elements<br>because the semantics of extra elements are unspecified and ambiguous.<br>Historically, some implementations have used a fourth element to carry<br>a linear referencing measure (sometimes denoted as "M") or a numerical<br>timestamp, but in most situations a parser will not be able to properly<br>interpret these values. The interpretation and meaning of additional<br>elements is beyond the scope of this specification, and additional<br>elements MAY be ignored by parsers.</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.rasterTilesWebMercator.coveringGeometry.Feature.geometry.MultiPolygon.coordinates.array.LinearRing.Position.Coordinate</code></td>
+<td>number</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.rasterTilesWebMercator.coveringGeometry.Feature.geometry.MultiPolygon.bbox</code></td>
+<td>list<Coordinate></td>
+<td>否</td>
+<td>A GeoJSON object MAY have a member named "bbox" to include<br>information on the coordinate range for its Geometries, Features, or<br>FeatureCollections. The value of the bbox member MUST be an array of<br>length 2*n where n is the number of dimensions represented in the<br>contained geometries, with all axes of the most southwesterly point<br>followed by all axes of the more northeasterly point. The axes order<br>of a bbox follows the axes order of geometries.</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.rasterTilesWebMercator.coveringGeometry.Feature.geometry.MultiPolygon.bbox.Coordinate</code></td>
+<td>number</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.rasterTilesWebMercator.coveringGeometry.Feature.geometry.Point</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.rasterTilesWebMercator.coveringGeometry.Feature.geometry.Point.coordinates</code></td>
+<td>list<Coordinate></td>
+<td>否</td>
+<td>GeoJSON fundamental geometry construct.<br>A position is an array of numbers. There MUST be two or more elements.<br>The first two elements are longitude and latitude, precisely in that order and using decimal numbers.<br>Altitude or elevation MAY be included as an optional third element.<br>Implementations SHOULD NOT extend positions beyond three elements<br>because the semantics of extra elements are unspecified and ambiguous.<br>Historically, some implementations have used a fourth element to carry<br>a linear referencing measure (sometimes denoted as "M") or a numerical<br>timestamp, but in most situations a parser will not be able to properly<br>interpret these values. The interpretation and meaning of additional<br>elements is beyond the scope of this specification, and additional<br>elements MAY be ignored by parsers.</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.rasterTilesWebMercator.coveringGeometry.Feature.geometry.Point.coordinates.Coordinate</code></td>
+<td>number</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.rasterTilesWebMercator.coveringGeometry.Feature.geometry.Point.bbox</code></td>
+<td>list<Coordinate></td>
+<td>否</td>
+<td>A GeoJSON object MAY have a member named "bbox" to include<br>information on the coordinate range for its Geometries, Features, or<br>FeatureCollections. The value of the bbox member MUST be an array of<br>length 2*n where n is the number of dimensions represented in the<br>contained geometries, with all axes of the most southwesterly point<br>followed by all axes of the more northeasterly point. The axes order<br>of a bbox follows the axes order of geometries.</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.rasterTilesWebMercator.coveringGeometry.Feature.geometry.Point.bbox.Coordinate</code></td>
+<td>number</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.rasterTilesWebMercator.coveringGeometry.Feature.geometry.Polygon</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.rasterTilesWebMercator.coveringGeometry.Feature.geometry.Polygon.coordinates</code></td>
+<td>list<LinearRing></td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.rasterTilesWebMercator.coveringGeometry.Feature.geometry.Polygon.coordinates.LinearRing</code></td>
+<td>list<Position></td>
+<td>是</td>
+<td>A linear ring is a closed LineString with four or more positions.<br>The first and last positions are equivalent, and they MUST contain<br>identical values; their representation SHOULD also be identical.<br>A linear ring is the boundary of a surface or the boundary of a hole in<br>a surface.<br>A linear ring MUST follow the right-hand rule with respect to the area<br>it bounds, i.e., exterior rings are counterclockwise, and holes are<br>clockwise.</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.rasterTilesWebMercator.coveringGeometry.Feature.geometry.Polygon.coordinates.LinearRing.Position</code></td>
+<td>list<Coordinate></td>
+<td>是</td>
+<td>GeoJSON fundamental geometry construct.<br>A position is an array of numbers. There MUST be two or more elements.<br>The first two elements are longitude and latitude, precisely in that order and using decimal numbers.<br>Altitude or elevation MAY be included as an optional third element.<br>Implementations SHOULD NOT extend positions beyond three elements<br>because the semantics of extra elements are unspecified and ambiguous.<br>Historically, some implementations have used a fourth element to carry<br>a linear referencing measure (sometimes denoted as "M") or a numerical<br>timestamp, but in most situations a parser will not be able to properly<br>interpret these values. The interpretation and meaning of additional<br>elements is beyond the scope of this specification, and additional<br>elements MAY be ignored by parsers.</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.rasterTilesWebMercator.coveringGeometry.Feature.geometry.Polygon.coordinates.LinearRing.Position.Coordinate</code></td>
+<td>number</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.rasterTilesWebMercator.coveringGeometry.Feature.geometry.Polygon.bbox</code></td>
+<td>list<Coordinate></td>
+<td>否</td>
+<td>A GeoJSON object MAY have a member named "bbox" to include<br>information on the coordinate range for its Geometries, Features, or<br>FeatureCollections. The value of the bbox member MUST be an array of<br>length 2*n where n is the number of dimensions represented in the<br>contained geometries, with all axes of the most southwesterly point<br>followed by all axes of the more northeasterly point. The axes order<br>of a bbox follows the axes order of geometries.</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.rasterTilesWebMercator.coveringGeometry.Feature.geometry.Polygon.bbox.Coordinate</code></td>
+<td>number</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.rasterTilesWebMercator.coveringGeometry.Feature.properties</code></td>
+<td>map</td>
+<td>否</td>
+<td>A <code>Feature</code> object has a member with the name "properties".  The<br>value of the properties member is an object (any JSON object or a<br>JSON null value).</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.rasterTilesWebMercator.coveringGeometry.Feature.properties.FeaturePropertyKey</code></td>
+<td>string</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.rasterTilesWebMercator.coveringGeometry.Feature.id</code></td>
+<td>any</td>
+<td>否</td>
+<td>If a <code>Feature</code> has a commonly used identifier, that identifier<br>SHOULD be included as a member of the Feature object with the name<br>"id", and the value of this member is either a JSON string or<br>number.</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.rasterTilesWebMercator.coveringGeometry.Feature.bbox</code></td>
+<td>list<Coordinate></td>
+<td>否</td>
+<td>A GeoJSON object MAY have a member named "bbox" to include<br>information on the coordinate range for its Geometries, Features, or<br>FeatureCollections. The value of the bbox member MUST be an array of<br>length 2*n where n is the number of dimensions represented in the<br>contained geometries, with all axes of the most southwesterly point<br>followed by all axes of the more northeasterly point. The axes order<br>of a bbox follows the axes order of geometries.</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.rasterTilesWebMercator.coveringGeometry.Feature.bbox.Coordinate</code></td>
+<td>number</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.rasterTilesWebMercator.style</code></td>
+<td>object</td>
+<td>是</td>
+<td>Styling information for raster tiles.</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.renderables.Renderable.content.RenderableContent.rasterTilesWebMercator.style.opacity</code></td>
+<td>integer</td>
+<td>是</td>
+<td>Alpha value of the color in the [0, 255] range.</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.sourcings</code></td>
+<td>list<Sourcing></td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.sourcings.Sourcing</code></td>
+<td>object</td>
+<td>是</td>
+<td>A reference to an individual unit of data Renderables were derived from.</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.sourcings.Sourcing.id</code></td>
+<td>string</td>
+<td>是</td>
+<td>Globally unique ID for the sourcing within a session. The ID is opaque and not meant to be parsed in any way.</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.sourcings.Sourcing.content</code></td>
+<td>union</td>
+<td>是</td>
+<td>Information used to locate the Sourcing and its metadata.</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.sourcings.Sourcing.content.object</code></td>
+<td>object</td>
+<td>否</td>
+<td>Information that could be used to identify an unique Foundry object.</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.sourcings.Sourcing.content.object.objectType</code></td>
+<td>string</td>
+<td>是</td>
+<td>A unique identifier of a Foundry object type.</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.sourcings.Sourcing.content.object.primaryKey</code></td>
+<td>map</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.sourcings.Sourcing.content.object.primaryKey.FoundryObjectPropertyTypeRid</code></td>
+<td>string</td>
+<td>是</td>
+<td>A unique identifier of a Foundry object property.</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.sourcings.Sourcing.content.object.primaryKey.FoundryObjectPropertyValueUntyped</code></td>
+<td>any</td>
+<td>是</td>
+<td>The value of a Foundry object's property. The type of the property value is not preserved.</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.sourcings.Sourcing.content.objectV2</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.sourcings.Sourcing.content.objectV2.objectType</code></td>
+<td>string</td>
+<td>是</td>
+<td>A unique identifier of a Foundry object type.</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.sourcings.Sourcing.content.objectV2.objectRid</code></td>
+<td>string</td>
+<td>是</td>
+<td>A unique identifier of an object.</td>
+</tr>
+<tr>
+<td><code>RenderObjectsResponse.sourcings.Sourcing.title</code></td>
+<td>string</td>
+<td>是</td>
+<td>—</td>
+</tr>
+</tbody>
+</table>
+<h2>Error responses</h2>
+<table>
+<thead>
+<tr>
+<th>错误码</th>
+<th>错误名称</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>PERMISSION_DENIED</td>
+<td><code>RenderInvocationObjectPermissionDenied</code></td>
+<td>Could not render the InvocationObject.</td>
+</tr>
+</tbody>
+</table>
+</body>
+</html>

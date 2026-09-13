@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Funnel streaming pipelines</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Funnel streaming pipelines</h1>
+<p>In addition to <a href="https://www.palantir.com/docs/foundry/object-indexing/funnel-batch-pipelines/">batch Ontology data indexing</a>, Object Storage v2 supports low-latency streaming data indexing into the Ontology by using <a href="https://www.palantir.com/docs/foundry/data-integration/streams/">Foundry streams</a> as <a href="https://www.palantir.com/docs/foundry/object-permissioning/managing-object-security/#object-input-data-sources">input datasources</a>. By departing from the batch infrastructure used for non-streaming Foundry datasets, streams enable indexing of data into Foundry Ontology on the order of seconds or minutes to support latency sensitive operational workflows.</p>
+<p>:::callout{theme="neutral"}
+If you have more questions about Ontology streaming behavior, review our <a href="https://www.palantir.com/docs/foundry/object-indexing/faq/#can-i-backfill-large-scale-historical-data-for-object-types-with-streaming-datasources">frequently asked questions</a> documentation.</p>
+<p>For guidance on the performance and the latency of streaming pipelines, review our <a href="https://www.palantir.com/docs/foundry/building-pipelines/streaming-performance-considerations/">streaming performance considerations</a> documentation.
+:::</p>
+<h2>Current product limitations of streaming object types</h2>
+<p>Streaming in Object Storage v2 uses a âmost recent update winsâ strategy, where every stream is treated like a changelog stream. If your events are coming from your source out of order, you will end up with incorrect data in your Ontology. If you can guarantee order in your input stream, Object Storage v2 streaming will handle your updates with the same order.</p>
+<p>Ontology streaming behavior and its feature set is still actively developed; below are some of the current product limitations to consider before using Ontology streaming:</p>
+<ul>
+<li>User edits are not supported on streaming object types. As a workaround, you can either push user edits as a data change into the input stream or configure an additional object type with a non-streaming input datasource to let users make their edits on that auxiliary object type. Alternatively, you can enable edits on stream-backed object types by switching the object be backed by <a href="https://www.palantir.com/docs/foundry/object-indexing/direct-datasources/">direct datasources</a>.</li>
+<li><a href="https://www.palantir.com/docs/foundry/object-permissioning/multi-datasource-objects/">Multi-datasource object types (MDOs)</a> are not supported on streaming object types.</li>
+<li>Outside of <a href="https://www.palantir.com/docs/foundry/workshop/overview/">Workshop</a>, no other Foundry frontend application supports live data refresh because, historically, they do not expect streaming updates. Although the underlying Ontology data is changing constantly for streaming object types, you will need to refresh whenever you want new data outside Workshop.</li>
+<li>In the <strong>Datasources</strong> tab of an object type in Ontology Manager, users are able to configure <a href="https://www.palantir.com/docs/foundry/object-indexing/funnel-batch-pipelines/#monitor-funnel-pipelines">monitors</a> for Funnel batch pipeline failures and invalid records. Currently, there is no support for monitors or metrics for object types with stream datasources (for example, pipeline latency).</li>
+<li>Record size cannot exceed 1MB, and the object type cannot contain more than 250 properties. You should consider a different ontology model with smaller object types if you need to stream larger records into your ontology.</li>
+</ul>
+<h2>Configuring streaming object types</h2>
+<p>Object types with stream input datasources are configured directly in <a href="https://www.palantir.com/docs/foundry/pipeline-builder/outputs-add-ontology-output/">Pipeline Builder</a> or the <a href="https://www.palantir.com/docs/foundry/ontology-manager/overview/">Ontology Manager</a>, similar to any other Foundry Ontology object type.</p>
+<p>:::callout{theme="neutral"}
+If you do not yet have an input stream configured, you can create one through <a href="https://www.palantir.com/docs/foundry/data-connection/set-up-streaming-sync/">integrating with an existing stream in the Data Connection application</a> or by <a href="https://www.palantir.com/docs/foundry/building-pipelines/create-stream-pipeline-pb/">building a stream pipeline in Pipeline Builder</a>.
+:::</p>
+<p>After creating a new object type (or using an existing object type), navigate to the <strong>Datasources</strong> tab in Ontology Manager, select a stream input datasource in the <strong>Backing datasource</strong> section as shown below, and save your changes into the Foundry Ontology.</p>
+<p><img alt="An Ontology streaming configuration" src="../../_resources/foundry/object-indexing/stream_pipeline.png" /></p>
+<p>For additional configurations over the input datasource stream, select the ellipses button for more options as shown below.</p>
+<p><img alt="Additional streaming configurations" src="../../_resources/foundry/object-indexing/stream_config.png" />
+<img alt="Additional streaming configurations" src="../../_resources/foundry/object-indexing/stream_datasource_configuration.png" /></p>
+<p>:::callout{theme="neutral"}
+Stream datasources can also be configured for <a href="https://www.palantir.com/docs/foundry/object-link-types/create-link-type/">many-to-many link types</a>.
+:::</p>
+<p>The <strong>Stream configuration</strong> section provides options to optimize your object type's streaming job.</p>
+<ul>
+<li><strong>Stream compute profile:</strong> By default, an object type's streaming job uses a compute profile suitable for most input streams. However, object types backed by very high-throughput streams may require more resources to prevent the pipeline from lagging. Alternatively, object types backed by low-throughput streams can use a smaller profile to save on compute resource cost. If none of the available options are suitable, contact your Palantir representative.</li>
+<li><strong>Stream consistency guarantee:</strong> By default, an object type's streaming job uses the exactly-once consistency guarantee, which results in additional latency compared to at-least-once but ensures Foundry applications receive object set updates exactly once. Enabling the at-least-once consistency guarantee reduces latency; however, in rare cases, Foundry applications may receive duplicate updates when an object set changes. For example, an object set-based automation could trigger multiple times. Consider enabling at-least-once for latency-sensitive object types.</li>
+</ul>
+<p><img alt="The Stream configuration section." src="../../_resources/foundry/object-indexing/stream-configuration.png" /></p>
+<p>:::callout{theme="neutral"}
+Modifying an object type's stream configuration will restart its associated streaming job, causing a temporary delay for new streaming records to be processed.
+:::</p>
+<h2>Debugging streaming pipelines</h2>
+<p>The interface between streams and the Ontology can be considered conceptually similar to <a href="https://www.palantir.com/docs/foundry/object-indexing/funnel-batch-pipelines/#changelog">changelog datasets</a>. Each record in the input stream will contain the data for each property being written into the Ontology. Each record will update all of the properties for a given object, specified by primary key. Deletions can be specified on the input record by setting metadata on the input stream.</p>
+<p>Funnel will index records in the order that they are written to the datasource stream, so those streams should be partitioned by primary key and ordered by event timestamp which can be done in the upstream <a href="https://www.palantir.com/docs/foundry/pipeline-builder/core-concepts/#pipeline-outputs">Pipeline Builder</a> pipeline.</p>
+<p>If you are having issues with your stream pipelines, review the <a href="https://www.palantir.com/docs/foundry/optimizing-pipelines/debug-stream/">debug a failing stream</a> documentation.</p>
+<p>To view details and metrics for an object type's streaming job, select the <strong>Stream</strong> bubble in the pipeline diagram.</p>
+<p><img alt="Access streaming job details and metrics." src="../../_resources/foundry/object-indexing/stream-details-metrics.gif" /></p>
+</body>
+</html>

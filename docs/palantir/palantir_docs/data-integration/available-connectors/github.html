@@ -1,0 +1,711 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GitHub</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>GitHub</h1>
+<!-- BEGIN GENERATED:intro -->
+
+<p>The GitHub connector is a <a href="https://www.palantir.com/docs/foundry/data-integration/foundry-provided-drivers/">Palantir-provided driver</a> for GitHub.</p>
+<p>To create a new GitHub source, follow the <a href="https://www.palantir.com/docs/foundry/data-integration/foundry-provided-drivers/#setup">standard setup flow for Palantir-provided drivers</a>, then use the sections below for GitHub-specific configuration and networking. For the complete property reference, see the <a href="https://cdn.cdata.com/help/FGK/jdbc/pg_connectionj.htm">official GitHub driver documentation â</a>.</p>
+<!-- END GENERATED:intro -->
+
+<!-- BEGIN GENERATED:capabilities -->
+
+<h2>Supported capabilities</h2>
+<table>
+<thead>
+<tr>
+<th>Capability</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Exploration</td>
+<td>ð¢ Generally available</td>
+</tr>
+<tr>
+<td>Batch syncs</td>
+<td>ð¢ Generally available</td>
+</tr>
+<tr>
+<td>Incremental</td>
+<td>ð¢ Generally available</td>
+</tr>
+<tr>
+<td><a href="#oauth-20-authentication">OAuth 2.0 authentication</a></td>
+<td>ð¢ Generally available</td>
+</tr>
+<tr>
+<td><a href="#table-exports">Table exports</a></td>
+<td>ð¢ Generally available</td>
+</tr>
+</tbody>
+</table>
+<!-- END GENERATED:capabilities -->
+
+<h2>Introduction</h2>
+<p>The GitHub connector is best suited for <strong>reading</strong> data in bulk. It surfaces the GitHub data model â repositories, issues, pull requests, commits, and related entities â as relational tables. You can browse these in the source explorer and pull them into Foundry with a <a href="https://www.palantir.com/docs/foundry/data-connection/set-up-sync/">batch sync</a>. This makes it a good fit for mirroring an entire repository or organization into Foundry for downstream analysis.</p>
+<p><img alt="The GitHub source explorer previewing tables such as Commits before adding them to a sync." src="../../_resources/foundry/available-connectors/github-source-explorer.png" /></p>
+<p>To create or update records in GitHub, reuse your existing GitHub source and call the <a href="https://docs.github.com/en/rest">GitHub REST API â</a> from an <a href="https://www.palantir.com/docs/foundry/data-connection/external-transforms/">external transform</a> or <a href="https://www.palantir.com/docs/foundry/data-connection/external-functions/">external function</a>. No second source is required. See <a href="#use-github-sources-in-code">Use GitHub sources in code</a> below.</p>
+<h2>Authentication</h2>
+<p>The connector authenticates with GitHub over OAuth 2.0. You register an application on GitHub, then enter its <strong>Client ID</strong> and <strong>Client secret</strong> on the Foundry source (<code>OAuthClientId</code> / <code>OAuthClientSecret</code>). With <code>InitiateOAuth</code> set to <code>REFRESH</code>, the driver runs GitHub's <a href="https://docs.github.com/en/apps/oauth-apps/building-oauth-apps/authorizing-oauth-apps#web-application-flow">OAuth web application flow â</a> on the first sync and keeps the token refreshed.</p>
+<p>GitHub offers two application types, both built on OAuth 2.0 and configured the same way. A <strong>GitHub App</strong> (recommended) adds fine-grained, per-resource permissions â for example, read-only access to a single repository's issues â and short-lived tokens. An <strong>OAuth app</strong> uses broad, account-level scopes, such as <code>repo</code>. The steps below use a GitHub App; an OAuth app is identical apart from the provisioning permissions workflow, where you instead select <strong>OAuth app</strong> from <strong>Settings &gt; Developer settings</strong>. For a full comparison, see <a href="https://docs.github.com/en/apps/oauth-apps/building-oauth-apps/differences-between-github-apps-and-oauth-apps">Differences between GitHub Apps and OAuth apps â</a>.</p>
+<h3>Create the application</h3>
+<p>In GitHub, select <strong>Settings &gt; Developer settings &gt; GitHub Apps &gt; <a href="https://github.com/settings/apps/new">New GitHub App â</a></strong> and set the <strong>Callback URL</strong> to the value shown on the Foundry source setup page.</p>
+<p><img alt="The GitHub Create GitHub App form, showing the app name, homepage URL, and callback URL fields." src="../../_resources/foundry/available-connectors/github-app-create.png" /></p>
+<p>Under <strong>Permissions &amp; events</strong>, grant only what the sync needs (for example, read-only <strong>Contents</strong> and <strong>Issues</strong>), create the app, and install it from the <strong>Install App</strong> tab on the target repositories or organization. Then, on the app's <strong>General</strong> page, copy the <strong>Client ID</strong> and generate a <strong>Client secret</strong>.</p>
+<p><img alt="The GitHub App General page, showing the Client ID and Client secrets sections." src="../../_resources/foundry/available-connectors/github-app-credentials.png" /></p>
+<h3>Add your GitHub client ID and secret to the source</h3>
+<p>Navigate to Data Connection in Foundry and enter the <strong>Client ID</strong> and <strong>Client secret</strong> into the source's <code>OAuthClientId</code> and <code>OAuthClientSecret</code> properties and keep <code>InitiateOAuth</code> set to <code>REFRESH</code>.</p>
+<p><img alt="The Foundry GitHub source connection settings, showing the OAuth client ID, client secret, and callback URL properties alongside the approved egress policies." src="../../_resources/foundry/available-connectors/github-connection-oauth.png" /></p>
+<!-- BEGIN GENERATED:configuration -->
+
+<h2>Configuration</h2>
+<p>The properties below are mandatory or recommended.</p>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Required?</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="https://cdn.cdata.com/help/FGK/jdbc/RSBGitHub_p_InitiateOAuth.htm"><code>InitiateOAuth</code> â</a></td>
+<td>Recommended</td>
+<td>Specifies the process for obtaining or refreshing the OAuth access token, which maintains user access while an authenticated, authorized user is working.</td>
+<td><code>REFRESH</code></td>
+</tr>
+<tr>
+<td><a href="https://cdn.cdata.com/help/FGK/jdbc/RSBGitHub_p_OAuthClientId.htm"><code>OAuthClientId</code> â</a></td>
+<td>Recommended</td>
+<td>Specifies the client ID (also known as the consumer key) assigned to your custom OAuth application. This ID is required to identify the application to the OAuth authorization server during authentication.</td>
+<td>â</td>
+</tr>
+<tr>
+<td><a href="https://cdn.cdata.com/help/FGK/jdbc/RSBGitHub_p_OAuthClientSecret.htm"><code>OAuthClientSecret</code> â</a></td>
+<td>Recommended</td>
+<td>Specifies the client secret assigned to your custom OAuth application. This confidential value is used to authenticate the application to the OAuth authorization server.</td>
+<td>â</td>
+</tr>
+<tr>
+<td><a href="https://cdn.cdata.com/help/FGK/jdbc/RSBGitHub_p_URL.htm"><code>URL</code> â</a></td>
+<td>Recommended</td>
+<td>The base URL for the GitHub environment you are connecting to.</td>
+<td>â</td>
+</tr>
+</tbody>
+</table>
+<!-- END GENERATED:configuration -->
+
+<!-- BEGIN GENERATED:networking -->
+
+<h2>Networking</h2>
+<p>The table below lists the domains that the source must be able to access to run.</p>
+<p>For each domain, add a corresponding <a href="https://www.palantir.com/docs/foundry/administration/configure-egress/">egress policy</a>. If the source is hosted on-premises and not directly reachable from Foundry, use an <a href="https://www.palantir.com/docs/foundry/administration/configure-egress/#agent-proxy-egress-policies">agent proxy egress policy</a> instead. The agent host itself must also be able to reach the listed domains. See <a href="https://www.palantir.com/docs/foundry/data-connection/agent-proxy/">using an agent as a proxy</a> for details.</p>
+<table>
+<thead>
+<tr>
+<th>Domain</th>
+<th>Required</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>github.com</td>
+<td>Always</td>
+</tr>
+<tr>
+<td>api.github.com</td>
+<td>Always</td>
+</tr>
+</tbody>
+</table>
+<!-- END GENERATED:networking -->
+
+<!-- BEGIN GENERATED:oauth -->
+
+<h2>OAuth 2.0 authentication</h2>
+<p>This connector supports OAuth 2.0 authentication. Follow the <a href="https://www.palantir.com/docs/foundry/data-integration/foundry-provided-drivers/#oauth-20-authentication">OAuth 2.0 guidance for Palantir-provided drivers</a> to configure and authorize the connection.</p>
+<!-- END GENERATED:oauth -->
+
+<!-- BEGIN GENERATED:table-exports -->
+
+<h2>Table exports</h2>
+<p>This connector supports table exports. Learn how to <a href="https://www.palantir.com/docs/foundry/data-connection/export-overview/#table-exports">set up a table export</a>.</p>
+<!-- END GENERATED:table-exports -->
+
+<h2>Use GitHub sources in code</h2>
+<p>To create or update records in GitHub, or to use any part of the <a href="https://docs.github.com/en/rest">GitHub REST API â</a> beyond bulk reads, call the API from an <a href="https://www.palantir.com/docs/foundry/data-connection/external-transforms/">external transform</a> or <a href="https://www.palantir.com/docs/foundry/data-connection/external-functions/">external function</a>. Reuse your existing GitHub source, authenticating with a short-lived (roughly one hour time-to-live) GitHub App installation token minted in code. No second source is required.</p>
+<p>Next, import the source into your <a href="https://www.palantir.com/docs/foundry/data-connection/external-transforms/#prerequisite-import-a-source-into-code">external transforms</a> or <a href="https://www.palantir.com/docs/foundry/functions/getting-started/">functions</a> repository. The source does not expose a built-in HTTPS client (<code>get_https_connection().get_client()</code>), but it inherits its <code>api.github.com</code> egress, which is covered by the <a href="#networking">network egress policies above</a>. You can call the GitHub REST API directly with <a href="https://requests.readthedocs.io/"><code>requests</code> â</a> in Python or the source's <code>fetch</code> in TypeScript.</p>
+<h3>Read GitHub issues</h3>
+<p>The examples below read GitHub issues using Python or TypeScript through a GitHub App.</p>
+<p>:::callout{theme="neutral"}
+This workflow is not supported by an OAuth app, which requires a personal access token.
+:::</p>
+<p>First, navigate to your source's <strong>Connection details</strong> page in Data Connection and add the GitHub App's private key by selecting <strong>Add property &gt; New encrypted property</strong>. Name the property <code>Other</code>, enabling it to be read back with <code>get_secret("Other")</code>.</p>
+<p>Next, set <code>APP_ID</code> in the Python examples to the GitHub App ID or client ID. This identifier is public and does not need secret storage. The TypeScript examples instead read it from the source's <code>OAuthClientId</code> property.</p>
+<p>:::callout{theme="warning" title="Function preview failures"}
+<a href="https://www.palantir.com/docs/foundry/functions/getting-started/#test-in-live-preview">Live preview</a> cannot bind the <a href="#configuration">source</a> to the function, so these examples <em>always</em> error during preview. Instead, deploy the function and run it from a Workshop application, or via any serverless execution, to confirm it works.
+:::</p>
+<p>```python tab="Python pipeline"
+import time</p>
+<p>import jwt
+import pandas as pd
+import requests
+from transforms.api import LightweightOutput, Output, transform
+from transforms.external.systems import ResolvedSource, Source, external_systems</p>
+<p>API = "https://api.github.com"
+APP_ID = "<github_app_id_or_client_id>"
+OWNER = "<owner>"
+REPOSITORY = "<repository>"</p>
+<p>def github_headers(github: ResolvedSource) -&gt; dict[str, str]:
+    # 1. Exchange a signed app JWT for an installation token.
+    now = int(time.time())
+    app_jwt = jwt.encode(
+        {"iat": now - 60, "exp": now + 540, "iss": APP_ID},
+        github.get_secret("Other"),
+        algorithm="RS256",
+    )
+    headers = {
+        "Accept": "application/vnd.github+json",
+        "X-GitHub-Api-Version": "2022-11-28",
+        "Authorization": f"Bearer {app_jwt}",
+    }
+    installation = requests.get(
+        f"{API}/repos/{OWNER}/{REPOSITORY}/installation", headers=headers, timeout=30
+    )
+    installation.raise_for_status()
+    token = requests.post(
+        f"{API}/app/installations/{installation.json()['id']}/access_tokens",
+        headers=headers,
+        timeout=30,
+    )
+    token.raise_for_status()
+    return {**headers, "Authorization": f"Bearer {token.json()['token']}"}</p>
+<p>@external_systems(github=Source("<source_rid>"))
+@transform.using(output=Output("<issues_output_dataset_rid>"))
+def get_issues(github: ResolvedSource, output: LightweightOutput) -&gt; None:
+    # 2. Read up to 100 issues.
+    response = requests.get(
+        f"{API}/repos/{OWNER}/{REPOSITORY}/issues",
+        headers=github_headers(github),
+        params={"state": "all", "per_page": 100},
+        timeout=30,
+    )
+    response.raise_for_status()
+    # 3. Write the selected fields to the output dataset.
+    output.write_table(pd.DataFrame([{
+        "number": issue["number"],
+        "title": issue["title"],
+        "body": issue["body"],
+        "state": issue["state"],
+    } for issue in response.json()]))</p>
+<pre><code>
+```python tab=&quot;Python function&quot;
+import time
+from dataclasses import dataclass
+
+import jwt
+import requests
+from functions.api import function
+from functions.sources import get_source
+
+API = &quot;https://api.github.com&quot;
+APP_ID = &quot;&lt;github_app_id_or_client_id&gt;&quot;
+SOURCE_ALIAS = &quot;&lt;source_alias&gt;&quot;
+
+
+@dataclass
+class GitHubIssue:
+    number: int
+    title: str
+    body: str | None
+    state: str
+
+
+def github_headers(github, owner: str, repository: str) -&gt; dict[str, str]:
+    # 1. Exchange a signed app JWT for an installation token.
+    now = int(time.time())
+    app_jwt = jwt.encode(
+        {&quot;iat&quot;: now - 60, &quot;exp&quot;: now + 540, &quot;iss&quot;: APP_ID},
+        github.get_secret(&quot;Other&quot;),
+        algorithm=&quot;RS256&quot;,
+    )
+    headers = {
+        &quot;Accept&quot;: &quot;application/vnd.github+json&quot;,
+        &quot;X-GitHub-Api-Version&quot;: &quot;2022-11-28&quot;,
+        &quot;Authorization&quot;: f&quot;Bearer {app_jwt}&quot;,
+    }
+    installation = requests.get(
+        f&quot;{API}/repos/{owner}/{repository}/installation&quot;, headers=headers, timeout=30
+    )
+    installation.raise_for_status()
+    token = requests.post(
+        f&quot;{API}/app/installations/{installation.json()['id']}/access_tokens&quot;,
+        headers=headers,
+        timeout=30,
+    )
+    token.raise_for_status()
+    return {**headers, &quot;Authorization&quot;: f&quot;Bearer {token.json()['token']}&quot;}
+
+
+@function(sources=[&quot;&lt;source_alias&gt;&quot;])
+def get_issues(owner: str, repository: str) -&gt; list[GitHubIssue]:
+    # 2. Read up to 100 issues.
+    response = requests.get(
+        f&quot;{API}/repos/{owner}/{repository}/issues&quot;,
+        headers=github_headers(get_source(SOURCE_ALIAS), owner, repository),
+        params={&quot;state&quot;: &quot;all&quot;, &quot;per_page&quot;: 100},
+        timeout=30,
+    )
+    response.raise_for_status()
+    # 3. Return the selected fields.
+    return [GitHubIssue(issue[&quot;number&quot;], issue[&quot;title&quot;], issue[&quot;body&quot;], issue[&quot;state&quot;])
+            for issue in response.json()]
+</code></pre>
+<p>```typescript tab="TypeScript v1 function"
+import { ExternalSystems, Function, Integer, UserFacingError } from "@foundry/functions-api";
+import { GitHubSource } from "@foundry/external-systems/sources";
+import * as jwt from "jsonwebtoken";</p>
+<p>const API = "https://api.github.com";</p>
+<p>export interface GitHubIssue {
+    number: Integer;
+    title: string;
+    body?: string;
+    state: string;
+}</p>
+<p>async function githubHeaders(owner: string, repository: string): Promise<Record\<string, string>> {
+    // 1. Exchange a signed app JWT for an installation token.
+    const now = Math.floor(Date.now() / 1000);
+    const appJwt = jwt.sign(
+        { iat: now - 60, exp: now + 540, iss: GitHubSource.getSecret("OAuthClientId") },
+        GitHubSource.getSecret("Other"),
+        { algorithm: "RS256" },
+    );
+    const headers = {
+        Accept: "application/vnd.github+json",
+        "X-GitHub-Api-Version": "2022-11-28",
+        Authorization: <code>Bearer ${appJwt}</code>,
+    };
+    const installation = await GitHubSource.fetch(
+        <code>${API}/repos/${owner}/${repository}/installation</code>, { method: "GET", headers }
+    );
+    if (!installation.ok) {
+        throw new UserFacingError(<code>GitHub installation lookup returned HTTP ${installation.status}.</code>);
+    }
+    const { id } = await installation.json() as { id: number };
+    const tokenResponse = await GitHubSource.fetch(
+        <code>${API}/app/installations/${id}/access_tokens</code>, { method: "POST", headers }
+    );
+    if (!tokenResponse.ok) {
+        throw new UserFacingError(<code>GitHub installation-token request returned HTTP ${tokenResponse.status}.</code>);
+    }
+    const { token } = await tokenResponse.json() as { token: string };
+    return { ...headers, Authorization: <code>Bearer ${token}</code> };
+}</p>
+<p>export class GitHubFunctions {
+    @ExternalSystems({ sources: [GitHubSource] })
+    @Function()
+    public async getIssues(owner: string, repository: string): Promise<GitHubIssue[]> {
+        // 2. Read up to 100 issues.
+        const response = await GitHubSource.fetch(
+            <code>${API}/repos/${owner}/${repository}/issues?state=all&amp;per_page=100</code>,
+            { method: "GET", headers: await githubHeaders(owner, repository) },
+        );
+        if (!response.ok) {
+            throw new UserFacingError(<code>GitHub returned HTTP ${response.status}.</code>);
+        }
+        // 3. Return the selected fields.
+        const issues = await response.json() as Array&lt;{
+            number: number; title: string; body: string | null; state: string;
+        }&gt;;
+        return issues.map(({ number, title, body, state }) =&gt; ({
+            number, title, body: body ?? undefined, state,
+        }));
+    }
+}</p>
+<pre><code>
+```typescript tab=&quot;TypeScript v2 function&quot;
+import { Integer, UserFacingError } from &quot;@osdk/functions&quot;;
+import { getFetch, getSource } from &quot;@palantir/functions-sources&quot;;
+import jwt from &quot;jsonwebtoken&quot;;
+
+const API = &quot;https://api.github.com&quot;;
+const SOURCE_RID = &quot;&lt;source_rid&gt;&quot;;
+export const config = { sources: [SOURCE_RID] };
+
+export interface GitHubIssue {
+    number: Integer;
+    title: string;
+    body?: string;
+    state: string;
+}
+
+async function githubClient(owner: string, repository: string) {
+    // 1. Exchange a signed app JWT for an installation token.
+    const source = await getSource({ rid: SOURCE_RID });
+    const request = await getFetch(source);
+    const appId = source.secrets.OAuthClientId;
+    const privateKey = source.secrets.Other;
+    if (!appId || !privateKey) {
+        throw new UserFacingError(&quot;The GitHub source credentials are not configured.&quot;);
+    }
+    const now = Math.floor(Date.now() / 1000);
+    const appJwt = jwt.sign(
+        { iat: now - 60, exp: now + 540, iss: appId }, privateKey, { algorithm: &quot;RS256&quot; }
+    );
+    const headers = {
+        Accept: &quot;application/vnd.github+json&quot;,
+        &quot;X-GitHub-Api-Version&quot;: &quot;2022-11-28&quot;,
+        Authorization: `Bearer ${appJwt}`,
+    };
+    const installation = await request(
+        `${API}/repos/${owner}/${repository}/installation`, { method: &quot;GET&quot;, headers }
+    );
+    if (!installation.ok) {
+        throw new UserFacingError(`GitHub installation lookup returned HTTP ${installation.status}.`);
+    }
+    const { id } = await installation.json() as { id: number };
+    const tokenResponse = await request(
+        `${API}/app/installations/${id}/access_tokens`, { method: &quot;POST&quot;, headers }
+    );
+    if (!tokenResponse.ok) {
+        throw new UserFacingError(`GitHub installation-token request returned HTTP ${tokenResponse.status}.`);
+    }
+    const { token } = await tokenResponse.json() as { token: string };
+    return { request, headers: { ...headers, Authorization: `Bearer ${token}` } };
+}
+
+export default async function getIssues(owner: string, repository: string): Promise&lt;GitHubIssue[]&gt; {
+    const { request, headers } = await githubClient(owner, repository);
+    // 2. Read up to 100 issues.
+    const response = await request(
+        `${API}/repos/${owner}/${repository}/issues?state=all&amp;per_page=100`,
+        { method: &quot;GET&quot;, headers },
+    );
+    if (!response.ok) {
+        throw new UserFacingError(`GitHub returned HTTP ${response.status}.`);
+    }
+    // 3. Return the selected fields.
+    const issues = await response.json() as Array&lt;{
+        number: number; title: string; body: string | null; state: string;
+    }&gt;;
+    return issues.map(({ number, title, body, state }) =&gt; ({
+        number, title, body: body ?? undefined, state,
+    }));
+}
+</code></pre>
+<h3>Update GitHub issues</h3>
+<p>The examples below update the body of a GitHub issue through the same GitHub App authentication flow as in the <a href="#read-github-issues">examples for reading GitHub issues</a>.</p>
+<p>```python tab="Python pipeline"
+import time</p>
+<p>import jwt
+import pandas as pd
+import requests
+from transforms.api import LightweightOutput, Output, transform
+from transforms.external.systems import ResolvedSource, Source, external_systems</p>
+<p>API = "https://api.github.com"
+APP_ID = "<github_app_id_or_client_id>"
+OWNER = "<owner>"
+REPOSITORY = "<repository>"
+ISSUE_NUMBER = "<issue_number>"
+UPDATED_BODY = "<updated_issue_body>"</p>
+<p>def github_headers(github: ResolvedSource) -&gt; dict[str, str]:
+    # 1. Exchange a signed app JWT for an installation token.
+    now = int(time.time())
+    app_jwt = jwt.encode(
+        {"iat": now - 60, "exp": now + 540, "iss": APP_ID},
+        github.get_secret("Other"),
+        algorithm="RS256",
+    )
+    headers = {
+        "Accept": "application/vnd.github+json",
+        "X-GitHub-Api-Version": "2022-11-28",
+        "Authorization": f"Bearer {app_jwt}",
+    }
+    installation = requests.get(
+        f"{API}/repos/{OWNER}/{REPOSITORY}/installation", headers=headers, timeout=30
+    )
+    installation.raise_for_status()
+    token = requests.post(
+        f"{API}/app/installations/{installation.json()['id']}/access_tokens",
+        headers=headers,
+        timeout=30,
+    )
+    token.raise_for_status()
+    return {**headers, "Authorization": f"Bearer {token.json()['token']}"}</p>
+<p>@external_systems(github=Source("<source_rid>"))
+@transform.using(output=Output("<update_output_dataset_rid>"))
+def patch_issue(github: ResolvedSource, output: LightweightOutput) -&gt; None:
+    # 2. Update the issue body.
+    response = requests.patch(
+        f"{API}/repos/{OWNER}/{REPOSITORY}/issues/{ISSUE_NUMBER}",
+        headers=github_headers(github),
+        json={"body": UPDATED_BODY},
+        timeout=30,
+    )
+    response.raise_for_status()
+    issue = response.json()
+    # 3. Write the GitHub response to the output dataset.
+    output.write_table(pd.DataFrame([{
+        "issue_number": issue["number"],
+        "status_code": response.status_code,
+        "body": issue["body"],
+        "state": issue["state"],
+        "updated_at": issue["updated_at"],
+        "html_url": issue["html_url"],
+    }]))</p>
+<pre><code>
+```python tab=&quot;Python function&quot;
+import time
+from dataclasses import dataclass
+
+import jwt
+import requests
+from functions.api import function
+from functions.sources import get_source
+
+API = &quot;https://api.github.com&quot;
+APP_ID = &quot;&lt;github_app_id_or_client_id&gt;&quot;
+SOURCE_ALIAS = &quot;&lt;source_alias&gt;&quot;
+
+
+@dataclass
+class GitHubIssueUpdate:
+    issue_number: int
+    status_code: int
+    body: str | None
+    state: str
+    updated_at: str
+    html_url: str
+
+
+def github_headers(github, owner: str, repository: str) -&gt; dict[str, str]:
+    # 1. Exchange a signed app JWT for an installation token.
+    now = int(time.time())
+    app_jwt = jwt.encode(
+        {&quot;iat&quot;: now - 60, &quot;exp&quot;: now + 540, &quot;iss&quot;: APP_ID},
+        github.get_secret(&quot;Other&quot;),
+        algorithm=&quot;RS256&quot;,
+    )
+    headers = {
+        &quot;Accept&quot;: &quot;application/vnd.github+json&quot;,
+        &quot;X-GitHub-Api-Version&quot;: &quot;2022-11-28&quot;,
+        &quot;Authorization&quot;: f&quot;Bearer {app_jwt}&quot;,
+    }
+    installation = requests.get(
+        f&quot;{API}/repos/{owner}/{repository}/installation&quot;, headers=headers, timeout=30
+    )
+    installation.raise_for_status()
+    token = requests.post(
+        f&quot;{API}/app/installations/{installation.json()['id']}/access_tokens&quot;,
+        headers=headers,
+        timeout=30,
+    )
+    token.raise_for_status()
+    return {**headers, &quot;Authorization&quot;: f&quot;Bearer {token.json()['token']}&quot;}
+
+
+@function(sources=[&quot;&lt;source_alias&gt;&quot;])
+def patch_issue(
+    owner: str, repository: str, issue_number: int, body: str
+) -&gt; GitHubIssueUpdate:
+    # 2. Update the issue body.
+    response = requests.patch(
+        f&quot;{API}/repos/{owner}/{repository}/issues/{issue_number}&quot;,
+        headers=github_headers(get_source(SOURCE_ALIAS), owner, repository),
+        json={&quot;body&quot;: body},
+        timeout=30,
+    )
+    response.raise_for_status()
+    issue = response.json()
+    # 3. Return the GitHub response.
+    return GitHubIssueUpdate(
+        issue[&quot;number&quot;], response.status_code, issue[&quot;body&quot;], issue[&quot;state&quot;],
+        issue[&quot;updated_at&quot;], issue[&quot;html_url&quot;],
+    )
+</code></pre>
+<p>```typescript tab="TypeScript v1 function"
+import { ExternalSystems, Function, Integer, UserFacingError } from "@foundry/functions-api";
+import { GitHubSource } from "@foundry/external-systems/sources";
+import * as jwt from "jsonwebtoken";</p>
+<p>const API = "https://api.github.com";</p>
+<p>export interface GitHubIssueUpdate {
+    issueNumber: Integer;
+    statusCode: Integer;
+    body?: string;
+    state: string;
+    updatedAt: string;
+    htmlUrl: string;
+}</p>
+<p>async function githubHeaders(owner: string, repository: string): Promise<Record\<string, string>> {
+    // 1. Exchange a signed app JWT for an installation token.
+    const now = Math.floor(Date.now() / 1000);
+    const appJwt = jwt.sign(
+        { iat: now - 60, exp: now + 540, iss: GitHubSource.getSecret("OAuthClientId") },
+        GitHubSource.getSecret("Other"),
+        { algorithm: "RS256" },
+    );
+    const headers = {
+        Accept: "application/vnd.github+json",
+        "X-GitHub-Api-Version": "2022-11-28",
+        Authorization: <code>Bearer ${appJwt}</code>,
+    };
+    const installation = await GitHubSource.fetch(
+        <code>${API}/repos/${owner}/${repository}/installation</code>, { method: "GET", headers }
+    );
+    if (!installation.ok) {
+        throw new UserFacingError(<code>GitHub installation lookup returned HTTP ${installation.status}.</code>);
+    }
+    const { id } = await installation.json() as { id: number };
+    const tokenResponse = await GitHubSource.fetch(
+        <code>${API}/app/installations/${id}/access_tokens</code>, { method: "POST", headers }
+    );
+    if (!tokenResponse.ok) {
+        throw new UserFacingError(<code>GitHub installation-token request returned HTTP ${tokenResponse.status}.</code>);
+    }
+    const { token } = await tokenResponse.json() as { token: string };
+    return { ...headers, Authorization: <code>Bearer ${token}</code> };
+}</p>
+<p>export class GitHubFunctions {
+    @ExternalSystems({ sources: [GitHubSource] })
+    @Function()
+    public async patchIssue(
+        owner: string, repository: string, issueNumber: Integer, body: string
+    ): Promise<GitHubIssueUpdate> {
+        // 2. Update the issue body.
+        const response = await GitHubSource.fetch(
+            <code>${API}/repos/${owner}/${repository}/issues/${issueNumber}</code>,
+            {
+                method: "PATCH",
+                headers: { ...await githubHeaders(owner, repository), "Content-Type": "application/json" },
+                body: JSON.stringify({ body }),
+            },
+        );
+        if (!response.ok) {
+            throw new UserFacingError(<code>GitHub returned HTTP ${response.status}.</code>);
+        }
+        // 3. Return the GitHub response.
+        const issue = await response.json() as {
+            number: number; body: string | null; state: string; updated_at: string; html_url: string;
+        };
+        return {
+            issueNumber: issue.number,
+            statusCode: response.status,
+            body: issue.body ?? undefined,
+            state: issue.state,
+            updatedAt: issue.updated_at,
+            htmlUrl: issue.html_url,
+        };
+    }
+}</p>
+<pre><code>
+```typescript tab=&quot;TypeScript v2 function&quot;
+import { Integer, UserFacingError } from &quot;@osdk/functions&quot;;
+import { getFetch, getSource } from &quot;@palantir/functions-sources&quot;;
+import jwt from &quot;jsonwebtoken&quot;;
+
+const API = &quot;https://api.github.com&quot;;
+const SOURCE_RID = &quot;&lt;source_rid&gt;&quot;;
+export const config = { sources: [SOURCE_RID] };
+
+export interface GitHubIssueUpdate {
+    issueNumber: Integer;
+    statusCode: Integer;
+    body?: string;
+    state: string;
+    updatedAt: string;
+    htmlUrl: string;
+}
+
+async function githubClient(owner: string, repository: string) {
+    // 1. Exchange a signed app JWT for an installation token.
+    const source = await getSource({ rid: SOURCE_RID });
+    const request = await getFetch(source);
+    const appId = source.secrets.OAuthClientId;
+    const privateKey = source.secrets.Other;
+    if (!appId || !privateKey) {
+        throw new UserFacingError(&quot;The GitHub source credentials are not configured.&quot;);
+    }
+    const now = Math.floor(Date.now() / 1000);
+    const appJwt = jwt.sign(
+        { iat: now - 60, exp: now + 540, iss: appId }, privateKey, { algorithm: &quot;RS256&quot; }
+    );
+    const headers = {
+        Accept: &quot;application/vnd.github+json&quot;,
+        &quot;X-GitHub-Api-Version&quot;: &quot;2022-11-28&quot;,
+        Authorization: `Bearer ${appJwt}`,
+    };
+    const installation = await request(
+        `${API}/repos/${owner}/${repository}/installation`, { method: &quot;GET&quot;, headers }
+    );
+    if (!installation.ok) {
+        throw new UserFacingError(`GitHub installation lookup returned HTTP ${installation.status}.`);
+    }
+    const { id } = await installation.json() as { id: number };
+    const tokenResponse = await request(
+        `${API}/app/installations/${id}/access_tokens`, { method: &quot;POST&quot;, headers }
+    );
+    if (!tokenResponse.ok) {
+        throw new UserFacingError(`GitHub installation-token request returned HTTP ${tokenResponse.status}.`);
+    }
+    const { token } = await tokenResponse.json() as { token: string };
+    return { request, headers: { ...headers, Authorization: `Bearer ${token}` } };
+}
+
+export default async function patchIssue(
+    owner: string, repository: string, issueNumber: Integer, body: string
+): Promise&lt;GitHubIssueUpdate&gt; {
+    const { request, headers } = await githubClient(owner, repository);
+    // 2. Update the issue body.
+    const response = await request(
+        `${API}/repos/${owner}/${repository}/issues/${issueNumber}`,
+        {
+            method: &quot;PATCH&quot;,
+            headers: { ...headers, &quot;Content-Type&quot;: &quot;application/json&quot; },
+            body: JSON.stringify({ body }),
+        },
+    );
+    if (!response.ok) {
+        throw new UserFacingError(`GitHub returned HTTP ${response.status}.`);
+    }
+    // 3. Return the GitHub response.
+    const issue = await response.json() as {
+        number: number; body: string | null; state: string; updated_at: string; html_url: string;
+    };
+    return {
+        issueNumber: issue.number,
+        statusCode: response.status,
+        body: issue.body ?? undefined,
+        state: issue.state,
+        updatedAt: issue.updated_at,
+        htmlUrl: issue.html_url,
+    };
+}
+</code></pre>
+</body>
+</html>

@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Add Foundry Rules to a Marketplace product</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Add Foundry Rules to a Marketplace product</h1>
+<p>Use <a href="https://www.palantir.com/docs/foundry/devops/overview/">Foundry DevOps</a> to include your Foundry Rules workflow in <a href="https://www.palantir.com/docs/foundry/devops/core-concepts/#product">Marketplace products</a> and enable other users to install and reuse them. <a href="https://www.palantir.com/docs/foundry/foundry-devops/create-products/">Learn how to create your first product</a>.</p>
+<h2>Supported features</h2>
+<p>All Foundry Rules features are supported, with the exception of the authored rules themselves. Because <a href="https://www.palantir.com/docs/foundry/object-link-types/marketplace-ontology-types/#unsupported-features">objects cannot be packaged with Marketplace</a>, the <code>Rule</code> and <code>Proposal</code> objects and the rule logic they contain are not included in a product.</p>
+<h2>Add Foundry Rules workflows to products</h2>
+<p>To add a Foundry Rules workflow to a product, first <a href="https://www.palantir.com/docs/foundry/foundry-devops/create-products/">create a product</a> then select the <strong>Workshop Application</strong> content type, followed by your <a href="https://www.palantir.com/docs/foundry/foundry-rules/author-and-run-a-rule/">Foundry Rules authoring application</a>, as below.</p>
+<p><img alt="Adding your Foundry Rules rules authoring application to your product" src="../../_resources/foundry/foundry-rules/add-fr-workfhop.png" /></p>
+<p>After adding your Workshop application, go to the <strong>Foundry rules workflows</strong> section in your product's inputs and include your workflow.</p>
+<p><img alt="Adding the Foundry Rules workflow application to your product in the inputs section" src="../../_resources/foundry/foundry-rules/including-fr-workflow.png" /></p>
+<p>Once your workflow has been included, additional object type and action types will be included as inputs to your product. You will likely want to include both the <code>Rule</code> and <code>Proposal</code> object types, along with all of the generated action types to your product.</p>
+<p><img alt="Adding the Rule and Proposal object types to your product" src="../../_resources/foundry/foundry-rules/fr-add-object-types.png" />
+<img alt="Adding the Foundry Rules generated action types to your product" src="../../_resources/foundry/foundry-rules/fr-add-action-types.png" /></p>
+<p>:::callout{theme="neutral"}
+When setting your product's installation mode to <code>Production</code>, be sure to enable <code>Only allow edits via actions</code> for the <code>Rule</code> and <code>Proposal</code> object types in the <code>Datasources</code> tab of the Ontology Manager application. Without this step, users will encounter an <code>Actions:PermissionDenied</code> error when attempting to create a proposal.
+:::</p>
+</body>
+</html>

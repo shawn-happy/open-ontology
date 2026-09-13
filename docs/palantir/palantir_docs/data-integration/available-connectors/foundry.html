@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Foundry</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Foundry</h1>
+<p>The Foundry connector enables data sharing from one instance of Foundry to another. This workflow requires access to both Foundry instances, and designates one instance as the "source" and the other as the "destination." Throughout the data connection process, users will perform most functions on the destination instance.</p>
+<p>Note that this connector is not currently compatible with <a href="https://www.palantir.com/docs/foundry/data-integration/views/">views</a> as inputs, nor it is compatible with <a href="https://www.palantir.com/docs/foundry/security/restricted-views/">restricted views</a>. Datasets ingested by the destination instance must first be materialized within their source instance.</p>
+<p>For example, if a use case requires the transfer of data from <code>red.palantirfoundry.com</code> to <code>blue.palantirfoundry.com</code>, most of the setup and subsequent interactions will take place in the destination instance <code>blue.palantirfoundry.com</code>, which is where the transferred data will ultimately land. The workflows discussed below read data via ingest, rather than write data via export.</p>
+<h2>Supported capabilities</h2>
+<table>
+<thead>
+<tr>
+<th>Capability</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Bulk import</td>
+<td>ð¢ Generally available</td>
+</tr>
+<tr>
+<td>Streaming ingests</td>
+<td>ð¢ Generally available</td>
+</tr>
+<tr>
+<td>Incremental ingests</td>
+<td>ð¢ Generally available</td>
+</tr>
+<tr>
+<td>Exploration</td>
+<td>Coming soon</td>
+</tr>
+<tr>
+<td>Virtual tables</td>
+<td>ð¡ Beta</td>
+</tr>
+<tr>
+<td>Compute pushdown</td>
+<td>Not available</td>
+</tr>
+<tr>
+<td>Table exports</td>
+<td>Not available</td>
+</tr>
+<tr>
+<td>Export tasks</td>
+<td>Not available</td>
+</tr>
+</tbody>
+</table>
+<h2>Setup</h2>
+<ol>
+<li>
+<p>Open the <a href="https://www.palantir.com/docs/foundry/data-connection/overview/">Data Connection</a> application and select <strong>+ New Source</strong> in the upper-right corner of the screen.</p>
+</li>
+<li>
+<p>Select <strong>Foundry</strong> from the available connector types.</p>
+</li>
+<li>
+<p>Choose to use a <a href="https://www.palantir.com/docs/foundry/data-connection/set-up-direct-connection/">direct connection</a> over the Internet or to connect <a href="https://www.palantir.com/docs/foundry/data-connection/set-up-agent/">through an intermediary agent</a>.</p>
+</li>
+<li>
+<p>Input the <code>hostname</code> of your source Foundry instance. In this case, <code>blue.palantirfoundry.com</code> will pull data from <code>red.palantirfoundry.com</code>, so <code>red.palantirfoundry.com</code> is the source instance.</p>
+</li>
+<li>
+<p>Choose a means of authentication.</p>
+</li>
+<li>
+<p>Create an egress policy for the source instance if you are using a direct connection. To ingest data from <code>red.palantirfoundry.com</code> to <code>blue.palantirfoundry.com</code>, create an egress policy for the URL <code>https://red.palantirfoundry.com</code> on <strong>port 443</strong>. Unlike traditional data connections, you must whitelist all IP addresses within the source instance. This is done through Control Panel by selecting the option to <strong>Configure network ingress</strong></p>
+</li>
+<li>
+<p>Follow the instructions below to configure ingress IP allowlisting for the source instance by adding the destination instance's IP addresses to the source instance's <strong>Network ingress</strong> extension in Control Panel:</p>
+</li>
+<li>Navigate to the <strong>Network egress</strong> Control Panel extension in the destination instance to identify the appropriate IP addresses.</li>
+<li>Launch the <strong>Network ingress</strong> Control Panel extension in the source instance.</li>
+<li>Review the existing documentation to <a href="https://www.palantir.com/docs/foundry/administration/configure-ingress/">configure network ingress</a>.</li>
+</ol>
+<p>:::callout{theme="neutral"}
+If you are creating an <a href="https://www.palantir.com/docs/foundry/data-connection/set-up-agent/">agent-based connection</a>, then you must provide the appropriate IP addresses based on your agent's host. Additionally, your agent must use Java 21, at a minimum, as agent-based connections using the Foundry connector are not compatible with prior versions of Java. <a href="https://www.palantir.com/docs/foundry/administration/configure-egress/#which-ips-do-connections-from-foundry-come-from">Learn more about identifying IPs when configuring network egress</a>.
+:::</p>
+<p>:::callout{theme="neutral"}
+Contact Palantir Support if you are unable to access the <strong>Network ingress</strong> Control Panel extension.
+:::</p>
+<p>Learn more about <a href="https://www.palantir.com/docs/foundry/data-connection/set-up-source/">setting up a connector</a> in Foundry.</p>
+<h2>Authentication</h2>
+<p>The Foundry connector supports the following authentication methods:</p>
+<p><strong>Client credentials (production):</strong> For long-lived connections, we only allow client credentials. To create a client credential follow the below steps:</p>
+<ol>
+<li>Navigate to Developer Console with the following link:</li>
+</ol>
+<pre><code class="language-url">https://&lt;SOURCE_FOUNDRY_INSTANCE&gt;.palantirfoundry.com/workspace/developer-console/
+</code></pre>
+<ol start="2">
+<li>Select <strong>+ New application</strong> and provide a name.</li>
+<li>Select <strong>No, I will not use an Ontology SDK</strong> and be sure to <strong>enable</strong> your application after selecting the organization it belongs to.</li>
+<li>Select <strong>Backend service</strong>.</li>
+<li>Provide your application with appropriate permissions. You can choose <strong>Application permissions</strong> or <strong>User permissions</strong> but, you should leave application permissions checked by default.</li>
+<li>You will be shown a client secret that you must copy to your clipboard then paste into the destination Foundry instance.</li>
+<li>After saving, navigate to <strong>OAuth &amp; restrictions</strong> in the left navigation panel.</li>
+<li>Copy your client ID.</li>
+</ol>
+<p>This process will create a <strong>Service user</strong> for which you can provide or deny access to assets in Foundry. To check if this service user has access to a dataset or a project, you can use the <strong>Check access</strong> feature for the given asset.</p>
+<p><strong>Personal access token (temporary):</strong> For security purposes, we do not allow tokens to be used in production use cases. Ingests will fail if a sync is run while relying on a token with a life span greater than 36 hours.</p>
+<p>Authentication credentials are input in the destination instance. In the source instance, you must create a token that will afford the destination instance the ability to read data. To do so, navigate to the following URL:</p>
+<pre><code class="language-url">https://&lt;SOURCE_FOUNDRY_INSTANCE&gt;.palantirfoundry.com/workspace/settings/tokens
+</code></pre>
+<p>Then, select <strong>+ Create token</strong> in the upper-right corner. At this step you can name your token and choose its lifespan. Then, copy your token and navigate to the destination Foundry instance.</p>
+<p>The provided credentials must have the following necessary privileges:</p>
+<ul>
+<li>Browse and read datasets in the source Foundry instance</li>
+<li>Read from specific projects and datasets being synced</li>
+</ul>
+<h2>Networking</h2>
+<p>The Foundry connector requires network access to the destination Foundry instance on port 443 (HTTPS). The destination instance needs an egress policy that corresponds to the URL of the source instance.</p>
+<p>:::callout{theme="neutral"}
+The data flow is pull-based: the destination enrollment initiates the network connection to the source enrollment and pulls data from it. This means the destination instance requires an egress policy to reach the source instance, and the source instance must allowlist the destination instance's IP addresses for ingress.
+:::</p>
+<p>To enable direct connections from a Foundry instance to another Foundry instance, the appropriate <a href="https://www.palantir.com/docs/foundry/administration/configure-egress/">egress policies</a> must be added when setting up the source in the <a href="https://www.palantir.com/docs/foundry/data-connection/overview/">Data Connection application</a>.</p>
+<p>Egress policies are not needed for connection using an agent.</p>
+<h2>Sync data from Foundry</h2>
+<p>To set up a Foundry-to-Foundry sync, select <strong>Explore and create syncs</strong> in the upper-right of the source <strong>Overview</strong> screen. Browse the available projects and datasets in the source Foundry instance, then select the datasets you want to sync. When ready, select <strong>Create sync for x datasets</strong>.</p>
+<h3>Permissions and markings</h3>
+<p>The authenticating user (whether using client credentials or a personal access token) can sync any dataset for which they have <strong>view permissions</strong> on the source instance. The user does not need to be the owner of the dataset.</p>
+<p>:::callout{theme="warning"}
+Because markings do not transfer between Foundry instances, ensure you have a process in place to apply appropriate security controls to synced data on the destination instance, particularly when moving sensitive or classified data.
+:::</p>
+<h3>Incremental syncs</h3>
+<p>Incremental, or Append, syncs maintain state about the most recent sync and only ingest new or changed data from the target dataset. There are two ways of establishing these ingests with the Foundry Connector.</p>
+<h3>Incremental option 1: Ingest all data, then updates only</h3>
+<p>The "initial incremental state" can be set to an arbitrarily distant date, like January 1, 1970. On the first run of the ingest, all data will be extracted. Starting from the second run onwards, each ingest will only extract the newest data available.</p>
+<h3>Incremental option 2: Ingest all data after a specific date</h3>
+<p>The "initial incremental state" can be set to a date of your choosing, like January 1, 2024. Similar to the above option, the first run of the ingest will extract all data. Then subsequent ingests will only extract the newest data available. This is a more filtered option for use cases where the author of the ingest knows that they want to exclude data that was written in the external source system prior to a particular date.</p>
+<h2>Create streaming syncs</h2>
+<p>You can ingest a stream from one Foundry enrollment to another. The dataset from the source enrollment must be a stream. A sync can be established with a dataset RID and a branch name. After specifying a schema and running for the first time, a new dataset will be created in the destination enrollment.</p>
+<h3>Streaming offset options</h3>
+<p>The sync can be configured to ingest only newly created rows, or to start by ingesting all existing rows of the stream. The main trade-off to consider is that ingesting all historical rows can be expensive from a time and compute perspective if the streaming dataset is sufficiently large.</p>
+<h2>Virtual tables</h2>
+<p>:::callout{theme="warning"}
+Datasets are not supported with virtual tables. Only <a href="https://www.palantir.com/docs/foundry/iceberg/storage/">managed</a> <a href="https://www.palantir.com/docs/foundry/data-integration/iceberg-tables/">Iceberg tables</a> on the "source" Foundry instance can be virtualized.
+:::</p>
+<p>This section provides additional details around using <a href="https://www.palantir.com/docs/foundry/data-integration/virtual-tables/">virtual tables</a> with a Foundry source. This section is not applicable when syncing to Foundry datasets.</p>
+<p>The table below highlights the virtual table capabilities that are supported for Foundry.</p>
+<table>
+<thead>
+<tr>
+<th>Capability</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Bulk registration</td>
+<td>ð´ Not available</td>
+</tr>
+<tr>
+<td>Automatic registration</td>
+<td>ð´ Not available</td>
+</tr>
+<tr>
+<td>Table inputs</td>
+<td>ð¢ Generally available: tables in <a href="https://www.palantir.com/docs/foundry/code-repositories/overview/">Code Repositories</a>, <a href="https://www.palantir.com/docs/foundry/pipeline-builder/overview/">Pipeline Builder</a></td>
+</tr>
+<tr>
+<td>Table outputs</td>
+<td>ð¢ Generally available: tables in <a href="https://www.palantir.com/docs/foundry/code-repositories/overview/">Code Repositories</a>, <a href="https://www.palantir.com/docs/foundry/pipeline-builder/overview/">Pipeline Builder</a></td>
+</tr>
+<tr>
+<td>Incremental pipelines</td>
+<td>ð¢ Generally available</td>
+</tr>
+<tr>
+<td>Compute pushdown</td>
+<td>ð´ Not available</td>
+</tr>
+</tbody>
+</table>
+<p>Review the <a href="https://www.palantir.com/docs/foundry/data-integration/virtual-tables/#supported-foundry-workflows">virtual tables documentation</a> for details on the supported workflows where Foundry tables can be used as inputs or outputs.</p>
+<p>Ensure that the "destination" Foundry instance has network access to the "source" Foundry instance as well as the location of the bucket backing the Iceberg table. Verify that this bucket allows ingress from the "destination" Foundry instance.</p>
+<h2>Call the Foundry API from code</h2>
+<p>In addition to the Foundry-to-Foundry sync workflow above, a Python transform can call the Foundry API directly using the <a href="https://www.palantir.com/docs/foundry/platform-security-third-party/writing-oauth2-clients/#client-credentials-grant">OAuth2 client credentials grant</a>. Use this pattern when you need to invoke Foundry endpoints that are not exposed as syncs â for example, to enumerate project contents, trigger builds, or read from the Ontology API from within a transform.</p>
+<p>The overall setup (REST API source configuration, storing <code>client_id</code>/<code>client_secret</code> as additional secrets, and the generic token-request and pagination scaffolding) is the same as any other OAuth2 client credentials flow. Review the <a href="https://www.palantir.com/docs/foundry/available-connectors/rest-apis/#oauth-client-credentials-grant">OAuth Client Credentials grant example</a> on the REST API connector page for the generic pattern.</p>
+<p>The sections below cover the Foundry-specific details that differ from a third-party API.</p>
+<h3>Foundry token endpoint</h3>
+<p>Foundry's OAuth2 token endpoint is:</p>
+<pre><code>POST /multipass/api/oauth2/token
+</code></pre>
+<p>The endpoint is hosted on the Foundry instance you are calling. If the transform runs on the same instance it is calling, the <code>hostname</code> on the REST API source is that same instance; if it is a different instance, the source's <code>hostname</code> is that of the target instance and you must configure <a href="https://www.palantir.com/docs/foundry/administration/configure-egress/">egress policies</a> and <a href="https://www.palantir.com/docs/foundry/administration/configure-ingress/">ingress allowlisting</a> as described in <a href="#networking">Networking</a>.</p>
+<p>Learn more about the <a href="https://www.palantir.com/docs/foundry/platform-security-third-party/writing-oauth2-clients/#token-endpoint">token endpoint parameters</a>.</p>
+<h3>Foundry scopes</h3>
+<p>Every Foundry API endpoint documents the scope it requires â see the per-endpoint reference in the <a href="https://www.palantir.com/docs/foundry/api/general/overview/introduction/">API documentation</a>. Some common examples:</p>
+<table>
+<thead>
+<tr>
+<th>Scope</th>
+<th>Grants access to</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>api:datasets-read</code></td>
+<td>Read datasets</td>
+</tr>
+<tr>
+<td><code>api:datasets-write</code></td>
+<td>Write datasets</td>
+</tr>
+<tr>
+<td><code>api:ontologies-read</code></td>
+<td>Read Ontology objects and link types</td>
+</tr>
+</tbody>
+</table>
+<p>Request only the scopes your transform needs. Multiple scopes are separated by spaces, for example <code>api:datasets-read api:datasets-write</code>.</p>
+<h3>Create a client</h3>
+<p>The <code>client_id</code> and <code>client_secret</code> used in the token request come from a <a href="https://www.palantir.com/docs/foundry/platform-security-third-party/register-3pa/">third-party application</a> registered on the target Foundry instance. Follow the steps in <a href="#authentication">Authentication</a> above to create a backend service application and obtain the <code>client_id</code> and <code>client_secret</code>, then store them as <a href="https://www.palantir.com/docs/foundry/data-connection/external-transforms/#access-source-attributes-and-credentials">additional secrets</a> on your REST API source.</p>
+<p>The service user created for the client must be granted permissions on every project, dataset, or Ontology resource the transform needs to access.</p>
+<h3>Example: List project children</h3>
+<p>The following transform requests an access token against <code>/multipass/api/oauth2/token</code>, then uses the token to list the children of a project via the Foundry <code>/api/v2/filesystem/resources/{rid}/children</code> endpoint. For the generic token-request and pagination scaffolding this example reuses, see the <a href="https://www.palantir.com/docs/foundry/available-connectors/rest-apis/#oauth-client-credentials-grant">REST API OAuth Client Credentials grant example</a>.</p>
+<pre><code class="language-python">import logging
+
+import pandas as pd
+from transforms.api import Output, transform_pandas
+from transforms.external.systems import external_systems, Source, ResolvedSource
+
+logger = logging.getLogger(__name__)
+
+
+@external_systems(
+    foundry_api_source=Source(&quot;&lt;source_rid&gt;&quot;)
+)
+@transform_pandas(
+    Output(&quot;&lt;output_dataset_rid&gt;&quot;),
+)
+def compute(foundry_api_source: ResolvedSource) -&gt; pd.DataFrame:
+    base_url = foundry_api_source.get_https_connection().url
+    client = foundry_api_source.get_https_connection().get_client()
+
+    client_id = foundry_api_source.get_secret(&quot;additionalSecretClientId&quot;)
+    client_secret = foundry_api_source.get_secret(&quot;additionalSecretClientSecret&quot;)
+
+    token_response = client.post(
+        base_url + &quot;/multipass/api/oauth2/token&quot;,
+        data={
+            &quot;grant_type&quot;: &quot;client_credentials&quot;,
+            &quot;client_id&quot;: client_id,
+            &quot;client_secret&quot;: client_secret,
+            &quot;scope&quot;: &quot;api:datasets-read&quot;,
+        },
+        headers={&quot;Content-Type&quot;: &quot;application/x-www-form-urlencoded&quot;},
+    )
+    token_response.raise_for_status()
+    access_token = token_response.json()[&quot;access_token&quot;]
+
+    auth_headers = {&quot;Authorization&quot;: f&quot;Bearer {access_token}&quot;}
+
+    project_rid = &quot;ri.compass.main.folder.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx&quot;
+    resources = []
+    page_token = None
+    while True:
+        params = {&quot;pageSize&quot;: 100}
+        if page_token:
+            params[&quot;pageToken&quot;] = page_token
+
+        response = client.get(
+            base_url + f&quot;/api/v2/filesystem/resources/{project_rid}/children&quot;,
+            headers=auth_headers,
+            params=params,
+        )
+        response.raise_for_status()
+        body = response.json()
+
+        for resource in body.get(&quot;data&quot;, []):
+            resources.append({
+                &quot;rid&quot;: resource.get(&quot;rid&quot;),
+                &quot;name&quot;: resource.get(&quot;displayName&quot;),
+                &quot;type&quot;: resource.get(&quot;type&quot;),
+            })
+
+        page_token = body.get(&quot;nextPageToken&quot;)
+        if not page_token:
+            break
+
+        logger.info(f&quot;Fetched {len(resources)} resources so far, continuing to next page.&quot;)
+
+    return pd.DataFrame(resources)
+</code></pre>
+<h2>Troubleshooting</h2>
+<h3>Preview or sync fails with authentication errors</h3>
+<p>If preview or sync operations fail with authentication errors, check your authentication configuration:</p>
+<p><strong>Personal access token issues:</strong> Static tokens are intended only for testing. Any token with a lifespan greater than 36 hours is rejected at runtime. For production connections, use OAuth.</p>
+<p><strong>Client credentials issues:</strong> If preview fails with an <code>INVALID_ARGUMENT</code> error when using client credentials, the issue is likely related to the scopes configured on the application. Restrictive scopes may block access to the target dataset. To resolve this:</p>
+<ol>
+<li>Navigate to the third-party application configuration in Developer Console on the source instance.</li>
+<li>Review the scopes assigned to the client credentials.</li>
+<li>Remove or relax restrictive scopes that may be preventing access to the target dataset.</li>
+<li>Ensure the service user has appropriate permissions on the datasets being synced.</li>
+</ol>
+<p>:::callout{theme="neutral"}
+If network connectivity is suspected, verify TLS connectivity to the source instance before investigating scope issues.
+:::</p>
+<h3>Related documentation</h3>
+<ul>
+<li><a href="https://www.palantir.com/docs/foundry/available-connectors/rest-apis/#oauth-client-credentials-grant">OAuth Client Credentials grant example</a> â generic token-request and pagination pattern</li>
+<li><a href="https://www.palantir.com/docs/foundry/platform-security-third-party/writing-oauth2-clients/">Writing OAuth2 clients for Foundry</a> â OAuth2 protocol details and endpoint reference</li>
+<li><a href="https://www.palantir.com/docs/foundry/data-connection/external-transforms/">External transforms</a> â setup guide and full feature reference</li>
+<li><a href="https://www.palantir.com/docs/foundry/developer-console/application-restrictions/">Application restrictions</a> â configuring restrictions for third-party applications</li>
+</ul>
+</body>
+</html>

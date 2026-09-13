@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Microsoft SQL Server</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Microsoft SQL Server</h1>
+<p>Connect Foundry to Microsoft SQL Server to read and sync data between SQL Server databases and Foundry.</p>
+<h2>Supported capabilities</h2>
+<table>
+<thead>
+<tr>
+<th>Capability</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Exploration</td>
+<td>ð¢ Generally available</td>
+</tr>
+<tr>
+<td>Batch syncs</td>
+<td>ð¢ Generally available</td>
+</tr>
+<tr>
+<td>Incremental</td>
+<td>ð¢ Generally available</td>
+</tr>
+<tr>
+<td><a href="https://www.palantir.com/docs/foundry/iceberg/syncs/">Iceberg syncs</a></td>
+<td>ð¢ Generally available</td>
+</tr>
+<tr>
+<td>Change data capture syncs</td>
+<td>ð¢ Generally available</td>
+</tr>
+<tr>
+<td><a href="https://www.palantir.com/docs/foundry/data-connection/export-overview/#table-exports">Table Exports</a></td>
+<td>ð¢ Generally available</td>
+</tr>
+</tbody>
+</table>
+<h2>Setup</h2>
+<ol>
+<li>Open the <a href="https://www.palantir.com/docs/foundry/data-connection/overview/">Data Connection</a> application and select <strong>+ New Source</strong> in the upper right corner of the screen.</li>
+<li>Select <strong>MS SQL Server</strong> from the available connector types.</li>
+<li>Follow the additional configuration prompts to continue the setup of your connector using the information in the sections below.</li>
+</ol>
+<p>Learn more about <a href="https://www.palantir.com/docs/foundry/data-connection/set-up-source/">setting up a connector</a> in Foundry.</p>
+<h2>Authentication</h2>
+<p>You can authenticate with SQL Server in the following ways:</p>
+<ol>
+<li><strong>Username and password:</strong> Provide a username and password. We recommend the use of service credentials rather than individual user credentials.</li>
+<li><strong>Active Directory Msi</strong>*: This option will use the <code>authentication=ActiveDirectoryMSI</code> JDBC setting. An <code>msiClientId</code> may optionally be provided.</li>
+<li><strong>Active Directory Password</strong>*: This option will use the <code>authentication=ActiveDirectoryPassword</code> JDBC setting. A username and password for an Active Directory user must be provided to use this setting.</li>
+<li><strong>Active Directory Service Principal</strong>*: This option will use the <code>authentication=ActiveDirectoryServicePrincipal</code> JDBC setting. A principal ID (sometimes referred to as an application or client ID) must be specified, along with a secret for that principal ID.</li>
+</ol>
+<p>For more information on these authentication modes, see the <a href="https://learn.microsoft.com/sql/connect/jdbc/connecting-using-azure-active-directory-authentication">official documentation â</a>. For all authentication options, ensure that the provided user and role has the necessary privileges on the target database, as well as permission to read from or write to the target table(s).</p>
+<p>* Note that Azure Active Directory is now called <a href="https://www.microsoft.com/security/business/identity-access/microsoft-entra-id">Microsoft Entra ID â</a>; however, the JDBC options on the SQL Server driver published by Microsoft retain the original names referring to Active Directory.</p>
+<h2>Networking</h2>
+<p>The Microsoft SQL Server connector requires network access to the SQL Server instance that you wish to connect to. SQL Server connections will normally use a hostname to connect on port 1433.</p>
+<p>For SQL Server connections, the appropriate <a href="https://www.palantir.com/docs/foundry/administration/configure-egress/">egress policies</a> must be added when setting up the source in the <a href="https://www.palantir.com/docs/foundry/data-connection/overview/">Data Connection application</a>.</p>
+<p>For SQL Server instances hosted on a cloud service like Azure SQL or AWS RDS, you must add an egress policy for the hostname retrieved from your cloud providerâs console.</p>
+<p>:::callout{theme="warning"}
+If Azure redirect mode is used, then egress policies for all resolved IP addresses must also be added. The resolved IP may occasionally change, and you must update the egress policies to allow the new IP. If your instance of SQL Server is hosted on Azure, for example, then you can find more information on public IP addresses for Azure SQL instances in the <a href="https://learn.microsoft.com/azure/azure-sql/managed-instance/connectivity-architecture-overview?view=azuresql\&amp;tabs=current#public-endpoint">Azure SQL documentation â</a>.
+:::</p>
+<ul>
+<li>To find the hostname for your Azure SQL instance, navigate to the <strong>Settings &gt; Properties</strong> page in the Azure portal, and look for the <strong>Server Name</strong> field. An example hostname-based egress policy for Azure SQL: <code>&lt;your-database-name&gt;.database.windows.net (port 1433)</code></li>
+<li>To find the resolved IP, you can run <code>nslookup &lt;your-database-name&gt;.database.windows.net</code> from the command line. The final result will be the IP address that this hostname resolves to in Azure. The following is an example IPv4-based egress policy for Azure SQL: <code>x.x.x.x (port 1433)</code>. Azure SQL does load balancing across multiple hosts, so you may need to run the <code>nslookup</code> command several times and add all of the resolved IP addresses.</li>
+</ul>
+<p>:::callout{theme="neutral"}
+If you are connecting to an Azure SQL instance from a Foundry instance also hosted in Azure, you will need to use the <strong>Proxy</strong> connection policy option. For traffic originating within Azure, the connection policy defaults to <strong>Redirect</strong>. Using the redirect option to connection for Azure-Azure connections would require configuring egress policies for all Azure SQL IP addresses on all ports in the range of 11000 to 11999. This is possible but not recommended as it is overly permissive. For details on Azure SQL connection policies, see the official <a href="https://learn.microsoft.com/azure/azure-sql/database/connectivity-architecture?view=azuresql#connection-policy">Azure SQL documentation â</a>.
+:::</p>
+<h2>Connection details</h2>
+<table>
+<thead>
+<tr>
+<th>Option</th>
+<th>Required?</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Host type</code></td>
+<td>Yes</td>
+<td>Specify how Foundry should connect with your SQL Server database. <br /><br /> <strong>Option 1: Hostname</strong> <br />Provide a hostname. This is the recommended option for all SQL Server connections, and should always be used when connecting to an <a href="https://azure.microsoft.com/products/azure-sql">Azure SQL â</a> instance. <br /><br /> <strong>Option 2: IPv4</strong> <br />Provide an IPv4 address. If you normally connect using an IPv4 address, either within a corporate network or over the Internet, you can use this option. <br /><br /> <strong>Option 3: IPv6</strong> <br />Provide an IPv6 address. Use this option if you normally connect using an IPv6 address.</td>
+</tr>
+<tr>
+<td><code>Port</code></td>
+<td>Yes</td>
+<td>Specify a port to use when connecting. The default port for most SQL Server instances will be <code>1433</code>. For more information on ports, see the official documentation for the version of SQL Server you are connecting to.</td>
+</tr>
+<tr>
+<td><code>Database name</code></td>
+<td>Yes</td>
+<td>The name of the database you are connecting to within your instance of MS SQL Server.</td>
+</tr>
+<tr>
+<td><code>Authentication</code></td>
+<td>Yes</td>
+<td>Configure using the <a href="#authentication">Authentication</a> guidance shown above.</td>
+</tr>
+<tr>
+<td><code>Require encryption</code></td>
+<td>Yes</td>
+<td>Defaults to enabled. For more details, see Microsoft's documentation for the <code>encrypt</code> setting on the SQL Server JDBC driver: <br /><br /> <a href="https://learn.microsoft.com/sql/connect/jdbc/setting-the-connection-properties?view=sql-server-ver16">Connection properties reference â</a><br /> <a href="https://learn.microsoft.com/sql/connect/jdbc/understanding-ssl-support?view=sql-server-ver16">Encryption support examples â</a></td>
+</tr>
+<tr>
+<td><code>Trust server certificate</code></td>
+<td>Yes</td>
+<td>Defaults to disabled. For more details, see Microsoft's documentation for the <code>trustServerCertificate</code> setting on the SQL Server JDBC driver: <br /><br /> <a href="https://learn.microsoft.com/sql/connect/jdbc/setting-the-connection-properties?view=sql-server-ver16">Connection properties reference â</a></td>
+</tr>
+<tr>
+<td><code>Network Connectivity</code></td>
+<td>Yes</td>
+<td>You must provide egress policies to allow connections to your MS SQL Server instance. Refer to the <a href="#networking">Networking</a> section for more details.</td>
+</tr>
+</tbody>
+</table>
+<h2>Change data capture</h2>
+<p>The Microsoft SQL Server source supports <a href="https://www.palantir.com/docs/foundry/data-integration/change-data-capture/">change data capture</a> syncs.</p>
+<p>To enable change data capture for Microsoft SQL Server, you must run a command like the one below to enable CDC on the database.</p>
+<pre><code>USE &lt;database&gt;
+GO
+EXEC sys.sp_cdc_enable_db
+GO
+</code></pre>
+<p>Then, run another command on each table that should be recording changelogs:</p>
+<pre><code>EXEC sys.sp_cdc_enable_table
+    @source_schema = N'&lt;schema&gt;'
+  , @source_name = N'&lt;table_name&gt;'
+  , @role_name = NULL
+  , @capture_instance = NULL
+  , @supports_net_changes = 0
+  , @filegroup_name = N'PRIMARY';
+GO
+</code></pre>
+<p>Once change data capture is enabled for the table(s) you wish to sync to Foundry, you can navigate to the <strong>Overview</strong> page and select <strong>+ Create CDC sync</strong> to start creating a new change data capture sync.</p>
+<p>:::callout{theme="neutral"}
+The exploration runtime must be working in order to create a change data capture sync. If the runtime is still initializing, you may need to wait a few seconds and refresh the page to proceed with creating a change data capture sync.
+:::</p>
+<p>For more information on these commands and using change data capture (CDC) with Microsoft SQL Server, see the <a href="https://learn.microsoft.com/azure/azure-sql/database/change-data-capture-overview">official documentation â</a> for the version of SQL Server in use.</p>
+<h3>Change Data Capture permissioning</h3>
+<p>To successfully read CDC data, you will need to ensure you have provided sufficient permissions to the database user.</p>
+<ul>
+<li>You can verify your permissions with the following query: <code>SELECT HAS_PERMS_BY_NAME('cdc', 'SCHEMA', 'EXECUTE') AS HasExecutePermission;</code>. The result will return 1 if <code>True</code> and 0 if <code>False</code>.</li>
+<li>You can grant missing permissions by running the following query within the source system itself: <code>GRANT EXECUTE ON SCHEMA::cdc TO &lt;USER&gt;;</code></li>
+</ul>
+<h2>Troubleshooting</h2>
+<h3>Login failed when using Active Directory Password authentication</h3>
+<p>If you receive a <code>Login failed for user ''.</code> error when using the <strong>Active Directory Password</strong> authentication option, this typically indicates that your SQL Server instance only supports Kerberos or NTLM authentication and does not accept Azure Active Directory authentication.</p>
+<p>The <code>ActiveDirectoryPassword</code> authentication method authenticates against Azure Active Directory rather than using Kerberos or NTLM protocols. If your SQL Server is configured to only accept Kerberos or NTLM authentication, the Azure AD authentication attempt will be rejected.</p>
+<p>To resolve this issue, create a custom JDBC connection and set the JDBC parameter <code>authenticationScheme=NTLM</code> to use NTLM authentication instead.</p>
+<h2>Use Microsoft SQL Server sources in code</h2>
+<p>These examples demonstrate how to connect to a <a href="https://www.palantir.com/docs/foundry/available-connectors/microsoft-sql-server/">Microsoft SQL Server</a> source using the <a href="https://www.pymssql.org/pymssql_examples.html"><code>pymssql</code> â</a> Python package in an <a href="https://www.palantir.com/docs/foundry/data-connection/external-transforms/">external transform</a>.</p>
+<p>The examples are based on a <code>Fruits</code> table created with the following schema:</p>
+<pre><code class="language-sql">CREATE TABLE Fruits (
+    FruitName VARCHAR(50) PRIMARY KEY,
+    Inventory INT NOT NULL,
+    PricePerKg DECIMAL(10, 2) NOT NULL
+);
+</code></pre>
+<h3>Read from MSSQL with an external transform</h3>
+<p>This example reads data from the <code>Fruits</code> table, filtered to <code>Inventory</code> values below <code>60</code>.</p>
+<pre><code class="language-python">import logging
+from pandas import DataFrame
+from transforms.external.systems import ResolvedSource
+from transforms.api import lightweight, Output, transform_pandas
+from transforms.external.systems import external_systems, Source
+import pymssql
+import pandas as pd
+
+logger = logging.getLogger(__name__)
+
+@lightweight
+@external_systems(
+    mssql_source=Source(&quot;&lt;source_rid&gt;&quot;)
+)
+@transform_pandas(
+    Output(&quot;&lt;dataset_rid&gt;&quot;)
+)
+def compute(mssql_source: ResolvedSource) -&gt; DataFrame:
+    # Inventory threshold parameter (this could also be read from an input DataFrame)
+    INVENTORY_THRESHOLD = 60
+
+    connection_parameters = {
+        &quot;server&quot;: &quot;&lt;your_server_name&gt;&quot;,
+        &quot;database&quot;: &quot;&lt;your_database_name&gt;&quot;,
+        &quot;port&quot;: &quot;1433&quot;,
+        &quot;user&quot;: &quot;&lt;your_user_name&gt;&quot;,
+        &quot;password&quot;: mssql_source.get_secret(&quot;MSSQL_BASIC_AUTH_PASSWORD&quot;),
+        &quot;encryption&quot;: &quot;require&quot;,
+        &quot;timeout&quot;: 30
+    }
+    try:
+        with pymssql.connect(**connection_parameters) as connection:
+            df = pd.read_sql(
+                'SELECT * FROM Fruits WHERE Inventory &lt; %s',
+                connection,
+                params=(INVENTORY_THRESHOLD,)
+            )
+    except Exception as e:
+        logger.error(f&quot;Error querying MSSQL Fruits table: {e}&quot;)
+        raise RuntimeError(f&quot;Failed to fetch Fruits data from MSSQL: {e}&quot;) from e
+    return df
+</code></pre>
+<h3>Write to MSSQL with an external transform</h3>
+<p>This example uses an input dataset to update the <code>Fruits</code> table. It returns a dataset summarizing the actions (update or insert) taken per <code>FruitName</code>.</p>
+<pre><code class="language-python">import logging
+from transforms.api import lightweight, Output, transform_pandas, Input
+from transforms.external.systems import external_systems, Source
+import pymssql
+import pandas as pd
+
+logger = logging.getLogger(__name__)
+
+@lightweight
+@external_systems(
+    mssql_source=Source(&quot;&lt;source_rid&gt;&quot;)
+)
+@transform_pandas(
+    Output(&quot;&lt;dataset_rid&gt;&quot;),
+    fruits_df=Input(&quot;&lt;dataset_rid&gt;&quot;) # DataFrame with schema [FruitName: String, Inventory: Integer, PricePerKg: Double]
+)
+def compute(mssql_source, fruits_df):
+    # Connection parameters
+    connection_parameters = {
+        &quot;server&quot;: &quot;&lt;your_server_name&gt;&quot;,
+        &quot;database&quot;: &quot;&lt;your_database_name&gt;&quot;,
+        &quot;port&quot;: &quot;1433&quot;,
+        &quot;user&quot;: &quot;&lt;your_user_name&gt;&quot;,
+        &quot;password&quot;: mssql_source.get_secret(&quot;MSSQL_BASIC_AUTH_PASSWORD&quot;),
+        &quot;encryption&quot;: &quot;require&quot;,
+        &quot;timeout&quot;: 30
+    }
+    results = []
+    try:
+        with pymssql.connect(**connection_parameters) as connection:
+            with connection.cursor() as cursor:
+                for _, row in fruits_df.iterrows():
+                    fruit_name = row[&quot;FruitName&quot;]
+                    inventory = row[&quot;Inventory&quot;]
+                    price_per_kg = row[&quot;PricePerKg&quot;]
+
+                    # Try to update; if no row updated, then insert
+                    update_sql = &quot;&quot;&quot;
+                        UPDATE Fruits
+                        SET Inventory = %s, PricePerKg = %s
+                        WHERE FruitName = %s
+                    &quot;&quot;&quot;
+                    cursor.execute(update_sql, (inventory, price_per_kg, fruit_name))
+                    if cursor.rowcount == 0:
+                        insert_sql = &quot;&quot;&quot;
+                            INSERT INTO Fruits (FruitName, Inventory, PricePerKg)
+                            VALUES (%s, %s, %s)
+                        &quot;&quot;&quot;
+                        cursor.execute(insert_sql, (fruit_name, inventory, price_per_kg))
+                        results.append({&quot;FruitName&quot;: fruit_name, &quot;action&quot;: &quot;inserted&quot;})
+                    else:
+                        results.append({&quot;FruitName&quot;: fruit_name, &quot;action&quot;: &quot;updated&quot;})
+                connection.commit()
+    except Exception as e:
+        logger.error(f&quot;Error updating MSSQL Fruits table: {e}&quot;)
+        raise RuntimeError(f&quot;Failed to update Fruits data in MSSQL: {e}&quot;) from e
+    # Return a DataFrame summarizing the actions
+    return pd.DataFrame(results, columns=[&quot;FruitName&quot;, &quot;action&quot;])
+</code></pre>
+</body>
+</html>

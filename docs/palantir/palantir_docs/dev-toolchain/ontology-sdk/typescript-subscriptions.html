@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Subscribe to changes in object sets with the TypeScript OSDK</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Subscribe to changes in object sets with the TypeScript OSDK</h1>
+<p>:::callout{theme="warning" title="GA"}
+Subscriptions were released as part of OSDK v2.1; to access this feature, open Developer Console and generate a <code>2.1.x</code> (or later) version of your SDK. <br><br>
+Before using subscriptions, ensure that you have installed a matching 2.1.x version of the <code>@osdk/client</code> package in your project by using the command below or updating your <code>package.json</code>.</p>
+<pre><code class="language-bash">npm install @osdk/client@^2.1.0
+</code></pre>
+<p>:::</p>
+<p>This page provides documentation on how to receive real time updates about changes to objects in your Ontology using the TypeScript OSDK.</p>
+<h2>Overview</h2>
+<p>The subscriptions feature in the TypeScript OSDK allows you to receive updates when objects in a specified object set are changed. This includes the addition and deletion of new objects, as well as changes to properties on objects in the object set.</p>
+<p>If you need direct access to the underlying WebSocket APIâfor example, to implement subscriptions in a language other than TypeScript or to have more control over the connectionâsee <a href="https://www.palantir.com/docs/foundry/ontology-sdk/websocket-subscriptions/">Subscribe to changes in object sets via WebSocket</a>.</p>
+<p>The examples in the following sections use a <code>Country</code> object type with a <code>@subscribe-osdk-example/sdk</code> package name. Replace the example package name and object type with the package you created, and the object type you selected, respectively. Lastly, replace references to <code>population</code> with a property from your object type.</p>
+<p>Note that object sets constructed using <code>.pivotTo</code> are not supported for subscriptions. Additionally, only one subscription may be active per query at a time. For example, if you are building an OSDK application and using TSv2 to subscribe to object set changes, two React components cannot simultaneously be listening on separate subscriptions for changes in the same object set.</p>
+<h2><code>.subscribe</code></h2>
+<p>To subscribe to an object set, chain <code>.subscribe</code> onto an OSDK object set. The <code>.subscribe</code> function accepts a multitude of functions that will be triggered for different events during the lifecycle of the subscription. These functions can contain any logic you want to execute for the given event.</p>
+<p>The subscribe function returns an object containing a function to end the subscription.</p>
+<pre><code class="language-typescript">import { Country } from &quot;@subscribe-osdk-example/sdk&quot;;
+
+const subscription = client(Country).subscribe(
+    {
+        onChange: (update) =&gt; {},
+        onSuccessfulSubscription: () =&gt; {},
+        onOutOfDate: () =&gt; {},
+        onError: () =&gt; {},
+    },
+    { properties: [] },
+);
+
+subscription.unsubscribe();
+</code></pre>
+<p>Additionally, it is possible to filter the object set that is subscribed to. This will narrow the set of objects you will receive updates for.</p>
+<pre><code class="language-typescript">client(Country)
+    .where({ population: { $gte: &quot;1000000&quot; } })
+    .subscribe({});
+</code></pre>
+<p>Object sets that are constructed using <code>.pivotTo</code> are not supported for subscriptions.</p>
+<h3><code>onChange</code></h3>
+<p>The onChange handler is triggered when an object in the specified object set has been added, changed, or deleted.</p>
+<p>The handler function provides an object that consists of two properties:</p>
+<ul>
+<li><strong>Object:</strong> An <code>Osdk.Instance</code> object and an enum describing what happened to the provided object. This is identical to the object type returned from a <code>.fetchPage</code> method on an object set.</li>
+<li><strong>State:</strong> An enum describing what happened to the provided object.</li>
+<li><strong><code>ADDED_OR_UPDATED</code>:</strong> The provided object was added to the object set or a property has changed on the provided object.</li>
+<li><strong><code>DELETED</code>:</strong> The provided object was deleted.</li>
+</ul>
+<p>Below is an example of <code>onChange</code> handler usage:</p>
+<pre><code class="language-typescript">const populations: { [key: string]: number } = {};
+
+client(Country).subscribe({
+    onChange: (update) =&gt; {
+        if (update.state === &quot;ADDED_OR_UPDATED&quot;) {
+            populations[update.object.$primaryKey] =
+                update.object.population ??
+                populations[update.object.$primaryKey];
+        } else if (update.state === &quot;DELETED&quot;) {
+            delete populations[update.object.$primaryKey];
+        }
+    },
+});
+</code></pre>
+<h4>Property nullability</h4>
+<p>Properties on the <code>Osdk.Instance</code> object provided to the handler represent the most up to date values for that object. The primary key property and the <code>$primaryKey</code> field on the object will always be defined.</p>
+<p>It is possible for any property on the <code>Osdk.Instance</code> object to be undefined. This does not necessarily indicate that the property was updated to be undefined, but rather
+that the property simply was not returned.</p>
+<p>If more properties have been added to an object type since the SDK was last generated, it is possible to receive updates even though none of the properties on the provided value have changed. This indicates that a property that your SDK is not aware of has changed on the object.</p>
+<h4>Geotemporal series reference updates</h4>
+<p>If a subscription is requested for an object type with a geotemporal series reference property, updates will be triggered when there is a new value for that series. This value will be available on the <code>lastFetchedValue</code> property on the returned object.</p>
+<h3><code>onSuccessfulSubscription</code></h3>
+<p>This handler is executed when the OSDK establishes a successful subscription and will start receiving updates. Updates before this handler is triggered may not be reflected in calls to other handlers.</p>
+<h3><code>onOutOfDate</code></h3>
+<p>This handler is executed when up to date information could not be provided for updates that occurred to the object set. This indicates that you should reload the entire object set with a call to <code>.fetchPage</code> in order to make sure you receive the most up to date information.</p>
+<h3><code>onError</code></h3>
+<p>This handler is executed when there has been an error in the subscription process, indicating that the subscription has been closed.</p>
+<h3>Specify properties</h3>
+<p>The <code>.subscribe</code> method allows specifying which properties to receive on objects returned from updates. This can improve performance by reducing the amount of information sent over a network connection. To specify these, pass in an array of the properties you want as part of the second parameter on the method.</p>
+<pre><code class="language-typescript">client(Country).subscribe({}, { properties: [&quot;population&quot;] });
+</code></pre>
+</body>
+</html>

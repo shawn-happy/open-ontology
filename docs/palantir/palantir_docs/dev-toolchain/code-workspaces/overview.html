@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Code Workspaces</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Code Workspaces</h1>
+<p>Code Workspaces brings the JupyterLabÂ®, RStudioÂ® Workbench, and VS Code third-party IDEs to Palantir Foundry, enabling users to boost their productivity and accelerate their data science and statistics workflows by using their preferred tools on the high-quality data of the Foundry Ontology. Code Workspaces containers are natively integrated with the rest of the Foundry ecosystem to combine familiar IDEs with the benefits of the Foundry platform, such as data security, branching, build scheduling, and resource management.</p>
+<p>Code Workspaces gives platform administrators an easily-deployed, fully-managed, secure, and production-ready way to provide JupyterLabÂ®, RStudioÂ® Workbench, and VS Code to users with Foundryâs data governance and compliance with FedRAMP, GxP, and other standards built-in. With Code Workspaces, users can securely connect to existing internal systems and build analyses, transforms, models, applications, or entire workflows on data with Foundryâs access controls and data permissioning.</p>
+<h2>Key features</h2>
+<p>Key features of Code Workspaces include:</p>
+<ul>
+<li>
+<p><strong>Security:</strong> Code Workspaces is built on the core components of <a href="https://www.palantir.com/docs/foundry/security/overview/">Foundry security</a> that underpin the platform as a whole, like permissions and granular access controls. This provides Foundryâs security model to the third-party IDEs available in Code Workspaces. For example, restricting access to a dataset in Foundry will restrict it for Code Workspaces IDEs as well, ensuring consistent permissions across tools.</p>
+</li>
+<li>
+<p><strong>Customizable environments:</strong> Code Workspaces allows users to define custom environment profiles and increase or decrease the compute resources of their workspace as desired.</p>
+</li>
+<li>
+<p><strong>Git workflow support:</strong> Code Workspaces are backed by the <a href="https://www.palantir.com/docs/foundry/code-repositories/overview/">Code Repositories</a> infrastructure, which provides industry-standard version control features like branching, merging, and commit history. These features enable multiple users to operate in the same workspace more easily and safely.</p>
+</li>
+<li>
+<p><strong>Code viewer:</strong> The <a href="https://www.palantir.com/docs/foundry/code-workspaces/code-viewer/">code viewer</a> provides a read-only interface for browsing, searching, comparing, and sharing the committed state of a repository without starting an editor workspace.</p>
+</li>
+<li>
+<p><strong>Applications:</strong> Code Workspaces currently supports <a href="https://plotly.com/dash/">Dash â</a> and <a href="https://streamlit.io/">Streamlit â</a> for Python applications and <a href="https://shiny.rstudio.com/">ShinyÂ® â</a> for R applications. Users can create application workflows directly in Code Workspaces with Foundryâs version control, branching, and data governance features built-in.</p>
+</li>
+<li>
+<p><strong>Model integration:</strong> Users can create model assets from within a Code Workspace and track these assets with <a href="https://www.palantir.com/docs/foundry/model-integration/objectives/">modeling objectives</a>. Multiple models can be created from the same workspace.</p>
+</li>
+<li>
+<p><strong>Transforms/build integration:</strong> Code Workspaces serves as a development environment for transforms. Logic written in Code Workspaces can be published as data transformation pipelines and integrates with Foundry's <a href="https://www.palantir.com/docs/foundry/data-integration/overview/">data integration</a> toolkit, including builds, schedules, data lineage, and health checks. Code Workspaces supports both R transforms and Python/JupyterÂ® transforms.</p>
+</li>
+<li>
+<p><strong>AIP-assisted coding:</strong> JupyterLabÂ® and RStudioÂ® Code Workspaces include an AIP agent in the workspace sidebar that connects to <a href="https://www.palantir.com/docs/foundry/aip/supported-llms/">supported AIP LLMs</a>. The agent can generate and explain code, analyze data, automate repetitive tasks such as library installation and data cleaning, and help you build Dash and Streamlit applications. This feature is available when <a href="https://www.palantir.com/docs/foundry/aip/enable-aip-features/">AIP is enabled</a>.</p>
+</li>
+<li>
+<p><strong>External systems integration via sources:</strong> Sources let you interact securely with external systems and manage secrets, egress, and export controls for interactive workflows and published applications. Learn more in <a href="https://www.palantir.com/docs/foundry/code-workspaces/external-systems/">Interact with external systems</a>.</p>
+</li>
+</ul>
+<h2>When to use Code Workspaces</h2>
+<p>Foundry has a variety of applications you can use for analytical or coding purposes. For example, if you are an analyst, you may be best served by Contour, Foundryâs point-and-click low-code interface for dataset analysis.</p>
+<p>If you need to write large-scale data pipelines, set up data connections, or work with streaming data, other Foundry tools have more functionality than Code Workspaces; for these use cases, we recommend using <a href="https://www.palantir.com/docs/foundry/pipeline-builder/overview/">Pipeline Builder</a>, <a href="https://www.palantir.com/docs/foundry/data-connection/overview/">Data Connection</a>, and <a href="https://www.palantir.com/docs/foundry/building-pipelines/streaming-overview/">Foundry Streaming</a>, respectively.</p>
+<p>Specifically, Code Workspaces runs on a single node, while other Foundry applications leverage a Spark infrastructure. Thus, we recommend that users performing large-scale data transformations choose <a href="https://www.palantir.com/docs/foundry/pipeline-builder/overview/">Pipeline Builder</a> or <a href="https://www.palantir.com/docs/foundry/code-repositories/overview/">Code Repositories</a> instead of Code Workspaces.</p>
+<p>Use Code Workspaces to develop code in VS Code, JupyterLabÂ®, or RStudioÂ® Workbench with Foundry data and services. Use <a href="https://www.palantir.com/docs/foundry/code-workspaces/code-viewer/">the code viewer</a> to inspect or share committed repository code without starting an editor workspace.</p>
+<p><img alt="Browse files and view committed code in the code viewer." src="../../_resources/foundry/code-workspaces/code-viewer-browse.png" /></p>
+<h2>Learn more</h2>
+<p>Code Workspaces currently supports three environments: <a href="https://www.palantir.com/docs/foundry/code-workspaces/jupyterlab/">JupyterLabÂ®</a>, <a href="https://www.palantir.com/docs/foundry/code-workspaces/rstudio/">RStudioÂ®</a>, and <a href="https://www.palantir.com/docs/foundry/vs-code/overview/">VS Code</a>.</p>
+<p>More information about Code Workspaces can be found in the <a href="https://www.palantir.com/docs/foundry/code-workspaces/code-workspaces-faq/">FAQ</a>.</p>
+<p><a href="https://www.palantir.com/docs/foundry/code-workspaces/getting-started/">Get started using Code Workspaces with this tutorial.</a></p>
+<hr />
+<p><em>RStudioÂ® and ShinyÂ® are trademarks of Positâ¢.</em></p>
+<p><em>JupyterÂ®, JupyterLabÂ®, and the JupyterÂ® logos are trademarks or registered trademarks of NumFOCUS.</em></p>
+<p>All third-party trademarks (including logos and icons) referenced remain the property of their respective owners. No affiliation or endorsement is implied.</p>
+</body>
+</html>

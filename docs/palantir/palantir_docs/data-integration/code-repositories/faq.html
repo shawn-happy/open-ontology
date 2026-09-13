@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Code Repositories FAQ</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Code Repositories FAQ</h1>
+<p>The following are some frequently asked questions about Code Repositories.</p>
+<p>For general information, view the <a href="https://www.palantir.com/docs/foundry/code-repositories/overview/">Code Repositories documentation</a>.</p>
+<ul>
+<li><a href="#can-i-publish-a-python-package-from-the-latest-commit-on-a-branch-without-requiring-tagging">Can I publish a Python package from the latest commit on a branch without requiring tagging?</a></li>
+<li><a href="#how-do-i-restore-previously-deleted-code-in-my-code-repository">How do I restore previously deleted code in my code repository?</a></li>
+<li><a href="#can-i-duplicate-my-code-repository">Can I duplicate my code repository?</a></li>
+<li><a href="#how-do-i-know-if-i-need-to-upgrade-my-branch">How do I know if I need to upgrade my branch?</a></li>
+<li><a href="#can-my-transform-dynamically-select-inputs-and-outputs-whenever-a-build-starts">Can my transform dynamically select inputs and outputs whenever a build starts?</a></li>
+<li><a href="#in-code-preview-code-works-but-builds-fail">In Code Preview, code works but builds fail</a></li>
+<li><a href="#code-running-in-code-workbook-but-not-in-code-repositories">Code running in Code Workbook but not in Code Repositories</a></li>
+<li><a href="#checks-are-failing-due-to-a-missing-python-library-in-a-code-repository-where-that-library-was-previously-working">Checks are failing due to a missing Python library, in a code repository where that library was previously working</a></li>
+</ul>
+<hr />
+<h2>Can I publish a Python package from the latest commit on a branch without requiring tagging?</h2>
+<p>Yes. You can publish the latest commit of a Python package by modifying your package's root <code>build.gradle</code> file to publish the branch. For example, to publish the latest commit on the master branch, modify the <code>build.gradle</code> file as follows:</p>
+<pre><code class="language-python">condaLibraryPublish.onlyIf { versionDetails().branchName == &quot;master&quot; }
+</code></pre>
+<p><a href="#code-repositories-faq">Return to top</a></p>
+<hr />
+<h2>How do I restore previously deleted code in my code repository?</h2>
+<p>If these transforms were built into a dataset, you can use the <strong>Compare</strong> feature of the resulting Dataset Preview to view the code at that time. From there, you can copy-paste the relevant transforms. Alternatively, you can navigate to <strong>Branches</strong> in your code repository, open the specific branch, and review the full history of changes there.</p>
+<p><a href="#code-repositories-faq">Return to top</a></p>
+<hr />
+<h2>Can I duplicate my code repository?</h2>
+<p>There is no built-in capability to copy code repositories in the platform. You can however, clone the repository to your machine and then push that code to a new code repository. If you do this, remember to add all the inputs as references to the new project. <a href="https://www.palantir.com/docs/foundry/transforms-java/local-development/">Learn how to clone a repository</a>.</p>
+<p><a href="#code-repositories-faq">Return to top</a></p>
+<hr />
+<h2>How do I know if I need to upgrade my branch?</h2>
+<p>You can confirm your code repository is up-to-date by selecting <em>...</em> in the top-right corner of the code repository and confirming whether <strong>Upgrade</strong> appears as an option. If the <strong>Upgrade</strong> option is not available, then the repository is already up-to-date.</p>
+<p><img alt="Branch options menu" src="../../_resources/foundry/code-repositories/branch-options.png" /></p>
+<p><a href="#code-repositories-faq">Return to top</a></p>
+<hr />
+<h2>Can my transform dynamically select inputs and outputs whenever a build starts?</h2>
+<p>This is not supported. Continuous integration (CI) checks define the set of inputs and outputs whenever a new commit is added in the code repository.</p>
+<p><a href="#code-repositories-faq">Return to top</a></p>
+<hr />
+<h2>In Code Preview, code works but builds fail</h2>
+<p>Your Code Preview succeeds but your build fails. Code Previews run on a subset of data, which likely means there are data values not in the subset breaking your code when the full build runs.</p>
+<p>To troubleshoot, perform the following steps:</p>
+<ol>
+<li>Examine the build error from the failed build. Look for lines starting with âCaused byâ and read them carefully. Sometimes they will mention explicit lines of code in your transformation file.</li>
+<li>Try <a href="https://www.palantir.com/docs/foundry/code-repositories/repository-upgrades/">upgrading your code repository</a>. To do this, in the top right corner of your repository, select <strong>... &gt; Upgrade</strong>. This will create a PR to upgrade your branch. Be sure to merge in the upgrade PR so that your branch actually gets upgraded. You can upgrade any branch, but merging the upgrade commit into a protected branch requires a review and approval.</li>
+</ol>
+<p><a href="#code-repositories-faq">Return to top</a></p>
+<hr />
+<h2>Code running in Code Workbook but not in Code Repositories</h2>
+<p>Sometimes, porting code from a code workbook to a code repository will not work without modifying the code to run in a code repository.</p>
+<p>To troubleshoot, perform the following steps:</p>
+<ol>
+<li>Have you verified your transform decorator is correct? That is, <code>@transform</code> vs. <code>@transform_df</code>?</li>
+<li>Have you verified your inputs are all declared and passed as inputs to your compute function?</li>
+<li>Are the names of your dataframes the same as your workbook?  Is your code repository actually returning the dataframe?</li>
+<li>Check that the libraries being used in the code workbook code are also available in the code repository.</li>
+<li>Verify the inputs and branches to the code workbook cell are in fact the same datasets used in the code repository.</li>
+</ol>
+<p>Review our FAQ on <a href="https://www.palantir.com/docs/foundry/health-checks/builds-checks-faq/">builds and checks errors</a> for more detail.</p>
+<p><a href="#code-repositories-faq">Return to top</a></p>
+<hr />
+<h2>Checks are failing due to a missing Python library, in a code repository where that library was previously working</h2>
+<p>Sometimes, a repository that has been working starts encountering a problem where repository checks begin failing with an error indicating that Conda packages could not be obtained. This may be a <code>PackageNotFoundError</code>, or a <code>MD5MismatchError</code> due to a Conda cache getting corrupted.</p>
+<p>To troubleshoot, perform the following steps:</p>
+<ol>
+<li>In most cases, the Conda cache can be unstuck by simply creating a new commit in your code repository. Open the repository and make any change (even just an empty new line), and press <strong>Commit</strong>.</li>
+<li>If the symptoms still appear after performing a new line commit, it is possible that the Conda cache has made a higher-level cache also become corrupt. The following steps will clear your code repository's Gradle cache.</li>
+<li>In your code repository, press the settings (cog wheel) icon, and enable <strong>Hidden files</strong>.</li>
+<li>Locate <code>conda-versions.run.linux-64.lock</code> in your Python subproject, delete it, and press <strong>Commit</strong>.</li>
+<li>If the symptoms still appear after clearing both of these caches, contact Palantir Support.</li>
+</ol>
+<p><a href="#code-repositories-faq">Return to top</a></p>
+</body>
+</html>

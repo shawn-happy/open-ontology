@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SQL console</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>SQL console</h1>
+<p>The SQL console is the embedded SQL interface available within Foundry applications, providing contextual SQL access to the resource you are currently viewing. The SQL console is targeted for quick queries in the context of a specific resource (such as a dataset or object type). For a dedicated, full-screen SQL application, see <a href="https://www.palantir.com/docs/foundry/sql-warehousing/sql-studio/">SQL Studio</a>.</p>
+<h2>Accessing SQL console</h2>
+<p>You can access the SQL console in the bottom panel of supported applications:</p>
+<table>
+<thead>
+<tr>
+<th>Application</th>
+<th>Resources queryable</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="https://www.palantir.com/docs/foundry/dataset-preview/overview/">Dataset Preview</a></td>
+<td>Tabular data</td>
+</tr>
+<tr>
+<td><a href="https://www.palantir.com/docs/foundry/data-lineage/overview/">Data Lineage</a></td>
+<td>Tabular data</td>
+</tr>
+<tr>
+<td><a href="https://www.palantir.com/docs/foundry/ontology-manager/overview/">Ontology Manager</a></td>
+<td>Ontology object types and backing tabular data</td>
+</tr>
+</tbody>
+</table>
+<p>The starter query is prepopulated based on the resource you are currently viewing.</p>
+<p><img alt="SQL console docked in the bottom panel of Dataset Preview, with a starter query prepopulated for the open dataset." src="../../_resources/foundry/sql-warehousing/sql-console-dataset-preview.png" /></p>
+<h2>Using SQL console</h2>
+<p>The SQL console provides core SQL editing and execution functionality, including running queries, autocomplete for tables and columns, an inline results panel, and the ability to save queries as <a href="https://www.palantir.com/docs/foundry/sql-warehousing/worksheets/">SQL worksheets</a>. The SQL console uses Foundry's <a href="https://www.palantir.com/docs/foundry/sql-warehousing/sql-dialect/">Spark SQL dialect</a>.</p>
+<p>For full details on SQL Studio features, including AI-assisted query generation and result visualization, see the <a href="https://www.palantir.com/docs/foundry/sql-warehousing/sql-studio/">SQL Studio documentation</a>.</p>
+<h3>Modes</h3>
+<p>In <a href="https://www.palantir.com/docs/foundry/ontology-manager/overview/">Ontology Manager</a>, the SQL console supports two modes:</p>
+<ul>
+<li><strong>Data mode</strong> for querying tabular data using <a href="https://www.palantir.com/docs/foundry/sql-warehousing/furnace/">Furnace</a>.</li>
+<li><strong>Object mode</strong> for querying ontology object types using <a href="https://www.palantir.com/docs/foundry/sql-warehousing/ontology-sql/">Ontology SQL</a>.</li>
+</ul>
+<p>When viewing an object type in Ontology Manager, you can select between modes from the mode dropdown in the SQL console toolbar. The object type's backing dataset is suggested as the default resource in data mode.</p>
+<p><img alt="Object mode and data mode in SQL console." src="../../_resources/foundry/sql-warehousing/object-mode-data-mode-sql.png" /></p>
+<p>In other applications, only data mode is available.</p>
+<h3>Expanding to SQL Studio</h3>
+<p>To open the current query in a dedicated, full-screen application, select the expand option in the SQL console toolbar. This launches <a href="https://www.palantir.com/docs/foundry/sql-warehousing/sql-studio/">SQL Studio</a>, which provides a full SQL application with a resource browser, version history, AI-assisted query generation, and additional capabilities not available in the embedded console.</p>
+<p>:::callout{theme="neutral"}
+A standalone full-screen view of the SQL console is temporarily available in environments where SQL Studio is not yet enabled. This standalone view will be replaced by the SQL Studio application.
+:::</p>
+<h2>Roles and permissions</h2>
+<p>Access to the SQL console is governed by the same SQL and download control roles that apply across Foundry. For details on the available roles and how they interact with SQL access, see <a href="https://www.palantir.com/docs/foundry/sql-warehousing/sql-permissions/">SQL permissions</a>.</p>
+</body>
+</html>

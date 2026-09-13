@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AIP Evolve</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>AIP Evolve</h1>
+<p>AIP Evolve coordinates fleets of <a href="https://www.palantir.com/docs/foundry/ai-fde/overview/">AI FDE</a> agents to improve AI systems in Foundry. You define a target, goal, validation strategy, and limits for an evolution. AIP Evolve then launches AI FDE to explore and validate possible changes and presents the resulting proposal and agent activity for review.</p>
+<p>Use AIP Evolve to migrate models, reduce cost or latency, improve evaluation scores, or pursue a custom goal.</p>
+<h2>Requirements</h2>
+<p>Before you use AIP Evolve:</p>
+<ul>
+<li><a href="https://www.palantir.com/docs/foundry/aip/enable-aip-features/">Enable AIP</a> and ensure that you can access AI FDE.</li>
+<li><a href="https://www.palantir.com/docs/foundry/marketplace/install-product/">Install</a> the AIP Evolve Marketplace product in an Ontology.</li>
+<li>Ensure that you have access to the target resource and any data or evaluation suites used to validate changes.</li>
+</ul>
+<h2>Example workflow</h2>
+<p>Consider an organization that uses an AI-powered inventory allocation workflow to interpret customer orders and determine how to fulfill them. The organization wants to reduce the workflow's compute cost without introducing meaningful regressions.</p>
+<p>In the <strong>New</strong> tab, select the workflow as the target and choose <strong>Optimize cost</strong>. For this evolution, AIP Evolve is configured to select 10 representative test cases and compare outputs side by side. Agents may swap models and adjust prompts over a maximum of five iterations. Review the generated prompt, then select <strong>Evolve</strong> to open AI FDE and start the evolution.</p>
+<p><img alt="The Review step shows a cost optimization goal, a 10-test-case validation strategy, and model and prompt change constraints." src="../../_resources/foundry/aip-evolve/aip-evolve-workflow-1.png" /></p>
+<p>AIP Evolve coordinates agents to inspect the workflow, create test cases, make candidate changes, and evaluate candidate outputs against the baseline. Open <strong>Agent graph</strong> to follow this activity and inspect the agents' goals, insights, and artifacts. In this example, the agents completed three iterations.</p>
+<p><img alt="The expanded agent graph shows three orchestrator iterations and specialist agents for analysis, test creation, model swapping, evaluation, prompt engineering, and proposal writing." src="../../_resources/foundry/aip-evolve/aip-evolve-workflow-2.png" /></p>
+<p>When the agents finish, open <strong>Proposal</strong> to review the recommended changes and supporting evidence. In this example, the proposal recommends replacing GPT-4o with GPT-5.4 Mini and adding guardrails to two prompts. All 10 test cases passed for both the baseline and candidate, while average compute cost decreased by 65%, from 204.6 to 72.4 compute seconds per call.</p>
+<p><img alt="The proposal recommends replacing GPT-4o with GPT-5.4 Mini and reports 65% lower compute cost with all 10 test cases still passing." src="../../_resources/foundry/aip-evolve/aip-evolve-workflow-3.png" /></p>
+<p>Review the validation results, output comparisons, confidence assessment, and limitations before accepting a proposal. When applicable, select <strong>Review in Branching</strong> to inspect the branch proposal in <a href="https://www.palantir.com/docs/foundry/global-branching/overview/">Global Branching</a>. Select <strong>Resume</strong> to continue the evolution in AI FDE with optional additional instructions.</p>
+</body>
+</html>

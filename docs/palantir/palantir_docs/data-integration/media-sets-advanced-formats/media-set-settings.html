@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Advanced media set settings</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Advanced media set settings</h1>
+<p>Beyond configuring the <a href="https://www.palantir.com/docs/foundry/media-sets-advanced-formats/media-overview/#additional-input-formats">permitted file formats</a> for a media set, you can also configure advanced settings, such as how to write media to the media set, and how long to keep media items.</p>
+<h2>Transaction policies</h2>
+<p>The transaction policy of a media set determines how media items are added to a media set. A media set can have one of two transaction policies; <strong>transactionless</strong> or <strong>transactional</strong>.</p>
+<p>The following details are true for a media set with transactionless policies:</p>
+<ul>
+<li>Items uploaded to the media set are immediately readable and cannot be rolled back.</li>
+<li>If a build writing to a transactionless media set fails, then all items that were successfully written during the build before failure will remain in the media set.</li>
+<li>Multiple clients can simultaneously write to a transactionless media set.</li>
+<li>Transactionless media set branches cannot be reset to an empty view.</li>
+</ul>
+<p>The following details are true for a media set with transactional policies:</p>
+<ul>
+<li>All media items must be added to the media set from within a transaction.</li>
+<li>Only one transaction can be open on the branch of a media set.</li>
+<li>Upon committing a transaction, all items written in the transaction become readable.</li>
+<li>Upon aborting a transaction, all items in the transaction will be deleted.</li>
+<li>If a build writing to a transactional media set fails at any point, then no updates will be made to the media set.</li>
+<li>A maximum of 10,000 items can be written in a single transaction.</li>
+</ul>
+<p>The semantics of transactional media sets are most similar to Foundry datasets. When writing incremental transforms, transactional media sets support the <code>replace</code> and <code>modify</code> <a href="https://www.palantir.com/docs/foundry/transforms-python/media-sets/#media-set-write-modes">write modes</a>. Transactionless media sets only support the <code>modify</code> <a href="https://www.palantir.com/docs/foundry/transforms-python/media-sets/#media-set-write-modes">write mode</a>.</p>
+<h2>Retention policies</h2>
+<p>You can configure retention policies to permanently delete media items. This is a helpful option to minimize storage costs. To configure retention policies, open the media set and select the <strong>Details</strong> tab, then configure the options in the <strong>Retention policy</strong> section.</p>
+<p><img alt="The retention policy panel in media set details." src="../../_resources/foundry/media-sets-advanced-formats/retention-policy-configuration.png" /></p>
+<h3>Permanently delete all media items older than</h3>
+<p>This policy permanently deletes media items after a fixed period from when they were uploaded. For example, if you configure a 14-day retention period, each media item will be permanently deleted 14 days after it was uploaded.</p>
+<h3>Permanently delete any media items that have been overwritten or deleted after</h3>
+<p>This policy permanently deletes overwritten media items after a fixed period from when they were overwritten. An overwritten item is a media item that has been replaced by a newer upload at the same path or has been <a href="https://www.palantir.com/docs/foundry/media-sets-advanced-formats/media-overview/#delete-media-items-from-media-sets">soft deleted</a>. You can view overwritten items in the <a href="https://www.palantir.com/docs/foundry/media-sets-advanced-formats/importing-media/#media-item-version-history">media item version history</a>.</p>
+<p>For example, if you configure a 7-day retention period for this policy and upload five images to the path <code>example.png</code> over time, the four older versions will be deleted 7 days after they were each overwritten. The most recent upload remains accessible indefinitely until it is overwritten.</p>
+<h3>Retention policy behavior</h3>
+<p>You can configure both retention policies on the same media set. A media item will be permanently deleted when either policy's conditions are met, whichever comes first.</p>
+<p>Once a media item's retention window expires, it will be permanently deleted and no longer accessible. For example:</p>
+<ul>
+<li>When a retention window is reduced, such as from 30 days to 7 days, all media items that are older than the new window (7 days) will immediately become inaccessible.</li>
+<li>When a retention window is expanded, such as from 7 days to 30 days, media items that previously expired (7 days and 1 second) <em>will not</em> be accessible. The same is true if retention is changed to "Never delete".</li>
+</ul>
+</body>
+</html>

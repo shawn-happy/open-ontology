@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Review checkpoint records</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Review checkpoint records</h1>
+<p>Once created, checkpoint records can be <strong>reviewed</strong> by various users on the platform. Typically, this may include a data protection officer or other data governance users.</p>
+<p>The <a href="https://www.palantir.com/docs/foundry/checkpoints/overview/#access-the-checkpoints-application">Checkpoints application</a> enables users to review <a href="https://www.palantir.com/docs/foundry/checkpoints/core-concepts/#checkpoint-records">checkpoint records</a> created on the platform.</p>
+<p>The <strong>Review</strong> tab of the Checkpoints application presents a table of all records you have permission to view, subject to your current filters. A <strong>Details</strong> panel reveals additional information stored in the record selected in the table. The following information is available for each record:</p>
+<ul>
+<li>The user who created the record.</li>
+<li>The timestamp of when a record was <strong>Created</strong>.</li>
+<li>The <a href="https://www.palantir.com/docs/foundry/checkpoints/checkpoint-types/"><strong>Checkpoint Type</strong></a> of the record.</li>
+<li>The <strong>Checkpoint Language</strong>, which includes the <strong>Checkpoint Title</strong>, <strong>Checkpoint Prompt</strong>, and <strong>Checkpoint Description</strong>. These values are inherited from the checkpoint configuration but are static; they always reflect the text shown to a user in the checkpoint and will not be updated if the underlying checkpoint configuration is edited or deleted.</li>
+<li>The <strong>Justification</strong> a user provided.</li>
+<li><strong>Checkpointed Items</strong> for the interaction: For <a href="https://www.palantir.com/docs/foundry/checkpoints/checkpoint-types/">checkpoint types</a> that describe an interaction involving a resource or other entity in the platform, references to those resources or entities will be saved in the record. For example, if you attempt to export a resource and submit a checkpoint generated from a configuration of type <strong>Compass export</strong>, then the record will contain a checkpointed item reference to this resource. Likewise, if you submit a checkpoint generated from a configuration of type <strong>Submit action</strong>, then the record will contain a checkpointed item reference to the Action type (including related metadata, like the Action type's Ontology and that Ontology's version at time of submission).</li>
+<li>A <strong>Checkpoint RID</strong> uniquely identifying each record.</li>
+<li>The <strong>Checkpoint Configuration RID</strong> uniquely identifying the checkpoint configuration the checkpoint was generated from.</li>
+</ul>
+<p><img alt="Screenshot of the Review tab in the Checkpoints application." src="../../_resources/foundry/checkpoints/checkpoints-review-tab.png" /></p>
+<h2>Permissions to view records</h2>
+<p>To view a checkpoint record, you must meet one of the following criteria:</p>
+<ul>
+<li><strong>Record creator:</strong> You created the checkpoint record.</li>
+<li><strong>Review records by resource permission:</strong> You have the <code>Review records by resource</code> (<code>checkpoints:review-records</code>) <a href="https://www.palantir.com/docs/foundry/platform-security-management/manage-roles/#understanding-roles-and-operations">operation</a> on the checkpointed resource. By default, this operation is not granted to any roles in the default <a href="https://www.palantir.com/docs/foundry/platform-security-management/manage-roles/#role-sets">role sets</a>; you will need to <a href="https://www.palantir.com/docs/foundry/platform-security-management/manage-roles/#creating-a-custom-role">create</a> or <a href="https://www.palantir.com/docs/foundry/platform-security-management/manage-roles/#editing-the-default-roles">modify</a> roles to grant this operation.</li>
+<li><strong>Space Administrator:</strong> You have the <code>Space Administrator</code> role on the space containing the checkpointed resource.</li>
+<li><strong>Organization Administrator:</strong> You have the <code>Data governance officer</code> <a href="https://www.palantir.com/docs/foundry/administration/enrollments-and-organizations-permissions/#roles">role</a> for the organization in Control Panel, which allows you to review checkpoint records submitted by all users in that organization.</li>
+</ul>
+<p>Foundry redacts certain resources or users contained in a record if you do not have the necessary permissions to view that item. Additionally, Foundry will not show any records made by users in an <a href="https://www.palantir.com/docs/foundry/security/orgs-and-spaces/#organizations">Organization</a> that you cannot discover.</p>
+<h2>Filtering records</h2>
+<p>The <strong>Review</strong> tab provides filters to refine which checkpoint records are displayed. You can use all the filters described below in combination:</p>
+<ul>
+<li><strong>Organization:</strong> Show records created by users in a given <a href="https://www.palantir.com/docs/foundry/security/orgs-and-spaces/#organizations">Organization</a>.</li>
+<li><strong>Space:</strong> Show records with checkpointed items located in the specified <a href="https://www.palantir.com/docs/foundry/security/orgs-and-spaces/#spaces">space</a> at the time of record creation.</li>
+<li><strong>Checkpoint type:</strong> Filter records by their <a href="https://www.palantir.com/docs/foundry/checkpoints/checkpoint-types/">checkpoint type</a>.</li>
+<li><strong>User:</strong> Filter records based on the submitting user.</li>
+<li><strong>Checkpointed resource:</strong> Filter records that reference a specific resource as a checkpointed item.</li>
+<li><strong>Time:</strong> Filter records based on when they were created.</li>
+</ul>
+</body>
+</html>

@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Permission checks when applying an Action</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Permission checks when applying an Action</h1>
+<p>The permission checks when applying an Action depend on whether you are editing a <a href="#edits-of-single-datasource-objects">single-datasource object</a> or a <a href="#edits-of-multi-datasource-objects">multi-datasource object</a>.</p>
+<h2>Edits of single-datasource objects</h2>
+<p>If an object type is backed by a single datasource, Actions allow a user to edit an object as long as:</p>
+<ul>
+<li>The user can view/load the object (see the <a href="https://www.palantir.com/docs/foundry/object-permissioning/overview/">Object Permissioning</a> section for details), <strong>and</strong></li>
+<li>The user passes <a href="https://www.palantir.com/docs/foundry/action-types/submission-criteria/#submission-criteria">submission criteria</a> defined in the action.</li>
+</ul>
+<p>When creating new objects, the user must be able to view the input datasource of the object type; the Action run will fail if the user does not have access to the input datasource.</p>
+<h2>Edits of multi-datasource objects</h2>
+<p>Object types can have properties that come from <a href="https://www.palantir.com/docs/foundry/object-permissioning/multi-datasource-objects/">more than one datasource</a>. In these cases, users can have varying levels of access on a given object, as follows:</p>
+<ul>
+<li>User can view the entire object; for example, the user may have access to all datasources as well as all rows in these datasources.</li>
+<li>User can view a subset of datasources; for example, the user may have access to all rows in some datasources and none of the rows in the other datasources.</li>
+<li>User can view a subset of rows in subset of datasources; for example, the user may have access to the full object for some rows, partial access to objects for some rows, and no access to objects for the remaining rows.</li>
+</ul>
+<p>If an object type has multiple datasources, the permission checks when applying an Action are more complicated, since enforcing constraints to ensure that the user must be able to view the entire object to edit it (as with single-datasource objects) can be very restrictive.</p>
+<p>The following permission rules are implemented for different kinds of Actions that can be applied to an object.</p>
+<h3>Create object</h3>
+<blockquote>
+<p>Scenario: The given object exists in datasources <code>D[i..k, m..n]</code>. The user is creating the object by setting values for properties only in <code>D[i..k]</code>.</p>
+</blockquote>
+<p>The user is not allowed to create the object unless they can view the backing datasource of <code>D[i..k]</code>. No permission is checked on <code>D[m..n]</code>. The values of <code>D[m..n]</code> default to <code>null</code>.</p>
+<p>If any of <code>D[i..k]</code> contained the object in the past (but have the object marked as deleted now), the user must have permissions to see the row/object in all of <code>D[i..k]</code> in order to recreate the object.</p>
+<h3>Edit or modify object</h3>
+<blockquote>
+<p>Scenario: The object exists in datasources <code>D[i..k, m..n]</code>. The user is editing properties mapped to <code>D[i..k]</code>.</p>
+</blockquote>
+<p>The user is allowed to edit properties provided they can view existing values of properties in <code>D[i..k]</code>. No permission is checked on properties mapped to <code>D[m..n]</code>.</p>
+<p><code>D[m..n]</code> will show up as <code>null</code> during the validation. The user can apply the Action if the validations pass with the <code>null</code> values.</p>
+<h3>Delete object</h3>
+<blockquote>
+<p>Scenario: The object exists in datasources <code>D[i..k, m..n]</code>.</p>
+</blockquote>
+<p>The user is not allowed to delete the object if they cannot view the entire object (in other words, all the properties coming from <code>D[i..k, m..n]</code>).</p>
+<h3>Create link</h3>
+<blockquote>
+<p>Scenario: Object1 exists in datasources <code>D1[i..k]</code> and object2 exists in datasources <code>D2[m..n]</code>.</p>
+</blockquote>
+<p>The user is allowed to create the link as long as they can load both object1 and object2 in any of the datasources <code>D1[i..k]</code> and <code>D2[m..n]</code>, respectively. No permission is checked on individual properties or datasources.</p>
+<h3>Delete link</h3>
+<blockquote>
+<p>Scenario: Object1 exists in datasources <code>D1[i..k]</code> and object2 exists in datasources <code>D2[m..n]</code>.</p>
+</blockquote>
+<p>The user is allowed to delete the link as long as they can load both object1 and object2 in any of the datasources <code>D1[i..k]</code> and <code>D2[m..n]</code>, respectively. No permission is checked on individual properties or datasources.</p>
+</body>
+</html>

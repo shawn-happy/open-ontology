@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Salesforce</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Salesforce</h1>
+<p>Foundry's <strong>Salesforce</strong> connector allows you to sync data between Salesforce and Foundry datasets.</p>
+<p>:::callout{theme="warning"}
+This document refers to the latest version of the Salesforce connector. If you are editing an existing Salesforce connector, it may be a legacy version. Review the section on <a href="#migration">migration</a> below for more information.
+:::</p>
+<h2>Supported capabilities</h2>
+<table>
+<thead>
+<tr>
+<th>Capability</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Exploration</td>
+<td>ð¢ Generally available</td>
+</tr>
+<tr>
+<td>Bulk import</td>
+<td>ð¢ Generally available</td>
+</tr>
+</tbody>
+</table>
+<h2>Data model</h2>
+<p>The connector models all available <a href="https://developer.salesforce.com/docs/atlas.en-us.object_reference.meta/object_reference/sforce_api_objects_list.htm">standard â</a> and custom Salesforce objects as Foundry datasets. Schemas are retrieved dynamically. The exploration view allows you to browse the data model and preview how Salesforce objects would appear once imported to Foundry.</p>
+<h3>Data type mapping</h3>
+<p>The connector maps Salesforce API types to the following <a href="https://www.palantir.com/docs/foundry/data-integration/datasets/#supported-field-types">Foundry field types</a>:</p>
+<table>
+<thead>
+<tr>
+<th>Salesforce</th>
+<th>Foundry</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Auto Number</td>
+<td>STRING</td>
+</tr>
+<tr>
+<td>Lookup Relationship</td>
+<td>STRING</td>
+</tr>
+<tr>
+<td>Master-Detail Relationship</td>
+<td>STRING</td>
+</tr>
+<tr>
+<td>External Lookup Relationship</td>
+<td>STRING</td>
+</tr>
+<tr>
+<td>Checkbox</td>
+<td>BOOLEAN</td>
+</tr>
+<tr>
+<td>Currency</td>
+<td>DECIMAL</td>
+</tr>
+<tr>
+<td>Date</td>
+<td>DATE</td>
+</tr>
+<tr>
+<td>Date/Time</td>
+<td>LONG</td>
+</tr>
+<tr>
+<td>Email</td>
+<td>STRING</td>
+</tr>
+<tr>
+<td>Geolocation</td>
+<td>STRING</td>
+</tr>
+<tr>
+<td>Number</td>
+<td>DOUBLE</td>
+</tr>
+<tr>
+<td>Percent</td>
+<td>DOUBLE</td>
+</tr>
+<tr>
+<td>Phone</td>
+<td>STRING</td>
+</tr>
+<tr>
+<td>Picklist</td>
+<td>STRING</td>
+</tr>
+<tr>
+<td>Picklist (Multi-Select)</td>
+<td>STRING</td>
+</tr>
+<tr>
+<td>Text</td>
+<td>STRING</td>
+</tr>
+<tr>
+<td>Text Area</td>
+<td>STRING</td>
+</tr>
+<tr>
+<td>Text Area (Long)</td>
+<td>STRING</td>
+</tr>
+<tr>
+<td>Text Area (Rich)</td>
+<td>STRING</td>
+</tr>
+<tr>
+<td>Text (Encrypted)</td>
+<td>STRING</td>
+</tr>
+<tr>
+<td>Time</td>
+<td>INTEGER</td>
+</tr>
+<tr>
+<td>URL</td>
+<td>STRING</td>
+</tr>
+</tbody>
+</table>
+<h2>Performance and limitations</h2>
+<p>The connector leverages the <a href="https://developer.salesforce.com/docs/atlas.en-us.api_asynch.meta/api_asynch/bulk_ingest.htm">Salesforce Bulk API â</a> by default, which is recommended for any data operation including more than 2000 rows. Read more about <a href="https://developer.salesforce.com/docs/atlas.en-us.salesforce_app_limits_cheatsheet.meta/salesforce_app_limits_cheatsheet/salesforce_app_limits_platform_bulkapi.htm">Bulk API Limits â</a>.</p>
+<p>The connector can optionally use the <a href="https://developer.salesforce.com/docs/atlas.en-us.api.meta/api/sforce_api_quickstart_intro.htm">Salesforce SOAP API â</a> when setting the JDBC property <code>UseBulkAPI</code> to <code>false</code>. The SOAP API is also subject to <a href="https://developer.salesforce.com/docs/atlas.en-us.salesforce_app_limits_cheatsheet.meta/salesforce_app_limits_cheatsheet/salesforce_app_limits_platform_apicalls.htm">Salesforce SOAP API Call Limits â</a>.</p>
+<h2>Setup</h2>
+<ol>
+<li>Open the <a href="https://www.palantir.com/docs/foundry/data-connection/overview/">Data Connection</a> application and select <strong>+ New Source</strong> in the upper right corner of the screen.</li>
+<li>Select <strong>Salesforce</strong> from the available connector types.</li>
+<li>Follow the additional configuration prompts to continue the set up of your connector using the information in the sections below.</li>
+</ol>
+<p>Learn more about <a href="https://www.palantir.com/docs/foundry/data-connection/set-up-source/">setting up a connector</a> in Foundry.</p>
+<h2>Authentication</h2>
+<p>Select a credential method to authenticate your Salesforce connection: JWT token or username-password.</p>
+<p>:::callout{theme="warning"}
+Salesforce restricted the creation of new connected apps as of the Spring '26 release. Existing connected apps continue to work, and Salesforce recommends <a href="https://help.salesforce.com/s/articleView?id=xcloud.external_client_apps.htm\&amp;language=en_US">external client apps â</a> for new integrations. The sections below describe how to configure an external client app. Review the <a href="https://developer.salesforce.com/docs/atlas.en-us.api_rest.meta/api_rest/intro_oauth_and_connected_apps.htm">Salesforce authorization documentation â</a> for more information.
+:::</p>
+<h3>JWT token</h3>
+<p>You can use the OAuth 2.0 <a href="https://help.salesforce.com/articleView?id=remoteaccess_oauth_jwt_flow.htm">JSON Web Token (JWT) bearer flow â</a> to authorize Foundry to access data without interactively logging in on each request.</p>
+<p>To enable JWT authentication, you must generate a certificate, upload it while creating an external client app, then authorize the integration user.</p>
+<h4>Part 1: Generate a certificate</h4>
+<p>First, create a Salesforce user and verify it has access permission for APIs and any Salesforce objects you wish to modify. Be sure you are able to log in as the integration user, as you will need to authorize as this user in a future step.</p>
+<p>Now, create a JWT certificate. The Salesforce <a href="https://help.salesforce.com/articleView?id=remoteaccess_oauth_jwt_flow.htm\&amp;type=5">JWT bearer flow â</a> requires an X.509 certificate and the associated private key. To generate a private key, use <code>openssl</code> at the command line and run the following commands:</p>
+<ol>
+<li>Generate the x.509 public and private key pair:</li>
+</ol>
+<p><code>bash
+   openssl genrsa 1024 | openssl pkcs8 -topk8 -inform PEM -out key.pem -nocrypt
+   openssl req -new -x509 -key key.pem -out cert.pem -days 3650</code></p>
+<ol start="2">
+<li>Export the certificate to a PFX store, convert to Base64, and copy to clipboard:</li>
+</ol>
+<p><code>bash
+   openssl pkcs12 -export -in cert.pem -inkey key.pem | openssl base64 | pbcopy</code></p>
+<p>:::callout{theme="warning"}
+Be sure to save the certificate value in a secure location. You will need to access the value later in the <a href="#part-3-authorize-user">configuration</a>.
+:::</p>
+<h4>Part 2: Create an external client app</h4>
+<p>Before you begin, confirm that external client apps (formerly connected apps) are enabled for your Salesforce organization. Your Salesforce user must also be permitted to create external client apps and to edit their policies.</p>
+<p>Create the app by following the Salesforce documentation on <a href="https://help.salesforce.com/s/articleView?id=xcloud.create_a_local_external_client_app.htm\&amp;language=en_US">creating an external client app â</a>, or the Trailhead unit <a href="https://trailhead.salesforce.com/content/learn/projects/build-integrations-with-external-client-apps/create-and-configure-an-external-client-app">Create and Configure an External Client App for API â</a>. Only the settings listed below affect this connector; leave the remaining sections of the creation form at their defaults.</p>
+<p>When you are finished, the app must have:</p>
+<ul>
+<li><strong>OAuth enabled:</strong> The connector authenticates through OAuth, so an app without OAuth turned on cannot be used.</li>
+<li><strong>A callback URL of <code>https://localhost:12345</code>:</strong> Salesforce requires a callback URL, but the connector never sends one. Use this value so that it matches the browser authorization option in <a href="#part-3-authorize-user">Part 3</a>.</li>
+<li><strong>The X.509 certificate from <a href="#part-1-generate-a-certificate">Part 1</a> uploaded:</strong> Upload the <code>cert.pem</code> file. Uploading a certificate is what enables the JWT bearer flow. There is no separate setting that turns the flow on.</li>
+<li><strong>OAuth scopes:</strong> Grant <code>api</code>. Grant <code>offline_access</code> and <code>refresh_token</code> as well, but only if you intend to use the browser authorization option in <a href="#part-3-authorize-user">Part 3</a>.</li>
+</ul>
+<p>Retrieve the consumer key of the app and store it in a secure place. You will enter this value as <code>Consumer key</code> in the connector configuration below. The key is hidden until you reveal it, and Salesforce may ask you to confirm a verification code sent to your email address before showing it. The connector sends the consumer key inside the signed JWT, so you do not need the consumer secret that Salesforce issues alongside it.</p>
+<p>:::callout{theme="neutral"}
+Do not confuse the JWT bearer flow with the <strong>Issue JSON Web Token (JWT)-based access tokens for named users</strong> setting on the app. That setting changes the format of the access tokens that Salesforce issues, and this connector does not require it.
+:::</p>
+<p>A new external client app may not be usable immediately. If authentication fails shortly after you create the app, wait up to 30 minutes and retry before you change the configuration.</p>
+<p>:::callout{theme="neutral"}
+If your Salesforce organization already has a working connected app for this connector, you can continue to use it. Salesforce restricted the creation of new connected apps but did not disable existing ones. For an existing connected app, review the <a href="https://help.salesforce.com/articleView?id=connected_app_manage_oauth.htm\&amp;type=5">Salesforce guidance on managing OAuth access â</a>.
+:::</p>
+<h4>Part 3: Authorize user</h4>
+<p>The integration user must be authorized for the external client app before the connector can use it. Pre-authorization is the recommended option, because the connector authenticates with a signed JWT and never exchanges the authorization code that the browser flow produces.</p>
+<ul>
+<li><strong>Pre-authorize the user:</strong> In the OAuth policies of the app, set <strong>Permitted Users</strong> to <strong>Admin approved users are pre-authorized</strong>. Then, grant the integration user access through the Profile assigned to that user, or through a Permission Set that includes that user. The policy alone does not authorize the user without that grant. Review the <a href="https://help.salesforce.com/s/articleView?id=xcloud.external_client_apps.htm\&amp;language=en_US">Salesforce external client app documentation â</a> for the available policy values.</li>
+<li><strong>Perform a one-time authorization:</strong> Complete the Salesforce login flow once in a browser as the integration user. This option requires that the app also has the <code>offline_access</code> and <code>refresh_token</code> scopes:
+  1. Navigate to the following Salesforce URL: <code>https://&lt;salesforce-url&gt;/services/oauth2/authorize?client_id=</code><strong><code>&lt;CONSUMER_KEY&gt;</code></strong><code>&amp;redirect_uri=</code><strong><code>&lt;CALLBACK_URL&gt;</code></strong><code>&amp;scope=api%20offline_access%20refresh_token&amp;response_type=code&amp;response_mode=query&amp;nonce=bebmwgu22zh</code><ul>
+<li>Replace <code>&lt;CONSUMER_KEY&gt;</code> with your consumer key and <code>&lt;CALLBACK_URL&gt;</code> with the callback URL configured on the app.</li>
+<li>Replace <code>&lt;salesforce-url&gt;</code> with your Salesforce instance URL (<code>&lt;site&gt;.my.salesforce.com</code>).
+  2. Complete the login flow and approve the requested scopes. Confirm that the username shown is the integration user and not your personal account. Authorizing the wrong user produces a connector that appears to work and then fails on the permissions of the wrong user.
+  3. Expect the browser to finish on a "Not Found" error at <code>https://localhost:12345</code>. The callback URL is not a real endpoint, so that error indicates the flow completed.</li>
+</ul>
+</li>
+</ul>
+<p>Continue setting up a Salesforce connector in Foundry using the JWT authentication configuration options below:</p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Required</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>This is a Salesforce sandbox account</code></td>
+<td>Yes</td>
+<td>Determines if the connection should be made to a Salesforce sandbox account. Sets the default value for <code>Login URL</code>: <code>login.salesforce.com</code> for standard accounts and <code>test.salesforce.com</code> for sandbox accounts.</td>
+</tr>
+<tr>
+<td><code>Username</code></td>
+<td>Yes</td>
+<td>Enter the username of the integration user.</td>
+</tr>
+<tr>
+<td><code>Base64 PFX certificate</code></td>
+<td>Yes</td>
+<td>Value obtained from <a href="#part-1-generate-a-certificate">generating a certificate</a>.</td>
+</tr>
+<tr>
+<td><code>The certificate is password protected</code></td>
+<td>No</td>
+<td>Toggle on if the certificate store is password protected.</td>
+</tr>
+<tr>
+<td><code>Certificate password</code></td>
+<td>No</td>
+<td>The certificate store password.</td>
+</tr>
+<tr>
+<td><code>Specify the certificate subject</code></td>
+<td>No</td>
+<td>Leave off to use the first certificate in the store. Toggle on to specify a certificate to use if the certificate store contains multiple certificates.</td>
+</tr>
+<tr>
+<td><code>Certificate subject</code></td>
+<td>No</td>
+<td>The subject of the desired certificate. Used to locate the certificate in the store . If an exact match is not found, the store is searched for a certificate whose subject contains the supplied value.</td>
+</tr>
+<tr>
+<td><code>Consumer key</code></td>
+<td>Yes</td>
+<td>Enter the consumer key available in the settings of the <a href="#part-2-create-an-external-client-app">external client app</a>.</td>
+</tr>
+</tbody>
+</table>
+<h3>Username-password</h3>
+<p>To connect to Salesforce with the <a href="https://help.salesforce.com/articleView?id=remoteaccess_oauth_username_password_flow.htm">username-password â</a> authentication method, you must create a service user account and an external client app in Salesforce. Then, add the service user credentials into the Salesforce connector.</p>
+<p>Follow the steps below to enable the username-password authentication flow.</p>
+<ol>
+<li>
+<p>Create a Salesforce user and verify it has access permission for APIs and any Salesforce objects you wish to modify. Note the userâs username and password for future reference.</p>
+</li>
+<li>
+<p>Create an external client app, following <a href="#part-2-create-an-external-client-app">Part 2</a> with these differences:</p>
+</li>
+</ol>
+<ul>
+<li>No certificate is required.</li>
+<li>Grant the <strong>Full access (full)</strong> OAuth scope instead of <code>api</code>, so that the app can access all data available to the active user.</li>
+<li>In the OAuth policies of the app, set <strong>Permitted Users</strong> to <strong>All users may self-authorize</strong>.</li>
+<li>No consumer key is required. This authentication method uses only the username and password that you configure below.</li>
+</ul>
+<p>The username-password authentication method supports the following configuration options:</p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Required</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>This is a Salesforce sandbox account</code></td>
+<td>Yes</td>
+<td>Determines if the connection should be made to a Salesforce sandbox account. Sets the default value for <code>Login URL</code>: <code>login.salesforce.com</code> for standard accounts and <code>test.salesforce.com</code> for sandbox accounts.</td>
+</tr>
+<tr>
+<td><code>Username</code></td>
+<td>Yes</td>
+<td>The username of the account that the app is imitating.</td>
+</tr>
+<tr>
+<td><code>Password</code></td>
+<td>Yes</td>
+<td>The password of the account that the app is imitating.</td>
+</tr>
+</tbody>
+</table>
+<p>:::callout{theme="neutral"}
+If you experience authorization problems when trying to connect from Foundry and see <code>Failed: API security token required</code> in the <strong>Salesforce Login History</strong> of the user, you must add the user's security token to the end of the password.</p>
+<p>The security token is an automatically generated key that must be added to the password to log in to Salesforce from an untrusted network. Salesforce does not allow users to view the security token within the application; instead, you must log in to Salesforce as the <em>integration user</em> and navigate to <strong>My Settings</strong> in the top right corner. Then, navigate to <strong>Personal &gt; Reset My Security Token</strong>.
+:::</p>
+<h3>Networking</h3>
+<p>If a direct connection is running your Salesforce connector, you must add a <a href="https://www.palantir.com/docs/foundry/administration/configure-egress/">network egress policy</a> to allowlist the connection.</p>
+<p>Choose to add an existing policy, or create a new policy.</p>
+<p>To allowlist a direct connection for Salesforce, add the following policies:</p>
+<ul>
+<li>Login URL: Requires <code>DNS</code>, port <code>443</code> (HTTPS), and one of the following:</li>
+<li><code>login.salesforce.com</code> (production)
+    <strong>OR</strong></li>
+<li>
+<p><code>test.salesforce.com</code> (sandbox)</p>
+</li>
+<li>
+<p>Instance URL: Requires <code>DNS</code> for <code>&lt;site&gt;.my.salesforce.com</code>, port <code>443</code> (HTTPS).</p>
+</li>
+</ul>
+<h3>Certificates and private keys</h3>
+<p>SSL connections validate servers certificates. Normally, SSL validations happen through a certificate chain; by default, both agent and Foundry workers trust most industry-standard certificate chains. If the server to which you are connecting has a self-signed certificate, or if there is TLS interception during the validation, the connector must trust the certificate. Learn more about <a href="https://www.palantir.com/docs/foundry/data-connection/set-up-source/#optional-add-certificates">using certificates in Data Connection</a>.</p>
+<h2>Configuration options</h2>
+<p>The Salesforce connector supports the following configuration options:</p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Required</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>API version</code></td>
+<td>Yes</td>
+<td>50</td>
+<td>The Salesforce API version.</td>
+</tr>
+<tr>
+<td><code>Connected app credentials</code></td>
+<td>Yes</td>
+<td><code>JWT bearer token</code></td>
+<td>Contains credentials needed to connect to Salesforce. In Salesforce, these credentials are configured on an external client app. Review the <a href="#authentication">Authentication</a> sections above for more information.</td>
+</tr>
+<tr>
+<td><code>Login URL</code></td>
+<td>No</td>
+<td><code>login.salesforce.com</code> (production), or <code>test.salesforce.com</code> (sandbox)</td>
+<td>The URL used to connect to retrieve OAuth tokens.</td>
+</tr>
+<tr>
+<td><code>Timeout</code></td>
+<td>No</td>
+<td>60</td>
+<td>The duration of time before the HTTP client connection times out while waiting for a response. Time is in seconds.</td>
+</tr>
+<tr>
+<td><code>Proxy settings</code></td>
+<td>No</td>
+<td>No</td>
+<td>The proxy configuration to use when connecting to Salesforce.</td>
+</tr>
+</tbody>
+</table>
+<h2>Sync data from Salesforce</h2>
+<p>Use the <a href="https://www.palantir.com/docs/foundry/data-connection/source-exploration/">exploration view</a> to sync tables. Additional configuration options are available when editing a sync.</p>
+<h3>Incremental</h3>
+<p>During incremental syncs with the Salesforce connector, new data is synced if the incremental column value is <em>greater than or equal</em> to the previous observed maximum value. This behavior, though required for precision and correctness of synced data, will lead to duplicate rows in the output dataset. Incremental pipelines should always contain a deduplication step.</p>
+<h3>Filtering</h3>
+<p>You can add row filters to a sync configuration to exclude data that does not fit a set criteria.
+Use the condition tree to define your filter:</p>
+<ul>
+<li>Logical operators:</li>
+<li><code>ALL</code>: Requires all nodes nested beneath to be true.</li>
+<li><code>ANY</code>: Requires at least one of the nested nodes to be true.</li>
+<li>Conditions:</li>
+<li>Select from a list of available columns.</li>
+<li>Depending on the column type, choose an appropriate operator.</li>
+<li>Set a value to compare against the selected column.</li>
+</ul>
+<p>Be sure to <strong>Save</strong> your configurations to apply them to the sync.</p>
+<h2>Migration</h2>
+<p>If you already have a Salesforce connector, you may be running a legacy version. To identify your connector version, migrate to <strong>Connection settings &gt; Connection details</strong>. If source configuration shows a <strong>Custom YAML</strong> section with a <code>type: salesforce</code> field, you are using a legacy Salesforce connector. You must migrate to the latest version to receive Palantir support beyond bug fixes.</p>
+<h3>Migrate connector</h3>
+<ol>
+<li>Open the <a href="https://www.palantir.com/docs/foundry/data-connection/overview/">Data Connection</a> application and select <strong>+ New Source</strong> in the upper right corner of the screen.</li>
+<li>Select <strong>Salesforce</strong> from the available connector types.</li>
+<li>Follow the additional configuration prompts to continue the set up of your connector using the information in the sections below.</li>
+<li>Configure the authentication to match that of the legacy source. In the legacy source configuration, find the  <code>auth-method</code> or <code>authentication-method</code> block in the custom YAML.
+   * If <code>type: oauth2-jwt</code>, configure the new source with <a href="#jwt-token">JWT authentication</a>:<ul>
+<li><code>claim-sub</code> from the custom YAML becomes <code>Username</code> in new connector configuration.</li>
+<li><code>x509-cert</code> is exported to PFX, then Base64 encoded and becomes <code>Certificate</code>. Learn more about certificates in the <a href="#jwt-token">JWT authentication</a> section above.</li>
+<li>If the PFX is password protected, toggle on <code>The certificate is password protected</code> and enter the <code>Certificate password</code>.</li>
+<li><code>claim-iss</code> from the custom YAML becomes <code>Consumer key</code> in the new connector configuration.</li>
+<li>If <code>type: oauth2-username-password</code>, configure the new source with <a href="#username-password">username-password authentication</a>:</li>
+<li><code>username</code> from the custom YAML becomes <code>Username</code> in the new connector configuration.</li>
+<li><code>password</code> from the custom YAML becomes <code>Password</code> in the new connector configuration.</li>
+<li><code>client-id</code> and <code>client-secret</code> properties on the legacy source are <em>not</em> required by the new connector.</li>
+</ul>
+</li>
+<li>Configure other properties:
+   * <code>auth-url</code> from the custom YAML becomes <code>Login URL</code> in the new connector configuration.
+   * If <code>auth-url</code> had a value of <code>test.salesforce.com</code> in the custom YAML, toggle on <code>Is Salesforce sandbox account</code> in the new connector configuration.</li>
+</ol>
+<h3>Migrate syncs</h3>
+<p>After configuring a new Salesforce connector, create syncs for the objects that were previously synced by the legacy connector. Use the <a href="https://www.palantir.com/docs/foundry/data-connection/source-exploration/">exploration view</a> to bulk sync multiple objects at once and create new datasets.</p>
+<p>:::callout{theme="neutral"}
+If using the same API version, both the legacy and new Salesforce connectors will use the same schema; all downstream applications should continue to function if inputs are remapped.
+:::</p>
+<p>You must migrate downstream pipelines to use the new sync datasets. Once you have confirmed that no other consumers require the legacy datasets, you can delete the datasets, associated syncs, and connections. Use <a href="https://www.palantir.com/docs/foundry/data-lineage/overview/">Data Lineage</a> to find where the legacy datasets are used in your environment.</p>
+</body>
+</html>

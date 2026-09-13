@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Configure file peering</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Configure file peering</h1>
+<p>After you <a href="https://www.palantir.com/docs/foundry/peer-manager/create-a-peer-connection/">establish a peering relationship between two spaces</a>, you can use Peer Manager to configure file peering. File peering enables you to synchronize Gotham files, such as <a href="https://www.palantir.com/docs/foundry/object-link-types/create-ontology-objects-from-gaia/">Gaia maps</a>, between your enrollment and another across a peer connection.</p>
+<p>:::callout{theme="neutral"}
+To peer files between spaces, your enrollment must use both Foundry and Gotham. <br><br>
+Contact Palantir Support with questions about Gotham files or their additional documentation present in platform.
+:::</p>
+<p><img alt="The Files page displays file peering configuration options for a peer connection in Peer Manager." src="../../_resources/foundry/peer-manager/file-peering-page.png" /></p>
+<h2>Enable file peering for each file type</h2>
+<p>Before you are able to peer files across a peer connection, navigate to the connection in Peer Manager and select <strong>Settings</strong> from the top ribbon to ensure <a href="https://www.palantir.com/docs/foundry/peer-manager/peer-connection-settings/">the connection's settings</a> enable file export and import.</p>
+<p><img alt="The Files section of a peer connection's Settings tab in Peer Manager is displayed." src="../../_resources/foundry/peer-manager/enable-file-exports-imports.png" /></p>
+<p>Once you configure the peer connection's file export and import settings, select <strong>Files</strong> to set the desired peer behavior for each file type. Choose a <strong>File type</strong> from the <strong>File peering</strong> panel to launch its configuration in a drawer popover on the right side of your screen.</p>
+<p>:::callout{theme="neutral"}
+You must configure file type peering behavior on <strong>both</strong> the local and remote sides of the peer connection.
+:::</p>
+<p><img alt="The side panel displays configuration options for a file type's peer settings." src="../../_resources/foundry/peer-manager/file-peering-side-panel.png" /></p>
+<p>Within the drawer popover, you can set the file's <strong>Export selection</strong> to automatically peer all files or only a selection based on an applied tag or temporal parameter.</p>
+</body>
+</html>

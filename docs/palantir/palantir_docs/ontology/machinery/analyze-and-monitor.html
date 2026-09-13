@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Analyze and monitor a process</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Analyze and monitor a process</h1>
+<p>The Machinery widget provides operational insights and monitoring capabilities for your configured Machinery processes.</p>
+<ul>
+<li>Gain visibility into process operations when users are actively working within processes.</li>
+<li>Identify bottlenecks for analytical and monitoring workflows.</li>
+<li>Visualize process flows and metrics through configurable views.</li>
+</ul>
+<p><img alt="Image of the Machinery widget." src="../../_resources/foundry/machinery/widget.png" /></p>
+<p>The widget renders your Machinery graph in Workshop applications as a visualization that can display metrics, process flows, and object distributions.</p>
+<p>The Machinery widget is available in Workshop modules or as a stand-alone view mode in the Machinery application with limited features.</p>
+<h2>Widget configuration</h2>
+<p>Create or open a Workshop module and select the Machinery Overview widget. The widget version v2 is selected by default and supports Machinery v2 resources. At the top of the widget configuration, select your Machinery graph resource.</p>
+<h3>Upgrade existing applications</h3>
+<p>New Machinery widgets will be created as v2 widgets by default. Existing widgets will need to be upgraded to v2.</p>
+<ol>
+<li>To upgrade a legacy widget to v2, open <strong>Workshop</strong> edit mode with the <strong>...</strong> dropdown menu.</li>
+<li>Select anywhere in the graph, and under the <strong>Widget setup</strong> menu, select <strong>Use Machinery v2</strong>.</li>
+<li>Update your <a href="#inputs">inputs</a> appropriately.</li>
+</ol>
+<p><img src="../../_resources/external-db76401836b5.png" alt="Machinery version selector." width="350" /></p>
+<h3>Inputs</h3>
+<p>Configure an input object set for each root process in your graph. The Machinery widget automatically derives subprocess object sets from the link type setup, and subprocesses have link types to their parent objects, as configured under <strong>Object type</strong>.</p>
+<p><strong>Example:</strong> If you provide 100 application objects, and each application is linked to multiple review objects, the widget automatically identifies all related reviews through the configured link types. This means that you only need to configure the object input for each root process of the graph (typically 1 object input).</p>
+<h3>Metric views</h3>
+<p>The Machinery widget is instantiated with the following pre-configured metric views:</p>
+<ul>
+<li><strong>Historical count:</strong> Show ever count metrics.</li>
+<li><strong>Current count:</strong> Show current count in state.</li>
+<li><strong>Historical duration:</strong> Show historical duration in the state.</li>
+<li><strong>Current duration:</strong> Show current duration in the state.</li>
+</ul>
+<p>Application builders can add, remove, reorganize or customize these metrics views.</p>
+<p><img src="../../_resources/external-79bc14ffb6f2.png" width="350" alt="Edit pre-configured views in Workshop's Edit mode or add your own with the Add item option."></p>
+<p>Custom views may also be added using the <strong>+ Add item</strong> option. For each view, a builder can define one node metric with numerical formatting and conditional coloring, an optional edge metric, and enable Sankey diagram edge thickness settings.</p>
+<h3>Outputs</h3>
+<p>Output datasets can be used for further analysis within the Workshop module. Configure output object sets to capture filtered results based on graph interactions:</p>
+<ul>
+<li>Create one output per process in the graph (optional)</li>
+<li>The output object set applies filters defined on the process level in the Machinery application as well as search arounds from parent to child processes.</li>
+<li>Outputs respond dynamically to node/edge selection</li>
+<li>Path explorer and distribution charts provide additional means of affecting the output</li>
+</ul>
+<h4>Node and edge selection</h4>
+<p>You can change how node selection affects the object output by toggling either of the options:</p>
+<ul>
+<li>Processes currently in selected states</li>
+<li>Processes ever in selected states</li>
+</ul>
+<p>Edge selection can be configured to show objects that ever went through a transition or just the last transition.</p>
+<h3>Configure views</h3>
+<p>Views determine what metrics and visualizations appear in the widget. See the metric views section below for details.</p>
+<h2>Widget features</h2>
+<p>A user viewing a graph in the Machinery widget can benefit from features including metric cycling and pinning, various usage modes, and filters.</p>
+<h3>Metric views, cycling, and pinning</h3>
+<p>The widget displays metrics in a space-efficient manner. On the graph, one node metric is visible at a time, as well as one optional edge metric if selected. If the viewport is sufficiently zoomed in, the graph will show node cards with 3 metrics, starting with the active view. If Sankey diagram edges have been configured, edge thickness is used to represent flow frequency on the Transitions view.</p>
+<p><img alt="Nodes showing metric cards when graph is zoomed-in." src="../../_resources/foundry/machinery/widget-contextual-zoom.png" /></p>
+<h4>Preconfigured views</h4>
+<p>Users of the widget can cycle through preconfigured <a href="#metric-views">metric views</a>, including historical count, current count, historical duration, and current duration. Once a view is selected, hover over any node to reveal all available metrics.</p>
+<p><img alt="Widget views selector at the bottom of the graph." src="../../_resources/foundry/machinery/widget-views.png" /></p>
+<p>Additionally, select a node metric to pin it and keep the metrics visible for review, or select again to unpin.</p>
+<p><img alt="Select a node metric to pin it. To unpin, select the pin icon." src="../../_resources/foundry/machinery/node-pinning.png" /></p>
+<h3>Process-conformance filtering</h3>
+<p>By default, the widget only displays processes that conform to your process definition:</p>
+<ul>
+<li>States and transitions that are not present in Machinery are excluded.</li>
+<li>Metrics are computed only over conforming processes.</li>
+<li>If any log object type on the graph contains more than 1M objects, conformance filtering is disabled and the graph will cover all input objects including metrics computation and output object sets.</li>
+</ul>
+<h3>Focus into a parent process</h3>
+<p>On a graph, you may focus into a desired parent process to narrow your view.</p>
+<h3>Graph selection and outputs</h3>
+<p>Interact with the graph to filter output object sets:</p>
+<ul>
+<li>Select nodes to filter objects by state.</li>
+<li>Select edges to filter objects by transitions.</li>
+<li>Output object sets update automatically based on your selection.</li>
+</ul>
+<h3>Graph features</h3>
+<p>The following graph features may be enabled or disabled individually in the widget header.</p>
+<ul>
+<li><strong>Transition nodes:</strong> When your graph includes actions or automations as configured in the Machinery application, the Machinery widget will replace them with implicit state transitions to help you understand the process from a state-transition perspective. You can choose to show the transition nodes instead, and configure default behavior in the widget configuration.</li>
+<li><strong>Subprocesses:</strong> If the graph has subprocesses, you can replace these subprocesses with their implicit state transitions to allow you to see transition metrics on the currently focused process.</li>
+<li><strong>Deviations:</strong> If your current data has deviating objects, they are hidden by default. Deviating objects are those that take any states or transitions that are not included in the process definition. You can make them invisible and independently choose whether they are included in the widget output.</li>
+</ul>
+<h3>Analysis modes</h3>
+<p>With the Machinery graph open, you can toggle between the path explorer feature and the duration distribution feature located on the right side of the graph. The selected feature will open on the right side.</p>
+<p><img alt="From the right side of your graph, choose between the path explorer or duration distribution filter." src="../../_resources/foundry/machinery/widget-filtering-views.png" /></p>
+<h4>Path explorer</h4>
+<p>Analyze individual process paths and their frequency using the path explorer feature for one process at a time. To open path explorer, select the path explorer icon located on the right side of the graph.</p>
+<p>Path explorer displays all paths taken by the currently focused process, and shows the path frequency distribution (the frequency of objects completing the path).</p>
+<p>Hover over a path in the window to see it highlighted on your graph. You may also select one or more paths to filter the output.</p>
+<p><img alt="Path explorer pane on the right side of the graph." src="../../_resources/foundry/machinery/widget-path-explorer.png" /></p>
+<p>Note that when path explorer is open, path selection controls the widget output and overrides previous node/edge selection.</p>
+<h4>Duration distribution</h4>
+<p>Use the duration distribution filter to identify performance outliers and analyze time spent in states.</p>
+<p>The duration chart responds to selection on the graph and follows configured node and edge selection options.</p>
+<p>Selecting individual buckets or a range of buckets will filter the output object set. You can combine chart selection with graph selection to find objects with undesirable behavior, such as taking too long in an individual transition or state.</p>
+<p><img alt="View the duration distribution to learn how long it takes objects to pass through between states." src="../../_resources/foundry/machinery/widget-duration-distribution.png" /></p>
+</body>
+</html>

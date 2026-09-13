@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Heartbeat detection</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Heartbeat detection</h1>
+<blockquote>
+<p>Supported in: Streaming</p>
+</blockquote>
+<p>Detects when a record hasn't been seen for a configurable amount of time for a set of keys.</p>
+<p><strong>Transform categories</strong>: Other</p>
+<h2>Declared arguments</h2>
+<ul>
+<li><strong>Dataset:</strong> Input dataset.<br><em>Table</em></li>
+<li><strong>Heartbeat time unit:</strong> Unit for amount of time to wait for data for a particular key.<br><em>Enum\<Days, Hours, Milliseconds, Minutes, Seconds, Weeks></em></li>
+<li><strong>Heartbeat time value:</strong> Value for the amount of time to wait for data from a particular key.<br><em>Literal\<Long></em></li>
+<li><strong>Partition by columns:</strong> Set of columns to use as keys for detecting heartbeats.<br><em>Set\<Column\\<AnyType>></em></li>
+</ul>
+<h2>Examples</h2>
+<h3>Example 1: Base case</h3>
+<p><strong>Description:</strong> The first record from sensor_1 at time 00:00:00 triggers an alive heartbeat detection. The second record at 00:00:05 extends the timeout but does not emit a new detection. The third record from sensor_2 at 00:00:20 advances the watermark past 00:00:15, causing sensor_1's timeout timer to fire and marking its heartbeat as missed. The sensor_2 record also triggers its own alive detection.</p>
+<p><strong>Argument values:</strong></p>
+<ul>
+<li><strong>Dataset:</strong> ri.foundry.main.dataset.test</li>
+<li><strong>Heartbeat time unit:</strong> <code>SECONDS</code></li>
+<li><strong>Heartbeat time value:</strong> 10</li>
+<li><strong>Partition by columns:</strong> {<code>sensor_id</code>}</li>
+</ul>
+<p><strong>Input:</strong></p>
+<table>
+<thead>
+<tr>
+<th>row_order</th>
+<th>sensor_id</th>
+<th>temperature</th>
+<th>measurement_timestamp</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>3</td>
+<td>sensor_2</td>
+<td>19.8</td>
+<td>2024-09-30T00:00:20</td>
+</tr>
+<tr>
+<td>2</td>
+<td>sensor_1</td>
+<td>21.0</td>
+<td>2024-09-30T00:00:05</td>
+</tr>
+<tr>
+<td>1</td>
+<td>sensor_1</td>
+<td>20.5</td>
+<td>2024-09-30T00:00:00</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Output:</strong></p>
+<table>
+<thead>
+<tr>
+<th>sensor_id</th>
+<th>alive</th>
+<th>detection_time</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>sensor_1</td>
+<td>true</td>
+<td>2024-09-30T00:00:00Z</td>
+</tr>
+<tr>
+<td>sensor_1</td>
+<td>false</td>
+<td>2024-09-30T00:00:15Z</td>
+</tr>
+<tr>
+<td>sensor_2</td>
+<td>true</td>
+<td>2024-09-30T00:00:20Z</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3>Example 2: Base case</h3>
+<p><strong>Description:</strong> Each partition key maintains independent state and timers, but all keys share the same global watermark. sensor_1 sends data at 00:00:00 and sensor_2 at 00:00:05. The record from sensor_3 at 00:00:20 advances the watermark past both timeout thresholds, causing sensor_1's timer at 00:00:10 and sensor_2's timer at 00:00:15 to fire in sequence, marking both as missed.</p>
+<p><strong>Argument values:</strong></p>
+<ul>
+<li><strong>Dataset:</strong> ri.foundry.main.dataset.test</li>
+<li><strong>Heartbeat time unit:</strong> <code>SECONDS</code></li>
+<li><strong>Heartbeat time value:</strong> 10</li>
+<li><strong>Partition by columns:</strong> {<code>sensor_id</code>}</li>
+</ul>
+<p><strong>Input:</strong></p>
+<table>
+<thead>
+<tr>
+<th>row_order</th>
+<th>sensor_id</th>
+<th>temperature</th>
+<th>measurement_timestamp</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>3</td>
+<td>sensor_3</td>
+<td>22.1</td>
+<td>2024-09-30T00:00:20</td>
+</tr>
+<tr>
+<td>2</td>
+<td>sensor_2</td>
+<td>18.3</td>
+<td>2024-09-30T00:00:05</td>
+</tr>
+<tr>
+<td>1</td>
+<td>sensor_1</td>
+<td>20.5</td>
+<td>2024-09-30T00:00:00</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Output:</strong></p>
+<table>
+<thead>
+<tr>
+<th>sensor_id</th>
+<th>alive</th>
+<th>detection_time</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>sensor_1</td>
+<td>true</td>
+<td>2024-09-30T00:00:00Z</td>
+</tr>
+<tr>
+<td>sensor_2</td>
+<td>true</td>
+<td>2024-09-30T00:00:05Z</td>
+</tr>
+<tr>
+<td>sensor_1</td>
+<td>false</td>
+<td>2024-09-30T00:00:10Z</td>
+</tr>
+<tr>
+<td>sensor_2</td>
+<td>false</td>
+<td>2024-09-30T00:00:15Z</td>
+</tr>
+<tr>
+<td>sensor_3</td>
+<td>true</td>
+<td>2024-09-30T00:00:20Z</td>
+</tr>
+</tbody>
+</table>
+<hr />
+</body>
+</html>

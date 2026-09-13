@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Manage object security</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Manage object security</h1>
+<p>Ontology data can be secured using <a href="#object-and-property-security-policies">object and property policies</a> or <a href="#data-source-policies">data source policies</a>. Both approaches support <em>cell-level security</em>, which is a combination of row and column level security.</p>
+<p>As an example, consider a <code>Passenger</code> object type in an airline management platform with the properties <code>User ID</code>, <code>Flight Number</code>, <code>Seat Assignment</code>, <code>Name</code>, <code>Address</code>, and <code>Phone Number</code>.</p>
+<ul>
+<li><strong>Row-level security:</strong> Certain users are VIPs and their object instances, corresponding to rows in the backing dataset, can only be seen if a user has the <code>VIP</code> marking.</li>
+<li><strong>Column-level security:</strong> The properties <code>Name</code>, <code>Address</code> and <code>Phone number</code> contain user data, and can only be accessed by users that have the <code>PII</code> marking.</li>
+</ul>
+<p>:::callout{theme="neutral"}
+The <strong>Check access</strong> panel in the sidebar can be used to check someone's access to a Workshop or Slate application, including access to dependent object types, their data sources, and granular access controls. For more information, see the <a href="https://www.palantir.com/docs/foundry/security/checking-permissions/">check access panel documentation</a>.
+:::</p>
+<p>:::callout{theme="warning"}
+Some property values refer to data stored in additional resources outside of the Ontology. The access control mechanisms described in this section only control the visibility of the property values, but not the visibility of those additional resources. For example, a media reference property can refer to a media item stored in a media set. If the media set has different permissions from the object type, then it is possible for a user to not have access to a media reference property, but still be able to fetch the media item directly from the media set. Therefore, it is important to ensure that the additional resources are configured with the appropriate permissions when using them in the Ontology.
+:::</p>
+<h2>Object and property security policies</h2>
+<p>Object and property security policies allow you to set view permissions on object instances and their properties to achieve cell-level permissions. These can be directly managed in the object typeâs Ontology Manager view and are independent of the permissions on the backing data sources.</p>
+<p>The visibility of an object instance is governed by its object security policy, whereas the visibility of a property value is governed by its property security policy. Mandatory and classification based access controls, as well as granular access controls, can be applied to object and property security policies. Together, they allow for cell-level security in the Ontology.</p>
+<p>:::callout{theme="warning" title="Read-time enforcement only"}
+Granular row and column controls within an object or property security policy filter what a user can read. These controls do not extend to downstream outputs or exports. However, mandatory and classification-based controls within the same policy continue to apply to derived data. To keep row and column data protected as it flows downstream, pair these controls with a <a href="https://www.palantir.com/docs/foundry/security/markings/">marking</a> or <a href="https://www.palantir.com/docs/foundry/security/classification-based-access-controls/">Classification-based Access Control</a>. For the full model, see <a href="https://www.palantir.com/docs/foundry/security/access-control-propagation/">Access control propagation</a>.
+:::</p>
+<p><a href="https://www.palantir.com/docs/foundry/object-permissioning/object-security-policies/">Learn more about setting up object and property security policies.</a></p>
+<h2>Data source policies</h2>
+<p>Data permissions for object types are implicitly controlled by the permissions applied to the input data sources of the object type.</p>
+<p>:::callout{theme="neutral"}
+<a href="https://www.palantir.com/docs/foundry/object-link-types/create-object-type/#create-an-object-type-without-a-backing-datasource">Object types without backing datasources</a> cannot use data source policies. You must configure an object security policy when creating the object type.
+:::</p>
+<h3>Object and property policies vs. data source policies</h3>
+<p>Object and property security policies are recommended for managing object security in most cases. They provide a unified approach to cell-level security (row, column, and cell-level permissions) directly on the object type. This makes them simpler to configure and maintain compared to data source policies.</p>
+<h4>Benefits of object and property security policies</h4>
+<p>Object and property security policies address several challenges that arise when using data source policies:</p>
+<ul>
+<li><strong>Unified cell-level security:</strong> A single feature provides row-level (object security policies), column-level (property security policies), and cell-level permissions, rather than requiring a combination of restricted views (RVs) and multi-data source object types (MDOs).</li>
+<li><strong>Simplified configuration:</strong> Security is managed directly on the object type in Ontology Manager, independent of the backing data sources. This reduces complexity and maintenance burden.</li>
+<li><strong>Near-instantaneous policy updates:</strong> Changes to object and property security policies take effect almost immediately. With RVs, policy changes require a pipeline rebuild before reads respect the new policies. Note that changes in Multipass such as group membership or other user attributes are still cached for a short period of time.</li>
+<li><strong>Streaming support:</strong> Object security policies can be applied to object types backed by streams, enabling row-level and column-level permissions for streaming data.</li>
+<li><strong>Branching compatibility:</strong> Object security policies integrate with <a href="https://www.palantir.com/docs/foundry/global-branching/overview/">Global Branching</a>, supporting development workflows where you need to test security configurations on branches before merging.</li>
+</ul>
+<h4>When to use data source policies</h4>
+<p>Data source policies, which rely on RVs and MDOs, are appropriate in the following cases:</p>
+<ol>
+<li><strong>Granular access control outside of the Ontology:</strong> If the backing dataset is used outside of the Ontology and requires granular access control in those contexts, RVs remain the appropriate solution. For example, RVs can secure reads on the backing dataset for users with different access levels in <a href="https://www.palantir.com/docs/foundry/code-workspaces/overview/">Code Workspaces</a>. Object and property security policies are scoped to the Ontology and do not control access to raw datasets in non-Ontology contexts.</li>
+<li><strong>MDOs with specific requirements:</strong> If your object types require MDOs for reasons such as different resolution strategies or different build schedules per data source, data source policies may be required. <a href="https://www.palantir.com/docs/foundry/object-edits/how-edits-applied/#configuration">Learn more about this configuration</a>.</li>
+</ol>
+<h3>Object input data sources</h3>
+<p>Datasets and streams are the most widely used resources as input data sources for <a href="https://www.palantir.com/docs/foundry/object-link-types/object-types-overview/">object types</a>. Data permissions for these data sources are determined as follows:</p>
+<ul>
+<li><strong><a href="https://www.palantir.com/docs/foundry/data-integration/datasets/">Datasets</a>:</strong> Each row in the dataset corresponds to an object instance in the Ontology, and any user that has at least <code>Viewer</code> permissions on the dataset and its transactions will have access to all object instances created from that dataset.</li>
+<li><strong><a href="https://www.palantir.com/docs/foundry/data-integration/streams/">Streams</a>:</strong> Streams are input data sources used for low-latency streaming data in the Ontology. Any user that has at least <code>Viewer</code> permissions on the stream data source has access to all object instances created from that stream data source.</li>
+</ul>
+<p>If you need row-level or column-level permissioning using data source policies, you can use <a href="#restricted-views">restricted views (RVs)</a> and <a href="#multi-data-source-object-types">multi-data source object types (MDOs)</a>.</p>
+<h3>Configure data source policies with RVs and MDOs</h3>
+<h4>Restricted views</h4>
+<p>:::callout{theme="neutral"}
+Restricted views can only be built on top of datasets. No other data source types are supported.
+:::</p>
+<p>Restricted views enable <em>row-level access control</em> to certain rows in a dataset and the corresponding object instances created from those rows. Access to an object instance with a specific primary key is governed by who can access that specific row in the restricted view's input data source.</p>
+<p>For example, a healthcare employee may be allowed to view dataset rows and object instances for patients that visit their care center, but they may be restricted from viewing data for patients that only visit other care centers, even if both types of data exist in the same dataset and object type.</p>
+<p>If a given dataset, <code>care_event_info</code>, has <code>patient_id</code>, <code>doctor_id</code>, and <code>care_center</code> columns, a restricted view can be built on top of it with the policy <code>user.userAttribute('care_center') == care_center</code>. The restricted view will only allow access to rows in <code>care_event_info</code> that have the same care center as the user.</p>
+<p>Using Ontology Manager, restricted views can be selected as the input data source of an object type in the same way as a dataset.</p>
+<p><a href="https://www.palantir.com/docs/foundry/object-permissioning/configuring-rv-access-controls/">Learn more about setting up restricted views and governing row-level permission for objects.</a></p>
+<h4>Multi-data source object types</h4>
+<p>:::callout{theme="neutral"}
+Multi-data source object types are only available in Object Storage v2.
+:::</p>
+<p>The Ontology offers support for mapping multiple input data sources to a single object type. Such object types are referred to as multi-data source object types (MDOs).</p>
+<p>MDOs enable you to map columns from different data sources to the various properties of an object type. This enables you to apply multiple access controls corresponding to separate input data sources, to a single object type. These input data sources can be any combination of datasets or restricted views.</p>
+<p>For example, for a given care event object type, some healthcare employees may require access to object properties containing personal health information (<code>PHI</code>), while other employees should not have access. This access control can be supported by backing the <code>Care Event</code> object type with two separate input data sources and applying different access controls and permissions on each input data source. The <code>Care Event</code> object type has <code>Patient ID</code> as its primary key and is backed by data sources <code>patient_info</code> and <code>care_event_info</code>.</p>
+<ul>
+<li><code>patient_info</code> has the columns <code>patient_id</code>, <code>name</code>, <code>address</code>, <code>contact_number</code>, and <code>age</code>. This dataset has the <code>PHI</code> marking. Only users with access to the <code>PHI</code> marking will have access to the property values from <code>patient_info</code>.</li>
+<li><code>care_event_info</code> has columns <code>patient_id</code>, <code>doctor_id</code>, and <code>care_center</code>. This dataset is unmarked. Users do not need access to any markings to access the property values from this dataset.</li>
+</ul>
+<p>These different permissions will be respected and applied to the object instance. A user will not have access to the properties mapped from <code>patient_info</code>, such as <code>name</code>, <code>address</code>, <code>contact_number</code>, and <code>age</code>, unless they have the <code>PHI</code> marking.</p>
+<p><a href="https://www.palantir.com/docs/foundry/object-permissioning/multi-datasource-objects/">Learn more about setting up MDOs and governing column-level permissions for objects.</a></p>
+</body>
+</html>

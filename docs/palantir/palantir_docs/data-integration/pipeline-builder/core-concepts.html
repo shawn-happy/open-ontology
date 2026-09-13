@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Core concepts</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Core concepts</h1>
+<p>This page provides an introduction to the core concepts of Foundry data integration that are relevant to Pipeline Builder.</p>
+<h2>Build</h2>
+<p>The concepts of <a href="#datasets">datasets</a>, <a href="#branches">branches</a>, <a href="#transforms">transforms</a>, and <a href="#pipeline-outputs">outputs</a> are fundamental to Pipeline Builder. We recommend reviewing these topics before building your first pipeline and as you transform your data and integrate towards pipeline outputs.</p>
+<h3>Datasets</h3>
+<p>Datasets are the building blocks of a pipeline. In the data integration process, data is represented as <strong>Foundry datasets</strong> from when the data lands in Foundry until the data is mapped into the <a href="https://www.palantir.com/docs/foundry/ontology/overview/">Ontology</a> object model.</p>
+<p>Fundamentally, a <a href="https://www.palantir.com/docs/foundry/data-integration/datasets/">Foundry dataset</a> is a wrapper around a collection of files which are stored in a <a href="https://www.palantir.com/docs/foundry/data-integration/datasets/#backing-filesystem">backing file system</a>. Pipeline Builder is primarily intended for structured data but can also be used for semi-structured data.</p>
+<p><a href="https://www.palantir.com/docs/foundry/pipeline-builder/datasets-overview/">Learn more about input datasets in Pipeline Builder.</a></p>
+<h3>Branches</h3>
+<p>Version control is crucial to maintaining healthy pipeline workflows. In Pipeline Builder, version control is implemented with pipeline <strong>branches</strong>, which operate similarly to code branches in Git version control.</p>
+<p>A pipeline branch is a copy of the pipeline on which a user can iterate without saving back to the main pipeline, similar to a code branch in Git. Users can make changes, preview, save, and build on their branch. Once they are happy with the changes, they can propose to merge back into the <strong>main</strong> branch, similar to merging a Git pull request.</p>
+<p>When creating a branch, you can choose between a Pipeline Builder branch, which is scoped to the pipeline you are working on, or a <a href="https://www.palantir.com/docs/foundry/global-branching/overview/">global branch</a>, which allows you to make changes to multiple applications on a single branch. Pipeline Builder branches can also be configured to match Code Repositories branch names, allowing shared iteration across both applications. You can configure fallback branches to control which branch is used when an input dataset has not been built on the current branch.</p>
+<p><a href="https://www.palantir.com/docs/foundry/pipeline-builder/branches-overview/">Learn more about branches in Pipeline Builder.</a></p>
+<h3>Transforms</h3>
+<p>A transform can be thought of as a function definition; that is, a transform accepts a set of inputs (such as datasets) and produces a set of outputs. A pipeline is a linkage of datasets, data expectations, and targeted data outputs that are connected by transforms.</p>
+<p><a href="https://www.palantir.com/docs/foundry/pipeline-builder/transforms-overview/">Learn more about transforms in Pipeline Builder.</a></p>
+<h3>Pipeline outputs</h3>
+<p>Outputs in Pipeline Builder are the result of transforms performed in the pipeline and can be datasets, files, <a href="https://www.palantir.com/docs/foundry/data-integration/virtual-tables/">virtual tables</a>, or Ontology components such as object types, object link types, or time series. Outputs can be used in other Foundry applications such as Quiver or Code Workbook.</p>
+<p><a href="https://www.palantir.com/docs/foundry/pipeline-builder/outputs-overview/">Learn more about pipeline outputs in Pipeline Builder.</a></p>
+<h2>Manage</h2>
+<p>The concepts of <a href="#schedules">schedules</a> and <a href="#data-expectations">data expectations</a> are useful for maintaining healthy, stable pipelines. We recommend learning more about these topics once you build your first pipeline.</p>
+<h3>Schedules</h3>
+<p><strong>Schedules</strong> are used to run <a href="https://www.palantir.com/docs/foundry/data-integration/builds/">dataset builds</a> on a recurring basis to keep data flowing through Foundry consistently. In Pipeline Builder, builds can be scheduled at a specific time, on a specific cadence, or based on the status of a parent resource; for example, you can set a build to occur when an upstream dataset is updated.</p>
+<p><a href="https://www.palantir.com/docs/foundry/pipeline-builder/schedules-overview/">Learn more about schedules in Pipeline Builder.</a></p>
+<h3>Data expectations</h3>
+<p>Pipeline Builder supports data expectations on outputs and intermediate transforms through unit tests. Data expectations are requirements that can be applied to dataset outputs. These requirements (known as "expectations") can be used to create checks that improve data pipeline stability.</p>
+<p>Data expectations can be set on each pipeline output to define an expectation on the resulting output. Pipeline Builder supports several data expectation types, including primary key, row count, and row-level expectations.</p>
+<p>If any expectations fail, the build will be failed. The job expectations pane will show which data expectations passed and failed.</p>
+<p><a href="https://www.palantir.com/docs/foundry/pipeline-builder/dataexpectations-overview/">Learn more about data expectations in Pipeline Builder.</a></p>
+</body>
+</html>

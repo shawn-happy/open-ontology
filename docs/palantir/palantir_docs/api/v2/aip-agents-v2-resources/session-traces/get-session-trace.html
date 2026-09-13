@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Get Session Trace</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../../../index.html">返回目录</a></div>
+<p><code>GET /api/v2/aipAgents/agents/{agentRid}/sessions/{sessionRid}/sessionTraces/{sessionTraceId}</code></p>
+<p>:::callout{theme=warning title=Warning}
+  This endpoint is in preview and may be modified or removed at any time.
+  To use this endpoint, add <code>preview=true</code> to the request query parameters.
+:::</p>
+<p>Get the trace of an Agent response. The trace lists the sequence of steps that an Agent took to arrive at
+an answer. For example, a trace may include steps such as context retrieval and tool calls. Clients should
+poll this endpoint to check the realtime progress of a response until the trace is completed.</p>
+<p>Third-party applications using this endpoint via OAuth2 must request the following operation scope: <code>api:aip-agents-read</code>.</p>
+<p><strong>OAuth2 scopes</strong>: <code>api:aip-agents-read</code></p>
+<h2>Path parameters</h2>
+<table>
+<thead>
+<tr>
+<th>参数</th>
+<th>类型</th>
+<th>必填</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>agentRid</code></td>
+<td>string</td>
+<td>是</td>
+<td>An RID identifying an Agent created in <a href="https://www.palantir.com/docs/foundry/chatbot-studio/overview/">AIP Chatbot Studio</a>.<br>示例: <code>ri.aip-agents..agent.732cd5b4-7ca7-4219-aabb-6e976faf63b1</code></td>
+</tr>
+<tr>
+<td><code>sessionRid</code></td>
+<td>string</td>
+<td>是</td>
+<td>The Resource Identifier (RID) of the conversation session.<br>示例: <code>ri.aip-agents..session.292db3b2-b653-4de6-971c-7e97a7b881d6</code></td>
+</tr>
+<tr>
+<td><code>sessionTraceId</code></td>
+<td>string</td>
+<td>是</td>
+<td>The unique identifier for the trace.<br>示例: <code>12345678-1234-5678-1234-123456789abc</code></td>
+</tr>
+</tbody>
+</table>
+<h2>Query parameters</h2>
+<table>
+<thead>
+<tr>
+<th>参数</th>
+<th>类型</th>
+<th>必填</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>preview</code></td>
+<td>boolean</td>
+<td>否</td>
+<td>Enables the use of preview functionality.<br>示例: <code>true</code></td>
+</tr>
+</tbody>
+</table>
+<h2>Response</h2>
+<p><strong>SessionTrace</strong></p>
+<table>
+<thead>
+<tr>
+<th>参数</th>
+<th>类型</th>
+<th>必填</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>SessionTrace</code></td>
+<td>object</td>
+<td>是</td>
+<td>示例: <code>{"toolCallGroups":[{"toolCalls":[{"toolMetadata":{"name":"Object Query Tool","type":"FUNCTION"},"input":{"thought":"I need to find the customer with the name 'Titan Technologies'."}}]}],"id":"12345678-1234-5678-1234-123456789abc","contexts":{"functionRetrievedContexts":[{"functionVersion":"1.2.3","functionRid":"ri.function-registry.main.function.8cb2d957-f0e6-4e0c-81de-e701bd54b18c"}],"objectContexts":[{"objectRids":["ri.phonograph2-objects.main.object.48668bf6-8878-48d2-b8f8-f0017593feb5"],"propertyTypeRids":["ri.ontology.main.property.7899aeb4-a389-4f2e-a0fd-e7193a4f6cb1"]}]},"status":"IN_PROGRESS"}</code></td>
+</tr>
+<tr>
+<td><code>SessionTrace.id</code></td>
+<td>string</td>
+<td>是</td>
+<td>The unique identifier for the trace.<br>示例: <code>12345678-1234-5678-1234-123456789abc</code></td>
+</tr>
+<tr>
+<td><code>SessionTrace.status</code></td>
+<td>enum</td>
+<td>是</td>
+<td>This indicates whether the Agent has finished generating the final response. Clients should keep polling<br>the <code>getSessionTrace</code> endpoint until the status is <code>COMPLETE</code>.<br>示例: <code>IN_PROGRESS</code></td>
+</tr>
+<tr>
+<td><code>SessionTrace.contexts</code></td>
+<td>object</td>
+<td>否</td>
+<td>Any additional context which was provided by the client or retrieved automatically by the agent, grouped<br>by context type. Empty if no additional context was provided or configured to be automatically<br>retrieved. A present SessionExchangeContexts object with empty lists indicates that context retrieval<br>was attempted but no context was found.<br>Note that this field will only be populated once the response generation has completed.<br>示例: <code>{"functionRetrievedContexts":[{"functionVersion":"1.2.3","functionRid":"ri.function-registry.main.function.8cb2d957-f0e6-4e0c-81de-e701bd54b18c"}],"objectContexts":[{"objectRids":["ri.phonograph2-objects.main.object.48668bf6-8878-48d2-b8f8-f0017593feb5"],"propertyTypeRids":["ri.ontology.main.property.7899aeb4-a389-4f2e-a0fd-e7193a4f6cb1"]}]}</code></td>
+</tr>
+<tr>
+<td><code>SessionTrace.contexts.objectContexts</code></td>
+<td>list<ObjectContext></td>
+<td>否</td>
+<td>Relevant object context for the user's message that was included in the prompt to the Agent.</td>
+</tr>
+<tr>
+<td><code>SessionTrace.contexts.objectContexts.ObjectContext</code></td>
+<td>object</td>
+<td>是</td>
+<td>Details of relevant retrieved object instances for a user's message to include as additional context in the prompt to the Agent.</td>
+</tr>
+<tr>
+<td><code>SessionTrace.contexts.objectContexts.ObjectContext.objectRids</code></td>
+<td>list<ObjectRid></td>
+<td>否</td>
+<td>The RIDs of the relevant object instances to include in the prompt.</td>
+</tr>
+<tr>
+<td><code>SessionTrace.contexts.objectContexts.ObjectContext.objectRids.ObjectRid</code></td>
+<td>string</td>
+<td>是</td>
+<td>The unique resource identifier of an object, useful for interacting with other Foundry APIs.</td>
+</tr>
+<tr>
+<td><code>SessionTrace.contexts.objectContexts.ObjectContext.propertyTypeRids</code></td>
+<td>list<PropertyTypeRid></td>
+<td>否</td>
+<td>The RIDs of the property types for the given objects to include in the prompt.</td>
+</tr>
+<tr>
+<td><code>SessionTrace.contexts.objectContexts.ObjectContext.propertyTypeRids.PropertyTypeRid</code></td>
+<td>string</td>
+<td>是</td>
+<td>The unique resource identifier of a property.</td>
+</tr>
+<tr>
+<td><code>SessionTrace.contexts.functionRetrievedContexts</code></td>
+<td>list<FunctionRetrievedContext></td>
+<td>否</td>
+<td>Context retrieved from running a function that was included as additional context in the prompt to the Agent.</td>
+</tr>
+<tr>
+<td><code>SessionTrace.contexts.functionRetrievedContexts.FunctionRetrievedContext</code></td>
+<td>object</td>
+<td>是</td>
+<td>Context retrieved from running a function to include as additional context in the prompt to the Agent.</td>
+</tr>
+<tr>
+<td><code>SessionTrace.contexts.functionRetrievedContexts.FunctionRetrievedContext.functionRid</code></td>
+<td>string</td>
+<td>是</td>
+<td>The unique resource identifier of a Function, useful for interacting with other Foundry APIs.<br>示例: <code>ri.function-registry.main.function.8cb2d957-f0e6-4e0c-81de-e701bd54b18c</code></td>
+</tr>
+<tr>
+<td><code>SessionTrace.contexts.functionRetrievedContexts.FunctionRetrievedContext.functionVersion</code></td>
+<td>string</td>
+<td>是</td>
+<td>The version of the given Function, written <code>&lt;major&gt;.&lt;minor&gt;.&lt;patch&gt;-&lt;tag&gt;</code>, where <code>-&lt;tag&gt;</code> is optional.<br>Examples: <code>1.2.3</code>, <code>1.2.3-rc1</code>.<br>示例: <code>1.2.3</code></td>
+</tr>
+<tr>
+<td><code>SessionTrace.contexts.functionRetrievedContexts.FunctionRetrievedContext.retrievedPrompt</code></td>
+<td>string</td>
+<td>是</td>
+<td>String content returned from a context retrieval function.</td>
+</tr>
+<tr>
+<td><code>SessionTrace.toolCallGroups</code></td>
+<td>list<ToolCallGroup></td>
+<td>否</td>
+<td>List of tool call groups that were triggered at the same point in the trace for the agent response<br>generation. The groups are returned in the same order as they were triggered by the agent.</td>
+</tr>
+<tr>
+<td><code>SessionTrace.toolCallGroups.ToolCallGroup</code></td>
+<td>object</td>
+<td>是</td>
+<td>List of tool calls that were triggered at the same point in the trace for the agent response generation.</td>
+</tr>
+<tr>
+<td><code>SessionTrace.toolCallGroups.ToolCallGroup.toolCalls</code></td>
+<td>list<ToolCall></td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>SessionTrace.toolCallGroups.ToolCallGroup.toolCalls.ToolCall</code></td>
+<td>object</td>
+<td>是</td>
+<td>A tool call with its input and output.</td>
+</tr>
+<tr>
+<td><code>SessionTrace.toolCallGroups.ToolCallGroup.toolCalls.ToolCall.toolMetadata</code></td>
+<td>object</td>
+<td>是</td>
+<td>Details about the tool that was called, including the name and type of the tool.<br>示例: <code>{"name":"Object Query Tool","type":"FUNCTION"}</code></td>
+</tr>
+<tr>
+<td><code>SessionTrace.toolCallGroups.ToolCallGroup.toolCalls.ToolCall.toolMetadata.name</code></td>
+<td>string</td>
+<td>是</td>
+<td>The name of the tool that was called, as configured on the Agent.<br>示例: <code>Object Query Tool</code></td>
+</tr>
+<tr>
+<td><code>SessionTrace.toolCallGroups.ToolCallGroup.toolCalls.ToolCall.toolMetadata.type</code></td>
+<td>enum</td>
+<td>是</td>
+<td>The type of the tool that was called.<br>示例: <code>FUNCTION</code></td>
+</tr>
+<tr>
+<td><code>SessionTrace.toolCallGroups.ToolCallGroup.toolCalls.ToolCall.input</code></td>
+<td>object</td>
+<td>是</td>
+<td>Input parameters for a tool call.<br>示例: <code>{"thought":"I need to find the customer with the name 'Titan Technologies'."}</code></td>
+</tr>
+<tr>
+<td><code>SessionTrace.toolCallGroups.ToolCallGroup.toolCalls.ToolCall.input.thought</code></td>
+<td>string</td>
+<td>否</td>
+<td>Any additional message content that the Agent provided for why it chose to call the tool.<br>示例: <code>I need to find the customer with the name 'Titan Technologies'.</code></td>
+</tr>
+<tr>
+<td><code>SessionTrace.toolCallGroups.ToolCallGroup.toolCalls.ToolCall.input.inputs</code></td>
+<td>map</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>SessionTrace.toolCallGroups.ToolCallGroup.toolCalls.ToolCall.input.inputs.ToolInputName</code></td>
+<td>string</td>
+<td>是</td>
+<td>The name of a tool input parameter.</td>
+</tr>
+<tr>
+<td><code>SessionTrace.toolCallGroups.ToolCallGroup.toolCalls.ToolCall.input.inputs.ToolInputValue</code></td>
+<td>union</td>
+<td>是</td>
+<td>A tool input value, which can be either a string or a Resource Identifier (RID).</td>
+</tr>
+<tr>
+<td><code>SessionTrace.toolCallGroups.ToolCallGroup.toolCalls.ToolCall.input.inputs.ToolInputValue.string</code></td>
+<td>object</td>
+<td>否</td>
+<td>A string value that was passed as input to a tool.</td>
+</tr>
+<tr>
+<td><code>SessionTrace.toolCallGroups.ToolCallGroup.toolCalls.ToolCall.input.inputs.ToolInputValue.string.value</code></td>
+<td>string</td>
+<td>是</td>
+<td>示例: <code>Titan Technologies</code></td>
+</tr>
+<tr>
+<td><code>SessionTrace.toolCallGroups.ToolCallGroup.toolCalls.ToolCall.input.inputs.ToolInputValue.rid</code></td>
+<td>object</td>
+<td>否</td>
+<td>A Resource Identifier (RID) that was passed as input to a tool.</td>
+</tr>
+<tr>
+<td><code>SessionTrace.toolCallGroups.ToolCallGroup.toolCalls.ToolCall.input.inputs.ToolInputValue.rid.rid</code></td>
+<td>string</td>
+<td>是</td>
+<td>示例: <code>ri.object-set.main.temporary-object-set.8b12d4a9-4cf5-43c4-a612-77e5fc015e02</code></td>
+</tr>
+<tr>
+<td><code>SessionTrace.toolCallGroups.ToolCallGroup.toolCalls.ToolCall.output</code></td>
+<td>union</td>
+<td>否</td>
+<td>Empty if the tool call is in progress.</td>
+</tr>
+<tr>
+<td><code>SessionTrace.toolCallGroups.ToolCallGroup.toolCalls.ToolCall.output.success</code></td>
+<td>object</td>
+<td>否</td>
+<td>The successful output of a tool call.</td>
+</tr>
+<tr>
+<td><code>SessionTrace.toolCallGroups.ToolCallGroup.toolCalls.ToolCall.output.success.output</code></td>
+<td>union</td>
+<td>是</td>
+<td>A tool output value, which can be either a string or a Resource Identifier (RID).</td>
+</tr>
+<tr>
+<td><code>SessionTrace.toolCallGroups.ToolCallGroup.toolCalls.ToolCall.output.success.output.string</code></td>
+<td>object</td>
+<td>否</td>
+<td>A string value that was returned from a tool.</td>
+</tr>
+<tr>
+<td><code>SessionTrace.toolCallGroups.ToolCallGroup.toolCalls.ToolCall.output.success.output.string.value</code></td>
+<td>string</td>
+<td>是</td>
+<td>示例: <code>Titan Technologies</code></td>
+</tr>
+<tr>
+<td><code>SessionTrace.toolCallGroups.ToolCallGroup.toolCalls.ToolCall.output.success.output.rid</code></td>
+<td>object</td>
+<td>否</td>
+<td>A Resource Identifier (RID) value that was returned from a tool.</td>
+</tr>
+<tr>
+<td><code>SessionTrace.toolCallGroups.ToolCallGroup.toolCalls.ToolCall.output.success.output.rid.rid</code></td>
+<td>string</td>
+<td>是</td>
+<td>示例: <code>ri.object-set.main.temporary-object-set.8b12d4a9-4cf5-43c4-a612-77e5fc015e02</code></td>
+</tr>
+<tr>
+<td><code>SessionTrace.toolCallGroups.ToolCallGroup.toolCalls.ToolCall.output.failure</code></td>
+<td>object</td>
+<td>否</td>
+<td>The failed output of a tool call.</td>
+</tr>
+<tr>
+<td><code>SessionTrace.toolCallGroups.ToolCallGroup.toolCalls.ToolCall.output.failure.correctionMessage</code></td>
+<td>string</td>
+<td>是</td>
+<td>The correction message returned by the tool if the tool call was not successful.<br>This is a message that the tool returned to the Agent, which may be used to correct the<br>Agent's input to the tool.<br>示例: <code>The order ID must be a string.</code></td>
+</tr>
+</tbody>
+</table>
+<pre><code class="language-json">{
+  &quot;toolCallGroups&quot;: [
+    {
+      &quot;toolCalls&quot;: [
+        {
+          &quot;toolMetadata&quot;: {
+            &quot;name&quot;: &quot;Object Query Tool&quot;,
+            &quot;type&quot;: &quot;FUNCTION&quot;
+          },
+          &quot;input&quot;: {
+            &quot;thought&quot;: &quot;I need to find the customer with the name 'Titan Technologies'.&quot;
+          }
+        }
+      ]
+    }
+  ],
+  &quot;id&quot;: &quot;12345678-1234-5678-1234-123456789abc&quot;,
+  &quot;contexts&quot;: {
+    &quot;functionRetrievedContexts&quot;: [
+      {
+        &quot;functionVersion&quot;: &quot;1.2.3&quot;,
+        &quot;functionRid&quot;: &quot;ri.function-registry.main.function.8cb2d957-f0e6-4e0c-81de-e701bd54b18c&quot;
+      }
+    ],
+    &quot;objectContexts&quot;: [
+      {
+        &quot;objectRids&quot;: [
+          &quot;ri.phonograph2-objects.main.object.48668bf6-8878-48d2-b8f8-f0017593feb5&quot;
+        ],
+        &quot;propertyTypeRids&quot;: [
+          &quot;ri.ontology.main.property.7899aeb4-a389-4f2e-a0fd-e7193a4f6cb1&quot;
+        ]
+      }
+    ]
+  },
+  &quot;status&quot;: &quot;IN_PROGRESS&quot;
+}
+</code></pre>
+<h2>Error responses</h2>
+<table>
+<thead>
+<tr>
+<th>错误码</th>
+<th>错误名称</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>NOT_FOUND</td>
+<td><code>SessionTraceNotFound</code></td>
+<td>The given SessionTrace could not be found.</td>
+</tr>
+<tr>
+<td>NOT_FOUND</td>
+<td><code>SessionNotFound</code></td>
+<td>The given Session could not be found.</td>
+</tr>
+<tr>
+<td>NOT_FOUND</td>
+<td><code>AgentNotFound</code></td>
+<td>The given Agent could not be found.</td>
+</tr>
+</tbody>
+</table>
+</body>
+</html>

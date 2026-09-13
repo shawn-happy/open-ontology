@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Array sort by struct key</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Array sort by struct key</h1>
+<blockquote>
+<p>Supported in: Batch, Streaming</p>
+</blockquote>
+<p>Returns a sorted array of the given input array of structs sorted by the values of the given struct keys.</p>
+<p><strong>Expression categories:</strong> Array</p>
+<h2>Declared arguments</h2>
+<ul>
+<li><strong>Input array:</strong> Input array of structs to be sorted.<br><em>Expression\<Array\\<Struct>></em></li>
+<li><strong>Sort keys:</strong> Struct keys to sort array by in order of sort priority. Sort nested struct elements with multiple entries like ['author', 'age'].<br><em>List\<Tuple\\<StructLocator, Enum\\<Ascending, Descending>>></em></li>
+</ul>
+<p><strong>Output type:</strong> <em>Array\<Struct></em></p>
+<h2>Examples</h2>
+<h3>Example 1: Base case</h3>
+<p><strong>Argument values:</strong></p>
+<ul>
+<li><strong>Input array:</strong> [ {<br>â<strong>age</strong>: 20,<br>}, {<br>â<strong>age</strong>: 10,<br>}, {<br>â<strong>age</strong>: 30,<br>} ]</li>
+<li><strong>Sort keys:</strong> [(age, <code>ASCENDING</code>)]</li>
+</ul>
+<p><strong>Output:</strong> [ {<br>â<strong>age</strong>: 10,<br>}, {<br>â<strong>age</strong>: 20,<br>}, {<br>â<strong>age</strong>: 30,<br>} ]</p>
+<hr />
+<h3>Example 2: Base case</h3>
+<p><strong>Argument values:</strong></p>
+<ul>
+<li><strong>Input array:</strong> [ {<br>â<strong>age</strong>: 20,<br>}, {<br>â<strong>age</strong>: 10,<br>}, {<br>â<strong>age</strong>: 30,<br>} ]</li>
+<li><strong>Sort keys:</strong> [(age, <code>DESCENDING</code>)]</li>
+</ul>
+<p><strong>Output:</strong> [ {<br>â<strong>age</strong>: 30,<br>}, {<br>â<strong>age</strong>: 20,<br>}, {<br>â<strong>age</strong>: 10,<br>} ]</p>
+<hr />
+<h3>Example 3: Base case</h3>
+<p><strong>Argument values:</strong></p>
+<ul>
+<li><strong>Input array:</strong> [ {<br>â<strong>age</strong>: 20,<br>â<strong>height</strong>: 77,<br>}, {<br>â<strong>age</strong>: 20,<br>â<strong>height</strong>...</li>
+<li><strong>Sort keys:</strong> [(age, <code>ASCENDING</code>), (height, <code>DESCENDING</code>)]</li>
+</ul>
+<p><strong>Output:</strong> [ {<br>â<strong>age</strong>: 10,<br>â<strong>height</strong>: 80,<br>}, {<br>â<strong>age</strong>: 10,<br>â<strong>height</strong>...</p>
+<hr />
+<h3>Example 4: Base case</h3>
+<p><strong>Argument values:</strong></p>
+<ul>
+<li><strong>Input array:</strong> [ {<br>â<strong>age</strong>: 20,<br>â<strong>height</strong>: 77,<br>}, {<br>â<strong>age</strong>: 20,<br>â<strong>height</strong>...</li>
+<li><strong>Sort keys:</strong> [(age, <code>ASCENDING</code>), (height, <code>ASCENDING</code>)]</li>
+</ul>
+<p><strong>Output:</strong> [ {<br>â<strong>age</strong>: 10,<br>â<strong>height</strong>: 65,<br>}, {<br>â<strong>age</strong>: 10,<br>â<strong>height</strong>...</p>
+<hr />
+<h3>Example 5: Base case</h3>
+<p><strong>Argument values:</strong></p>
+<ul>
+<li><strong>Input array:</strong> [ {<br>â<strong>subStructKey</strong>: {<br>â<strong>age</strong>: 20,<br>},<br>}, {<br>â<strong>subStructKey</strong>: {<br>â<strong>age</strong>: 10,<br>},<br>}, {<br>â<strong>subStructKey</strong>: {<br>â<strong>age</strong>: 30,<br>},<br>} ]</li>
+<li><strong>Sort keys:</strong> [(subStructKey.age, <code>ASCENDING</code>)]</li>
+</ul>
+<p><strong>Output:</strong> [ {<br>â<strong>subStructKey</strong>: {<br>â<strong>age</strong>: 10,<br>},<br>}, {<br>â<strong>subStructKey</strong>: {<br>â<strong>age</strong>: 20,<br>},<br>}, {<br>â<strong>subStructKey</strong>: {<br>â<strong>age</strong>: 30,<br>},<br>} ]</p>
+<hr />
+<h3>Example 6: Null case</h3>
+<p><strong>Argument values:</strong></p>
+<ul>
+<li><strong>Input array:</strong> [ {<br>â<strong>age</strong>: <em>null</em>,<br>â<strong>height</strong>: 77,<br>}, {<br>â<strong>age</strong>: <em>null</em>,<br>â**...</li>
+<li><strong>Sort keys:</strong> [(age, <code>ASCENDING</code>)]</li>
+</ul>
+<p><strong>Output:</strong> [ {<br>â<strong>age</strong>: <em>null</em>,<br>â<strong>height</strong>: 77,<br>}, {<br>â<strong>age</strong>: <em>null</em>,<br>â**...</p>
+<hr />
+<h3>Example 7: Null case</h3>
+<p><strong>Argument values:</strong></p>
+<ul>
+<li><strong>Input array:</strong> [ {<br>â<strong>age</strong>: 10,<br>}, {<br>â<strong>age</strong>: <em>null</em>,<br>}, {<br>â<strong>age</strong>: 30,<br>} ]</li>
+<li><strong>Sort keys:</strong> [(age, <code>ASCENDING</code>)]</li>
+</ul>
+<p><strong>Output:</strong> [ {<br>â<strong>age</strong>: <em>null</em>,<br>}, {<br>â<strong>age</strong>: 10,<br>}, {<br>â<strong>age</strong>: 30,<br>} ]</p>
+<hr />
+<h3>Example 8: Null case</h3>
+<p><strong>Argument values:</strong></p>
+<ul>
+<li><strong>Input array:</strong> [ {<br>â<strong>age</strong>: 10,<br>}, {<br>â<strong>age</strong>: <em>null</em>,<br>}, {<br>â<strong>age</strong>: 30,<br>} ]</li>
+<li><strong>Sort keys:</strong> [(age, <code>DESCENDING</code>)]</li>
+</ul>
+<p><strong>Output:</strong> [ {<br>â<strong>age</strong>: 30,<br>}, {<br>â<strong>age</strong>: 10,<br>}, {<br>â<strong>age</strong>: <em>null</em>,<br>} ]</p>
+<hr />
+</body>
+</html>

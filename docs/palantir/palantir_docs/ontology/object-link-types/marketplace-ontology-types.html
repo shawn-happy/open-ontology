@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Add object and link types to a Marketplace product</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Add object and link types to a Marketplace product</h1>
+<p>Use <a href="https://www.palantir.com/docs/foundry/devops/overview/">Foundry DevOps</a> to include your object and link types in <a href="https://www.palantir.com/docs/foundry/devops/core-concepts/#product">Marketplace products</a> for other users to install and reuse. <a href="https://www.palantir.com/docs/foundry/foundry-devops/create-products/">Learn how to create your first product.</a></p>
+<h2>Unsupported features</h2>
+<p>Most <a href="https://www.palantir.com/docs/foundry/object-link-types/properties-overview/">object property types</a> are supported in Marketplace products, but the following are not yet available:</p>
+<ul>
+<li><a href="https://www.palantir.com/docs/foundry/cipher/overview/">Cipher</a></li>
+<li>Geo time</li>
+<li>Vector</li>
+</ul>
+<p>Marketplace products do not yet support the following:</p>
+<ul>
+<li>Object types with streaming datasources</li>
+</ul>
+<p>Note that objects themselves cannot be packaged with Marketplace. This means that, for example, object edits made by Actions cannot be packaged into a Marketplace product. However, datasets and object types can be packaged in order to create new objects after installation of a Marketplace product.</p>
+<p><a href="https://www.palantir.com/docs/foundry/object-link-types/create-object-type/#create-an-object-type-without-a-backing-datasource">Object types without backing datasources</a> are supported in Marketplace products.</p>
+<p>If you require support for any of the unsupported features above, contact Palantir Support.</p>
+<h2>Add object types to products</h2>
+<p>To add an object type to a product, first <a href="https://www.palantir.com/docs/foundry/foundry-devops/create-products/">create a product</a>. <a href="https://www.palantir.com/docs/foundry/foundry-devops/create-products/#add-outputs">Add outputs</a> and then select the <strong>Add ontology entities</strong> option.</p>
+<p>You will then be prompted to choose an object type. After selecting an object type, you will see recommendations for linked object types that you may want to add to your product.</p>
+<p><img alt="add object type" src="../../_resources/foundry/object-link-types/marketplace-add-object-type-dialog.png" /></p>
+<h2>Add link types to products</h2>
+<p>To add a link type to a product, first <a href="https://www.palantir.com/docs/foundry/foundry-devops/create-products/">create a product</a> and then select the <strong>Link type</strong> content type.</p>
+<p>You will then be prompted to choose a link type as below.</p>
+<p><img alt="add link type" src="../../_resources/foundry/object-link-types/marketplace-add-link-type-dialog.png" /></p>
+<p>While you can select link types directly, we recommend first adding your object types and then selecting relevant links via the <a href="https://www.palantir.com/docs/foundry/foundry-devops/create-products/#add-outputs">information panel</a> as below.</p>
+<p><img alt="add link type via panel" src="../../_resources/foundry/object-link-types/marketplace-add-link-type-panel.png" /></p>
+<h2>Add shared properties to products</h2>
+<p>To add a shared property type to a product, first <a href="https://www.palantir.com/docs/foundry/foundry-devops/create-products/">create a product</a>. Then, select the <strong>Shared property</strong> content type as shown below.</p>
+<p>You will then be prompted to choose a shared property.</p>
+<p><img alt="Add a shared property to a Marketplace product." src="../../_resources/foundry/object-link-types/marketplace-add-shared-property-dialog.png" /></p>
+<h2>Add interface types to products</h2>
+<p>To add an interface type to a product, first <a href="https://www.palantir.com/docs/foundry/foundry-devops/create-products/">create a product</a>. Then, select the <strong>Interface</strong> content type as shown below.</p>
+<p>You will then be prompted to choose an interface.</p>
+<p><img alt="Add an interface type to a Marketplace product." src="../../_resources/foundry/object-link-types/marketplace-add-interface-dialog.png" /></p>
+</body>
+</html>

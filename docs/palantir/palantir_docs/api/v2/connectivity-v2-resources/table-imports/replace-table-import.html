@@ -1,0 +1,1073 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Replace Table Import</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../../../index.html">返回目录</a></div>
+<p><code>PUT /api/v2/connectivity/connections/{connectionRid}/tableImports/{tableImportRid}</code></p>
+<p>Replace the TableImport with the specified rid.</p>
+<p>Third-party applications using this endpoint via OAuth2 must request the following operation scope: <code>api:connectivity-table-import-write</code>.</p>
+<p><strong>OAuth2 scopes</strong>: <code>api:connectivity-table-import-write</code></p>
+<h2>Path parameters</h2>
+<table>
+<thead>
+<tr>
+<th>参数</th>
+<th>类型</th>
+<th>必填</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>connectionRid</code></td>
+<td>string</td>
+<td>是</td>
+<td>The Resource Identifier (RID) of a Connection (also known as a source).<br>示例: <code>ri.magritte..source.c078b71b-92f9-41b6-b0df-3760f411120b</code></td>
+</tr>
+<tr>
+<td><code>tableImportRid</code></td>
+<td>string</td>
+<td>是</td>
+<td>The Resource Identifier (RID) of a TableImport (also known as a batch sync).<br>示例: <code>ri.magritte..extract.27bb4f2b-63b8-44b8-a579-4e2bd65ba158</code></td>
+</tr>
+</tbody>
+</table>
+<h2>Request body</h2>
+<pre><code class="language-json">{
+  &quot;importMode&quot;: &quot;SNAPSHOT&quot;,
+  &quot;displayName&quot;: &quot;My table import&quot;,
+  &quot;allowSchemaChanges&quot;: true,
+  &quot;config&quot;: {
+    &quot;type&quot;: &quot;jdbcImportConfig&quot;,
+    &quot;query&quot;: &quot;SELECT * FROM table&quot;
+  }
+}
+</code></pre>
+<h2>Response</h2>
+<p><strong>TableImport</strong></p>
+<p>The replaced TableImport</p>
+<table>
+<thead>
+<tr>
+<th>参数</th>
+<th>类型</th>
+<th>必填</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>TableImport</code></td>
+<td>object</td>
+<td>是</td>
+<td>The replaced TableImport<br>示例: <code>{"datasetRid":"ri.foundry.main.dataset.c26f11c8-cdb3-4f44-9f5d-9816ea1c82da","importMode":"SNAPSHOT","displayName":"My table import","allowSchemaChanges":true,"connectionRid":"ri.magritte..source.c078b71b-92f9-41b6-b0df-3760f411120b","branchName":"master","rid":"ri.magritte..extract.27bb4f2b-63b8-44b8-a579-4e2bd65ba158","config":{"type":"jdbcImportConfig","query":"SELECT * FROM table"}}</code></td>
+</tr>
+<tr>
+<td><code>TableImport.rid</code></td>
+<td>string</td>
+<td>是</td>
+<td>The Resource Identifier (RID) of a TableImport (also known as a batch sync).<br>示例: <code>ri.magritte..extract.27bb4f2b-63b8-44b8-a579-4e2bd65ba158</code></td>
+</tr>
+<tr>
+<td><code>TableImport.connectionRid</code></td>
+<td>string</td>
+<td>是</td>
+<td>The RID of the Connection (also known as a source) that the Table Import uses to import data.<br>示例: <code>ri.magritte..source.c078b71b-92f9-41b6-b0df-3760f411120b</code></td>
+</tr>
+<tr>
+<td><code>TableImport.datasetRid</code></td>
+<td>string</td>
+<td>是</td>
+<td>The RID of the output dataset. Can not be modified after the table import is created.<br>示例: <code>ri.foundry.main.dataset.c26f11c8-cdb3-4f44-9f5d-9816ea1c82da</code></td>
+</tr>
+<tr>
+<td><code>TableImport.branchName</code></td>
+<td>string</td>
+<td>否</td>
+<td>The branch name in the output dataset that will contain the imported data. Defaults to <code>master</code> for most enrollments. Can not be modified after the table import is created.<br>示例: <code>master</code></td>
+</tr>
+<tr>
+<td><code>TableImport.displayName</code></td>
+<td>string</td>
+<td>是</td>
+<td>示例: <code>My table import</code></td>
+</tr>
+<tr>
+<td><code>TableImport.importMode</code></td>
+<td>enum</td>
+<td>是</td>
+<td>Import mode governs how data is read from an external system, and written into a Foundry dataset.<br>SNAPSHOT: Defines a new dataset state consisting only of data from a particular import execution.<br>APPEND: Purely additive and yields data from previous import executions in addition to newly added data.<br>示例: <code>SNAPSHOT</code></td>
+</tr>
+<tr>
+<td><code>TableImport.allowSchemaChanges</code></td>
+<td>boolean</td>
+<td>是</td>
+<td>Allow the TableImport to succeed if the schema of imported rows does not match the existing dataset's schema. Defaults to false for new table imports.<br>示例: <code>true</code></td>
+</tr>
+<tr>
+<td><code>TableImport.config</code></td>
+<td>union</td>
+<td>是</td>
+<td>The import configuration for a specific <a href="../../../../data-integration/source-type-overview.html">connector type</a>.<br>示例: <code>{"type":"jdbcImportConfig","query":"SELECT * FROM table"}</code></td>
+</tr>
+<tr>
+<td><code>TableImport.config.databricksImportConfig</code></td>
+<td>object</td>
+<td>否</td>
+<td>The table import configuration for a <a href="https://www.palantir.com/docs/foundry/available-connectors/databricks">Databricks connection</a>.</td>
+</tr>
+<tr>
+<td><code>TableImport.config.databricksImportConfig.query</code></td>
+<td>string</td>
+<td>是</td>
+<td>A single SQL query can be executed per sync, which should output a data table<br>and avoid operations like invoking stored procedures.<br>The query results are saved to the output dataset in Foundry.<br>示例: <code>SELECT * FROM table</code></td>
+</tr>
+<tr>
+<td><code>TableImport.config.databricksImportConfig.initialIncrementalState</code></td>
+<td>union</td>
+<td>否</td>
+<td>The incremental configuration for a table import enables append-style transactions from the same table without duplication of data.<br>You must provide a monotonically increasing column such as a timestamp or id and an initial value for this column.<br>An incremental table import will import rows where the value is greater than the largest already imported.<br>You can use the '?' character to reference the incremental state value when constructing your query.<br>Normally this would be used in a WHERE clause or similar filter applied in order to only sync data with an incremental column value<br>larger than the previously observed maximum value stored in the incremental state.</td>
+</tr>
+<tr>
+<td><code>TableImport.config.databricksImportConfig.initialIncrementalState.stringColumnInitialIncrementalState</code></td>
+<td>object</td>
+<td>否</td>
+<td>The state for an incremental table import using a column with a string data type.</td>
+</tr>
+<tr>
+<td><code>TableImport.config.databricksImportConfig.initialIncrementalState.stringColumnInitialIncrementalState.columnName</code></td>
+<td>string</td>
+<td>是</td>
+<td>示例: <code>myStringColumn</code></td>
+</tr>
+<tr>
+<td><code>TableImport.config.databricksImportConfig.initialIncrementalState.stringColumnInitialIncrementalState.currentValue</code></td>
+<td>string</td>
+<td>是</td>
+<td>The initial incremental state value for the string column to reference in the query.</td>
+</tr>
+<tr>
+<td><code>TableImport.config.databricksImportConfig.initialIncrementalState.dateColumnInitialIncrementalState</code></td>
+<td>object</td>
+<td>否</td>
+<td>The state for an incremental table import using a column with a date type.</td>
+</tr>
+<tr>
+<td><code>TableImport.config.databricksImportConfig.initialIncrementalState.dateColumnInitialIncrementalState.columnName</code></td>
+<td>string</td>
+<td>是</td>
+<td>示例: <code>myDateColumn</code></td>
+</tr>
+<tr>
+<td><code>TableImport.config.databricksImportConfig.initialIncrementalState.dateColumnInitialIncrementalState.currentValue</code></td>
+<td>string</td>
+<td>是</td>
+<td>The initial incremental state value for the date column to reference in the query.<br>示例: <code>2024-12-31</code></td>
+</tr>
+<tr>
+<td><code>TableImport.config.databricksImportConfig.initialIncrementalState.integerColumnInitialIncrementalState</code></td>
+<td>object</td>
+<td>否</td>
+<td>The state for an incremental table import using a numeric integer datatype.</td>
+</tr>
+<tr>
+<td><code>TableImport.config.databricksImportConfig.initialIncrementalState.integerColumnInitialIncrementalState.columnName</code></td>
+<td>string</td>
+<td>是</td>
+<td>示例: <code>myIdColumn</code></td>
+</tr>
+<tr>
+<td><code>TableImport.config.databricksImportConfig.initialIncrementalState.integerColumnInitialIncrementalState.currentValue</code></td>
+<td>integer</td>
+<td>是</td>
+<td>The initial incremental state value for the integer column to reference in the query.<br>示例: <code>1</code></td>
+</tr>
+<tr>
+<td><code>TableImport.config.databricksImportConfig.initialIncrementalState.timestampColumnInitialIncrementalState</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>TableImport.config.databricksImportConfig.initialIncrementalState.timestampColumnInitialIncrementalState.columnName</code></td>
+<td>string</td>
+<td>是</td>
+<td>示例: <code>myTimeColumn</code></td>
+</tr>
+<tr>
+<td><code>TableImport.config.databricksImportConfig.initialIncrementalState.timestampColumnInitialIncrementalState.currentValue</code></td>
+<td>string</td>
+<td>是</td>
+<td>The initial incremental state value for the timestamp column in UTC to reference in the query.<br>示例: <code>2020-09-30T14:30:00Z</code></td>
+</tr>
+<tr>
+<td><code>TableImport.config.databricksImportConfig.initialIncrementalState.longColumnInitialIncrementalState</code></td>
+<td>object</td>
+<td>否</td>
+<td>The state for an incremental table import using a column with a numeric long datatype.</td>
+</tr>
+<tr>
+<td><code>TableImport.config.databricksImportConfig.initialIncrementalState.longColumnInitialIncrementalState.columnName</code></td>
+<td>string</td>
+<td>是</td>
+<td>示例: <code>myIdColumn</code></td>
+</tr>
+<tr>
+<td><code>TableImport.config.databricksImportConfig.initialIncrementalState.longColumnInitialIncrementalState.currentValue</code></td>
+<td>string</td>
+<td>是</td>
+<td>The initial incremental state value for the long column to reference in the query.<br>示例: <code>1000</code></td>
+</tr>
+<tr>
+<td><code>TableImport.config.databricksImportConfig.initialIncrementalState.decimalColumnInitialIncrementalState</code></td>
+<td>object</td>
+<td>否</td>
+<td>The state for an incremental table import using a column with a decimal data type.</td>
+</tr>
+<tr>
+<td><code>TableImport.config.databricksImportConfig.initialIncrementalState.decimalColumnInitialIncrementalState.columnName</code></td>
+<td>string</td>
+<td>是</td>
+<td>示例: <code>myPriceColumn</code></td>
+</tr>
+<tr>
+<td><code>TableImport.config.databricksImportConfig.initialIncrementalState.decimalColumnInitialIncrementalState.currentValue</code></td>
+<td>string</td>
+<td>是</td>
+<td>The initial incremental state value for the decimal column to reference in the query.<br>示例: <code>3.25</code></td>
+</tr>
+<tr>
+<td><code>TableImport.config.jdbcImportConfig</code></td>
+<td>object</td>
+<td>否</td>
+<td>The import configuration for a <a href="https://www.palantir.com/docs/foundry/available-connectors/custom-jdbc-sources">custom JDBC connection</a>.</td>
+</tr>
+<tr>
+<td><code>TableImport.config.jdbcImportConfig.query</code></td>
+<td>string</td>
+<td>是</td>
+<td>A single SQL query can be executed per sync, which should output a data table<br>and avoid operations like invoking stored procedures.<br>The query results are saved to the output dataset in Foundry.<br>示例: <code>SELECT * FROM table</code></td>
+</tr>
+<tr>
+<td><code>TableImport.config.jdbcImportConfig.initialIncrementalState</code></td>
+<td>union</td>
+<td>否</td>
+<td>The incremental configuration for a table import enables append-style transactions from the same table without duplication of data.<br>You must provide a monotonically increasing column such as a timestamp or id and an initial value for this column.<br>An incremental table import will import rows where the value is greater than the largest already imported.<br>You can use the '?' character to reference the incremental state value when constructing your query.<br>Normally this would be used in a WHERE clause or similar filter applied in order to only sync data with an incremental column value<br>larger than the previously observed maximum value stored in the incremental state.</td>
+</tr>
+<tr>
+<td><code>TableImport.config.jdbcImportConfig.initialIncrementalState.stringColumnInitialIncrementalState</code></td>
+<td>object</td>
+<td>否</td>
+<td>The state for an incremental table import using a column with a string data type.</td>
+</tr>
+<tr>
+<td><code>TableImport.config.jdbcImportConfig.initialIncrementalState.stringColumnInitialIncrementalState.columnName</code></td>
+<td>string</td>
+<td>是</td>
+<td>示例: <code>myStringColumn</code></td>
+</tr>
+<tr>
+<td><code>TableImport.config.jdbcImportConfig.initialIncrementalState.stringColumnInitialIncrementalState.currentValue</code></td>
+<td>string</td>
+<td>是</td>
+<td>The initial incremental state value for the string column to reference in the query.</td>
+</tr>
+<tr>
+<td><code>TableImport.config.jdbcImportConfig.initialIncrementalState.dateColumnInitialIncrementalState</code></td>
+<td>object</td>
+<td>否</td>
+<td>The state for an incremental table import using a column with a date type.</td>
+</tr>
+<tr>
+<td><code>TableImport.config.jdbcImportConfig.initialIncrementalState.dateColumnInitialIncrementalState.columnName</code></td>
+<td>string</td>
+<td>是</td>
+<td>示例: <code>myDateColumn</code></td>
+</tr>
+<tr>
+<td><code>TableImport.config.jdbcImportConfig.initialIncrementalState.dateColumnInitialIncrementalState.currentValue</code></td>
+<td>string</td>
+<td>是</td>
+<td>The initial incremental state value for the date column to reference in the query.<br>示例: <code>2024-12-31</code></td>
+</tr>
+<tr>
+<td><code>TableImport.config.jdbcImportConfig.initialIncrementalState.integerColumnInitialIncrementalState</code></td>
+<td>object</td>
+<td>否</td>
+<td>The state for an incremental table import using a numeric integer datatype.</td>
+</tr>
+<tr>
+<td><code>TableImport.config.jdbcImportConfig.initialIncrementalState.integerColumnInitialIncrementalState.columnName</code></td>
+<td>string</td>
+<td>是</td>
+<td>示例: <code>myIdColumn</code></td>
+</tr>
+<tr>
+<td><code>TableImport.config.jdbcImportConfig.initialIncrementalState.integerColumnInitialIncrementalState.currentValue</code></td>
+<td>integer</td>
+<td>是</td>
+<td>The initial incremental state value for the integer column to reference in the query.<br>示例: <code>1</code></td>
+</tr>
+<tr>
+<td><code>TableImport.config.jdbcImportConfig.initialIncrementalState.timestampColumnInitialIncrementalState</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>TableImport.config.jdbcImportConfig.initialIncrementalState.timestampColumnInitialIncrementalState.columnName</code></td>
+<td>string</td>
+<td>是</td>
+<td>示例: <code>myTimeColumn</code></td>
+</tr>
+<tr>
+<td><code>TableImport.config.jdbcImportConfig.initialIncrementalState.timestampColumnInitialIncrementalState.currentValue</code></td>
+<td>string</td>
+<td>是</td>
+<td>The initial incremental state value for the timestamp column in UTC to reference in the query.<br>示例: <code>2020-09-30T14:30:00Z</code></td>
+</tr>
+<tr>
+<td><code>TableImport.config.jdbcImportConfig.initialIncrementalState.longColumnInitialIncrementalState</code></td>
+<td>object</td>
+<td>否</td>
+<td>The state for an incremental table import using a column with a numeric long datatype.</td>
+</tr>
+<tr>
+<td><code>TableImport.config.jdbcImportConfig.initialIncrementalState.longColumnInitialIncrementalState.columnName</code></td>
+<td>string</td>
+<td>是</td>
+<td>示例: <code>myIdColumn</code></td>
+</tr>
+<tr>
+<td><code>TableImport.config.jdbcImportConfig.initialIncrementalState.longColumnInitialIncrementalState.currentValue</code></td>
+<td>string</td>
+<td>是</td>
+<td>The initial incremental state value for the long column to reference in the query.<br>示例: <code>1000</code></td>
+</tr>
+<tr>
+<td><code>TableImport.config.jdbcImportConfig.initialIncrementalState.decimalColumnInitialIncrementalState</code></td>
+<td>object</td>
+<td>否</td>
+<td>The state for an incremental table import using a column with a decimal data type.</td>
+</tr>
+<tr>
+<td><code>TableImport.config.jdbcImportConfig.initialIncrementalState.decimalColumnInitialIncrementalState.columnName</code></td>
+<td>string</td>
+<td>是</td>
+<td>示例: <code>myPriceColumn</code></td>
+</tr>
+<tr>
+<td><code>TableImport.config.jdbcImportConfig.initialIncrementalState.decimalColumnInitialIncrementalState.currentValue</code></td>
+<td>string</td>
+<td>是</td>
+<td>The initial incremental state value for the decimal column to reference in the query.<br>示例: <code>3.25</code></td>
+</tr>
+<tr>
+<td><code>TableImport.config.microsoftSqlServerImportConfig</code></td>
+<td>object</td>
+<td>否</td>
+<td>The import configuration for a <a href="https://www.palantir.com/docs/foundry/available-connectors/microsoft-sql-server">Microsoft SQL Server connection</a>.</td>
+</tr>
+<tr>
+<td><code>TableImport.config.microsoftSqlServerImportConfig.query</code></td>
+<td>string</td>
+<td>是</td>
+<td>A single SQL query can be executed per sync, which should output a data table<br>and avoid operations like invoking stored procedures.<br>The query results are saved to the output dataset in Foundry.<br>示例: <code>SELECT * FROM table</code></td>
+</tr>
+<tr>
+<td><code>TableImport.config.microsoftSqlServerImportConfig.initialIncrementalState</code></td>
+<td>union</td>
+<td>否</td>
+<td>The incremental configuration for a table import enables append-style transactions from the same table without duplication of data.<br>You must provide a monotonically increasing column such as a timestamp or id and an initial value for this column.<br>An incremental table import will import rows where the value is greater than the largest already imported.<br>You can use the '?' character to reference the incremental state value when constructing your query.<br>Normally this would be used in a WHERE clause or similar filter applied in order to only sync data with an incremental column value<br>larger than the previously observed maximum value stored in the incremental state.</td>
+</tr>
+<tr>
+<td><code>TableImport.config.microsoftSqlServerImportConfig.initialIncrementalState.stringColumnInitialIncrementalState</code></td>
+<td>object</td>
+<td>否</td>
+<td>The state for an incremental table import using a column with a string data type.</td>
+</tr>
+<tr>
+<td><code>TableImport.config.microsoftSqlServerImportConfig.initialIncrementalState.stringColumnInitialIncrementalState.columnName</code></td>
+<td>string</td>
+<td>是</td>
+<td>示例: <code>myStringColumn</code></td>
+</tr>
+<tr>
+<td><code>TableImport.config.microsoftSqlServerImportConfig.initialIncrementalState.stringColumnInitialIncrementalState.currentValue</code></td>
+<td>string</td>
+<td>是</td>
+<td>The initial incremental state value for the string column to reference in the query.</td>
+</tr>
+<tr>
+<td><code>TableImport.config.microsoftSqlServerImportConfig.initialIncrementalState.dateColumnInitialIncrementalState</code></td>
+<td>object</td>
+<td>否</td>
+<td>The state for an incremental table import using a column with a date type.</td>
+</tr>
+<tr>
+<td><code>TableImport.config.microsoftSqlServerImportConfig.initialIncrementalState.dateColumnInitialIncrementalState.columnName</code></td>
+<td>string</td>
+<td>是</td>
+<td>示例: <code>myDateColumn</code></td>
+</tr>
+<tr>
+<td><code>TableImport.config.microsoftSqlServerImportConfig.initialIncrementalState.dateColumnInitialIncrementalState.currentValue</code></td>
+<td>string</td>
+<td>是</td>
+<td>The initial incremental state value for the date column to reference in the query.<br>示例: <code>2024-12-31</code></td>
+</tr>
+<tr>
+<td><code>TableImport.config.microsoftSqlServerImportConfig.initialIncrementalState.integerColumnInitialIncrementalState</code></td>
+<td>object</td>
+<td>否</td>
+<td>The state for an incremental table import using a numeric integer datatype.</td>
+</tr>
+<tr>
+<td><code>TableImport.config.microsoftSqlServerImportConfig.initialIncrementalState.integerColumnInitialIncrementalState.columnName</code></td>
+<td>string</td>
+<td>是</td>
+<td>示例: <code>myIdColumn</code></td>
+</tr>
+<tr>
+<td><code>TableImport.config.microsoftSqlServerImportConfig.initialIncrementalState.integerColumnInitialIncrementalState.currentValue</code></td>
+<td>integer</td>
+<td>是</td>
+<td>The initial incremental state value for the integer column to reference in the query.<br>示例: <code>1</code></td>
+</tr>
+<tr>
+<td><code>TableImport.config.microsoftSqlServerImportConfig.initialIncrementalState.timestampColumnInitialIncrementalState</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>TableImport.config.microsoftSqlServerImportConfig.initialIncrementalState.timestampColumnInitialIncrementalState.columnName</code></td>
+<td>string</td>
+<td>是</td>
+<td>示例: <code>myTimeColumn</code></td>
+</tr>
+<tr>
+<td><code>TableImport.config.microsoftSqlServerImportConfig.initialIncrementalState.timestampColumnInitialIncrementalState.currentValue</code></td>
+<td>string</td>
+<td>是</td>
+<td>The initial incremental state value for the timestamp column in UTC to reference in the query.<br>示例: <code>2020-09-30T14:30:00Z</code></td>
+</tr>
+<tr>
+<td><code>TableImport.config.microsoftSqlServerImportConfig.initialIncrementalState.longColumnInitialIncrementalState</code></td>
+<td>object</td>
+<td>否</td>
+<td>The state for an incremental table import using a column with a numeric long datatype.</td>
+</tr>
+<tr>
+<td><code>TableImport.config.microsoftSqlServerImportConfig.initialIncrementalState.longColumnInitialIncrementalState.columnName</code></td>
+<td>string</td>
+<td>是</td>
+<td>示例: <code>myIdColumn</code></td>
+</tr>
+<tr>
+<td><code>TableImport.config.microsoftSqlServerImportConfig.initialIncrementalState.longColumnInitialIncrementalState.currentValue</code></td>
+<td>string</td>
+<td>是</td>
+<td>The initial incremental state value for the long column to reference in the query.<br>示例: <code>1000</code></td>
+</tr>
+<tr>
+<td><code>TableImport.config.microsoftSqlServerImportConfig.initialIncrementalState.decimalColumnInitialIncrementalState</code></td>
+<td>object</td>
+<td>否</td>
+<td>The state for an incremental table import using a column with a decimal data type.</td>
+</tr>
+<tr>
+<td><code>TableImport.config.microsoftSqlServerImportConfig.initialIncrementalState.decimalColumnInitialIncrementalState.columnName</code></td>
+<td>string</td>
+<td>是</td>
+<td>示例: <code>myPriceColumn</code></td>
+</tr>
+<tr>
+<td><code>TableImport.config.microsoftSqlServerImportConfig.initialIncrementalState.decimalColumnInitialIncrementalState.currentValue</code></td>
+<td>string</td>
+<td>是</td>
+<td>The initial incremental state value for the decimal column to reference in the query.<br>示例: <code>3.25</code></td>
+</tr>
+<tr>
+<td><code>TableImport.config.postgreSqlImportConfig</code></td>
+<td>object</td>
+<td>否</td>
+<td>The import configuration for a <a href="https://www.palantir.com/docs/foundry/available-connectors/postgresql">PostgreSQL connection</a>.</td>
+</tr>
+<tr>
+<td><code>TableImport.config.postgreSqlImportConfig.query</code></td>
+<td>string</td>
+<td>是</td>
+<td>A single SQL query can be executed per sync, which should output a data table<br>and avoid operations like invoking stored procedures.<br>The query results are saved to the output dataset in Foundry.<br>示例: <code>SELECT * FROM table</code></td>
+</tr>
+<tr>
+<td><code>TableImport.config.postgreSqlImportConfig.initialIncrementalState</code></td>
+<td>union</td>
+<td>否</td>
+<td>The incremental configuration for a table import enables append-style transactions from the same table without duplication of data.<br>You must provide a monotonically increasing column such as a timestamp or id and an initial value for this column.<br>An incremental table import will import rows where the value is greater than the largest already imported.<br>You can use the '?' character to reference the incremental state value when constructing your query.<br>Normally this would be used in a WHERE clause or similar filter applied in order to only sync data with an incremental column value<br>larger than the previously observed maximum value stored in the incremental state.</td>
+</tr>
+<tr>
+<td><code>TableImport.config.postgreSqlImportConfig.initialIncrementalState.stringColumnInitialIncrementalState</code></td>
+<td>object</td>
+<td>否</td>
+<td>The state for an incremental table import using a column with a string data type.</td>
+</tr>
+<tr>
+<td><code>TableImport.config.postgreSqlImportConfig.initialIncrementalState.stringColumnInitialIncrementalState.columnName</code></td>
+<td>string</td>
+<td>是</td>
+<td>示例: <code>myStringColumn</code></td>
+</tr>
+<tr>
+<td><code>TableImport.config.postgreSqlImportConfig.initialIncrementalState.stringColumnInitialIncrementalState.currentValue</code></td>
+<td>string</td>
+<td>是</td>
+<td>The initial incremental state value for the string column to reference in the query.</td>
+</tr>
+<tr>
+<td><code>TableImport.config.postgreSqlImportConfig.initialIncrementalState.dateColumnInitialIncrementalState</code></td>
+<td>object</td>
+<td>否</td>
+<td>The state for an incremental table import using a column with a date type.</td>
+</tr>
+<tr>
+<td><code>TableImport.config.postgreSqlImportConfig.initialIncrementalState.dateColumnInitialIncrementalState.columnName</code></td>
+<td>string</td>
+<td>是</td>
+<td>示例: <code>myDateColumn</code></td>
+</tr>
+<tr>
+<td><code>TableImport.config.postgreSqlImportConfig.initialIncrementalState.dateColumnInitialIncrementalState.currentValue</code></td>
+<td>string</td>
+<td>是</td>
+<td>The initial incremental state value for the date column to reference in the query.<br>示例: <code>2024-12-31</code></td>
+</tr>
+<tr>
+<td><code>TableImport.config.postgreSqlImportConfig.initialIncrementalState.integerColumnInitialIncrementalState</code></td>
+<td>object</td>
+<td>否</td>
+<td>The state for an incremental table import using a numeric integer datatype.</td>
+</tr>
+<tr>
+<td><code>TableImport.config.postgreSqlImportConfig.initialIncrementalState.integerColumnInitialIncrementalState.columnName</code></td>
+<td>string</td>
+<td>是</td>
+<td>示例: <code>myIdColumn</code></td>
+</tr>
+<tr>
+<td><code>TableImport.config.postgreSqlImportConfig.initialIncrementalState.integerColumnInitialIncrementalState.currentValue</code></td>
+<td>integer</td>
+<td>是</td>
+<td>The initial incremental state value for the integer column to reference in the query.<br>示例: <code>1</code></td>
+</tr>
+<tr>
+<td><code>TableImport.config.postgreSqlImportConfig.initialIncrementalState.timestampColumnInitialIncrementalState</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>TableImport.config.postgreSqlImportConfig.initialIncrementalState.timestampColumnInitialIncrementalState.columnName</code></td>
+<td>string</td>
+<td>是</td>
+<td>示例: <code>myTimeColumn</code></td>
+</tr>
+<tr>
+<td><code>TableImport.config.postgreSqlImportConfig.initialIncrementalState.timestampColumnInitialIncrementalState.currentValue</code></td>
+<td>string</td>
+<td>是</td>
+<td>The initial incremental state value for the timestamp column in UTC to reference in the query.<br>示例: <code>2020-09-30T14:30:00Z</code></td>
+</tr>
+<tr>
+<td><code>TableImport.config.postgreSqlImportConfig.initialIncrementalState.longColumnInitialIncrementalState</code></td>
+<td>object</td>
+<td>否</td>
+<td>The state for an incremental table import using a column with a numeric long datatype.</td>
+</tr>
+<tr>
+<td><code>TableImport.config.postgreSqlImportConfig.initialIncrementalState.longColumnInitialIncrementalState.columnName</code></td>
+<td>string</td>
+<td>是</td>
+<td>示例: <code>myIdColumn</code></td>
+</tr>
+<tr>
+<td><code>TableImport.config.postgreSqlImportConfig.initialIncrementalState.longColumnInitialIncrementalState.currentValue</code></td>
+<td>string</td>
+<td>是</td>
+<td>The initial incremental state value for the long column to reference in the query.<br>示例: <code>1000</code></td>
+</tr>
+<tr>
+<td><code>TableImport.config.postgreSqlImportConfig.initialIncrementalState.decimalColumnInitialIncrementalState</code></td>
+<td>object</td>
+<td>否</td>
+<td>The state for an incremental table import using a column with a decimal data type.</td>
+</tr>
+<tr>
+<td><code>TableImport.config.postgreSqlImportConfig.initialIncrementalState.decimalColumnInitialIncrementalState.columnName</code></td>
+<td>string</td>
+<td>是</td>
+<td>示例: <code>myPriceColumn</code></td>
+</tr>
+<tr>
+<td><code>TableImport.config.postgreSqlImportConfig.initialIncrementalState.decimalColumnInitialIncrementalState.currentValue</code></td>
+<td>string</td>
+<td>是</td>
+<td>The initial incremental state value for the decimal column to reference in the query.<br>示例: <code>3.25</code></td>
+</tr>
+<tr>
+<td><code>TableImport.config.microsoftAccessImportConfig</code></td>
+<td>object</td>
+<td>否</td>
+<td>The import configuration for a <a href="https://www.palantir.com/docs/foundry/available-connectors/microsoft-access">Microsoft Access connection</a>.</td>
+</tr>
+<tr>
+<td><code>TableImport.config.microsoftAccessImportConfig.query</code></td>
+<td>string</td>
+<td>是</td>
+<td>A single SQL query can be executed per sync, which should output a data table<br>and avoid operations like invoking stored procedures.<br>The query results are saved to the output dataset in Foundry.<br>示例: <code>SELECT * FROM table</code></td>
+</tr>
+<tr>
+<td><code>TableImport.config.microsoftAccessImportConfig.initialIncrementalState</code></td>
+<td>union</td>
+<td>否</td>
+<td>The incremental configuration for a table import enables append-style transactions from the same table without duplication of data.<br>You must provide a monotonically increasing column such as a timestamp or id and an initial value for this column.<br>An incremental table import will import rows where the value is greater than the largest already imported.<br>You can use the '?' character to reference the incremental state value when constructing your query.<br>Normally this would be used in a WHERE clause or similar filter applied in order to only sync data with an incremental column value<br>larger than the previously observed maximum value stored in the incremental state.</td>
+</tr>
+<tr>
+<td><code>TableImport.config.microsoftAccessImportConfig.initialIncrementalState.stringColumnInitialIncrementalState</code></td>
+<td>object</td>
+<td>否</td>
+<td>The state for an incremental table import using a column with a string data type.</td>
+</tr>
+<tr>
+<td><code>TableImport.config.microsoftAccessImportConfig.initialIncrementalState.stringColumnInitialIncrementalState.columnName</code></td>
+<td>string</td>
+<td>是</td>
+<td>示例: <code>myStringColumn</code></td>
+</tr>
+<tr>
+<td><code>TableImport.config.microsoftAccessImportConfig.initialIncrementalState.stringColumnInitialIncrementalState.currentValue</code></td>
+<td>string</td>
+<td>是</td>
+<td>The initial incremental state value for the string column to reference in the query.</td>
+</tr>
+<tr>
+<td><code>TableImport.config.microsoftAccessImportConfig.initialIncrementalState.dateColumnInitialIncrementalState</code></td>
+<td>object</td>
+<td>否</td>
+<td>The state for an incremental table import using a column with a date type.</td>
+</tr>
+<tr>
+<td><code>TableImport.config.microsoftAccessImportConfig.initialIncrementalState.dateColumnInitialIncrementalState.columnName</code></td>
+<td>string</td>
+<td>是</td>
+<td>示例: <code>myDateColumn</code></td>
+</tr>
+<tr>
+<td><code>TableImport.config.microsoftAccessImportConfig.initialIncrementalState.dateColumnInitialIncrementalState.currentValue</code></td>
+<td>string</td>
+<td>是</td>
+<td>The initial incremental state value for the date column to reference in the query.<br>示例: <code>2024-12-31</code></td>
+</tr>
+<tr>
+<td><code>TableImport.config.microsoftAccessImportConfig.initialIncrementalState.integerColumnInitialIncrementalState</code></td>
+<td>object</td>
+<td>否</td>
+<td>The state for an incremental table import using a numeric integer datatype.</td>
+</tr>
+<tr>
+<td><code>TableImport.config.microsoftAccessImportConfig.initialIncrementalState.integerColumnInitialIncrementalState.columnName</code></td>
+<td>string</td>
+<td>是</td>
+<td>示例: <code>myIdColumn</code></td>
+</tr>
+<tr>
+<td><code>TableImport.config.microsoftAccessImportConfig.initialIncrementalState.integerColumnInitialIncrementalState.currentValue</code></td>
+<td>integer</td>
+<td>是</td>
+<td>The initial incremental state value for the integer column to reference in the query.<br>示例: <code>1</code></td>
+</tr>
+<tr>
+<td><code>TableImport.config.microsoftAccessImportConfig.initialIncrementalState.timestampColumnInitialIncrementalState</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>TableImport.config.microsoftAccessImportConfig.initialIncrementalState.timestampColumnInitialIncrementalState.columnName</code></td>
+<td>string</td>
+<td>是</td>
+<td>示例: <code>myTimeColumn</code></td>
+</tr>
+<tr>
+<td><code>TableImport.config.microsoftAccessImportConfig.initialIncrementalState.timestampColumnInitialIncrementalState.currentValue</code></td>
+<td>string</td>
+<td>是</td>
+<td>The initial incremental state value for the timestamp column in UTC to reference in the query.<br>示例: <code>2020-09-30T14:30:00Z</code></td>
+</tr>
+<tr>
+<td><code>TableImport.config.microsoftAccessImportConfig.initialIncrementalState.longColumnInitialIncrementalState</code></td>
+<td>object</td>
+<td>否</td>
+<td>The state for an incremental table import using a column with a numeric long datatype.</td>
+</tr>
+<tr>
+<td><code>TableImport.config.microsoftAccessImportConfig.initialIncrementalState.longColumnInitialIncrementalState.columnName</code></td>
+<td>string</td>
+<td>是</td>
+<td>示例: <code>myIdColumn</code></td>
+</tr>
+<tr>
+<td><code>TableImport.config.microsoftAccessImportConfig.initialIncrementalState.longColumnInitialIncrementalState.currentValue</code></td>
+<td>string</td>
+<td>是</td>
+<td>The initial incremental state value for the long column to reference in the query.<br>示例: <code>1000</code></td>
+</tr>
+<tr>
+<td><code>TableImport.config.microsoftAccessImportConfig.initialIncrementalState.decimalColumnInitialIncrementalState</code></td>
+<td>object</td>
+<td>否</td>
+<td>The state for an incremental table import using a column with a decimal data type.</td>
+</tr>
+<tr>
+<td><code>TableImport.config.microsoftAccessImportConfig.initialIncrementalState.decimalColumnInitialIncrementalState.columnName</code></td>
+<td>string</td>
+<td>是</td>
+<td>示例: <code>myPriceColumn</code></td>
+</tr>
+<tr>
+<td><code>TableImport.config.microsoftAccessImportConfig.initialIncrementalState.decimalColumnInitialIncrementalState.currentValue</code></td>
+<td>string</td>
+<td>是</td>
+<td>The initial incremental state value for the decimal column to reference in the query.<br>示例: <code>3.25</code></td>
+</tr>
+<tr>
+<td><code>TableImport.config.snowflakeImportConfig</code></td>
+<td>object</td>
+<td>否</td>
+<td>The table import configuration for a <a href="https://www.palantir.com/docs/foundry/available-connectors/snowflake">Snowflake connection</a>.</td>
+</tr>
+<tr>
+<td><code>TableImport.config.snowflakeImportConfig.query</code></td>
+<td>string</td>
+<td>是</td>
+<td>A single SQL query can be executed per sync, which should output a data table<br>and avoid operations like invoking stored procedures.<br>The query results are saved to the output dataset in Foundry.<br>示例: <code>SELECT * FROM table</code></td>
+</tr>
+<tr>
+<td><code>TableImport.config.snowflakeImportConfig.initialIncrementalState</code></td>
+<td>union</td>
+<td>否</td>
+<td>The incremental configuration for a table import enables append-style transactions from the same table without duplication of data.<br>You must provide a monotonically increasing column such as a timestamp or id and an initial value for this column.<br>An incremental table import will import rows where the value is greater than the largest already imported.<br>You can use the '?' character to reference the incremental state value when constructing your query.<br>Normally this would be used in a WHERE clause or similar filter applied in order to only sync data with an incremental column value<br>larger than the previously observed maximum value stored in the incremental state.</td>
+</tr>
+<tr>
+<td><code>TableImport.config.snowflakeImportConfig.initialIncrementalState.stringColumnInitialIncrementalState</code></td>
+<td>object</td>
+<td>否</td>
+<td>The state for an incremental table import using a column with a string data type.</td>
+</tr>
+<tr>
+<td><code>TableImport.config.snowflakeImportConfig.initialIncrementalState.stringColumnInitialIncrementalState.columnName</code></td>
+<td>string</td>
+<td>是</td>
+<td>示例: <code>myStringColumn</code></td>
+</tr>
+<tr>
+<td><code>TableImport.config.snowflakeImportConfig.initialIncrementalState.stringColumnInitialIncrementalState.currentValue</code></td>
+<td>string</td>
+<td>是</td>
+<td>The initial incremental state value for the string column to reference in the query.</td>
+</tr>
+<tr>
+<td><code>TableImport.config.snowflakeImportConfig.initialIncrementalState.dateColumnInitialIncrementalState</code></td>
+<td>object</td>
+<td>否</td>
+<td>The state for an incremental table import using a column with a date type.</td>
+</tr>
+<tr>
+<td><code>TableImport.config.snowflakeImportConfig.initialIncrementalState.dateColumnInitialIncrementalState.columnName</code></td>
+<td>string</td>
+<td>是</td>
+<td>示例: <code>myDateColumn</code></td>
+</tr>
+<tr>
+<td><code>TableImport.config.snowflakeImportConfig.initialIncrementalState.dateColumnInitialIncrementalState.currentValue</code></td>
+<td>string</td>
+<td>是</td>
+<td>The initial incremental state value for the date column to reference in the query.<br>示例: <code>2024-12-31</code></td>
+</tr>
+<tr>
+<td><code>TableImport.config.snowflakeImportConfig.initialIncrementalState.integerColumnInitialIncrementalState</code></td>
+<td>object</td>
+<td>否</td>
+<td>The state for an incremental table import using a numeric integer datatype.</td>
+</tr>
+<tr>
+<td><code>TableImport.config.snowflakeImportConfig.initialIncrementalState.integerColumnInitialIncrementalState.columnName</code></td>
+<td>string</td>
+<td>是</td>
+<td>示例: <code>myIdColumn</code></td>
+</tr>
+<tr>
+<td><code>TableImport.config.snowflakeImportConfig.initialIncrementalState.integerColumnInitialIncrementalState.currentValue</code></td>
+<td>integer</td>
+<td>是</td>
+<td>The initial incremental state value for the integer column to reference in the query.<br>示例: <code>1</code></td>
+</tr>
+<tr>
+<td><code>TableImport.config.snowflakeImportConfig.initialIncrementalState.timestampColumnInitialIncrementalState</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>TableImport.config.snowflakeImportConfig.initialIncrementalState.timestampColumnInitialIncrementalState.columnName</code></td>
+<td>string</td>
+<td>是</td>
+<td>示例: <code>myTimeColumn</code></td>
+</tr>
+<tr>
+<td><code>TableImport.config.snowflakeImportConfig.initialIncrementalState.timestampColumnInitialIncrementalState.currentValue</code></td>
+<td>string</td>
+<td>是</td>
+<td>The initial incremental state value for the timestamp column in UTC to reference in the query.<br>示例: <code>2020-09-30T14:30:00Z</code></td>
+</tr>
+<tr>
+<td><code>TableImport.config.snowflakeImportConfig.initialIncrementalState.longColumnInitialIncrementalState</code></td>
+<td>object</td>
+<td>否</td>
+<td>The state for an incremental table import using a column with a numeric long datatype.</td>
+</tr>
+<tr>
+<td><code>TableImport.config.snowflakeImportConfig.initialIncrementalState.longColumnInitialIncrementalState.columnName</code></td>
+<td>string</td>
+<td>是</td>
+<td>示例: <code>myIdColumn</code></td>
+</tr>
+<tr>
+<td><code>TableImport.config.snowflakeImportConfig.initialIncrementalState.longColumnInitialIncrementalState.currentValue</code></td>
+<td>string</td>
+<td>是</td>
+<td>The initial incremental state value for the long column to reference in the query.<br>示例: <code>1000</code></td>
+</tr>
+<tr>
+<td><code>TableImport.config.snowflakeImportConfig.initialIncrementalState.decimalColumnInitialIncrementalState</code></td>
+<td>object</td>
+<td>否</td>
+<td>The state for an incremental table import using a column with a decimal data type.</td>
+</tr>
+<tr>
+<td><code>TableImport.config.snowflakeImportConfig.initialIncrementalState.decimalColumnInitialIncrementalState.columnName</code></td>
+<td>string</td>
+<td>是</td>
+<td>示例: <code>myPriceColumn</code></td>
+</tr>
+<tr>
+<td><code>TableImport.config.snowflakeImportConfig.initialIncrementalState.decimalColumnInitialIncrementalState.currentValue</code></td>
+<td>string</td>
+<td>是</td>
+<td>The initial incremental state value for the decimal column to reference in the query.<br>示例: <code>3.25</code></td>
+</tr>
+<tr>
+<td><code>TableImport.config.oracleImportConfig</code></td>
+<td>object</td>
+<td>否</td>
+<td>The import configuration for an Oracle Database 21 connection.</td>
+</tr>
+<tr>
+<td><code>TableImport.config.oracleImportConfig.query</code></td>
+<td>string</td>
+<td>是</td>
+<td>A single SQL query can be executed per sync, which should output a data table<br>and avoid operations like invoking stored procedures.<br>The query results are saved to the output dataset in Foundry.<br>示例: <code>SELECT * FROM table</code></td>
+</tr>
+<tr>
+<td><code>TableImport.config.oracleImportConfig.initialIncrementalState</code></td>
+<td>union</td>
+<td>否</td>
+<td>The incremental configuration for a table import enables append-style transactions from the same table without duplication of data.<br>You must provide a monotonically increasing column such as a timestamp or id and an initial value for this column.<br>An incremental table import will import rows where the value is greater than the largest already imported.<br>You can use the '?' character to reference the incremental state value when constructing your query.<br>Normally this would be used in a WHERE clause or similar filter applied in order to only sync data with an incremental column value<br>larger than the previously observed maximum value stored in the incremental state.</td>
+</tr>
+<tr>
+<td><code>TableImport.config.oracleImportConfig.initialIncrementalState.stringColumnInitialIncrementalState</code></td>
+<td>object</td>
+<td>否</td>
+<td>The state for an incremental table import using a column with a string data type.</td>
+</tr>
+<tr>
+<td><code>TableImport.config.oracleImportConfig.initialIncrementalState.stringColumnInitialIncrementalState.columnName</code></td>
+<td>string</td>
+<td>是</td>
+<td>示例: <code>myStringColumn</code></td>
+</tr>
+<tr>
+<td><code>TableImport.config.oracleImportConfig.initialIncrementalState.stringColumnInitialIncrementalState.currentValue</code></td>
+<td>string</td>
+<td>是</td>
+<td>The initial incremental state value for the string column to reference in the query.</td>
+</tr>
+<tr>
+<td><code>TableImport.config.oracleImportConfig.initialIncrementalState.dateColumnInitialIncrementalState</code></td>
+<td>object</td>
+<td>否</td>
+<td>The state for an incremental table import using a column with a date type.</td>
+</tr>
+<tr>
+<td><code>TableImport.config.oracleImportConfig.initialIncrementalState.dateColumnInitialIncrementalState.columnName</code></td>
+<td>string</td>
+<td>是</td>
+<td>示例: <code>myDateColumn</code></td>
+</tr>
+<tr>
+<td><code>TableImport.config.oracleImportConfig.initialIncrementalState.dateColumnInitialIncrementalState.currentValue</code></td>
+<td>string</td>
+<td>是</td>
+<td>The initial incremental state value for the date column to reference in the query.<br>示例: <code>2024-12-31</code></td>
+</tr>
+<tr>
+<td><code>TableImport.config.oracleImportConfig.initialIncrementalState.integerColumnInitialIncrementalState</code></td>
+<td>object</td>
+<td>否</td>
+<td>The state for an incremental table import using a numeric integer datatype.</td>
+</tr>
+<tr>
+<td><code>TableImport.config.oracleImportConfig.initialIncrementalState.integerColumnInitialIncrementalState.columnName</code></td>
+<td>string</td>
+<td>是</td>
+<td>示例: <code>myIdColumn</code></td>
+</tr>
+<tr>
+<td><code>TableImport.config.oracleImportConfig.initialIncrementalState.integerColumnInitialIncrementalState.currentValue</code></td>
+<td>integer</td>
+<td>是</td>
+<td>The initial incremental state value for the integer column to reference in the query.<br>示例: <code>1</code></td>
+</tr>
+<tr>
+<td><code>TableImport.config.oracleImportConfig.initialIncrementalState.timestampColumnInitialIncrementalState</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>TableImport.config.oracleImportConfig.initialIncrementalState.timestampColumnInitialIncrementalState.columnName</code></td>
+<td>string</td>
+<td>是</td>
+<td>示例: <code>myTimeColumn</code></td>
+</tr>
+<tr>
+<td><code>TableImport.config.oracleImportConfig.initialIncrementalState.timestampColumnInitialIncrementalState.currentValue</code></td>
+<td>string</td>
+<td>是</td>
+<td>The initial incremental state value for the timestamp column in UTC to reference in the query.<br>示例: <code>2020-09-30T14:30:00Z</code></td>
+</tr>
+<tr>
+<td><code>TableImport.config.oracleImportConfig.initialIncrementalState.longColumnInitialIncrementalState</code></td>
+<td>object</td>
+<td>否</td>
+<td>The state for an incremental table import using a column with a numeric long datatype.</td>
+</tr>
+<tr>
+<td><code>TableImport.config.oracleImportConfig.initialIncrementalState.longColumnInitialIncrementalState.columnName</code></td>
+<td>string</td>
+<td>是</td>
+<td>示例: <code>myIdColumn</code></td>
+</tr>
+<tr>
+<td><code>TableImport.config.oracleImportConfig.initialIncrementalState.longColumnInitialIncrementalState.currentValue</code></td>
+<td>string</td>
+<td>是</td>
+<td>The initial incremental state value for the long column to reference in the query.<br>示例: <code>1000</code></td>
+</tr>
+<tr>
+<td><code>TableImport.config.oracleImportConfig.initialIncrementalState.decimalColumnInitialIncrementalState</code></td>
+<td>object</td>
+<td>否</td>
+<td>The state for an incremental table import using a column with a decimal data type.</td>
+</tr>
+<tr>
+<td><code>TableImport.config.oracleImportConfig.initialIncrementalState.decimalColumnInitialIncrementalState.columnName</code></td>
+<td>string</td>
+<td>是</td>
+<td>示例: <code>myPriceColumn</code></td>
+</tr>
+<tr>
+<td><code>TableImport.config.oracleImportConfig.initialIncrementalState.decimalColumnInitialIncrementalState.currentValue</code></td>
+<td>string</td>
+<td>是</td>
+<td>The initial incremental state value for the decimal column to reference in the query.<br>示例: <code>3.25</code></td>
+</tr>
+</tbody>
+</table>
+<pre><code class="language-json">{
+  &quot;datasetRid&quot;: &quot;ri.foundry.main.dataset.c26f11c8-cdb3-4f44-9f5d-9816ea1c82da&quot;,
+  &quot;importMode&quot;: &quot;SNAPSHOT&quot;,
+  &quot;displayName&quot;: &quot;My table import&quot;,
+  &quot;allowSchemaChanges&quot;: true,
+  &quot;connectionRid&quot;: &quot;ri.magritte..source.c078b71b-92f9-41b6-b0df-3760f411120b&quot;,
+  &quot;branchName&quot;: &quot;master&quot;,
+  &quot;rid&quot;: &quot;ri.magritte..extract.27bb4f2b-63b8-44b8-a579-4e2bd65ba158&quot;,
+  &quot;config&quot;: {
+    &quot;type&quot;: &quot;jdbcImportConfig&quot;,
+    &quot;query&quot;: &quot;SELECT * FROM table&quot;
+  }
+}
+</code></pre>
+<h2>Error responses</h2>
+<table>
+<thead>
+<tr>
+<th>错误码</th>
+<th>错误名称</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>INTERNAL</td>
+<td><code>TableImportTypeNotSupported</code></td>
+<td>The specified table import type is not yet supported in the Platform API.</td>
+</tr>
+<tr>
+<td>INVALID_ARGUMENT</td>
+<td><code>TableImportNotSupportedForConnection</code></td>
+<td>The specified connection does not support creating or replacing a table import with the specified config.</td>
+</tr>
+<tr>
+<td>INTERNAL</td>
+<td><code>ConnectionDetailsNotDetermined</code></td>
+<td>Details of the connection (such as which types of import it supports) could not be determined.</td>
+</tr>
+<tr>
+<td>PERMISSION_DENIED</td>
+<td><code>ReplaceTableImportPermissionDenied</code></td>
+<td>Could not replace the TableImport.</td>
+</tr>
+<tr>
+<td>NOT_FOUND</td>
+<td><code>TableImportNotFound</code></td>
+<td>The given TableImport could not be found.</td>
+</tr>
+<tr>
+<td>NOT_FOUND</td>
+<td><code>ConnectionNotFound</code></td>
+<td>The given Connection could not be found.</td>
+</tr>
+</tbody>
+</table>
+</body>
+</html>

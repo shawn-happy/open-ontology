@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Test run</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Test run</h1>
+<p>A <strong>test run</strong> lets you simulate an action type in Ontology Manager before end users can apply it. When you submit a test run, Foundry evaluates the action against the parameter values you provide and returns the edits the action <em>would</em> make, along with a detailed execution breakdown.</p>
+<p>:::callout{theme="neutral"}
+The edits produced by a test run are <strong>not</strong> applied to your Ontology. A test run is a safe way to view the edits an action would make and how it would execute, without changing any data.
+:::</p>
+<p>Test runs are available from the <strong>Test run</strong> tab of the action form preview in the action type editor.</p>
+<p><img src="../../_resources/external-91c32b32ac97.png" alt="The Test run tab in the action form preview of the action type editor." width="500" /></p>
+<h2>Run a test</h2>
+<ol>
+<li>Open an action type in Ontology Manager and open the action form preview.</li>
+<li>Confirm the preview is set to the form layout. Test runs are available in the form layout and are not available in the table layout.</li>
+<li>Select the <strong>Test run</strong> tab in the action form preview.</li>
+<li>Fill in the form with the parameter values you want to test.</li>
+<li>Select <strong>Submit</strong> to run the test.</li>
+</ol>
+<p>The results of the test run appear in the action form preview once the run completes.</p>
+<p>A test run evaluates the action type on your current Ontology branch and executes with your permissions, enforcing the same object security and submission criteria as a regular action submission. You can run a test if you are able to view the action type configuration in Ontology Manager.</p>
+<p>:::callout{theme="neutral"}
+Test runs are unavailable while an action type has unsaved edits. Save your changes before running a test so that the test evaluates the saved configuration.
+:::</p>
+<h2>Interpret the results</h2>
+<p>A completed test run presents its results across two tabs.</p>
+<h3>Proposed changes</h3>
+<p>The <strong>Proposed changes</strong> tab lists the edits the action would make to the Ontology, including created, modified, and deleted objects and links. Property changes are shown as a comparison between the current and proposed values. If the action would not produce any edits, the tab displays <strong>No proposed changes</strong>.</p>
+<p><img src="../../_resources/external-bcdf067265b1.png" alt="The Proposed changes tab showing the object and link edits an action would make." width="400" /></p>
+<h3>Details</h3>
+<p>The <strong>Details</strong> tab explains how the action was evaluated and what would happen beyond the direct edits:</p>
+<ul>
+<li><strong>Execution log:</strong> A step-by-step breakdown of the run, covering metadata loading, dependency validation, submission criteria, parameter validation, and edits calculation. Use this log to understand why an action succeeded or where it failed.</li>
+<li><strong>Side effects:</strong> A preview of the <a href="https://www.palantir.com/docs/foundry/action-types/side-effects-overview/">side effects</a> the action would trigger, such as <a href="https://www.palantir.com/docs/foundry/action-types/notifications/">notifications</a>. You can open a notification preview to review the content and recipients that would be generated.</li>
+<li><strong>Referred entities:</strong> The object types, link types, interface types, and <a href="https://www.palantir.com/docs/foundry/action-types/function-actions-overview/">functions</a> that the action referenced during the run.</li>
+</ul>
+<p>If the action fails, the <strong>Details</strong> tab separates errors into two categories:</p>
+<ul>
+<li><strong>Admin-facing errors:</strong> Technical details for debugging.</li>
+<li><strong>End-user-facing errors:</strong> The message shown to users who trigger the action.</li>
+</ul>
+<p><img src="../../_resources/external-a09218470b85.png" alt="The Details tab showing referred entities and the execution log for a test run." width="400" /></p>
+<h2>What is skipped during a test run</h2>
+<p>A test run only performs the work needed to determine the action's result. Side effects that would take effect after the action is applied are skipped. When your action type contains any of the following, the action form preview notifies you that they will be skipped:</p>
+<ul>
+<li><a href="https://www.palantir.com/docs/foundry/action-types/webhooks/#side-effect-webhooks">Side effect webhooks</a> are not called.</li>
+<li><a href="https://www.palantir.com/docs/foundry/action-types/notifications/">Notifications</a> are not sent. A breakdown of the notifications that would have been triggered is displayed in the test run results.</li>
+<li><a href="https://www.palantir.com/docs/foundry/action-types/trigger-schedule-build/">Schedule builds</a> are not triggered.</li>
+</ul>
+<h2>External calls</h2>
+<p>To produce an accurate result, a test run executes the functions and calls that the action needs to reach its outcome. This includes functions used in the action's <a href="https://www.palantir.com/docs/foundry/action-types/rules/">rules</a>, functions that generate a notification's body or recipients, functions that generate a webhook payload, <a href="https://www.palantir.com/docs/foundry/action-types/webhooks/#writeback-webhooks">writeback webhooks</a>, and functions that access external resources. Only the calls required to determine the action's result are made.</p>
+<p>:::callout{theme="warning"}
+Because external calls are executed, they can affect external systems. When your action type includes any of them, Foundry lists the execution sources and prompts you to <strong>Confirm the external call</strong> before the test run proceeds. The calls execute only after you acknowledge them.
+:::</p>
+<p><img src="../../_resources/external-ec0262c31d14.png" alt="The Confirm the external call dialog listing execution sources to acknowledge before a test run." width="500" /></p>
+<h2>Limitations</h2>
+<ul>
+<li>Test runs are available in the form layout only; they are not available in the table layout.</li>
+<li>Test runs are unavailable while an action type has unsaved edits. Save your changes before running a test.</li>
+<li>Side effects that take effect after the action is applied are skipped, as described in <a href="#what-is-skipped-during-a-test-run">What is skipped during a test run</a>. Certain function-backed calls still execute; see <a href="#external-calls">External calls</a>.</li>
+</ul>
+</body>
+</html>

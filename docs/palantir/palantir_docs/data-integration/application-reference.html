@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Application reference</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../index.html">返回目录</a></div>
+<h1>Application reference</h1>
+<p>This page provides a reference to the Foundry applications you may encounter while performing data integration workflows.</p>
+<h2>Pipeline Builder</h2>
+<p><a href="https://www.palantir.com/docs/foundry/pipeline-builder/overview/"><strong>Pipeline Builder</strong></a> is Foundry's primary application for data integration. With Pipeline Builder, you can create end-to-end pipeline workflows, from data sources to final outputs. Users of Pipeline Builder can describe their workflow, transform data, edit schemas, and build outputs in a single easy-to-use application.</p>
+<p>Pipeline Builder features an intuitive point-and-click interface and robust backend model that allows technical and less-technical users to define and deploy pipelines faster than in code-heavy applications. The streamlined builder interface allows users to apply data transforms alongside schema checks, saving time and costs typically spent on computation and checks at build time. Additional features like full version control and extensibility make Pipeline Builder an ideal application for safe collaboration.</p>
+<p><img alt="Screenshot of Pipeline Builder" src="../_resources/foundry/data-integration/pipeline-builder-app-reference@2x.png" /></p>
+<h2>Code Repositories</h2>
+<p><a href="https://www.palantir.com/docs/foundry/code-repositories/overview/"><strong>Code Repositories</strong></a> is Foundry's primary interface for authoring code, most commonly used for creating data pipelines in Python, Java, and SQL. Code Repositories provides an integrated development environment (IDE) on top of a <code>git</code> server, enabling collaboration and governance of pipeline logic, as well as native support for writing, testing, and previewing data transformation logic. Code Repositories can also be used for authoring <a href="https://www.palantir.com/docs/foundry/integrate-models/model-asset-code-repositories/">machine learning models</a> and Ontology <a href="https://www.palantir.com/docs/foundry/functions/overview/">Functions</a>.</p>
+<p><img alt="Screenshot of Code repositories transforms" src="../_resources/foundry/data-integration/code-repos-transforms.png" /></p>
+<p>If you are interested in data science and code-based analysis, <a href="https://www.palantir.com/docs/foundry/code-workbook/overview/">Code Workbook</a> may be a better fit for your use case. <a href="https://www.palantir.com/docs/foundry/code-workbook/code-products-comparison/">Learn more about the differences between Code Workbook, Code Workspaces, and Code Repositories.</a></p>
+<h2>Data Lineage</h2>
+<p><a href="https://www.palantir.com/docs/foundry/data-lineage/overview/"><strong>Data Lineage</strong></a> is an application that shows how data flows through Foundry. You can use it to explore how any resource in Foundry is connected to other resources, across the boundaries of individual Projects or use cases. This includes support for data sources, datasets, analyses, Ontology object and link types, and user-facing applications. In addition to exploring connections, you can use Data Lineage to view previews of data, see the logic used to derive any piece of data, and manage scheduled pipelines.</p>
+<p><img alt="Data Lineage flow animation" src="../_resources/foundry/data-integration/data-lineage-flow.gif" /></p>
+<h2>Data Connection</h2>
+<p><a href="https://www.palantir.com/docs/foundry/data-connection/overview/"><strong>Data Connection</strong></a> is the application used to sync data into Foundry and manage associated resources including source credentials. After initial setup, Data Connection makes it simple to explore data sources and sync new data for use case development, while complying with the full range of governance controls required for managing source systems and use cases at scale.</p>
+<h2>Dataset Preview</h2>
+<p><a href="https://www.palantir.com/docs/foundry/dataset-preview/overview/"><strong>Dataset Preview</strong></a> is an application used to view and understand <a href="https://www.palantir.com/docs/foundry/data-integration/datasets/">datasets</a>. Opening a dataset from any other application shows you the contents of the dataset, along with a range of contextual information. This includes information about dataset ownership, how the dataset has changed over time, any applicable health checks, and further details.</p>
+<p><img alt="dataset preview" src="../_resources/foundry/data-integration/dataset-preview.png" /></p>
+<h2>Data Health</h2>
+<p><a href="https://www.palantir.com/docs/foundry/health-checks/overview/"><strong>Data Health</strong></a> is used to manage <a href="https://www.palantir.com/docs/foundry/data-integration/health-checks/">data quality</a> across all data pipelines. Pipeline maintainers can perform health checks to quickly understand the performance and reliability of their pipelines, as well as subscribe to alerts on <a href="https://www.palantir.com/docs/foundry/monitoring-views/overview/">monitoring views</a> to enable a broad set of data pipeline maintenance workflows.</p>
+<p><img alt="data health" src="../_resources/foundry/data-integration/data-health.png" /></p>
+<h2>Builds</h2>
+<p><strong>Builds application</strong> â formerly called Job Tracker â allows you to view all <a href="https://www.palantir.com/docs/foundry/data-integration/builds/">builds</a> occurring across Foundry and explore details about each build, including information about execution progress, scheduling, and past success and failure rates. Builds application also enables you to access granular information about the Spark execution engine underlying execution, which enables debugging and optimization workflows.</p>
+<p><img alt="builds application" src="../_resources/foundry/data-integration/builds.png" /></p>
+</body>
+</html>

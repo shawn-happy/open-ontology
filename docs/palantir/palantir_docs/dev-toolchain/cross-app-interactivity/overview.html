@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cross-application interactivity</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Cross-application interactivity</h1>
+<p>Cross-application interactivity is the ability to share data across distinct applications on the Palantir platform. Data in the platform can be shared through specific interaction points, such as through drag-and-drop actions, or by pairing applications so they share state in real time. Applications that implement cross-application interactivity create an ecosystem in which users can seamlessly build workflows that span multiple applications across and between Gotham and Foundry. This ecosystem enables users to connect applications in novel ways, since each interaction point in an application creates a potential connection to every other application with an interaction point.</p>
+<p>As an example, <a href="https://www.palantir.com/docs/foundry/cross-app-interactivity/drag-and-drop-overview/">drag-and-drop</a> functionality can enable users to drag data from Gaia into a <a href="https://www.palantir.com/docs/foundry/workshop/overview/">Workshop</a> application, while ensuring data compatibility through data <a href="https://www.palantir.com/docs/foundry/cross-app-interactivity/enrichment-reference/">enrichment</a>. Additionally, users can configure Workshop's <a href="https://www.palantir.com/docs/foundry/workshop/widgets-app-pairing/">App Pairing</a> widget to connect supported Palantir platform applications (such as Gotham's Gaia and Graph) to their Workshop modules, allowing <a href="https://www.palantir.com/docs/foundry/cross-app-interactivity/commands-overview/">commands</a> to automatically target the paired platform application on execution.</p>
+<p><img alt="Drag and drop between Gotham and Foundry." src="../../_resources/foundry/cross-app-interactivity/dnd-gotham-foundry.gif" /></p>
+<p>Cross-application interactivity also acts as a plug-in point for third-party developers to extend existing functionality by sharing context between applications. As workflows change and business logic evolves, cross-application interactivity unlocks new and diverse ways to generate value with the Palantir platform.</p>
+<h2>Support</h2>
+<p>Currently, all Gotham applications and many Foundry applications implement some form of cross-application interactivity. Applications built in <a href="https://www.palantir.com/docs/foundry/workshop/overview/">Workshop</a> and <a href="https://www.palantir.com/docs/foundry/slate/overview/">Slate</a>, or with the assistance of <a href="https://www.palantir.com/docs/foundry/ontology-sdk/overview/">OSDK</a>, can also implement cross-application interactivity.</p>
+<h2>Common interactions</h2>
+<p>When coupled with drag-and-drop functionality, App Pairing and Commands enable users to perform the following:</p>
+<ul>
+<li>Execute a workflow that spans multiple applications simultaneously.</li>
+<li>Move data between applications within a single workflow.</li>
+<li>Execute a workflow in one application that requires the use of capabilities native in a second or third.</li>
+<li>Connect their application to other ontology-backed applications.</li>
+<li>Configure <a href="https://www.palantir.com/docs/foundry/chatbot-studio/overview/">AIP Chatbots</a> (formerly known as AIP Agents) which can execute operations in an application on behalf of a user.</li>
+</ul>
+<p>The sections below outline common interactions supported by the functionality of cross-application interactivity.</p>
+<h3>Transition workflows and data between applications</h3>
+<p>When a user completes a task, often the next step is to transition their workflow to another application to continue its execution. Use commands within the <a href="https://www.palantir.com/docs/foundry/cross-app-interactivity/commands-overview/#use-the-button-group-widget-to-configure-a-command">Button Group</a> or <a href="https://www.palantir.com/docs/foundry/cross-app-interactivity/commands-overview/#use-the-app-pairing-widget-to-configure-a-command">App Pairing</a> widgets to pass data between applications.</p>
+<p><img alt="A user drags a map artifact from one application to another using drag and drop." src="../../_resources/foundry/cross-app-interactivity/transition-workflows.gif" /></p>
+<p>Users can drag and drop data, such an object or object set, between applications when their workflow revolves around entity identification and triage.</p>
+<p><img alt="A user drags an object from one application to another when executing a workflow." src="../../_resources/foundry/cross-app-interactivity/drag-and-drop-data.gif" /></p>
+<h3>Sync selection state across applications</h3>
+<p>Configure the App Pairing widget or set commands to sync selection state when completing tasks that use multiple applications simultaneously. This enables users to view the same data using two complementary views and transition between the applications without losing state.</p>
+<p><img alt="Use the App Pairing or Commands widgets to sync selection state between applications." src="../../_resources/foundry/cross-app-interactivity/sync-selection-state.gif" /></p>
+<p>Additionally, users can embed one application within another to leverage existing views they integrate using the App Pairing widget.</p>
+<p>:::callout{theme="neutral"}
+Users should embed only the applications they need into an existing application, as embedding multiple may impact performance.
+:::</p>
+<h3>Provide context to AIP</h3>
+<p>The App Pairing and Commands widgets can read application state from the current viewport or selection and provide that context to <a href="https://www.palantir.com/docs/foundry/logic/overview/">AIP Logic</a>.</p>
+<p><img alt="The App Pairing and Commands widgets can provide context to AIP." src="../../_resources/foundry/cross-app-interactivity/provide-context-to-aip.gif" /></p>
+<p>Additionally, users can configure chatbots in <a href="https://www.palantir.com/docs/foundry/chatbot-studio/overview/">AIP Chatbot Studio</a> that leverage commands as <a href="https://www.palantir.com/docs/foundry/chatbot-studio/tools/#types-of-tools">tools</a> to read from and write to any application that can interoperate with commands, such as Gaia.</p>
+<p><img alt="An AIP Chatbot is displayed within a Gaia map's left panel." src="../../_resources/foundry/cross-app-interactivity/read-and-write-using-aip-agent-studio.gif" /></p>
+<h3>Connect to the broader ecosystem</h3>
+<p>Users can <a href="https://www.palantir.com/docs/foundry/cross-app-interactivity/tutorial/#create-drag-and-drop-integration-points">create drag-and-drop integration points</a> to harness the power of their ontology and connect their application to others with similar integrations now and in the future.</p>
+</body>
+</html>

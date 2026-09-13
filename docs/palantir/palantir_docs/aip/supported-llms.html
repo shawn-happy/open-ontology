@@ -1,0 +1,1864 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Supported LLMs</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../index.html">返回目录</a></div>
+<h1>Supported LLMs</h1>
+<p>Palantir AIP supports a wide range of LLMs (large language models) and text embedding models from leading providers, including xAI, OpenAI, Anthropic, Meta, and Google. Supported models are listed on this page and can be used across the Palantir platform to power AIP workflows, though <a href="#llm-availability-prerequisites">availability</a> may differ across enrollments (for instance, due to <a href="#llm-availability-by-geography">georestriction</a>).</p>
+<p>Enrollment administrators manage model families through Control Panel. When a subprocessor is enabled, Palantir may enable additional model families that meet the eligibility requirements under the accepted terms and conditions. Learn how to <a href="https://www.palantir.com/docs/foundry/aip/enable-aip-features/#enable-llms">configure the selection of LLMs available for use on your enrollment.</a></p>
+<h2>Available LLMs</h2>
+<p>The following LLMs are supported for use with AIP, subject to <a href="#llm-availability-prerequisites">enrollment availability</a>.</p>
+<ul>
+<li><a href="https://docs.x.ai/docs/models#models-and-pricing">Grok-3 â</a></li>
+<li><a href="https://docs.x.ai/docs/models#models-and-pricing">Grok-3-Mini-Reasoning â</a></li>
+<li><a href="https://docs.x.ai/docs/models#models-and-pricing">Grok-4 â</a></li>
+<li><a href="https://docs.x.ai/docs/models#models-and-pricing">Grok-4-Fast (Reasoning) â</a></li>
+<li><a href="https://docs.x.ai/docs/models#models-and-pricing">Grok-4-Fast (Non-Reasoning) â</a></li>
+<li><a href="https://docs.x.ai/docs/models#models-and-pricing">Grok-4-1-Fast (Reasoning) â</a></li>
+<li><a href="https://docs.x.ai/docs/models#models-and-pricing">Grok-4-1-Fast (Non-Reasoning) â</a></li>
+<li><a href="https://docs.x.ai/docs/models#models-and-pricing">Grok-Code-Fast-1 â</a></li>
+<li><a href="https://platform.openai.com/docs/models/gpt-4o">GPT-4o â</a></li>
+<li><a href="https://developers.openai.com/api/docs/models/gpt-4o-mini">GPT-4o mini â</a></li>
+<li><a href="https://developers.openai.com/api/docs/models/gpt-4.1">GPT-4.1 â</a></li>
+<li><a href="https://developers.openai.com/api/docs/models/gpt-4.1-mini">GPT-4.1 mini â</a></li>
+<li><a href="https://developers.openai.com/api/docs/models/gpt-4.1-nano">GPT-4.1 nano â</a></li>
+<li><a href="https://developers.openai.com/api/docs/models/gpt-5">GPT-5 â</a></li>
+<li><a href="https://platform.openai.com/docs/models/gpt-5-pro">GPT-5 Pro â</a></li>
+<li><a href="https://developers.openai.com/api/docs/models/gpt-5-codex">GPT-5 Codex â</a></li>
+<li><a href="https://developers.openai.com/api/docs/models/gpt-5-mini">GPT-5 mini â</a></li>
+<li><a href="https://developers.openai.com/api/docs/models/gpt-5-nano">GPT-5 nano â</a></li>
+<li><a href="https://developers.openai.com/api/docs/models/gpt-5.1">GPT-5.1 â</a></li>
+<li><a href="https://developers.openai.com/api/docs/models/gpt-5.1-codex">GPT-5.1 Codexâ</a></li>
+<li><a href="https://developers.openai.com/api/docs/models/gpt-5.1-codex-max">GPT-5.1 Codex Maxâ</a></li>
+<li><a href="https://developers.openai.com/api/docs/models/gpt-5.1-codex-mini">GPT-5.1 Codex Miniâ</a></li>
+<li><a href="https://platform.openai.com/docs/models/gpt-5.2">GPT-5.2 â</a></li>
+<li><a href="https://developers.openai.com/api/docs/models/gpt-5.2-codex">GPT-5.2 Codex â</a></li>
+<li><a href="https://platform.openai.com/docs/models/gpt-5.3-codex">GPT-5.3 Codex â</a></li>
+<li><a href="https://openai.com/index/introducing-gpt-5-4/">GPT-5.4 â</a></li>
+<li><a href="https://openai.com/index/introducing-gpt-5-4/">GPT-5.4 mini â</a></li>
+<li><a href="https://openai.com/index/introducing-gpt-5-4/">GPT-5.4 nano â</a></li>
+<li><a href="https://openai.com/index/introducing-gpt-5-5/">GPT-5.5 â</a></li>
+<li><a href="https://developers.openai.com/api/docs/models/o1">o1 â</a></li>
+<li><a href="https://platform.openai.com/docs/models/o3-mini">o3-mini â</a></li>
+<li><a href="https://developers.openai.com/api/docs/models/o3">o3 â</a></li>
+<li><a href="https://developers.openai.com/api/docs/models/o4-mini">o4-mini â</a></li>
+<li><a href="https://www.anthropic.com/claude/haiku">Anthropic Claude 3 Haiku â</a></li>
+<li><a href="https://www.anthropic.com/claude/haiku">Anthropic Claude 3.5 Haiku â</a></li>
+<li><a href="https://www.anthropic.com/claude/sonnet">Anthropic Claude 3.5 Sonnet â</a></li>
+<li><a href="https://www.anthropic.com/claude/sonnet">Anthropic Claude 3.5 Sonnet v2 â</a></li>
+<li><a href="https://www.anthropic.com/claude/sonnet">Anthropic Claude 3.7 Sonnet â</a></li>
+<li><a href="https://www.anthropic.com/claude/sonnet">Anthropic Claude 4 Sonnet â</a></li>
+<li><a href="https://www.anthropic.com/claude/opus">Anthropic Claude 4 Opus â</a></li>
+<li><a href="https://www.anthropic.com/claude/opus">Anthropic Claude 4.1 Opus â</a></li>
+<li><a href="https://www.anthropic.com/claude/haiku">Anthropic Claude 4.5 Haiku â</a></li>
+<li><a href="https://www.anthropic.com/claude/sonnet">Anthropic Claude 4.5 Sonnet â</a></li>
+<li><a href="https://www.anthropic.com/claude/opus">Anthropic Claude 4.5 Opus â</a></li>
+<li><a href="https://www.anthropic.com/claude/sonnet">Anthropic Claude 4.6 Sonnet â</a></li>
+<li><a href="https://www.anthropic.com/claude/opus">Anthropic Claude 4.6 Opus â</a></li>
+<li><a href="https://www.anthropic.com/claude/opus">Anthropic Claude 4.7 Opus â</a></li>
+<li><a href="https://www.anthropic.com/claude/opus">Anthropic Claude 4.8 Opus â</a></li>
+<li><a href="https://docs.mistral.ai/getting-started/models/models_overview/">Mistral 7B â</a></li>
+<li><a href="https://docs.mistral.ai/getting-started/models/models_overview/">Mixtral 8X7B â</a></li>
+<li><a href="https://docs.mistral.ai/getting-started/models/models_overview/">Mistral Small 24B â</a></li>
+<li><a href="https://github.com/meta-llama/llama-models/blob/main/models/llama3/MODEL_CARD.md">Llama 3_8B â</a></li>
+<li><a href="https://github.com/meta-llama/llama-models/blob/main/models/llama3/MODEL_CARD.md">Llama 3_70B â</a></li>
+<li><a href="https://www.llama.com/docs/model-cards-and-prompt-formats/llama3_1/">Llama 3.1_8B â</a></li>
+<li><a href="https://www.llama.com/docs/model-cards-and-prompt-formats/llama3_1/">Llama 3.1_70B â</a></li>
+<li><a href="https://build.nvidia.com/nvidia/llama-3_2-nv-embedqa-1b-v2">Llama 3.2 NV EmbedQA 1B v2 â</a></li>
+<li><a href="https://www.llama.com/docs/model-cards-and-prompt-formats/llama3_3/">Llama 3.3_70B â</a></li>
+<li><a href="https://build.nvidia.com/nvidia/llama-3_3-nemotron-super-49b-v1_5/modelcard">Llama 3.3 Nemotron Super 49b v1.5 â</a></li>
+<li><a href="https://www.llama.com/docs/model-cards-and-prompt-formats/llama4/">Llama 4_16B Scout â</a></li>
+<li><a href="https://www.llama.com/docs/model-cards-and-prompt-formats/llama4/">Llama 4_128B Maverick â</a></li>
+<li><a href="https://huggingface.co/google/gemma-4-26B-A4B-it">Gemma 4 26B A4B â</a></li>
+<li><a href="https://ai.google.dev/gemini-api/docs/pricing#gemini-2.0-flash">Gemini 2.0 Flash â</a></li>
+<li><a href="https://ai.google.dev/gemini-api/docs/pricing#gemini-2.5-pro">Gemini 2.5 Pro â</a></li>
+<li><a href="https://ai.google.dev/gemini-api/docs/pricing#gemini-2.5-flash">Gemini 2.5 Flash â</a></li>
+<li><a href="https://ai.google.dev/gemini-api/docs/pricing#gemini-2.5-flash-lite">Gemini 2.5 Flash Lite â</a></li>
+<li><a href="https://ai.google.dev/gemini-api/docs/pricing#gemini-3-flash-preview">Gemini 3 Flash â</a></li>
+<li><a href="https://ai.google.dev/gemini-api/docs/pricing#gemini-3-1-pro-preview">Gemini 3.1 Pro â</a></li>
+<li><a href="https://blog.google/innovation-and-ai/models-and-research/gemini-models/gemini-3-1-flash-lite/">Gemini 3.1 Flash-Lite â</a></li>
+<li><a href="https://ai.google.dev/gemini-api/docs/pricing#gemini-3-5-flash">Gemini 3.5 Flash â</a></li>
+<li><a href="https://ai.google.dev/gemini-api/docs/pricing#gemini-3.5-flash-lite">Gemini 3.5 Flash-Lite â</a></li>
+<li><a href="https://ai.google.dev/gemini-api/docs/pricing#gemini-3.6-flash">Gemini 3.6 Flash â</a></li>
+<li><a href="https://ai.google.dev/gemini-api/docs/pricing#gemini-3.7-flash">Gemini 3.7 Flash â</a></li>
+</ul>
+<h2>Available text embedding models</h2>
+<p>Palantir AIP also supports the following text embedding models:</p>
+<ul>
+<li><a href="https://developers.openai.com/api/docs/guides/embeddings"><code>ada</code> embedding â</a></li>
+<li><a href="https://developers.openai.com/api/docs/guides/embeddings">text-embedding-3-large â</a></li>
+<li><a href="https://developers.openai.com/api/docs/guides/embeddings">text-embedding-3-small â</a></li>
+<li><a href="https://www.snowflake.com/en/data-cloud/arctic/">Snowflake Arctic Embed â</a></li>
+</ul>
+<h2>Available audio models</h2>
+<p>:::callout{theme="warning" title="Recording and consent are your responsibility"}
+Before deploying any application that records or transcribes human speech, ensure participants are notified and that you have consent flows in place where required by the jurisdictions you operate in. This may apply whether the participant is the application user, a third party on a call, or anyone else whose voice is captured. See <a href="https://www.palantir.com/docs/foundry/realtime-audio/overview/#recording-transcription-and-consent">Recording, transcription, and consent</a>.
+:::</p>
+<p>Palantir AIP supports two categories of audio models: realtime speech-to-speech models for building conversational voice applications, and transcription models for converting audio into text. To learn how to use audio models from a browser-based application authenticated as a Foundry user, see <a href="https://www.palantir.com/docs/foundry/realtime-audio/build-a-voice-enabled-osdk-application/">Build a voice-enabled OSDK application</a>. For a high-level overview of audio on Foundry, see <a href="https://www.palantir.com/docs/foundry/realtime-audio/overview/">Realtime audio</a>.</p>
+<p>The <strong>Mode</strong> column indicates which usage paths each model supports:</p>
+<ul>
+<li><strong>Realtime:</strong> streaming bidirectional WebSocket. The model handles voice activity detection, turn-taking, and streaming output; the application sends raw audio as it is captured.</li>
+<li><strong>Static:</strong> request-response HTTP. The application sends a bounded audio payload and receives the transcription back. Suited to transcribing previously recorded audio files. Also viable for live transcription if the application performs its own audio chunking â a trade-off that adds application complexity in exchange for lower and more predictable per-minute cost. This approach also helps when a realtime model is not available on your enrollment. Latency depends on chunk size and model, so evaluate it for your use case.</li>
+</ul>
+<h3>Realtime speech-to-speech</h3>
+<p>Realtime speech-to-speech models accept streaming audio input, make tool calls during the conversation, and return streaming audio output over a WebSocket connection.</p>
+<table>
+<thead>
+<tr>
+<th>Model</th>
+<th>API name</th>
+<th>Provider</th>
+<th>Mode</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="https://developers.openai.com/api/docs/models/gpt-realtime-1.5">GPT Realtime 1.5 â</a></td>
+<td><code>gpt-realtime-1.5</code></td>
+<td>OpenAI Direct, Azure OpenAI</td>
+<td>Realtime</td>
+</tr>
+<tr>
+<td><a href="https://developers.openai.com/api/docs/models/gpt-realtime-2">GPT Realtime 2.0 â</a></td>
+<td><code>gpt-realtime-2</code></td>
+<td>OpenAI Direct</td>
+<td>Realtime</td>
+</tr>
+</tbody>
+</table>
+<h3>Transcription</h3>
+<p>Transcription models convert audio into text. Most support both realtime (streaming WebSocket) and static (request-response HTTP) modes; <code>Whisper_large_v3</code> is Palantir-hosted and supports static only.</p>
+<table>
+<thead>
+<tr>
+<th>Model</th>
+<th>API name</th>
+<th>Provider</th>
+<th>Mode</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="https://platform.openai.com/docs/models/whisper-1">Whisper 1 â</a></td>
+<td><code>whisper-1</code></td>
+<td>OpenAI Direct, Azure OpenAI</td>
+<td>Realtime, Static</td>
+</tr>
+<tr>
+<td><a href="https://platform.openai.com/docs/models/gpt-4o-transcribe">GPT-4o Transcribe â</a></td>
+<td><code>gpt-4o-transcribe</code></td>
+<td>OpenAI Direct, Azure OpenAI</td>
+<td>Realtime, Static</td>
+</tr>
+<tr>
+<td><a href="https://platform.openai.com/docs/models/gpt-4o-mini-transcribe">GPT-4o Mini Transcribe â</a></td>
+<td><code>gpt-4o-mini-transcribe</code></td>
+<td>OpenAI Direct, Azure OpenAI</td>
+<td>Realtime, Static</td>
+</tr>
+<tr>
+<td><a href="https://platform.openai.com/docs/models/gpt-4o-transcribe-diarize">GPT-4o Transcribe Diarize â</a></td>
+<td><code>gpt-4o-transcribe-diarize</code></td>
+<td>OpenAI Direct, Azure OpenAI</td>
+<td>Realtime, Static</td>
+</tr>
+<tr>
+<td><a href="https://huggingface.co/openai/whisper-large-v3">Whisper Large V3 â</a></td>
+<td><code>Whisper_large_v3</code></td>
+<td>Palantir-hosted</td>
+<td>Static</td>
+</tr>
+</tbody>
+</table>
+<p>Use <code>gpt-4o-transcribe-diarize</code> when you need speaker diarization for multi-speaker audio such as meetings. For general-purpose transcription where diarization is not required, use <code>gpt-4o-transcribe</code>, <code>gpt-4o-mini-transcribe</code>, or <code>whisper-1</code> depending on the quality, cost, and latency trade-offs that fit your use case. Use <code>Whisper_large_v3</code> in environments where OpenAI Direct or Azure OpenAI integrations are not available.</p>
+<p>For per-enrollment availability across geographic regions, see the <a href="#llm-availability-by-geography">LLM availability by geography</a> table below.</p>
+<h2>LLM availability prerequisites</h2>
+<p>AIP is model-agnostic and supports a diverse selection of models for LLM-powered use cases; for more information, refer to <a href="#llm-availability-by-geography">this list of all models available in AIP</a>.</p>
+<p>However, LLM selection and availability differs across enrollments based on certain prerequisites for a specific model to be available on an enrollment. These prerequisites determine whether a model family appears as <strong>enabled</strong>, <strong>disabled</strong>, or <strong>disallowed</strong> in Control Panel. Learn more about <a href="https://www.palantir.com/docs/foundry/aip/enable-aip-features/#understanding-model-states">model states in the Model enablement interface</a>.</p>
+<p>The criteria are listed below:</p>
+<ul>
+<li><strong>Model has been integrated with AIP:</strong> Palantir aims to support the latest flagship models in the industry and is actively developing support in line with model releases and updates.</li>
+<li><strong>Legal acknowledgment has been given where required:</strong> Enrollment administrators must accept the legal requirements and terms of use of a provider to have certain models enabled. This can usually be done in Control Panel under the <strong>Model enablement</strong> tab. Models awaiting legal acknowledgment appear in a <strong>disabled</strong> state.</li>
+<li><strong>AIP has been enabled on an enrollment to use an LLM:</strong> For usage in products such as AIP Logic, Transforms, Functions, and Pipeline Builder, the permissions for AIP capabilities for custom workflows must be enabled for intended user groups.</li>
+<li><strong>Regional availability compatibility (for external provider models):</strong> For models like GPT, Claude, and Gemini, you may need to consider regional availability if you are on a geography-restricted enrollment. For example, GPT4o and Claude 3 Sonnet were both only available in the US on release from each respective model provider before they were available in the EU, UK, and other regions. Review the <a href="#llm-availability-by-geography">model georestriction section</a> for details. Models unavailable due to geographical restrictions appear in a <strong>disallowed</strong> state.</li>
+<li><strong>Additional reviews have been conducted (for certain Palantir-provided models):</strong> Open-source models, such as Llama and Mixtral, may require an additional Palantir engineering review to support your environment. Models requiring these reviews appear in a <strong>disallowed</strong> state.</li>
+<li><strong>Sufficient time to integration with a specific AIP frontend product:</strong> New LLMs take time to be fully supported on all AIP products (for example, in AIP Logic and in Pipeline Builder's use LLM node feature).</li>
+<li><strong>Risk consideration (for experimental models):</strong> As experimental models might break or require a manual migration to a newer model, we limit their rollout and customers may be required to acknowledge the same before usage is enabled. The term "experimental" is as described by the model provider and not intended for operational usage.</li>
+</ul>
+<h2>LLM rate limits</h2>
+<p><a href="https://www.palantir.com/docs/foundry/aip/llm-capacity-management/">For information on LLM rate limits, review the documentation on LLM capacity management.</a></p>
+<h3>LLM availability by geography</h3>
+<p>Some enrollments may have access to a limited set of models because of geographical restriction (or georestriction for short); georestriction for a certain region means that any AIP request to a LLM stays within the boundaries of that region. For example, if an enrollment is defined as EU geo-restricted, all LLM requests will be processed in the EU. Non-georestricted enrollments have access to the full set of Palantir-supported models.</p>
+<p>The following table indicates the regional georestriction options for the various models supported by AIP. Note that the regional georestriction refers to the enrollment setup, not to the location of a specific user.</p>
+<table>
+<thead>
+<tr>
+<th>Model Provider</th>
+<th>Model</th>
+<th>US</th>
+<th>EU</th>
+<th>UK</th>
+<th>CA</th>
+<th>AU</th>
+<th>JP</th>
+<th>KSA</th>
+<th>IL2</th>
+<th>IL4</th>
+<th>IL5</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Anthropic</td>
+<td>Claude Haiku 4.5</td>
+<td>â</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Amazon Bedrock</td>
+<td>Claude Haiku 4.5</td>
+<td>â</td>
+<td>â</td>
+<td></td>
+<td></td>
+<td>â</td>
+<td>â</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Azure</td>
+<td>Claude Haiku 4.5</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Google Vertex</td>
+<td>Claude Haiku 4.5</td>
+<td>â</td>
+<td>â</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td>â</td>
+<td>â</td>
+<td></td>
+</tr>
+<tr>
+<td>Amazon Bedrock</td>
+<td>Claude Opus 4.1</td>
+<td>â</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Google Vertex</td>
+<td>Claude Opus 4.1</td>
+<td>â</td>
+<td>â</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Anthropic</td>
+<td>Claude Opus 4.5</td>
+<td>â</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Amazon Bedrock</td>
+<td>Claude Opus 4.5</td>
+<td>â</td>
+<td>â</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Azure</td>
+<td>Claude Opus 4.5</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Google Vertex</td>
+<td>Claude Opus 4.5</td>
+<td>â</td>
+<td>â</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td>â</td>
+<td>â</td>
+<td></td>
+</tr>
+<tr>
+<td>Anthropic</td>
+<td>Claude Opus 4.6</td>
+<td>â</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Amazon Bedrock</td>
+<td>Claude Opus 4.6</td>
+<td>â</td>
+<td>â</td>
+<td>â</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Azure</td>
+<td>Claude Opus 4.6</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Google Vertex</td>
+<td>Claude Opus 4.6</td>
+<td>â</td>
+<td>â</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td>â</td>
+<td>â</td>
+<td></td>
+</tr>
+<tr>
+<td>Anthropic</td>
+<td>Claude Opus 4.7</td>
+<td>â</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Amazon Bedrock</td>
+<td>Claude Opus 4.7</td>
+<td>â</td>
+<td>â</td>
+<td></td>
+<td></td>
+<td></td>
+<td>â</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Azure</td>
+<td>Claude Opus 4.7</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Google Vertex</td>
+<td>Claude Opus 4.7</td>
+<td>â</td>
+<td>â</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td>â</td>
+<td>â</td>
+<td></td>
+</tr>
+<tr>
+<td>Anthropic</td>
+<td>Claude Opus 4.8</td>
+<td>â</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Amazon Bedrock</td>
+<td>Claude Opus 4.8</td>
+<td>â</td>
+<td>â</td>
+<td></td>
+<td></td>
+<td></td>
+<td>â</td>
+<td></td>
+<td>â</td>
+<td>â</td>
+<td></td>
+</tr>
+<tr>
+<td>Azure</td>
+<td>Claude Opus 4.8</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Google Vertex</td>
+<td>Claude Opus 4.8</td>
+<td>â</td>
+<td>â</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td>â</td>
+<td>â</td>
+<td></td>
+</tr>
+<tr>
+<td>Anthropic</td>
+<td>Claude Opus 5</td>
+<td>â</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Amazon Bedrock</td>
+<td>Claude Opus 5</td>
+<td>â</td>
+<td>â</td>
+<td></td>
+<td></td>
+<td>â</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Azure</td>
+<td>Claude Opus 5</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Google Vertex</td>
+<td>Claude Opus 5</td>
+<td>â</td>
+<td>â</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td>â</td>
+<td>â</td>
+<td></td>
+</tr>
+<tr>
+<td>Google Vertex</td>
+<td>Claude Sonnet 4</td>
+<td>â</td>
+<td>â</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td>â</td>
+<td>â</td>
+<td></td>
+</tr>
+<tr>
+<td>Anthropic</td>
+<td>Claude Sonnet 4.5</td>
+<td>â</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Amazon Bedrock</td>
+<td>Claude Sonnet 4.5</td>
+<td>â</td>
+<td>â</td>
+<td></td>
+<td></td>
+<td></td>
+<td>â</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Azure</td>
+<td>Claude Sonnet 4.5</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Google Vertex</td>
+<td>Claude Sonnet 4.5</td>
+<td>â</td>
+<td>â</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td>â</td>
+<td>â</td>
+<td></td>
+</tr>
+<tr>
+<td>Anthropic</td>
+<td>Claude Sonnet 4.6</td>
+<td>â</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Amazon Bedrock</td>
+<td>Claude Sonnet 4.6</td>
+<td>â</td>
+<td>â</td>
+<td>â</td>
+<td></td>
+<td>â</td>
+<td>â</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Azure</td>
+<td>Claude Sonnet 4.6</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Google Vertex</td>
+<td>Claude Sonnet 4.6</td>
+<td>â</td>
+<td>â</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td>â</td>
+<td>â</td>
+<td></td>
+</tr>
+<tr>
+<td>Anthropic</td>
+<td>Claude Sonnet 5</td>
+<td>â</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Amazon Bedrock</td>
+<td>Claude Sonnet 5</td>
+<td>â</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td>â</td>
+<td>â</td>
+<td></td>
+</tr>
+<tr>
+<td>Azure</td>
+<td>Claude Sonnet 5</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Google Vertex</td>
+<td>Claude Sonnet 5</td>
+<td>â</td>
+<td>â</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td>â</td>
+<td>â</td>
+<td></td>
+</tr>
+<tr>
+<td>Google Vertex</td>
+<td>Gemini 3 Flash (Preview)</td>
+<td>â</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td>â</td>
+<td>â</td>
+<td>â</td>
+</tr>
+<tr>
+<td>Google Vertex</td>
+<td>Gemini 3.1 Flash Lite</td>
+<td>â</td>
+<td>â</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td>â</td>
+<td>â</td>
+<td>â</td>
+</tr>
+<tr>
+<td>Google Vertex</td>
+<td>Gemini 3.1 Pro (Preview)</td>
+<td>â</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td>â</td>
+<td>â</td>
+<td>â</td>
+</tr>
+<tr>
+<td>Google Vertex</td>
+<td>Gemini 3.5 Flash</td>
+<td>â</td>
+<td>â</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td>â</td>
+<td>â</td>
+<td>â</td>
+</tr>
+<tr>
+<td>Google Vertex</td>
+<td>Gemini 3.5 Flash-Lite</td>
+<td>â</td>
+<td>â</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td>â</td>
+<td>â</td>
+<td>â</td>
+</tr>
+<tr>
+<td>Google Vertex</td>
+<td>Gemini 3.6 Flash</td>
+<td>â</td>
+<td>â</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td>â</td>
+<td>â</td>
+<td>â</td>
+</tr>
+<tr>
+<td>Google Vertex</td>
+<td>Gemini 3.7 Flash</td>
+<td>â</td>
+<td>â</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td>â</td>
+<td>â</td>
+<td>â</td>
+</tr>
+<tr>
+<td>Amazon Bedrock</td>
+<td>Gemma 4 26B A4B</td>
+<td>â</td>
+<td>â</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Amazon Bedrock</td>
+<td>Llama 3.1 8b Instruct</td>
+<td>â</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Palantir-hosted</td>
+<td>Llama 3.1 8b Instruct</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Amazon Bedrock</td>
+<td>Llama 3.3 70b Instruct</td>
+<td>â</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Palantir-hosted</td>
+<td>Llama 3.3 70b Instruct</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Amazon Bedrock</td>
+<td>Llama 4 Maverick 17b 128E Instruct</td>
+<td>â</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Amazon Bedrock</td>
+<td>Llama 4 Scout 17b 16E Instruct</td>
+<td>â</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Palantir-hosted</td>
+<td>Llama 4 Scout 17b 16E Instruct</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Palantir-hosted</td>
+<td>Llama 3.2 NV EmbedQA 1B v2</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Palantir-hosted</td>
+<td>Llama 3.3 Nemotron Super 49b v1.5</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Amazon Bedrock</td>
+<td>NVIDIA Nemotron 3 Nano 30B</td>
+<td>â</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Amazon Bedrock</td>
+<td>NVIDIA Nemotron 3 Super 120B</td>
+<td>â</td>
+<td>â</td>
+<td>â</td>
+<td></td>
+<td>â</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Azure</td>
+<td>GPT-4.1</td>
+<td>â</td>
+<td>â</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td>â</td>
+<td>â</td>
+<td>â</td>
+</tr>
+<tr>
+<td>OpenAI</td>
+<td>GPT-4.1</td>
+<td>â</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Azure</td>
+<td>GPT-4.1 mini</td>
+<td>â</td>
+<td>â</td>
+<td>â</td>
+<td>â</td>
+<td>â</td>
+<td>â</td>
+<td></td>
+<td>â</td>
+<td>â</td>
+<td>â</td>
+</tr>
+<tr>
+<td>OpenAI</td>
+<td>GPT-4.1 mini</td>
+<td>â</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Azure</td>
+<td>GPT-4.1 nano</td>
+<td>â</td>
+<td>â</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Azure</td>
+<td>GPT-4o</td>
+<td>â</td>
+<td>â</td>
+<td>â</td>
+<td>â</td>
+<td>â</td>
+<td>â</td>
+<td></td>
+<td>â</td>
+<td>â</td>
+<td>â</td>
+</tr>
+<tr>
+<td>OpenAI</td>
+<td>GPT-4o</td>
+<td>â</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Azure</td>
+<td>GPT-5</td>
+<td>â</td>
+<td>â</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Azure</td>
+<td>GPT-5 Codex</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Azure</td>
+<td>GPT-5 mini</td>
+<td>â</td>
+<td>â</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Azure</td>
+<td>GPT-5 nano</td>
+<td>â</td>
+<td>â</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Azure</td>
+<td>GPT-5.1</td>
+<td>â</td>
+<td>â</td>
+<td>â</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td>â</td>
+<td>â</td>
+<td>â</td>
+</tr>
+<tr>
+<td>OpenAI</td>
+<td>GPT-5.1</td>
+<td>â</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Azure</td>
+<td>GPT-5.1 Codex</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Azure</td>
+<td>GPT-5.1 Codex mini</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Azure</td>
+<td>GPT-5.2</td>
+<td>â</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>OpenAI</td>
+<td>GPT-5.2</td>
+<td>â</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>OpenAI</td>
+<td>GPT-5.2 Pro</td>
+<td>â</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Azure</td>
+<td>GPT-5.3 Codex</td>
+<td>â</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>OpenAI</td>
+<td>GPT-5.3 Codex</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Azure</td>
+<td>GPT-5.4</td>
+<td>â</td>
+<td>â</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>OpenAI</td>
+<td>GPT-5.4</td>
+<td>â</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>OpenAI</td>
+<td>GPT-5.4 Pro</td>
+<td>â</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Azure</td>
+<td>GPT-5.4 mini</td>
+<td>â</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>OpenAI</td>
+<td>GPT-5.4 mini</td>
+<td>â</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Azure</td>
+<td>GPT-5.4 nano</td>
+<td>â</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>OpenAI</td>
+<td>GPT-5.4 nano</td>
+<td>â</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Azure</td>
+<td>GPT-5.5</td>
+<td>â</td>
+<td>â</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>OpenAI</td>
+<td>GPT-5.5</td>
+<td>â</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Azure</td>
+<td>GPT-5.6 Luna</td>
+<td>â</td>
+<td>â</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>OpenAI</td>
+<td>GPT-5.6 Luna</td>
+<td>â</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Azure</td>
+<td>GPT-5.6 Sol</td>
+<td>â</td>
+<td>â</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>OpenAI</td>
+<td>GPT-5.6 Sol</td>
+<td>â</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Azure</td>
+<td>GPT-5.6 Terra</td>
+<td>â</td>
+<td>â</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>OpenAI</td>
+<td>GPT-5.6 Terra</td>
+<td>â</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Palantir-hosted</td>
+<td>GPT-OSS-120B</td>
+<td>â</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td>â</td>
+<td>â</td>
+<td>â</td>
+</tr>
+<tr>
+<td>Palantir-hosted</td>
+<td>GPT-OSS-20B</td>
+<td>â</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td>â</td>
+<td>â</td>
+<td>â</td>
+</tr>
+<tr>
+<td>Azure</td>
+<td>Text Embedding 3 Large</td>
+<td>â</td>
+<td>â</td>
+<td>â</td>
+<td>â</td>
+<td>â</td>
+<td>â</td>
+<td></td>
+<td>â</td>
+<td>â</td>
+<td>â</td>
+</tr>
+<tr>
+<td>OpenAI</td>
+<td>Text Embedding 3 Large</td>
+<td>â</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Azure</td>
+<td>Text Embedding 3 Small</td>
+<td>â</td>
+<td>â</td>
+<td></td>
+<td>â</td>
+<td>â</td>
+<td>â</td>
+<td></td>
+<td>â</td>
+<td>â</td>
+<td>â</td>
+</tr>
+<tr>
+<td>OpenAI</td>
+<td>Text Embedding 3 Small</td>
+<td>â</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>OpenAI</td>
+<td>Whisper 1</td>
+<td>â</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Azure</td>
+<td>o1</td>
+<td>â</td>
+<td>â</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Azure</td>
+<td>o3</td>
+<td>â</td>
+<td>â</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Azure</td>
+<td>o3-mini</td>
+<td>â</td>
+<td>â</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td>â</td>
+<td>â</td>
+<td>â</td>
+</tr>
+<tr>
+<td>Azure</td>
+<td>o4-mini</td>
+<td>â</td>
+<td>â</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Azure</td>
+<td>text-embedding-ada-002</td>
+<td>â</td>
+<td>â</td>
+<td>â</td>
+<td>â</td>
+<td>â</td>
+<td>â</td>
+<td></td>
+<td>â</td>
+<td>â</td>
+<td>â</td>
+</tr>
+<tr>
+<td>OpenAI</td>
+<td>text-embedding-ada-002</td>
+<td>â</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Palantir-hosted</td>
+<td>Document Information Extraction</td>
+<td>â</td>
+<td>â</td>
+<td>â</td>
+<td>â</td>
+<td>â</td>
+<td>â</td>
+<td></td>
+<td>â</td>
+<td>â</td>
+<td>â</td>
+</tr>
+<tr>
+<td>Palantir-hosted</td>
+<td>Gemma 4 26B A4B</td>
+<td>â</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td>â</td>
+<td>â</td>
+<td>â</td>
+</tr>
+<tr>
+<td>Palantir-hosted</td>
+<td>Schematic 7B</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td>â</td>
+<td>â</td>
+<td>â</td>
+</tr>
+<tr>
+<td>Palantir-hosted</td>
+<td>Whisper Large V3</td>
+<td>â</td>
+<td>â</td>
+<td>â</td>
+<td>â</td>
+<td>â</td>
+<td>â</td>
+<td></td>
+<td>â</td>
+<td>â</td>
+<td>â</td>
+</tr>
+<tr>
+<td>Palantir-hosted</td>
+<td>Snowflake Arctic Embed Medium</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>xAI</td>
+<td>Grok 4.3</td>
+<td>â</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>xAI</td>
+<td>Grok 4.5</td>
+<td>â</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>xAI</td>
+<td>Grok 420 Non-Reasoning Latest</td>
+<td>â</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>xAI</td>
+<td>Grok 420 Reasoning Latest</td>
+<td>â</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>xAI</td>
+<td>Grok Build 0.1</td>
+<td>â</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h2>Bring your own model (LLM)</h2>
+<p>Bring your own model is a capability that provides first-class support for customers that would like to connect their own LLMs or accounts to use in AIP with all Palantir developer products - AIP Logic, Pipeline Builder, Chatbot Studio, Workshop, etc.</p>
+<p>Review the <a href="https://www.palantir.com/docs/foundry/aip/bring-your-own-model/">bring your own model</a> documentation to learn how to register models for use in AIP.</p>
+<hr />
+<p>Note: AIP feature availability is subject to change and may differ between customers.</p>
+<p><em>The "OpenAI" name and the âGPTâ brands are property of OpenAI.</em></p>
+<p>All third-party trademarks (including logos and icons) referenced remain the property of their respective owners. No affiliation or endorsement is implied.</p>
+</body>
+</html>

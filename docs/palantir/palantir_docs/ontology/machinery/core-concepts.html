@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Core concepts</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Core concepts</h1>
+<p>We recommend reviewing the following concepts before using the Machinery application.</p>
+<h2>Process</h2>
+<p>In a real-world process, entities such as documents, equipment, or individuals transition through <a href="#state">states</a> over time. Many of these process objects can be linked to each other to represent multiple entities involved in a process. In Machinery, you can model these processes via process containers which hold states and actions. These process containers can be linked to one another and even be nested.</p>
+<p>Entities within a process, also called "process objects", can be represented by an object type in your ontology, such as <em>Claim</em>, <em>Flight</em>, or <em>Employee</em>. That object type must have a string-type property that denotes the object's state.</p>
+<h2>State</h2>
+<p>A state describes the current condition of an object, such as <em>in progress</em> or <em>delivered</em> for a parcel. The possible states must be enumerable. For instance, a <code>Name</code> property would not be suitable because there are indefinitely many possible names.</p>
+<p>State transitions are shown as edges between state nodes.</p>
+<p>Every object must be in <strong>one</strong> of the possible states at any given time. Scenarios where this is not the case should be modeled as a process hierarchy. For example, an employee could have the state <em>new-hire</em> or <em>onboarded</em>, and also <em>paid</em> or <em>awaiting payment</em> at the same time. These should be separate processes, with a parent process tracking whether the employee is <em>payable</em>.</p>
+<p>Within the Ontology, the state is codified as a string value of the <code>State</code> property. This value is equivalent to the state ID in Machinery. To change the state label shown on the graph, you can overwrite the display name.</p>
+<p>The state IDs in Machinery are equivalent to the state values in your data. To avoid typing errors or discrepancies, you can back your state property by an enumeration <a href="https://www.palantir.com/docs/foundry/object-link-types/value-types-overview/">value type</a>. This will guarantee that the data in the ontology can only assume a predefined set of values. Machinery will detect this setup and keep the process states in sync.</p>
+<h2>Action and automations</h2>
+<p>Actions are the cause of state transitions. State changes that happen within the platform are defined by an <a href="https://www.palantir.com/docs/foundry/action-types/overview/">action</a>. You can import them to the Machinery graph and qualify their role in the process.</p>
+<h2>Process log</h2>
+<p>The nature of a process is that entities undergo changes over time. To identify patterns in the paths that objects take or metrics like the average time spent in a state, it is essential to capture the time dimension of changes. Machinery does so by maintaining a <code>Log</code> object type that tracks every change made to an object, whether from external data sources or Foundry actions.</p>
+<p>You can view this object type like any other, but you should not define actions on it yourself, as the log object type is maintained automatically by Machinery.</p>
+<p>Each log object type tracks the changes of a single object type property. Each process can have a process log of its own.</p>
+<p>For processes happening outside the platform, you need to provide a dataset in changelog format that tracks which object went into which state at what time. Machinery computes derivations required for analysis and monitoring, such as the previous state, the duration between states, and the path that an object took until this time.</p>
+</body>
+</html>

@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SFTP</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>SFTP</h1>
+<p>Connect Foundry to SFTP servers to sync data between folders and Foundry datasets.</p>
+<h2>Supported capabilities</h2>
+<table>
+<thead>
+<tr>
+<th>Capability</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Exploration</td>
+<td>ð¢ Generally available</td>
+</tr>
+<tr>
+<td>Bulk import</td>
+<td>ð¢ Generally available</td>
+</tr>
+<tr>
+<td>Incremental</td>
+<td>ð¢ Generally available</td>
+</tr>
+<tr>
+<td>Export tasks</td>
+<td>ð¡ Sunset (legacy SFTP source only)</td>
+</tr>
+<tr>
+<td><a href="https://www.palantir.com/docs/foundry/data-connection/export-overview/#file-exports">File exports</a></td>
+<td>ð¢ Generally available</td>
+</tr>
+</tbody>
+</table>
+<h2>Data model</h2>
+<p>The connector can transfer files of any type into Foundry datasets. File formats are preserved and no schemas are applied during or after the transfer. Apply any necessary schema to the output dataset, or write a <a href="https://www.palantir.com/docs/foundry/pipeline-builder/transforms-overview/">downstream transformation</a> to access the data.</p>
+<h2>Performance and limitations</h2>
+<p>There is no limit to the size of transferable files. However, network issues can result in failures of large-scale transfers. In particular, Foundry syncs that take more than two days to run will be interrupted. To avoid network issues, we recommend using smaller file sizes and limiting the number of files that are ingested in every execution of the sync. Syncs can be <a href="https://www.palantir.com/docs/foundry/data-connection/set-up-sync/#build-or-schedule-your-batch-sync">scheduled</a> to run frequently.</p>
+<h2>Setup</h2>
+<ol>
+<li>Open the <a href="https://www.palantir.com/docs/foundry/data-connection/overview/">Data Connection</a> application and select <strong>+ New Source</strong> in the upper right corner of the screen.</li>
+<li>Select <strong>SFTP</strong> from the available connector types.</li>
+<li>Follow the additional configuration prompts to continue the setup of your connector using the information in the sections below.</li>
+</ol>
+<p>:::callout{theme="warning"}
+To access on-premises SFTP servers, we recommend using an <a href="https://www.palantir.com/docs/foundry/data-connection/architecture/#foundry-worker-with-agent-proxy-policy">agent proxy connection</a>.
+:::</p>
+<p>Learn more about <a href="https://www.palantir.com/docs/foundry/data-connection/set-up-source/">setting up a connector</a> in Foundry.</p>
+<h3>Authentication</h3>
+<p>Connections can be established to the SFTP server using either a password or an SSL private key. If you experience any issues when connecting to the server, verify that the authentication details are correct by attempting connections via an SFTP client outside of Foundry. The user for this connection must have access to the root directory as well as permissions to read and list all files and directories inside the root directory.</p>
+<table>
+<thead>
+<tr>
+<th>Option</th>
+<th>Required?</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Username</code></td>
+<td>Yes</td>
+<td>The SFTP login username.</td>
+</tr>
+<tr>
+<td><code>Password</code></td>
+<td>No</td>
+<td>The SFTP login password.</td>
+</tr>
+<tr>
+<td><code>Private key</code></td>
+<td>No</td>
+<td>A SSL private key in RSA or OpenSSH format. The SFTP server must have the public key correctly configured as an authorized key for the username provided.</td>
+</tr>
+</tbody>
+</table>
+<h3>Networking</h3>
+<p>If your SFTP connection <a href="https://www.palantir.com/docs/foundry/data-connection/core-concepts/#foundry-worker">runs in Foundry</a>, you must add a <a href="https://www.palantir.com/docs/foundry/administration/configure-egress/">network egress policy</a> to allowlist the connection.</p>
+<p>Egress policies should be created for the SFTP server hostname (if connecting via a domain) as well as the IPs to which the SFTP server host name resolves. After correctly configuring the egress policy, a non-standard connection port (22) still may not work due to <a href="#hostname-validation">host name validation</a>. If this happens, report an issue to Palantir support with a list of policies applied to this connection.</p>
+<p>:::callout{theme="warning"}
+If the domain for the server resolves to multiple domains and/or servers, all of the associated domains and their related IPs need to be whitelisted. To verify whether a server resolves to multiple domains and/or servers, run the command <code>dig &lt;domain&gt;</code> from your terminal for the server you are trying to connect to and review the answer section.
+:::</p>
+<p>On a UNIX machine, find the IP address that your server domain resolves to by running:</p>
+<pre><code class="language-bash">dig &lt;domain&gt; +short
+</code></pre>
+<p>:::callout{theme="neutral"}
+If an agent is running your connector, ensure that the agent's server can establish network connections to the SFTP servers and that firewalls are configured appropriately. We recommend verifying network connections using <a href="https://en.wikipedia.org/wiki/Netcat">netcat â</a> or a similar utility when needed.
+:::</p>
+<h3>Certificates and private keys</h3>
+<h4>Server SSH key</h4>
+<p>SFTP servers identify themselves using a public key. This key can be obtained either from the server's administrator (preferable) or by running the command below from any Linux server that has network access to the SFTP server in question:</p>
+<pre><code class="language-bash">ssh-keyscan -t rsa -p {port} {hostname}  | awk '{print $3}'
+</code></pre>
+<p>This key must be configured in the <strong>Host key</strong> section in the <strong>Connection details</strong> page. If it is not possible to obtain this key, or if the key changes frequently, key verification can be disabled using the <strong>Accept any host key</strong> toggle. Note that disabling key verification is unsafe and discouraged.</p>
+<h4>Hostname validation</h4>
+<p>Foundry attempts hostname validation for all egress routes. Network traffic outside of port 22 are sometimes not verified, resulting in hanging connections and/or timeout errors. If errors continue to occur despite proper egress policy configuration, report an issue to Palantir support with a list of policies for which you want to disable hostname validation.</p>
+<h2>Configuration options</h2>
+<table>
+<thead>
+<tr>
+<th>Option</th>
+<th>Required?</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Hostname</code></td>
+<td>Yes</td>
+<td></td>
+<td>The domain name pointing to the server or the IP address of the server.</td>
+</tr>
+<tr>
+<td><code>Port</code></td>
+<td>Yes</td>
+<td></td>
+<td>The port on which the SFTP server is running.</td>
+</tr>
+<tr>
+<td><code>Root directory</code></td>
+<td>Yes</td>
+<td></td>
+<td>The directory on the server that will be used as the starting directory for all requests via this connection.</td>
+</tr>
+<tr>
+<td><code>Username</code></td>
+<td>Yes</td>
+<td></td>
+<td>The SFTP login username.</td>
+</tr>
+<tr>
+<td><code>Password</code></td>
+<td>No</td>
+<td></td>
+<td>The SFTP login password.</td>
+</tr>
+<tr>
+<td><code>Private key</code></td>
+<td>No</td>
+<td></td>
+<td>A SSL private key in RSA or OpenSSH format. The SFTP server must have the public key correctly configured as an authorized key for the username provided.</td>
+</tr>
+<tr>
+<td><code>Host key</code></td>
+<td>Yes</td>
+<td></td>
+<td>See <a href="#server-ssh-key">Server SSH key</a> above for more information.</td>
+</tr>
+<tr>
+<td><code>Accept any host key</code></td>
+<td>No</td>
+<td><code>false</code></td>
+<td>See <a href="#server-ssh-key">Server SSH key</a> above for more information.</td>
+</tr>
+<tr>
+<td><code>Proxy</code></td>
+<td>No</td>
+<td>Direct</td>
+<td>Enable to allow a proxy connection to SFTP.</td>
+</tr>
+<tr>
+<td><code>Timeout</code></td>
+<td>No</td>
+<td>0</td>
+<td>See <a href="#timeouts">Timeouts</a> below for more information.</td>
+</tr>
+<tr>
+<td><code>Maximum concurrent connections</code></td>
+<td>No</td>
+<td>The maximum parallel uploads supported by the runtime</td>
+<td>A higher value typically results in faster transfer speeds. Setting this value to higher than the maximum parallel uploads that the runtime supports will not have any affect. Use this setting if your SFTP server can limit the number of concurrent connections to the server to manage the load.</td>
+</tr>
+<tr>
+<td>Connection settings</td>
+<td>No</td>
+<td></td>
+<td>See the <a href="#connection-settings">Connection settings</a> section below for more information.</td>
+</tr>
+<tr>
+<td><code>Logs</code></td>
+<td>No</td>
+<td><code>Info</code></td>
+<td>The level of logs to be recorded. Selecting a level will record all logs at that level or above; for example, a level of <code>Error</code> will record logs at both <code>Error</code> and <code>Fatal</code> levels. Refer to the <a href="#logs">Logs</a> section below for an example.</td>
+</tr>
+<tr>
+<td><code>Extension Negotiation</code></td>
+<td>No</td>
+<td>N/A</td>
+<td>These settings control the <em>extension negotiation</em> messages sent by the connector to the SFTP server. Disabling these feature can sometimes resolve issues with establishing connections. See <a href="#extension-negotiation">below</a> for more guidance.</td>
+</tr>
+</tbody>
+</table>
+<h3>Timeouts</h3>
+<p>A value of 0 indicates that connections will wait indefinitely for every response from the server. This timeout controls how long the connector waits while establishing a connection with the server and for every command run on the server. The timeout is not triggered if the server continues to respond. Setting this to a low value will not prevent large file transfers but can help with debugging hanging connections.</p>
+<h3>Connection settings</h3>
+<p>When establishing an SFTP connection, both the server and client (Foundry) must negotiate necessary details. These details include information to help the client and server decide which cryptographic algorithms to use. Due to compatibility issues, you may need to manually configure these settings instead of allowing them to be automatically negotiated. The table below lists the available configuration options you can use to adjust the negotiation as required. For more information, review the <a href="https://github.com/mwiede/jsch#faq">FAQ â</a>.</p>
+<table>
+<thead>
+<tr>
+<th>Setting</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Key exchange algorithms</code></td>
+<td>An explicit list of algorithms that can be used for key exchange. At least one algorithm must be selected.</td>
+</tr>
+<tr>
+<td><code>Ciphers</code></td>
+<td>A list of ciphers that can be used for encryption.</td>
+</tr>
+<tr>
+<td><code>Message Authentication Code (MAC)</code></td>
+<td>A list of MAC types.</td>
+</tr>
+<tr>
+<td><code>Host key types</code></td>
+<td>The types of host keys that can be used for this connection.</td>
+</tr>
+<tr>
+<td><code>Public key types</code></td>
+<td>The algorithms that will be used for public key authentication.</td>
+</tr>
+</tbody>
+</table>
+<h2>Sync data from SFTP</h2>
+<p>:::callout{theme="neutral"}
+For more complex scenarios, use <a href="#use-sftp-sources-in-code">pro-code alternatives</a>.
+:::</p>
+<p>The SFTP connector uses the <a href="https://www.palantir.com/docs/foundry/data-connection/file-based-syncs/">file-based sync</a> interface.</p>
+<h2>Troubleshooting</h2>
+<h3>Borrowing connection for ls failed</h3>
+<p>If a build fails with the error <code>Borrowing connection for ls failed</code>, and the error contains <code>SocketException: Connection reset</code>, check build logs to see if a network connection to the SFTP server has been established. If the logs do not contain the lines <code>Connection established</code> and <code>Remote version string</code>, firewalls are blocking egressing traffic from the connection runtime, or the target SFTP server is not allowing the incoming connection. Check egress policies and firewall rules, and contact the SFTP server administrators to resolve network connectivity issues. Below is an example of successful connection logs:</p>
+<pre><code>jschLogMessage: Connecting to &lt;HOSTNAME&gt; port 2232
+jschLogMessage: Connection established
+jschLogMessage: Remote version string: &lt;value identifying the type of server&gt;
+</code></pre>
+<h3>Hanging connections</h3>
+<p>If connections hang without any progress or obvious failures, set the timeout to a small value (<code>1000</code>, for example) to help identify which call is hanging. For example, it may be taking longer to list a particular directory, or parts of a file are taking a long time to read.</p>
+<p>Hanging connections can occur due to <a href="#hostname-validation">hostname validation</a>, and setting a small timeout will allow failure logs to be generated that can help support teams identify root causes for connection issues.</p>
+<h3>Agent worker connections [Legacy]</h3>
+<p>:::callout{theme="warning" title="Legacy"}
+This section applies only to existing legacy <a href="https://www.palantir.com/docs/foundry/data-connection/core-concepts/#agent-worker">agent worker</a> sources.
+:::</p>
+<p>If you are using an egress proxy load balancer, note that FTP is a stateful protocol. Using a load balancer can cause the sync to fail (non-deterministically) if sequential requests do not originate from the same IP.</p>
+<h2>Export data to SFTP</h2>
+<p>:::callout{theme="neutral"}
+For more complex scenarios, use <a href="#use-sftp-sources-in-code">pro-code alternatives</a>.
+:::</p>
+<p>The connector can copy files from a Foundry dataset to any location on the SFTP server.</p>
+<p>To export to a SFTP server, first <a href="https://www.palantir.com/docs/foundry/data-connection/export-overview/#enable-exports-for-source">enable exports</a> for your SFTP connector. Then, <a href="https://www.palantir.com/docs/foundry/data-connection/export-overview/#create-a-new-export">create a new export</a>.</p>
+<p>:::callout{theme="neutral"}
+In many cases, Foundry prefixes the underlying filenames of datasets with <code>spark/</code> by default. When trying to export a filename with that prefix to an SFTP instance, the connector will try to create a <code>spark</code> folder by default, which will fail if the SFTP user used by Foundry does not have permission to create folders on the SFTP instance. To prevent this, rename the files before exporting. Review the <a href="https://www.palantir.com/docs/foundry/data-connection/export-overview/#controlling-output-file-structure">controlling output file structure documentation</a> for an example of how to rewrite file paths before export.
+:::</p>
+<h2>Use SFTP sources in code</h2>
+<p><a href="https://www.palantir.com/docs/foundry/data-connection/core-concepts/#use-in-code">Pro-code alternatives</a> can be used to connect to SFTP sources for more complex scenarios.</p>
+<p>The examples below demonstrate how to connect to a SFTP source using the <a href="https://www.paramiko.org/">Paramiko â</a> Python client in an <a href="https://www.palantir.com/docs/foundry/data-connection/external-transforms/">external transform</a>.</p>
+<h3>Write files to SFTP</h3>
+<p>This example shows how to write a list of XLSX files to an SFTP server using OpenSSH private key authentication.</p>
+<pre><code class="language-python">from transforms.api import Output, Input, TransformOutput, TransformInput, transform
+from transforms.external.systems import external_systems, Source, ResolvedSource
+import pandas as pd
+import paramiko
+import io
+
+@external_systems(
+    sftp_source=Source(&quot;&lt;source_rid&gt;&quot;)
+)
+@transform(
+    output_file=Output(
+        &quot;&lt;output_dataset_rid&gt;&quot;
+    ),
+    xlsx_files=Input(&quot;&lt;input_dataset_rid&gt;&quot;),
+)
+def compute(
+    sftp_source: ResolvedSource,
+    output_file: TransformOutput,
+    xlsx_files: TransformInput, # input dataset containing a list of xlsx files
+) -&gt; None:
+
+    # 1. SFTP connection setup
+    hostname = &quot;&lt;hostname&gt;&quot;
+    port = &lt;port&gt; # (usually 22)
+    username = &quot;&lt;username&gt;&quot;
+    private_key_string = sftp_source.get_secret(&quot;privateKeyString&quot;)
+
+    # 2. Transform private key string to proper input parameter of paramiko
+    # Use StringIO to treat the string as a file-like object
+    private_key_stream = io.StringIO(private_key_string)
+    private_key = paramiko.Ed25519Key.from_private_key(private_key_stream)
+
+    # 3. Define the SFTP client
+    transport = paramiko.Transport((hostname, port))
+    transport.connect(username=username, pkey=private_key)
+    sftp = paramiko.SFTPClient.from_transport(transport)
+
+    # 4. Iterate over input files and upload each to SFTP
+    remote_paths = []
+    fs = xlsx_files.filesystem()
+    input_files = fs.ls()
+    for f in input_files:
+        with fs.open(f.path, &quot;rb&quot;) as fileobj:  # Open in binary mode
+            remote_path = get_remote_path(f.path)
+            with sftp.file(remote_path, &quot;wb&quot;) as remote_file:
+                remote_file.write(fileobj.read())  # Write bytes directly
+            remote_paths.append({&quot;file_name&quot;: f.path, &quot;remote_path&quot;: remote_path}) # record mapping of file name to uploaded path
+
+    # 3. Return dataset of remote paths
+    output_file.write_pandas(pd.DataFrame.from_records(remote_path))
+
+
+def get_remote_path(file_path):
+    &quot;&quot;&quot;
+    Define the remote path where the file will be uploaded.
+    &quot;&quot;&quot;
+    remote_target_folder = &quot;&lt;example_target_folder&gt;&quot;
+    clean_file_path = file_path.replace(&quot; &quot;, &quot;_&quot;)
+    return f&quot;{remote_target_folder}/{clean_file_path}&quot;
+</code></pre>
+<h2>Legacy SFTP connector</h2>
+<p>:::callout{theme="warning"}
+The following sections cover the legacy SFTP connector and should only be referenced when maintaining existing uses of this connector. Any new creation of SFTP sources should follow the steps described in the sections above.
+:::</p>
+<h3>Migrate to the new SFTP connector</h3>
+<p>Migration from the legacy to new SFTP connector is not automated and must be done manually. The new connector supports almost identical configuration options, and a new source should be created to replace the old source.</p>
+<p>Note that:</p>
+<ul>
+<li>Passwords cannot be retrieved from the old source but must be requested from the server administrators if you no longer have access to them.</li>
+<li><code>privateKeyFile</code> and <code>privateKeyPassphrase</code> are no longer supported, and the contents of the private key should be entered directly in the source settings if using private key authentication.</li>
+<li><code>knownHostsFile</code> is no longer supported, and the <code>base64HostKey</code> must be configured correctly in the source settings.</li>
+</ul>
+<h3>Set up a legacy SFTP connector</h3>
+<p>To set up the legacy SFTP connector, navigate to the Data Connection application, then select <strong>+ New source</strong>. On the source selection screen, scroll down to <strong>Advanced</strong>, then select <strong>Custom source</strong>. Follow the prompts in the configuration screens to continue setting up your SFTP connector.</p>
+<p>A complete example of the SFTP YAML configuration can look like the following:</p>
+<p>:::callout{theme="warning"}
+Note that the <code>type</code> of the legacy SFTP source must be <code>magritte-sftp</code>.
+:::</p>
+<pre><code class="language-yaml">type: magritte-sftp
+hostname: my.host.name
+port: 22
+username: username
+password: '{{password}}'
+rootDirectory: /home/palantir/sftp
+base64Hostkey: &gt;-
+  FULL CONTENTS OF THE HOST KEY
+unsafeAcceptAllHostKeys: false
+privateKeyFile: location/of/private/key/file
+privateKeyPassphrase: '{{passphrase}}'
+proxyConfiguration:
+    host: hostname.of.proxy
+    port: port.of.proxy
+    type: HTTP (can be HTTP/HTTPS/SOCKS)
+    credentials:
+        username: proxyUsername
+        password: `{{proxyPassword}}`
+timeout: 0
+maxConcurrentConnections: 10
+sessionParams:
+    customKex:
+        - &quot;ecdh-sha2-nistp256&quot;
+        - &quot;ecdh-sha2-nistp384&quot;
+knownHostsFile: /path/to/known_hosts_file
+
+</code></pre>
+<h3>Export with the legacy SFTP connector</h3>
+<p>:::callout{theme="warning"}
+We generally do not recommend using <a href="https://www.palantir.com/docs/foundry/data-connection/export-tasks/">export tasks</a> to write data back to external sources, and the following documentation is only meant to support existing legacy export tasks. Any new exports must be created with the updated, first-class <a href="#export-data-to-sftp">SFTP connector</a>.
+:::</p>
+<p>To export data, you must configure an <a href="https://www.palantir.com/docs/foundry/data-connection/export-tasks/">export task</a>. Navigate to the Project folder that contains the connector to which you want to export. Right select on the connector name, then select <strong>Create Data Connection Task</strong>.</p>
+<p>In the left panel of the Data Connection view:</p>
+<ol>
+<li>Verify the <code>Source</code> name matches the connector you want to use.</li>
+<li>Add an <code>Input</code> named <code>inputDataset</code>. The <strong>input dataset</strong> is the Foundry dataset being exported.</li>
+<li>Add an <code>Output</code> named <code>outputDataset</code>. The <strong>output dataset</strong> is used to run, schedule, and monitor the task.</li>
+<li>Finally, add a YAML block in the text field to define the task configuration.</li>
+</ol>
+<p>:::callout{theme="neutral"}
+The labels for the connector and input dataset that appear in the left side panel do not reflect the names defined in the YAML.
+:::</p>
+<p>Use the following options when creating the export task YAML:</p>
+<table>
+<thead>
+<tr>
+<th>Option</th>
+<th>Required?</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>directoryPath</code></td>
+<td>Yes</td>
+<td>The directory where files will be written. The path must end with a trailing <code>/</code>.</td>
+</tr>
+<tr>
+<td><code>excludePaths</code></td>
+<td>No</td>
+<td>A list of regular expressions; files with names matching these expressions will not be exported.</td>
+</tr>
+<tr>
+<td><code>rewritePaths</code></td>
+<td>No</td>
+<td>See <a href="#rewritepaths">section below</a> for more information.</td>
+</tr>
+<tr>
+<td><code>uploadConfirmation</code></td>
+<td>No</td>
+<td>When the value is <code>exportedFiles</code>, the output dataset will contain a list of files that were exported.</td>
+</tr>
+<tr>
+<td><code>createTransactionFolders</code></td>
+<td>No</td>
+<td>When enabled, data will be written to a subfolder within the specified <code>directoryPath</code>. Every subfolder will have a unique name for every exported transaction in Foundry and is based on the time the transaction was committed in Foundry.</td>
+</tr>
+<tr>
+<td><code>incrementalType</code></td>
+<td>No</td>
+<td>For datasets that are built incrementally, set to <code>incremental</code> to only export transactions that occurred since the previous export.</td>
+</tr>
+<tr>
+<td><code>flagFile</code></td>
+<td>No</td>
+<td>See <a href="#flag-file">Flag file section</a> for more information.</td>
+</tr>
+<tr>
+<td><code>spanMultipleViews</code></td>
+<td>No</td>
+<td>If <code>true</code>, multiple transactions in Foundry will be exported at once. If <code>false</code>, a single build will export only one transaction at a time. If incremental is enabled, the files from the oldest transaction will be exported first.</td>
+</tr>
+</tbody>
+</table>
+<h3><code>rewritePaths</code></h3>
+<p>If the first key matches the filename, the capture groups in the key will be replaced with the value. The value itself can have extra sections to add metadata to the filename.</p>
+<p>If the value contains:</p>
+<ul>
+<li><code>${dt:javaDateExpression}</code>: This part of the value will be replaced by the timestamp of when the file is being exported. The <code>javaDateExpression</code> follows the <a href="https://docs.oracle.com/javase/8/docs/api/java/time/format/DateTimeFormatter.html">DateTimeFormatter â</a> pattern.</li>
+<li><code>${transaction}</code>: This part of the value will be replaced with the Foundry transaction ID of the transaction that contains this file.</li>
+<li><code>${dataset}</code>: This part of the value will be replaced with the Foundry dataset ID of the dataset that contains this file.</li>
+</ul>
+<p>Example:</p>
+<p>Consider a file in a Foundry dataset called "spark/file_name", in a transaction with ID <code>transaction_id</code> and dataset ID <code>dataset_id</code>. If you use the expression <code>fi.*ame</code> as the key and <code>file_${dt:DD-MM-YYYY}-${transaction}-${dataset}_end</code> as a value, when the file is written to SFTP, it will be stored as <code>spark/file_79-03-2023-transaction_id-dataset_id_end</code>.</p>
+<h3>Flag file</h3>
+<p>The connector can write an empty flag file to the SFTP server once all data is copied for a given build. The empty file signifies that the contents are ready for consumption and will no longer be modified. The flag file will be written to the <code>directoryPath</code>. However, if <code>createTransactionFolders</code> is enabled, a flag file will be made for every folder to which content was written. If flag files are enabled, and the flag file is called <code>confirmation.txt</code>, all flag files will be written at once after files being exported in the build have been written.</p>
+<p>:::callout{theme="neutral"}
+Flag files are written at the end of a build, not when a subfolder has been exported.
+:::</p>
+<p>If the files in the SFTP server are newer than the flag file, this normally indicates that the previous export was not successful or an export is in progress for that folder.</p>
+<p>An example of a simple export configuration is:</p>
+<pre><code class="language-yaml">type: export-sftp-task
+directoryPath: export-directory/subdirectory
+</code></pre>
+<p>After you configure the export task, select <strong>Save</strong> in the upper right corner.</p>
+<p>:::callout{theme="neutral"}
+The directory specified in the <code>directoryPath</code> must already exist on the SFTP server.
+:::</p>
+<p>:::callout{theme="neutral"}
+The directory specified in the <code>directoryPath</code> is relative to the root directory. For example, if the connection is configured with <code>rootDirectory: /home/palantir/sftp</code> and <code>directoryPath</code> is <code>export-directory</code>, then the files will be exported to <code>/home/palantir/sftp/export-directory/</code>.
+:::</p>
+<h2>Logs</h2>
+<p>Select the <strong>Logs</strong> tab in Data Connections to view logs from <a href="https://www.palantir.com/docs/foundry/data-connection/source-exploration/">explorations</a> and builds. These logs are useful for debugging connection issues. Search for <code>jschLogMessage</code> to view details.</p>
+<p>The log details below show a successful login attempt:</p>
+<pre><code>jschLogMessage: Connecting to &lt;HOSTNAME&gt; port 2232
+jschLogMessage: Connection established
+jschLogMessage: Remote version string: SSH-2.0-OpenSSH_8.4p1 Debian-5+deb11u1
+jschLogMessage: Local version string: SSH-2.0-JSCH_0.2.12
+jschLogMessage: CheckCiphers: chacha20-poly1305@openssh.com
+jschLogMessage: CheckKexes: curve25519-sha256,curve25519-sha256@libssh.org,curve448-sha512
+jschLogMessage: CheckSignatures: ssh-ed25519,ssh-ed448
+jschLogMessage: server_host_key proposal before known_host reordering is: ssh-ed25519,ecdsa-sha2-nistp256,ecdsa-sha2-nistp384,ecdsa-sha2-nistp521,rsa-sha2-512,rsa-sha2-256,ssh-dss,ssh-rsa
+jschLogMessage: server_host_key proposal after known_host reordering is: ssh-ed25519,rsa-sha2-512,rsa-sha2-256,ssh-rsa,ecdsa-sha2-nistp256,ecdsa-sha2-nistp384,ecdsa-sha2-nistp521,ssh-dss
+jschLogMessage: SSH_MSG_KEXINIT sent
+jschLogMessage: SSH_MSG_KEXINIT received
+jschLogMessage: server proposal: KEX algorithms: curve25519-sha256,curve25519-sha256@libssh.org,ecdh-sha2-nistp256,ecdh-sha2-nistp384,ecdh-sha2-nistp521,diffie-hellman-group-exchange-sha256,diffie-hellman-group16-sha512,diffie-hellman-group18-sha512,diffie-hellman-group14-sha256
+jschLogMessage: server proposal: host key algorithms: ssh-ed25519,rsa-sha2-512,rsa-sha2-256,ssh-rsa
+jschLogMessage: server proposal: ciphers c2s: chacha20-poly1305@openssh.com,aes128-ctr,aes192-ctr,aes256-ctr,aes128-gcm@openssh.com,aes256-gcm@openssh.com
+jschLogMessage: server proposal: ciphers s2c: chacha20-poly1305@openssh.com,aes128-ctr,aes192-ctr,aes256-ctr,aes128-gcm@openssh.com,aes256-gcm@openssh.com
+jschLogMessage: server proposal: MACs c2s: umac-64-etm@openssh.com,umac-128-etm@openssh.com,hmac-sha2-256-etm@openssh.com,hmac-sha2-512-etm@openssh.com,hmac-sha1-etm@openssh.com,umac-64@openssh.com,umac-128@openssh.com,hmac-sha2-256,hmac-sha2-512,hmac-sha1
+jschLogMessage: server proposal: MACs s2c: umac-64-etm@openssh.com,umac-128-etm@openssh.com,hmac-sha2-256-etm@openssh.com,hmac-sha2-512-etm@openssh.com,hmac-sha1-etm@openssh.com,umac-64@openssh.com,umac-128@openssh.com,hmac-sha2-256,hmac-sha2-512,hmac-sha1
+jschLogMessage: server proposal: compression c2s: none,zlib@openssh.com
+jschLogMessage: server proposal: compression s2c: none,zlib@openssh.com
+jschLogMessage: server proposal: languages c2s:
+jschLogMessage: server proposal: languages s2c:
+jschLogMessage: client proposal: KEX algorithms: curve25519-sha256,curve25519-sha256@libssh.org,ecdh-sha2-nistp256,ecdh-sha2-nistp384,ecdh-sha2-nistp521,diffie-hellman-group-exchange-sha256,diffie-hellman-group16-sha512,diffie-hellman-group18-sha512,diffie-hellman-group14-sha256,diffie-hellman-group14-sha1,diffie-hellman-group-exchange-sha1,diffie-hellman-group1-sha1,ext-info-c
+jschLogMessage: client proposal: host key algorithms: ssh-ed25519,rsa-sha2-512,rsa-sha2-256,ssh-rsa,ecdsa-sha2-nistp256,ecdsa-sha2-nistp384,ecdsa-sha2-nistp521,ssh-dss
+jschLogMessage: client proposal: ciphers c2s: aes128-ctr,aes192-ctr,aes256-ctr,aes128-gcm@openssh.com,aes256-gcm@openssh.com,aes128-cbc,3des-ctr,3des-cbc,blowfish-cbc,aes192-cbc,aes256-cbc
+jschLogMessage: client proposal: ciphers s2c: aes128-ctr,aes192-ctr,aes256-ctr,aes128-gcm@openssh.com,aes256-gcm@openssh.com,aes128-cbc,3des-ctr,3des-cbc,blowfish-cbc,aes192-cbc,aes256-cbc
+jschLogMessage: client proposal: MACs c2s: hmac-sha2-256-etm@openssh.com,hmac-sha2-512-etm@openssh.com,hmac-sha1-etm@openssh.com,hmac-sha2-256,hmac-sha2-512,hmac-sha1,hmac-md5,hmac-sha1-96,hmac-md5-96
+jschLogMessage: client proposal: MACs s2c: hmac-sha2-256-etm@openssh.com,hmac-sha2-512-etm@openssh.com,hmac-sha1-etm@openssh.com,hmac-sha2-256,hmac-sha2-512,hmac-sha1,hmac-md5,hmac-sha1-96,hmac-md5-96
+jschLogMessage: client proposal: compression c2s: none
+jschLogMessage: client proposal: compression s2c: none
+jschLogMessage: client proposal: languages c2s:
+jschLogMessage: client proposal: languages s2c:
+jschLogMessage: kex: algorithm: curve25519-sha256
+jschLogMessage: kex: host key algorithm: ssh-ed25519
+jschLogMessage: kex: server-&gt;client cipher: aes128-ctr MAC: hmac-sha2-256-etm@openssh.com compression: none
+jschLogMessage: kex: client-&gt;server cipher: aes128-ctr MAC: hmac-sha2-256-etm@openssh.com compression: none
+jschLogMessage: SSH_MSG_KEX_ECDH_INIT sent
+jschLogMessage: expecting SSH_MSG_KEX_ECDH_REPLY
+jschLogMessage: ssh_eddsa_verify: ssh-ed25519 signature true
+jschLogMessage: Host '[&lt;HOSTNAME&gt;]:2232' is known and matches the EDDSA host key
+jschLogMessage: SSH_MSG_NEWKEYS sent
+jschLogMessage: SSH_MSG_NEWKEYS received
+jschLogMessage: SSH_MSG_SERVICE_REQUEST sent
+jschLogMessage: SSH_MSG_EXT_INFO received
+jschLogMessage: server-sig-algs=&lt;ssh-ed25519,sk-ssh-ed25519@openssh.com,ssh-rsa,rsa-sha2-256,rsa-sha2-512,ssh-dss,ecdsa-sha2-nistp256,ecdsa-sha2-nistp384,ecdsa-sha2-nistp521,sk-ecdsa-sha2-nistp256@openssh.com,webauthn-sk-ecdsa-sha2-nistp256@openssh.com&gt;
+jschLogMessage: SSH_MSG_SERVICE_ACCEPT received
+jschLogMessage: Authentications that can continue: publickey,keyboard-interactive,password
+jschLogMessage: Next authentication method: publickey
+jschLogMessage: PubkeyAcceptedAlgorithms = ssh-ed25519,ecdsa-sha2-nistp256,ecdsa-sha2-nistp384,ecdsa-sha2-nistp521,rsa-sha2-512,rsa-sha2-256,ssh-rsa
+jschLogMessage: PubkeyAcceptedAlgorithms in server-sig-algs = [ssh-ed25519, ecdsa-sha2-nistp256, ecdsa-sha2-nistp384, ecdsa-sha2-nistp521, rsa-sha2-512, rsa-sha2-256, ssh-rsa]
+jschLogMessage: rsa-sha2-512 preauth success
+jschLogMessage: rsa-sha2-512 auth success
+jschLogMessage: Authentication succeeded (publickey).
+</code></pre>
+<p>Note that in the example above, the server supports host key algorithms of <code>ssh-ed25519</code>, <code>rsa-sha2-512</code>, <code>rsa-sha2-256</code>, and <code>ssh-rsa</code>. If any connection issues occurred using <code>ssh-ed25519</code>, you could set the <a href="#connection-settings">Host Key Algorithms setting</a> to <code>rsa-sha2-512</code> instead.</p>
+<h2>Extension negotiation</h2>
+<p>The SFTP protocol allows clients to use advanced features of the protocol if they are supported by both the client and the servers. For most industry standard implementations of SFTP, we recommend keeping extensions enabled. However, extensions can cause connection failures if there are compatibility issues. The Foundry SFTP connector allows the extensions to be disabled as required. In general, the best practice is to disable as few extensions as necessary rather than disabling all extensions.</p>
+</body>
+</html>

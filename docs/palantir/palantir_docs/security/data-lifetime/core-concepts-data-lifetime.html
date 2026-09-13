@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Core concepts</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Core concepts</h1>
+<p>The concepts explained below are important to understand before using or configuring Data Lifetime in your enrollment.</p>
+<h2>Data Lifetime policies</h2>
+<p>Data Lifetime allows you to define âlineage-aware" retention policies at the namespace level and apply them to datasets within these namespaces. Once a policy is applied, Data Lifetime assigns deletion dates to all transactions in the dataset based on policy configurations. Two types of policies can be configured:</p>
+<ul>
+<li><strong><a href="https://www.palantir.com/docs/foundry/data-lifetime/deletion-policies-implications/#fixed-deletion-date-policy">Fixed deletion date</a>:</strong> By default, all transactions in a root dataset are assigned the same specified deletion time (unless a <a href="https://www.palantir.com/docs/foundry/data-lifetime/deletion-policies-implications/#fixed-deletion-date-policy">cutoff date</a> is configured).</li>
+<li><strong><a href="https://www.palantir.com/docs/foundry/data-lifetime/deletion-policies-implications/#keep-latest-view-only-policy">Latest view only</a>:</strong> All transactions in a root dataset that are <em>not</em> in that dataset's current view will be assigned a deletion date equal to the current time. This means that all historical transactions will be marked for immediate deletion, while transactions in the latest view of the dataset will not be assigned a deletion date.</li>
+</ul>
+<p><img alt="Workflow to create a new policy" src="../../_resources/foundry/data-lifetime/createanewpolicy.png" /></p>
+<h3>Retention policies vs. lineage-aware retention policies</h3>
+<p>Foundry offers two ways to systematically delete data from the system:</p>
+<ul>
+<li>
+<p><strong>Retention policies</strong>, defined in the <a href="https://www.palantir.com/docs/foundry/retention/overview/">Retention</a> application, are applied to dataset transactions based on specific rules and can systematically delete data. However, these policies <strong>are not</strong> lineage-aware and thus do not propagate to downstream datasets. Learn more about <a href="https://www.palantir.com/docs/foundry/retention/overview/">retention policies</a>.</p>
+</li>
+<li>
+<p><strong>Data Lifetime policies</strong> are distinct from <a href="https://www.palantir.com/docs/foundry/retention/overview/">retention</a> policies. The <em>lineage-aware</em> deletion mechanism of Data Lifetime policies ensures that when a transaction is deleted, all downstream transactions derived from that transaction are also removed. A key distinction between both methods is that Data Lifetime suggests that policies be applied to either root or otherwise upstream datasets, while policies managed through <a href="https://www.palantir.com/docs/foundry/retention/overview/">Retention</a> do not have this requirement.</p>
+</li>
+</ul>
+<p>:::callout{theme="warning"}
+Though policies can be simultaneously configured on the same enrollment, Data Lifetime does not consider other retention policies when showing deletion dates for transactions. For example, if a retention policy is meant to delete a specific transaction on Tuesday, and Data Lifetime is set to delete that same transaction on Wednesday, Data Lifetime will report Wednesday as the deletion date for that transaction. This remains true even if, realistically, the transaction will be deleted on Tuesday based off of the retention policy.
+:::</p>
+<h3>Permissions and roles</h3>
+<p>:::callout{theme="warning"}
+Understanding permissions and roles is a crucial part of using Data Lifetime. Learn more about the importance of <a href="https://www.palantir.com/docs/foundry/data-lifetime/getting-started/#safeguard-policy-use">safeguarding policies</a>.
+:::</p>
+<p>The default roles for permissions in Data Lifetime are described below:</p>
+<ul>
+<li><strong>Namespace Viewer:</strong> View retention policies.</li>
+<li><strong>Dataset Editor:</strong> Set/remove retention policies on/from datasets.</li>
+<li><strong>Data Governance Officer:</strong></li>
+<li>Create/update/delete retention policies for namespaces they can view.</li>
+<li>Set/remove retention policies and policy overrides for datasets they can view.</li>
+</ul>
+<p>The Data Governance Officer role is particularly vital for managing and safeguarding Data Lifetime policies. Learn more about <a href="https://www.palantir.com/docs/foundry/administration/control-panel/">assigning permissions within Control Panel</a>. Additionally, we recommend all Organizations review and understand our <a href="https://www.palantir.com/docs/foundry/security/data-protection-and-governance/">data governance principles and implementation</a> within the platform.</p>
+<p>The following matrix shows the actions that would only be granted to individuals with the role of <strong>Data Governance Officer</strong> and depicts the additional permissions needed to take action.</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>Namespace Viewer</th>
+<th>Policy Viewer</th>
+<th>Dataset Viewer</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Create Data Lifetime policy</td>
+<td>â</td>
+<td>â</td>
+<td>â</td>
+</tr>
+<tr>
+<td>Update Data Lifetime policy</td>
+<td>â</td>
+<td>â</td>
+<td>â</td>
+</tr>
+<tr>
+<td>Delete Data Lifetime policy</td>
+<td>â</td>
+<td>â</td>
+<td>â</td>
+</tr>
+<tr>
+<td>Set Data Lifetime policy on dataset</td>
+<td>â</td>
+<td>â</td>
+<td>â</td>
+</tr>
+<tr>
+<td>Remove Data Lifetime policy from dataset</td>
+<td>â</td>
+<td>â</td>
+<td>â</td>
+</tr>
+<tr>
+<td>Set Data Lifetime policy override on dataset</td>
+<td>â</td>
+<td>â</td>
+<td>â</td>
+</tr>
+</tbody>
+</table>
+<p>The following matrix shows the actions all users (particularly, those who do <em>not</em> have the <strong>Data Governance Officer</strong> role for their Organization) can take and the permissions needed to take action.</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>Namespace Viewer</th>
+<th>Policy Viewer</th>
+<th>Dataset Viewer</th>
+<th>Dataset Editor</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>View Data Lifetime policy</td>
+<td>â</td>
+<td>â</td>
+<td>â</td>
+<td>â</td>
+</tr>
+<tr>
+<td>View Data Lifetime policies for dataset</td>
+<td>â</td>
+<td>â</td>
+<td>â</td>
+<td>â</td>
+</tr>
+<tr>
+<td>Set Data Lifetime policy on dataset</td>
+<td>â</td>
+<td>â</td>
+<td>â</td>
+<td>â</td>
+</tr>
+<tr>
+<td>Remove Data Lifetime policy from dataset</td>
+<td>â</td>
+<td>â</td>
+<td>â</td>
+<td>â</td>
+</tr>
+</tbody>
+</table>
+</body>
+</html>

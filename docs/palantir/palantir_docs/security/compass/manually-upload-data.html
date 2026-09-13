@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Manually upload data</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Manually upload data</h1>
+<p>You can manually upload data from your own sources to use in your Projects. All data should be approved for the purpose of your use case (no personal data, for example) or notional data.</p>
+<p>Start by opening the file on your computer to verify its contents. Check the number of header rows and if any of the columns have numeric or date/time data. This information will be useful later.</p>
+<p>In the platform, navigate to the desired folder via <strong>Files</strong> in the workspace navigation sidebar, and then select <strong>Your files</strong>.</p>
+<p><img alt="&quot;Your files&quot;Â view." src="../../_resources/foundry/compass/your-files-data.png" /></p>
+<p>Within your home folder, you can create a folder named <code>data</code> to keep your files organized. Select the folder to navigate to it. You should now be in <code>Your files &gt; data</code> or <code>/&lt;shared-folder-path&gt; &gt; data</code>.</p>
+<p>Next, either directly drag and drop files onto your browser for upload into your folder, or alternatively, select <strong>+ New &gt; Upload files...</strong> to start the upload process.</p>
+<p><img src="../../_resources/external-2ae86fb4e0e5.png" alt="Upload file option" width="250"></p>
+<p>During the upload process, choose how you would like to upload the file(s):</p>
+<ul>
+<li><strong>Upload as media set (recommended):</strong> Upload selected files <a href="https://www.palantir.com/docs/foundry/data-integration/media-sets/">to a new media set.</a></li>
+<li><strong>Upload to a dataset without a schema:</strong> To store a collection of arbitrary files.</li>
+<li><strong>Upload as a raw file without modifying the extension</strong></li>
+</ul>
+<p>Then, configure your upload, and choose the <strong>Write mode</strong>.</p>
+<p><img src="../../_resources/external-37a5b6dc148b.png" alt="Configure the files you are uploading and select Write mode" width="300" /></p>
+<p>Write modes include:</p>
+<ul>
+<li>
+<p>Transactionless (Updates reflected immediately): Writes immediately reflected per item, failures limited to the item, and no support for snapshots as deletion and overwrite happen on a per-item basis.</p>
+</li>
+<li>
+<p>Transactional (Transaction-based guarantees, similar to datasets): One open transaction at a time per media set, a maximum of 10,000 files written per transaction, no writes are committed upon build failure, and support for snapshot and incremental builds.</p>
+</li>
+</ul>
+<p>Once set, select <strong>Upload</strong> to complete.</p>
+<p><img src="../../_resources/external-9404ac7c6f51.png" alt="Upload finished view" width="350"></p>
+<p>:::callout{theme="neutral"}
+In the <strong>Dataset Preview</strong> application, you can <a href="https://www.palantir.com/docs/foundry/dataset-preview/overview/#upload-files-manually">upload <code>.csv</code>, <code>.tsv</code>, <code>.xls</code>, <code>.xlsm</code>, and <code>.xlsx</code> files directly into a dataset</a>.
+:::</p>
+</body>
+</html>

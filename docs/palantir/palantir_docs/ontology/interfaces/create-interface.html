@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Create an interface</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Create an interface</h1>
+<p>Follow the steps below to create a new interface in <a href="https://www.palantir.com/docs/foundry/ontology-manager/overview/">Ontology Manager</a>.</p>
+<ol>
+<li>
+<p>First, verify you are working within your ontology of choice by checking the <strong>Ontologies</strong> dropdown menu located at the top of the left side panel.</p>
+</li>
+<li>
+<p>To create a new interface, you can do either of the following:
+   * At the top right of the page, select <strong>New &gt; Interface</strong>.
+   * From the left panel, select <strong>Interfaces &gt; + New interface</strong> under the <strong>Resources</strong> section. Then, from the <strong>Interfaces</strong> page, select <strong>New interface</strong> from the top right corner of the screen.</p>
+</li>
+<li>
+<p>The first page of the helper provides information about interfaces. Select <strong>Next</strong>. <img src="../../_resources/external-54a9e76591e4.png" alt="Interface creation about page." width="800" /></p>
+</li>
+<li>
+<p>Input the display name and API name for your interface. You can also optionally provide a description of the interface and select an appropriate icon.</p>
+<p><img src="../../_resources/external-03da5be75259.png" alt="Interface metadata creation" width="800" /></p>
+</li>
+<li>
+<p>Add properties to your interface. You can define properties locally on the interface (recommended) or use <a href="https://www.palantir.com/docs/foundry/object-link-types/shared-property-overview/">shared properties</a>. For each property, choose whether it is <strong>required</strong> or <strong>optional</strong>.</p>
+<p><img src="../../_resources/external-0d48664dab7b.png" alt="Interface property selection" width="800" /></p>
+</li>
+</ol>
+<p>For <strong>required</strong> properties, any object type that implements the interface must provide a mapping from a local property to the interface property. For <strong>optional</strong> properties, mapping may be skipped during implementation. Optional properties can be useful when building Marketplace packages to iterate on your interface without introducing upgrade blockers that may be difficult to resolve.</p>
+<ol start="6">
+<li>
+<p>Select a project to save this interface to, then select <strong>Create</strong>.</p>
+<p><img src="../../_resources/external-4e8ad38924e1.png" alt="Interface save location." width="800" /></p>
+</li>
+<li>
+<p>Back in Ontology Manager, select <strong>Save</strong> in the upper right corner to <a href="https://www.palantir.com/docs/foundry/ontology-manager/save-changes/">make the change to your ontology</a>.</p>
+</li>
+</ol>
+<h2>Create interface link types (optional)</h2>
+<p>If you want this interface to link to another interface or object type, you can optionally add any <a href="https://www.palantir.com/docs/foundry/interfaces/interface-link-types-overview/">interface link types</a> to the interface.</p>
+<p><img src="../../_resources/external-2819f500e745.png" alt="Add a link type constraint" width="800" /></p>
+<ol>
+<li>Select <strong>Link type constraints</strong> in the left side panel.</li>
+<li>Then, select <strong>Create new link type constraint</strong> in the top right corner.</li>
+</ol>
+<p><img src="../../_resources/external-c75db293b30b.png" alt="Create a link type constraint" width="400" /></p>
+<p>If an interface link type is required for your modeling use case, any object type that implements the interface must add a new or existing link type that satisfies the interface link type constraints.</p>
+<h2>Create interface action type constraints (optional)</h2>
+<p>If you want an interface to define expected action capabilities across implementing object types, you can optionally add <a href="https://www.palantir.com/docs/foundry/interfaces/interface-action-type-constraints/">interface action type constraints</a> to the interface.</p>
+<p><img src="../../_resources/external-0a9735c50389.png" alt="Interface action type constraints tab." width="800" /></p>
+<ol>
+<li>Select <strong>Action type constraints</strong> in the left side panel.</li>
+<li>Select <strong>Create new</strong>.</li>
+<li>Add the constraint metadata, choose whether implementation is required, and configure any parameter constraints.</li>
+</ol>
+<p><img src="../../_resources/external-db5c75d76df8.png" alt="Action type constraint configuration dialog." width="500" /></p>
+<p>If an interface action type constraint is required for your modeling use case, any object type that implements the interface must map the constraint to a concrete action type that satisfies the interface action type constraint.</p>
+</body>
+</html>

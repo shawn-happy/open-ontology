@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Agent-level filesystem</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Agent-level filesystem</h1>
+<p>Files stored on disk on an <a href="https://www.palantir.com/docs/foundry/data-connection/core-concepts/#agents">agent</a> can be synced into Foundry using the filesystem source type.</p>
+<p>This source type can be used to sync data from a <a href="https://en.wikipedia.org/wiki/Network_File_System">Network File System â</a> (NFS) or <a href="https://en.wikipedia.org/wiki/Network-attached_storage">Network-attached storage â</a> (NAS) to Foundry, by mounting the NFS or NAS on the agent host and configuring the root directory appropriately.</p>
+<h2>Supported capabilities</h2>
+<table>
+<thead>
+<tr>
+<th>Capability</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Exploration</td>
+<td>ð¢ Generally available</td>
+</tr>
+<tr>
+<td>Bulk import</td>
+<td>ð¢ Generally available</td>
+</tr>
+<tr>
+<td>Incremental</td>
+<td>ð¢ Generally available</td>
+</tr>
+<tr>
+<td><a href="https://www.palantir.com/docs/foundry/data-connection/export-overview/#file-exports">File exports</a></td>
+<td>ð¢ Generally available</td>
+</tr>
+</tbody>
+</table>
+<h2>Configuration</h2>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Required?</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>rootDirectory</code></td>
+<td>Y</td>
+<td></td>
+<td>Root directory containing data.</td>
+</tr>
+<tr>
+<td><code>fileMustNotChangeDuration</code></td>
+<td>N</td>
+<td><code>PT2.0S</code></td>
+<td>Amount of time (in <a href="https://docs.oracle.com/javase/8/docs/api/java/time/Duration.html#parse-java.lang.CharSequence">ISO-8601 â</a>) a file must remain constant before being considered for upload. <br>Note: If possible, use the more efficient <code>lastModifiedBefore</code> processor.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Example:</strong></p>
+<pre><code class="language-yaml">myDirectorySource:
+    type:           directory
+    rootDirectory:  /foo/bar
+</code></pre>
+<p>:::callout{theme="neutral"}
+Data Connection excludes all symbolic links, regardless of whether the links are to files or to folders.
+:::</p>
+</body>
+</html>

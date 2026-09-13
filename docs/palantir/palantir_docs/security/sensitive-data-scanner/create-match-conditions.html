@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Create match conditions</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Create match conditions</h1>
+<p>Sensitive Data Scanner comes with a set of <a href="#built-in-match-conditions">built-in match conditions</a>; you can also define your own <a href="#create-custom-match-conditions">custom match conditions</a> to use with Sensitive Data Scanner.</p>
+<h2>Built-in match conditions</h2>
+<p>Sensitive Data Scanner provides a range of <em>built-in</em> match conditions to detect common types of PII, such as Social Security numbers, e-mail addresses, or phone numbers. You can find these by selecting the arrow to expand the <strong>Built-in Match Conditions</strong> section in the right sidebar:</p>
+<p><img alt="The built-in match conditions sidebar." src="../../_resources/foundry/sensitive-data-scanner/default-match-conditions.png" /></p>
+<p>Built-in match conditions are designed to detect common types of personal data. However, their effectiveness varies based on your specific data structure and format. Ensure these conditions align with your unique data standards, potentially creating custom conditions as needed. Consult your data protection officer if you have further questions.</p>
+<h2>Create custom match conditions</h2>
+<p>To create a <em>custom</em> match condition for your <a href="https://www.palantir.com/docs/foundry/security/orgs-and-spaces/#spaces">space</a>, there are two ways to get started:</p>
+<ul>
+<li>From the Sensitive Data Scanner landing page.</li>
+<li>While creating a sensitive data scan.</li>
+</ul>
+<p>From the landing page, select <strong>Add</strong> above the <strong>Custom Match Conditions</strong> listed in the match conditions sidebar.</p>
+<p><img alt="Create a match condition on the landing page." src="../../_resources/foundry/sensitive-data-scanner/create-match-conditions-landing-page.png" /></p>
+<p>While creating a sensitive data scan, on the <strong>Select match conditions</strong> page, you can also create a new match condition and immediately use it in your scan by selecting <strong>Create new match condition</strong>.</p>
+<p><img alt="Create a match condition on the scan creation page." src="../../_resources/foundry/sensitive-data-scanner/create-match-conditions-scan-creation.png" /></p>
+<p>Both of these starting points open the same match condition creation process. From there, you can choose whether to create a <a href="#create-a-regex-match-condition">regex (<strong>Regular expression</strong>) match condition</a>, a <a href="#create-a-language-model-match-condition">language model match condition</a>, or an <a href="#create-an-overlap-match-condition">overlap (<strong>Value overlap</strong>) match condition</a>.</p>
+<p><img alt="The &quot;Create a Match Condition&quot; modal." src="../../_resources/foundry/sensitive-data-scanner/create-match-condition-modal-start.png" /></p>
+<h3>Create a regex match condition</h3>
+<p>When creating a regular expression (regex) match condition, there are two types of regex options you can specify; content regex and column name regex.</p>
+<ul>
+<li><strong>Content regex:</strong> A regex that Sensitive Data Scanner will check against the content of a dataset (not the column names of the dataset).</li>
+<li><strong>Column name regex:</strong> A regex that Sensitive Data Scanner will check against the column names of a dataset (not the content itself).</li>
+</ul>
+<p>Sensitive Data Scanner allows you to combine these two regex options for maximum specificity:</p>
+<ul>
+<li>Highlight a dataset if the content regex matches.</li>
+<li>Highlight a dataset if the column name regex matches.</li>
+<li>Highlight a dataset if <em>both</em> content and column name regexes match.</li>
+<li>Highlight a dataset if <em>either</em> content or column name regexes match.</li>
+</ul>
+<p><img alt="Specify the regex you want to use." src="../../_resources/foundry/sensitive-data-scanner/column-name-or-content-regex.png" /></p>
+<p>The content regex contains an optional content threshold field in which you can specify a number greater than 0 and less than or equal to 100; this content threshold is the percentage of the cells in a particular column of a given dataset that must match the content regex in order for that dataset to be highlighted as a match. The content threshold field is optional. If no value is specified, Sensitive Data Scanner will highlight a dataset as a match if there is at least one match of the content regex.</p>
+<h4>Regex generation with AIP</h4>
+<p>If <a href="https://www.palantir.com/docs/foundry/aip/enable-aip-features/">AIP is enabled</a> for your enrollment in Foundry, you also have the ability to specify the content regex with the help of AI. You can do this with the <strong>Generate Regex with AI</strong> button. Selecting this button prompts you to describe the type of sensitive data to detect, for instance "all email addresses". It shows examples that match the proposed regex, then generates the regex for use in the application. The graphic below demonstrates this process.</p>
+<p><img alt="LLM showing regex match condition." src="../../_resources/foundry/sensitive-data-scanner/llm-regex-match-condition.gif" /></p>
+<h3>Create a language model match condition</h3>
+<p>Language model match conditions use an LLM to classify whether scanned data matches a natural language prompt. They are useful for sensitive data that is difficult to express as a regex or a fixed list of values.</p>
+<p>To create a language model match condition, choose <strong>Language model</strong> as the condition type, select a model, and define the matching logic. You can configure the condition to evaluate:</p>
+<ul>
+<li>Content, meaning the data values within a column</li>
+<li>Column names</li>
+<li>Content and column names, where both must match</li>
+<li>Content or column names, where either can match</li>
+</ul>
+<p>Write a prompt that describes the sensitive data the model should detect. If you evaluate both content and column names, you can use the same prompt for both checks or define separate prompts. You can also add correct examples and counter examples to clarify what the model should and should not flag. Review the <strong>Full prompt</strong> preview before saving the match condition.</p>
+<p><img alt="Configure separate content and column name prompts for a language model match condition." src="../../_resources/foundry/sensitive-data-scanner/llm-match-condition-logic.png" /></p>
+<p>When you use a language model match condition in a scan, <a href="https://www.palantir.com/docs/foundry/aip/llm-capacity-management/">LLM usage is attributed</a> to each scanned resource. Scans that evaluate all rows with language model match conditions can be slow and costly, so consider using a row subset when you do not need an exhaustive scan.</p>
+<h3>Create an overlap match condition</h3>
+<p>Overlap match conditions are useful when looking for sensitive data that cannot be distilled into regex. For example, it can be difficult to create a content regex to match names, although creating a column name regex can be sufficient in some instances. However, the overlap match condition can be useful if you already have a dataset with an exhaustive list of sensitive data that you want to scan for.</p>
+<p>The screenshot below is an example of how to select a specific column. In this example, the <code>EL_employee_name</code> column of the <code>accounts_with_context</code> dataset is set as the overlap column to which we will match other data. If any cell in the overlap column matches any other cell in another dataset, that other dataset will be highlighted as a match for this match condition.</p>
+<p><img alt="Overlap dataset and overlap column selection." src="../../_resources/foundry/sensitive-data-scanner/overlap-match-condition-details.png" /></p>
+</body>
+</html>

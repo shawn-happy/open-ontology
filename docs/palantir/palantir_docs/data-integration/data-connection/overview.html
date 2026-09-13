@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Data Connection</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Data Connection</h1>
+<p><strong>Data Connection</strong> is an application used to synchronize data from external systems and other Foundry instances for use in Foundry. Users can use Data Connection to sync data into Foundry for use in the data integration, modeling, and Ontology layers. Additionally, Data Connection enables setting up outbound connections to enable writeback to external systems via webhooks and data exports.</p>
+<p>Access the Data Connection application by selecting the icon from the workspace navigation bar.</p>
+<p><img alt="The Data Connection application in the Foundry sidebar." src="../../_resources/foundry/data-connection/data-connection-sidebar.png" /></p>
+<p>You can also find the Data Connection application by searching in the Applications Portal.</p>
+<p><img alt="The Data Connection application found in the Applications Portal" src="../../_resources/foundry/data-connection/data-connection-app-portal.png" /></p>
+<p>If you are connecting Foundry to your data for the very first time for your organization, get started by referring to the <a href="https://www.palantir.com/docs/foundry/data-connection/initial-setup-overview/">initial setup guide</a>.</p>
+<p>Foundry standardizes the data connection process with the following three principles:</p>
+<ul>
+<li>Robustness</li>
+<li>Extensibility</li>
+<li>Ease of use</li>
+</ul>
+<h2>Robustness</h2>
+<p>Often, connecting data between systems is prone to failures that can be difficult to recover from. Issues out of the user's control in the external environment (e.g., poor network connectivity, disk failures, or unresponsive source systems) can affect data syncs, breaking downstream analytics pipelines as well. Incomplete or corrupt data is not only a technical challenge, but also potentially dangerous for the organization if it is used unnoticed or not available for urgent needs.</p>
+<p>Foundry proactively addresses these common failure points with automatic retries upon failures, use of simple functions (e.g., filesystem and database syncs) to pull data in small batches with low complexity queries from the source systems, and an integrated data health monitoring system to alert on critical failures and surface other pipeline health issues. Combined, these features minimize the risk of incomplete or corrupt data.</p>
+<p>Foundry is also distinguished by a philosophy that data should be ingested "as-is" from its most raw source, with no external preprocessing. In the absence of external preprocessing, the branched and version-controlled Foundry pipeline becomes the single source for all of the changes that happened to raw data on its journey to Ontology, and any issues that arise on that path can be identified and resolved inside the platform. Data Connection adheres to this design philosophy by supporting both tabular and file-based syncs and deliberately offering minimal options for transforming the data before it arrives in the destination dataset (the starting point of the Foundry pipeline).</p>
+<h2>Extensibility</h2>
+<p>Enterprises have a diverse, complex array of systems that add value individually and as an integrated system. Each system has its own requirements for integration and some systems require unique capabilities or features that would make it typically difficult to integrate.</p>
+<p>Foundry provides out-of-the-box integration with well-known system types (e.g., relational databases, FTPS, HDFS, S3, SFTP, and local directories) as well as the flexibility to connect and sync data from new system types. In many cases, new systems can reuse an existing plugin or one with just minor changes. Core features (e.g., scheduling and uploading) are standardized so that only the connection itself needs to be adjusted.</p>
+<p>Foundry also supports communication between Foundry enrollments via the dedicated <a href="https://www.palantir.com/docs/foundry/available-connectors/foundry/">Foundry connector</a>. With this connector, one Foundry instance can be treated as a source on another, supporting batch and streaming syncs with incremental options.</p>
+<p><a href="https://www.palantir.com/docs/foundry/data-integration/source-type-overview/">Learn more about the full range of available source types.</a></p>
+<h2>Ease of use</h2>
+<p>Managing data connections between systems can be an involved process that puts a significant burden on administrators who are responsible for every step: syncing, authentication, scheduling and orchestration, and monitoring.</p>
+<p>Foundry abstracts away this complexity with backend services that take on the bulk of the work as users set up and manage pipelines through a simple frontend user interface. This lowers the barrier of entry to a typically complex technical task, making it possible for more users to perform data connection.</p>
+<p>:::callout{theme="success" title="Palantir Learning portal"}
+Try creating your first data connection with a relevant course on <a href="https://learn.palantir.com/deep-dive-data-connection">learn.palantir.com â</a>.
+:::</p>
+</body>
+</html>

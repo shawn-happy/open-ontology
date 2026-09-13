@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FTP/FTPS</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>FTP/FTPS</h1>
+<p>Connect Foundry to FTP and FTPS servers to sync data between folders and Foundry datasets.</p>
+<h2>Supported capabilities</h2>
+<table>
+<thead>
+<tr>
+<th>Capability</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Exploration</td>
+<td>ð¢ Generally available</td>
+</tr>
+<tr>
+<td>Bulk import</td>
+<td>ð¢ Generally available</td>
+</tr>
+<tr>
+<td>Incremental</td>
+<td>ð¢ Generally available</td>
+</tr>
+</tbody>
+</table>
+<h2>Data model</h2>
+<p>The connector can transfer files of any type into Foundry datasets. File formats are preserved and no schemas are applied during or after the transfer. Apply any necessary schema to the output dataset, or write a <a href="https://www.palantir.com/docs/foundry/pipeline-builder/transforms-overview/">downstream transformation</a> to access the data.</p>
+<h2>Performance and limitations</h2>
+<p>There is no limit to the size of transferable files. However, network issues can result in failures of large-scale transfers. In particular, syncs running on a Foundry worker that take more than two days to run will be interrupted. To avoid network issues, we recommend using smaller file sizes and limiting the number of files that are ingested in every execution of the sync. Syncs can be <a href="https://www.palantir.com/docs/foundry/data-connection/set-up-sync/#build-or-schedule-your-batch-sync">scheduled</a> to run frequently.</p>
+<h2>Setup</h2>
+<ol>
+<li>Open the <a href="https://www.palantir.com/docs/foundry/data-connection/overview/">Data Connection</a> application and select <strong>+ New Source</strong> in the upper right corner of the screen.</li>
+<li>Select <strong>FTP/FTPS</strong> from the available connector types.</li>
+<li>Follow the additional configuration prompts to continue the setup of your connector using the information in the sections below.</li>
+</ol>
+<p>:::callout{theme="neutral"}
+To access on-premise FTP servers, we recommend you <a href="https://www.palantir.com/docs/foundry/data-connection/architecture/#foundry-worker-with-agent-proxy-policy">connect with an agent proxy policy</a>.
+:::</p>
+<p>Learn more about <a href="https://www.palantir.com/docs/foundry/data-connection/set-up-source/">setting up a connector</a> in Foundry.</p>
+<h3>Authentication</h3>
+<p>FTP/FTPS authentication is completed using username and password. The FTP/FTPS connection may fail if the FTP user does not have permission for the root directory configured for the connection. Refer to <a href="#configuration-options">Configuration options</a> for more details about the root directory.</p>
+<table>
+<thead>
+<tr>
+<th>Option</th>
+<th>Required?</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Username</code></td>
+<td>Yes</td>
+<td>The FTP login username.</td>
+</tr>
+<tr>
+<td><code>Password</code></td>
+<td>Yes</td>
+<td>The FTP login password. This field can be left empty value for anonymous logins. Contact your server administrator for more information.</td>
+</tr>
+</tbody>
+</table>
+<h3>Networking</h3>
+<p>If your FTP/FTPS connection <a href="https://www.palantir.com/docs/foundry/data-connection/core-concepts/#foundry-worker">runs in Foundry</a>, you must add a <a href="https://www.palantir.com/docs/foundry/administration/configure-egress/">network egress policy</a> to allowlist the connection.</p>
+<p>If connecting through a domain name, egress policies should be created for the FTP server domain on both the control port (usually port 21) and the data ports. We recommend creating two network policies: a single port policy for the control port, and a port range policy for the data ports. Data ports are determined by the administrators of the FTP server. If errors continue to occur despite proper egress policy configuration, <a href="https://www.palantir.com/docs/foundry/getting-help/issues/">file an issue</a> quoting the list of policies applied.</p>
+<p>:::callout{theme="warning"}
+If the domain for the server resolves to multiple domains and/or servers, all of the associated domains and their related IPs need to be whitelisted. To verify whether a server resolves to multiple domains and/or servers, run the command <code>dig &lt;domain&gt;</code> from your terminal for the server you are trying to connect to and review the answer section.
+:::</p>
+<h3>Certificates and private keys</h3>
+<p>Configure additional client or server certificates and private keys to properly set up your connector, using the guidance below.</p>
+<h4>SSL and hostname validation</h4>
+<p>SSL connections validate servers certificates. Normally, SSL validations happen through a certificate chain; by default, both agent and Foundry workers trust most industry standard certificate chains. If the server to which you are connecting has a self-signed certificate, or if a firewall performs TLS interception on the connection, the connector must trust the certificate. Learn more about <a href="https://www.palantir.com/docs/foundry/data-connection/set-up-source/#optional-add-certificates">using certificates in Data Connection</a>.</p>
+<p>:::callout{theme="warning"}
+The server must provide the full certificate chain in order for SSL verification to work. The certificate chain for the FTP server can be obtained by running the command <code>openssl s_client -connect {hostname}:{port} -showcerts -starttls ftp</code>. To verify the certificate chain, use the OpenSSL command line utility or any other available tool.
+:::</p>
+<p>:::callout{theme="neutral"}
+If using FTPS, ensure that the certificate for the FTPS server has been added to the agent's truststore.
+:::</p>
+<p>:::callout{theme="neutral"}
+Foundry attempts a validation for all egress routes. However, FTP cannot be inspected, resulting in hanging connections and/or timeout errors. If errors continue to occur despite proper egress policy configuration, report an issue with a list of policies for which you want to disable hostname validation.
+:::</p>
+<h4>Implicit/explicit SSL</h4>
+<p>FTP servers can be configured to support either explicit or implicit SSL. Servers running on port 990 will generally be using implicit SSL.</p>
+<p>Confirm the settings of your server with your server administrator. By default, the connector assumes explicit SSL; you may need to change this setting for your environment.</p>
+<h3>Connection requirements</h3>
+<p>FTP requires<code>CONTROL</code> and <code>DATA</code> connection types. The <code>DATA</code> connection must be configured to be in <code>ACTIVE</code> or <code>PASSIVE</code> mode.</p>
+<ul>
+<li><strong>CONTROL:</strong> Client to server</li>
+<li><strong>DATA:</strong> Data selected from a range (for example, 1024â1123)</li>
+<li><strong>PASSIVE:</strong> Client to server</li>
+<li><strong>ACTIVE:</strong> Server to client<ul>
+<li>Only works with agent connections</li>
+</ul>
+</li>
+</ul>
+<p>Default FTP/FTPS connector ports:</p>
+<ul>
+<li>FTP: 21</li>
+<li>FTPS Explicit: 21</li>
+<li>FTPS Implicit: 990</li>
+</ul>
+<h3>Active and passive mode</h3>
+<p>We recommend using a <strong>passive mode</strong> networking connection. In passive mode, all connections are initiated by the client. When using passive mode, ensure the control port (typically 21) and port range for data transfer (for example 1024â1123) is allowlisted. Contact your FTP/FTPS server administrator to obtain the connection details.</p>
+<p><strong>Active mode</strong> is an older method of establishing a file transfer. In active mode, the client connects to server while the server connects to the client. Both the server and client are dependent on each other and require <strong>bidirectional</strong> network connectivity. This networking method is generally difficult to achieve in most secure environments and is only possible when using agent connections.</p>
+<h2>Configuration options</h2>
+<table>
+<thead>
+<tr>
+<th>Option</th>
+<th>Required?</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>URL</code></td>
+<td>Yes</td>
+<td></td>
+<td>The URL of the FTP/FTPS server. The URL can optionally contain the path to a directory on the server which will be used as the root directory for the connection (for example, <code>ftp://server.name/folder/name</code>).</td>
+</tr>
+<tr>
+<td><code>Configure client certificates and private key</code></td>
+<td>No</td>
+<td></td>
+<td>See <a href="#certificates-and-private-keys">Certifications and private keys</a> for more information.</td>
+</tr>
+<tr>
+<td><code>Configure server certificates</code></td>
+<td>No</td>
+<td></td>
+<td>See <a href="#certificates-and-private-keys">Certifications and private keys</a> for more information.</td>
+</tr>
+<tr>
+<td><code>Connection timeout</code></td>
+<td>No</td>
+<td>30 seconds</td>
+<td>Increase timeout in milliseconds.</td>
+</tr>
+<tr>
+<td><code>Re-login time</code></td>
+<td>No</td>
+<td>15 minutes</td>
+<td>Modify interval in minutes.</td>
+</tr>
+<tr>
+<td><code>File change timeout</code></td>
+<td>No</td>
+<td>2 seconds</td>
+<td>Set the amount of time a file must remain constant before being considered for upload. Timeout in milliseconds.</td>
+</tr>
+<tr>
+<td><code>HTTP proxy URL</code></td>
+<td>No</td>
+<td></td>
+<td>URL of the proxy server beginning with <code>http://</code> or <code>https://</code>. Support for HTTP proxies is highly dependent on the FTP server in use and cannot be used in <code>ACTIVE</code> mode. This is because HTTP proxies do not support client requests to listen on an externally accessible port. <code>ACTIVE</code> mode transfers involve the FTP server connecting back to the client, and this is not possible via an HTTP proxy.</td>
+</tr>
+<tr>
+<td><code>SSL method</code></td>
+<td>No</td>
+<td>EXPLICIT</td>
+<td>Whether to use <a href="#implicitexplicit-ssl">explicit or implicit SSL</a> for FTPS connection.</td>
+</tr>
+<tr>
+<td><code>Mode</code></td>
+<td>No</td>
+<td><code>PASSIVE</code></td>
+<td><code>PASSIVE</code> or <code>ACTIVE</code></td>
+</tr>
+<tr>
+<td><code>Time zone</code></td>
+<td>No</td>
+<td>Timezone of the connector</td>
+<td>Timezone of the FTP server. FTP records timestamps without a timezone. To view accurate modification timestamps, specify the FTP server timezone if it is different than the default.</td>
+</tr>
+<tr>
+<td><code>Timestamp format string</code></td>
+<td>No</td>
+<td><code>MM-dd-yy hh:mma</code></td>
+<td>A format string to parse timestamps from the FTP server. Timestamps are used to determine the files that were modified since the last sync. See <a href="https://docs.oracle.com/javase/8/docs/api/java/text/SimpleDateFormat.html">Java documentation â</a> on supported formats.</td>
+</tr>
+<tr>
+<td><code>Control encoding</code></td>
+<td>No</td>
+<td>US-ASCII</td>
+<td>The encoding for the FTP control messages. Control encoding can be necessary if filenames are in a different encoding than the data connection server default filesystem encoding. <br /><strong>Example:</strong> On a Windows FTP server, <code>windows-31j</code> is often used for Japanese, and <code>x-windows-949</code> is often used for Korean. <br /> See the <a href="https://docs.oracle.com/javase/8/docs/technotes/guides/intl/encoding.doc.html">Java documentation â</a> for more information.</td>
+</tr>
+<tr>
+<td><code>Keep alive</code></td>
+<td>No</td>
+<td><code>false</code></td>
+<td>Choose whether to send FTP NOOP commands to keep the control connection alive while downloading large file. Not supported by all FTP servers.</td>
+</tr>
+</tbody>
+</table>
+<h2>Sync data from FTP</h2>
+<p>The FTP connector uses the <a href="https://www.palantir.com/docs/foundry/data-connection/file-based-syncs/">file-based sync</a> interface.</p>
+<h2>Troubleshooting</h2>
+<h3>Agent connections</h3>
+<ul>
+<li>
+<p>Are you having issues setting up an agent connection? Install an FTP/S client and attempt to connect to the server using the same configuration as that of the source. If this connection fails, the issue is not a connector bug. Investigate network connectivity, authentication, and FTP server configurations before filing an issue.</p>
+</li>
+<li>
+<p>Are you using an egress proxy load balancer? FTP is a stateful protocol, so using a load balancer can cause the sync to fail (non-deterministically) if sequential requests do not originate from the same IP.</p>
+</li>
+</ul>
+<h3>SSL and FTPS</h3>
+<ul>
+<li>
+<p>Does your server use a self-signed certificate? Have you added it to the source truststore? See the <a href="#ssl-and-hostname-validation">SSL and hostname validation</a> section above.</p>
+</li>
+<li>
+<p>Does your FTP server only support legacy TLS versions (for example, TLS 1.1)? If so, the connector runtime might not accept any of the Cipher suites offered by the server. File an issue to explore alternatives with a Palantir representative.</p>
+</li>
+</ul>
+</body>
+</html>

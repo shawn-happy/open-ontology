@@ -1,0 +1,1546 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Get Check</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../../../index.html">返回目录</a></div>
+<p><code>GET /api/v2/dataHealth/checks/{checkRid}</code></p>
+<p>:::callout{theme=warning title=Warning}
+  This endpoint is in preview and may be modified or removed at any time.
+  To use this endpoint, add <code>preview=true</code> to the request query parameters.
+:::</p>
+<p>Get the Check with the specified rid.</p>
+<p>Third-party applications using this endpoint via OAuth2 must request the following operation scope: <code>api:data-health-read</code>.</p>
+<p><strong>OAuth2 scopes</strong>: <code>api:data-health-read</code></p>
+<h2>Path parameters</h2>
+<table>
+<thead>
+<tr>
+<th>参数</th>
+<th>类型</th>
+<th>必填</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>checkRid</code></td>
+<td>string</td>
+<td>是</td>
+<td>The unique resource identifier (RID) of a Data Health Check.<br>示例: <code>ri.data-health.main.check.8e27b13a-e21b-4232-ae1b-76ccf5ff42b3</code></td>
+</tr>
+</tbody>
+</table>
+<h2>Query parameters</h2>
+<table>
+<thead>
+<tr>
+<th>参数</th>
+<th>类型</th>
+<th>必填</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>preview</code></td>
+<td>boolean</td>
+<td>否</td>
+<td>Enables the use of preview functionality.<br>示例: <code>true</code></td>
+</tr>
+</tbody>
+</table>
+<h2>Response</h2>
+<p><strong>Check</strong></p>
+<table>
+<thead>
+<tr>
+<th>参数</th>
+<th>类型</th>
+<th>必填</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Check</code></td>
+<td>object</td>
+<td>是</td>
+<td>示例: <code>{"updatedTime":"2024-09-25T17:29:35.974Z","createdBy":"f05f8da4-b84c-4fca-9c77-8af0b13d11de","groups":["ri.data-health.main.check-group.08e376a8-607d-4f44-b8dd-b4587be6ce9b"],"rid":"ri.data-health.main.check.8e27b13a-e21b-4232-ae1b-76ccf5ff42b3","intent":"Check to ensure builds are passing."}</code></td>
+</tr>
+<tr>
+<td><code>Check.rid</code></td>
+<td>string</td>
+<td>是</td>
+<td>The unique resource identifier (RID) of a Data Health Check.<br>示例: <code>ri.data-health.main.check.8e27b13a-e21b-4232-ae1b-76ccf5ff42b3</code></td>
+</tr>
+<tr>
+<td><code>Check.groups</code></td>
+<td>list<CheckGroupRid></td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>Check.groups.CheckGroupRid</code></td>
+<td>string</td>
+<td>是</td>
+<td>The unique resource identifier (RID) of a CheckGroup.</td>
+</tr>
+<tr>
+<td><code>Check.config</code></td>
+<td>union</td>
+<td>是</td>
+<td>Configuration of a check.</td>
+</tr>
+<tr>
+<td><code>Check.config.numericColumnRange</code></td>
+<td>object</td>
+<td>否</td>
+<td>Checks that values in a numeric column fall within a specified range.</td>
+</tr>
+<tr>
+<td><code>Check.config.numericColumnRange.subject</code></td>
+<td>object</td>
+<td>是</td>
+<td>A dataset resource type.<br>示例: <code>{"datasetRid":"ri.foundry.main.dataset.c26f11c8-cdb3-4f44-9f5d-9816ea1c82da","branchId":"master"}</code></td>
+</tr>
+<tr>
+<td><code>Check.config.numericColumnRange.subject.datasetRid</code></td>
+<td>string</td>
+<td>是</td>
+<td>The Resource Identifier (RID) of a Dataset.<br>示例: <code>ri.foundry.main.dataset.c26f11c8-cdb3-4f44-9f5d-9816ea1c82da</code></td>
+</tr>
+<tr>
+<td><code>Check.config.numericColumnRange.subject.branchId</code></td>
+<td>string</td>
+<td>是</td>
+<td>The name of a Branch.<br>示例: <code>master</code></td>
+</tr>
+<tr>
+<td><code>Check.config.numericColumnRange.columnName</code></td>
+<td>string</td>
+<td>是</td>
+<td>示例: <code>column</code></td>
+</tr>
+<tr>
+<td><code>Check.config.numericColumnRange.numericBoundsConfig</code></td>
+<td>object</td>
+<td>是</td>
+<td>Configuration for numeric bounds check with severity settings.<br>示例: <code>{"severity":"MODERATE","numericBounds":{"upperBound":1000.0,"lowerBound":0.0}}</code></td>
+</tr>
+<tr>
+<td><code>Check.config.numericColumnRange.numericBoundsConfig.numericBounds</code></td>
+<td>object</td>
+<td>是</td>
+<td>The range of numeric values a check is expected to be within.<br>示例: <code>{"upperBound":1000.0,"lowerBound":0.0}</code></td>
+</tr>
+<tr>
+<td><code>Check.config.numericColumnRange.numericBoundsConfig.numericBounds.lowerBound</code></td>
+<td>number</td>
+<td>否</td>
+<td>示例: <code>0.0</code></td>
+</tr>
+<tr>
+<td><code>Check.config.numericColumnRange.numericBoundsConfig.numericBounds.upperBound</code></td>
+<td>number</td>
+<td>否</td>
+<td>示例: <code>1000.0</code></td>
+</tr>
+<tr>
+<td><code>Check.config.numericColumnRange.numericBoundsConfig.severity</code></td>
+<td>enum</td>
+<td>是</td>
+<td>The severity level of the check. Possible values are MODERATE or CRITICAL.<br>示例: <code>MODERATE</code></td>
+</tr>
+<tr>
+<td><code>Check.config.jobStatus</code></td>
+<td>object</td>
+<td>否</td>
+<td>Checks the status of the most recent job run on the dataset.</td>
+</tr>
+<tr>
+<td><code>Check.config.jobStatus.subject</code></td>
+<td>object</td>
+<td>是</td>
+<td>A dataset resource type.<br>示例: <code>{"datasetRid":"ri.foundry.main.dataset.c26f11c8-cdb3-4f44-9f5d-9816ea1c82da","branchId":"master"}</code></td>
+</tr>
+<tr>
+<td><code>Check.config.jobStatus.subject.datasetRid</code></td>
+<td>string</td>
+<td>是</td>
+<td>The Resource Identifier (RID) of a Dataset.<br>示例: <code>ri.foundry.main.dataset.c26f11c8-cdb3-4f44-9f5d-9816ea1c82da</code></td>
+</tr>
+<tr>
+<td><code>Check.config.jobStatus.subject.branchId</code></td>
+<td>string</td>
+<td>是</td>
+<td>The name of a Branch.<br>示例: <code>master</code></td>
+</tr>
+<tr>
+<td><code>Check.config.jobStatus.statusCheckConfig</code></td>
+<td>object</td>
+<td>是</td>
+<td>示例: <code>{"severity":"MODERATE","escalationConfig":{"timeIntervalInSeconds":30,"failuresToCritical":1}}</code></td>
+</tr>
+<tr>
+<td><code>Check.config.jobStatus.statusCheckConfig.severity</code></td>
+<td>enum</td>
+<td>是</td>
+<td>The severity level of the check. Possible values are MODERATE or CRITICAL.<br>示例: <code>MODERATE</code></td>
+</tr>
+<tr>
+<td><code>Check.config.jobStatus.statusCheckConfig.escalationConfig</code></td>
+<td>object</td>
+<td>否</td>
+<td>The configuration for when the severity of the failing health check should be escalated to CRITICAL â after a given number of failures, possibly within a time interval.<br>示例: <code>{"timeIntervalInSeconds":30,"failuresToCritical":1}</code></td>
+</tr>
+<tr>
+<td><code>Check.config.jobStatus.statusCheckConfig.escalationConfig.failuresToCritical</code></td>
+<td>integer</td>
+<td>是</td>
+<td>示例: <code>1</code></td>
+</tr>
+<tr>
+<td><code>Check.config.jobStatus.statusCheckConfig.escalationConfig.timeIntervalInSeconds</code></td>
+<td>string</td>
+<td>否</td>
+<td>示例: <code>30</code></td>
+</tr>
+<tr>
+<td><code>Check.config.numericColumnMean</code></td>
+<td>object</td>
+<td>否</td>
+<td>Checks the mean value of a numeric column.</td>
+</tr>
+<tr>
+<td><code>Check.config.numericColumnMean.subject</code></td>
+<td>object</td>
+<td>是</td>
+<td>A dataset resource type.<br>示例: <code>{"datasetRid":"ri.foundry.main.dataset.c26f11c8-cdb3-4f44-9f5d-9816ea1c82da","branchId":"master"}</code></td>
+</tr>
+<tr>
+<td><code>Check.config.numericColumnMean.subject.datasetRid</code></td>
+<td>string</td>
+<td>是</td>
+<td>The Resource Identifier (RID) of a Dataset.<br>示例: <code>ri.foundry.main.dataset.c26f11c8-cdb3-4f44-9f5d-9816ea1c82da</code></td>
+</tr>
+<tr>
+<td><code>Check.config.numericColumnMean.subject.branchId</code></td>
+<td>string</td>
+<td>是</td>
+<td>The name of a Branch.<br>示例: <code>master</code></td>
+</tr>
+<tr>
+<td><code>Check.config.numericColumnMean.numericColumnCheckConfig</code></td>
+<td>object</td>
+<td>是</td>
+<td>Configuration for numeric column-based checks (such as mean or median). At least one of numericBounds or trend must be specified. Both may be provided to validate both the absolute value range and the trend behavior over time.<br>示例: <code>{"numericBounds":{"severity":"MODERATE","numericBounds":{"upperBound":1000.0,"lowerBound":0.0}},"trend":{"severity":"MODERATE","differenceBounds":{"upperBound":1000.0,"lowerBound":0.0},"trendType":"NON_DECREASING"},"columnName":"amount"}</code></td>
+</tr>
+<tr>
+<td><code>Check.config.numericColumnMean.numericColumnCheckConfig.columnName</code></td>
+<td>string</td>
+<td>是</td>
+<td>示例: <code>amount</code></td>
+</tr>
+<tr>
+<td><code>Check.config.numericColumnMean.numericColumnCheckConfig.numericBounds</code></td>
+<td>object</td>
+<td>否</td>
+<td>Configuration for numeric bounds check with severity settings.<br>示例: <code>{"severity":"MODERATE","numericBounds":{"upperBound":1000.0,"lowerBound":0.0}}</code></td>
+</tr>
+<tr>
+<td><code>Check.config.numericColumnMean.numericColumnCheckConfig.numericBounds.numericBounds</code></td>
+<td>object</td>
+<td>是</td>
+<td>The range of numeric values a check is expected to be within.<br>示例: <code>{"upperBound":1000.0,"lowerBound":0.0}</code></td>
+</tr>
+<tr>
+<td><code>Check.config.numericColumnMean.numericColumnCheckConfig.numericBounds.numericBounds.lowerBound</code></td>
+<td>number</td>
+<td>否</td>
+<td>示例: <code>0.0</code></td>
+</tr>
+<tr>
+<td><code>Check.config.numericColumnMean.numericColumnCheckConfig.numericBounds.numericBounds.upperBound</code></td>
+<td>number</td>
+<td>否</td>
+<td>示例: <code>1000.0</code></td>
+</tr>
+<tr>
+<td><code>Check.config.numericColumnMean.numericColumnCheckConfig.numericBounds.severity</code></td>
+<td>enum</td>
+<td>是</td>
+<td>The severity level of the check. Possible values are MODERATE or CRITICAL.<br>示例: <code>MODERATE</code></td>
+</tr>
+<tr>
+<td><code>Check.config.numericColumnMean.numericColumnCheckConfig.trend</code></td>
+<td>object</td>
+<td>否</td>
+<td>Configuration for trend-based validation with severity settings. At least one of trendType or differenceBounds must be specified. Both may be provided to validate both the trend pattern and the magnitude of change.<br>示例: <code>{"severity":"MODERATE","differenceBounds":{"upperBound":1000.0,"lowerBound":0.0},"trendType":"NON_DECREASING"}</code></td>
+</tr>
+<tr>
+<td><code>Check.config.numericColumnMean.numericColumnCheckConfig.trend.trendType</code></td>
+<td>enum</td>
+<td>否</td>
+<td>The type of trend to validate:<br>- NON_INCREASING: Values should not increase over time<br>- NON_DECREASING: Values should not decrease over time<br>- STRICTLY_INCREASING: Values should strictly increase over time<br>- STRICTLY_DECREASING: Values should strictly decrease over time<br>- CONSTANT: Values should remain constant over time<br>示例: <code>NON_DECREASING</code></td>
+</tr>
+<tr>
+<td><code>Check.config.numericColumnMean.numericColumnCheckConfig.trend.differenceBounds</code></td>
+<td>object</td>
+<td>否</td>
+<td>The range of numeric values a check is expected to be within.<br>示例: <code>{"upperBound":1000.0,"lowerBound":0.0}</code></td>
+</tr>
+<tr>
+<td><code>Check.config.numericColumnMean.numericColumnCheckConfig.trend.differenceBounds.lowerBound</code></td>
+<td>number</td>
+<td>否</td>
+<td>示例: <code>0.0</code></td>
+</tr>
+<tr>
+<td><code>Check.config.numericColumnMean.numericColumnCheckConfig.trend.differenceBounds.upperBound</code></td>
+<td>number</td>
+<td>否</td>
+<td>示例: <code>1000.0</code></td>
+</tr>
+<tr>
+<td><code>Check.config.numericColumnMean.numericColumnCheckConfig.trend.severity</code></td>
+<td>enum</td>
+<td>是</td>
+<td>The severity level of the check. Possible values are MODERATE or CRITICAL.<br>示例: <code>MODERATE</code></td>
+</tr>
+<tr>
+<td><code>Check.config.dateColumnRange</code></td>
+<td>object</td>
+<td>否</td>
+<td>Checks that values in a date column fall within a specified range.</td>
+</tr>
+<tr>
+<td><code>Check.config.dateColumnRange.subject</code></td>
+<td>object</td>
+<td>是</td>
+<td>A dataset resource type.<br>示例: <code>{"datasetRid":"ri.foundry.main.dataset.c26f11c8-cdb3-4f44-9f5d-9816ea1c82da","branchId":"master"}</code></td>
+</tr>
+<tr>
+<td><code>Check.config.dateColumnRange.subject.datasetRid</code></td>
+<td>string</td>
+<td>是</td>
+<td>The Resource Identifier (RID) of a Dataset.<br>示例: <code>ri.foundry.main.dataset.c26f11c8-cdb3-4f44-9f5d-9816ea1c82da</code></td>
+</tr>
+<tr>
+<td><code>Check.config.dateColumnRange.subject.branchId</code></td>
+<td>string</td>
+<td>是</td>
+<td>The name of a Branch.<br>示例: <code>master</code></td>
+</tr>
+<tr>
+<td><code>Check.config.dateColumnRange.columnName</code></td>
+<td>string</td>
+<td>是</td>
+<td>示例: <code>column</code></td>
+</tr>
+<tr>
+<td><code>Check.config.dateColumnRange.dateBoundsConfig</code></td>
+<td>object</td>
+<td>是</td>
+<td>Configuration for date bounds check with severity settings.<br>示例: <code>{"severity":"MODERATE","dateBounds":{"upperBound":"2024-12-31T23:59:59Z","lowerBound":"2024-01-01T00:00:00Z"}}</code></td>
+</tr>
+<tr>
+<td><code>Check.config.dateColumnRange.dateBoundsConfig.dateBounds</code></td>
+<td>object</td>
+<td>是</td>
+<td>The range of date values a check is expected to be within.<br>示例: <code>{"upperBound":"2024-12-31T23:59:59Z","lowerBound":"2024-01-01T00:00:00Z"}</code></td>
+</tr>
+<tr>
+<td><code>Check.config.dateColumnRange.dateBoundsConfig.dateBounds.lowerBound</code></td>
+<td>string</td>
+<td>否</td>
+<td>示例: <code>2024-01-01T00:00:00Z</code></td>
+</tr>
+<tr>
+<td><code>Check.config.dateColumnRange.dateBoundsConfig.dateBounds.upperBound</code></td>
+<td>string</td>
+<td>否</td>
+<td>示例: <code>2024-12-31T23:59:59Z</code></td>
+</tr>
+<tr>
+<td><code>Check.config.dateColumnRange.dateBoundsConfig.severity</code></td>
+<td>enum</td>
+<td>是</td>
+<td>The severity level of the check. Possible values are MODERATE or CRITICAL.<br>示例: <code>MODERATE</code></td>
+</tr>
+<tr>
+<td><code>Check.config.jobDuration</code></td>
+<td>object</td>
+<td>否</td>
+<td>Checks the total time a job takes to complete.</td>
+</tr>
+<tr>
+<td><code>Check.config.jobDuration.subject</code></td>
+<td>object</td>
+<td>是</td>
+<td>A dataset resource type.<br>示例: <code>{"datasetRid":"ri.foundry.main.dataset.c26f11c8-cdb3-4f44-9f5d-9816ea1c82da","branchId":"master"}</code></td>
+</tr>
+<tr>
+<td><code>Check.config.jobDuration.subject.datasetRid</code></td>
+<td>string</td>
+<td>是</td>
+<td>The Resource Identifier (RID) of a Dataset.<br>示例: <code>ri.foundry.main.dataset.c26f11c8-cdb3-4f44-9f5d-9816ea1c82da</code></td>
+</tr>
+<tr>
+<td><code>Check.config.jobDuration.subject.branchId</code></td>
+<td>string</td>
+<td>是</td>
+<td>The name of a Branch.<br>示例: <code>master</code></td>
+</tr>
+<tr>
+<td><code>Check.config.jobDuration.timeCheckConfig</code></td>
+<td>object</td>
+<td>是</td>
+<td>示例: <code>{"timeBounds":{"severity":"MODERATE","timeBounds":{"lowerBoundInSeconds":3600,"upperBoundInSeconds":3600}},"medianDeviation":{"severity":"MODERATE","medianDeviation":{"deviationThreshold":2.0,"dataPoints":10,"boundsType":"TWO_TAILED"}}}</code></td>
+</tr>
+<tr>
+<td><code>Check.config.jobDuration.timeCheckConfig.timeBounds</code></td>
+<td>object</td>
+<td>否</td>
+<td>Configuration for time bounds check with severity settings.<br>示例: <code>{"severity":"MODERATE","timeBounds":{"lowerBoundInSeconds":3600,"upperBoundInSeconds":3600}}</code></td>
+</tr>
+<tr>
+<td><code>Check.config.jobDuration.timeCheckConfig.timeBounds.timeBounds</code></td>
+<td>object</td>
+<td>是</td>
+<td>The configuration for the range of time between which the health check is expected to succeed.<br>示例: <code>{"lowerBoundInSeconds":3600,"upperBoundInSeconds":3600}</code></td>
+</tr>
+<tr>
+<td><code>Check.config.jobDuration.timeCheckConfig.timeBounds.timeBounds.lowerBoundInSeconds</code></td>
+<td>string</td>
+<td>否</td>
+<td>示例: <code>3600</code></td>
+</tr>
+<tr>
+<td><code>Check.config.jobDuration.timeCheckConfig.timeBounds.timeBounds.upperBoundInSeconds</code></td>
+<td>string</td>
+<td>否</td>
+<td>示例: <code>3600</code></td>
+</tr>
+<tr>
+<td><code>Check.config.jobDuration.timeCheckConfig.timeBounds.severity</code></td>
+<td>enum</td>
+<td>是</td>
+<td>The severity level of the check. Possible values are MODERATE or CRITICAL.<br>示例: <code>MODERATE</code></td>
+</tr>
+<tr>
+<td><code>Check.config.jobDuration.timeCheckConfig.medianDeviation</code></td>
+<td>object</td>
+<td>否</td>
+<td>Configuration for median deviation check with severity settings.<br>示例: <code>{"severity":"MODERATE","medianDeviation":{"deviationThreshold":2.0,"dataPoints":10,"boundsType":"TWO_TAILED"}}</code></td>
+</tr>
+<tr>
+<td><code>Check.config.jobDuration.timeCheckConfig.medianDeviation.medianDeviation</code></td>
+<td>object</td>
+<td>是</td>
+<td>The number of thresholds the build's duration differs from the median.<br>示例: <code>{"deviationThreshold":2.0,"dataPoints":10,"boundsType":"TWO_TAILED"}</code></td>
+</tr>
+<tr>
+<td><code>Check.config.jobDuration.timeCheckConfig.medianDeviation.medianDeviation.boundsType</code></td>
+<td>enum</td>
+<td>否</td>
+<td>The three types of median deviations a bounds type can have: - LOWER_BOUND â Tests for significant deviations below the median value, - UPPER_BOUND â Tests for significant deviations above the median value, - TWO_TAILED â Tests for significant deviations in either direction from the median value.<br>示例: <code>TWO_TAILED</code></td>
+</tr>
+<tr>
+<td><code>Check.config.jobDuration.timeCheckConfig.medianDeviation.medianDeviation.dataPoints</code></td>
+<td>integer</td>
+<td>是</td>
+<td>示例: <code>10</code></td>
+</tr>
+<tr>
+<td><code>Check.config.jobDuration.timeCheckConfig.medianDeviation.medianDeviation.deviationThreshold</code></td>
+<td>number</td>
+<td>是</td>
+<td>示例: <code>2.0</code></td>
+</tr>
+<tr>
+<td><code>Check.config.jobDuration.timeCheckConfig.medianDeviation.severity</code></td>
+<td>enum</td>
+<td>是</td>
+<td>The severity level of the check. Possible values are MODERATE or CRITICAL.<br>示例: <code>MODERATE</code></td>
+</tr>
+<tr>
+<td><code>Check.config.approximateUniquePercentage</code></td>
+<td>object</td>
+<td>否</td>
+<td>Checks the approximate percentage of unique values in a specific column.</td>
+</tr>
+<tr>
+<td><code>Check.config.approximateUniquePercentage.subject</code></td>
+<td>object</td>
+<td>是</td>
+<td>A dataset resource type.<br>示例: <code>{"datasetRid":"ri.foundry.main.dataset.c26f11c8-cdb3-4f44-9f5d-9816ea1c82da","branchId":"master"}</code></td>
+</tr>
+<tr>
+<td><code>Check.config.approximateUniquePercentage.subject.datasetRid</code></td>
+<td>string</td>
+<td>是</td>
+<td>The Resource Identifier (RID) of a Dataset.<br>示例: <code>ri.foundry.main.dataset.c26f11c8-cdb3-4f44-9f5d-9816ea1c82da</code></td>
+</tr>
+<tr>
+<td><code>Check.config.approximateUniquePercentage.subject.branchId</code></td>
+<td>string</td>
+<td>是</td>
+<td>The name of a Branch.<br>示例: <code>master</code></td>
+</tr>
+<tr>
+<td><code>Check.config.approximateUniquePercentage.percentageCheckConfig</code></td>
+<td>object</td>
+<td>是</td>
+<td>Configuration for percentage-based checks (such as null percentage).<br>示例: <code>{"medianDeviation":{"severity":"MODERATE","medianDeviation":{"deviationThreshold":2.0,"dataPoints":10,"boundsType":"TWO_TAILED"}},"percentageBounds":{"severity":"MODERATE","percentageBounds":{"upperBoundPercentage":50.0,"lowerBoundPercentage":50.0}},"columnName":"user_id"}</code></td>
+</tr>
+<tr>
+<td><code>Check.config.approximateUniquePercentage.percentageCheckConfig.columnName</code></td>
+<td>string</td>
+<td>是</td>
+<td>示例: <code>user_id</code></td>
+</tr>
+<tr>
+<td><code>Check.config.approximateUniquePercentage.percentageCheckConfig.percentageBounds</code></td>
+<td>object</td>
+<td>否</td>
+<td>Configuration for percentage bounds check with severity settings.<br>示例: <code>{"severity":"MODERATE","percentageBounds":{"upperBoundPercentage":50.0,"lowerBoundPercentage":50.0}}</code></td>
+</tr>
+<tr>
+<td><code>Check.config.approximateUniquePercentage.percentageCheckConfig.percentageBounds.percentageBounds</code></td>
+<td>object</td>
+<td>是</td>
+<td>The configuration for the range of percentage values between which the health check is expected to succeed.<br>示例: <code>{"upperBoundPercentage":50.0,"lowerBoundPercentage":50.0}</code></td>
+</tr>
+<tr>
+<td><code>Check.config.approximateUniquePercentage.percentageCheckConfig.percentageBounds.percentageBounds.lowerBoundPercentage</code></td>
+<td>number</td>
+<td>否</td>
+<td>A percentage value in the range 0.0 to 100.0.<br>Validation rules:<br><em> must be greater than or equal to 0.0<br></em> must be less than or equal to 100.0<br>示例: <code>50.0</code></td>
+</tr>
+<tr>
+<td><code>Check.config.approximateUniquePercentage.percentageCheckConfig.percentageBounds.percentageBounds.upperBoundPercentage</code></td>
+<td>number</td>
+<td>否</td>
+<td>A percentage value in the range 0.0 to 100.0.<br>Validation rules:<br><em> must be greater than or equal to 0.0<br></em> must be less than or equal to 100.0<br>示例: <code>50.0</code></td>
+</tr>
+<tr>
+<td><code>Check.config.approximateUniquePercentage.percentageCheckConfig.percentageBounds.severity</code></td>
+<td>enum</td>
+<td>是</td>
+<td>The severity level of the check. Possible values are MODERATE or CRITICAL.<br>示例: <code>MODERATE</code></td>
+</tr>
+<tr>
+<td><code>Check.config.approximateUniquePercentage.percentageCheckConfig.medianDeviation</code></td>
+<td>object</td>
+<td>否</td>
+<td>Configuration for median deviation check with severity settings.<br>示例: <code>{"severity":"MODERATE","medianDeviation":{"deviationThreshold":2.0,"dataPoints":10,"boundsType":"TWO_TAILED"}}</code></td>
+</tr>
+<tr>
+<td><code>Check.config.approximateUniquePercentage.percentageCheckConfig.medianDeviation.medianDeviation</code></td>
+<td>object</td>
+<td>是</td>
+<td>The number of thresholds the build's duration differs from the median.<br>示例: <code>{"deviationThreshold":2.0,"dataPoints":10,"boundsType":"TWO_TAILED"}</code></td>
+</tr>
+<tr>
+<td><code>Check.config.approximateUniquePercentage.percentageCheckConfig.medianDeviation.medianDeviation.boundsType</code></td>
+<td>enum</td>
+<td>否</td>
+<td>The three types of median deviations a bounds type can have: - LOWER_BOUND â Tests for significant deviations below the median value, - UPPER_BOUND â Tests for significant deviations above the median value, - TWO_TAILED â Tests for significant deviations in either direction from the median value.<br>示例: <code>TWO_TAILED</code></td>
+</tr>
+<tr>
+<td><code>Check.config.approximateUniquePercentage.percentageCheckConfig.medianDeviation.medianDeviation.dataPoints</code></td>
+<td>integer</td>
+<td>是</td>
+<td>示例: <code>10</code></td>
+</tr>
+<tr>
+<td><code>Check.config.approximateUniquePercentage.percentageCheckConfig.medianDeviation.medianDeviation.deviationThreshold</code></td>
+<td>number</td>
+<td>是</td>
+<td>示例: <code>2.0</code></td>
+</tr>
+<tr>
+<td><code>Check.config.approximateUniquePercentage.percentageCheckConfig.medianDeviation.severity</code></td>
+<td>enum</td>
+<td>是</td>
+<td>The severity level of the check. Possible values are MODERATE or CRITICAL.<br>示例: <code>MODERATE</code></td>
+</tr>
+<tr>
+<td><code>Check.config.buildStatus</code></td>
+<td>object</td>
+<td>否</td>
+<td>Checks the status of the most recent build of the dataset.</td>
+</tr>
+<tr>
+<td><code>Check.config.buildStatus.subject</code></td>
+<td>object</td>
+<td>是</td>
+<td>A dataset resource type.<br>示例: <code>{"datasetRid":"ri.foundry.main.dataset.c26f11c8-cdb3-4f44-9f5d-9816ea1c82da","branchId":"master"}</code></td>
+</tr>
+<tr>
+<td><code>Check.config.buildStatus.subject.datasetRid</code></td>
+<td>string</td>
+<td>是</td>
+<td>The Resource Identifier (RID) of a Dataset.<br>示例: <code>ri.foundry.main.dataset.c26f11c8-cdb3-4f44-9f5d-9816ea1c82da</code></td>
+</tr>
+<tr>
+<td><code>Check.config.buildStatus.subject.branchId</code></td>
+<td>string</td>
+<td>是</td>
+<td>The name of a Branch.<br>示例: <code>master</code></td>
+</tr>
+<tr>
+<td><code>Check.config.buildStatus.statusCheckConfig</code></td>
+<td>object</td>
+<td>是</td>
+<td>示例: <code>{"severity":"MODERATE","escalationConfig":{"timeIntervalInSeconds":30,"failuresToCritical":1}}</code></td>
+</tr>
+<tr>
+<td><code>Check.config.buildStatus.statusCheckConfig.severity</code></td>
+<td>enum</td>
+<td>是</td>
+<td>The severity level of the check. Possible values are MODERATE or CRITICAL.<br>示例: <code>MODERATE</code></td>
+</tr>
+<tr>
+<td><code>Check.config.buildStatus.statusCheckConfig.escalationConfig</code></td>
+<td>object</td>
+<td>否</td>
+<td>The configuration for when the severity of the failing health check should be escalated to CRITICAL â after a given number of failures, possibly within a time interval.<br>示例: <code>{"timeIntervalInSeconds":30,"failuresToCritical":1}</code></td>
+</tr>
+<tr>
+<td><code>Check.config.buildStatus.statusCheckConfig.escalationConfig.failuresToCritical</code></td>
+<td>integer</td>
+<td>是</td>
+<td>示例: <code>1</code></td>
+</tr>
+<tr>
+<td><code>Check.config.buildStatus.statusCheckConfig.escalationConfig.timeIntervalInSeconds</code></td>
+<td>string</td>
+<td>否</td>
+<td>示例: <code>30</code></td>
+</tr>
+<tr>
+<td><code>Check.config.columnType</code></td>
+<td>object</td>
+<td>否</td>
+<td>Checks the existence and optionally the type of a specific column.</td>
+</tr>
+<tr>
+<td><code>Check.config.columnType.subject</code></td>
+<td>object</td>
+<td>是</td>
+<td>A dataset resource type.<br>示例: <code>{"datasetRid":"ri.foundry.main.dataset.c26f11c8-cdb3-4f44-9f5d-9816ea1c82da","branchId":"master"}</code></td>
+</tr>
+<tr>
+<td><code>Check.config.columnType.subject.datasetRid</code></td>
+<td>string</td>
+<td>是</td>
+<td>The Resource Identifier (RID) of a Dataset.<br>示例: <code>ri.foundry.main.dataset.c26f11c8-cdb3-4f44-9f5d-9816ea1c82da</code></td>
+</tr>
+<tr>
+<td><code>Check.config.columnType.subject.branchId</code></td>
+<td>string</td>
+<td>是</td>
+<td>The name of a Branch.<br>示例: <code>master</code></td>
+</tr>
+<tr>
+<td><code>Check.config.columnType.columnTypeConfig</code></td>
+<td>object</td>
+<td>是</td>
+<td>Configuration for column type validation with severity settings.<br>示例: <code>{"severity":"MODERATE","expectedType":"STRING","columnName":"user_id"}</code></td>
+</tr>
+<tr>
+<td><code>Check.config.columnType.columnTypeConfig.columnName</code></td>
+<td>string</td>
+<td>是</td>
+<td>示例: <code>user_id</code></td>
+</tr>
+<tr>
+<td><code>Check.config.columnType.columnTypeConfig.expectedType</code></td>
+<td>enum</td>
+<td>否</td>
+<td>The data type of a column in a dataset schema.<br>示例: <code>STRING</code></td>
+</tr>
+<tr>
+<td><code>Check.config.columnType.columnTypeConfig.severity</code></td>
+<td>enum</td>
+<td>是</td>
+<td>The severity level of the check. Possible values are MODERATE or CRITICAL.<br>示例: <code>MODERATE</code></td>
+</tr>
+<tr>
+<td><code>Check.config.allowedColumnValues</code></td>
+<td>object</td>
+<td>否</td>
+<td>Checks that values in a column are within an allowed set of values.</td>
+</tr>
+<tr>
+<td><code>Check.config.allowedColumnValues.subject</code></td>
+<td>object</td>
+<td>是</td>
+<td>A dataset resource type.<br>示例: <code>{"datasetRid":"ri.foundry.main.dataset.c26f11c8-cdb3-4f44-9f5d-9816ea1c82da","branchId":"master"}</code></td>
+</tr>
+<tr>
+<td><code>Check.config.allowedColumnValues.subject.datasetRid</code></td>
+<td>string</td>
+<td>是</td>
+<td>The Resource Identifier (RID) of a Dataset.<br>示例: <code>ri.foundry.main.dataset.c26f11c8-cdb3-4f44-9f5d-9816ea1c82da</code></td>
+</tr>
+<tr>
+<td><code>Check.config.allowedColumnValues.subject.branchId</code></td>
+<td>string</td>
+<td>是</td>
+<td>The name of a Branch.<br>示例: <code>master</code></td>
+</tr>
+<tr>
+<td><code>Check.config.allowedColumnValues.columnName</code></td>
+<td>string</td>
+<td>是</td>
+<td>示例: <code>status</code></td>
+</tr>
+<tr>
+<td><code>Check.config.allowedColumnValues.allowedValues</code></td>
+<td>list<ColumnValue></td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>Check.config.allowedColumnValues.allowedValues.ColumnValue</code></td>
+<td>union</td>
+<td>是</td>
+<td>A column value that can be of different types.</td>
+</tr>
+<tr>
+<td><code>Check.config.allowedColumnValues.allowedValues.ColumnValue.date</code></td>
+<td>object</td>
+<td>否</td>
+<td>A date column value.</td>
+</tr>
+<tr>
+<td><code>Check.config.allowedColumnValues.allowedValues.ColumnValue.date.value</code></td>
+<td>string</td>
+<td>是</td>
+<td>示例: <code>2024-01-01T00:00:00Z</code></td>
+</tr>
+<tr>
+<td><code>Check.config.allowedColumnValues.allowedValues.ColumnValue.boolean</code></td>
+<td>object</td>
+<td>否</td>
+<td>A boolean column value.</td>
+</tr>
+<tr>
+<td><code>Check.config.allowedColumnValues.allowedValues.ColumnValue.boolean.value</code></td>
+<td>boolean</td>
+<td>是</td>
+<td>示例: <code>true</code></td>
+</tr>
+<tr>
+<td><code>Check.config.allowedColumnValues.allowedValues.ColumnValue.string</code></td>
+<td>object</td>
+<td>否</td>
+<td>A string column value.</td>
+</tr>
+<tr>
+<td><code>Check.config.allowedColumnValues.allowedValues.ColumnValue.string.value</code></td>
+<td>string</td>
+<td>是</td>
+<td>示例: <code>approved</code></td>
+</tr>
+<tr>
+<td><code>Check.config.allowedColumnValues.allowedValues.ColumnValue.numeric</code></td>
+<td>object</td>
+<td>否</td>
+<td>A numeric column value.</td>
+</tr>
+<tr>
+<td><code>Check.config.allowedColumnValues.allowedValues.ColumnValue.numeric.value</code></td>
+<td>number</td>
+<td>是</td>
+<td>示例: <code>42.0</code></td>
+</tr>
+<tr>
+<td><code>Check.config.allowedColumnValues.allowNull</code></td>
+<td>boolean</td>
+<td>否</td>
+<td>示例: <code>true</code></td>
+</tr>
+<tr>
+<td><code>Check.config.allowedColumnValues.severity</code></td>
+<td>enum</td>
+<td>是</td>
+<td>The severity level of the check. Possible values are MODERATE or CRITICAL.<br>示例: <code>MODERATE</code></td>
+</tr>
+<tr>
+<td><code>Check.config.timeSinceLastUpdated</code></td>
+<td>object</td>
+<td>否</td>
+<td>Checks the total time since the dataset has updated.</td>
+</tr>
+<tr>
+<td><code>Check.config.timeSinceLastUpdated.subject</code></td>
+<td>object</td>
+<td>是</td>
+<td>A dataset resource type.<br>示例: <code>{"datasetRid":"ri.foundry.main.dataset.c26f11c8-cdb3-4f44-9f5d-9816ea1c82da","branchId":"master"}</code></td>
+</tr>
+<tr>
+<td><code>Check.config.timeSinceLastUpdated.subject.datasetRid</code></td>
+<td>string</td>
+<td>是</td>
+<td>The Resource Identifier (RID) of a Dataset.<br>示例: <code>ri.foundry.main.dataset.c26f11c8-cdb3-4f44-9f5d-9816ea1c82da</code></td>
+</tr>
+<tr>
+<td><code>Check.config.timeSinceLastUpdated.subject.branchId</code></td>
+<td>string</td>
+<td>是</td>
+<td>The name of a Branch.<br>示例: <code>master</code></td>
+</tr>
+<tr>
+<td><code>Check.config.timeSinceLastUpdated.timeCheckConfig</code></td>
+<td>object</td>
+<td>是</td>
+<td>Defines the configuration of a transaction-based time check.<br>示例: <code>{"timeBounds":{"severity":"MODERATE","timeBounds":{"lowerBoundInSeconds":3600,"upperBoundInSeconds":3600}},"medianDeviation":{"severity":"MODERATE","medianDeviation":{"deviationThreshold":2.0,"dataPoints":10,"boundsType":"TWO_TAILED"}}}</code></td>
+</tr>
+<tr>
+<td><code>Check.config.timeSinceLastUpdated.timeCheckConfig.timeBounds</code></td>
+<td>object</td>
+<td>否</td>
+<td>Configuration for time bounds check with severity settings.<br>示例: <code>{"severity":"MODERATE","timeBounds":{"lowerBoundInSeconds":3600,"upperBoundInSeconds":3600}}</code></td>
+</tr>
+<tr>
+<td><code>Check.config.timeSinceLastUpdated.timeCheckConfig.timeBounds.timeBounds</code></td>
+<td>object</td>
+<td>是</td>
+<td>The configuration for the range of time between which the health check is expected to succeed.<br>示例: <code>{"lowerBoundInSeconds":3600,"upperBoundInSeconds":3600}</code></td>
+</tr>
+<tr>
+<td><code>Check.config.timeSinceLastUpdated.timeCheckConfig.timeBounds.timeBounds.lowerBoundInSeconds</code></td>
+<td>string</td>
+<td>否</td>
+<td>示例: <code>3600</code></td>
+</tr>
+<tr>
+<td><code>Check.config.timeSinceLastUpdated.timeCheckConfig.timeBounds.timeBounds.upperBoundInSeconds</code></td>
+<td>string</td>
+<td>否</td>
+<td>示例: <code>3600</code></td>
+</tr>
+<tr>
+<td><code>Check.config.timeSinceLastUpdated.timeCheckConfig.timeBounds.severity</code></td>
+<td>enum</td>
+<td>是</td>
+<td>The severity level of the check. Possible values are MODERATE or CRITICAL.<br>示例: <code>MODERATE</code></td>
+</tr>
+<tr>
+<td><code>Check.config.timeSinceLastUpdated.timeCheckConfig.medianDeviation</code></td>
+<td>object</td>
+<td>否</td>
+<td>Configuration for median deviation check with severity settings.<br>示例: <code>{"severity":"MODERATE","medianDeviation":{"deviationThreshold":2.0,"dataPoints":10,"boundsType":"TWO_TAILED"}}</code></td>
+</tr>
+<tr>
+<td><code>Check.config.timeSinceLastUpdated.timeCheckConfig.medianDeviation.medianDeviation</code></td>
+<td>object</td>
+<td>是</td>
+<td>The number of thresholds the build's duration differs from the median.<br>示例: <code>{"deviationThreshold":2.0,"dataPoints":10,"boundsType":"TWO_TAILED"}</code></td>
+</tr>
+<tr>
+<td><code>Check.config.timeSinceLastUpdated.timeCheckConfig.medianDeviation.medianDeviation.boundsType</code></td>
+<td>enum</td>
+<td>否</td>
+<td>The three types of median deviations a bounds type can have: - LOWER_BOUND â Tests for significant deviations below the median value, - UPPER_BOUND â Tests for significant deviations above the median value, - TWO_TAILED â Tests for significant deviations in either direction from the median value.<br>示例: <code>TWO_TAILED</code></td>
+</tr>
+<tr>
+<td><code>Check.config.timeSinceLastUpdated.timeCheckConfig.medianDeviation.medianDeviation.dataPoints</code></td>
+<td>integer</td>
+<td>是</td>
+<td>示例: <code>10</code></td>
+</tr>
+<tr>
+<td><code>Check.config.timeSinceLastUpdated.timeCheckConfig.medianDeviation.medianDeviation.deviationThreshold</code></td>
+<td>number</td>
+<td>是</td>
+<td>示例: <code>2.0</code></td>
+</tr>
+<tr>
+<td><code>Check.config.timeSinceLastUpdated.timeCheckConfig.medianDeviation.severity</code></td>
+<td>enum</td>
+<td>是</td>
+<td>The severity level of the check. Possible values are MODERATE or CRITICAL.<br>示例: <code>MODERATE</code></td>
+</tr>
+<tr>
+<td><code>Check.config.timeSinceLastUpdated.timeCheckConfig.ignoreEmptyTransactions</code></td>
+<td>boolean</td>
+<td>否</td>
+<td>Whether empty transactions should be ignored when calculating time since last updated. If true (default), only transactions with actual data changes are considered.</td>
+</tr>
+<tr>
+<td><code>Check.config.scheduleStatus</code></td>
+<td>object</td>
+<td>否</td>
+<td>Checks the status of the most recent schedule run.</td>
+</tr>
+<tr>
+<td><code>Check.config.scheduleStatus.subject</code></td>
+<td>object</td>
+<td>是</td>
+<td>A schedule resource type.<br>示例: <code>{"scheduleRid":"ri.scheduler.main.schedule.8843955e-37d1-4363-85eb-539833e10a41"}</code></td>
+</tr>
+<tr>
+<td><code>Check.config.scheduleStatus.subject.scheduleRid</code></td>
+<td>string</td>
+<td>是</td>
+<td>The RID of a Schedule.<br>示例: <code>ri.scheduler.main.schedule.8843955e-37d1-4363-85eb-539833e10a41</code></td>
+</tr>
+<tr>
+<td><code>Check.config.scheduleStatus.statusCheckConfig</code></td>
+<td>object</td>
+<td>是</td>
+<td>示例: <code>{"severity":"MODERATE","escalationConfig":{"timeIntervalInSeconds":30,"failuresToCritical":1}}</code></td>
+</tr>
+<tr>
+<td><code>Check.config.scheduleStatus.statusCheckConfig.severity</code></td>
+<td>enum</td>
+<td>是</td>
+<td>The severity level of the check. Possible values are MODERATE or CRITICAL.<br>示例: <code>MODERATE</code></td>
+</tr>
+<tr>
+<td><code>Check.config.scheduleStatus.statusCheckConfig.escalationConfig</code></td>
+<td>object</td>
+<td>否</td>
+<td>The configuration for when the severity of the failing health check should be escalated to CRITICAL â after a given number of failures, possibly within a time interval.<br>示例: <code>{"timeIntervalInSeconds":30,"failuresToCritical":1}</code></td>
+</tr>
+<tr>
+<td><code>Check.config.scheduleStatus.statusCheckConfig.escalationConfig.failuresToCritical</code></td>
+<td>integer</td>
+<td>是</td>
+<td>示例: <code>1</code></td>
+</tr>
+<tr>
+<td><code>Check.config.scheduleStatus.statusCheckConfig.escalationConfig.timeIntervalInSeconds</code></td>
+<td>string</td>
+<td>否</td>
+<td>示例: <code>30</code></td>
+</tr>
+<tr>
+<td><code>Check.config.nullPercentage</code></td>
+<td>object</td>
+<td>否</td>
+<td>Checks the percentage of null values in a specific column.</td>
+</tr>
+<tr>
+<td><code>Check.config.nullPercentage.subject</code></td>
+<td>object</td>
+<td>是</td>
+<td>A dataset resource type.<br>示例: <code>{"datasetRid":"ri.foundry.main.dataset.c26f11c8-cdb3-4f44-9f5d-9816ea1c82da","branchId":"master"}</code></td>
+</tr>
+<tr>
+<td><code>Check.config.nullPercentage.subject.datasetRid</code></td>
+<td>string</td>
+<td>是</td>
+<td>The Resource Identifier (RID) of a Dataset.<br>示例: <code>ri.foundry.main.dataset.c26f11c8-cdb3-4f44-9f5d-9816ea1c82da</code></td>
+</tr>
+<tr>
+<td><code>Check.config.nullPercentage.subject.branchId</code></td>
+<td>string</td>
+<td>是</td>
+<td>The name of a Branch.<br>示例: <code>master</code></td>
+</tr>
+<tr>
+<td><code>Check.config.nullPercentage.percentageCheckConfig</code></td>
+<td>object</td>
+<td>是</td>
+<td>Configuration for percentage-based checks (such as null percentage).<br>示例: <code>{"medianDeviation":{"severity":"MODERATE","medianDeviation":{"deviationThreshold":2.0,"dataPoints":10,"boundsType":"TWO_TAILED"}},"percentageBounds":{"severity":"MODERATE","percentageBounds":{"upperBoundPercentage":50.0,"lowerBoundPercentage":50.0}},"columnName":"user_id"}</code></td>
+</tr>
+<tr>
+<td><code>Check.config.nullPercentage.percentageCheckConfig.columnName</code></td>
+<td>string</td>
+<td>是</td>
+<td>示例: <code>user_id</code></td>
+</tr>
+<tr>
+<td><code>Check.config.nullPercentage.percentageCheckConfig.percentageBounds</code></td>
+<td>object</td>
+<td>否</td>
+<td>Configuration for percentage bounds check with severity settings.<br>示例: <code>{"severity":"MODERATE","percentageBounds":{"upperBoundPercentage":50.0,"lowerBoundPercentage":50.0}}</code></td>
+</tr>
+<tr>
+<td><code>Check.config.nullPercentage.percentageCheckConfig.percentageBounds.percentageBounds</code></td>
+<td>object</td>
+<td>是</td>
+<td>The configuration for the range of percentage values between which the health check is expected to succeed.<br>示例: <code>{"upperBoundPercentage":50.0,"lowerBoundPercentage":50.0}</code></td>
+</tr>
+<tr>
+<td><code>Check.config.nullPercentage.percentageCheckConfig.percentageBounds.percentageBounds.lowerBoundPercentage</code></td>
+<td>number</td>
+<td>否</td>
+<td>A percentage value in the range 0.0 to 100.0.<br>Validation rules:<br><em> must be greater than or equal to 0.0<br></em> must be less than or equal to 100.0<br>示例: <code>50.0</code></td>
+</tr>
+<tr>
+<td><code>Check.config.nullPercentage.percentageCheckConfig.percentageBounds.percentageBounds.upperBoundPercentage</code></td>
+<td>number</td>
+<td>否</td>
+<td>A percentage value in the range 0.0 to 100.0.<br>Validation rules:<br><em> must be greater than or equal to 0.0<br></em> must be less than or equal to 100.0<br>示例: <code>50.0</code></td>
+</tr>
+<tr>
+<td><code>Check.config.nullPercentage.percentageCheckConfig.percentageBounds.severity</code></td>
+<td>enum</td>
+<td>是</td>
+<td>The severity level of the check. Possible values are MODERATE or CRITICAL.<br>示例: <code>MODERATE</code></td>
+</tr>
+<tr>
+<td><code>Check.config.nullPercentage.percentageCheckConfig.medianDeviation</code></td>
+<td>object</td>
+<td>否</td>
+<td>Configuration for median deviation check with severity settings.<br>示例: <code>{"severity":"MODERATE","medianDeviation":{"deviationThreshold":2.0,"dataPoints":10,"boundsType":"TWO_TAILED"}}</code></td>
+</tr>
+<tr>
+<td><code>Check.config.nullPercentage.percentageCheckConfig.medianDeviation.medianDeviation</code></td>
+<td>object</td>
+<td>是</td>
+<td>The number of thresholds the build's duration differs from the median.<br>示例: <code>{"deviationThreshold":2.0,"dataPoints":10,"boundsType":"TWO_TAILED"}</code></td>
+</tr>
+<tr>
+<td><code>Check.config.nullPercentage.percentageCheckConfig.medianDeviation.medianDeviation.boundsType</code></td>
+<td>enum</td>
+<td>否</td>
+<td>The three types of median deviations a bounds type can have: - LOWER_BOUND â Tests for significant deviations below the median value, - UPPER_BOUND â Tests for significant deviations above the median value, - TWO_TAILED â Tests for significant deviations in either direction from the median value.<br>示例: <code>TWO_TAILED</code></td>
+</tr>
+<tr>
+<td><code>Check.config.nullPercentage.percentageCheckConfig.medianDeviation.medianDeviation.dataPoints</code></td>
+<td>integer</td>
+<td>是</td>
+<td>示例: <code>10</code></td>
+</tr>
+<tr>
+<td><code>Check.config.nullPercentage.percentageCheckConfig.medianDeviation.medianDeviation.deviationThreshold</code></td>
+<td>number</td>
+<td>是</td>
+<td>示例: <code>2.0</code></td>
+</tr>
+<tr>
+<td><code>Check.config.nullPercentage.percentageCheckConfig.medianDeviation.severity</code></td>
+<td>enum</td>
+<td>是</td>
+<td>The severity level of the check. Possible values are MODERATE or CRITICAL.<br>示例: <code>MODERATE</code></td>
+</tr>
+<tr>
+<td><code>Check.config.scheduleDuration</code></td>
+<td>object</td>
+<td>否</td>
+<td>Checks the total time a schedule takes to complete.</td>
+</tr>
+<tr>
+<td><code>Check.config.scheduleDuration.subject</code></td>
+<td>object</td>
+<td>是</td>
+<td>A schedule resource type.<br>示例: <code>{"scheduleRid":"ri.scheduler.main.schedule.8843955e-37d1-4363-85eb-539833e10a41"}</code></td>
+</tr>
+<tr>
+<td><code>Check.config.scheduleDuration.subject.scheduleRid</code></td>
+<td>string</td>
+<td>是</td>
+<td>The RID of a Schedule.<br>示例: <code>ri.scheduler.main.schedule.8843955e-37d1-4363-85eb-539833e10a41</code></td>
+</tr>
+<tr>
+<td><code>Check.config.scheduleDuration.timeCheckConfig</code></td>
+<td>object</td>
+<td>是</td>
+<td>示例: <code>{"timeBounds":{"severity":"MODERATE","timeBounds":{"lowerBoundInSeconds":3600,"upperBoundInSeconds":3600}},"medianDeviation":{"severity":"MODERATE","medianDeviation":{"deviationThreshold":2.0,"dataPoints":10,"boundsType":"TWO_TAILED"}}}</code></td>
+</tr>
+<tr>
+<td><code>Check.config.scheduleDuration.timeCheckConfig.timeBounds</code></td>
+<td>object</td>
+<td>否</td>
+<td>Configuration for time bounds check with severity settings.<br>示例: <code>{"severity":"MODERATE","timeBounds":{"lowerBoundInSeconds":3600,"upperBoundInSeconds":3600}}</code></td>
+</tr>
+<tr>
+<td><code>Check.config.scheduleDuration.timeCheckConfig.timeBounds.timeBounds</code></td>
+<td>object</td>
+<td>是</td>
+<td>The configuration for the range of time between which the health check is expected to succeed.<br>示例: <code>{"lowerBoundInSeconds":3600,"upperBoundInSeconds":3600}</code></td>
+</tr>
+<tr>
+<td><code>Check.config.scheduleDuration.timeCheckConfig.timeBounds.timeBounds.lowerBoundInSeconds</code></td>
+<td>string</td>
+<td>否</td>
+<td>示例: <code>3600</code></td>
+</tr>
+<tr>
+<td><code>Check.config.scheduleDuration.timeCheckConfig.timeBounds.timeBounds.upperBoundInSeconds</code></td>
+<td>string</td>
+<td>否</td>
+<td>示例: <code>3600</code></td>
+</tr>
+<tr>
+<td><code>Check.config.scheduleDuration.timeCheckConfig.timeBounds.severity</code></td>
+<td>enum</td>
+<td>是</td>
+<td>The severity level of the check. Possible values are MODERATE or CRITICAL.<br>示例: <code>MODERATE</code></td>
+</tr>
+<tr>
+<td><code>Check.config.scheduleDuration.timeCheckConfig.medianDeviation</code></td>
+<td>object</td>
+<td>否</td>
+<td>Configuration for median deviation check with severity settings.<br>示例: <code>{"severity":"MODERATE","medianDeviation":{"deviationThreshold":2.0,"dataPoints":10,"boundsType":"TWO_TAILED"}}</code></td>
+</tr>
+<tr>
+<td><code>Check.config.scheduleDuration.timeCheckConfig.medianDeviation.medianDeviation</code></td>
+<td>object</td>
+<td>是</td>
+<td>The number of thresholds the build's duration differs from the median.<br>示例: <code>{"deviationThreshold":2.0,"dataPoints":10,"boundsType":"TWO_TAILED"}</code></td>
+</tr>
+<tr>
+<td><code>Check.config.scheduleDuration.timeCheckConfig.medianDeviation.medianDeviation.boundsType</code></td>
+<td>enum</td>
+<td>否</td>
+<td>The three types of median deviations a bounds type can have: - LOWER_BOUND â Tests for significant deviations below the median value, - UPPER_BOUND â Tests for significant deviations above the median value, - TWO_TAILED â Tests for significant deviations in either direction from the median value.<br>示例: <code>TWO_TAILED</code></td>
+</tr>
+<tr>
+<td><code>Check.config.scheduleDuration.timeCheckConfig.medianDeviation.medianDeviation.dataPoints</code></td>
+<td>integer</td>
+<td>是</td>
+<td>示例: <code>10</code></td>
+</tr>
+<tr>
+<td><code>Check.config.scheduleDuration.timeCheckConfig.medianDeviation.medianDeviation.deviationThreshold</code></td>
+<td>number</td>
+<td>是</td>
+<td>示例: <code>2.0</code></td>
+</tr>
+<tr>
+<td><code>Check.config.scheduleDuration.timeCheckConfig.medianDeviation.severity</code></td>
+<td>enum</td>
+<td>是</td>
+<td>The severity level of the check. Possible values are MODERATE or CRITICAL.<br>示例: <code>MODERATE</code></td>
+</tr>
+<tr>
+<td><code>Check.config.totalColumnCount</code></td>
+<td>object</td>
+<td>否</td>
+<td>Checks the total number of columns in the dataset.</td>
+</tr>
+<tr>
+<td><code>Check.config.totalColumnCount.subject</code></td>
+<td>object</td>
+<td>是</td>
+<td>A dataset resource type.<br>示例: <code>{"datasetRid":"ri.foundry.main.dataset.c26f11c8-cdb3-4f44-9f5d-9816ea1c82da","branchId":"master"}</code></td>
+</tr>
+<tr>
+<td><code>Check.config.totalColumnCount.subject.datasetRid</code></td>
+<td>string</td>
+<td>是</td>
+<td>The Resource Identifier (RID) of a Dataset.<br>示例: <code>ri.foundry.main.dataset.c26f11c8-cdb3-4f44-9f5d-9816ea1c82da</code></td>
+</tr>
+<tr>
+<td><code>Check.config.totalColumnCount.subject.branchId</code></td>
+<td>string</td>
+<td>是</td>
+<td>The name of a Branch.<br>示例: <code>master</code></td>
+</tr>
+<tr>
+<td><code>Check.config.totalColumnCount.columnCountConfig</code></td>
+<td>object</td>
+<td>是</td>
+<td>Configuration for column count validation with severity settings.<br>示例: <code>{"severity":"MODERATE","expectedValue":10}</code></td>
+</tr>
+<tr>
+<td><code>Check.config.totalColumnCount.columnCountConfig.expectedValue</code></td>
+<td>string</td>
+<td>是</td>
+<td>示例: <code>10</code></td>
+</tr>
+<tr>
+<td><code>Check.config.totalColumnCount.columnCountConfig.severity</code></td>
+<td>enum</td>
+<td>是</td>
+<td>The severity level of the check. Possible values are MODERATE or CRITICAL.<br>示例: <code>MODERATE</code></td>
+</tr>
+<tr>
+<td><code>Check.config.numericColumnMedian</code></td>
+<td>object</td>
+<td>否</td>
+<td>Checks the median value of a numeric column.</td>
+</tr>
+<tr>
+<td><code>Check.config.numericColumnMedian.subject</code></td>
+<td>object</td>
+<td>是</td>
+<td>A dataset resource type.<br>示例: <code>{"datasetRid":"ri.foundry.main.dataset.c26f11c8-cdb3-4f44-9f5d-9816ea1c82da","branchId":"master"}</code></td>
+</tr>
+<tr>
+<td><code>Check.config.numericColumnMedian.subject.datasetRid</code></td>
+<td>string</td>
+<td>是</td>
+<td>The Resource Identifier (RID) of a Dataset.<br>示例: <code>ri.foundry.main.dataset.c26f11c8-cdb3-4f44-9f5d-9816ea1c82da</code></td>
+</tr>
+<tr>
+<td><code>Check.config.numericColumnMedian.subject.branchId</code></td>
+<td>string</td>
+<td>是</td>
+<td>The name of a Branch.<br>示例: <code>master</code></td>
+</tr>
+<tr>
+<td><code>Check.config.numericColumnMedian.numericColumnCheckConfig</code></td>
+<td>object</td>
+<td>是</td>
+<td>Configuration for numeric column-based checks (such as mean or median). At least one of numericBounds or trend must be specified. Both may be provided to validate both the absolute value range and the trend behavior over time.<br>示例: <code>{"numericBounds":{"severity":"MODERATE","numericBounds":{"upperBound":1000.0,"lowerBound":0.0}},"trend":{"severity":"MODERATE","differenceBounds":{"upperBound":1000.0,"lowerBound":0.0},"trendType":"NON_DECREASING"},"columnName":"amount"}</code></td>
+</tr>
+<tr>
+<td><code>Check.config.numericColumnMedian.numericColumnCheckConfig.columnName</code></td>
+<td>string</td>
+<td>是</td>
+<td>示例: <code>amount</code></td>
+</tr>
+<tr>
+<td><code>Check.config.numericColumnMedian.numericColumnCheckConfig.numericBounds</code></td>
+<td>object</td>
+<td>否</td>
+<td>Configuration for numeric bounds check with severity settings.<br>示例: <code>{"severity":"MODERATE","numericBounds":{"upperBound":1000.0,"lowerBound":0.0}}</code></td>
+</tr>
+<tr>
+<td><code>Check.config.numericColumnMedian.numericColumnCheckConfig.numericBounds.numericBounds</code></td>
+<td>object</td>
+<td>是</td>
+<td>The range of numeric values a check is expected to be within.<br>示例: <code>{"upperBound":1000.0,"lowerBound":0.0}</code></td>
+</tr>
+<tr>
+<td><code>Check.config.numericColumnMedian.numericColumnCheckConfig.numericBounds.numericBounds.lowerBound</code></td>
+<td>number</td>
+<td>否</td>
+<td>示例: <code>0.0</code></td>
+</tr>
+<tr>
+<td><code>Check.config.numericColumnMedian.numericColumnCheckConfig.numericBounds.numericBounds.upperBound</code></td>
+<td>number</td>
+<td>否</td>
+<td>示例: <code>1000.0</code></td>
+</tr>
+<tr>
+<td><code>Check.config.numericColumnMedian.numericColumnCheckConfig.numericBounds.severity</code></td>
+<td>enum</td>
+<td>是</td>
+<td>The severity level of the check. Possible values are MODERATE or CRITICAL.<br>示例: <code>MODERATE</code></td>
+</tr>
+<tr>
+<td><code>Check.config.numericColumnMedian.numericColumnCheckConfig.trend</code></td>
+<td>object</td>
+<td>否</td>
+<td>Configuration for trend-based validation with severity settings. At least one of trendType or differenceBounds must be specified. Both may be provided to validate both the trend pattern and the magnitude of change.<br>示例: <code>{"severity":"MODERATE","differenceBounds":{"upperBound":1000.0,"lowerBound":0.0},"trendType":"NON_DECREASING"}</code></td>
+</tr>
+<tr>
+<td><code>Check.config.numericColumnMedian.numericColumnCheckConfig.trend.trendType</code></td>
+<td>enum</td>
+<td>否</td>
+<td>The type of trend to validate:<br>- NON_INCREASING: Values should not increase over time<br>- NON_DECREASING: Values should not decrease over time<br>- STRICTLY_INCREASING: Values should strictly increase over time<br>- STRICTLY_DECREASING: Values should strictly decrease over time<br>- CONSTANT: Values should remain constant over time<br>示例: <code>NON_DECREASING</code></td>
+</tr>
+<tr>
+<td><code>Check.config.numericColumnMedian.numericColumnCheckConfig.trend.differenceBounds</code></td>
+<td>object</td>
+<td>否</td>
+<td>The range of numeric values a check is expected to be within.<br>示例: <code>{"upperBound":1000.0,"lowerBound":0.0}</code></td>
+</tr>
+<tr>
+<td><code>Check.config.numericColumnMedian.numericColumnCheckConfig.trend.differenceBounds.lowerBound</code></td>
+<td>number</td>
+<td>否</td>
+<td>示例: <code>0.0</code></td>
+</tr>
+<tr>
+<td><code>Check.config.numericColumnMedian.numericColumnCheckConfig.trend.differenceBounds.upperBound</code></td>
+<td>number</td>
+<td>否</td>
+<td>示例: <code>1000.0</code></td>
+</tr>
+<tr>
+<td><code>Check.config.numericColumnMedian.numericColumnCheckConfig.trend.severity</code></td>
+<td>enum</td>
+<td>是</td>
+<td>The severity level of the check. Possible values are MODERATE or CRITICAL.<br>示例: <code>MODERATE</code></td>
+</tr>
+<tr>
+<td><code>Check.config.buildDuration</code></td>
+<td>object</td>
+<td>否</td>
+<td>Checks the total time a build takes to complete.</td>
+</tr>
+<tr>
+<td><code>Check.config.buildDuration.subject</code></td>
+<td>object</td>
+<td>是</td>
+<td>A dataset resource type.<br>示例: <code>{"datasetRid":"ri.foundry.main.dataset.c26f11c8-cdb3-4f44-9f5d-9816ea1c82da","branchId":"master"}</code></td>
+</tr>
+<tr>
+<td><code>Check.config.buildDuration.subject.datasetRid</code></td>
+<td>string</td>
+<td>是</td>
+<td>The Resource Identifier (RID) of a Dataset.<br>示例: <code>ri.foundry.main.dataset.c26f11c8-cdb3-4f44-9f5d-9816ea1c82da</code></td>
+</tr>
+<tr>
+<td><code>Check.config.buildDuration.subject.branchId</code></td>
+<td>string</td>
+<td>是</td>
+<td>The name of a Branch.<br>示例: <code>master</code></td>
+</tr>
+<tr>
+<td><code>Check.config.buildDuration.timeCheckConfig</code></td>
+<td>object</td>
+<td>是</td>
+<td>示例: <code>{"timeBounds":{"severity":"MODERATE","timeBounds":{"lowerBoundInSeconds":3600,"upperBoundInSeconds":3600}},"medianDeviation":{"severity":"MODERATE","medianDeviation":{"deviationThreshold":2.0,"dataPoints":10,"boundsType":"TWO_TAILED"}}}</code></td>
+</tr>
+<tr>
+<td><code>Check.config.buildDuration.timeCheckConfig.timeBounds</code></td>
+<td>object</td>
+<td>否</td>
+<td>Configuration for time bounds check with severity settings.<br>示例: <code>{"severity":"MODERATE","timeBounds":{"lowerBoundInSeconds":3600,"upperBoundInSeconds":3600}}</code></td>
+</tr>
+<tr>
+<td><code>Check.config.buildDuration.timeCheckConfig.timeBounds.timeBounds</code></td>
+<td>object</td>
+<td>是</td>
+<td>The configuration for the range of time between which the health check is expected to succeed.<br>示例: <code>{"lowerBoundInSeconds":3600,"upperBoundInSeconds":3600}</code></td>
+</tr>
+<tr>
+<td><code>Check.config.buildDuration.timeCheckConfig.timeBounds.timeBounds.lowerBoundInSeconds</code></td>
+<td>string</td>
+<td>否</td>
+<td>示例: <code>3600</code></td>
+</tr>
+<tr>
+<td><code>Check.config.buildDuration.timeCheckConfig.timeBounds.timeBounds.upperBoundInSeconds</code></td>
+<td>string</td>
+<td>否</td>
+<td>示例: <code>3600</code></td>
+</tr>
+<tr>
+<td><code>Check.config.buildDuration.timeCheckConfig.timeBounds.severity</code></td>
+<td>enum</td>
+<td>是</td>
+<td>The severity level of the check. Possible values are MODERATE or CRITICAL.<br>示例: <code>MODERATE</code></td>
+</tr>
+<tr>
+<td><code>Check.config.buildDuration.timeCheckConfig.medianDeviation</code></td>
+<td>object</td>
+<td>否</td>
+<td>Configuration for median deviation check with severity settings.<br>示例: <code>{"severity":"MODERATE","medianDeviation":{"deviationThreshold":2.0,"dataPoints":10,"boundsType":"TWO_TAILED"}}</code></td>
+</tr>
+<tr>
+<td><code>Check.config.buildDuration.timeCheckConfig.medianDeviation.medianDeviation</code></td>
+<td>object</td>
+<td>是</td>
+<td>The number of thresholds the build's duration differs from the median.<br>示例: <code>{"deviationThreshold":2.0,"dataPoints":10,"boundsType":"TWO_TAILED"}</code></td>
+</tr>
+<tr>
+<td><code>Check.config.buildDuration.timeCheckConfig.medianDeviation.medianDeviation.boundsType</code></td>
+<td>enum</td>
+<td>否</td>
+<td>The three types of median deviations a bounds type can have: - LOWER_BOUND â Tests for significant deviations below the median value, - UPPER_BOUND â Tests for significant deviations above the median value, - TWO_TAILED â Tests for significant deviations in either direction from the median value.<br>示例: <code>TWO_TAILED</code></td>
+</tr>
+<tr>
+<td><code>Check.config.buildDuration.timeCheckConfig.medianDeviation.medianDeviation.dataPoints</code></td>
+<td>integer</td>
+<td>是</td>
+<td>示例: <code>10</code></td>
+</tr>
+<tr>
+<td><code>Check.config.buildDuration.timeCheckConfig.medianDeviation.medianDeviation.deviationThreshold</code></td>
+<td>number</td>
+<td>是</td>
+<td>示例: <code>2.0</code></td>
+</tr>
+<tr>
+<td><code>Check.config.buildDuration.timeCheckConfig.medianDeviation.severity</code></td>
+<td>enum</td>
+<td>是</td>
+<td>The severity level of the check. Possible values are MODERATE or CRITICAL.<br>示例: <code>MODERATE</code></td>
+</tr>
+<tr>
+<td><code>Check.config.schemaComparison</code></td>
+<td>object</td>
+<td>否</td>
+<td>Checks the dataset schema against an expected schema.</td>
+</tr>
+<tr>
+<td><code>Check.config.schemaComparison.subject</code></td>
+<td>object</td>
+<td>是</td>
+<td>A dataset resource type.<br>示例: <code>{"datasetRid":"ri.foundry.main.dataset.c26f11c8-cdb3-4f44-9f5d-9816ea1c82da","branchId":"master"}</code></td>
+</tr>
+<tr>
+<td><code>Check.config.schemaComparison.subject.datasetRid</code></td>
+<td>string</td>
+<td>是</td>
+<td>The Resource Identifier (RID) of a Dataset.<br>示例: <code>ri.foundry.main.dataset.c26f11c8-cdb3-4f44-9f5d-9816ea1c82da</code></td>
+</tr>
+<tr>
+<td><code>Check.config.schemaComparison.subject.branchId</code></td>
+<td>string</td>
+<td>是</td>
+<td>The name of a Branch.<br>示例: <code>master</code></td>
+</tr>
+<tr>
+<td><code>Check.config.schemaComparison.schemaComparisonConfig</code></td>
+<td>object</td>
+<td>是</td>
+<td>Configuration for schema comparison validation with severity settings.<br>示例: <code>{"severity":"MODERATE","schemaComparisonType":"EXACT_MATCH_ORDERED_COLUMNS","expectedSchema":{"columns":[{"columnType":"ARRAY","name":"column"}]}}</code></td>
+</tr>
+<tr>
+<td><code>Check.config.schemaComparison.schemaComparisonConfig.expectedSchema</code></td>
+<td>object</td>
+<td>是</td>
+<td>Information about a dataset schema including all columns.<br>示例: <code>{"columns":[{"columnType":"ARRAY","name":"column"}]}</code></td>
+</tr>
+<tr>
+<td><code>Check.config.schemaComparison.schemaComparisonConfig.expectedSchema.columns</code></td>
+<td>list<ColumnInfo></td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>Check.config.schemaComparison.schemaComparisonConfig.expectedSchema.columns.ColumnInfo</code></td>
+<td>object</td>
+<td>是</td>
+<td>Information about a column including its name and type.</td>
+</tr>
+<tr>
+<td><code>Check.config.schemaComparison.schemaComparisonConfig.expectedSchema.columns.ColumnInfo.name</code></td>
+<td>string</td>
+<td>是</td>
+<td>示例: <code>column</code></td>
+</tr>
+<tr>
+<td><code>Check.config.schemaComparison.schemaComparisonConfig.expectedSchema.columns.ColumnInfo.columnType</code></td>
+<td>enum</td>
+<td>否</td>
+<td>The data type of a column in a dataset schema.<br>示例: <code>ARRAY</code></td>
+</tr>
+<tr>
+<td><code>Check.config.schemaComparison.schemaComparisonConfig.schemaComparisonType</code></td>
+<td>enum</td>
+<td>是</td>
+<td>The type of schema comparison to perform:<br>- EXACT_MATCH_ORDERED_COLUMNS: Schemas must have identical columns in the same order.<br>- EXACT_MATCH_UNORDERED_COLUMNS: Schemas must have identical columns but order doesn't matter.<br>- COLUMN_ADDITIONS_ALLOWED: Expected schema columns must be present, additional columns are allowed and<br>missing column types are ignored.<br>- COLUMN_ADDITIONS_ALLOWED_STRICT: Expected schema columns must be present, additional columns are allowed.<br>Both expected and actual columns must specify types and they must match exactly.<br>示例: <code>EXACT_MATCH_ORDERED_COLUMNS</code></td>
+</tr>
+<tr>
+<td><code>Check.config.schemaComparison.schemaComparisonConfig.severity</code></td>
+<td>enum</td>
+<td>是</td>
+<td>The severity level of the check. Possible values are MODERATE or CRITICAL.<br>示例: <code>MODERATE</code></td>
+</tr>
+<tr>
+<td><code>Check.config.primaryKey</code></td>
+<td>object</td>
+<td>否</td>
+<td>Checks the uniqueness and non-null values of one or more columns (primary key constraint).</td>
+</tr>
+<tr>
+<td><code>Check.config.primaryKey.subject</code></td>
+<td>object</td>
+<td>是</td>
+<td>A dataset resource type.<br>示例: <code>{"datasetRid":"ri.foundry.main.dataset.c26f11c8-cdb3-4f44-9f5d-9816ea1c82da","branchId":"master"}</code></td>
+</tr>
+<tr>
+<td><code>Check.config.primaryKey.subject.datasetRid</code></td>
+<td>string</td>
+<td>是</td>
+<td>The Resource Identifier (RID) of a Dataset.<br>示例: <code>ri.foundry.main.dataset.c26f11c8-cdb3-4f44-9f5d-9816ea1c82da</code></td>
+</tr>
+<tr>
+<td><code>Check.config.primaryKey.subject.branchId</code></td>
+<td>string</td>
+<td>是</td>
+<td>The name of a Branch.<br>示例: <code>master</code></td>
+</tr>
+<tr>
+<td><code>Check.config.primaryKey.primaryKeyConfig</code></td>
+<td>object</td>
+<td>是</td>
+<td>Configuration for primary key validation with severity settings.<br>示例: <code>{"severity":"MODERATE","columnNames":["user_id","account_id"]}</code></td>
+</tr>
+<tr>
+<td><code>Check.config.primaryKey.primaryKeyConfig.columnNames</code></td>
+<td>list<ColumnName></td>
+<td>否</td>
+<td>示例: <code>["user_id","account_id"]</code></td>
+</tr>
+<tr>
+<td><code>Check.config.primaryKey.primaryKeyConfig.columnNames.ColumnName</code></td>
+<td>string</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>Check.config.primaryKey.primaryKeyConfig.severity</code></td>
+<td>enum</td>
+<td>是</td>
+<td>The severity level of the check. Possible values are MODERATE or CRITICAL.<br>示例: <code>MODERATE</code></td>
+</tr>
+<tr>
+<td><code>Check.intent</code></td>
+<td>string</td>
+<td>否</td>
+<td>A note about why the Check was set up.<br>示例: <code>Check to ensure builds are passing.</code></td>
+</tr>
+<tr>
+<td><code>Check.createdBy</code></td>
+<td>string</td>
+<td>否</td>
+<td>The user that created the Check.<br>示例: <code>f05f8da4-b84c-4fca-9c77-8af0b13d11de</code></td>
+</tr>
+<tr>
+<td><code>Check.updatedTime</code></td>
+<td>string</td>
+<td>否</td>
+<td>The timestamp when the Check was last updated.<br>示例: <code>2024-09-25T17:29:35.974Z</code></td>
+</tr>
+</tbody>
+</table>
+<pre><code class="language-json">{
+  &quot;updatedTime&quot;: &quot;2024-09-25T17:29:35.974Z&quot;,
+  &quot;createdBy&quot;: &quot;f05f8da4-b84c-4fca-9c77-8af0b13d11de&quot;,
+  &quot;groups&quot;: [
+    &quot;ri.data-health.main.check-group.08e376a8-607d-4f44-b8dd-b4587be6ce9b&quot;
+  ],
+  &quot;rid&quot;: &quot;ri.data-health.main.check.8e27b13a-e21b-4232-ae1b-76ccf5ff42b3&quot;,
+  &quot;intent&quot;: &quot;Check to ensure builds are passing.&quot;
+}
+</code></pre>
+<h2>Error responses</h2>
+<table>
+<thead>
+<tr>
+<th>错误码</th>
+<th>错误名称</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>INVALID_ARGUMENT</td>
+<td><code>CheckTypeNotSupported</code></td>
+<td>The type of the requested check is not yet supported in the Platform API.</td>
+</tr>
+<tr>
+<td>NOT_FOUND</td>
+<td><code>CheckNotFound</code></td>
+<td>The given Check could not be found.</td>
+</tr>
+</tbody>
+</table>
+</body>
+</html>

@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Getting started</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Getting started</h1>
+<p>:::callout{theme="warning"}
+Preparation has been superseded by <a href="https://www.palantir.com/docs/foundry/pipeline-builder/overview/">Pipeline Builder</a> and is therefore no longer the recommended approach for cleaning and preparing data. Pipeline Builder makes it easy to clean and prepare your data for pipelines, while also offering <a href="https://www.palantir.com/docs/foundry/marketplace/overview/">Marketplace</a> support.
+:::</p>
+<p>This page will help introduce you to the Preparation interface for cleaning and preparing datasets.</p>
+<h2>Open a dataset for cleaning and preparation</h2>
+<h3>From a dataset</h3>
+<p>Choose <strong>Clean in Preparation</strong> from the <strong>Actions</strong> menu on any dataset to create a new <a href="https://www.palantir.com/docs/foundry/preparation/overview/#terminology">preparation</a> for that dataset.</p>
+<h3>From the Preparation screen</h3>
+<p>Click the <strong>Select a dataset...</strong> button, and select the dataset to clean/prepare.</p>
+<h2>Clean and prepare your data</h2>
+<ol>
+<li>Click on a column to see an overview of the data in that column, and apply cleaning and preparation actions.
+   * There are two preparation views: <strong>Table</strong> (which looks like a spreadsheet) and <strong>Column</strong> (which shows a more compact card for each column).</li>
+<li>View the <a href="https://www.palantir.com/docs/foundry/preparation/basic-examples/">basic examples</a> page for various ways to clean and prepare data.</li>
+</ol>
+<h3>Analyze in Contour while cleaning/preparing</h3>
+<ol>
+<li>Click the <strong>Analyze</strong> button to open the current preparation in Contour.</li>
+<li>As you make changes to the preparation, Contour will prompt to update. Click the <strong>Update data</strong> button in Contour to refresh the analysis based on the preparation.</li>
+</ol>
+<h2>Save a cleaned or prepared copy of a dataset</h2>
+<ol>
+<li>Click the <strong>Save as dataset</strong> button in the header bar.
+   * By default, this action will create an updating dataset that can be rebuilt based on changes to the underlying data set or changes to the preparation. To save off a one-off dataset, click the arrow beside the <strong>Save as dataset</strong> button and choose <strong>Save one-off dataset</strong>.</li>
+<li>Select where you want the dataset to be saved, then click <strong>Save</strong>. The dataset will begin building, and you will be notified when it is ready.</li>
+</ol>
+<p><img src="../../_resources/external-a09f4e7251fc.png" style="max-height: 95.5px;" /></p>
+</body>
+</html>

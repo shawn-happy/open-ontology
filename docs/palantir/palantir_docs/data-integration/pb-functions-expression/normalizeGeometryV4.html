@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Prepare geometry</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Prepare geometry</h1>
+<blockquote>
+<p>Supported in: Batch, Streaming</p>
+</blockquote>
+<p>Prepares a geometry for downstream use, for example indexing to the ontology, by converting a geometry string into valid GeoJSON. Polygons will be closed and deduplicated. Geometries which cross the anti-meridian (as indicated by width &gt; 180 degrees) will be split into multiple features on each side of the anti-meridian. By default, this operation will return the converted geometry, or null if the string cannot be converted. Alternatively, in the "show errors" output mode, this operation will instead output a struct containing either the successfully parsed output or a descriptive error message.</p>
+<p><strong>Expression categories:</strong> Geospatial</p>
+<h2>Declared arguments</h2>
+<ul>
+<li><strong>Geometry string:</strong> Geometry string to be parsed and converted to GeoJSON.<br><em>Expression\<String></em></li>
+<li><em>optional</em> <strong>Output mode:</strong> Choose to output as a simple output where the output is the resulting geometry and errors are returned as null, or output a struct with two fields: an "ok" field with the resulting geometry if it can be converted; otherwise, an "error" field containing a descriptive error message.<br><em>Enum\<Simple, With errors></em></li>
+</ul>
+<p><strong>Output type:</strong> <em>Geometry | Struct\<ok:Geometry, error:String></em></p>
+<h2>Examples</h2>
+<h3>Example 1: Base case</h3>
+<p><strong>Argument values:</strong></p>
+<ul>
+<li><strong>Geometry string:</strong> <code>geometry</code></li>
+<li><strong>Output mode:</strong> <em>null</em></li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>geometry</th>
+<th><strong>Output</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>{"type":"Polygon","coordinates":[[[0.0,0.0],[10.0,0.0],[10.0,10.0],[0.0,10.0],[0.0,0.0]]]}</td>
+<td>{"type":"Polygon","coordinates":[[[0.0,0.0],[0.0,10.0],[10.0,10.0],[10.0,0.0],[0.0,0.0]]]}</td>
+</tr>
+<tr>
+<td>{"type":"Polygon","coordinates":[[[0.0,0.0,1.0],[1.0,0.0,1.0],[0.0,1.0,1.0],[0.0,0.0,1.0]]]}</td>
+<td>{"type":"Polygon","coordinates":[[[0.0,0.0,1.0],[0.0,1.0,1.0],[1.0,0.0,1.0],[0.0,0.0,1.0]]]}</td>
+</tr>
+<tr>
+<td>{"type":"Polygon","coordinates":[[[0.0,0.0],[1.0,0.0], [0.0,1.0]]]}</td>
+<td>{"type":"Polygon","coordinates":[[[0.0,0.0],[0.0,1.0],[1.0,0.0],[0.0,0.0]]]}</td>
+</tr>
+<tr>
+<td>{"type":"Polygon","coordinates":[[[0.0,0.0],[1.0,0.0], [1.0,0.0], [0.0,1.0], [0.0,0.0]]]}</td>
+<td>{"type":"Polygon","coordinates":[[[0.0,0.0],[0.0,1.0],[1.0,0.0],[0.0,0.0]]]}</td>
+</tr>
+<tr>
+<td>{"type":"Polygon","coordinates":[[[179.0,-30.0],[-179.0,-30.0],[-179.0,30.0],[179.0,30.0],[179.0,-30]]]}</td>
+<td>{"type":"MultiPolygon","coordinates":[[[[-180.0,-30.0],[-180.0,30.0],[-179.0,30.0],[-179.0,-30.0],[-180.0,-30.0]]],[[[180.0,30.0],[180.0,-30.0],[179.0,-30.0],[179.0,30.0],[180.0,30.0]]]]}</td>
+</tr>
+<tr>
+<td>{"type":"LineString","coordinates":[[179.0,30.0],[-179.0,30.0]]}</td>
+<td>{"type":"MultiLineString","coordinates":[[[179.0,30.0],[180.0,30.0]],[[-180.0,30.0],[-179.0,30.0]]]}</td>
+</tr>
+<tr>
+<td>{"type":"GeometryCollection","geometries":[{"type":"LineString","coordinates":[[40.0,10.0],[0.0,1.0]...</td>
+<td>{"type":"GeometryCollection","geometries":[{"type":"LineString","coordinates":[[40.0,10.0],[0.0,1.0]...</td>
+</tr>
+<tr>
+<td>{"type":"GeometryCollection","geometries":[{"type":"Point","coordinates":[1.0,0.0]},{"type":"LineString","coordinates":[[179.0,30.0],[-179.0,30.0]]}]}</td>
+<td>{"type":"GeometryCollection","geometries":[{"type":"Point","coordinates":[1.0,0.0]},{"type":"MultiLineString","coordinates":[[[179.0,30.0],[180.0,30.0]],[[-180.0,30.0],[-179.0,30.0]]]}]}</td>
+</tr>
+<tr>
+<td>{"type":"GeometryCollection","geometries":[{"type":"LineString","coordinates":[[0.0,0.0],[1.0,0.0]]}...</td>
+<td>{"type":"MultiLineString","coordinates":[[[0.0,0.0],[1.0,0.0]],[[1.0,1.0],[2.0,1.0]]]}</td>
+</tr>
+<tr>
+<td>{"type":"GeometryCollection","geometries":[{"type":"MultiLineString","coordinates":[[[0.0,0.0],[1.0,0.0]],[],[[1.0,1.0],[2.0,1.0]]]},{"type":"MultiPoint","coordinates":[[0.0,0.0],[1.0,1.0]]}]}</td>
+<td>{"geometries":[{"coordinates":[[[0.0,0.0],[1.0,0.0]],[[1.0,1.0],[2.0,1.0]]],"type":"MultiLineString"},{"coordinates":[[0.0,0.0],[1.0,1.0]],"type":"MultiPoint"}],"type":"GeometryCollection"}</td>
+</tr>
+<tr>
+<td>{"type":"MultiPolygon","coordinates":[[[[1.0,1.0],[2.0,1.0],[2.0,2.0],[1.0,2.0],[1.0,1.0]]],[[]],[[[10.0,10.0],[20.0,10.0],[20.0,20.0],[10.0,20.0],[10.0,10.0]]]]}</td>
+<td>{"type":"MultiPolygon","coordinates":[[[[1.0,2.0],[2.0,2.0],[2.0,1.0],[1.0,1.0],[1.0,2.0]]],[[[10.0,20.0],[20.0,20.0],[20.0,10.0],[10.0,10.0],[10.0,20.0]]]]}</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3>Example 2: Base case</h3>
+<p><strong>Argument values:</strong></p>
+<ul>
+<li><strong>Geometry string:</strong> <code>geometry</code></li>
+<li><strong>Output mode:</strong> <em>null</em></li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>geometry</th>
+<th><strong>Output</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>{"type":"MultiPolygon","coordinates":[[[[102.0,2.0],[102.0,3.0],[103.0,3.0],[103.0,2.0],[102.0,2.0]]]]}</td>
+<td>{"type":"Polygon","coordinates":[[[102.0,2.0],[102.0,3.0],[103.0,3.0],[103.0,2.0],[102.0,2.0]]]}</td>
+</tr>
+<tr>
+<td>{"type":"MultiPolygon","coordinates":[[[]],[[[102.0,2.0],[103.0,2.0],[103.0,3.0],[102.0,3.0],[102.0,2.0]]]]}</td>
+<td>{"type":"Polygon","coordinates":[[[102.0,2.0],[102.0,3.0],[103.0,3.0],[103.0,2.0],[102.0,2.0]]]}</td>
+</tr>
+<tr>
+<td>{"type":"FeatureCollection","features":[{"geometry":{"type":"MultiPolygon","coordinates":[[[[0.0,0.0],[0.0,1.0],[1.0,0.0],[0.0,0.0]]]]},"properties":{"gaccname":"namehere"},"type":"Feature"}]}</td>
+<td>{"type":"Polygon","coordinates":[[[0.0,0.0],[0.0,1.0],[1.0,0.0],[0.0,0.0]]]}</td>
+</tr>
+<tr>
+<td>{"type":"GeometryCollection","geometries":[{"type":"LineString","coordinates":[[40.0,11.0],[0.0,1.0]]},{"type":"LineString","coordinates":[[10.0,10.0],[20.0,20.0],[10.0,40.0]]}]}</td>
+<td>{"type":"MultiLineString","coordinates":[[[40.0,11.0],[0.0,1.0]],[[10.0,10.0],[20.0,20.0],[10.0,40.0]]]}</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3>Example 3: Base case</h3>
+<p><strong>Argument values:</strong></p>
+<ul>
+<li><strong>Geometry string:</strong> <code>geometry</code></li>
+<li><strong>Output mode:</strong> <em>null</em></li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>geometry</th>
+<th><strong>Output</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>{"type":"Polygon","coordinates":[[[0.0,0.0],[1.0,1.0],[0.0,1.0], [1.0,0.0], [0.0,0.0]]]}</td>
+<td>{"type":"MultiPolygon","coordinates":[[[[0.0,0.0],[0.5,0.5],[1.0,0.0],[0.0,0.0]]],[[[0.5,0.5],[0.0,1.0],[1.0,1.0],[0.5,0.5]]]]}</td>
+</tr>
+<tr>
+<td>{"type":"Polygon","coordinates":[[[0.0,0.0],[2.0,0.0],[1.0,1.0],[2.0,2.0],[0.0,2.0],[1.0,1.0],[0.0,0.0]]]}</td>
+<td>{"type":"MultiPolygon","coordinates":[[[[0.0,0.0],[1.0,1.0],[2.0,0.0],[0.0,0.0]]],[[[1.0,1.0],[0.0,2.0],[2.0,2.0],[1.0,1.0]]]]}</td>
+</tr>
+<tr>
+<td>{"type":"Polygon","coordinates":[[[0.0,0.0],[2.0,0.0],[2.0,2.0],[0.0,2.0],[0.0,0.0]],[[0.0,0.0],[2.0,0.0],[1.0,1.0],[0.0,0.0]]]}</td>
+<td>{"type":"Polygon","coordinates":[[[0.0,2.0],[2.0,2.0],[2.0,0.0],[1.0,1.0],[0.0,0.0],[0.0,2.0]]]}</td>
+</tr>
+<tr>
+<td>{"type":"Polygon","coordinates":[[[0.0,0.0],[1.0,0.0],[1.0,1.0],[0.0,1.0],[0.0,0.0]],[[3.0,3.0],[4.0,3.0],[4.0,4.0],[3.0,4.0],[3.0,3.0]]]}</td>
+<td>{"type":"MultiPolygon","coordinates":[[[[0.0,1.0],[1.0,1.0],[1.0,0.0],[0.0,0.0],[0.0,1.0]]],[[[3.0,4.0],[4.0,4.0],[4.0,3.0],[3.0,3.0],[3.0,4.0]]]]}</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3>Example 4: Null case</h3>
+<p><strong>Argument values:</strong></p>
+<ul>
+<li><strong>Geometry string:</strong> <code>geometry</code></li>
+<li><strong>Output mode:</strong> <code>with_errors</code></li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>geometry</th>
+<th><strong>Output</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><em>null</em></td>
+<td>{<br>â<strong>error</strong>: Input is null,<br>â<strong>ok</strong>: <em>null</em>,<br>}</td>
+</tr>
+<tr>
+<td>Not geojson</td>
+<td>{<br>â<strong>error</strong>: Input string could not be parsed as GeoJSON,<br>â<strong>ok</strong>: <em>null</em>,<br>}</td>
+</tr>
+<tr>
+<td>{"type":"Polygon","coordinates":[[[0.0,0.0],[1.0,0.0,1.0],[0.0,1.0],[0.0,0.0]]]}</td>
+<td>{<br>â<strong>error</strong>: Coordinate dimension is mixed,<br>â<strong>ok</strong>: <em>null</em>,<br>}</td>
+</tr>
+<tr>
+<td>{"type":"LineString","coordinates":[[0.0,0.0]]}</td>
+<td>{<br>â<strong>error</strong>: Invalid number of points in LineString (found 1 - must be 0 or &gt;= 2),<br>â<strong>ok</strong>: <em>null</em>,<br>}</td>
+</tr>
+<tr>
+<td>{"type":"Polygon","coordinates":[[[0.0,0.0],[1.0,91.0],[0.0,1.0],[0.0,0.0]]]}</td>
+<td>{<br>â<strong>error</strong>: Coordinates out-of-bounds. Latitudes must fall in [-90, 90] and longitudes in [-180, 180],<br>â<strong>ok</strong>: <em>null</em>,<br>}</td>
+</tr>
+<tr>
+<td>{"type":"Polygon","coordinates":[[[0.0,-90.1],[1.0,0.0],[0.0,1.0],[0.0,0.0]]]}</td>
+<td>{<br>â<strong>error</strong>: Coordinates out-of-bounds. Latitudes must fall in [-90, 90] and longitudes in [-180, 180],<br>â<strong>ok</strong>: <em>null</em>,<br>}</td>
+</tr>
+<tr>
+<td>{"type":"Polygon","coordinates":[[[0.0,0.0],[181.0,89.0],[0.0,1.0],[0.0,0.0]]]}</td>
+<td>{<br>â<strong>error</strong>: Coordinates out-of-bounds. Latitudes must fall in [-90, 90] and longitudes in [-180, 180],<br>â<strong>ok</strong>: <em>null</em>,<br>}</td>
+</tr>
+<tr>
+<td>{"type":"Polygon","coordinates":[[[0.0,0.0],[-182.0,89.0],[0.0,1.0],[0.0,0.0]]]}</td>
+<td>{<br>â<strong>error</strong>: Coordinates out-of-bounds. Latitudes must fall in [-90, 90] and longitudes in [-180, 180],<br>â<strong>ok</strong>: <em>null</em>,<br>}</td>
+</tr>
+<tr>
+<td>{"type":"Polygon","coordinates":[]}</td>
+<td>{<br>â<strong>error</strong>: Expected polygon to contain at least one ring,<br>â<strong>ok</strong>: <em>null</em>,<br>}</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3>Example 5: Null case</h3>
+<p><strong>Argument values:</strong></p>
+<ul>
+<li><strong>Geometry string:</strong> <code>geometry</code></li>
+<li><strong>Output mode:</strong> <em>null</em></li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>geometry</th>
+<th><strong>Output</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>{"type":"Polygon","coordinates":[[]]}</td>
+<td><em>null</em></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3>Example 6: Edge case</h3>
+<p><strong>Argument values:</strong></p>
+<ul>
+<li><strong>Geometry string:</strong> <code>geometry</code></li>
+<li><strong>Output mode:</strong> <em>null</em></li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>geometry</th>
+<th><strong>Output</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>{"coordinates": [[[-191.9065788394177,5.453742403668187],[-191.9065788394177,-11.163604962907428],[-...</td>
+<td>{"type":"MultiPolygon","coordinates":[[[[-180.0,-11.163604962907428],[-180.0,5.453742403668187],[-15...</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3>Example 7: Edge case</h3>
+<p><strong>Argument values:</strong></p>
+<ul>
+<li><strong>Geometry string:</strong> <code>geometry</code></li>
+<li><strong>Output mode:</strong> <em>null</em></li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>geometry</th>
+<th><strong>Output</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>{"type":"LineString","coordinates":[[1.0, 1.0], [1.0, 1.0], [1.0, 1.0]]}</td>
+<td>{"type":"Point","coordinates":[1.0,1.0]}</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3>Example 8: Edge case</h3>
+<p><strong>Argument values:</strong></p>
+<ul>
+<li><strong>Geometry string:</strong> <code>geometry</code></li>
+<li><strong>Output mode:</strong> <em>null</em></li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>geometry</th>
+<th><strong>Output</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>{"type":"MultiPolygon","coordinates":[[[[0.0,0.0],[1.0,0.0],[0.0,0.0]]],[[[102.0,2.0],[103.0,2.0],[103.0,3.0],[102.0,3.0],[102.0,2.0]]]]}</td>
+<td>{"type":"GeometryCollection","geometries":[{"type":"LineString","coordinates":[[0.0,0.0],[1.0,0.0]]},{"type":"Polygon","coordinates":[[[102.0,2.0],[102.0,3.0],[103.0,3.0],[103.0,2.0],[102.0,2.0]]]}]}</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3>Example 9: Edge case</h3>
+<p><strong>Argument values:</strong></p>
+<ul>
+<li><strong>Geometry string:</strong> <code>geometry</code></li>
+<li><strong>Output mode:</strong> <em>null</em></li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>geometry</th>
+<th><strong>Output</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>{"type":"GeometryCollection","geometries":[{"type":"GeometryCollection","geometries":[{"type":"GeometryCollection","geometries":[{"type":"Point","coordinates":[-122.4000,37.8000]}]}]}]}</td>
+<td>{"coordinates":[-122.4, 37.8], "type":"Point"}</td>
+</tr>
+<tr>
+<td>{"type":"GeometryCollection","geometries":[{"type":"GeometryCollection","geometries":[{"type":"Geome...</td>
+<td>{"coordinates":[-122.4, 37.8], "type":"Point"}</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3>Example 10: Edge case</h3>
+<p><strong>Argument values:</strong></p>
+<ul>
+<li><strong>Geometry string:</strong> <code>geometry</code></li>
+<li><strong>Output mode:</strong> <code>with_errors</code></li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>geometry</th>
+<th><strong>Output</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>{"type":"GeometryCollection","geometries":[{"type":"GeometryCollection","geometries":[{"type":"GeometryCollection","geometries":[{"type":"Point","coordinates":[-122.4000,37.8000]}]}]}]}</td>
+<td>{<br>â<strong>error</strong>: <em>null</em>,<br>â<strong>ok</strong>: {"type":"Point","coordinates":[-122.4,37.8]},<br>}</td>
+</tr>
+<tr>
+<td>{"type":"GeometryCollection","geometries":[{"type":"GeometryCollection","geometries":[{"type":"Geome...</td>
+<td>{<br>â<strong>error</strong>: <em>null</em>,<br>â<strong>ok</strong>: {"type":"Point","coordinates":[-122.4,37.8]},<br>}</td>
+</tr>
+<tr>
+<td>{"type":"GeometryCollection","geometries":[{"type":"GeometryCollection","geometries":[{"type":"Multi...</td>
+<td>{<br>â<strong>error</strong>: <em>null</em>,<br>â<strong>ok</strong>: {"type":"MultiLineString","coordinates":[[[-122.36,37...</td>
+</tr>
+<tr>
+<td>{"type":"GeometryCollection","geometries":[{"type":"GeometryCollection","geometries":[{"type":"MultiPoint","coordinates":[[-122.4100,37.8100],[-122.4200,37.8200],[-122.4300,37.8300]]}]}]}</td>
+<td>{<br>â<strong>error</strong>: <em>null</em>,<br>â<strong>ok</strong>: {"type":"MultiPoint","coordinates":[[-122.41,37.81],[-122.42,37.82],[-122.43,37.83]]},<br>}</td>
+</tr>
+</tbody>
+</table>
+<hr />
+</body>
+</html>

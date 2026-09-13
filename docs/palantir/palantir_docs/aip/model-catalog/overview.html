@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Model Catalog</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Model Catalog</h1>
+<p>:::callout{theme="neutral"}
+You can enable Model Catalog in <a href="https://www.palantir.com/docs/foundry/administration/configure-application-access/">Control Panel</a>.
+:::</p>
+<p>Model Catalog is an AIP application in Foundry, created to help with discovery and orientation of all Palantir-provided models.</p>
+<p>Model Catalog enables builders to:</p>
+<ul>
+<li>View the models that are available in AIP and discover new models.</li>
+<li>Select the right model for your use case. Upcoming updates should provide more tools and benchmarks for comparison and decision-making.</li>
+<li>Get started with a workflow both using basic templates and entire use case templates through Marketplace.</li>
+<li>Test different models using a sandbox/playground.</li>
+</ul>
+<p>:::callout{theme="warning"}
+Model Catalog currently does not include custom ML/AI models, only LLMs. You can find ML/AI models in <a href="https://www.palantir.com/docs/foundry/model-integration/objectives/">Modeling Objectives</a>.
+:::</p>
+<p>Model Catalog has two main views:</p>
+<ul>
+<li><a href="#model-catalog-homepage">Model Catalog homepage</a></li>
+<li><a href="#model-entity-page">Model entity page</a></li>
+</ul>
+<h2>Model Catalog homepage</h2>
+<p><img alt="Model Catalog homepage" src="../../_resources/foundry/model-catalog/model-catalog-home.png" /></p>
+<p>The Model Catalog homepage is a discovery and navigation interface, displaying all large language models available for a user in their Foundry enrollment.</p>
+<p>:::callout{theme="neutral"}
+<a href="https://www.palantir.com/docs/foundry/aip/supported-llms/#available-llms">Review an exhaustive list of available modelsÂ in AIP.</a>
+:::</p>
+<p>There are a few ways to filter models on the homepage:</p>
+<ul>
+<li><strong>Lifecycle status</strong></li>
+<li><strong>Experimental:</strong> An experimental model may be treated as experimental by either the provider or Palantir, indicating that APIs might change, token capacity could be limited, behavior in AIP applications may not be fully supported, or other unstable behavior may occur. All models will start as experimental when they are first available in AIP. Experimental models are typically used for exploration and testing, with less emphasis on long-term stability and support. A model is promoted from experimental to stable after it meets Palantir's performance and availability standards, which include, but are not limited to: sufficient throughput to handle requests for production workloads while remaining available, usability in all AIP applications, and broad regional availability.</li>
+</ul>
+<p>:::callout{theme="neutral"}
+Enrollment administrators can enable or disable <strong>Experimental</strong> models for their enrollment in the <strong>AIP settings</strong> section of <a href="https://www.palantir.com/docs/foundry/administration/control-panel/">Control Panel</a> so Model Catalog only displays models within the <strong>Stable</strong> lifecycle stage.
+:::</p>
+<ul>
+<li>
+<p><strong>Stable:</strong> A stable or generally available (GA) model is a reliable model endorsed by both the model provider and Palantir. These models offer robust functionality, guaranteed support, and are designed for long-term production usage. Regional availability for models varies based on the offerings for model providers. You can reference a comprehensive list of model availability by region in the <a href="https://www.palantir.com/docs/foundry/aip/supported-llms/#llm-availability-by-geography">supported LLMs documentation</a> and information about each model's status in Model Selector. Palantir moves models from stable to sunset, and notifies users of that shift through <a href="https://www.palantir.com/docs/foundry/upgrade-assistant/overview/">Upgrade Assistant</a>, after receiving the prescribed sunset date from the model provider.</p>
+</li>
+<li>
+<p><strong>Sunset:</strong> A sunset model will deprecate in the coming months, as determined and announced by the model provider. While sunset models can no longer back new workflows after their prescribed deprecation date, the model may still support existing workflows. Compared to their stable counterparts, sunset models will not receive the same level of technical support. Palantir moves models from sunset to deprecated, and notifies users of that shift through <a href="https://www.palantir.com/docs/foundry/upgrade-assistant/overview/">Upgrade Assistant</a>, after receiving the prescribed deprecation date from the model provider. For more information on sunset models, review the <a href="https://www.palantir.com/docs/foundry/model-catalog/model-deprecation/">model deprecation documentation</a>.</p>
+</li>
+<li>
+<p><strong>Deprecated:</strong> Palantir removes, or deprecates, models from Foundry in coordination with the model provider after its sunset period expires. Deprecated models cannot support existing workflows, including new API calls, so projects must migrate to a stable model before a model's deprecation to maintain functionality. Foundry retains and makes accessible the deprecated model's historical data and logs. For more information on deprecated models, review the <a href="https://www.palantir.com/docs/foundry/model-catalog/model-deprecation/">model deprecation documentation</a>.</p>
+</li>
+<li>
+<p><strong>Type</strong></p>
+</li>
+<li><strong>Completion model:</strong> A completion model is designed to generate contextually relevant text by predicting and completing input text. This makes it suitable for tasks such as content generation, auto-completion, translation, and question-answering.</li>
+<li><strong>Embedding model:</strong> An embedding model converts discrete data like words and sentences into continuous vector representations. It is most commonly used for semantic search and other information retrieval use cases.</li>
+<li>
+<p><strong>Vision model:</strong> A vision model is trained to analyze and interpret visual input, enabling it to recognize objects, classify images, and support various computer vision tasks for image and video data.</p>
+</li>
+<li>
+<p><strong>Model creator</strong></p>
+</li>
+<li>A model creator is the organization responsible for creating, developing, and maintaining a specific LLM. Examples include OpenAI, Anthropic, Google Gemini, and Mixtral AI. Model creators may offer their LLMs directly or through partnerships with other organizations, such as OpenAI through Azure and Anthropic through AWS. Some models may be provided and hosted by Palantir, such as Llama and Mixtral.</li>
+</ul>
+<p>If a model is unavailable or grayed out, it means that it is not enabled for your enrollment. To enable a model, contact your platform administrator or Palantir representative.</p>
+<p><a href="https://www.palantir.com/docs/foundry/aip/enable-aip-features/">Learn more about Model enablement</a>.</p>
+<h2>Model entity page</h2>
+<p><img alt="Model catalog model view" src="../../_resources/foundry/model-catalog/model-catalog-model.png" /></p>
+<p>Each model has an entity page with three main sections:</p>
+<ul>
+<li><strong>Playground:</strong> An interface for builders to try out the different models.</li>
+<li><strong>How to use it:</strong> Get started by creating a resource, already populated with the content required to start building your workflow. Model Catalog currently supports Functions and Transforms.</li>
+<li><strong>Model description:</strong> A basic description, legal disclaimer, context window of the model like tokens limit, training data cutoff, and more.</li>
+</ul>
+<h2>Model comparison page</h2>
+<p><img alt="Model catalog comparison view" src="../../_resources/foundry/model-catalog/model-catalog-comparison.png" /></p>
+<p>The Model Catalog comparison page allows builders to efficiently compare and evaluate the performance of various LLMs. The interface allows users to select two LLMs and test them on the same completion or vision tasks. This enables informed decision-making and allows builders to quickly select a model that is optimal for their workflow.</p>
+</body>
+</html>

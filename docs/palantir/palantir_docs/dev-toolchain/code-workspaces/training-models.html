@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Train and interact with models</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Train and interact with models</h1>
+<p>:::callout{theme="neutral"}
+Interacting with models is only supported in <a href="https://www.palantir.com/docs/foundry/code-workspaces/jupyterlab/">JupyterLabÂ® code workspaces</a>.
+:::</p>
+<p>Code Workspaces allows you to train and publish models, as well as import them to interact with previously published models.</p>
+<p>Code Workspaces requires you to create a <strong>model alias</strong> for every Foundry <a href="https://www.palantir.com/docs/foundry/model-integration/models/">model asset</a> referenced in the workspace. The model alias acts as a reference to a specific model, allowing you to interact with models to publish new versions or download the saved model files.</p>
+<p>When registering a model in the <strong>Models</strong> tab, Code Workspaces creates a mapping between the chosen model alias and the Foundry model's unique identifier in a hidden file located under the <code>/home/user/repo/.foundry</code> folder of the workspace.</p>
+<p>To learn how to publish a model from JupyterÂ® notebooks, review the <a href="https://www.palantir.com/docs/foundry/model-integration/tutorial-train-jupyter-notebook/">model integration documentation</a>.</p>
+<h2>Add models to the workspace</h2>
+<p>Models can be created or imported into the workspace all from the <strong>Models</strong> sidebar panel.</p>
+<p>To create a new model, open the <strong>Models</strong> sidebar panel and select <strong>Add</strong> &gt; <strong>Create new model</strong>. This will walk you through creating a new model, registering the alias, and will provide snippets for publishing to the model. This will also generate a skeleton <a href="https://www.palantir.com/docs/foundry/integrate-models/model-adapter-overview/">model adapter</a> Python file which must be implemented to publish the model back to Foundry.</p>
+<p><img alt="Create new model controls in sidebar" src="../../_resources/foundry/code-workspaces/create-new-model.png" /></p>
+<p>To import an existing model, open the <strong>Models</strong> sidebar panel and select <strong>Add</strong> &gt; <strong>Import existing model</strong>. This will walk you through importing the model and registering the alias, and will provide snippets for downloading the saved model state files.</p>
+<p><img alt="Import existing model controls in sidebar" src="../../_resources/foundry/code-workspaces/import-existing-model.png" /></p>
+<p>Imported models load the serialized model state from a given model version. Code Workspaces gives different controls over which model version is used when importing a model, allowing you to select the latest on the current workspace branch, the latest on a provided branch, or a specified model version.</p>
+<h2>Available snippets</h2>
+<p>The <strong>Models</strong> sidebar panel provides snippets to copy and paste into a notebook for common workflows. All snippets will instruct you to install <code>palantir_models</code>, which is the Palantir-provided library for developing and interacting with models.</p>
+<p>Each model card in the sidebar will create unique snippets specific to that model. Selecting the model card will expand the card and reveal a selector to choose to show snippet for a specific task.</p>
+<p><img alt="Expanded model cards with snippet selector" src="../../_resources/foundry/code-workspaces/expanded-model-card-with-controls.png" /></p>
+<h3>Publish model version</h3>
+<p>To publish a model version, you must first <a href="#develop-model-adapters">develop a model adapter</a>. For models created inside Code Workspaces, a skeleton adapter will be created for you to implement in a Python file named after the alias given to the model. The model card will provide in-depth instructions on <a href="#develop-model-adapters">developing your model adapter</a> and <a href="#model-output-class">publishing your model back to Foundry</a>.</p>
+<p>The snippet below is for a model with the alias <code>linear_regression_model</code>. Assuming a model adapter has been written in <code>linear_regression_model_adapter.py</code>, the model publishing code should look like the following:</p>
+<pre><code class="language-python">from palantir_models.code_workspaces import ModelOutput
+
+# Model adapter api has been defined in linear_regression_model_adapter.py
+from linear_regression_model_adapter import LinearRegressionModelAdapter
+
+# sklearn_model is a model trained in another cell
+linear_regression_model_adapter = LinearRegressionModelAdapter(sklearn_model)
+
+model_output = ModelOutput(&quot;linear_regression_model&quot;)
+model_output.publish(linear_regression_model_adapter)
+</code></pre>
+<h3>Download model</h3>
+<p>To download a previously published model version, change the snippet selector to <strong>Download model</strong>. This will provide controls on resolving a model version, which will control which model version gets used for downloading the model files.</p>
+<ul>
+<li><strong>Latest on current branch:</strong> The selected model version will be the latest on the current workspace branch.</li>
+<li><strong>Latest on branch:</strong> The selected model version will be the latest on the selected branch.</li>
+<li><strong>Specific model version:</strong> The selected model version will be pinned to the given model version RID.</li>
+</ul>
+<p><img alt="Model input model version resolution controls" src="../../_resources/foundry/code-workspaces/model-input-resolution-controls.png" /></p>
+<p>The snippets will automatically update to support the selected model version resolution control. Review the <a href="#model-input-class"><code>ModelInput</code></a> class documentation below to learn more.</p>
+<h3>Deploy model for inference</h3>
+<p>Models can be deployed in Code Workspaces for inference. These deployments are shared per model version, meaning a given model version can have at most one associated deployment, and these deployments are fully separate from existing <a href="https://www.palantir.com/docs/foundry/manage-models/set-up-live/">modeling objective live deployments</a> and <a href="https://www.palantir.com/docs/foundry/model-integration/objectives/#deployments">model deployments</a>. Deployments are fully configurable from code and have a default scaling policy that will shut down the deployment after 20 minutes of no use.</p>
+<p>To load the deployment for a given model version, use the <strong>Select snippets</strong> dropdown menu and change the option to <strong>Deploy for inference</strong>. This will load the snippets for deploying the model and will display the same selector as the <strong>Download files</strong> option for choosing a model version. The snippets will walk through deploying the model and running inference against it.</p>
+<p>To monitor a deployment from within Code Workspaces, expand the model card for the model you are working with and select <strong>Deployments</strong>. In the deployments tab, a list of deployed model versions will be available. Selecting a model version will expand a new panel on the right that contains information about the deployment, such as resources used, logs, and more.</p>
+<p><img alt="Model deployment view in Code Workspaces" src="../../_resources/foundry/code-workspaces/model-deployment-view.png" /></p>
+<p>See the <a href="#model-input-class"><code>ModelInput</code></a> class documentation below to learn more.</p>
+<h2>Develop model adapters</h2>
+<p>Model adapters are used to instruct Foundry on how to save, load, and execute a model across the platform. When publishing a model, you must wrap the model with a model adapter.</p>
+<p>In Code Workspaces, model adapters must be defined in a separate <code>.py</code> file. When a new model is added to the workspace, a file is generated based on the alias name given. For example, if the alias is <code>my_model</code>, a file named <code>my_model_adapter.py</code> is generated, with a skeleton model adapter class named <code>MyModelAdapter</code>.</p>
+<p>The code snippets provided in the <strong>Models</strong> panel are generated under the assumption that the alias, file name, and class name match. If the file is moved or the adapter class is renamed, you may have to make manual edits to the generated snippets.</p>
+<p><a href="https://www.palantir.com/docs/foundry/integrate-models/model-adapter-overview/">Learn more about developing model adapters.</a></p>
+<h2>Model output class</h2>
+<p>The <code>ModelOutput</code> class imported from <code>palantir_models.code_workspaces</code> provides a writeable reference to your Foundry model. To publish your model, you must wrap the model in a model adapter and pass to the reference with the <code>publish</code> method.</p>
+<p>Calling the <code>publish</code> method will save the model as a new model version. If the <code>model_output.publish</code> method call is the <strong>last</strong> line in any JupyterÂ® notebook cell, a preview window will be displayed confirming that the model has been published successfully.</p>
+<p><img alt="Model version preview" src="../../_resources/foundry/code-workspaces/model-version-preview.png" /></p>
+<h2>Model input class</h2>
+<p>The <code>ModelInput</code> class imported from <code>palantir_models.code_workspaces</code> provides a lightweight readable reference to your Foundry model which allows reading the serialized state of a published models and deploying the model locally for inference. The code below shows an example of getting a readable reference to a model with the alias <code>my_model</code>, getting the latest model version on the <code>test</code> branch:</p>
+<pre><code class="language-python">from palantir_models.code_workspaces import ModelInput
+my_model_input = ModelInput(&quot;my_alias&quot;, branch=&quot;test&quot;)
+</code></pre>
+<h3>Download models</h3>
+<p><code>ModelInput</code> allows downloading the serialized model weights that are stored when the model is published.</p>
+<pre><code class="language-python">from palantir_models.code_workspaces import ModelInput
+# get the latest model version
+my_model_input = ModelInput(&quot;my_alias&quot;)
+
+# download the files
+my_model_input.download_files()
+</code></pre>
+<p>This returns a path to a temporary directory where the files are downloaded.</p>
+<h3>Initialize model adapters</h3>
+<p>For workflows involving model fine-tuning/republishing, it is often useful to be able to download the model files and load them into an adapter. If the workspace has a local copy of the adapter used to publish the model or the adapter comes from a shared adapter package and you have added it as a dependency in the workspace, you can load the adapter and use the adapter as you would anywhere else.</p>
+<pre><code class="language-python"># in this example, the adapter is in a local python file `my_adapter_file.py`
+from my_adapter_file import MyAdapter
+from palantir_models.code_workspaces import ModelInput
+
+my_model_input = ModelInput(&quot;my_alias&quot;, model_version=&quot;ri.models.main.model-version...&quot;)
+
+# initialize the adapter
+initialized_adapter = my_model_input.initialize_adapter(MyAdapter)
+
+# the initialized adapter can now be republished using `ModelOutput`, or you can access the python objects stored inside my adapter
+# for example, if there is a variable `pipeline` that holds a huggingface pipeline. Note that this code varies depending on your
+# adapter definition.
+pipeline = initialized_adapter.pipeline
+</code></pre>
+<h3>Deploy models for inference</h3>
+<p>Models can also be deployed for inference within the code workspace. These deployments are shared per model version, so multiple concurrent sessions using the same model version will send requests to the same deployment.</p>
+<p>To interact with a model deployment, you must get a deployment client for the model.</p>
+<pre><code class="language-python">from palantir_models.code_workspaces import ModelInput
+
+my_model_input = ModelInput(&quot;my_alias&quot;)
+
+deployment_client = my_model_input.deploy(cpu=2, memory=&quot;8G&quot;, max_replicas=1)
+</code></pre>
+<p>The deployment client has a number of methods available for controlling the deployment.</p>
+<pre><code class="language-python"># wait until the model is ready
+client.wait_for_readiness()
+
+# scale the deployment
+client.scale(cpu=4)
+
+# run inference
+client.predict(...)
+
+# manually shutdown (deployments will auto-shutdown after 20 minutes of no use)
+client.disable()
+</code></pre>
+<h4>Inference input size limit</h4>
+<p>There is a 40 MB limit on the size of a single inference request, as this approach is intended for quick iteration involving other models rather than production-scale inference. In practice, this often corresponds to an average dataset of around 100,000 rows, depending on row size.</p>
+<p>If you need to run your model over larger datasets, you can enable <em>chunking</em>, which breaks down a large dataset into manageable pieces and sends them to the model one chunk at a time. You can enable chunking by setting the <code>client.use_chunking</code> method to <code>True</code> as follows:</p>
+<pre><code class="language-python">client.use_chunking = True
+client.predict(...)
+</code></pre>
+<p>Note that chunking currently supports only one dataset as input, but you can include any number of other parameters. If your dataset exceeds these limits or the chunking approach is insufficient for your workflow, consider using Code Repositories and transforms to handle larger-scale data processing.</p>
+<h2>Transforms</h2>
+<p>JupyterÂ® notebooks that produce model outputs can also be used in transforms created from Code Workspaces. Follow the steps below to register a transform for a model output:</p>
+<ol>
+<li>In the <strong>Models</strong> panel, find the model card for the model you want to output from a transform, then select <strong>Publish as transform output</strong> in the menu.</li>
+</ol>
+<p><img alt="Model output transform configuration menu item." src="../../_resources/foundry/code-workspaces/model-transform-add-menu.png" /></p>
+<ol start="2">
+<li>In the <strong>Create transform</strong> panel, you can configure the file to execute as well as the required inputs and outputs of your transform. In the example below, training data is used as an input and a test dataset and model are used as outputs.</li>
+</ol>
+<p><img alt="Model output transform configuration page." src="../../_resources/foundry/code-workspaces/model-transform-configuration.png" /></p>
+<ol start="3">
+<li>Once the inputs and outputs are configured, select <strong>Sync and run</strong> at the bottom of the configuration page to save your current code changes and create the transform. The transform will start running, and the status of the job will be displayed with the associated datasets and models in the <strong>Models</strong> panel.</li>
+</ol>
+<p><img alt="Model output transform status." src="../../_resources/foundry/code-workspaces/model-transform-status.png" /></p>
+<p>You can then select <strong>View build</strong> to see the running transforms job. If you make a change to your notebook code and want to rebuild the model, select <strong>Rebuild</strong> in the model card to re-run the build. Models and datasets created with a transform can be scheduled just like transforms created elsewhere in the platform. <a href="https://www.palantir.com/docs/foundry/data-integration/schedules/">Learn more about scheduling transforms.</a></p>
+<hr />
+<p><em>JupyterÂ®, JupyterLabÂ®, and the JupyterÂ® logos are trademarks or registered trademarks of NumFOCUS.</em></p>
+<p>All third-party trademarks (including logos and icons) referenced remain the property of their respective owners. No affiliation or endorsement is implied.</p>
+</body>
+</html>

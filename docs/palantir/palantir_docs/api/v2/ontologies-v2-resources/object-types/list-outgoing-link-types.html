@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>List Outgoing Link Types</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../../../index.html">返回目录</a></div>
+<p><code>GET /api/v2/ontologies/{ontology}/objectTypes/{objectType}/outgoingLinkTypes</code></p>
+<p>List the outgoing links for an object type.</p>
+<p>Third-party applications using this endpoint via OAuth2 must request the following operation scope: <code>api:ontologies-read</code>.</p>
+<p><strong>OAuth2 scopes</strong>: <code>api:ontologies-read</code></p>
+<h2>Path parameters</h2>
+<table>
+<thead>
+<tr>
+<th>参数</th>
+<th>类型</th>
+<th>必填</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ontology</code></td>
+<td>string</td>
+<td>是</td>
+<td>The API name or RID of the Ontology. To find the API name or RID, use the <strong>List Ontologies</strong> endpoint or<br>check the <strong>Ontology Manager</strong>.<br>示例: <code>palantir</code></td>
+</tr>
+<tr>
+<td><code>objectType</code></td>
+<td>string</td>
+<td>是</td>
+<td>The API name of the object type. To find the API name, use the <strong>List object types</strong> endpoint or<br>check the <strong>Ontology Manager</strong> application.<br>示例: <code>Flight</code></td>
+</tr>
+</tbody>
+</table>
+<h2>Query parameters</h2>
+<table>
+<thead>
+<tr>
+<th>参数</th>
+<th>类型</th>
+<th>必填</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>branch</code></td>
+<td>string</td>
+<td>否</td>
+<td>The Foundry branch to load the outgoing link types from. If not specified, the default branch will be used.<br>Branches are an experimental feature and not all workflows are supported.<br>示例: <code>ri.branch..branch.d827184f-ee0e-4351-8b70-efbe51e07252</code></td>
+</tr>
+<tr>
+<td><code>pageSize</code></td>
+<td>integer</td>
+<td>否</td>
+<td>The desired size of the page to be returned.</td>
+</tr>
+<tr>
+<td><code>pageToken</code></td>
+<td>string</td>
+<td>否</td>
+<td>The page token indicates where to start paging. This should be omitted from the first page's request.<br>To fetch the next page, clients should take the value from the <code>nextPageToken</code> field of the previous response<br>and use it to populate the <code>pageToken</code> field of the next request.</td>
+</tr>
+</tbody>
+</table>
+<h2>Response</h2>
+<p><strong>ListOutgoingLinkTypesResponseV2</strong></p>
+<p>Success response.</p>
+<table>
+<thead>
+<tr>
+<th>参数</th>
+<th>类型</th>
+<th>必填</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ListOutgoingLinkTypesResponseV2</code></td>
+<td>object</td>
+<td>是</td>
+<td>Success response.<br>示例: <code>{"nextPageToken":"v1.QnVpbGQgdGhlIEZ1dHVyZTogaHR0cHM6Ly93d3cucGFsYW50aXIuY29tL2NhcmVlcnMvP2xldmVyLXNvdXJjZSU1YiU1ZD1BUElEb2NzI29wZW4tcG9zaXRpb25z","data":[{"apiName":"originAirport","objectTypeApiName":"Airport","cardinality":"ONE","foreignKeyPropertyApiName":"originAirportId"}]}</code></td>
+</tr>
+<tr>
+<td><code>ListOutgoingLinkTypesResponseV2.nextPageToken</code></td>
+<td>string</td>
+<td>否</td>
+<td>The page token indicates where to start paging. This should be omitted from the first page's request.<br>To fetch the next page, clients should take the value from the <code>nextPageToken</code> field of the previous response<br>and use it to populate the <code>pageToken</code> field of the next request.</td>
+</tr>
+<tr>
+<td><code>ListOutgoingLinkTypesResponseV2.data</code></td>
+<td>list<LinkTypeSideV2></td>
+<td>否</td>
+<td>The list of link type sides in the current page.</td>
+</tr>
+<tr>
+<td><code>ListOutgoingLinkTypesResponseV2.data.LinkTypeSideV2</code></td>
+<td>object</td>
+<td>是</td>
+<td><code>foreignKeyPropertyApiName</code> is the API name of the foreign key on this object type. If absent, the link is<br>either a m2m link or the linked object has the foreign key and this object type has the primary key.</td>
+</tr>
+<tr>
+<td><code>ListOutgoingLinkTypesResponseV2.data.LinkTypeSideV2.apiName</code></td>
+<td>string</td>
+<td>是</td>
+<td>The name of the link type in the API. To find the API name for your Link Type, check the <strong>Ontology Manager</strong><br>application.</td>
+</tr>
+<tr>
+<td><code>ListOutgoingLinkTypesResponseV2.data.LinkTypeSideV2.displayName</code></td>
+<td>string</td>
+<td>是</td>
+<td>The display name of the entity.</td>
+</tr>
+<tr>
+<td><code>ListOutgoingLinkTypesResponseV2.data.LinkTypeSideV2.status</code></td>
+<td>enum</td>
+<td>是</td>
+<td>The release status of the entity.<br>示例: <code>ACTIVE</code></td>
+</tr>
+<tr>
+<td><code>ListOutgoingLinkTypesResponseV2.data.LinkTypeSideV2.objectTypeApiName</code></td>
+<td>string</td>
+<td>是</td>
+<td>The name of the object type in the API in camelCase format. To find the API name for your Object Type, use the<br><code>List object types</code> endpoint or check the <strong>Ontology Manager</strong>.</td>
+</tr>
+<tr>
+<td><code>ListOutgoingLinkTypesResponseV2.data.LinkTypeSideV2.cardinality</code></td>
+<td>enum</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListOutgoingLinkTypesResponseV2.data.LinkTypeSideV2.foreignKeyPropertyApiName</code></td>
+<td>string</td>
+<td>否</td>
+<td>The name of the property in the API. To find the API name for your property, use the <code>Get object type</code><br>endpoint or check the <strong>Ontology Manager</strong>.</td>
+</tr>
+<tr>
+<td><code>ListOutgoingLinkTypesResponseV2.data.LinkTypeSideV2.linkTypeRid</code></td>
+<td>string</td>
+<td>是</td>
+<td>—</td>
+</tr>
+</tbody>
+</table>
+<pre><code class="language-json">{
+  &quot;nextPageToken&quot;: &quot;v1.QnVpbGQgdGhlIEZ1dHVyZTogaHR0cHM6Ly93d3cucGFsYW50aXIuY29tL2NhcmVlcnMvP2xldmVyLXNvdXJjZSU1YiU1ZD1BUElEb2NzI29wZW4tcG9zaXRpb25z&quot;,
+  &quot;data&quot;: [
+    {
+      &quot;apiName&quot;: &quot;originAirport&quot;,
+      &quot;objectTypeApiName&quot;: &quot;Airport&quot;,
+      &quot;cardinality&quot;: &quot;ONE&quot;,
+      &quot;foreignKeyPropertyApiName&quot;: &quot;originAirportId&quot;
+    }
+  ]
+}
+</code></pre>
+</body>
+</html>

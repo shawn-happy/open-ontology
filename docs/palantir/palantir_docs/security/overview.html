@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Security and governance</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../index.html">返回目录</a></div>
+<p><img alt="Security Overview" src="../_resources/foundry/security/6-Security.svg" /></p>
+<h1>Security and governance</h1>
+<p>Palantir helps organizations solve real-world problems using powerful, secure software platforms. For more than a decade, we have worked with customers in the most secure and highly-regulated industries to build software for their most sensitive data. Today, security and privacy remain the cornerstone of our product development, company culture, and internal operations.</p>
+<p>The Palantir platform is used by healthcare providers, financial institutions, utility providers, manufacturers, telecoms, airlines, and pharmaceutical companies around the globe to handle their most sensitive workflows. The Palantir platform was built for security-conscious customers who need the capability to handle financial data, Personally Identifiable Information (PII), Protected Health Information (PHI), Controlled Unclassified Information (CUI), and even classified government data in a secure and compliant manner. Palantir's security infrastructure meets regulatory requirements across industries and continents by aligning with frameworks like HIPAA, GDPR, and ITAR.</p>
+<p>As our software powers mission-critical operations across major corporations and governments alike, our threat model focuses on defeating attacks by highly resourced, technical, and persistent adversaries. To defeat these adversaries, we take a highly opinionated stance and enforce a high minimum bar of security for all our customers. For example, multi-factor authentication has been mandatory for all our managed Software as a Service (SaaS) platform customers for years.</p>
+<p>:::callout{theme="success" title="Palantir Learning portal"}
+Understand data protection with a <a href="https://learn.palantir.com/deep-dive-data-protection-tools-in-foundry">learn.palantir.com course â</a>.
+:::</p>
+<h2>Platform security</h2>
+<p>The Palantir platform has security as a core development philosophy. The Palantir security model enables strict enforcement of granular access controls with transparency and usability to build a collaborative and trusted ecosystem:</p>
+<ul>
+<li><strong>Strict enforcement:</strong> Ensures users only have access to data that they have been authorized to interact with.</li>
+<li><strong>Granular controls:</strong> Powerful enough to achieve flexible levels of access control granularity.</li>
+<li><strong>Transparency:</strong> Enables users to reason about <em>who</em> has access to <em>what</em> resource and <em>why</em>.</li>
+<li><strong>Usability:</strong> Empowers users to reason about and manage access controls with confidence.</li>
+</ul>
+<p>The Palantir security model encompasses both authentication and authorization. Authentication verifies the identity of a user, while authorization grants access based on a userâs attributes and permissions.</p>
+<p>Data security in the Palantir platform is provided through a combination of mandatory and discretionary controls, which differ in how they propagate. Mandatory controls (<a href="https://www.palantir.com/docs/foundry/security/markings/">markings</a>, <a href="https://www.palantir.com/docs/foundry/security/classification-based-access-controls/">Classification-based Access Controls</a>, and <a href="https://www.palantir.com/docs/foundry/security/orgs-and-spaces/">organizations</a>) travel with each unit of data through derivation, via Palantir's provenance and lineage capabilities. Discretionary controls are granted to users on individual resources. These include resource-level role grants (Owner, Editor, Viewer, Discoverer), and row or column filtering via granular policies on <a href="https://www.palantir.com/docs/foundry/security/restricted-views/">restricted views</a>, <a href="https://www.palantir.com/docs/foundry/object-permissioning/object-security-policies/">object security policies</a>, and <a href="https://www.palantir.com/docs/foundry/security/property-security-markings/">property security policies</a>. Discretionary row and column controls filter what a user can read; they do not extend to downstream outputs or exports. For the full model, see <a href="https://www.palantir.com/docs/foundry/security/access-control-propagation/">Access control propagation</a>.</p>
+<p>Data and resources in the Palantir platform are organized in Projects. Users belong to Organizations, and are organized in groups managed within the platform or through external identity providers. Organizations are one form of mandatory controls applied to Projects that enforce strict silos between groups of users and resources. Therefore, users of one Organization cannot access the resources of another Organization unless sharing protocols have explicitly been configured.</p>
+<p>For highly sensitive data, markings are another form of mandatory controls that can be applied to data or resources that require special protection (for example, PII or financially sensitive data). Users must have special permission to discover or access such data, in addition to Organization membership.</p>
+<h2>Enterprise security</h2>
+<p>We reject the notion of gating, pay-walling, or upselling core security controls like audit logging, single sign-on, and multi-factor authentication. Whether you are a small business or a federal agency, you get access to every core enterprise security feature in the standard Palantir offering:</p>
+<ul>
+<li>Mandatory <strong>encryption</strong> of all data, both in transit and at rest, that uses robust, modern cryptography standards.</li>
+<li>Strong <strong>authentication</strong> and identity protection controls, including single sign-on and multi-factor authentication.</li>
+<li>Strong <strong>authorization</strong> controls, including mandatory and discretionary access controls.</li>
+<li>Robust <strong>security audit logging</strong> for detecting and investigating potential abuse.</li>
+<li>Highly extensible <strong>information governance, management, and privacy controls</strong> to meet the needs of any use case.</li>
+</ul>
+<h2>Infrastructure security</h2>
+<p>If you are using our managed SaaS platform, Palantirâs hosted infrastructure has additional layers of security controls to help protect your data:</p>
+<ul>
+<li>Robust <strong>security architecture</strong> built around principles of zero trust, least privilege, and defense-in-depth.</li>
+<li>Enforced <strong>security baseline configurations</strong> with rigorous change management and security monitoring processes.</li>
+<li>Strong <strong>network security</strong> hardening and segmentation.</li>
+<li>Host-based and network-based <strong>intrusion detection systems</strong> to detect and defeat anomalous activity.</li>
+<li>Aggressive <strong>infrastructure and application vulnerability management and patching</strong>, with industry-leading SLAs.</li>
+<li><strong>Web application firewall</strong> (WAF) inspection of incoming web requests to detect and block attacks.</li>
+<li><strong>Security monitoring</strong> at every layer of the environment, including users, hosts, networks, and applications.</li>
+</ul>
+<h2>Additional security resources</h2>
+<p>Palantir has a <a href="https://palantir.safebase.us/">SafeBase Trust Center page â</a> to house all security documentation and information. You can use SafeBase to help answer questions related to our security standards and procedures. SafeBase includes security whitepapers, policies, pen test reports, compliance information, certifications (such as SOC and ISO), and more.</p>
+<p>Existing and prospective customers under NDA can request access to additional non-public materials.</p>
+<h2>Conclusion</h2>
+<p>Palantir cares deeply about the security outcomes of our customers, and we are committed to transparency about our security practices and program. We stand resolute in continuously improving our security, data protection, and privacy controls to give you the most effective means of protecting your data possible.</p>
+</body>
+</html>

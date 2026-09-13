@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Foundry connectors</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Foundry connectors</h1>
+<p>Connectors for interacting with Foundry from the transforms APIs.</p>
+<p>A Connector can be used interactively to construct <a href="https://www.palantir.com/docs/foundry/api-reference/transforms-python-library/api-transforminput/#transforms.api.TransformInput"><code>TransformInput</code></a> and <a href="https://www.palantir.com/docs/foundry/api-reference/transforms-python-library/api-transformoutput/#transforms.api.TransformOutput"><code>TransformOutput</code></a> objects and also to run a <a href="https://www.palantir.com/docs/foundry/api-reference/transforms-python-library/api-transform/"><code>Transform</code></a>.</p>
+<h2>FoundryConnector</h2>
+<h3><em>class</em> <code>transforms.foundry.connectors.FoundryConnector</code>(<em>service_config</em>, <em>auth_header</em>, <em>filesystem_id=None</em>, <em>fallback_branches=None</em>, <em>resolver=None</em>)</h3>
+<ul>
+<li>Entry point for accessing <em>Foundry</em> services.</li>
+<li>The <em>Foundry</em> object manages interactions with Foundry services by providing APIs for manipulating datasets.</li>
+</ul>
+<h4>Parameters</h4>
+<ul>
+<li><strong>service_config</strong> (<em><a href="https://docs.python.org/3/library/stdtypes.html#mapping-types-dict">dict â</a></em>)</li>
+<li>A configuration dictionary conforming to the JSON spec in the Java class com.palantir.remoting.api.config.service.ServicesConfigBlock.</li>
+<li><strong>auth_header</strong> (<em><a href="https://docs.python.org/3/library/stdtypes.html#textseq">str â</a></em>)</li>
+<li>The authorization string to use when connecting to Foundry services.</li>
+<li><strong>filesystem_id</strong> (<em><a href="https://docs.python.org/3/library/stdtypes.html#textseq">str â</a>, optional</em>)</li>
+<li>The backing filesystem to use.</li>
+<li><strong>fallback_branches</strong> (<em>List[<a href="https://docs.python.org/3/library/stdtypes.html#textseq">str â</a>], optional</em>)</li>
+<li>Fallback branches.</li>
+<li><strong>resolver</strong> (<em>Callable[[<a href="https://docs.python.org/3/library/stdtypes.html#textseq">str â</a>], <a href="https://docs.python.org/3/library/stdtypes.html#textseq">str â</a>], optional</em>)</li>
+<li>Function for resolving a dataset alias into a rid. Defaults to resolving the alias as a Project path.</li>
+</ul>
+<hr />
+<h3><code>input</code>(<em>alias=None</em>, <em>rid=None</em>, <em>branch=None</em>, <em>end_txrid=None</em>, <em>start_txrid=None</em>, <em>schema_version=None</em>)</h3>
+<ul>
+<li>Construct a <a href="https://www.palantir.com/docs/foundry/api-reference/transforms-python-library/api-transforminput/#transforms.api.TransformInput"><code>TransformInput</code></a> from the given parameters.</li>
+<li>The <em>resource identifier</em> used to construct the <a href="https://www.palantir.com/docs/foundry/api-reference/transforms-python-library/api-transforminput/#transforms.api.TransformInput"><code>TransformInput</code></a> will be resolved from the given <code>alias</code> unless the <code>rid</code> parameter is passed.</li>
+</ul>
+<h4>Parameters</h4>
+<ul>
+<li><strong>alias</strong> (<em><a href="https://docs.python.org/3/library/stdtypes.html#textseq">str â</a>, optional</em>)</li>
+<li>The alias of the dataset.</li>
+<li><strong>rid</strong> (<em><a href="https://docs.python.org/3/library/stdtypes.html#textseq">str â</a>, optional</em>)</li>
+<li>The resource identifier of the dataset.</li>
+<li><strong>branch</strong> (<em><a href="https://docs.python.org/3/library/stdtypes.html#textseq">str â</a>, optional</em>)</li>
+<li>The branch from which to read the dataset. If not set the branch is chosen as the first branch in the <em>fallbacks</em> list that exists in the <em>Catalog</em>.</li>
+<li><strong>end_txrid</strong> (<em><a href="https://docs.python.org/3/library/stdtypes.html#textseq">str â</a>, optional</em>)</li>
+<li>The end transaction of the view, if not set, defaults to the latest transaction on the given branch.</li>
+<li><strong>start_txrid</strong> (<em><a href="https://docs.python.org/3/library/stdtypes.html#textseq">str â</a>, optional</em>)</li>
+<li>The starting transaction of the view.</li>
+<li><strong>schema_version</strong> (<em><a href="https://docs.python.org/3/library/stdtypes.html#textseq">str â</a>, optional</em>)</li>
+<li>The schema version to use when reading, if not set, defaults to the latest schema version on the given branch.</li>
+</ul>
+<h4>Returns</h4>
+<ul>
+<li>An input object representing the requested dataset.</li>
+</ul>
+<h4>Return type</h4>
+<ul>
+<li><a href="https://www.palantir.com/docs/foundry/api-reference/transforms-python-library/api-transforminput/#transforms.api.TransformInput"><code>transforms.api.TransformInput</code></a></li>
+</ul>
+<h4>Raises</h4>
+<ul>
+<li><a href="https://docs.python.org/3/library/exceptions.html#ValueError"><code>ValueError</code> â</a></li>
+<li>If either the <em>alias</em> or <em>rid</em> (but not both) is not specified.</li>
+<li><a href="https://docs.python.org/3/library/exceptions.html#ValueError"><code>ValueError</code> â</a></li>
+<li>If a branch is not specified and a fallback branch cannot be found in the <em>Catalog</em>.</li>
+</ul>
+<hr />
+<h3><code>output</code>(<em>alias=None</em>, <em>rid=None</em>, <em>branch=None</em>, <em>txrid=None</em>, <em>filesystem_id=None</em>)</h3>
+<ul>
+<li>Construct a <a href="https://www.palantir.com/docs/foundry/api-reference/transforms-python-library/api-transformoutput/#transforms.api.TransformOutput">TransformOutput</a> from the given alias or rid.</li>
+<li>The <em>resource identifier</em> used to construct the <a href="https://www.palantir.com/docs/foundry/api-reference/transforms-python-library/api-transformoutput/#transforms.api.TransformOutput"><code>transforms.api.TransformOutput</code></a> will be resolved from the given <code>alias</code> unless the <code>rid</code> parameter is passed.</li>
+</ul>
+<h4>Parameters</h4>
+<ul>
+<li><strong>alias</strong> (<em><a href="https://docs.python.org/3/library/stdtypes.html#textseq">str â</a>, optional</em>)</li>
+<li>The alias of the dataset.</li>
+<li><strong>rid</strong> (<em><a href="https://docs.python.org/3/library/stdtypes.html#textseq">str â</a>, optional</em>)</li>
+<li>The resource identifier of the dataset.</li>
+<li><strong>branch</strong> (<em><a href="https://docs.python.org/3/library/stdtypes.html#textseq">str â</a>, optional</em>)</li>
+<li>The branch to which to write the dataset. If not set the branch is chosen as the first branch in the <em>fallbacks</em> list.</li>
+<li><strong>txrid</strong> (<em><a href="https://docs.python.org/3/library/stdtypes.html#textseq">str â</a>, optional</em>)</li>
+<li>The transaction into which data should be written.</li>
+<li><strong>filesystem_id</strong> (<em><a href="https://docs.python.org/3/library/stdtypes.html#textseq">str â</a>, optional</em>)</li>
+<li>The filesystem in which to create the dataset if it does not already exist.</li>
+</ul>
+<h4>Returns</h4>
+<ul>
+<li>An output object representing the requested dataset.</li>
+</ul>
+<h4>Return type</h4>
+<ul>
+<li><a href="https://www.palantir.com/docs/foundry/api-reference/transforms-python-library/api-transformoutput/#transforms.api.TransformOutput"><code>transforms.api.TransformOutput</code></a></li>
+</ul>
+<h4>Raises</h4>
+<ul>
+<li><a href="https://docs.python.org/3/library/exceptions.html#ValueError"><code>ValueError</code> â</a></li>
+<li>If either the <em>alias</em> or <em>rid</em> (but not both) is not specified.</li>
+</ul>
+<hr />
+<h3><code>run</code>(transform)</h3>
+<ul>
+<li>Run the given <a href="https://www.palantir.com/docs/foundry/api-reference/transforms-python-library/api-transform/">Transform</a> using the latest inputs and outputs.</li>
+</ul>
+<h4>Parameters</h4>
+<ul>
+<li><strong>transform</strong> (<a href="https://www.palantir.com/docs/foundry/api-reference/transforms-python-library/api-transform/"><code>transforms.api.Transform</code></a>)</li>
+<li>The transform to run.</li>
+</ul>
+<hr />
+<h3><code>auth_header</code></h3>
+<ul>
+<li><em>str</em></li>
+<li>The auth header used to contact Foundry.</li>
+</ul>
+<hr />
+<h3><code>fallback_branches</code></h3>
+<ul>
+<li><em>List[str]</em></li>
+<li>The fallback branches used to retrieve datasets.</li>
+</ul>
+<hr />
+<h3><code>spark_session</code></h3>
+<ul>
+<li><a href="https://spark.apache.org/docs/latest/api/python/reference/pyspark.sql/api/pyspark.sql.SparkSession.html"><code>pyspark.sql.SparkSession</code> â</a></li>
+<li>Understand the <em>SparkSession</em> created by <em>FoundrySparkManager</em>.</li>
+</ul>
+</body>
+</html>

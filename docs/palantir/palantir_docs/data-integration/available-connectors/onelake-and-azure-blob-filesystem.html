@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>OneLake and Azure Blob Filesystem (ABFS)</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>OneLake and Azure Blob Filesystem (ABFS)</h1>
+<p>Connect Foundry to <a href="https://learn.microsoft.com/en-us/fabric/onelake/onelake-access-api">OneLake â</a>, Azure Data Lake Storage Gen2 (ADLS Gen2), and other eligible Azure products using <a href="https://hadoop.apache.org/docs/r3.3.1/hadoop-azure/abfs.html">Azure Blob Filesystem (ABFS) â</a>. The ABFS connector allows files to be read into Foundry and written from Foundry to Azure.</p>
+<p>:::callout{theme="warning"}
+Connections to Azure Data Lake Storage Gen1 are not supported.
+:::</p>
+<h2>Supported capabilities</h2>
+<table>
+<thead>
+<tr>
+<th>Capability</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Exploration</td>
+<td>ð¢ Generally available</td>
+</tr>
+<tr>
+<td>Bulk import</td>
+<td>ð¢ Generally available</td>
+</tr>
+<tr>
+<td>Incremental</td>
+<td>ð¢ Generally available</td>
+</tr>
+<tr>
+<td>Media sets</td>
+<td>ð¢ Generally available</td>
+</tr>
+<tr>
+<td><a href="https://www.palantir.com/docs/foundry/data-integration/virtual-tables/">Virtual tables</a></td>
+<td>ð¢ Generally available</td>
+</tr>
+<tr>
+<td>Export tasks</td>
+<td>ð¡ Sunset</td>
+</tr>
+<tr>
+<td><a href="https://www.palantir.com/docs/foundry/data-connection/export-overview/#file-exports">File exports</a></td>
+<td>ð¢ Generally available</td>
+</tr>
+</tbody>
+</table>
+<h2>Data model</h2>
+<p>The connector can transfer files of any type into Foundry datasets. File formats are preserved and no schemas are applied during or after the transfer. Apply any necessary schema to the output dataset, or write a <a href="https://www.palantir.com/docs/foundry/pipeline-builder/transforms-overview/">downstream transformation</a> to access the data.</p>
+<h2>Performance and limitations</h2>
+<p>There is no limit to the size of transferable files. However, network issues can result in failures of large-scale transfers. In particular, syncs <a href="https://www.palantir.com/docs/foundry/data-connection/core-concepts/#foundry-worker">running on a Foundry worker</a> that take more than two days to run will be interrupted. To avoid network issues, we recommend using smaller file sizes and limiting the number of files that are ingested in every execution of the sync. Syncs can be <a href="https://www.palantir.com/docs/foundry/data-connection/set-up-sync/#build-or-schedule-your-batch-sync">scheduled</a> to run frequently.</p>
+<h2>Setup</h2>
+<ol>
+<li>Open the <a href="https://www.palantir.com/docs/foundry/data-connection/overview/">Data Connection</a> application and select <strong>+ New Source</strong> in the upper right corner of the screen.</li>
+<li>Select <strong>ABFSâAzure Data Lake Storage Gen2</strong> from the available connector types.</li>
+<li>Follow the additional configuration prompts to continue the set up of your connector using the information in the sections below.</li>
+</ol>
+<p>:::callout{theme="warning"}
+We recommend using a <a href="https://www.palantir.com/docs/foundry/data-connection/architecture/#foundry-worker-with-direct-connection-policies">Foundry worker with direct connection policies</a> with the ABFS connector to simplify setup and configuration.
+:::</p>
+<p>Learn more about <a href="https://www.palantir.com/docs/foundry/data-connection/set-up-source/">setting up a connector</a> in Foundry.</p>
+<h2>Authentication</h2>
+<p>To import data, the connector must <code>list</code> the filesystem contents and <code>read</code> the file contents in Azure. This behavior can be achieved through authorization patterns of the principal associated with the provided connection credentials.</p>
+<ul>
+<li>In the case of role-based access control (RBAC), a coarse-grain form of access control, the principal needs the <a href="https://docs.microsoft.com/en-us/azure/role-based-access-control/built-in-roles#storage-blob-data-reader"><code>Storage Blob Data Reader</code> â</a> role on the container where the data is located.</li>
+<li>For access control lists (ACL), a fine-grained form of access control, the principal needs the <code>Read</code> ACL on the ingest files, and the <code>Execute</code> ACL on all path directories, from the container root to the file location.</li>
+</ul>
+<p>Learn more about <a href="https://docs.microsoft.com/azure/storage/blobs/data-lake-storage-access-control-model">access control in ADLS Gen2 â</a>.</p>
+<p>The ABFS connector supports the following configurations options for authentication, listed from most to least recommended:</p>
+<ul>
+<li><a href="#client-credentials-recommended-for-foundry-direct-connections">Client credentials</a> (recommended)</li>
+<li><a href="#shared-access-signature">Shared access signature</a></li>
+<li><a href="#usernamepassword">Username and password</a></li>
+<li><a href="#refresh-token">Refresh token</a></li>
+<li><a href="#shared-key">Shared key</a></li>
+<li><a href="#workload-identity-federation-oidc">Workload Identity Federation</a></li>
+<li><a href="#azure-managed-identity-legacy--agent-worker-connections">Azure managed identity</a> (legacy â for existing agent worker sources)</li>
+</ul>
+<h3>Client credentials (recommended for Foundry direct connections)</h3>
+<p><a href="https://hadoop.apache.org/docs/r3.3.1/hadoop-azure/abfs.html#OAuth_2.0_Client_Credentials">Client credentials â</a> rely on an <a href="https://learn.microsoft.com/azure/app-service/configure-authentication-provider-aad#--option-1-create-a-new-app-registration-automatically">app registration â</a> (Service Principal) in Entra ID. This method is preferred for all direct connections. Configure client credential authentication with the following fields:</p>
+<table>
+<thead>
+<tr>
+<th>Option</th>
+<th>Required?</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Client endpoint</code></td>
+<td>Yes</td>
+<td>The authentication endpoint for the connection. <br/><br/> This typically takes the form <code>https://login.microsoftonline.com/&lt;directory-id&gt;/oauth2/token</code>, where <code>&lt;directory-id&gt;</code> is the subscription ID. See Azure's <a href="https://learn.microsoft.com/azure/databricks/connect/storage/azure-storage">official documentation â</a> for more details.</td>
+</tr>
+<tr>
+<td><code>Client ID</code></td>
+<td>Yes</td>
+<td>The ID of the app registration; also called Application ID.</td>
+</tr>
+<tr>
+<td><code>Client secret</code></td>
+<td>Yes</td>
+<td>The secret generated in the app registration.</td>
+</tr>
+</tbody>
+</table>
+<h3>Shared access signature</h3>
+<p><a href="https://hadoop.apache.org/docs/r3.3.1/hadoop-azure/abfs.html#Shared_Access_Signature_.28SAS.29_Token_Provider">Shared access signature (SAS) â</a> authentication uses tokens that provide short-lived and tightly scoped credentials. These tokens are most useful when a service can generate them as needed and distribute them to clients who use them for a very limited time.</p>
+<table>
+<thead>
+<tr>
+<th>Option</th>
+<th>Required?</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Blob SAS token</code></td>
+<td>Yes</td>
+<td>The <a href="#shared-access-signature-token">shared access signature token</a>.</td>
+</tr>
+</tbody>
+</table>
+<p>The connector requires a static SAS token and will store a long-lived token to authenticate with the storage account.</p>
+<p>:::callout{theme="warning"}
+Once the SAS token expires, your syncs will stop working until it is manually renewed. Therefore, we strongly recommend against using SAS tokens and encourage you to use a different authentication solution.
+:::</p>
+<h4>Shared access signature token</h4>
+<p>Follow the <a href="https://learn.microsoft.com/rest/api/storageservices/create-user-delegation-sas#specify-the-signed-resource-field">Azure guide â</a> to obtain SAS tokens.</p>
+<p>Example token:</p>
+<p><code>/container1/dir1?sp=r&amp;st=2023-02-23T17:53:28Z&amp;se=2023-02-24T01:53:28Z&amp;spr=https&amp;sv=2021-12-02&amp;sr=d&amp;sig=1gF9B%2FOnEmtYeDl6eB9tb0va1qpSBjZw3ZJuW2pMm1E%3D&amp;sdd=1</code></p>
+<p>We generally recommend generating SAS tokens at the storage container level. Find the storage container at the container view in the Azure portal (under <strong>Settings</strong> &gt; <strong>Shared access tokens</strong>). If it is necessary to generate a SAS token at the storage account level (under <strong>Security</strong> &gt; <strong>Networking</strong> &gt; <strong>Shared access signature</strong> at the storage account view in the Azure portal), then the minimal set of permissions are as follows:</p>
+<ul>
+<li><code>"Allowed services": "Blob"</code></li>
+<li><code>"Allowed resource types": "Container" + "Object"</code></li>
+<li><code>"Allowed permissions": "Read" + "List"</code></li>
+</ul>
+<p>:::callout{theme="warning"}
+To connect to Azure Blob Storage with SAS tokens, you must <a href="https://learn.microsoft.com/rest/api/storageservices/create-user-delegation-sas#specify-the-signed-resource-field">specify the directory â</a> resource where the blobs are stored.
+:::</p>
+<p>When generating a SAS token, be sure to set the following parameters:</p>
+<p><strong>Signed protocol:</strong> We recommend setting <a href="https://learn.microsoft.com/rest/api/storageservices/create-user-delegation-sas#specify-the-http-protocol"><code>spr</code> â</a> to mandate <code>https</code> for the connections.</p>
+<p><strong>Signed resource:</strong> <a href="https://learn.microsoft.com/rest/api/storageservices/create-user-delegation-sas#specify-the-signed-resource-field">Change the value â</a> based on the resource type to which access is being granted.</p>
+<p>:::callout{theme="warning"}
+If the signed resource in use is a specified directory, ensure that the <a href="https://learn.microsoft.com/rest/api/storageservices/create-user-delegation-sas#specify-the-directory-depth">directory depth â</a> is also specified. We recommend setting a high depth value to allow the connection to pull data from nested directories (for example, <code>sdd=100</code>).
+:::</p>
+<h3>Username/password</h3>
+<p>The <a href="https://hadoop.apache.org/docs/r3.3.1/hadoop-azure/abfs.html#OAuth_2.0:_Username_and_Password">username/password â</a> authentication method follows OAuth protocol. Credentials are generated using the Azure page for your tenant (for example, <code>https://login.microsoftonline.com/&lt;tenant-id&gt;/oauth2/token</code>). Replace the <code>&lt;tenant-id&gt;</code> with the ID of the tenant to which you are connecting.</p>
+<p>Set the following configurations:</p>
+<table>
+<thead>
+<tr>
+<th>Option</th>
+<th>Required?</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Client endpoint</code></td>
+<td>Yes</td>
+<td>The client endpoint from the OAuth configuration.</td>
+</tr>
+<tr>
+<td><code>Username</code></td>
+<td>Yes</td>
+<td>The user's email address.</td>
+</tr>
+<tr>
+<td><code>Proxy password</code></td>
+<td>Yes</td>
+<td>The password token.</td>
+</tr>
+</tbody>
+</table>
+<h3>Refresh token</h3>
+<p>The <a href="https://hadoop.apache.org/docs/r3.3.1/hadoop-azure/abfs.html#OAuth_2.0:_Refresh_Token">refresh token â</a> authorization method follows OAuth protocol. Learn how to generate a refresh token using the <a href="https://learn.microsoft.com/azure/energy-data-services/how-to-generate-refresh-token">Azure documentation â</a>.</p>
+<p>Set the following configurations:</p>
+<table>
+<thead>
+<tr>
+<th>Option</th>
+<th>Required?</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Client ID</code></td>
+<td>Yes</td>
+<td>The client ID; can be found in Microsoft Entra ID.</td>
+</tr>
+<tr>
+<td><code>Refresh Token</code></td>
+<td>Yes</td>
+<td>The refresh token.</td>
+</tr>
+</tbody>
+</table>
+<h3>Shared key</h3>
+<p>Every Azure storage account comes with two <a href="https://hadoop.apache.org/docs/r3.3.1/hadoop-azure/abfs.html#Default:_Shared_Key">shared keys â</a>. However, we do not recommend using shared keys in production as they are scoped at the storage account level rather than the container level. Shared keys have admin permissions by default, and rotating them is a manual operation.</p>
+<p>To obtain a shared key, navigate to the desired storage account in the Azure portal and select <strong>Access keys</strong> under the <strong>Security + networking</strong> section.</p>
+<table>
+<thead>
+<tr>
+<th>Option</th>
+<th>Required?</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Account key</code></td>
+<td>Yes</td>
+<td>The account access key.</td>
+</tr>
+</tbody>
+</table>
+<h3>Workload Identity Federation (OIDC)</h3>
+<p>The Azure <a href="https://learn.microsoft.com/en-us/entra/workload-id/workload-identity-federation-create-trust-user-assigned-managed-identity">workload identity federation â</a> authorization method follows the OpenID Connect (OIDC) protocol. Follow the displayed source system configuration instructions to set up workload identity federation. Review <a href="https://www.palantir.com/docs/foundry/data-connection/oidc/">our documentation</a> for details on how OIDC works with Foundry.</p>
+<table>
+<thead>
+<tr>
+<th>Option</th>
+<th>Required?</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Tenant ID</code></td>
+<td>Yes</td>
+<td>The Tenant ID can be obtained from <a href="https://learn.microsoft.com/entra/fundamentals/how-to-find-tenant">Microsoft Entra ID â</a>.</td>
+</tr>
+<tr>
+<td><code>Client ID</code></td>
+<td>Yes</td>
+<td>The client ID can be found in Microsoft Entra ID.</td>
+</tr>
+</tbody>
+</table>
+<h3>Azure managed identity (legacy â agent worker connections)</h3>
+<p>:::callout{theme="warning" title="Legacy"}
+This authentication method is available only for legacy <a href="https://www.palantir.com/docs/foundry/data-connection/core-concepts/#agent-worker">agent worker</a> sources. For new sources, use <a href="#client-credentials-recommended-for-foundry-direct-connections">client credentials</a>.
+:::</p>
+<p><a href="https://docs.microsoft.com/azure/active-directory/managed-identities-azure-resources/overview">Azure managed identities â</a> do not require credentials to be stored in Foundry. The managed identity used for connecting to data must have appropriate permissions on the underlying storage.</p>
+<table>
+<thead>
+<tr>
+<th>Option</th>
+<th>Required?</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Tenant ID</code></td>
+<td>No</td>
+<td>The Tenant ID can be obtained from <a href="https://learn.microsoft.com/entra/fundamentals/how-to-find-tenant">Microsoft Entra ID â</a>.</td>
+</tr>
+<tr>
+<td><code>Client ID</code></td>
+<td>No</td>
+<td>If multiple managed identities (assigned by either the system or user) were attached to the virtual machine (VM) where the agent is running, provide the ID that should be used to connect to storage.</td>
+</tr>
+</tbody>
+</table>
+<p>:::callout{theme="warning"}
+The managed identity authentication method relies on a local REST endpoint available to all processes on the virtual machine (VM). The method only works if the connections are made through an agent that is deployed on a VM inside the same Azure tenant.
+:::</p>
+<h3>Networking</h3>
+<p>When running the Azure connection in Foundry, you need to set up network access for Foundry to communicate with the source. This is a two-step process:</p>
+<ol>
+<li><strong>Set up network access from Foundry to egress to the source.</strong> You can do this by applying the appropriate <a href="https://www.palantir.com/docs/foundry/administration/configure-egress/#network-egress-overview">egress policies</a> on the source in the Data Connection application. The Azure connector requires network access to the domain of the storage account on <code>port 443</code>. For example, if you are connecting to <code>abfss://file_system@account_name.dfs.core.windows.net</code>, the domain of the storage account is <code>account_name.dfs.core.windows.net</code>. The Data Connection application suggests appropriate egress policies based on the connection details provided in the source.</li>
+<li><strong>Allowlist Foundry from your Azure storage container.</strong> You can do this by allowlisting your Foundry IP from your Azure storage account, as described in Azure's <a href="https://learn.microsoft.com/azure/storage/common/storage-network-security?tabs=azure-portal">documentation â</a>. Your Foundry IP details can be found under <strong>Network Egress</strong> in the <a href="https://www.palantir.com/docs/foundry/administration/control-panel/">Control Panel application</a>.</li>
+</ol>
+<p>:::callout{theme="neutral"}
+If you are setting up access to an Azure storage bucket hosted in the same Azure region as a Foundry enrollment, you will need to set a different networking configuration than the above, via PrivateLink. If this is the case, contact your Palantir administrator for assistance.
+:::</p>
+<h2>Configuration options</h2>
+<p>The connector has the following additional configuration options:</p>
+<table>
+<thead>
+<tr>
+<th>Option</th>
+<th>Required?</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Root directory</code></td>
+<td>Yes</td>
+<td>The directory from which to read / write data.</td>
+</tr>
+<tr>
+<td><code>Catalog</code></td>
+<td>No</td>
+<td>Configure a catalog for tables stored in this storage container. See <a href="#virtual-tables">Virtual tables</a> for more details.</td>
+</tr>
+</tbody>
+</table>
+<p>:::callout{theme="neutral"}
+ABFS is compatible with OneLake, and Microsoft OneLake URIs are supported.
+:::</p>
+<p>The following are supported formats for the root directory:</p>
+<ul>
+<li>Azure Data Lake Storage Gen2 or Azure Blob Storage:</li>
+</ul>
+<pre><code class="language-plaintext">abfss://file_system@account_name.dfs.core.windows.net/&lt;directory&gt;/
+</code></pre>
+<ul>
+<li>Microsoft Fabric:</li>
+</ul>
+<pre><code class="language-plaintext">abfss://file_system@onelake.dfs.fabric.microsoft.com/path/to/directory/
+</code></pre>
+<p>Examples:</p>
+<ul>
+<li><a href="https://github.com/apache/hadoop/blob/branch-3.3.1/hadoop-common-project/hadoop-common/src/main/resources/core-default.xml#L2188"><code>abfss://file_system@account_name.dfs.core.windows.net/</code> â</a> to access all contents of that file system.</li>
+<li><a href="https://github.com/apache/hadoop/blob/branch-3.3.1/hadoop-common-project/hadoop-common/src/main/resources/core-default.xml#L2194"><code>abfss://file_system@account_name.dfs.core.windows.net/path/to/directory/</code> â</a> to access a particular directory.</li>
+<li><a href="https://github.com/apache/hadoop/blob/branch-3.3.1/hadoop-common-project/hadoop-common/src/main/resources/core-default.xml#L2200"><code>abfss://file_system@onelake.dfs.fabric.microsoft.com/path/to/directory/</code> â</a> to access a particular directory with Microsoft OneLake.</li>
+</ul>
+<p>:::callout{theme="neutral"}
+If you are authenticating with SAS tokens and accessing blob storage, you must specify a directory in the root directory configuration. All contents must be in a subfolder of the specified directory to ensure proper access.
+:::</p>
+<h2>Sync data from Azure Data Lake/Blob Storage</h2>
+<p>The ABFS connector uses the <a href="https://www.palantir.com/docs/foundry/data-connection/file-based-syncs/">file-based sync interface</a>.</p>
+<h2>Export data to Azure Data Lake/Blob Storage</h2>
+<p>To export to ABFS, first <a href="https://www.palantir.com/docs/foundry/data-connection/export-overview/#enable-exports-for-source">enable exports</a> for your ABFS connector. Then, <a href="https://www.palantir.com/docs/foundry/data-connection/export-overview/#create-a-new-export">create a new export</a>.</p>
+<h3>Export tasks (legacy)</h3>
+<p>:::callout{theme="warning"}
+<a href="https://www.palantir.com/docs/foundry/data-connection/export-tasks/">Export tasks</a> are a legacy feature that we do not recommend for new implementations. For new exports, please use the <a href="#export-data-to-azure-data-lakeblob-storage">recommended export workflow</a>. This documentation is provided for users who are still using existing export tasks.
+:::</p>
+<p>To begin exporting data, you must configure an <a href="https://www.palantir.com/docs/foundry/data-connection/export-tasks/">export task</a>. Navigate to the Project folder that contains the connector to which you want to export. Right select on the connector name, then select <code>Create Data Connection Task</code>.</p>
+<p>In the left panel of the Data Connection view:</p>
+<ol>
+<li>Verify the <code>Source</code> name matches the connector you want to use.</li>
+<li>Add an <code>Input</code> named <code>inputDataset</code>. The <strong>input dataset</strong> is the Foundry dataset being exported.</li>
+<li>Add an <code>Output</code> named <code>outputDataset</code>. The <strong>output dataset</strong> is used to run, schedule, and monitor the task.</li>
+<li>Finally, add a YAML block in the text field to define the task configuration.</li>
+</ol>
+<p>:::callout{theme="neutral"}
+The labels for the connector and input dataset that appear in the left side panel do not reflect the names defined in the YAMl.
+:::</p>
+<p>Use the following options when creating the export task YAML:</p>
+<table>
+<thead>
+<tr>
+<th>Option</th>
+<th>Required?</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>directoryPath</code></td>
+<td>Yes</td>
+<td>The directory where files will be written. The path must end with a trailing <code>/</code>.</td>
+</tr>
+<tr>
+<td><code>excludePaths</code></td>
+<td>No</td>
+<td>A list of regular expressions; files with names matching these expressions will not be exported.</td>
+</tr>
+<tr>
+<td><code>rewritePaths</code></td>
+<td>No</td>
+<td>See <a href="#rewritepaths">section below</a> for more information.</td>
+</tr>
+<tr>
+<td><code>uploadConfirmation</code></td>
+<td>No</td>
+<td>When the value is <code>exportedFiles</code>, the output dataset will contain a list of files that were exported.</td>
+</tr>
+<tr>
+<td><code>createTransactionFolders</code></td>
+<td>No</td>
+<td>When enabled, data will be written to a subfolder within the specified <code>directoryPath</code>. Every subfolder will have a unique name for every exported transaction in Foundry and is based on the time the transaction was committed in Foundry.</td>
+</tr>
+<tr>
+<td><code>incrementalType</code></td>
+<td>No</td>
+<td>For datasets that are built incrementally, set to <code>incremental</code> to only export transactions that occurred since the previous export.</td>
+</tr>
+<tr>
+<td><code>flagFile</code></td>
+<td>No</td>
+<td>See <a href="#flag-file">section below</a> for more information.</td>
+</tr>
+<tr>
+<td><code>spanMultipleViews</code></td>
+<td>No</td>
+<td>If <code>true</code>, multiple transactions in Foundry will be exported at once. If <code>false</code>, a single build will export only one transaction at a time. If incremental is enabled, the files from the oldest transaction will be exported first.</td>
+</tr>
+</tbody>
+</table>
+<h3><code>rewritePaths</code></h3>
+<p>If the first key matches the filename, the capture groups in the key will be replaced with the value. The value itself can have extra sections to add metadata to the filename.</p>
+<p>If the value contains:</p>
+<ul>
+<li><code>${dt:javaDateExpression}</code>: This part of the value will be replaced by the timestamp of when the file is being exported. The <code>javaDateExpression</code> follows the <a href="https://docs.oracle.com/javase/8/docs/api/java/time/format/DateTimeFormatter.html">DateTimeFormatter â</a> pattern.</li>
+<li><code>${transaction}</code>: This part of the value will be replaced with the Foundry transaction ID of the transaction that contains this file.</li>
+<li><code>${dataset}</code>: This part of the value will be replaced with the Foundry dataset ID of the dataset that contains this file.</li>
+</ul>
+<p>Example:</p>
+<p>Consider a file in a Foundry dataset called "spark/file_name", in a transaction with ID <code>transaction_id</code> and dataset ID <code>dataset_id</code>. If you use the expression <code>fi.*ame</code> as the key and <code>file_${dt:DD-MM-YYYY}-${transaction}-${dataset}_end</code> as a value, when the file is written to Azure it will be stored as <code>spark/file_79-03-2023-transaction_id-dataset_id_end</code>.</p>
+<h3>Flag file</h3>
+<p>The connector can write an empty flag file to Azure storage once all data is copied for a given build. The empty file signifies that the contents are ready for consumption and will no longer be modified. The flag file will be written to the <code>directoryPath</code>. However, if <code>createTransactionFolders</code> is enabled, a flag file will be made for every folder to which content was written. If flag files are enabled, and the flag file is called <code>confirmation.txt</code>, all flag files will be written at once after files being exported in the build are written</p>
+<p>:::callout{theme="neutral"}
+The flag files are written at the end of a build, not when a subfolder has been exported.
+:::</p>
+<p>If the files in Azure are newer than the flag file, this normally indicates that the previous export was not successful or an export is in progress for that folder.</p>
+<p>After you configure the export task, select <strong>Save</strong> in the upper right corner.</p>
+<h2>Virtual tables</h2>
+<p>This section provides additional details around using <a href="https://www.palantir.com/docs/foundry/data-integration/virtual-tables/">virtual tables</a> from an Azure Data Lake Storage Gen 2 (Azure Blob Storage) source. This section is not applicable when syncing to Foundry datasets.</p>
+<p>The table below highlights the virtual table capabilities that are supported for ADLS Gen2.</p>
+<table>
+<thead>
+<tr>
+<th>Capability</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Bulk registration</td>
+<td>ð´ Not available</td>
+</tr>
+<tr>
+<td>Automatic registration</td>
+<td>ð´ Not available</td>
+</tr>
+<tr>
+<td>Table inputs</td>
+<td>ð¢ Generally available: <a href="https://avro.apache.org/">Avro â</a>, <a href="https://docs.delta.io/latest/">Delta â</a>, <a href="https://iceberg.apache.org/">Iceberg â</a>, <a href="https://parquet.apache.org/">Parquet â</a> in <a href="https://www.palantir.com/docs/foundry/code-repositories/overview/">Code Repositories</a>, <a href="https://www.palantir.com/docs/foundry/pipeline-builder/overview/">Pipeline Builder</a></td>
+</tr>
+<tr>
+<td>Table outputs</td>
+<td>ð¢ Generally available: <a href="https://avro.apache.org/">Avro â</a>, <a href="https://docs.delta.io/latest/">Delta â</a>, <a href="https://iceberg.apache.org/">Iceberg â</a>, <a href="https://parquet.apache.org/">Parquet â</a> in <a href="https://www.palantir.com/docs/foundry/code-repositories/overview/">Code Repositories</a>, <a href="https://www.palantir.com/docs/foundry/pipeline-builder/overview/">Pipeline Builder</a></td>
+</tr>
+<tr>
+<td>Incremental pipelines</td>
+<td>ð¢ Generally available for Delta tables: <code>APPEND</code> only (<a href="#delta">details</a>)<br /> ð¢ Generally available for Iceberg tables: <code>APPEND</code> only (<a href="#iceberg">details</a>)<br /> ð´ Not available for Parquet tables</td>
+</tr>
+<tr>
+<td>Compute pushdown</td>
+<td>ð´ Not available</td>
+</tr>
+</tbody>
+</table>
+<p>Consult the <a href="https://www.palantir.com/docs/foundry/data-integration/virtual-tables/#supported-foundry-workflows">virtual tables documentation</a> for details on the supported Foundry workflows where tables stored in ADLS Gen2 can be used as inputs or outputs.</p>
+<h3>Source configuration requirements</h3>
+<p>When using <a href="https://www.palantir.com/docs/foundry/data-integration/virtual-tables/">virtual tables</a>, remember the following source configuration requirements:</p>
+<ul>
+<li>You must use a <a href="https://www.palantir.com/docs/foundry/data-connection/core-concepts/#foundry-worker">Foundry worker</a> source. Virtual tables do not support use of <a href="https://www.palantir.com/docs/foundry/data-connection/core-concepts/#agent-worker">agent worker</a> connections.</li>
+<li>Ensure that bi-directional connectivity and allowlisting is established as described in the <a href="#networking">Networking section of this documentation</a>.</li>
+<li>If using virtual tables in Code Repositories, refer to the <a href="https://www.palantir.com/docs/foundry/data-integration/virtual-tables/#virtual-tables-in-code-repositories">Virtual Tables documentation</a> for details of additional source configuration required.</li>
+<li>When setting up the source credentials, you must use one of <code>client credentials</code>, <code>username/password</code> or <code>workload identity federation</code>. Other credential options are not supported when using virtual tables.</li>
+</ul>
+<h3>Delta</h3>
+<p>To enable incremental support for pipelines backed by virtual tables, ensure that <a href="https://docs.databricks.com/delta/delta-change-data-feed.html#enable-change-data-feed">Change Data Feed â</a> is enabled on the source Delta table. The <code>current</code> and <code>added</code> read modes in <a href="https://www.palantir.com/docs/foundry/transforms-python/incremental-usage/#incrementaltransforminput">Python Transforms</a> are supported. The <code>_change_type</code>, <code>_commit_version</code> and <code>_commit_timestamp</code> columns will be made available in Python Transforms.</p>
+<h3>Iceberg</h3>
+<p>An Iceberg catalog is required to load virtual tables backed by an Apache Iceberg table. To learn more about Iceberg catalogs, see the <a href="https://iceberg.apache.org/terms/">Apache Iceberg documentation â</a>. All Iceberg tables registered on a source must use the same Iceberg catalog.</p>
+<p>By default, tables will be created using Iceberg metadata files in S3. A <code>warehousePath</code> indicating the location of these metadata files must be provided when registering a table.</p>
+<p><a href="https://www.databricks.com/product/unity-catalog">Unity Catalog â</a> can be used as an Iceberg catalog when using Delta Universal Format (UniForm) in Databricks. To learn more about this integration, see the <a href="https://docs.databricks.com/en/delta/uniform.html">Databricks documentation â</a>. The catalog can be configured in the <strong>Connection details</strong> tab on the source. You will need to provide the endpoint and a <a href="https://docs.databricks.com/en/dev-tools/auth/pat.html">personal access token</a> to connect to Unity Catalog. Tables should be registered using <code>catalog_name.schema_name.table_name</code> naming pattern.</p>
+<p><a href="https://polaris.apache.org/">Polaris â</a> can be used as an Iceberg catalog for tables stored in Azure Data Lake Storage Gen2. The catalog can be configured in the <strong>Connection details</strong> tab on the source.</p>
+<p><img alt="Virtual Tables ABFS Catalog" src="../../_resources/foundry/available-connectors/virtual_tables_abfs_catalog.png" /></p>
+<p>Incremental support relies on Iceberg <a href="https://iceberg.apache.org/docs/1.5.1/spark-queries/#incremental-read">Incremental Reads â</a> and is currently append-only. The <code>current</code> and <code>added</code> read modes in <a href="https://www.palantir.com/docs/foundry/transforms-python/incremental-usage/#incrementaltransforminput">Python Transforms</a> are supported.</p>
+<h3>Parquet</h3>
+<p>Virtual tables using Parquet rely on schema inference. At most 100 files will be used to determine the schema.</p>
+<h2>Troubleshooting</h2>
+<p>Use the following sections to troubleshooting known errors.</p>
+<h3>The resource does not support specified HTTP verb HEAD</h3>
+<p>Ensure that you are using the DFS location and <strong>not</strong> the blob storage.</p>
+<p>For example:</p>
+<pre><code class="language-yaml"># Correct:
+abfsRootDirectory: 'abfss://&lt;account_name&gt;.dfs.core.windows.net/'
+# Incorrect:
+abfsRootDirectory: 'abfss://&lt;account_name&gt;.blob.core.windows.net/'
+</code></pre>
+<h3>This endpoint does not support BlobStorageEvents or SoftDelete. Please disable these account features if you would like to use this endpoint</h3>
+<pre><code>magritteabfs.source.org.apache.hadoop.fs.FileAlreadyExistsException: Operation failed:
+&quot;This endpoint does not support BlobStorageEvents or SoftDelete. Please disable these
+account features if you would like to use this endpoint.&quot;, 409, HEAD,
+https://STORAGE_ACCOUNT_NAME.dfs.core.windows.net/CONTAINER_NAME/?
+upn=false&amp;action=getAccessControl&amp;timeout=90
+</code></pre>
+<p>This error is thrown because Hadoop ABFS currently <a href="https://issues.apache.org/jira/browse/HADOOP-16842">does not support â</a> accounts with <code>SoftDelete</code> enabled. The only solution is to disable this feature for the storage account.</p>
+<h3>AADToken: HTTP connection failed for getting token from AzureAD. HTTP response: 401 Unauthorized</h3>
+<p>There is a <a href="https://knowledgebase.progress.com/articles/Article/oauth2-token-request-to-microsoft-azure-active-directory-service-failed-with-aadsts7000215">known issue â</a> with the <code>Client Credentials</code> authentication mechanism. Service Principal client secrets containing a <code>+</code> or a <code>/</code> will not work if set up using the Data Connection interface. Resolve this issue by creating new credentials without a <code>+</code> or <code>/</code>. Reach out to your Palantir representative if this issue continues.</p>
+<h3>Confirm that a managed identity flow works outside the Data Connection agent</h3>
+<p>While troubleshooting, we recommend separating access problems from network problems. To do this, first test access to the source data independently (outside of Data Connection). Then, verify that the <a href="https://docs.microsoft.com/azure/active-directory/managed-identities-azure-resources/how-to-use-vm-token#get-a-token-using-curl.">managed identity â</a> can be used to successfully establish a connection from the Data Connection VM to the storage account:</p>
+<pre><code class="language-bash"># Grab a new token using the local metadata endpoint.
+# If you do not have jq on the box, you can manually export the value of the access_token key from
+# the API call result to the TOKEN environment variable.
+export TOKEN=`curl 'http://IP_ADDRESS_OF_VM/metadata/identity/oauth2/token?api-version=2018-02-01
+&amp;resource=https%3A%2F%2Fstorage.azure.com%2F' -H Metadata:true | jq '.access_token' | sed 's/&quot;//g'`
+
+# Be sure the token is properly set; this should be an OAuth2 token. For example `eyJ0e...` (no quotes).
+echo $TOKEN
+
+# List the contents of the container root.
+curl -XGET -H &quot;x-ms-version: 2018-11-09&quot; -H &quot;Authorization: Bearer $TOKEN&quot;
+&quot;https://STORAGE_ACCOUNT_NAME.dfs.core.windows.net/CONTAINER_NAME?resource=filesystem&amp;recursive=false&quot;
+
+# Display the contents of a file inside the container.
+curl -XGET -H &quot;x-ms-version: 2018-11-09&quot; -H &quot;Authorization: Bearer $TOKEN&quot;
+&quot;https://STORAGE_ACCOUNT_NAME.dfs.core.windows.net/CONTAINER_NAME/path/to/file.txt&quot;
+</code></pre>
+<h3>AADToken: HTTP connection failed for getting token from AzureAD. HTTP response: 400 Bad Request</h3>
+<p>For an <code>Azure Managed Identity</code>, this message likely means there is an issue with the metadata endpoint used to retrieve a token on the VM. The VM itself may be in a bad state, or the managed identity may not be attached to the VM yet. To debug this, attempt to retrieve a token from the VM by using the cURL command in the <a href="#confirm-that-a-managed-identity-flow-works-outside-the-data-connection-agent">section above</a>.</p>
+<h3>Receiving an HTML 504 gateway timeout page, starting &lt;!DOCTYPE html&gt;</h3>
+<p>If the page contains the text <code>For support, please email us at...</code>, the error may come from a network issue. Be sure the proxies are properly configured between Foundry and the VM on which the agent is installed, and between the agent VM and the source. If the agent appears healthy in the interface and you are able to access the files on Azure from the VM using a terminal, file an issue to for additional assistance.</p>
+<p>:::callout{theme="neutral"}
+The ABFS plugin does not manage proxy settings and relies on agent settings.
+:::</p>
+<h3>This request is not authorized to perform this operation using this resource type., 403, HEAD</h3>
+<p>This error usually happens when a SAS token has been generated with insufficient permissions. When trying to create a sync, a preview of the entire source would appear as expected; however, a preview with scoped down filters would result in the error. Refer to the <a href="#shared-access-signature">shared access signature</a> section for instructions on how to generate SAS tokens.</p>
+<h3>Export file location is using Magritte filesystem</h3>
+<p>When using <code>export-abfs-task</code>, if files are being exported to <code>root/opt/palantir/magritte-bootvisor/var/data/processes/bootstrapper/</code> rather than the specified <code>directoryPath</code>, be sure that you have a trailing <code>/</code> at the end of your directory URL.</p>
+<p>For example:</p>
+<pre><code class="language-yaml"># Correct:
+abfsRootDirectory: 'abfss://STORAGE_ACCOUNT_NAME.dfs.core.windows.net/'
+# Incorrect:
+abfsRootDirectory: 'abfss://STORAGE_ACCOUNT_NAME.blob.core.windows.net'
+</code></pre>
+</body>
+</html>

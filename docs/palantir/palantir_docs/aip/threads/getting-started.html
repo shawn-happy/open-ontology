@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Getting started</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Getting started</h1>
+<p>This tutorial guides you through a simple workflow to upload a document, interact with the document, and interact with an AIP Chatbot.</p>
+<h2>Access AIP Threads</h2>
+<p>AIP Threads can be accessed from the platformâs workspace navigation bar or by using the quick search shortcuts <code>CMD + J</code> (macOS) or <code>CTRL + J</code> (Windows).</p>
+<h2>Application interface</h2>
+<p>The AIP Threads interface can be divided into two main components, numbered left-to-right in the notional screenshot below:</p>
+<ol>
+<li><a href="#basic-navigation">Threads navigation</a></li>
+<li><a href="#interact-with-documents">Thread interaction interface</a></li>
+</ol>
+<p><img alt="AIP Threads user interface, highlighting the thread navigation and the thread conversation elements." src="../../_resources/foundry/threads/threads-ui.png" /></p>
+<h2>Workflow overview</h2>
+<p>In a typical AIP Threads workflow, you can begin by <a href="#basic-navigation"><strong>selecting a previous conversation or starting a new one</strong></a> on the left panel (1), then using the right panel (2) to interact with documents or AIP Chatbots. To talk to an AIP Chatbot, simply select one from the <a href="#aip-chatbot-mode">Thread configuration dropdown menu</a> (A) and begin interacting (C). To interact with documents, <a href="#upload-a-document">upload</a> and <a href="#interact-with-documents">select documents</a> in the <strong>Document card</strong> (B) then begin interacting (C).</p>
+<h2>Left panel</h2>
+<p>The following section will discuss features configurable in the left panel.</p>
+<h3>Basic navigation</h3>
+<p>You can create a new thread, select from existing threads, and delete threads.</p>
+<h3>Dark mode</h3>
+<p>You can adjust the visual settings using the option under the thread history.</p>
+<p><img alt="Screenshot of AIP Threads in dark mode." src="../../_resources/foundry/threads/dark-mode.png" /></p>
+<h3>Minimize left panel</h3>
+<p>You can minimize the left panel with the following button.</p>
+<p><img alt="A screenshot of AIP Threads, indicating how to minimize the left panel." src="../../_resources/foundry/threads/minimize-history.png" /></p>
+<h3>Download</h3>
+<p>You can download the contents of a conversation (as JSON or PDF) using the <strong>Export</strong> option.</p>
+<p><img alt="A screenshot of AIP Threads, indicating how to minimize the left panel." src="../../_resources/foundry/threads/download-thread.png" /></p>
+<h2>Upload a document</h2>
+<p>AIP Threads currently supports native (non-scanned) PDF documents.</p>
+<p>To upload a document, follow the <strong>Upload</strong> option in the <strong>Documents</strong> card.</p>
+<p><img alt="Screenshot of AIP Threads, highlighting the 'Upload documents' option in the top-right and the 'Upload documents to AIP Threads' option in the document card." src="../../_resources/foundry/threads/upload-documents.png" /></p>
+<p>After choosing a media set for the document storage location, drag and drop the documents to be processed.</p>
+<p><img alt="Showing upload document dialog with ability to select location, media set name, ontology, and PDFs." src="../../_resources/foundry/threads/upload-dialog.png" /></p>
+<h2>Interact with documents</h2>
+<p>Add documents to the context of a thread using the <strong>Select documents</strong> option to access the document selection dialog.</p>
+<p><img alt="Add documents to your Thread's context by 'Selecting documents' or adding recently uploaded documents." src="../../_resources/foundry/threads/upload-documents.png" /></p>
+<p>You may now start the thread by asking questions of the documents.</p>
+<p><img alt="A question answered with citations." src="../../_resources/foundry/threads/citation.png" /></p>
+<h3>Document modes</h3>
+<p>AIP Threads has two document modes: <strong>full document text</strong> and <strong>relevant document chunks</strong> (beta). Full document text extracts the entire text from the document, while relevant document chunks extract only the most semantically relevant chunks.</p>
+<p>Full document text is useful for short and concise documents or when you need the LLM to review the entire content. For larger documents or when you need to focus on specific sections or details, relevant document chunks mode is more efficient. Keep in mind that using full document text may lead to context window limitations. To avoid exceeding the context capacity for the LLM, switch to relevant document chunks mode.</p>
+<p>:::callout{theme="neutral"}
+When using the relevant document chunks mode, the chunking strategy by default uses 4096 characters per chunk (~1024 tokens), 512 character chunk overlap (~128 tokens), and <a href="https://www.palantir.com/docs/foundry/aip/supported-llms/#available-text-embedding-models">Text embedding ada-002</a> as the embedding model. Enrollments that do not have access to the ada-002 model can use a different embedding model.
+:::</p>
+<p><img alt="The two document modes available in AIP Threads" src="../../_resources/foundry/threads/document-modes.png" /></p>
+<h3>Citations</h3>
+<p>The model has been instructed to provide citations to the original documents with each answer, and users should verify the responses of the LLM. The citations should point to the corresponding page number in the PDF document indicating where the information was sourced.</p>
+<p><img alt="Citation scrolled to page of interest." src="../../_resources/foundry/threads/document-preview-from-citation.png" /></p>
+<p>If you would like to change the documents in the context for a thread, either create a new thread and reselect the documents of interest or select <strong>Start new thread with current configuration</strong>, accessible from the <a href="#model-mode">model dropdown menu</a> defined later on this page.</p>
+<p><img alt="Create a new thread and reselect the documents of interest or select 'Start new thread with current configuration'." src="../../_resources/foundry/threads/new-thread.png" /></p>
+<h2>Thread configuration</h2>
+<p>The following section outlines the different configuration options available.</p>
+<h3>Model mode</h3>
+<p>Users can select the LLM used to interact with documents. The models available to you are a subset of those <a href="https://www.palantir.com/docs/foundry/aip/supported-llms/#llm-availability-prerequisites">enabled on your enrollment</a>.</p>
+<p>Users can modify the system prompt, which is an instruction for an LLM written in natural language. If you would like to modify the system prompt, keep in mind that a LLM only has access to the data that you specifically make available to it. In the case of the default AIP Threads experience, this would be just the documents you have added to the thread. This is different from <a href="#aip-chatbot-mode">AIP Chatbot Mode</a>.</p>
+<p>Users can modify the model temperature to determine the balance between a more focused, deterministic output (default value <code>0</code>) and a more random output (maximum value <code>1</code>).</p>
+<p><img alt="How to change model details." src="../../_resources/foundry/threads/aip-chatbot-model-dropdown.png" /></p>
+<h4>Upgrade a Thread configuration to an AIP Chatbot</h4>
+<p>If you find that a particular document or set of documents or configuration of the model and prompting is valuable enough to use again or to share with another user, you may upgrade the thread configuration to an <a href="https://www.palantir.com/docs/foundry/chatbot-studio/core-concepts/">AIP Chatbot</a> by using the option available in the model configuration dropdown menu.</p>
+<p><img alt="Upgrade thread configuration to a chatbot by selecting 'Upgrade to an AIP Chatbot." src="../../_resources/foundry/threads/upgrade-to-chatbot.png" /></p>
+<p>This will take you to AIP Chatbot Studio where you can <a href="https://www.palantir.com/docs/foundry/chatbot-studio/getting-started/#create-an-aip-chatbot">complete the configuration of the chatbot</a>. Upon publishing in AIP Chatbot Studio and refreshing AIP Threads, you will be able to interact with it again in AIP Threads.</p>
+<h3>AIP Chatbot Mode</h3>
+<p>To select an <a href="https://www.palantir.com/docs/foundry/chatbot-studio/core-concepts/#aip-chatbots">AIP Chatbot</a> to interact with, use the dropdown menu.</p>
+<p><img alt="How to select a chatbot." src="../../_resources/foundry/threads/chatbot-dropdown.png" /></p>
+<p><img alt="A chatbot selected." src="../../_resources/foundry/threads/different-agent-threads.png" /></p>
+<p>To make a particular chatbot one of your default options to use when starting a new thread, set a chatbot as default.</p>
+<p><img alt="A chatbot pinned as a default for new threads." src="../../_resources/foundry/threads/pinned-chatbot-selection.png" /></p>
+</body>
+</html>

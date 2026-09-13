@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Action metrics</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Action metrics</h1>
+<p>Action metrics display the near real-time usage of an action type over the last 30 days. You can access these metrics from the action type's overview page in <a href="https://www.palantir.com/docs/foundry/ontology-manager/overview/">Ontology Manager</a>, or in <a href="https://www.palantir.com/docs/foundry/workflow-lineage/overview/">Workflow Lineage</a> by selecting the action node for a given execution. The following metrics are available:</p>
+<ul>
+<li><strong>Success/failure metrics:</strong> Monitor the current status of your actions with success and failure counts. This enables rapid identification of issues and supports proactive troubleshooting, allowing you to address failures as soon as they occur.</li>
+<li><strong>P95 duration metric:</strong> Track the 95th percentile (P95) execution duration for each action type. This metric highlights the upper range of execution times, helping you detect performance bottlenecks and optimize workflows for consistent and efficient operation.</li>
+</ul>
+<p>You are also able to access <a href="https://www.palantir.com/docs/foundry/aip-observability/run-history/">run history</a>, which provides a complete view of a given action's executions over the past seven days. Learn more about <a href="https://www.palantir.com/docs/foundry/aip-observability/overview/">Ontology and AIP observability capabilities</a>.</p>
+<p><img alt="Screenshot of action metrics in the overview section." src="../../_resources/foundry/action-types/action-metrics-failures.png" /></p>
+<p>All metrics are updated in near real-time using the latest data from the Foundry Telemetry Service (FTS). This ensures you have access to the most current information for monitoring, debugging, and maintaining the health of your actions.</p>
+<p>You can also embed action metrics directly inside an operational application using the <a href="https://www.palantir.com/docs/foundry/workshop/widgets-observability-chart/">Observability Chart widget</a> in <a href="https://www.palantir.com/docs/foundry/workshop/overview/">Workshop</a> to monitor resource health alongside the rest of a workflow.</p>
+<h2>Action failure types</h2>
+<p>Action metrics do not require <a href="https://www.palantir.com/docs/foundry/action-types/action-log/">action logs</a> to be displayed. Unlike action logs, action metrics track failures.</p>
+<p>Action metrics have a variety of categories of failures that may be displayed. These categories are:</p>
+<ul>
+<li><strong>Invalid parameter failure:</strong> The action was submitted with a parameter or parameters that are not valid within the context of the action.</li>
+<li><strong>Scale limit failure:</strong> The action affected more than the permitted limit of object types (by default, usually 10,000).</li>
+<li><strong>Authentication failure:</strong> The user did not pass the security submission criteria for the action.</li>
+<li><strong>Side effect failure:</strong> The action failed due to a webhook or an incorrectly configured side effect.</li>
+<li><strong>Function failure:</strong> The action failed because the underlying function failed. This failure mode is only possible for function-backed actions.</li>
+<li><strong>User-facing function failure:</strong> The function backing the action threw an error intended to be displayed to the user. This failure mode is only possible for function-backed actions.</li>
+<li><strong>Conflict failure:</strong> The action failed due to a conflict, such as a concurrent modification.</li>
+<li><strong>Unclassified failure:</strong> The action failure did not fall into any of the above categories.</li>
+</ul>
+<h2>Permissions</h2>
+<p>To view action metrics, you must be a <code>viewer</code> on the action.</p>
+</body>
+</html>

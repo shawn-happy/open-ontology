@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Interfaces</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Interfaces</h1>
+<p>An <strong>interface</strong> is an Ontology type that describes the shape of an object type and its capabilities. Interfaces allow for consistent modeling of and interaction with object types that share a common shape. For example, a <code>Facility</code> interface may include <code>Facility Name</code> and <code>Location</code> properties. <code>Facility</code> could be implemented by object types such as <code>Airport</code>, <code>Manufacturing Plant</code>, or <code>Maintenance Hangar</code>, which could each contain additional type-specific properties.</p>
+<p><img src="../../_resources/external-5474cfb40dfd.png" alt="An example of a <code>Facility</code> interface." width="800" /></p>
+<p>By using the <code>Facility</code> interface, workflows can interact with <code>Airport</code>, <code>Manufacturing Plant</code>, and <code>Maintenance Hangar</code> object types, either in aggregate or independently, without needing to know specific details about those object types. Additionally, if new object types that implement the <code>Facility</code> interface are introduced, the workflow will be immediately compatible with the new object types without additional refactors.</p>
+<p>Review the <a href="https://www.palantir.com/docs/foundry/interfaces/interface-overview/#current-levels-of-support">current levels of support</a> to learn more about where you can use interfaces in the platform.</p>
+<h2>Interface features</h2>
+<p>An interface is composed of interface properties, <a href="https://www.palantir.com/docs/foundry/interfaces/interface-link-types-overview/">link type constraints</a>, <a href="https://www.palantir.com/docs/foundry/interfaces/interface-action-type-constraints/">action type constraints</a>, and <a href="https://www.palantir.com/docs/foundry/interfaces/interface-metadata/">metadata</a> about the interface. Interface properties can be defined locally on the interface (recommended) or using <a href="https://www.palantir.com/docs/foundry/object-link-types/shared-property-overview/">shared properties</a>. An interface can be implemented by multiple object types.</p>
+<p>Much like interfaces in programming languages, you can <a href="https://www.palantir.com/docs/foundry/interfaces/extend-interface/">extend an interface</a> to create a child interface that inherits the properties of the original interface, then add new, more specific properties to the child interface. Object types can then <a href="https://www.palantir.com/docs/foundry/interfaces/implement-interface/">implement the interface</a> to indicate that they conform to the interface definition. Object types can implement multiple interfaces, for use in different workflows. Interfaces can also extend multiple other interfaces, including interfaces that themselves extend other interfaces, resulting in properties that are inherited through layers of interfaces.</p>
+<h2>Differences between interfaces and object types</h2>
+<p>There are both functional and stylistic differences between interfaces and object types within the Ontology.</p>
+<p>Object types are concrete; they have schemas defined by shared or local properties, are backed by datasets containing property values, and can be instantiated as objects.</p>
+<p>By contrast, interfaces are abstract; they have schemas defined by interface properties, are not backed by datasets, and cannot be instantiated directly but must be instantiated as a specific object type.</p>
+<p>Stylistically, interfaces are visually distinguished from object types in the platform by having dashed lines around their icons.</p>
+<p><img src="../../_resources/external-78ae536c03b0.png" alt="Example interface icon" width="100" /></p>
+<h2>Interface permissions</h2>
+<p>Interfaces are permissioned through <a href="https://www.palantir.com/docs/foundry/object-permissioning/ontology-permissions-legacy/#ontology-roles">Ontology roles</a>.</p>
+<h2>Current levels of support</h2>
+<p>As support for interface Ontology types expands, availability will vary across the Palantir platform.</p>
+<p>Interfaces are currently supported in the following applications and services:</p>
+<ul>
+<li><strong><a href="https://www.palantir.com/docs/foundry/ontology-manager/overview/">Ontology Manager</a>:</strong> Define, edit, and implement interfaces.</li>
+<li><strong><a href="https://www.palantir.com/docs/foundry/marketplace/overview/">Marketplace</a>:</strong> Package and install interfaces.</li>
+<li><strong><a href="https://www.palantir.com/docs/foundry/functions/overview/">Functions</a>:</strong> TypeScript v2 functions.</li>
+</ul>
+<p>Interfaces are partially supported in the following applications and services:</p>
+<ul>
+<li><strong><a href="https://www.palantir.com/docs/foundry/action-types/overview/">Actions</a>:</strong> Define actions to create, modify, delete, or link objects implementing an interface. Interface action type constraints are in beta and can be used to define expected action capabilities across object types implementing an interface.</li>
+<li><strong><a href="https://www.palantir.com/docs/foundry/object-backend/overview/#object-set-service-oss">Object Set Service</a>:</strong> Search and sort objects by interfaces. Support for aggregating by interfaces is in development. Support for interface link types is in development.</li>
+<li><strong><a href="https://www.palantir.com/docs/foundry/ontology-sdk/overview/">Ontology SDK</a>:</strong> Use interfaces as an API layer for interacting with implementing object types. Support varies by language; TypeScript is currently supported and support for Java and Python is in development.</li>
+</ul>
+<p>Interfaces are under active development, but not yet supported in the following:</p>
+<ul>
+<li><strong><a href="https://www.palantir.com/docs/foundry/workshop/overview/">Workshop</a></strong></li>
+<li><strong><a href="https://www.palantir.com/docs/foundry/functions/overview/">Functions</a>:</strong> TypeScript v1 and Python functions</li>
+</ul>
+<h2>Get started with interfaces</h2>
+<p>To add interfaces to your Ontology, you can <a href="https://www.palantir.com/docs/foundry/interfaces/create-interface/">create</a> new interfaces or <a href="https://www.palantir.com/docs/foundry/interfaces/extend-interface/">extend</a> existing ones. Once you have an interface, you can then <a href="https://www.palantir.com/docs/foundry/interfaces/implement-interface/">implement</a> that interface with an object type of the appropriate shape or <a href="https://www.palantir.com/docs/foundry/interfaces/edit-interface-definition/">edit</a> it to better fit your Organization as your Ontology evolves.</p>
+</body>
+</html>

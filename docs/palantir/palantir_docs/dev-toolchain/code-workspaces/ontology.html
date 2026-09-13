@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Interact with the Ontology</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Interact with the Ontology</h1>
+<p>:::callout{theme="warning"}
+<a href="https://www.palantir.com/docs/foundry/object-permissioning/configuring-rv-access-controls/">Restricted View-backed Ontology entities</a> and <a href="https://www.palantir.com/docs/foundry/functions/query-functions/">query functions</a> are not yet supported in Code Workspaces.
+:::</p>
+<p>Code Workspaces supports interacting with the <a href="https://www.palantir.com/docs/foundry/ontology/overview/">Ontology</a> using object, link, and action types in JupyterLabÂ® and RStudioÂ®.</p>
+<h2>Create a new Ontology SDK</h2>
+<p>To create a new Ontology SDK in Code Workspaces, first navigate to the <strong>Ontology</strong> side panel. Each Code Workspace can have one SDK, and multiple versions of each SDK can be created. From the <strong>Ontology</strong> side panel, select <strong>Create new SDK</strong> to open the SDK configuration form.</p>
+<p><img alt="Ontology side panel landing screen" src="../../_resources/foundry/code-workspaces/ontology-zero-state.png" /></p>
+<p>New Ontology SDKs require a package name and an associated Ontology. The package name is used to determine how your SDK is accessed in code: versions of an SDK with a package name of <code>example</code> would be importable under the library name <code>example_sdk</code>. SDK package names can only contain letters, numbers and hyphens, and cannot end with a hyphen. Once published, SDK package names cannot be changed.</p>
+<p>After configuring your SDK, select <strong>Save selection</strong> to continue.</p>
+<p><img alt="Ontology side panel SDK configuration form" src="../../_resources/foundry/code-workspaces/configure-osdk-form.png" /></p>
+<h2>Select data entities</h2>
+<p>The <strong>Ontology</strong> side panel contains two tabs: <strong>Data entities</strong> and <strong>SDK generation</strong>.</p>
+<ul>
+<li>The <strong>Data entities</strong> tab is used to import object and action types from your Ontology.</li>
+<li>The <strong>SDK generation</strong> tab is used to inspect and install SDK versions.</li>
+</ul>
+<p>To select data entities, navigate to the <strong>Data entities</strong> tab. Select <strong>Add</strong> and choose the desired data entity type to open a resource selector dialog which enables browsing for and selecting data entities. After selecting data entities, your selection can be saved using the <strong>Save</strong> button at the bottom of the side panel. After selecting <strong>Save</strong>, a new SDK version will be generated with access to the selected data entities.</p>
+<p><img alt="&quot;Data entities&quot; tab of the Ontology side panel" src="../../_resources/foundry/code-workspaces/osdk-data-entities.png" /></p>
+<p>When selecting action types that affect object types or have object types as parameters, those object types will also be added to the selection automatically. If any selected object types have backing data sources which have not yet been imported into the project scope of your Code Workspace, you will also be prompted to confirm the automatic import of these data sources.</p>
+<p><img alt="Dialog for confirming import of backing data sources" src="../../_resources/foundry/code-workspaces/backing-data-source-dialog.png" /></p>
+<h2>Change the selected Ontology</h2>
+<p>To import Ontology entities from a different Ontology, use the Ontology selector found in the <strong>Data entities</strong> tab. After selecting a different Ontology, select <strong>Save</strong> to apply changes and generate a new version. Changing the selected Ontology will reset the data scope of the SDK, clearing any selected object, action or link types.</p>
+<p><img alt="Ontology selector in the data entities tab." src="../../_resources/foundry/code-workspaces/change-selected-ontology.png" /></p>
+<h2>Publish new Ontology SDK versions</h2>
+<p>Once configured, new Ontology SDK versions can be published using the <strong>Generate new version</strong> button found at the bottom of the <strong>Ontology</strong> side panel. Published and pending versions can be inspected through the <strong>SDK generation</strong> tab.</p>
+<p><img alt="&quot;SDK generation&quot; tab of the Ontology side panel" src="../../_resources/foundry/code-workspaces/sdk-generation-tab.png" /></p>
+<p>After selecting <strong>Generate new version</strong>, the newly created version will be visible in the <strong>SDK generation tab</strong>. SDK versions are not usable until the status shows as âPublishedâ.</p>
+<p>Common reasons for publishing to fail include:</p>
+<ul>
+<li>Using action types without importing dependent object types.</li>
+<li>Using object types that have backing data sources which are not present in the project scope.</li>
+</ul>
+<p><img alt="Publishing in progress for a newly created SDK version in the &quot;SDK generation&quot; tab of the Ontology side panel" src="../../_resources/foundry/code-workspaces/sdk-generation-pending-version.png" /></p>
+<h2>Use Ontology SDK versions in code</h2>
+<p>Successfully published versions can be imported and used in code from within your editor. First, click on the card for the version you want to use within the <strong>SDK generation</strong> tab of the <strong>Ontology</strong> side panel. This will expand the card with several code snippets tailored to your editorâs language. Clicking on a snippet will add it to the clipboard so that it can be pasted into your editor.</p>
+<p>The visible snippets will vary depending on your editorâs language. All supported languages have the âInstall packageâ snippet which is used to install a version of your SDK and the âInitialize clientâ snippet which is used to import the SDK and initialize a Foundry client to interact with the Ontology.</p>
+<p><img alt="Expanded snippets under a published SDK version in the &quot;SDK generation&quot; tab of the Ontology side panel" src="../../_resources/foundry/code-workspaces/sdk-generation-snippets.png" /></p>
+<h2>Use the Ontology SDK</h2>
+<p>After the Ontology SDK has been successfully published, follow the instructions to install and import the SDK. You can run the following the command:</p>
+<pre><code>!mamba install -y -q my_sdk_package
+</code></pre>
+<p>Next, the following code snippet is used to initialize the FoundryClient, which will enable you to start using the Ontology SDK.</p>
+<pre><code class="language-python">from my_sdk_package import FoundryClient
+client = FoundryClient()
+</code></pre>
+<h2>Basic usage examples</h2>
+<p>Any imported object or link type can be selected in the <strong>Data entities</strong> tab to view usage examples for that specific resource. The following examples are longer, more general examples that demonstrate end-to-end OSDK usage in Code Workspaces.</p>
+<h3>Python OSDK usage example</h3>
+<p>The following example demonstrates how to interact with the OSDK using Python. This example assumes that the last successfully published version of your SDK includes object type "Aircraft" and action type "ActionMode". The term <code>my_sdk_package</code> in this example should be replaced with the package name of your SDK.</p>
+<pre><code class="language-python">
+AircraftObject = client.ontology.objects.Aircraft
+
+# Retrieve an object and view properties
+my_aircraft = AircraftObject.get(1)
+my_aircraft.date_of_manufacture
+
+# Iterate over objects
+for aircraft in AircraftObject.take(2):
+    print(aircraft.current_location)
+
+# Aggregations
+AircraftObject.aggregate({&quot;min_id&quot;: Aircraft.id.min(),
+                          &quot;max_id&quot;: Aircraft.id.max(),
+                          &quot;aircraft_count&quot;: Aircraft.count()}).compute()
+
+# Filter
+my_a330s = AircraftObject.where((Aircraft.type == &quot;A330&quot;) | (Aircraft.id == 160)).take(1)
+
+# Actions: Validate and apply
+import datetime
+from my_sdk_package.types import ActionMode
+
+action_validation = client.ontology.actions.change_manufacture_date({&quot;mode&quot;: ActionMode.VALIDATION_ONLY},
+                                                                     aircraft=1,
+                                                                     date_of_manufacture=&quot;2020-05-01&quot;)
+if action_validation.result == &quot;VALID&quot;:
+    client.ontology.actions.change_manufacture_date(aircraft=1, date_of_manufacture=&quot;2023-05-26&quot;)
+</code></pre>
+<h4>Time series properties</h4>
+<p>To access <a href="https://www.palantir.com/docs/foundry/time-series/time-series-properties/">time series properties</a> in a workspace, follow the preceding steps to create, publish, and import an Ontology SDK. Then access time series properties and manipulate them with the <a href="https://www.palantir.com/docs/foundry/foundryts/foundryts/">foundryTS library</a>. This example shows how to retrieve the <code>Denver</code> object from a set of <code>City</code> objects and access its electricity price as a time series:</p>
+<pre><code class="language-python">from my_sdk_package import FoundryClient
+from foundryts import TimeSeries
+
+client = FoundryClient()
+city_objects = client.ontology.objects.City
+
+denver = city_objects.get(&quot;Denver&quot;)  # This is the object's primary key
+denver_electricity_price_tsp = TimeSeries.from_osdk(denver.electricity_price)
+
+# Convert the series into a foundryts node
+node = denver_electricity_price_tsp.node()
+
+# Convert the series into a pandas dataframe
+df = denver_electricity_price_tsp.to_pandas()
+</code></pre>
+<h3>R OSDK usage example</h3>
+<p>Code Workspaces supports OSDK in R via the <a href="https://rstudio.github.io/reticulate/">reticulate â</a> package, which allows you to call Python from R.</p>
+<p>This example demonstrates how to import a Python OSDK version into R and interact with an object type. This example assumes that your SDK includes an object type called "Aircraft". The term <code>my_sdk_package</code> should be replaced with the package name of your SDK.</p>
+<pre><code class="language-r">library(reticulate)
+
+osdk &lt;- import(&quot;my_sdk_package&quot;)
+client &lt;- osdk$FoundryClient()
+
+aircraft_object = client$ontology$objects$Aircraft
+
+# Retrieve 1 object
+aircraft_object$take(1L)
+
+# Retrieve object by ID
+aircraft_object$get(&quot;1&quot;)
+
+</code></pre>
+<p>As R and Python have different default numeric types, the L suffix has to be used within R when a Python API expects an integer. <a href="https://rstudio.github.io/reticulate/articles/calling_python.html#numeric-types-and-indexes">Learn more at the official documentation for reticulate. â</a></p>
+<hr />
+<p><em>JupyterÂ®, JupyterLabÂ®, and the JupyterÂ® logos are trademarks or registered trademarks of NumFOCUS.</em></p>
+<p><em>RStudioÂ® and ShinyÂ® are trademarks of Positâ¢.</em></p>
+<p>All third-party trademarks (including logos and icons) referenced remain the property of their respective owners. No affiliation or endorsement is implied.</p>
+</body>
+</html>

@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Temporary scenarios</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../index.html">返回目录</a></div>
+<h1>Temporary scenarios</h1>
+<p>Temporary scenarios are created and used only within the current session. Their metadata is not persisted in the platform and will be deleted if the user ends the current session (on Workshop, for example). These scenarios are useful for quick, ad-hoc "what-if" analyses where you do not need to collaborate or share the results. They allow you to experiment with different actions without affecting the state of your Ontology or cluttering your workspace with unnecessary saved scenarios.</p>
+<h2>Workshop tutorial</h2>
+<p>In this tutorial, you will walk through building a basic <a href="https://www.palantir.com/docs/foundry/workshop/overview/">Workshop</a> application supporting temporary scenarios.</p>
+<h3>Part I: Add the Scenario Manager widget</h3>
+<ol>
+<li>From a new, empty Workshop module, navigate to the <strong>Settings</strong> panel on the left side navigation and ensure the <strong>Scenarios</strong> setting is enabled in the <strong>Advanced Functionalities</strong> section. <br><br>
+   <img alt="A Workshop Settings panel with the Scenarios toggle enabled in the Advanced Functionalities section." src="../_resources/foundry/ontology/temporary-scenario-settings-advanced-functionalities.png" /> <br><br></li>
+<li>In the sidebar section, add a <strong><a href="https://www.palantir.com/docs/foundry/workshop/widgets-scenario-manager/">Scenario Manager</a></strong> widget. This is one of the scenario-specific widgets in Workshop and is used to create and manage temporary scenarios that will be used throughout the module. <br><br>
+   <img alt="Workshop widget search panel showing scenario-specific widgets, including Scenario Manager, Scenario Selector, and Scenario Summary." src="../_resources/foundry/ontology/temporary-scenario-scenario-manager-search.png" /> <br><br></li>
+<li>From the widget setup panel on the right, configure the <strong>Dynamic scenarios</strong> field to use a new dynamic scenario. The <strong>Create</strong> button will appear in the center of the widget. <br><br>
+   <img alt="Scenario Manager widget configured with a Dynamic scenario variable, showing the Create button in the center." src="../_resources/foundry/ontology/temporary-scenario-scenario-manager-dynamic-variable.png" /> <br><br></li>
+</ol>
+<h3>Part II: Add an Object Table widget</h3>
+<ol>
+<li>
+<p>From the body of the module, add an <strong>Object Table</strong> widget. <br><br>
+   <img alt="Workshop widget search panel showing the Object Table widget option." src="../_resources/foundry/ontology/temporary-scenario-object-table-search.png" /> <br><br></p>
+</li>
+<li>
+<p>You can use any object set to populate the table, but we recommend starting with an object type that already has at least one associated <a href="https://www.palantir.com/docs/foundry/action-types/overview/">action</a> configured. <br><br>
+   <img alt="Object Table widget configuration with an object set and properties selected." src="../_resources/foundry/ontology/temporary-scenario-object-table-object-set-config.png" /> <br><br></p>
+</li>
+<li>
+<p>Now, add some properties to display in the table.</p>
+</li>
+<li>
+<p>Below the properties, enable the option to <strong>Load Data from Scenario</strong> into this widget. This option effectively makes the Object Table widget scenario-aware.</p>
+</li>
+<li>
+<p>Select the scenario array variable produced by the Scenario Manager widget. This will cause the data in the Object Table widget to reflect any modifications to scenarios in the Scenario Manager widget rather than the raw Ontology. <br><br>
+   <img alt="Object table widget configuration showing the Load Data from Scenario toggle." src="../_resources/foundry/ontology/temporary-scenario-object-table-load-from-scenario.png" /> <br><br></p>
+</li>
+</ol>
+<h3>Part III: Add the Scenario Summary widget</h3>
+<ol>
+<li>
+<p>To preview the changes you will be making on the scenario, add the <strong>Scenario Summary</strong> widget to your module.</p>
+</li>
+<li>
+<p>In the widget configuration, connect to the active scenario variable generated by the Scenario Manager widget. <br><br>
+   <img alt="Scenario Summary widget configuration connected to the Active scenario variable from the Scenario Manager widget." src="../_resources/foundry/ontology/temporary-scenario-scenario-summary-config.png" /> <br><br>
+   At this point, no modifications have been applied to the scenario; the data should be the same.</p>
+</li>
+</ol>
+<h3>Part IV: Configure an action</h3>
+<ol>
+<li>
+<p>Add a <strong>Button Group</strong> widget to configure an action to apply to your scenarios. <br><br>
+   <img alt="Workshop widget search panel showing the Button group widget." src="../_resources/foundry/ontology/temporary-scenario-button-group-search.png" /> <br><br></p>
+</li>
+<li>
+<p>Select an action that modifies the object types in your table.</p>
+</li>
+<li>
+<p>To apply this action to a scenario instead of the Ontology, enable the <strong>Apply to Scenario</strong> option and select the active scenario variable from the menu. <br><br>
+   <img alt="The Button group widget configuration showing the Apply to Scenario option enabled with the active scenario variable selected." src="../_resources/foundry/ontology/temporary-scenario-button-group-apply-to-scenario.png" /> <br><br></p>
+</li>
+<li>
+<p>Using the newly configured action, try changing the property of any object in the table to a new value.</p>
+</li>
+<li>
+<p>Before applying the action, create a new scenario in the Scenario Manager widget by selecting <strong>Create</strong>. <br><br>
+   <img alt="A Workshop application showing Scenario 1 created in the Scenario Manager with flight data displayed in the Object table." src="../_resources/foundry/ontology/temporary-scenario-module-scenario-created.png" /> <br><br></p>
+</li>
+</ol>
+<p>In the example below, the <code>Year</code> for a flight in the table is being updated. You should see the Object Table widget refresh with the new data. <br><br>
+<img alt="Edit Flight Demo dialog showing flight property fields with the Apply to Scenario button." src="../_resources/foundry/ontology/temporary-scenario-action-apply-to-scenario.png" /> <br><br>
+A record will appear in the Scenario Summary widget indicating the change in data. This action has <em>not</em> been applied to the Ontology and exists only within the scenario. <br><br>
+<img alt="Edit Flight Demo dialog showing flight property fields with the Apply to Scenario button." src="../_resources/foundry/ontology/temporary-scenario-action-apply-to-scenario.png" /> <br><br></p>
+<h3>Part V: Add a chart widget</h3>
+<ol>
+<li>To better visualize the results, add a section above the table with a <strong>Chart: XY</strong> widget. <br><br>
+   <img alt="Workshop widget search panel showing the Chart: XY widget option." src="../_resources/foundry/ontology/temporary-scenario-chart-xy-search.png" /> <br><br></li>
+</ol>
+<p>The Chart: XY widget supports an arbitrary number of scenarios, and different scenarios can be configured in different layers. <br><br>
+<img alt="Chart: XY widget configuration showing the Compare Against Scenarios option enabled with a Dynamic scenarios variable." src="../_resources/foundry/ontology/temporary-scenario-chart-xy-compare-scenario-config.png" /> <br><br>
+2. Try exploring the various layer types to see how multiple scenarios are visualized in them.</p>
+<ol start="3">
+<li>You can also configure <strong>Group By</strong> and other aggregates, which will properly respect scenario values. <br><br>
+   <img alt="Workshop application showing the Chart: XY widget with a bar chart visualization grouped by origin airport." src="../_resources/foundry/ontology/temporary-scenario-chart-xy-result.png" /> <br><br></li>
+</ol>
+<h3>Part VI: Add a Metric Card widget</h3>
+<ol>
+<li>You can also populate values in metric cards from scenarios. Add a new <strong>Metric Card</strong> widget. <br><br>
+   <img alt="Workshop widget search panel showing the Metric Card widget option." src="../_resources/foundry/ontology/temporary-scenario-metric-card-search.png" /> <br><br></li>
+<li>You can configure variable values from scenarios to use in widgets that are not inherently scenario-aware. The Metric Card widget, for example, does not have an explicit scenario configuration section. Instead, in the Metric Card configuration, create a new numeric metric with a value defined by a new object set aggregation variable. <br><br>
+   <img alt="Workshop widget setting up the value in the Metric Card widget." src="../_resources/foundry/ontology/temporary-scenario-metric-card-value-config.png" /> <br><br>
+   In the variable configuration pane, a <strong>Scenario</strong> section lets you add a scenario variable. If selected, the aggregation runs with the scenario's modifications applied. Similarly, object property variable configurations also support scenarios. <br><br>
+   <img alt="Metric Card configuration showing an object set aggregation variable with a Scenario configuration section." src="../_resources/foundry/ontology/temporary-scenario-metric-card-scenario-config.png" /> <br><br></li>
+</ol>
+<h2>Next steps</h2>
+<p>Now that you have created your first scenario, we recommend experimenting with various configurations and layouts of the scenario-specific Workshop widgets used in our tutorial.</p>
+<h2>Persist temporary scenario metadata</h2>
+<p>If you determine that you do want to persist this scenario's metadata, follow the guidance in our <a href="https://www.palantir.com/docs/foundry/ontology/persisted-scenario/">persisted scenarios</a> documentation.</p>
+</body>
+</html>

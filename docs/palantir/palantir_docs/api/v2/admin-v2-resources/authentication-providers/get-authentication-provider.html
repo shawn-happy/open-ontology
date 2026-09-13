@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Get Authentication Provider</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../../../index.html">返回目录</a></div>
+<p><code>GET /api/v2/admin/enrollments/{enrollmentRid}/authenticationProviders/{authenticationProviderRid}</code></p>
+<p>:::callout{theme=warning title=Warning}
+  This endpoint is in preview and may be modified or removed at any time.
+  To use this endpoint, add <code>preview=true</code> to the request query parameters.
+:::</p>
+<p>Get the AuthenticationProvider with the specified rid.</p>
+<p>Third-party applications using this endpoint via OAuth2 must request the following operation scope: <code>api:admin-read</code>.</p>
+<p><strong>OAuth2 scopes</strong>: <code>api:admin-read</code></p>
+<h2>Path parameters</h2>
+<table>
+<thead>
+<tr>
+<th>参数</th>
+<th>类型</th>
+<th>必填</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>enrollmentRid</code></td>
+<td>string</td>
+<td>是</td>
+<td>示例: <code>ri.control-panel.main.customer.466f812b-f974-4478-9d4f-90402cd3def6</code></td>
+</tr>
+<tr>
+<td><code>authenticationProviderRid</code></td>
+<td>string</td>
+<td>是</td>
+<td>示例: <code>ri.control-panel.main.saml.3faf689c-eaa1-4137-851f-81d58afe4c86</code></td>
+</tr>
+</tbody>
+</table>
+<h2>Query parameters</h2>
+<table>
+<thead>
+<tr>
+<th>参数</th>
+<th>类型</th>
+<th>必填</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>preview</code></td>
+<td>boolean</td>
+<td>否</td>
+<td>Enables the use of preview functionality.<br>示例: <code>true</code></td>
+</tr>
+</tbody>
+</table>
+<h2>Response</h2>
+<p><strong>AuthenticationProvider</strong></p>
+<table>
+<thead>
+<tr>
+<th>参数</th>
+<th>类型</th>
+<th>必填</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>AuthenticationProvider</code></td>
+<td>object</td>
+<td>是</td>
+<td>示例: <code>{"supportedHosts":["example.palantirfoundry.com"],"name":"Example SAML Provider","realm":"1bd3813a-ef8b-4211-bfbd-8b6485d0eb83","rid":"ri.control-panel.main.saml.3faf689c-eaa1-4137-851f-81d58afe4c86","enabled":true,"supportedUsernamePatterns":[".*@example.com",".*@palantir.com"]}</code></td>
+</tr>
+<tr>
+<td><code>AuthenticationProvider.rid</code></td>
+<td>string</td>
+<td>是</td>
+<td>示例: <code>ri.control-panel.main.saml.3faf689c-eaa1-4137-851f-81d58afe4c86</code></td>
+</tr>
+<tr>
+<td><code>AuthenticationProvider.name</code></td>
+<td>string</td>
+<td>是</td>
+<td>示例: <code>Example SAML Provider</code></td>
+</tr>
+<tr>
+<td><code>AuthenticationProvider.realm</code></td>
+<td>string</td>
+<td>是</td>
+<td>Identifies which Realm a User or Group is a member of.<br>The <code>palantir-internal-realm</code> is used for Users or Groups that are created in Foundry by administrators and not associated with any SSO provider.<br>示例: <code>1bd3813a-ef8b-4211-bfbd-8b6485d0eb83</code></td>
+</tr>
+<tr>
+<td><code>AuthenticationProvider.enabled</code></td>
+<td>boolean</td>
+<td>是</td>
+<td>Whether users can log in using this provider.<br>示例: <code>true</code></td>
+</tr>
+<tr>
+<td><code>AuthenticationProvider.supportedHosts</code></td>
+<td>list<HostName></td>
+<td>否</td>
+<td>This provider can only be utilized from these hosts.<br>示例: <code>["example.palantirfoundry.com"]</code></td>
+</tr>
+<tr>
+<td><code>AuthenticationProvider.supportedHosts.HostName</code></td>
+<td>string</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>AuthenticationProvider.supportedUsernamePatterns</code></td>
+<td>list<string></td>
+<td>否</td>
+<td>Users who enter usernames that match these patterns will be redirected to this authentication provider.<br>示例: <code>[".*@example.com",".*@palantir.com"]</code></td>
+</tr>
+<tr>
+<td><code>AuthenticationProvider.protocol</code></td>
+<td>union</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>AuthenticationProvider.protocol.saml</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>AuthenticationProvider.protocol.saml.serviceProviderMetadata</code></td>
+<td>object</td>
+<td>是</td>
+<td>Information that describes a Foundry Authentication Provider as a SAML service provider. All information listed here is generated by Foundry.<br>示例: <code>{"metadataUrl":"https://example.palantirfoundry.com/multipass/api/collectors/3faf689c-eaa1-4137-851f-81d58afe4c86/saml/metadata","certificates":[{"expiryDate":"2025-01-01T00:00:00Z","commonName":"example.palantirfoundry.com","pemCertificate":"-----BEGIN CERTIFICATE-----\\nVGhlcmUncyBzbyBtdWNoIGxlZnQgdG8gYnVpbGQhIGh0dHBzOi8vcGFsYW50aXIuY29tL2NhcmVlcnMK\\n-----END CERTIFICATE-----\n","usageType":"SIGNING"}],"logoutUrls":["https://example.palantirfoundry.com/multipass/api/collectors/3faf689c-eaa1-4137-851f-81d58afe4c86/saml/SingleLogout"],"entityId":"urn:uuid:3faf689c-eaa1-4137-851f-81d58afe4c86","acsUrls":["https://example.palantirfoundry.com/multipass/api/collectors/3faf689c-eaa1-4137-851f-81d58afe4c86/saml/SSO"]}</code></td>
+</tr>
+<tr>
+<td><code>AuthenticationProvider.protocol.saml.serviceProviderMetadata.entityId</code></td>
+<td>string</td>
+<td>是</td>
+<td>The static SAML entity ID that represents this service provider.<br>示例: <code>urn:uuid:3faf689c-eaa1-4137-851f-81d58afe4c86</code></td>
+</tr>
+<tr>
+<td><code>AuthenticationProvider.protocol.saml.serviceProviderMetadata.metadataUrl</code></td>
+<td>string</td>
+<td>是</td>
+<td>A public URL from which this service provider metadata can be downloaded as XML.<br>示例: <code>https://example.palantirfoundry.com/multipass/api/collectors/3faf689c-eaa1-4137-851f-81d58afe4c86/saml/metadata</code></td>
+</tr>
+<tr>
+<td><code>AuthenticationProvider.protocol.saml.serviceProviderMetadata.acsUrls</code></td>
+<td>list<string></td>
+<td>否</td>
+<td>The Assertion Consumer Service (ACS) URLs for this service provider, to which the SAML identity provider<br>redirects authentication responses.<br>示例: <code>["https://example.palantirfoundry.com/multipass/api/collectors/3faf689c-eaa1-4137-851f-81d58afe4c86/saml/SSO"]</code></td>
+</tr>
+<tr>
+<td><code>AuthenticationProvider.protocol.saml.serviceProviderMetadata.logoutUrls</code></td>
+<td>list<string></td>
+<td>否</td>
+<td>The URLs for this service provider to which the SAML identity provider sends logout requests.<br>示例: <code>["https://example.palantirfoundry.com/multipass/api/collectors/3faf689c-eaa1-4137-851f-81d58afe4c86/saml/SingleLogout"]</code></td>
+</tr>
+<tr>
+<td><code>AuthenticationProvider.protocol.saml.serviceProviderMetadata.certificates</code></td>
+<td>list<CertificateInfo></td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>AuthenticationProvider.protocol.saml.serviceProviderMetadata.certificates.CertificateInfo</code></td>
+<td>object</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>AuthenticationProvider.protocol.saml.serviceProviderMetadata.certificates.CertificateInfo.pemCertificate</code></td>
+<td>string</td>
+<td>是</td>
+<td>The certificate, in PEM format.<br>示例: `-----BEGIN CERTIFICATE-----\nVGhlcmUncyBzbyBtdWNoIGxlZnQgdG8gYnVpbGQhIGh0dHBzOi8vcGFsYW50aXIuY29tL2NhcmVlcnMK\n-----END CERTIFICATE-----</td>
+</tr>
+<tr>
+<td>`</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>AuthenticationProvider.protocol.saml.serviceProviderMetadata.certificates.CertificateInfo.commonName</code></td>
+<td>string</td>
+<td>否</td>
+<td>示例: <code>example.palantirfoundry.com</code></td>
+</tr>
+<tr>
+<td><code>AuthenticationProvider.protocol.saml.serviceProviderMetadata.certificates.CertificateInfo.expiryDate</code></td>
+<td>string</td>
+<td>是</td>
+<td>示例: <code>2025-01-01T00:00:00Z</code></td>
+</tr>
+<tr>
+<td><code>AuthenticationProvider.protocol.saml.serviceProviderMetadata.certificates.CertificateInfo.usageType</code></td>
+<td>enum</td>
+<td>是</td>
+<td>示例: <code>SIGNING</code></td>
+</tr>
+<tr>
+<td><code>AuthenticationProvider.protocol.oidc</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+</tbody>
+</table>
+<pre><code class="language-json">{
+  &quot;supportedHosts&quot;: [
+    &quot;example.palantirfoundry.com&quot;
+  ],
+  &quot;name&quot;: &quot;Example SAML Provider&quot;,
+  &quot;realm&quot;: &quot;1bd3813a-ef8b-4211-bfbd-8b6485d0eb83&quot;,
+  &quot;rid&quot;: &quot;ri.control-panel.main.saml.3faf689c-eaa1-4137-851f-81d58afe4c86&quot;,
+  &quot;enabled&quot;: true,
+  &quot;supportedUsernamePatterns&quot;: [
+    &quot;.*@example.com&quot;,
+    &quot;.*@palantir.com&quot;
+  ]
+}
+</code></pre>
+<h2>Error responses</h2>
+<table>
+<thead>
+<tr>
+<th>错误码</th>
+<th>错误名称</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>NOT_FOUND</td>
+<td><code>AuthenticationProviderNotFound</code></td>
+<td>The given AuthenticationProvider could not be found.</td>
+</tr>
+</tbody>
+</table>
+</body>
+</html>

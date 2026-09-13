@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Convert GeoPoint to Geohash</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Convert GeoPoint to Geohash</h1>
+<blockquote>
+<p>Supported in: Batch, Faster, Streaming</p>
+</blockquote>
+<p>Converts a GeoPoint to a base32-encoded Geohash with specified precision that contains the GeoPoint. For more information on Geohash, see: https://en.wikipedia.org/wiki/Geohash .</p>
+<p><strong>Expression categories:</strong> Geospatial</p>
+<h2>Declared arguments</h2>
+<ul>
+<li><strong>GeoPoint:</strong> The GeoPoint to convert.<br><em>Expression\<GeoPoint></em></li>
+<li><strong>Output Geohash precision:</strong> The number of base32 characters returned in the output Geohash string.<br><em>Expression\<Integer></em></li>
+</ul>
+<p><strong>Output type:</strong> <em>Geohash</em></p>
+<h2>Examples</h2>
+<h3>Example 1: Base case</h3>
+<p><strong>Argument values:</strong></p>
+<ul>
+<li><strong>GeoPoint:</strong> <code>point</code></li>
+<li><strong>Output Geohash precision:</strong> 5</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>point</th>
+<th><strong>Output</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>{<br>â<strong>latitude</strong>: -20.0,<br>â<strong>longitude</strong>: 80.0,<br>}</td>
+<td>mu2yh</td>
+</tr>
+<tr>
+<td>{<br>â<strong>latitude</strong>: -77.0599,<br>â<strong>longitude</strong>: 38.9031,<br>}</td>
+<td>hf79t</td>
+</tr>
+<tr>
+<td><em>null</em></td>
+<td><em>null</em></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3>Example 2: Base case</h3>
+<p><strong>Argument values:</strong></p>
+<ul>
+<li><strong>GeoPoint:</strong> <code>point</code></li>
+<li><strong>Output Geohash precision:</strong> <code>precision</code></li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>point</th>
+<th>precision</th>
+<th><strong>Output</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>{<br>â<strong>latitude</strong>: -20.0,<br>â<strong>longitude</strong>: 80.0,<br>}</td>
+<td>5</td>
+<td>mu2yh</td>
+</tr>
+<tr>
+<td>{<br>â<strong>latitude</strong>: -77.0599,<br>â<strong>longitude</strong>: 38.9031,<br>}</td>
+<td>3</td>
+<td>hf7</td>
+</tr>
+<tr>
+<td>{<br>â<strong>latitude</strong>: -82.77450568,<br>â<strong>longitude</strong>: -179.55742495,<br>}</td>
+<td>12</td>
+<td>0123456789zb</td>
+</tr>
+<tr>
+<td>{<br>â<strong>latitude</strong>: 1.0,<br>â<strong>longitude</strong>: -1.0,<br>}</td>
+<td>12</td>
+<td>ebpm9npc6m9b</td>
+</tr>
+<tr>
+<td>{<br>â<strong>latitude</strong>: 1.0,<br>â<strong>longitude</strong>: -1.0,<br>}</td>
+<td><em>null</em></td>
+<td><em>null</em></td>
+</tr>
+</tbody>
+</table>
+<hr />
+</body>
+</html>

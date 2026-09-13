@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Branching action types</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Branching action types</h1>
+<p>Ontology actions integrate with Global Branching, enabling you to test action types on a branch without affecting your production environment. You can run actions, validate their configurations, and observe edits in an isolated branch context before merging changes to <code>main</code>. Edits from the branch will not be merged.</p>
+<p>For general information on Global Branching concepts and workflows, refer to the <a href="https://www.palantir.com/docs/foundry/global-branching/overview/">Global Branching documentation</a>.</p>
+<h2>Running actions on a branch</h2>
+<p>You can test actions in a Workshop module on a branch to validate that they have been configured correctly. When all relevant object types are indexed on a branch, you can run the action type and see the resulting edits on the branch.</p>
+<h3>Prerequisites</h3>
+<p>To run an action on a branch, all object types that are edited by the action type must be indexed on that branch. You can index object types through the individual object type page or through the action type page in Ontology Manager.</p>
+<p>When you edit an action type in Ontology Manager, a warning appears if the action type modifies object types that are not indexed on the branch.</p>
+<p><img alt="Warning in Ontology Manager that the action type modifies object types that are not indexed on the branch." src="../../_resources/foundry/action-types/action-indexing-banner.png" /></p>
+<p>If you run the action before these object types are indexed, the action does not apply its edits. A toast notification explains that the action is valid, but that one or more of the object types it edits is read-only on the branch. The notification links to Ontology Manager, where you can index the remaining object types before you run the action again.</p>
+<p>:::callout{theme="neutral"}
+Running actions on a branch is intended as a testing mechanism. Action edits on a branch will not be merged back into <code>main</code>.
+:::</p>
+<h3>Working with function-backed actions on a branch</h3>
+<p>Function-backed actions on a branch behave differently depending on whether they are branch-aware. Branch-aware functions can be modified on the branch and read schemas from it, while non-branch-aware functions only read schemas from <code>main</code>. Regardless of branch-awareness, all function-backed actions execute only on the branch and do not write changes back to <code>main</code>. See supported function types in the <a href="https://www.palantir.com/docs/foundry/global-branching/integrations/">Global Branching documentation</a>.</p>
+<h2>Managing side effects on branches</h2>
+<p>:::callout{theme="neutral"}
+The following information applies specifically to webhooks, functions with external calls, and notifications that are applied <strong>via actions</strong> on branches. Side effects applied through other means will behave as defined by those consumers.
+:::</p>
+<h3>Webhooks</h3>
+<p>By default, webhooks do not execute when an action is applied on a branch. This behavior is to prevent accidentally writing to external systems while in a testing environment.</p>
+<p>In such cases, you will see a toast notification indicating this behavior.</p>
+<p><img alt="A toast notification indicating action applied but webhook not executed." src="../../_resources/foundry/action-types/action-webhook-toast.png" /></p>
+<p>However, there are some cases where testing a webhook on a branch is desirable, for instance when hitting a READ endpoint.</p>
+<p>To override the default behavior, configure the action type's <strong>Security and submission criteria</strong> tab in Ontology Manager to enable webhook executions on branches.</p>
+<p><img alt="Enable webhooks on branches setting." src="../../_resources/foundry/action-types/action-webhook-setting.png" /></p>
+<p>:::callout{theme="neutral"}
+If webhooks on branches are enabled, the webhook will run exactly as it would on <code>main</code>. Consequently, if the webhook is configured to hit an external production environment, it will continue to do that even if the action is executed on a branch.
+:::</p>
+<h3>Functions with external calls</h3>
+<p>By default, function-backed action logic with external calls does not execute when an action is applied on a branch; the action fails entirely. This behavior is to prevent accidentally writing to external systems while in a testing environment.</p>
+<p>In such cases, you will see a toast notification indicating failure, with an explanation of the behavior.</p>
+<p><img src="../../_resources/external-2ffaae482416.png" alt="External function call blocked the action." width="400"></p>
+<p>However, testing on branches is sometimes necessary, for example, when calling READ endpoints. You can override this restriction by enabling functions with external calls on branches in the action type's <strong>Security and submission criteria</strong> tab in Ontology Manager.</p>
+<p><img alt="Enable functions with external calls on branches setting." src="../../_resources/foundry/action-types/action-function-setting.png" /></p>
+<p>:::callout{theme="neutral"}
+If functions with external calls on branches are enabled, the function will make the same external calls as it would on <code>main</code>. Consequently, if the function is configured to hit an external production environment, it will continue to do that even if the action is executed on a branch.
+:::</p>
+<h3>Notifications</h3>
+<p>By default, notifications do not execute when an action is applied on a branch. This behavior is to prevent accidentally notifying recipients while in a testing environment.</p>
+<p>In such cases, you will see a toast notification indicating this behavior.</p>
+<p><img alt="Toast notification indicating action applied but notification not executed." src="../../_resources/foundry/action-types/action-notification-toast.png" /></p>
+<p>However, there are some cases where testing notifications on a branch is desirable.</p>
+<p>To override the default behavior, you can enable notifications on branches in the action type's <strong>Security and submission criteria</strong> tab in Ontology Manager.</p>
+<p>Additionally, you can specify the notification recipients when the action runs on a branch:</p>
+<ul>
+<li><strong>Branch owner:</strong> Send all notifications to the branch owner.</li>
+<li><strong>Default recipients:</strong> Notify the recipients configured on the original notifications.</li>
+</ul>
+<p><img alt="Enable notifications on branches setting." src="../../_resources/foundry/action-types/action-notification-setting.png" /></p>
+<h2>Known limitations</h2>
+<ul>
+<li>Action edits on a branch are for testing only and will not be merged back into <code>main</code>.</li>
+<li>Webhooks and email notifications are not executed by default when an action is run on a branch.</li>
+<li>Functions that make calls to external systems will fail by default when an action is run on a branch.</li>
+</ul>
+</body>
+</html>

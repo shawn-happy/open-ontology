@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Container transforms</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Container transforms</h1>
+<p>:::callout{theme="warning" title="Prerequisites"}
+The following documentation assumes working knowledge of containerized infrastructure and concepts like container images. If you are unfamiliar with these topics, we recommend reviewing the <a href="https://docs.docker.com/get-started/">Docker overview documentation â</a>.
+:::</p>
+<p>Foundry interacts with containers pushed into the platform in two ways:</p>
+<ol>
+<li>Using the <a href="https://www.palantir.com/docs/foundry/transforms-container/transforms-sidecar/">transforms sidecar decorator</a>.</li>
+<li>Constructing and using <a href="https://www.palantir.com/docs/foundry/integrate-models/upload-image-container-model/">container backed model assets</a>.</li>
+</ol>
+<p>In both use cases, the first step is to push the image into the Docker registry hosted within Foundry while following the image requirements listed below.</p>
+<h2>Image requirements</h2>
+<ol>
+<li>The image has a numeric <code>userID</code>.</li>
+</ol>
+<ul>
+<li>The <code>userID</code> defined within the Dockerfile must be numeric and not '0'. Foundry does not allow commands to run within the container as the root user; '0' gets interpreted in some systems as zero, and non-numeric IDs can be set to function as root.</li>
+<li>For <a href="https://www.palantir.com/docs/foundry/transforms-python/bring-container/">bring your own container transforms</a>, the <code>userID</code> must be specifically '5001'.</li>
+</ul>
+<ol start="2">
+<li>The image is built for <code>linux/amd64</code> platform.</li>
+</ol>
+<ul>
+<li>Foundry supports the execution of containers built for this platform only. The default platform for Docker is <code>linux</code>, so add <code>--platform linux/amd64</code> for the <a href="https://docs.docker.com/engine/reference/commandline/build/">Docker build command â</a> to set the platform specifically.</li>
+</ul>
+<ol start="3">
+<li>The image is pushed with <code>digest</code> or any tag other than <code>latest</code>.</li>
+</ol>
+<ul>
+<li>The executed Docker push command should specify the digest of the image or use a tag that is not <code>latest</code>. Foundry will not execute images tagged as <code>latest</code> since there is no mechanism to ensure any given image is actually the latest one.</li>
+</ul>
+<ol start="4">
+<li>The maximum image layer size is less than ~10 GB.</li>
+</ol>
+<ul>
+<li>It is strongly recommended that each layer is smaller than ~10 GB. If your use case requires a larger layer size, contact your Palantir representative.</li>
+</ul>
+<ol start="5">
+<li>Any ports exposed are between 1024 and 65535.</li>
+</ol>
+<ul>
+<li>Ports 0 through 1023 are well-known ports and as such are reserved for root. Foundry does not allow commands to run within the container as the root user; therefore, any ports specified in this range will not be available when the image is launched within Foundry.</li>
+</ul>
+<ol start="6">
+<li>[Optional] The image has telemetry enabled.</li>
+</ol>
+<ul>
+<li>To enable telemetry logging from your container:</li>
+<li>The image must have a shell executable in <code>/bin/sh</code>.</li>
+<li>The image must support the shell commands <code>set</code> and <code>tee</code>.</li>
+</ul>
+</body>
+</html>

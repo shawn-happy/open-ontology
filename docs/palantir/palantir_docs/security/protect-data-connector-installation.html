@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Protecting your on-premise data connector</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../index.html">返回目录</a></div>
+<h1>Protecting your on-premise data connector</h1>
+<p>Palantir Foundry is designed to provide secure collaboration in almost any environment, from the cloud to the edge. If you are running a Foundry data connector agent outside of Palantirâs managed SaaS platform, such as in your own data center or on your own cloud, follow the guidance on this page to protect your installation.</p>
+<h2>Physical access</h2>
+<p>If your Foundry data connector agent is deployed on bare-metal hardware, such as in a data center, it is crucial to implement strong physical security controls. Access to servers running a Foundry data connector agent should be restricted to authorized personnel only.</p>
+<p>Any access to Foundry servers should be time-bound, documented, and follow industry best practices. Unauthorized access to the hardware running Foundry could allow an adversary the opportunity to perform various attacks and subvert security controls.</p>
+<h2>Data encryption</h2>
+<p>The Foundry data connector agent implements object-level encryption as part of the data ingestion process. The data connector receives cryptographic key material from the Foundry platform, encrypts the object, and submits it to the Foundry API for ingestion and storage.</p>
+<h3>Data in transit</h3>
+<p>All data transmitted between the data connector and the Foundry API is encrypted using strong encryption protocols and ciphers.</p>
+<h2>Network security</h2>
+<h3>Network segmentation</h3>
+<p>It is important to segment and separate your Foundry data connector installation from the rest of your environment. Below is a list of best practices for accomplishing this.</p>
+<ul>
+<li>Implement network isolation using firewalls or other technology.</li>
+<li>Use an allowlist of approved protocols, ports, and subnets to gate access to services.</li>
+<li>Deny all inbound traffic by default to your data connector installation.</li>
+<li>Expose your Foundry data connector installation only to the minimum set of networks possible.</li>
+<li>Silo off your Foundry data connector installation in a dedicated private network (VLAN/subnet).</li>
+<li>Maintain a proper inventory of network requirements for the Foundry data connector, which will incorporate all the source data systems from which your organization will be ingesting data. This will be highly variable based on your needs.</li>
+</ul>
+<h3>Egress controls</h3>
+<p>It is important to strictly control network traffic originating from your Foundry data connector installation with egress (outbound) controls.</p>
+<ul>
+<li>Maintain an allowlist of permitted destinations by IP or domain to which your Foundry data connector installation can connect.</li>
+<li>Deny all other network access by your Foundry data connector installation.</li>
+</ul>
+<h3>Network security controls</h3>
+<p>Use network security controls to protect your Palantir Foundry data connector installation.</p>
+<ul>
+<li>Use intrusion detection systems to identify anomalous activity.</li>
+<li>Use firewalls to identify and block network exploitation or attack attempts.</li>
+<li>Collect network security logs from your networks to identify anomalous activity.</li>
+</ul>
+<h2>Infrastructure security</h2>
+<h3>Server hardening</h3>
+<p>Harden the servers used for your Foundry data connector installation using industry-standard configuration guidance such as CIS or NIST controls.</p>
+<ul>
+<li>Only use a modern, supported operating system.</li>
+<li>Perform aggressive vulnerability management and patching on the hosts used for your Foundry installation.</li>
+<li>Critical security vulnerabilities should be patched in 30 days or less.</li>
+</ul>
+<h3>Host security</h3>
+<p>Use host security controls to protect your Foundry data connector installation.</p>
+<ul>
+<li>Collect audit and security logs from your hosts to identify anomalous activity.</li>
+<li>Use host-based security controls, such as intrusion detection systems, to identify anomalous activity.</li>
+<li>Use data-loss prevention (DLP) technologies to look for unauthorized data transfers.</li>
+</ul>
+<h3>Privileged access</h3>
+<p>It is important to strictly control privileged access to your Foundry data connector installation.</p>
+<ul>
+<li>The backend infrastructure hosting your Foundry data connector installation should be restricted to be accessible exclusively via dedicated bastion servers or jump hosts.</li>
+<li>Multi-factor authentication should be required for all infrastructure or cloud-level access to your Foundry data connector installation.</li>
+</ul>
+<h3>Application patching</h3>
+<p>The Foundry data connector includes the ability to self-update to the latest supported version, minimizing the maintenance requirements for your operational staff.</p>
+</body>
+</html>

@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AIP features</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../index.html">返回目录</a></div>
+<h1>AIP features</h1>
+<p>Applications across the Palantir platform are equipped with AIP-powered capabilities, as described on this page. These capabilities are powered by your choice of <a href="https://www.palantir.com/docs/foundry/aip/supported-llms/#supported-llms">LLMs supported by the platform</a>.</p>
+<h2>AIP applications and builder capabilities</h2>
+<p>AIP enables developers and builders to create LLM-backed workflows, agents, and applications in the Palantir platform using LLM-native tools like <a href="https://www.palantir.com/docs/foundry/chatbot-studio/overview/">AIP Chatbot Studio</a> (formerly AIP Agent Studio) and <a href="https://www.palantir.com/docs/foundry/logic/overview/">AIP Logic</a>, or AIP-accelerated platform applications like <a href="https://www.palantir.com/docs/foundry/pipeline-builder/pipeline-builder-llm/">Pipeline Builder</a> and <a href="https://www.palantir.com/docs/foundry/workshop/widgets-aip-chatbot/">Workshop</a>.</p>
+<p>Palantir-provided LLMs are also available in core Foundry features such as <a href="https://www.palantir.com/docs/foundry/functions/language-models-python-tsv2/">Functions</a>, <a href="https://www.palantir.com/docs/foundry/transforms-python-spark/palantir-provided-models/">Transforms</a>, and JupyterÂ® notebooks via <a href="https://www.palantir.com/docs/foundry/code-workspaces/palantir-provided-models/">Code Workspaces</a>.</p>
+<p>Also, existing Palantir capabilities for model integration allow users to <a href="https://www.palantir.com/docs/foundry/aip/bring-your-own-model/">connect custom large language models</a> and independently build use cases from scratch.</p>
+<p>More information is available in the <a href="#aip-application-reference">application reference</a> below.</p>
+<h3>AIP application reference</h3>
+<p>The table below describes AIP applications and provides information on when you may want to use them.
+You may also wish to review the <a href="https://www.palantir.com/docs/foundry/getting-started/application-reference/">application reference page for Foundry suite applications</a>.</p>
+<table>
+<thead>
+<tr>
+<th>Application</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="https://www.palantir.com/docs/foundry/assist/overview/"><strong>AIP Assist</strong></a></td>
+<td>AIP Assist is an LLM-powered support tool that helps users navigate the Palantir platform by providing real-time, secure natural language assistance. Users can accelerate their workflows and increase productivity by asking AIP Assist questions and receiving context-aware responses in their preferred language.</td>
+</tr>
+<tr>
+<td><a href="https://www.palantir.com/docs/foundry/logic/overview/"><strong>AIP Logic</strong></a></td>
+<td>AIP Logic is a no-code development environment for creating, testing, and deploying AI-powered functions - giving you a point-and-click way to use the power of LLMs backed by the data in your Ontology. AIP Logic provides an intuitive interface for engineering prompts, setting up automation, and integrating structured or unstructured Ontology data. You can use AIP Logic to easily streamline and automate complex processes, such as scheduling or optimization problems, while maintaining robust security controls.</td>
+</tr>
+<tr>
+<td><a href="https://www.palantir.com/docs/foundry/chatbot-studio/overview/"><strong>AIP Chatbot Studio</strong></a></td>
+<td>AIP Chatbot Studio enables you to create interactive chatbots that can leverage enterprise-specific data in the Ontology and a range of tools to complete tasks and achieve goals. You can deploy LLM-powered AIP chatbots to automate manual actions, edit Ontology data, streamline workflows, and enhance application interactions.</td>
+</tr>
+<tr>
+<td><a href="https://www.palantir.com/docs/foundry/aip-evals/overview/"><strong>AIP Evals</strong></a></td>
+<td>AIP Evals are the foundation of stable, reliable AIP workflows in production environments; by using AIP Evals to test and evaluate LLM-based functions and prompts, you can build confidence in LLM-backed workflows. By setting up test cases and evaluation criteria in AIP Evals, you can systematically debug, iterate, and improve your implementations, compare different models, and examine variance across runs.</td>
+</tr>
+<tr>
+<td><a href="https://www.palantir.com/docs/foundry/threads/overview/"><strong>AIP Threads</strong></a></td>
+<td>AIP Threads gives you an easy way to use LLMs to perform tasks and ad-hoc analyses, requiring no technical setup to interact with documents and AIP chatbots - just drag and drop documents into AIP Threads or pick from a range of existing resources and chatbots, then prompt the LLM with your request.</td>
+</tr>
+<tr>
+<td><a href="https://www.palantir.com/docs/foundry/palantir-mcp/overview/"><strong>Palantir MCP</strong></a></td>
+<td>Palantir MCP enables external AI IDEs and agents to connect to the Palantir platform and gain context on your Ontology and Foundry tools. Use Palantir MCP to let external AI systems query data, access documentation, and build applications more efficiently.</td>
+</tr>
+</tbody>
+</table>
+<h2>AIP and the developer toolchain</h2>
+<p>Palantir's <a href="https://www.palantir.com/docs/foundry/dev-toolchain/overview/">dev toolchain</a> gives you the building blocks to create AI applications that work directly with your Ontology data, logic, and actions. <a href="https://www.palantir.com/docs/foundry/ontology-sdk/overview/">Ontology SDK</a> lets you write AIP-powered apps in Python, Java, or TypeScript, with built-in access to AIP Logic functions. <a href="https://www.palantir.com/docs/foundry/palantir-mcp/overview/">Palantir MCP</a> connects external AI IDEs and agents to the Palantir platform, giving them context about your ontology and Foundry applications so they can query data, access documentation, and build applications more efficiently. Together, these tools make it straightforward to build AI solutions that tap into your organization's data without having to stitch together disparate systems.</p>
+<h2>AIP features in platform applications</h2>
+<p>AIP features have also been embedded into core Foundry applications to help users accelerate their workflows and unlock more value in the platform. The following are a selected sample of AIP features, not an exhaustive list. The latest AIP updates can be found in the <a href="https://www.palantir.com/docs/foundry/announcements/">Announcements</a> section of the documentation. Platform administrators may govern usage of these capabilities via Control Panel under <a href="https://www.palantir.com/docs/foundry/aip/enable-aip-features/"><strong>AIP settings</strong></a>.</p>
+<h3>AIP Assist sidebar</h3>
+<p>From any platform application, you can open the AIP Assist sidebar to get support; AIP Assist is context-aware, so answers to queries will change depending on which platform application is active. You can open AIP Assist from your workspace navigation bar or access it with a keyboard shortcut (<code>Cmd + Shift + U</code> (macOS) or <code>Ctrl + Shift + U</code> (Windows)).</p>
+<p><a href="https://www.palantir.com/docs/foundry/assist/overview/">Learn more about AIP Assist.</a></p>
+<h3>Pipeline Builder</h3>
+<p>Use AIP in Pipeline Builder to help you better understand, build, and manage your pipeline. Pipeline Builder has a core set of Assist features and additional AIP capabilities for custom workflows.</p>
+<p>With the appropriate <a href="https://www.palantir.com/docs/foundry/aip/enable-aip-features/">permissions</a>, you can use AIP capabilities for custom workflows in Pipeline Builder, such as the following:</p>
+<ul>
+<li>The <a href="https://www.palantir.com/docs/foundry/pipeline-builder/pipeline-builder-llm/">Use LLM node</a> offers a convenient method for executing large language models (LLMs) on your data at scale.</li>
+</ul>
+<p><img src="../_resources/external-76273c024315.png" alt="The 'Create a prompt' screen for the Use LLM node in Pipeline Builder." width="550" /></p>
+<ul>
+<li>You can also <a href="https://www.palantir.com/docs/foundry/pipeline-builder/pipeline-builder-llm/#trial-runs">run trials</a> over a few rows of your input dataset to iterate on your prompt before running your model on an entire dataset.</li>
+</ul>
+<p><img src="../_resources/external-1c2e5c69ebc9.png" alt="Trial runs for the Use LLM Node in Pipeline Builder." width="750" /></p>
+<ul>
+<li>The <a href="https://www.palantir.com/docs/foundry/pipeline-builder/pipeline-builder-aip/#text-to-embeddings">Text to embeddings</a> expression available in Pipeline Builder allows you to convert text strings into semantic vector representations using the text embedding ada-002 model, enabling advanced text analysis and operations based on the meaning of words or phrases.</li>
+</ul>
+<p>Users of Pipeline Builder also benefit from <a href="https://www.palantir.com/docs/foundry/pipeline-builder/pipeline-builder-aip/">core Assist features</a>, some of which include:</p>
+<ul>
+<li><strong>Explain:</strong> Learn more about the steps in your pipeline development and suggest relevant names and descriptions.</li>
+</ul>
+<p><img alt="AIP Explain feature in Pipeline Builder graph, explaining the relationship of 13 nodes." src="../_resources/foundry/aip/aip-assist-pb.png" /></p>
+<ul>
+<li><strong>Regex Helper:</strong> Generate a RegEx customized for your needs, suitable for all skill levels.</li>
+</ul>
+<p><img alt="Using the Regex Helper feature in Pipeline Builder to generate a regular expression to search for email domains." src="../_resources/foundry/aip/aip-regex-helper.png" /></p>
+<ul>
+<li><strong>Transform Assist:</strong> Create and edit regular expressions and easily cast strings to specific timestamp formats.</li>
+</ul>
+<h3>Automate</h3>
+<p>The <a href="https://www.palantir.com/docs/foundry/automate/overview/">Automate application</a> enables users to build automations that continuously monitor defined conditions and automatically execute effects whenever those conditions are met.</p>
+<p><a href="https://www.palantir.com/docs/foundry/logic/aip-logic-integration-automate/">Automate is integrated with AIP Logic</a> to enable you to create automations directly from your AIP Logic file. This capability improves your ontology management experience by automating the application or staging of ontology edits for human review. Users of the workflow can inspect the logic behind each proposed action and, upon approval, have changes automatically applied.</p>
+<h3>Notepad</h3>
+<p>AIP brings <a href="https://www.palantir.com/docs/foundry/notepad/aip-features/">LLM-powered functionality to Notepad</a>, where you can use AIP to automatically spellcheck, shorten, modify, or translate your text without affecting the document's existing formatting.</p>
+<p><img src="../_resources/external-962e772f223d.png" alt="AIP dropdown menu in Notepad showing available features." width="550" /></p>
+<h3>Scheduler</h3>
+<p>You can <a href="https://www.palantir.com/docs/foundry/pipeline-builder/schedules-scheduler-aip/">use AIP in the Scheduler application</a> to generate a schedule configuration when creating a dataset build schedule with a specific time trigger. Input a schedule trigger prompt within the <strong>New schedule view</strong> side panel to generate the proper cron format for complex triggers.</p>
+<hr />
+<p><em>JupyterÂ®, JupyterLabÂ®, and the JupyterÂ® logos are trademarks or registered trademarks of NumFOCUS.</em></p>
+</body>
+</html>

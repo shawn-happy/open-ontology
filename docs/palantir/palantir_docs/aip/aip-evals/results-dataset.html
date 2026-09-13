@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Write run results to a dataset</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Write run results to a dataset</h1>
+<p>Depending on the evaluated function and workflow, evaluation suite run results may need to be surfaced in other parts of the platform. For example, subject matter experts may not be technical enough to analyze results in AIP Evals, and may want the run data displayed alongside other information in a dedicated Workshop application.</p>
+<p>To address this need, AIP Evals supports writing run results to a dataset.</p>
+<p>When a run results dataset is configured and the evaluation suite is run with project-scoped execution mode, all generated information from the run will be automatically written to a configured dataset. This includes function outputs, evaluator results, user-specified and auto-captured metadata, and errors. Note that <code>passed</code> and <code>failed</code> results for each metric based on your configured objectives are not yet supported and that a tested function that edits the ontology will not produce a function output.</p>
+<p>Run result datasets offer maximum flexibility on what can be done with generated data. Using existing Foundry tooling, data can be used for more complex calculations, for example by writing it to objects and surfacing them in Workshop, or by performing deeper analyses in Contour.</p>
+<p>:::callout{theme="warning"}
+To write run results to a dataset, the evaluation suite needs to be run in project-scoped execution mode, and the run results dataset needs to be in the same project as the evaluation suite. Otherwise, AIP Evals will not be able to write data to the dataset.
+:::</p>
+<h2>Configure a run results dataset</h2>
+<p>To configure a run results dataset, follow these steps:</p>
+<ol>
+<li>Open the evaluation suite page.
+   * From AIP Logic, select <strong>View</strong> in the AIP Logic sidebar.
+   * Alternatively, open the evaluation suite from the file system.</li>
+<li>In the run history dataset section, select <strong>Create dataset</strong>.</li>
+<li>Define the name and save location of the dataset, and confirm.</li>
+</ol>
+<p>After these steps, the dataset will be ready for use, and running the evaluation suite in project-scoped execution mode will write results to the dataset.</p>
+<p>Note that if you remove a run results dataset, you will not be able to select it again. You will need to create a new dataset.</p>
+<p><img alt="Set up run results dataset." src="../../_resources/foundry/aip-evals/aip-evals-set-up-results-dataset.png" /></p>
+</body>
+</html>

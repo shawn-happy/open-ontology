@@ -1,0 +1,847 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TypeScript OSDK</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>TypeScript OSDK</h1>
+<p>This page provides generic documentation for the TypeScript OSDK based on an example <code>Restaurant</code> object and its associated actions and queries. You can use Developer Console in the platform to <a href="https://www.palantir.com/docs/foundry/developer-console/create-application/">generate documentation based on your specific Ontology</a>.</p>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>API name</th>
+<th>Type</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Restaurant Id</code> (primary key)</td>
+<td><code>restaurantId</code></td>
+<td>String</td>
+</tr>
+<tr>
+<td><code>Restaurant Name</code> (title)</td>
+<td><code>restaurantName</code></td>
+<td>String</td>
+</tr>
+<tr>
+<td><code>Address</code></td>
+<td><code>address</code></td>
+<td>String</td>
+</tr>
+<tr>
+<td><code>Email</code></td>
+<td><code>eMail</code></td>
+<td>String</td>
+</tr>
+<tr>
+<td><code>Number Of Reviews</code></td>
+<td><code>numberOfReviews</code></td>
+<td>Integer</td>
+</tr>
+<tr>
+<td><code>Phone Number</code></td>
+<td><code>phoneNumber</code></td>
+<td>String</td>
+</tr>
+<tr>
+<td><code>Review Summary</code></td>
+<td><code>reviewSummary</code></td>
+<td>String</td>
+</tr>
+<tr>
+<td><code>Date Of Opening</code></td>
+<td><code>dateOfOpening</code></td>
+<td>LocalDate</td>
+</tr>
+</tbody>
+</table>
+<p>:::callout{theme="neutral"}
+The examples on this page target TypeScript OSDK 2.x. If you are upgrading from 1.x, review the <a href="https://www.palantir.com/docs/foundry/ontology-sdk/typescript-osdk-migration/">TypeScript OSDK migration guide</a> for the syntax changes, including the aggregation changes shown under <a href="https://www.palantir.com/docs/foundry/ontology-sdk/typescript-osdk-migration/#aggregations">Aggregations</a>. Version-specific documentation is also available in the platform in Developer Console.
+:::</p>
+<h2>Load single <code>Restaurant</code></h2>
+<p>Parameters:</p>
+<ul>
+<li><strong>primaryKey <code>string</code>:</strong> The primary key of the <code>Restaurant</code> you want to fetch</li>
+</ul>
+<p>Example query:</p>
+<pre><code class="language-typescript">const result: Osdk.Instance&lt;Restaurant&gt; = await client(Restaurant).fetchOne(
+  &quot;primaryKey&quot;,
+);
+</code></pre>
+<p>Example API response:</p>
+<pre><code class="language-json">{
+  &quot;$primaryKey&quot;: &quot;Restaurant Id&quot;,
+  &quot;$apiName&quot;: &quot;Restaurant&quot;,
+  &quot;eMail&quot;: &quot;Email&quot;,
+  &quot;restaurantId&quot;: &quot;Restaurant Id&quot;,
+  &quot;address&quot;: &quot;Address&quot;,
+  &quot;reviewSummary&quot;: &quot;Review Summary&quot;,
+  &quot;phoneNumber&quot;: &quot;Phone Number&quot;,
+  &quot;numberOfReviews&quot;: 123,
+  &quot;restaurantName&quot;: &quot;Restaurant Name&quot;
+}
+</code></pre>
+<h2>Load a page of <code>Restaurants</code></h2>
+<p>Load a page of objects. This automatically loads a single page of objects based on the specified page size.</p>
+<p>Note that this endpoint leverages the underlying object syncing technology used for the object type. If <code>Restaurant</code> is backed by Object Storage v2, there is no request limit. If <code>Restaurant</code> is backed by Object Storage v1 (Phonograph), there is a limit of 10,000 results; if more than 10,000 <code>Restaurants</code> have been requested, an <code>ObjectsExceededLimit</code> error will be thrown.</p>
+<p>Example query:</p>
+<pre><code class="language-typescript">const page: PageResult&lt;Osdk.Instance&lt;Restaurant&gt;&gt; = await client(Restaurant)
+  .fetchPage({ $pageSize: 30 });
+</code></pre>
+<p>Example API response:</p>
+<pre><code class="language-json">{
+  &quot;nextPageToken&quot;: &quot;v1.000000000000000000000000000000000000000000000000000000000000000000000000&quot;,
+  &quot;data&quot;: [
+    {
+      &quot;$primaryKey&quot;: &quot;Restaurant Id&quot;,
+      &quot;$apiName&quot;: &quot;Restaurant&quot;,
+      &quot;eMail&quot;: &quot;Email&quot;,
+      &quot;restaurantId&quot;: &quot;Restaurant Id&quot;,
+      &quot;address&quot;: &quot;Address&quot;,
+      &quot;reviewSummary&quot;: &quot;Review Summary&quot;,
+      &quot;phoneNumber&quot;: &quot;Phone Number&quot;,
+      &quot;numberOfReviews&quot;: 123,
+      &quot;restaurantName&quot;: &quot;Restaurant Name&quot;
+    }
+    // ... Rest of page
+  ]
+}
+</code></pre>
+<h2>Load all <code>Restaurants</code></h2>
+<p>Loads all <code>Restaurant</code> objects into an array. This uses an async iterator to fetch all objects across multiple pages.</p>
+<p>Note that this endpoint leverages the underlying object syncing technology used for the object type. If <code>Restaurant</code> is backed by Object Storage v2, there is no request limit. If <code>Restaurant</code> is backed by Object Storage v1 (Phonograph), there is a limit of 10,000 results; if more than 10,000 <code>Restaurants</code> have been requested, an <code>ObjectsExceededLimit</code> error will be thrown.</p>
+<p>Example query:</p>
+<pre><code class="language-typescript">async function getAll(): Promise&lt;Array&lt;Osdk.Instance&lt;Restaurant&gt;&gt;&gt; {
+  const objects: Osdk.Instance&lt;Restaurant&gt;[] = [];
+  for await (const obj of client(Restaurant).asyncIter()) {
+    objects.push(obj);
+  }
+  return objects;
+}
+
+// If Array.fromAsync() is available in your target environment
+function getAllFromAsync(): Promise&lt;Array&lt;Osdk.Instance&lt;Restaurant&gt;&gt;&gt; {
+  return Array.fromAsync(client(Restaurant).asyncIter());
+}
+</code></pre>
+<p>Example API response:</p>
+<pre><code class="language-json">{
+  &quot;data&quot;: [
+    {
+      &quot;$primaryKey&quot;: &quot;Restaurant Id&quot;,
+      &quot;$apiName&quot;: &quot;Restaurant&quot;,
+      &quot;eMail&quot;: &quot;Email&quot;,
+      &quot;restaurantId&quot;: &quot;Restaurant Id&quot;,
+      &quot;address&quot;: &quot;Address&quot;,
+      &quot;reviewSummary&quot;: &quot;Review Summary&quot;,
+      &quot;phoneNumber&quot;: &quot;Phone Number&quot;,
+      &quot;numberOfReviews&quot;: 123,
+      &quot;restaurantName&quot;: &quot;Restaurant Name&quot;
+    }
+    // ... Rest of data
+  ]
+}
+</code></pre>
+<h2>Load ordered results</h2>
+<p>Load an ordered page of <code>Restaurants</code> by specifying a sort direction for specific properties. When calling via APIs, sorting criteria are specified via the <code>fields</code> array. When calling via SDKs, you can specify ordering via the <code>$orderBy</code> parameter in the fetch options. The sort order for strings is case-sensitive, meaning numbers will come before uppercase letters, which will come before lowercase letters. For example, <code>Cat</code> will come before <code>bat</code>.</p>
+<p>Parameters:</p>
+<ul>
+<li><strong>$orderBy <code>Record&lt;string, "asc" | "desc"&gt;</code>:</strong> An object specifying the property you want to order by and the direction ("asc" for ascending or "desc" for descending).</li>
+</ul>
+<p>Example query:</p>
+<pre><code class="language-typescript">const page: PageResult&lt;Osdk.Instance&lt;Restaurant&gt;&gt; = await client(Restaurant)
+  .fetchPage({
+    $orderBy: { restaurantName: &quot;asc&quot; },
+    $pageSize: 30,
+  });
+</code></pre>
+<p>Example API response:</p>
+<pre><code class="language-json">{
+  &quot;nextPageToken&quot;: &quot;v1.000000000000000000000000000000000000000000000000000000000000000000000000&quot;,
+  &quot;data&quot;: [
+    {
+      &quot;$primaryKey&quot;: &quot;Object A&quot;,
+      &quot;$apiName&quot;: &quot;Restaurant&quot;,
+      &quot;restaurantName&quot;: &quot;A&quot;
+      // ...Rest of properties
+    },
+    {
+      &quot;$primaryKey&quot;: &quot;Object B&quot;,
+      &quot;$apiName&quot;: &quot;Restaurant&quot;,
+      &quot;restaurantName&quot;: &quot;B&quot;
+      // ...Rest of properties
+    }
+    // ... Rest of page
+  ]
+}
+</code></pre>
+<h2>Filtering</h2>
+<p>The types of filtering you can perform depend on the types of the properties on a given object type. These filters can also be combined together via Boolean expressions to construct more complex filters.</p>
+<p>Note that this endpoint leverages the underlying object syncing technology used for the object type. If <code>Restaurant</code> is backed by Object Storage v2, there is no request limit. If <code>Restaurant</code> is backed by Object Storage v1 (Phonograph), there is a limit of 10,000 results; if more than 10,000 <code>Restaurants</code> have been requested, an <code>ObjectsExceededLimit</code> error will be thrown.</p>
+<p>Parameters:</p>
+<ul>
+<li><strong>where <code>WhereClause</code> (optional):</strong> Filter on a particular property. The possible operations depend on the type of the property. Filters are specified as an object with property names as keys and filter operators as values.</li>
+<li><strong>$orderBy <code>OrderBy</code> (optional):</strong> Order the results based on a particular property. You can chain the <code>.where()</code> call with <code>fetchPage()</code> and pass <code>$orderBy</code> in the options to achieve the same result.</li>
+</ul>
+<p>Example query:</p>
+<pre><code class="language-typescript">const page: PageResult&lt;Osdk.Instance&lt;Restaurant&gt;&gt; = await client(Restaurant)
+  .where({ restaurantName: { $isNull: true } })
+  .fetchPage({ $pageSize: 30 });
+</code></pre>
+<p>Example API response:</p>
+<pre><code class="language-json">{
+  &quot;nextPageToken&quot;: &quot;v1.000000000000000000000000000000000000000000000000000000000000000000000000&quot;,
+  &quot;data&quot;: [
+    {
+      &quot;$primaryKey&quot;: &quot;Restaurant Id&quot;,
+      &quot;$apiName&quot;: &quot;Restaurant&quot;,
+      &quot;restaurantName&quot;: null
+      // ... Rest of properties
+    }
+    // ... Rest of page
+  ]
+}
+</code></pre>
+<h3>Types of search filters</h3>
+<h4>Starts with</h4>
+<p>Only applies to String properties. Searches for <code>Restaurants</code> where <code>restaurantName</code> starts with the given string (case insensitive).</p>
+<p>Parameters:</p>
+<ul>
+<li><strong>field:</strong> Name of the property to use (for example, restaurantName).</li>
+<li><strong>$startsWith <code>string</code>:</strong> Value to use for prefix matching against <code>Restaurant Name</code>. For example, "foo" will match "foobar" but not "barfoo".</li>
+</ul>
+<p>Example query:</p>
+<pre><code class="language-typescript">const restaurantObjectSet = client(Restaurant)
+  .where({ restaurantName: { $startsWith: &quot;foo&quot; } });
+</code></pre>
+<p>Example API response:</p>
+<pre><code class="language-json">{
+  &quot;nextPageToken&quot;: &quot;v1.000000000000000000000000000000000000000000000000000000000000000000000000&quot;,
+  &quot;data&quot;: [
+    {
+      &quot;$primaryKey&quot;: &quot;Restaurant Id&quot;,
+      &quot;$apiName&quot;: &quot;Restaurant&quot;,
+      &quot;restaurantName&quot;: &quot;foobar&quot;
+      // ... Rest of properties
+    }
+  ]
+}
+</code></pre>
+<h4>Contains any terms</h4>
+<p>Only applies to String properties. Returns <code>Restaurants</code> where <code>restaurantName</code> contains any of the white-space separated words (case insensitive) in any order in the provided value.</p>
+<p>Parameters:</p>
+<ul>
+<li><strong>field:</strong> Name of the property to use (for example, restaurantName).</li>
+<li><strong>$containsAnyTerm <code>string</code>:</strong> White-space separated set of words to match on. For example, "foo bar" will match "bar baz" but not "baz qux".</li>
+</ul>
+<p>Example query:</p>
+<pre><code class="language-typescript">const restaurantObjectSet = client(Restaurant)
+  .where({ restaurantName: { $containsAnyTerm: &quot;foo bar&quot; } });
+</code></pre>
+<p>Example API response:</p>
+<pre><code class="language-json">{
+  &quot;nextPageToken&quot;: &quot;v1.000000000000000000000000000000000000000000000000000000000000000000000000&quot;,
+  &quot;data&quot;: [
+    {
+      &quot;__rid&quot;: &quot;ri.phonograph2-objects.main.object.00000000-0000-0000-0000-000000000000&quot;,
+      &quot;$primaryKey&quot;: &quot;Restaurant Id&quot;,
+      &quot;$apiName&quot;: &quot;Restaurant&quot;,
+      &quot;restaurantName&quot;: &quot;foo bar baz&quot;
+      // ... Rest of properties
+    },
+    {
+      &quot;$primaryKey&quot;: &quot;Restaurant Id 2&quot;,
+      &quot;$apiName&quot;: &quot;Restaurant&quot;,
+      &quot;restaurantName&quot;: &quot;bar baz&quot;
+      // ... Rest of properties
+    }
+  ]
+}
+</code></pre>
+<h4>Contains all terms</h4>
+<p>Only applies to String properties. Returns <code>Restaurants</code> where <code>restaurantName</code> contains all the white-space separated words (case insensitive) in any order in the provided value.</p>
+<p>Parameters:</p>
+<ul>
+<li><strong>field:</strong> Name of the property to use (for example, <code>restaurantName</code>).</li>
+<li><strong>$containsAllTerms <code>string</code>:</strong> White-space separated set of words to match on. For example, "foo bar" will match "hello foo baz bar" but not "foo qux".</li>
+</ul>
+<p>Example query:</p>
+<pre><code class="language-typescript">const restaurantObjectSet = client(Restaurant)
+  .where({ restaurantName: { $containsAllTerms: &quot;foo bar&quot; } });
+</code></pre>
+<p>Example API response:</p>
+<pre><code class="language-json">{
+  &quot;nextPageToken&quot;: &quot;v1.000000000000000000000000000000000000000000000000000000000000000000000000&quot;,
+  &quot;data&quot;: [
+    {
+      &quot;$primaryKey&quot;: &quot;Restaurant Id&quot;,
+      &quot;$apiName&quot;: &quot;Restaurant&quot;,
+      &quot;restaurantName&quot;: &quot;hello foo baz bar&quot;
+      // ... Rest of properties
+    }
+  ]
+}
+</code></pre>
+<h4>Contains all terms in order</h4>
+<p>Only applies to String properties. Returns <code>Restaurants</code> where <code>restaurantName</code> contains all the terms (case insensitive) in the order provided and are adjacent to each other.</p>
+<p>Parameters:</p>
+<ul>
+<li><strong>field:</strong> Name of the property to use (for example, <code>restaurantName</code>).</li>
+<li><strong>$containsAllTermsInOrder <code>string</code>:</strong> White-space separated set of words to match on. For example, "foo bar" will match "hello foo bar baz" but not "bar foo qux".</li>
+</ul>
+<p>Example query:</p>
+<pre><code class="language-typescript">const restaurantObjectSet = client(Restaurant)
+  .where({ restaurantName: { $containsAllTermsInOrder: &quot;foo bar&quot; } });
+</code></pre>
+<p>Example API response:</p>
+<pre><code class="language-json">{
+  &quot;nextPageToken&quot;: &quot;v1.000000000000000000000000000000000000000000000000000000000000000000000000&quot;,
+  &quot;data&quot;: [
+    {
+      &quot;$primaryKey&quot;: &quot;Restaurant Id&quot;,
+      &quot;$apiName&quot;: &quot;Restaurant&quot;,
+      &quot;restaurantName&quot;: &quot;foo bar baz&quot;
+      // ... Rest of properties
+    }
+  ]
+}
+</code></pre>
+<h4>Range comparison</h4>
+<p>Only applies to Numeric, String and DateTime properties. Returns <code>Restaurants</code> where <code>Restaurant.restaurantName</code> is less than a value.</p>
+<p>Parameters:</p>
+<ul>
+<li><strong>field:</strong> Name of the property to use (for example, <code>restaurantName</code>).</li>
+<li><strong>value <code>string | number | date</code>:</strong> Value to compare <code>Restaurant Name</code> to</li>
+</ul>
+<p>Comparison types:</p>
+<ul>
+<li>Less than <code>$lt</code></li>
+<li>Greater than <code>$gt</code></li>
+<li>Less than or equal to <code>$lte</code></li>
+<li>Greater than or equal to <code>$gte</code></li>
+</ul>
+<p>Example query:</p>
+<pre><code class="language-typescript">const restaurantObjectSet = client(Restaurant)
+  .where({ restaurantName: { $lt: &quot;Restaurant Name&quot; } });
+</code></pre>
+<h4>Equal to</h4>
+<p>Only applies to Boolean, DateTime, Numeric, and String properties. Searches for <code>Restaurants</code> where <code>restaurantName</code> equals the given value.</p>
+<p>Parameters:</p>
+<ul>
+<li><strong>field:</strong> Name of the property to use (for example, <code>restaurantName</code>).</li>
+<li><strong>$eq <code>string | number | boolean | date</code>:</strong> Value to do an equality check with <code>Restaurant Name</code>.</li>
+</ul>
+<p>Example query:</p>
+<pre><code class="language-typescript">const restaurantObjectSet = client(Restaurant)
+  .where({ restaurantName: { $eq: &quot;Restaurant Name&quot; } });
+</code></pre>
+<p>Example API response:</p>
+<pre><code class="language-json">{
+  &quot;nextPageToken&quot;: &quot;v1.000000000000000000000000000000000000000000000000000000000000000000000000&quot;,
+  &quot;data&quot;: [
+    {
+      &quot;$primaryKey&quot;: &quot;Restaurant Id&quot;,
+      &quot;$apiName&quot;: &quot;Restaurant&quot;,
+      &quot;restaurantName&quot;: &quot;Restaurant Name&quot;
+      // ... Rest of properties
+    }
+  ]
+}
+</code></pre>
+<h4>Null check</h4>
+<p>Only applies to Array, Boolean, DateTime, Numeric, and String properties. Searches for <code>Restaurants</code> based on whether a value for <code>restaurantName</code> exists or not.</p>
+<p>Parameters:</p>
+<ul>
+<li>field: Name of the property to use (for example, <code>restaurantName</code>).</li>
+<li>$isNull <code>boolean</code>: Whether <code>Restaurant Name</code> exists. For checking that fields are non-null, use <code>$not</code> filter with <code>$isNull: true</code>.</li>
+</ul>
+<p>Example query:</p>
+<pre><code class="language-typescript">const restaurantObjectSet = client(Restaurant)
+  .where({ restaurantName: { $isNull: true } });
+</code></pre>
+<h4><code>Not</code> filter</h4>
+<p>Returns <code>Restaurants</code> where the query is not satisfied. This can be further combined with other boolean filter operations.</p>
+<p>Parameters:</p>
+<ul>
+<li>$not: The search query to invert.</li>
+</ul>
+<p>Example query:</p>
+<pre><code class="language-typescript">const restaurantObjectSet = client(Restaurant)
+  .where({
+    $not: { restaurantName: { $isNull: true } },
+  });
+</code></pre>
+<h4><code>And</code> filter</h4>
+<p>Returns <code>Restaurants</code> where all queries are satisfied. This can be further combined with other boolean filter operations.</p>
+<p>Parameters:</p>
+<ul>
+<li>$and <code>Filter[]</code>: The set of search queries to <code>and</code> together.</li>
+</ul>
+<p>Example query:</p>
+<pre><code class="language-typescript">const restaurantObjectSet = client(Restaurant)
+  .where({
+    $and: [
+      { $not: { restaurantName: { $isNull: true } } },
+      { restaurantName: { $eq: &quot;&lt;primarykey&gt;&quot; } },
+    ],
+  });
+</code></pre>
+<h4><code>Or</code> filter</h4>
+<p>Returns <code>Restaurants</code> where any of the specified queries are satisfied. This can be further combined with other Boolean filter operations.</p>
+<p>Parameters:</p>
+<ul>
+<li>$or <code>Filter[]</code>: The set of search queries to <code>or</code> together.</li>
+</ul>
+<p>Example query:</p>
+<pre><code class="language-typescript">const restaurantObjectSet = client(Restaurant)
+  .where({
+    $or: [
+      { $not: { restaurantName: { $isNull: true } } },
+      { restaurantName: { $eq: &quot;&lt;primarykey&gt;&quot; } },
+    ],
+  });
+</code></pre>
+<h2>Aggregations</h2>
+<p>Aggregations allow you to compute summary statistics over a set of data. They are useful for understanding patterns and insights from large datasets without having to manually analyze each individual data point. You can combine multiple aggregation operations to create more complex queries that provide deeper insights into the data.</p>
+<p>This endpoint uses the same object syncing technology as the object type. <code>Restaurant</code> can be backed by either Object Storage v2 or Object Storage v1 (Phonograph); in both cases, the endpoint returns a maximum of 10,000 results. If you request more than 10,000 <code>Restaurants</code>, the endpoint returns an <code>ObjectsExceededLimit</code> error.</p>
+<p>Perform aggregations on <code>Restaurants</code>.</p>
+<p>:::callout{theme="neutral" title="Selector keys are flat strings"}
+Each key in <code>$select</code> takes one of two forms. It is either the literal <code>$count</code>, or a single string joining the property API name and the metric with a colon, such as <code>"numberOfReviews:avg"</code>. The metric carries no <code>$</code> prefix, and the key is never a nested object. Any other key is a type error.</p>
+<p>Each value is the sort direction for that metric: <code>"unordered"</code>, <code>"asc"</code>, or <code>"desc"</code>. The examples below all use <code>"unordered"</code>. Ordering is available only when <code>$groupBy</code> names at most one property; with two or more group-by keys, every value must be <code>"unordered"</code>.
+:::</p>
+<p>Parameters:</p>
+<ul>
+<li><strong><code>$select</code>:</strong> Set of aggregation functions to perform.</li>
+<li><strong><code>$groupBy</code> (optional):</strong> A set of groupings to create for aggregation results.</li>
+</ul>
+<p>These two options are the only ones that <code>aggregate()</code> accepts. To restrict the objects being aggregated, chain a <code>.where()</code> call onto the object set before calling <code>.aggregate()</code>, as shown below.</p>
+<p>The blocks labeled <strong>Result</strong> below show the value that <code>aggregate()</code> resolves to in TypeScript rather than the raw HTTP response. Unlike the object-loading endpoints above, the two differ for aggregations.</p>
+<p>Example query:</p>
+<pre><code class="language-typescript">const numRestaurants = await client(Restaurant)
+  .where({ restaurantName: { $isNull: false } })
+  .aggregate({
+    $select: { $count: &quot;unordered&quot; },
+    $groupBy: { restaurantName: &quot;exact&quot; },
+  });
+</code></pre>
+<p>Result:</p>
+<pre><code class="language-typescript">// numRestaurants: Array&lt;{ $group: { restaurantName: string }; $count: number }&gt;
+[
+  { $group: { restaurantName: &quot;Restaurant Name&quot; }, $count: 100 },
+]
+</code></pre>
+<p>A grouped aggregation returns an array of rows, and the array is empty when no objects match. Guard the index before reading: <code>numRestaurants[0]?.$group.restaurantName</code> gives the group value and <code>numRestaurants[0]?.$count</code> gives the metric. An ungrouped aggregation returns a single object instead of an array.</p>
+<h3>Types of aggregations</h3>
+<p>The metrics available for a property depend on the type of that property:</p>
+<ul>
+<li>All property types: <code>approximateDistinct</code> and <code>exactDistinct</code>.</li>
+<li>Numeric properties: <code>sum</code>, <code>avg</code>, <code>min</code>, <code>max</code>, <code>approximateDistinct</code>, and <code>exactDistinct</code>.</li>
+<li>Date and timestamp properties: <code>min</code>, <code>max</code>, <code>approximateDistinct</code>, and <code>exactDistinct</code>. Note that <code>sum</code> and <code>avg</code> are not available for these types.</li>
+</ul>
+<p>Requesting a metric that the property type does not support, such as <code>"restaurantName:avg"</code>, is a type error. This check uses the property's base type and does not account for array-valued properties, so a metric requested on an array property compiles but may fail at runtime.</p>
+<h4>Approximate distinct</h4>
+<p>Computes an approximate number of distinct values for <code>restaurantName</code>.</p>
+<p>Parameters:</p>
+<ul>
+<li><strong><code>"&lt;property&gt;:approximateDistinct"</code>:</strong> A single string key that joins the property API name and the metric with a colon (for example, <code>"restaurantName:approximateDistinct"</code>). The value is the sort direction for the metric, which is <code>"unordered"</code> in this example.</li>
+</ul>
+<p>The TypeScript OSDK derives the result key from the property and the metric, so a metric cannot be given a custom name. The <a href="https://www.palantir.com/docs/foundry/ontology-sdk/python-osdk/">Python OSDK</a> documents a <code>name</code> parameter that aliases the computed metric.</p>
+<p>Example query:</p>
+<pre><code class="language-typescript">const distinctRestaurants = await client(Restaurant)
+  .aggregate({
+    $select: { &quot;restaurantName:approximateDistinct&quot;: &quot;unordered&quot; },
+  });
+</code></pre>
+<p>Result:</p>
+<pre><code class="language-typescript">// distinctRestaurants: { restaurantName: { approximateDistinct: number } }
+{ restaurantName: { approximateDistinct: 100 } }
+</code></pre>
+<p>Read the value with <code>distinctRestaurants.restaurantName.approximateDistinct</code>. Both <code>approximateDistinct</code> and <code>exactDistinct</code> are typed <code>number</code>, with no <code>| undefined</code>, whatever the type of the property they count and whether that property is required.</p>
+<h4>Count</h4>
+<p>Computes the total count of <code>Restaurants</code>.</p>
+<p>Parameters:</p>
+<ul>
+<li><strong><code>$count</code>:</strong> The only selector key that is <code>$</code>-prefixed and that names no property. The value is the sort direction for the metric, which is <code>"unordered"</code> in this example.</li>
+</ul>
+<p>Example query:</p>
+<pre><code class="language-typescript">const restaurantCount = await client(Restaurant)
+  .aggregate({
+    $select: { $count: &quot;unordered&quot; },
+  });
+</code></pre>
+<p>Result:</p>
+<pre><code class="language-typescript">// restaurantCount: { $count: number }
+{ $count: 100 }
+</code></pre>
+<p>Read the value with <code>restaurantCount.$count</code>. The <code>$count</code> key is always typed <code>number</code>, and it is present in the result only when you select it.</p>
+<h4>Numeric aggregations</h4>
+<p>Calculate the maximum, minimum, sum, or average of a property for <code>Restaurants</code>. The <code>sum</code> and <code>avg</code> metrics apply only to numeric properties; <code>min</code> and <code>max</code> also apply to date and timestamp properties, as listed under <a href="#types-of-aggregations">Types of aggregations</a>.</p>
+<p>Parameters:</p>
+<ul>
+<li><strong><code>"&lt;property&gt;:&lt;metric&gt;"</code>:</strong> A single string key that joins the property API name and the metric with a colon (for example, <code>"numberOfReviews:avg"</code>). The value is the sort direction for the metric, which is <code>"unordered"</code> in this example.</li>
+</ul>
+<p>Aggregation types:</p>
+<ul>
+<li>Average: <code>avg</code></li>
+<li>Maximum: <code>max</code></li>
+<li>Minimum: <code>min</code></li>
+<li>Sum: <code>sum</code></li>
+</ul>
+<p>Note that these metrics carry no <code>$</code> prefix; <code>$count</code> is the only <code>$</code>-prefixed selector key. As with approximate distinct, the result key is derived from the property and the metric, so metric aliases are not available in the TypeScript OSDK.</p>
+<p>Example query:</p>
+<pre><code class="language-typescript">const avgReviewScore = await client(Restaurant)
+  .aggregate({
+    $select: { &quot;numberOfReviews:avg&quot;: &quot;unordered&quot; },
+  });
+</code></pre>
+<p>Result:</p>
+<pre><code class="language-typescript">// Assuming numberOfReviews is optional, avg includes | undefined
+// avgReviewScore: { numberOfReviews: { avg: number | undefined } }
+{ numberOfReviews: { avg: 4.2 } }
+</code></pre>
+<p>Read the value with <code>avgReviewScore.numberOfReviews.avg</code>. Unlike the two distinct-count metrics, <code>sum</code>, <code>avg</code>, <code>min</code>, and <code>max</code> are typed as the underlying property's own value type and follow whether that property is required. For an optional <code>Integer</code> property, <code>avg</code> is therefore <code>number | undefined</code>, which is what the example above assumes for <code>numberOfReviews</code>. Properties whose Ontology SDK value type is a string yield a string instead. For the <code>LocalDate</code> property in the table above, <code>"dateOfOpening:max"</code> is typed <code>string | undefined</code>, as are metrics on <code>Long</code>, <code>Decimal</code>, and Timestamp properties. Handle the <code>undefined</code> case: <code>avg</code>, <code>min</code>, and <code>max</code> are <code>undefined</code> when the aggregation matches no objects.</p>
+<p>To request several metrics in a single call, add a key for each.</p>
+<p>Example query:</p>
+<pre><code class="language-typescript">const stats = await client(Restaurant)
+  .aggregate({
+    $select: {
+      $count: &quot;unordered&quot;,
+      &quot;numberOfReviews:avg&quot;: &quot;unordered&quot;,
+      &quot;numberOfReviews:max&quot;: &quot;unordered&quot;,
+      &quot;restaurantName:exactDistinct&quot;: &quot;unordered&quot;,
+    },
+  });
+</code></pre>
+<p>Result:</p>
+<pre><code class="language-typescript">// stats: {
+//   $count: number;
+//   numberOfReviews: { avg: number | undefined; max: number | undefined };
+//   restaurantName: { exactDistinct: number };
+// }
+{
+  $count: 100,
+  numberOfReviews: { avg: 4.2, max: 123 },
+  restaurantName: { exactDistinct: 87 },
+}
+</code></pre>
+<p>Adding <code>$groupBy</code> to a call like this one changes the result to an array of rows. Each metric sits alongside <code>$group</code> in the row rather than inside it:</p>
+<pre><code class="language-typescript">// Array&lt;{
+//   $group: { restaurantName: string };
+//   $count: number;
+//   numberOfReviews: { avg: number | undefined; max: number | undefined };
+// }&gt;
+</code></pre>
+<h3>Types of group bys</h3>
+<h4>Exact grouping</h4>
+<p>Groups <code>Restaurants</code> by exact values of <code>restaurantName</code>.</p>
+<p>Parameters:</p>
+<ul>
+<li><strong>Property key:</strong> The API name of the property to group by, used as the key in <code>$groupBy</code> (for example, <code>restaurantName</code>).</li>
+<li><strong><code>"exact"</code>:</strong> The value for that key, specifying exact grouping.</li>
+</ul>
+<p>Example query:</p>
+<pre><code class="language-typescript">const groupedRestaurants = await client(Restaurant)
+  .aggregate({
+    $select: { $count: &quot;unordered&quot; },
+    $groupBy: { restaurantName: &quot;exact&quot; },
+  });
+</code></pre>
+<p>Result:</p>
+<pre><code class="language-typescript">// groupedRestaurants: Array&lt;{ $group: { restaurantName: string }; $count: number }&gt;
+[
+  { $group: { restaurantName: &quot;Restaurant Name&quot; }, $count: 100 },
+]
+</code></pre>
+<h4>Numeric bucketing</h4>
+<p>Groups <code>Restaurants</code> by dividing <code>numberOfReviews</code> into buckets with the specified width.</p>
+<p>Parameters:</p>
+<ul>
+<li><strong>Property key:</strong> The API name of the property to group by, used as the key in <code>$groupBy</code> (for example, <code>numberOfReviews</code>).</li>
+<li><strong><code>$fixedWidth</code> <code>number</code>:</strong> Width of each bucket to divide the selected property into.</li>
+</ul>
+<p>Example query:</p>
+<pre><code class="language-typescript">const groupedRestaurants = await client(Restaurant)
+  .aggregate({
+    $select: { $count: &quot;unordered&quot; },
+    $groupBy: { numberOfReviews: { $fixedWidth: 10 } },
+  });
+</code></pre>
+<p>Result:</p>
+<pre><code class="language-typescript">// groupedRestaurants: Array&lt;{ $group: { numberOfReviews: number }; $count: number }&gt;
+[
+  { $group: { numberOfReviews: 0 }, $count: 100 },
+  { $group: { numberOfReviews: 10 }, $count: 40 },
+]
+</code></pre>
+<p>Each fixed-width group is reported as the plain start value of its bucket.</p>
+<h4>Range grouping</h4>
+<p>Groups <code>Restaurants</code> by specified ranges of <code>numberOfReviews</code>.</p>
+<p>Parameters:</p>
+<ul>
+<li><strong>Property key:</strong> The API name of the property to group by, used as the key in <code>$groupBy</code> (for example, <code>numberOfReviews</code>).</li>
+<li><strong><code>$ranges</code> <code>Array&lt;[number, number]&gt;</code>:</strong> Set of ranges, each written as a two-element <code>[start, end]</code> tuple with an inclusive start value and an exclusive end value. Both endpoints are required, so an open-ended range cannot be expressed.</li>
+</ul>
+<p>Ranges also apply to date and timestamp properties, where each endpoint is an ISO 8601 string. A date property takes a plain date, as in <code>$ranges: [["2024-01-02", "2024-01-09"]]</code>, and a Timestamp property takes a full timestamp, as in <code>$ranges: [["2024-01-02T00:00:00Z", "2024-01-09T00:00:00Z"]]</code>.</p>
+<p>Example query:</p>
+<pre><code class="language-typescript">const groupedRestaurants = await client(Restaurant)
+  .aggregate({
+    $select: { $count: &quot;unordered&quot; },
+    $groupBy: {
+      numberOfReviews: {
+        $ranges: [
+          [0, 3],
+          [3, 5],
+        ],
+      },
+    },
+  });
+</code></pre>
+<p>Result:</p>
+<pre><code class="language-typescript">// groupedRestaurants: Array&lt;{
+//   $group: { numberOfReviews: { startValue: number; endValue: number } };
+//   $count: number;
+// }&gt;
+[
+  { $group: { numberOfReviews: { startValue: 0, endValue: 3 } }, $count: 50 },
+  { $group: { numberOfReviews: { startValue: 3, endValue: 5 } }, $count: 30 },
+]
+</code></pre>
+<p>Ranges are the only groupings reported as a <code>{ startValue, endValue }</code> object. Exact, fixed-width, and date/time groupings report a plain scalar typed as the property's own value type. For fixed-width and date/time groupings, that scalar is the start of the bucket rather than a value any object holds.</p>
+<h4>Datetime grouping</h4>
+<p>Groups <code>Restaurants</code> by <code>dateOfOpening</code> via buckets of a specific date/time duration.</p>
+<p>Parameters:</p>
+<ul>
+<li><strong>Property key:</strong> The API name of the property to group by, used as the key in <code>$groupBy</code> (for example, <code>dateOfOpening</code>).</li>
+<li><strong><code>$duration</code> <code>[value, unit]</code>:</strong> A two-element tuple of the number of units and the unit name.</li>
+</ul>
+<p>Duration types available on a date property such as <code>dateOfOpening</code>:</p>
+<ul>
+<li>Days: <code>[n, "days"]</code></li>
+<li>Weeks: <code>[1, "weeks"]</code></li>
+<li>Months: <code>[1, "months"]</code></li>
+<li>Quarters: <code>[1, "quarters"]</code></li>
+<li>Years: <code>[1, "years"]</code></li>
+</ul>
+<p>The <code>weeks</code>, <code>months</code>, <code>quarters</code>, and <code>years</code> units accept a value of <code>1</code> only; <code>seconds</code>, <code>minutes</code>, <code>hours</code>, and <code>days</code> accept any number. Sub-day units (<code>seconds</code>, <code>minutes</code>, and <code>hours</code>) are available only on Timestamp properties, not on Date properties such as <code>dateOfOpening</code>.</p>
+<p>Example query:</p>
+<pre><code class="language-typescript">const groupedRestaurants = await client(Restaurant)
+  .aggregate({
+    $select: { $count: &quot;unordered&quot; },
+    $groupBy: { dateOfOpening: { $duration: [10, &quot;days&quot;] } },
+  });
+</code></pre>
+<p>Result:</p>
+<pre><code class="language-typescript">// groupedRestaurants: Array&lt;{ $group: { dateOfOpening: string }; $count: number }&gt;
+[
+  { $group: { dateOfOpening: &quot;2024-09-25&quot; }, $count: 100 },
+]
+</code></pre>
+<h2>Actions on the Ontology</h2>
+<p>Action types in the Ontology refer to predefined operations that you can perform on objects within your data model. These actions can create, modify, and delete objects in the Ontology. Action types are generated based on the Ontology and can be used within the TypeScript OSDK to perform specific tasks on objects in the code.</p>
+<h3>Parameters for adding a review to a <code>Restaurant</code> (<code>addRestaurantReview</code>)</h3>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>API name</th>
+<th>Type</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Restaurant Id</code></td>
+<td><code>restaurantId</code></td>
+<td>String</td>
+</tr>
+<tr>
+<td><code>Review Rating</code></td>
+<td><code>reviewRating</code></td>
+<td>Integer</td>
+</tr>
+<tr>
+<td><code>Review Summary</code></td>
+<td><code>reviewSummary</code></td>
+<td>String</td>
+</tr>
+</tbody>
+</table>
+<h4>Apply action</h4>
+<p>To apply an action, fill in the input parameter values. This will execute an action and return if the response was valid or invalid.</p>
+<p>Parameters:</p>
+<ul>
+<li><strong>parameters <code>Object</code>:</strong> Object of parameter ID to values to use for those input parameters.</li>
+<li><code>restaurantId</code> <code>string</code></li>
+<li><code>reviewRating</code> <code>number</code></li>
+<li><code>reviewSummary</code> <code>string</code></li>
+<li><strong>options (optional):</strong> Options for the action execution.</li>
+<li><strong><code>$returnEdits</code> <code>boolean</code>:</strong> Whether the edits are returned in the response after the action is applied.</li>
+</ul>
+<p>Example query:</p>
+<pre><code class="language-typescript">const result = await client(addReview).applyAction(
+  {
+    restaurantId: &quot;restaurantId&quot;,
+    reviewRating: 5,
+    reviewSummary: &quot;It was great!&quot;,
+  },
+  {
+    $returnEdits: true,
+  },
+);
+
+if (result.type === &quot;edits&quot;) {
+  console.log(&quot;Review added successfully&quot;, result);
+} else {
+  console.log(&quot;Review validation failed!&quot;, result);
+}
+</code></pre>
+<p>Example API response:</p>
+<pre><code class="language-json">{
+  &quot;validation&quot;: {
+    &quot;result&quot;: &quot;VALID&quot;,
+    &quot;submissionCriteria&quot;: [],
+    &quot;parameters&quot;: {
+      &quot;restaurantId&quot;: {
+        &quot;result&quot;: &quot;VALID&quot;,
+        &quot;evaluatedConstraints&quot;: [],
+        &quot;required&quot;: true
+      },
+      &quot;reviewRating&quot;: {
+        &quot;result&quot;: &quot;VALID&quot;,
+        &quot;evaluatedConstraints&quot;: [],
+        &quot;required&quot;: true
+      },
+      &quot;reviewSummary&quot;: {
+        &quot;result&quot;: &quot;VALID&quot;,
+        &quot;evaluatedConstraints&quot;: [],
+        &quot;required&quot;: true
+      }
+    }
+  },
+  &quot;edits&quot;: {
+    &quot;type&quot;: &quot;edits&quot;,
+    &quot;edits&quot;: [
+      {
+        &quot;type&quot;: &quot;modifyObject&quot;,
+        &quot;primaryKey&quot;: &quot;restaurantId1&quot;,
+        &quot;objectType&quot;: &quot;Restaurant&quot;
+      }
+    ],
+    &quot;addedObjectCount&quot;: 0,
+    &quot;modifiedObjectsCount&quot;: 1,
+    &quot;deletedObjectsCount&quot;: 0,
+    &quot;addedLinksCount&quot;: 0,
+    &quot;deletedLinksCount&quot;: 0
+  }
+}
+</code></pre>
+<h4>Apply batch action</h4>
+<p>To apply a batch of actions, fill in the input parameter values. This will execute a series of actions and return if the response was valid or invalid. Note that this does not return validations, only edits. Batch application is all-or-nothing: if any action in the batch fails, none of the edits in the batch are applied.</p>
+<p>Parameters:</p>
+<ul>
+<li><strong>parameters <code>Array&lt;Object&gt;</code>:</strong> Array of parameter objects with values to use for those input parameters.</li>
+<li><code>restaurantId</code> <code>string</code></li>
+<li><code>reviewRating</code> <code>number</code></li>
+<li><code>reviewSummary</code> <code>string</code></li>
+<li><strong>options (optional):</strong> Options for the action execution.</li>
+<li><strong><code>$returnEdits</code> <code>boolean</code>:</strong> Whether the edits are returned in the response after the action is applied.</li>
+</ul>
+<p>Example query:</p>
+<pre><code class="language-typescript">const result = await client(addReview).batchApplyAction(
+  [
+    {
+      restaurantId: &quot;restaurantId1&quot;,
+      reviewRating: 5,
+      reviewSummary: &quot;It was great!&quot;,
+    },
+    {
+      restaurantId: &quot;restaurantId2&quot;,
+      reviewRating: 4,
+      reviewSummary: &quot;Good food but service can improve.&quot;,
+    },
+  ],
+  {
+    $returnEdits: true,
+  },
+);
+
+if (result.type === &quot;edits&quot;) {
+  const updatedObject = result.editedObjectTypes[0];
+  console.log(&quot;Edited Objects&quot;, updatedObject);
+}
+</code></pre>
+<p>Example Response:</p>
+<pre><code class="language-json">{
+  &quot;edits&quot;: {
+    &quot;type&quot;: &quot;edits&quot;,
+    &quot;edits&quot;: [
+      {
+        &quot;type&quot;: &quot;modifyObject&quot;,
+        &quot;primaryKey&quot;: &quot;restaurantId1&quot;,
+        &quot;objectType&quot;: &quot;Restaurant&quot;
+      },
+      {
+        &quot;type&quot;: &quot;modifyObject&quot;,
+        &quot;primaryKey&quot;: &quot;restaurantId2&quot;,
+        &quot;objectType&quot;: &quot;Restaurant&quot;
+      }
+    ],
+    &quot;addedObjectCount&quot;: 0,
+    &quot;modifiedObjectsCount&quot;: 2,
+    &quot;deletedObjectsCount&quot;: 0,
+    &quot;addedLinksCount&quot;: 0,
+    &quot;deletedLinksCount&quot;: 0
+  }
+}
+</code></pre>
+<h2>Functions</h2>
+<p><a href="https://www.palantir.com/docs/foundry/functions/overview/">Functions</a> (sometimes referred to as "functions on objects" or "FOO") in the Palantir platform are a powerful feature designed to enhance data modeling and manipulation. Functions provide a way to define and execute custom logic on the data stored in the Ontology, allowing users to create more sophisticated data transformations, validations, and analytics.</p>
+<p>Within the TypeScript SDK, a user can execute Foundry Functions through generated function definitions.</p>
+<p>By adding your functions to your application, you can generate code that calls functions on objects to execute logic and get the result.</p>
+<p>In this example, we have a function <code>findSimilarRestaurants</code> that takes in an ID and returns an object set containing all the similar <code>Restaurants</code>.</p>
+<h3>Parameters for executing a function to find similar <code>Restaurants</code> (<code>findSimilarRestaurants</code>)</h3>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>API name</th>
+<th>Type</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Restaurant Id</code></td>
+<td><code>restaurantId</code></td>
+<td>String</td>
+</tr>
+</tbody>
+</table>
+<p>Returns: <code>RestaurantObjectSet</code></p>
+<h4>Apply function</h4>
+<p>To apply a function, you must execute it via the client. This is done by passing the function to the client and calling <code>executeFunction</code> with the parameters.</p>
+<p>Example query:</p>
+<pre><code class="language-typescript">const result = await client(findSimilarRestaurants).executeFunction({
+  restaurantId: &quot;restaurantId&quot;,
+});
+</code></pre>
+</body>
+</html>

@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Funnel batch pipelines</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Funnel batch pipelines</h1>
+<p>Funnel batch pipelines are internal job pipelines that orchestrate the efficient indexing of data (both from Foundry datasources and from user edits) into OSv2 in a batch fashion, ensuring up-to-date data and metadata in the Ontology.</p>
+<h2>Components of a Funnel batch pipeline</h2>
+<p>A Funnel batch pipeline is comprised of a series of <a href="https://www.palantir.com/docs/foundry/data-integration/datasets/">Foundry build jobs</a>:</p>
+<ul>
+<li><a href="#changelog">Changelog</a></li>
+<li><a href="#merge-changes">Merge changes</a></li>
+<li><a href="#indexing">Indexing</a></li>
+<li><a href="#hydration">Hydration</a></li>
+</ul>
+<p>The screenshot below shows an example Funnel batch pipeline.</p>
+<p><img alt="pipeline landing page" src="../../_resources/foundry/object-indexing/pipeline1.png" /></p>
+<h3>Changelog</h3>
+<p>In the changelog job, Funnel automatically computes the data difference for all datasources when the datasources receive new data or transactions, then creates intermediate changelog datasets in a Funnel pipeline. Changelog datasets receive <a href="https://www.palantir.com/docs/foundry/data-integration/datasets/#transaction-types">APPEND transactions</a> that contain the data difference in each transaction to provide <a href="https://www.palantir.com/docs/foundry/data-integration/datasets/#transaction-types">incremental computation semantics</a>. These changelog datasets are owned and controlled by Funnel, and thus are not accessible to users.</p>
+<h3>Merge changes</h3>
+<p>In the merge changes job, all changelog datasets from the changelog step and any recent user edits coming from Actions are joined by the object typeâs primary key to merge all changes and store them in a separate dataset. These merged datasets are owned and controlled by Funnel, and thus are not accessible to users.</p>
+<h3>Indexing</h3>
+<p>After changes are merged, Funnel starts an indexing job per object database to convert all rows in the final dataset with all merged changes into a format compatible with the object databases configured for the object type. For example, for the canonical OSv2 database, all of the rows in the merged changes dataset from the previous step are converted to index files; these files are stored in a separate index dataset. These index datasets are owned and controlled by Funnel, and thus are not accessible to users.</p>
+<h3>Hydration</h3>
+<p>Once the indexing job is complete, object databases must prepare the indexed data for querying. Using OSv2 as an example, this preparation step involves downloading the index files from the dataset into the disks of the OSv2 database search nodes. This process, known as <em>hydration</em>, is the final step of our example Funnel batch pipeline for updating the data of an object type.</p>
+<p>The progress of the hydration job is reported in the Ontology Manager application, as seen in the screenshot below.</p>
+<p><img alt="pipeline hydration status" src="../../_resources/foundry/object-indexing/pipeline2.png" /></p>
+<p>Once these steps are completed, the object type is ready for use and can be queried by other services, externally or in Foundry.</p>
+<h2>Live and replacement Funnel pipelines</h2>
+<p>Two separate Funnel pipelines are involved when there is a data update or a schema update to an object type. The screenshot below displays these two Funnel pipelines:</p>
+<p><img alt="pipeline landing page" src="../../_resources/foundry/object-indexing/pipeline1.png" /></p>
+<h3>Live pipelines</h3>
+<p>Funnel <em>live pipelines</em> update object types in production with new data from Foundry datasources. Live pipelines run whenever their respective datasources are updated. Additionally, if user edits on objects are detected, live pipelines will run every six hours regardless of any explicit backing dataset update; this ensures that user edits are persisted during the merge changes step of indexing into the Funnel-owned dataset.</p>
+<p>Note that user edits are applied to indexes in <a href="https://www.palantir.com/docs/foundry/object-backend/overview/#functional-components-and-architecture">object databases</a> immediately; a regular six-hour job interval allows a built-in control mechanism to persistently store this data in Foundry.</p>
+<h3>Replacement pipelines</h3>
+<p>When the schema of an object type changes and the previous pipelineâs schema is no longer up-to-date, a new <em>replacement pipeline</em> must be provisioned for orchestrating object type updates. Schema changes can include adding a new property type to an object type, changing an existing property type, or replacing the input datasource of an object type with another datasource.</p>
+<p>While the live pipeline continues to run on its usual cadence, Funnel will orchestrate a replacement pipeline in the background without impacting the live data being served to users. After the replacement pipeline successfully runs for the first time, the live pipeline will be discarded and replaced by the replacement pipeline; the object typeâs schema and data will be updated accordingly.</p>
+<p>:::callout{theme="neutral"}
+Although schema changes are the most common reason for Funnel to provision a replacement pipeline, Funnel will sometimes automatically provision a replacement pipeline for performance reasons based on various heuristics.
+:::</p>
+<h2>Incremental and full reindexing</h2>
+<p>:::callout{theme="neutral"}
+The following documentation is specific to the canonical Object Storage v2 data store. For information on the indexing behavior of Object Storage v1 (Phonograph), see the <a href="https://www.palantir.com/docs/foundry/object-databases/object-storage-v1/#incremental-and-batch-reindexing">OSv1 documentation</a>.
+:::</p>
+<h3>Incremental indexing (default)</h3>
+<p>The canonical Object Storage v2 data store automatically computes the data difference for every new transaction in a datasource and incrementally indexes only new data updates. Funnel pipelines use incremental indexing by default for all object types. Incremental indexing allows the Funnel pipeline to run more quickly than if all data had to be indexed again.</p>
+<p>For example, imagine you have an object type with 100 objects, backed by a 100-row datasource. If 10 of those rows change in a new data update, rather than reindexing all 100 objects regardless of the <a href="https://www.palantir.com/docs/foundry/data-integration/datasets/#transaction-types">transaction type</a> in the input datasource, the <a href="https://www.palantir.com/docs/foundry/object-indexing/funnel-batch-pipelines/">Funnel batch pipeline</a> will create a new <code>APPEND</code> transaction in the changelog dataset that contains only the 10 modified rows.</p>
+<h4>Incremental indexing of incremental datasets</h4>
+<p><a href="https://www.palantir.com/docs/foundry/object-backend/overview/#object-storage-v2-architecture">Object Storage v2</a> uses a "most recent transaction wins" strategy when syncing object types backed by incremental datasets. If the dataset contains more than one row for the same primary key, the data of the row in the most recent transaction will be present in the Ontology. You may not have duplicate primary keys within a single transaction. Note that this behavior is not related to how <a href="https://www.palantir.com/docs/foundry/object-edits/how-edits-applied/#resolve-conflicting-user-edits-and-datasource-updates">user edits and datasource update conflicts</a> are handled.</p>
+<p>Consider an incremental dataset that receives updates to rows through <code>APPEND</code> transactions, usually called a changelog dataset. A new version of the same data is represented by a new row with an updated value but the same primary key, appended to the dataset in one transaction. A column named <code>is_deleted</code> is not treated as a deletion column by default. To use a deletion column, the datasource schema must include legacy Object Storage v1 changelog metadata that identifies the column.</p>
+<p>Object Storage v2 syncs a changelog dataset as follows:</p>
+<ul>
+<li>If a primary key appears in multiple transactions, the row from the most recent transaction will be kept.</li>
+<li>Each transaction must contain at most one row per primary key.</li>
+<li>A deletion column is respected only when it is declared in legacy Object Storage v1 changelog metadata.</li>
+</ul>
+<p>You will likely need to perform an incremental window transform on your changelog dataset to ensure each transaction contains, at most, one row per primary key.</p>
+<pre><code class="language-python">from pyspark.sql.window import Window
+from pyspark.sql import functions as F
+
+ordering_window = Window().partitionBy('primary_key').orderBy(F.col('ordering').desc())
+df = df.withColumn('rank', F.row_number().over(ordering_window))
+df = df.filter((F.col('rank') == 1) &amp; ~F.col('is_deleted'))
+</code></pre>
+<h4>Views incremental indexing</h4>
+<p><a href="https://www.palantir.com/docs/foundry/data-integration/views/">Dataset views</a> have limitations with incremental indexing. Because a view abstracts the underlying data structure, Funnel attempts to use incremental builds to save costs. However, the following limitations apply:</p>
+<ul>
+<li><strong>Views with deletion columns</strong> are always fully reindexed because Funnel cannot determine which rows have been deleted.</li>
+<li><strong>Incremental builds may produce inconsistent results</strong> when deduplication column values conflict with transaction ordering. Funnel uses a "last edit wins" strategy: rows with larger deduplication column values are ignored if they fall outside the incremental window. To avoid this, either add a deletion column to trigger full reindexes or ensure that deduplication column values always increase with each transaction.</li>
+<li><a href="https://www.palantir.com/docs/foundry/retention/manage-retention-policies/#latest-view-transaction-deletion"><strong>Retention policies that delete from the latest view</strong></a> on the underlying dataset may cause unexpected results if old data is removed. In such cases, a full reindex will produce correct results.</li>
+</ul>
+<h3>Full reindexing (special cases)</h3>
+<p>Funnel pipelines will use batch indexing (in which all objects are reindexed) in these cases:</p>
+<ul>
+<li>When more than a certain percentage of the rows in the input datasource are modified in the same transaction, reindexing can be computationally less expensive and faster compared to computing a changelog and indexing incrementally. The default threshold is set to 80% of rows changed in the same transaction.</li>
+<li>When certain changes in object type schemas require a <a href="https://www.palantir.com/docs/foundry/object-indexing/funnel-batch-pipelines/#replacement-pipelines">Funnel replacement pipeline</a>, which will create an entirely new Funnel pipeline in the background (including OSv2 indexes).</li>
+<li>When user triggers a full reindex through Ontology Manager.</li>
+</ul>
+<p><img alt="Reindex option from the ... dropdown menu." src="../../_resources/foundry/object-indexing/reindex.png" /></p>
+<h2>Monitor Funnel pipelines</h2>
+<p>Funnel pipelines are comprised of multiple build jobs; <a href="https://www.palantir.com/docs/foundry/monitoring-views/overview/">monitoring views</a> enable users to track the health of specific jobs in Funnel pipelines by creating a set of <a href="https://www.palantir.com/docs/foundry/monitoring-views/overview/#add-a-monitoring-rule">monitoring rules</a>.</p>
+<p>Users can create a monitoring view by selecting <strong>Monitor the health of this object type</strong> in the Ontology Manager. This takes users to the <a href="https://www.palantir.com/docs/foundry/monitoring-views/overview/">monitoring views</a> tab of the Data Health application, as seen in the screenshot below.</p>
+<p><img alt="pipeline monitor" src="../../_resources/foundry/object-indexing/pipeline_monitor.png" /></p>
+<p>From the monitoring views tab, users can create rules for monitoring jobs in both live pipelines and replacement pipelines. Users can also add <strong>Sync Propagation Delay</strong> rules to be notified when the freshness of the indexed data in object databases passes the threshold defined in the rule.</p>
+<p>In contrast, Object Storage v1 (Phonograph) uses <a href="https://www.palantir.com/docs/foundry/maintaining-pipelines/recommended-health-checks/#optional-checks">health checks</a> to monitor syncs for Ontology entities; there is only a single sync job in OSv1 for object types, and users can define these health checks directly on the sync jobs.</p>
+<h2>Debug a pipeline</h2>
+<p>Foundry build jobs may fail for a number of reasons. Users with <code>View</code> permissions on the backing datasource of an object type can check the pipeline errors through the <strong>Live pipeline</strong> dashboard in the object typeâs <strong>Datasources</strong> tab. Choose the failed job in the pipeline graph, then select <strong>Failed job</strong> as seen in the screenshot below.</p>
+<p><img alt="pipeline debugging" src="../../_resources/foundry/object-indexing/pipeline3.jpg" /></p>
+<p>Alternatively, users can list all build jobs for a given object type by navigating to the <a href="https://www.palantir.com/docs/foundry/data-integration/application-reference/#builds">Builds application</a> application and filtering by object type in the search filters on the left panel.</p>
+<p><img alt="builds search" src="../../_resources/foundry/object-indexing/pipeline4.png" /></p>
+</body>
+</html>

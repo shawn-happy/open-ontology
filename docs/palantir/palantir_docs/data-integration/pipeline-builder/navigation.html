@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Navigation</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Navigation</h1>
+<p>This page describes Pipeline Builder's interface, navigational controls, and available tools.</p>
+<h2>Landing page</h2>
+<p>When you open Pipeline Builder, you are presented with a landing page that displays your pipelines and key information about each one. From the landing page, you can:</p>
+<ul>
+<li>View the current streaming dataset status for each pipeline</li>
+<li>View the pipeline deployment status</li>
+<li>View the backend types used by each pipeline</li>
+<li>Filter pipelines by favorites</li>
+<li>Toggle favorites to quickly access frequently used pipelines</li>
+</ul>
+<p>Select a pipeline from the landing page to open it and access the Edit, Proposals, and History views.</p>
+<h2>Edit, Proposals, and History views</h2>
+<p>Users can access three different views in Pipeline Builder from the top toolbar: Edit, Proposals, and History.</p>
+<p><img alt="Screenshot of top toolbar" src="../../_resources/foundry/pipeline-builder/top-toolbar@2x.png" /></p>
+<h2>Edit</h2>
+<p>The Edit view is where you can start building your pipeline workflow. It is separated into four sections: the top toolbar, details sidebar, graph, and preview pane.</p>
+<h3>Top toolbar</h3>
+<p>The top toolbar allows you to manage your views, monitor build check status, and edit build settings.</p>
+<ul>
+<li><strong>Undo/Redo:</strong> Undo or redo a recent action in your workflow.</li>
+<li><strong>Branch dropdown:</strong> View the name of the branch in which you are currently working, or switch to another branch. You can also choose to <strong>Create new branch</strong>. <a href="https://www.palantir.com/docs/foundry/pipeline-builder/branches-overview/">Learn more about branches.</a></li>
+<li><strong>Save:</strong> Save your progress. A filled <strong>Saved</strong> state appears when your changes are saved to your branch.</li>
+</ul>
+<p>:::callout{theme="warning"}
+Changes to a pipeline branch are not auto-saved. To properly save changes to your pipeline branch, you must manually save your changes before navigating away from the graph tab.
+:::</p>
+<ul>
+<li><strong>Proposals dropdown:</strong> Open the Proposals dropdown to manage proposals for your current branch.</li>
+<li><strong>View proposals:</strong> If there are open proposals for your current branch, select this option to view and navigate to them.</li>
+<li>
+<p><strong>Create a new proposal:</strong> Once your changes are saved, select this option to request a merge into the main branch. Merges from the main branch are not supported.</p>
+</li>
+<li>
+<p><strong>Deploy:</strong> After the pipeline passes validation checks, select <strong>Deploy</strong> to build your pipeline outputs.</p>
+</li>
+<li>
+<p><strong>Build settings:</strong> Change the compute profile of your build.</p>
+</li>
+<li>
+<p><strong>Default:</strong> The default auto scaling profile which uses the least amount of executor cores and memory.</p>
+</li>
+<li><strong>Medium:</strong> A slow scale up and quick scale down compute.</li>
+<li>
+<p><strong>Large:</strong> A slow scale up and quick scale down compute. Builds with larger profiles may complete faster but incur a higher compute cost.</p>
+</li>
+<li>
+<p><strong>Builds and checks status:</strong> View the status of build syncs and check passes and failures.</p>
+</li>
+<li>
+<p><strong>Share:</strong> Open the <a href="#details-sidebar">details sidebar</a> to access sharing options for your pipeline. <br><br>
+  <img alt="Screenshot of Topbar 2" src="../../_resources/foundry/pipeline-builder/top-bar2@2x.png" /> <br><br></p>
+</li>
+</ul>
+<h3>Details sidebar</h3>
+<p>The details sidebar allows you to view metadata, access requirements, and roles for your pipeline. Click on the icon in the upper right corner to expand and collapse the sidebar.</p>
+<p><img alt="Screenshot of Sidebar" src="../../_resources/foundry/pipeline-builder/details-sidebar@2x.png" /></p>
+<ul>
+<li>
+<p><strong>Description:</strong> Write or edit a description of your pipeline.</p>
+</li>
+<li>
+<p><strong>Views:</strong> The total number of times your pipeline was viewed in the last 30 days.</p>
+</li>
+<li>
+<p><strong>Followers:</strong> The total number of users following your pipeline workflow progress. Click on this option to follow the pipeline you are currently viewing.</p>
+</li>
+<li>
+<p><strong>Comments:</strong> View and manage comments on your pipeline workflow through the <strong>Comments</strong> tab. You can add new comments, edit existing comments, comment across different changes, and resolve comments. Select this option to post a comment or view all comments in the sidebar.</p>
+</li>
+<li>
+<p><strong>Collaborators:</strong> The users collaborating on the pipeline. Click <strong>View</strong> to see when users were added as workflow collaborators.</p>
+</li>
+<li>
+<p><strong>Access:</strong> Shows the organization(s) in which the pipeline belongs and the role you have on the pipeline file. Click <strong>View</strong> to view and manage access settings.</p>
+</li>
+<li>
+<p><strong>Access requirements:</strong> Displays the organization and Markings requirements needed to access the pipeline.</p>
+<ul>
+<li><strong>Organizations:</strong> The organization(s) to which a user must belong to access the pipeline.</li>
+<li><strong>Markings:</strong> The Markings to which a user must have access to access the pipeline.</li>
+<li><strong>Add:</strong> Opens a pane to search for and add Markings requirements to the pipeline workflow.</li>
+</ul>
+</li>
+<li><strong>Roles:</strong> Shows the role you have on the pipeline.<ul>
+<li><strong>Manage:</strong> Opens a pane to manage roles and share the pipeline workflow.</li>
+<li><strong>Link sharing:</strong> Toggle to turn on link sharing and grant roles to users who access the pipeline via a shareable link.</li>
+<li><strong>Add a user or group:</strong> Search for a user or group to grant them access roles on the pipeline workflow.</li>
+</ul>
+</li>
+<li>
+<p><strong>Check access:</strong> Check access requirements for a particular user or group.</p>
+<ul>
+<li><strong>Check:</strong> Opens a pane to search for and check access for a user or group.</li>
+<li><strong>Check access:</strong> Use the search field to find a user or group.<ul>
+<li><strong>Select a user or group:</strong> Check whether users meet access requirements, and view their assigned role on the pipeline workflow. <br><br>
+  <img alt="Screenshot of Sidebar 2" src="../../_resources/foundry/pipeline-builder/details-sidebar2@2x.png" /> <br><br></li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p><strong>Misc:</strong> Shows additional metadata for the pipeline.</p>
+</li>
+<li><strong>Location:</strong> The location of the pipeline in the Foundry file structure.</li>
+<li><strong>Modified:</strong> The date and time the pipeline was last modified.</li>
+</ul>
+<h3>Graph</h3>
+<p>The graph is where users add data, create parameters, and describe transforms. It is the primary view of the Pipeline Builder app.</p>
+<p><img alt="Screenshot of a sample pipeline graph" src="../../_resources/foundry/pipeline-builder/samplegraph@2x.png" /></p>
+<ul>
+<li>
+<p><strong>Panning Mode:</strong> Allows click and drag navigation around the graph.</p>
+</li>
+<li>
+<p><strong>Drag Select Mode:</strong> Click and drag across the graph to select multiple nodes. To quickly switch to this mode from panning mode, hold down <code>shift</code> while clicking and dragging across nodes.</p>
+</li>
+<li>
+<p><strong>Select:</strong> Select all nodes in the graph.</p>
+</li>
+<li>
+<p><strong>Remove:</strong> Removes selected nodes in the graph from the pipeline.</p>
+</li>
+<li>
+<p><strong>Layout:</strong> Evenly disperse and organize the nodes in your graph.</p>
+</li>
+<li>
+<p><strong>Add datasets:</strong> Open a window to search for and add datasets to your graph.</p>
+</li>
+<li>
+<p><strong>Parameters:</strong> Configure and add reusable transform parameters.</p>
+</li>
+<li>
+<p><strong>Add parameter:</strong> Name a new parameter and assign its value.</p>
+</li>
+<li>
+<p><strong>Transform:</strong> Select dataset nodes in your graph to transform, join, or union. Selecting a dataset on the graph also opens a pop-up menu allowing you to add or edit a transform.</p>
+</li>
+<li>
+<p><strong>Edit:</strong> Select a transform node in your graph to edit transform settings. <br><br>
+  <img alt="Screenshot of Pipeline builder graph" src="../../_resources/foundry/pipeline-builder/transform-bar@2x.png" /> <br><br></p>
+</li>
+<li>
+<p><strong>Legend:</strong> Show color indicators applied to datasets and transforms.</p>
+</li>
+<li>
+<p><strong>Add color:</strong> Select a new color from the color picker to assign to nodes in your graph. <br><br>
+    <img alt="Screenshot of color picker" src="../../_resources/foundry/pipeline-builder/color-picker@2x.png" /> <br><br></p>
+</li>
+<li>
+<p><strong>Outputs sidebar:</strong> In the sidebar, view build requirements of your pipeline datasets, edit schemas, and add outputs. Use the "expand" symbol on the far right side of the Builder graph to expand the outputs sidebar. <br><br>
+  <img alt="Screenshot of outputs sidebar" src="../../_resources/foundry/pipeline-builder/outputs-sidebar@2x.png" /> <br><br></p>
+</li>
+<li>
+<p><strong>Datasets:</strong> Show the dataset outputs described in your pipeline, health verifications, and any schema errors.</p>
+<ul>
+<li><strong>Edit schema:</strong> Identify schema errors, remove or add columns, and use input schema to resolve errors.</li>
+<li><strong>Delete dataset output:</strong> Remove the selected dataset output from your pipeline.</li>
+<li><strong>Add output:</strong> Create a new dataset output for your pipeline build.</li>
+</ul>
+</li>
+<li><strong>Object types:</strong> Show the object type outputs that guide your pipeline integration.<ul>
+<li><strong>Add output:</strong> Open a window to create a new object type output, generate an object type from a dataset schema, or add an existing object type.</li>
+</ul>
+</li>
+<li>
+<p><strong>Link types:</strong> Show the link type outputs that guide your pipeline integration.</p>
+<ul>
+<li><strong>Add output:</strong> Open a pane to create an object link from two object types.</li>
+</ul>
+</li>
+<li>
+<p><strong>Zoom settings:</strong> Choose to zoom in, zoom out, or zoom to fit your graph.</p>
+</li>
+<li>
+<p><strong>Copying Nodes:</strong> You can copy and paste nodes between Pipeline Builder deployments and within the same resource using <code>Cmd + C</code> and <code>Cmd + V</code> on MacOS or <code>Ctrl + C</code> and <code>Ctrl + V</code> on Windows. This can be used to duplicate parts of the pipeline or pipelines as a whole.</p>
+</li>
+</ul>
+<h3>Preview panel</h3>
+<p>The preview panel allows you to view a sample set of data from a single selected node. When you select a node, the preview panel opens and automatically runs the logic from raw datasets up until the selected node. Select the icon in the lower left of the graph to expand or contract the preview panel.</p>
+<ul>
+<li><strong>Name:</strong> Show the name for the selected node. You can edit the node name in this field.</li>
+<li><strong>Search:</strong> Search for column names within the data.</li>
+</ul>
+<p>You can also access the full dataset preview page by right-clicking on a dataset node and clicking <strong>Open</strong>.</p>
+<p>:::callout{theme="neutral"}
+You can configure preview behavior in your <a href="https://www.palantir.com/docs/foundry/pipeline-builder/outputs-preview-pipeline/#configuring-preview-behavior">user preferences</a> to require confirmation before running previews.
+:::</p>
+<h2>Proposals</h2>
+<p>In the Proposal view, you can see any open, merged, or closed proposals for this pipeline. Choose a filter from the dropdown menu to see all proposals within the status category.</p>
+<p><img alt="Screenshot of the proposals tab" src="../../_resources/foundry/pipeline-builder/proposals-tab@2x.png" /></p>
+<p>Each proposal will show a create date and time, the user who created it, and an icon denoting an open, merged, or closed status.</p>
+<p>Within a proposal, you can view and manage comments through the <strong>Comments</strong> tab in the sidebar. You can add or modify comments directly within a node diff view, edit existing comments, comment across different changes, and resolve comments to facilitate collaboration during the review process.</p>
+<h2>History</h2>
+<p>The History view allows you to see recent activity in any branch of your pipeline workflow. Select a branch from the dropdown to view its history.</p>
+<p><img alt="Screenshot of the history tab" src="../../_resources/foundry/pipeline-builder/history-tab@2x.png" /></p>
+<p>Click <strong>Actions</strong> to create a new branch, view details, or view changes made from each saved version.</p>
+<p><img alt="Screenshot of the history tab actions dropdown" src="../../_resources/foundry/pipeline-builder/history-tab-actions@2x.png" /></p>
+<h3>Create branch</h3>
+<p>This option allows you to start a new branch based off the selected branch.</p>
+<p><img alt="Screenshot of the create branch popover" src="../../_resources/foundry/pipeline-builder/create-branch-prompt@2x.png" /></p>
+<h3>View details</h3>
+<p>The <strong>View details</strong> option opens a read-only version of the graph that shows the state of the pipeline at the time of the saved activity. This option is a useful way to track workflow development over time without risking a revert to earlier states of the pipeline.</p>
+<p><img alt="Screenshot of the view changes view" src="../../_resources/foundry/pipeline-builder/view-details-view@2x.png" /></p>
+<h3>View changes</h3>
+<p>Similar to the <strong>View details</strong> option, you can <strong>View changes</strong> to understand pipeline modifications at a given time. In this view, however, the graph shows a split view to represent the differences, or <em>diffs</em>, between the previous save and the applied changes.</p>
+<p><img alt="Screenshot of the new proposals" src="../../_resources/foundry/pipeline-builder/new-proposal@2x.png" /></p>
+<h3>View proposal</h3>
+<p>Viewing a proposal allows builders to review and edit existing proposals. In the proposal's Changes tab, you can mark node or setting changes as reviewed and track your progress. The Changes sidebar visually separates reviewed and unreviewed items, checkmark badges on nodes indicate which changes have been reviewed, and a progress bar in the header shows overall review progress. You can mark items as reviewed either from the Changes tab or directly on the graph.</p>
+<p>Learn more about <a href="https://www.palantir.com/docs/foundry/pipeline-builder/branches-approve-a-change/#track-and-mark-changes-as-reviewed">viewing pipeline changes</a>.</p>
+</body>
+</html>

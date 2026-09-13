@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Code-defined input filtering</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Code-defined input filtering</h1>
+<p>Apart from the <code>Sampled</code> and <code>Full dataset</code> input strategy configurations discussed in the <a href="https://www.palantir.com/docs/foundry/palantir-extension-for-visual-studio-code/transforms-preview/">preview transforms</a> documentation, VS Code preview also supports a <code>Code-defined filters</code> option. This allows you to write custom Python functions that control exactly what data gets loaded during transform preview. Instead of relying on random sampling or full dataset loading, you define the precise logic for what subset of data should be used.</p>
+<p>When applicable, these filters leverage <a href="https://pola.rs/posts/predicate-pushdown-query-optimizer/">pushdown predicates â</a> to ensure that only the most relevant data samples are loaded. The Palantir extension for Visual Studio Code automatically discovers all eligible functions that can be used as filters in your repository and displays them in a dropdown menu when configuring your preview.</p>
+<h2>Why use code-defined filters?</h2>
+<p><strong>Test specific scenarios:</strong> Focus on edge cases or specific data conditions that matter for your development without sorting through irrelevant data.</p>
+<p><strong>Create reusable logic:</strong> Write a filter once and use it across multiple preview sessions, making your development workflow more consistent.</p>
+<p><strong>Fine-tune performance:</strong> For large datasets where even full dataset loading is slow, you can optimize exactly what data gets filtered.</p>
+<p><strong>Combine multiple filters:</strong> Select and chain multiple filters in any order to create sophisticated sampling strategies.</p>
+<h2>How to use code-defined filters</h2>
+<h3>Select filters for preview</h3>
+<ol>
+<li>Select <strong>Configure input strategy</strong> in the <strong>Preview</strong> panel.</li>
+<li>Choose the <code>Code-defined filters</code> option.</li>
+<li>Select from a list of built-in filters, or choose a <a href="#create-filter-functions">filter authored by you</a>.</li>
+<li>Arrange filters in your preferred order; they will be applied sequentially.</li>
+</ol>
+<p><img alt="Configure code-defined input filtering." src="../../_resources/foundry/palantir-extension-for-visual-studio-code/code-defined-filters.png" /></p>
+<p>The extension automatically discovers all eligible filters anywhere in your project codebase and displays them in the selection dropdown menu.</p>
+<h3>Create filter functions</h3>
+<p>To create an eligible preview filter from a Python function, the rules listed below must be followed.</p>
+<h4>Function requirements</h4>
+<p><strong>The function must be</strong></p>
+<ul>
+<li>directly defined in the global scope of its module</li>
+<li>fully type-annotated with one of the following signatures:</li>
+<li>For Spark transforms: <code>(pyspark.sql.DataFrame) -&gt; pyspark.sql.DataFrame</code></li>
+<li>For lightweight transforms: <code>(polars.LazyFrame) -&gt; polars.LazyFrame</code></li>
+<li>For raw files: <code>(collections.abc.Iterator[transforms.api.FileStatus]) -&gt; collections.abc.Iterator[transforms.api.FileStatus]</code></li>
+</ul>
+<p><strong>The function should NOT</strong></p>
+<ul>
+<li>be nested</li>
+<li>be guarded by <code>if</code>, <code>with</code>, <code>for</code> or other statements</li>
+<li>be part of a class</li>
+<li>be imported from somewhere else</li>
+<li>be a variable assigned to a function</li>
+<li>be an <code>async</code> or private function (function names cannot start with <code>_</code>)</li>
+<li>have any decorators applied</li>
+</ul>
+<h4>Example filter functions</h4>
+<p>The following example lists some valid preview filter functions:</p>
+<pre><code class="language-python">from pyspark.sql import DataFrame
+from pyspark.sql import functions as F
+from collections.abc import Iterator
+from transforms.api import FileStatus
+import itertools as it
+import polars as pl
+
+
+def limit_files(files: Iterator[FileStatus]) -&gt; Iterator[FileStatus]:
+    &quot;&quot;&quot; Limit the number of files in a file system listing.&quot;&quot;&quot;
+    return it.islice(files, 10)
+
+def ocean_animals_only(df: DataFrame) -&gt; DataFrame:
+    &quot;&quot;&quot; Get only animals living in the Ocean &quot;&quot;&quot;
+    return df.filter(F.col(&quot;Habitat&quot;) == &quot;Ocean&quot;)
+
+def grassland_animals_only_lightweight(df: pl.LazyFrame) -&gt; pl.LazyFrame:
+    &quot;&quot;&quot; Get only animals living on Grassland  &quot;&quot;&quot;
+    return df.filter(pl.col(&quot;Habitat&quot;) == &quot;Grassland&quot;)
+</code></pre>
+<p>You will receive immediate feedback on whether your functions are eligible for use through the CodeLens hint that appears above the filter functions:</p>
+<p><img alt="The CodeLens hint displays above eligible filter functions to indicate they are valid preview filters." src="../../_resources/foundry/palantir-extension-for-visual-studio-code/preview-filter-codelens.png" /></p>
+<h3>Add parameters to filters</h3>
+<p>You can make your filters more flexible by adding parameters. This allows you to create generic, reusable filter functions that adapt to different scenarios.</p>
+<h4>How to add parameters</h4>
+<ol>
+<li>Define parameters in the function signature with type annotations.</li>
+<li>Mark them as keyword-only arguments by adding a <code>*</code> symbol before the parameters.</li>
+<li>The extension will automatically detect these parameters and prompt for values when you select the filter.</li>
+</ol>
+<p>The following is an example with a parameter:</p>
+<pre><code class="language-python">from pyspark.sql import DataFrame
+from pyspark.sql import functions as F
+
+def filter_animals_by_habitat(df: DataFrame, *, habitat: str) -&gt; DataFrame:
+    &quot;&quot;&quot; Get only animals living in the Ocean &quot;&quot;&quot;
+    return df.filter(F.col(&quot;Habitat&quot;) == habitat)
+</code></pre>
+<p>Note the <code>*</code> symbol before the <code>habitat</code> parameter; this classifies it as a keyword-only argument.</p>
+<h4>Supported parameter types</h4>
+<p>Currently supported parameter types are the following:</p>
+<ul>
+<li><code>str</code></li>
+<li><code>int</code></li>
+<li><code>float</code></li>
+<li><code>bool</code></li>
+</ul>
+<h4>Provide default values</h4>
+<p>You can provide default values for parameters in the function signature. If a default value is provided, the parameter becomes optional, and the default value will be used if you do not enter a value at configuration time:</p>
+<pre><code class="language-python">from pyspark.sql import DataFrame
+from pyspark.sql import functions as F
+
+def example_filter_with_params(
+    df: DataFrame, *, int_param: int, float_param: float = 3.3, str_param: str = &quot;Hello world&quot;, bool_param: bool = True
+) -&gt; DataFrame:
+    &quot;&quot;&quot;This is an example function with many parameters of different types&quot;&quot;&quot;
+    print(f&quot;int_param: {int_param}, float_param: {float_param}, str_param: {str_param}, bool_param: {bool_param}&quot;)
+    return df.limit(int_param)
+</code></pre>
+<p>When you select a filter with parameters for preview, a prompt will appear for each parameter:</p>
+<p><img alt="Applying a code-defined filter with parameters." src="../../_resources/foundry/palantir-extension-for-visual-studio-code/code-defined-filters-params.png" /></p>
+<h2>Supported input types</h2>
+<p>The filter selection dropdown menu will show filters available for use; however, based on your transforms context, selecting a specific filter type might be more suitable.</p>
+<ul>
+<li><strong>When working with structured inputs in Spark transforms:</strong> Use <code>DataFrame</code> filters.</li>
+<li><strong>When working with structured inputs in lightweight transforms:</strong> Use <code>LazyFrame</code> filters.</li>
+<li><strong>When working with unstructured inputs (raw files) in Spark or lightweight:</strong> Use <code>Iterator[FileStatus]</code> filters.</li>
+</ul>
+</body>
+</html>

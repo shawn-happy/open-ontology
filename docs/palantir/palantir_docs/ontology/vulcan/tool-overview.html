@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tools</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Tools</h1>
+<p>Vulcan provides tools for annotating, measuring, sectioning, styling, coloring, and repositioning a CAD model. Annotations, measurements, and section planes can be saved as Ontology objects, while function outputs drive part coloring and transforms. Each tool can be shown or hidden when Vulcan is <a href="https://www.palantir.com/docs/foundry/vulcan/widget/#tools">embedded in a Workshop module</a>.</p>
+<p><em>All screenshots use notional data.</em></p>
+<h2>Annotations</h2>
+<p><strong>Annotations</strong> mark a specific point on a part with a label, body text, and a color-coded intent. Use them to flag:</p>
+<ul>
+<li>Design defects that require a review</li>
+<li>Fault locations for repair</li>
+<li>Points of interest for quality checks</li>
+</ul>
+<p><img alt="A Vulcan annotation is attached to a part of a 3D model." src="../../_resources/foundry/vulcan/vulcan-tools-annotation.png" /></p>
+<h2>Measurements</h2>
+<p><strong>Measurements</strong> capture distances between points on a model and provide a sense of physical scale. A measurement is an ordered set of points, and Vulcan reports the total distance along the polyline they define.</p>
+<p>When a model format defines physical units, Vulcan uses them by default. Scene units are the raw, dimensionless coordinate values stored in the model file. For unit-agnostic formats, Vulcan reports distances in scene units unless the <a href="https://www.palantir.com/docs/foundry/vulcan/schema-reference/#cad-object">CAD object</a> has a property carrying the <code>model_unit</code> type class. When neither the file nor the CAD object supplies a unit, you can set one for the current session with <strong>Scene units</strong> in <strong>Measurement settings</strong>. This setting appears only in that case, and it resets when you reload the page.</p>
+<p><img alt="A measurement is displayed between two points on a 3D model in Vulcan." src="../../_resources/foundry/vulcan/vulcan-tools-measurement.png" /></p>
+<h2>Section planes</h2>
+<p>A <strong>section plane</strong> is a flat plane positioned in 3D space. It hides geometry on one side so that you can see inside an assembly. Use section planes to inspect internal components without hiding individual parts. For example, you can verify a bearing's position inside a housing or review routing paths through a machine frame.</p>
+<p>A saved section plane stores its position and orientation so that the cross-section can be recalled later or shared across sessions and users.</p>
+<h2>Mesh style</h2>
+<p><strong>Mesh style</strong> quickly changes how model geometry is rendered. You can switch between <strong>Normal</strong>, <strong>X-Ray</strong>, and <strong>Wireframe</strong> views.</p>
+<h2>Part coloring</h2>
+<p><strong>Part coloring</strong> uses property or function outputs to drive <strong>Scene coloring</strong>, providing visual context for data such as:</p>
+<ul>
+<li>Fault rates</li>
+<li>Procurement lead times and stock levels</li>
+<li>Cost</li>
+</ul>
+<h2>Part transforms</h2>
+<p><strong>Part transforms</strong> use function outputs to reposition parts or assemblies in space. Use transforms to demonstrate:</p>
+<ul>
+<li>How parts fit together</li>
+<li>How service equipment must be positioned to reach a part during installation or repair</li>
+</ul>
+</body>
+</html>

@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Enabling third-party applications</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Enabling third-party applications</h1>
+<p>Foundryâs third-party application enablement framework allows organizations to maintain control of the third-party applications that they have enabled. Organizations can choose which applications to enable since enablements are Organization-specific; the set of enabled applications for an Organization may include applications managed by other Organizations.</p>
+<p>Thus, once a third-party application has been registered in Foundry, it needs to be enabled for an Organization before users in the Organization can use the application. This applies to the Organization that registered the third-party application as well as other organizations; applications are not automatically enabled.</p>
+<p>After an application has been enabled, users can perform the <a href="https://www.palantir.com/docs/foundry/platform-security-third-party/authorizing-3pa-access/">OAuth2 authorization flow</a> in order to grant Foundry access to a third-party application. Thus, an applicationâs access to Foundry resources still requires the user to affirmatively agree to grant access.</p>
+<h2>Required permissions</h2>
+<p>If you have the <strong>Manage OAuth 2.0 clients</strong> permission for your Organization and the third-party application has been made discoverable to that Organization, then you are allowed to enable the application, edit the enablement details of the application, or disable the application.</p>
+<h2>Enable or disable applications</h2>
+<p>The enablement settings interface is accessed by selecting <strong>Enablement settings</strong> from the <strong>Actions</strong> dropdown to the right of an application in the <a href="https://www.palantir.com/docs/foundry/platform-security-third-party/third-party-apps-overview/#accessing-the-third-party-applications-user-interface">third-party applications user interface</a>.</p>
+<p>The following is the enablement settings interface for an example application:</p>
+<p><img alt="Enablement settings page" src="../../_resources/foundry/platform-security-third-party/3PA-enablement-settings-page.png" /></p>
+<p>Here, you can <strong>enable</strong> or <strong>disable</strong> your application using the toggle at the top of the page.</p>
+<p>:::callout{theme="danger" title="Warning"}
+Disabling an application is not a simple on and off toggle as re-enabling an application requires the application enablement workflow to be completed again. Existing authorizations for the application will not be reactivated and every user must reauthorize the newly-enabled application.
+:::</p>
+<h3>Project access</h3>
+<p>You can also set the scope of Project access for the application. The Project access scope determines the Projects to which the application will have access when authorized on behalf of a Foundry user through the authorization code grant.</p>
+<ul>
+<li>The scope of resources that a third-party application connected to Foundry can access is limited by two factors:</li>
+<li>The Projects to which the authorizing user has access, and</li>
+<li>The Projects that are defined on the enablement interface.</li>
+<li>Applications can only access resources at the intersection between the Projects that the authorizing user can access and the Projects that are specified in the enablement interface. In other words, the enablement interface provides a way to narrow the scope of an applicationâs access to Foundry.</li>
+<li>We recommend leaving the Project scope to <strong>Unrestricted</strong>, which grants the application access to all resources that the authorizing user can access.</li>
+</ul>
+<h3>Marking restrictions</h3>
+<p>Another way of setting the data access scope of your application is through Marking restrictions. By applying <a href="https://www.palantir.com/docs/foundry/security/markings/">Markings</a> to your application, you can determine the resources the application will have access to when authorized on behalf of a Foundry user through the authorization code grant.</p>
+<ul>
+<li>The scope of resources that a third-party application connected to Foundry can access is limited by two factors:</li>
+<li>The resources to which the authorizing user has access, and</li>
+<li>The Markings that are applied through the enablement interface.</li>
+<li>Applications can only access resources at the intersection between what the user can access and those permitted through the Markings specified in the enablement interface. It is important to note that even when access is restricted, unmarked resources may still be utilized unless the user is denied access to them.</li>
+<li>We recommend leaving Marking restrictions as <strong>Unrestricted</strong>, which grants the application access to all resources that the authorizing user can access.</li>
+</ul>
+<h3>Organization level consent</h3>
+<p>In advanced enablement settings, you can authorize access to Foundry for third-party applications on behalf of your Organization's users.</p>
+<p>If enabled, users will not be required to perform the <a href="https://www.palantir.com/docs/foundry/platform-security-third-party/authorizing-3pa-access/">OAuth2 authorization flow</a>, and the third-party application will be authorized to access Foundry for all users in that Organization. Users will not be notified if this is enabled.</p>
+<p>:::callout{theme="neutral"}
+We recommend not enabling Organization level consent unless your use case explicitly requires it.
+:::</p>
+</body>
+</html>

@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>List Transactions Of Dataset</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../../../index.html">返回目录</a></div>
+<p><code>GET /api/v2/datasets/{datasetRid}/transactions</code></p>
+<p>:::callout{theme=warning title=Warning}
+  This endpoint is in preview and may be modified or removed at any time.
+  To use this endpoint, add <code>preview=true</code> to the request query parameters.
+:::</p>
+<p>Get the Transaction history for the given Dataset. When requesting all transactions, the endpoint returns them in reverse chronological order.</p>
+<p>Third-party applications using this endpoint via OAuth2 must request the following operation scope: <code>api:datasets-read</code>.</p>
+<p><strong>OAuth2 scopes</strong>: <code>api:datasets-read</code></p>
+<h2>Path parameters</h2>
+<table>
+<thead>
+<tr>
+<th>参数</th>
+<th>类型</th>
+<th>必填</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>datasetRid</code></td>
+<td>string</td>
+<td>是</td>
+<td>The Resource Identifier (RID) of a Dataset.<br>示例: <code>ri.foundry.main.dataset.c26f11c8-cdb3-4f44-9f5d-9816ea1c82da</code></td>
+</tr>
+</tbody>
+</table>
+<h2>Query parameters</h2>
+<table>
+<thead>
+<tr>
+<th>参数</th>
+<th>类型</th>
+<th>必填</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>pageSize</code></td>
+<td>integer</td>
+<td>否</td>
+<td>The page size to use for the endpoint.</td>
+</tr>
+<tr>
+<td><code>pageToken</code></td>
+<td>string</td>
+<td>否</td>
+<td>The page token indicates where to start paging. This should be omitted from the first page's request.<br>To fetch the next page, clients should take the value from the <code>nextPageToken</code> field of the previous response<br>and use it to populate the <code>pageToken</code> field of the next request.</td>
+</tr>
+<tr>
+<td><code>preview</code></td>
+<td>boolean</td>
+<td>否</td>
+<td>Enables the use of preview functionality.<br>示例: <code>true</code></td>
+</tr>
+</tbody>
+</table>
+<h2>Response</h2>
+<p><strong>ListTransactionsOfDatasetResponse</strong></p>
+<table>
+<thead>
+<tr>
+<th>参数</th>
+<th>类型</th>
+<th>必填</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ListTransactionsOfDatasetResponse</code></td>
+<td>object</td>
+<td>是</td>
+<td>示例: <code>{"data":[{"transactionType":"APPEND","createdTime":"2020-09-30T14:30:00Z","rid":"ri.foundry.main.transaction.0a0207cb-26b7-415b-bc80-66a3aa3933f4","closedTime":"2020-09-30T21:00:00Z","status":"COMMITTED"}],"nextPageToken":"v1.QnVpbGQgdGhlIEZ1dHVyZTogaHR0cHM6Ly93d3cucGFsYW50aXIuY29tL2NhcmVlcnMvP2xldmVyLXNvdXJjZSU1YiU1ZD1BUElEb2NzI29wZW4tcG9zaXRpb25z"}</code></td>
+</tr>
+<tr>
+<td><code>ListTransactionsOfDatasetResponse.data</code></td>
+<td>list<Transaction></td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListTransactionsOfDatasetResponse.data.Transaction</code></td>
+<td>object</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListTransactionsOfDatasetResponse.data.Transaction.rid</code></td>
+<td>string</td>
+<td>是</td>
+<td>The Resource Identifier (RID) of a Transaction.<br>示例: <code>ri.foundry.main.transaction.0a0207cb-26b7-415b-bc80-66a3aa3933f4</code></td>
+</tr>
+<tr>
+<td><code>ListTransactionsOfDatasetResponse.data.Transaction.transactionType</code></td>
+<td>enum</td>
+<td>是</td>
+<td>The type of a Transaction.<br>示例: <code>APPEND</code></td>
+</tr>
+<tr>
+<td><code>ListTransactionsOfDatasetResponse.data.Transaction.status</code></td>
+<td>enum</td>
+<td>是</td>
+<td>The status of a Transaction.<br>示例: <code>COMMITTED</code></td>
+</tr>
+<tr>
+<td><code>ListTransactionsOfDatasetResponse.data.Transaction.createdTime</code></td>
+<td>string</td>
+<td>是</td>
+<td>The timestamp when the transaction was created, in ISO 8601 timestamp format.<br>示例: <code>2020-09-30T14:30:00Z</code></td>
+</tr>
+<tr>
+<td><code>ListTransactionsOfDatasetResponse.data.Transaction.closedTime</code></td>
+<td>string</td>
+<td>否</td>
+<td>The timestamp when the transaction was closed, in ISO 8601 timestamp format.<br>示例: <code>2020-09-30T21:00:00Z</code></td>
+</tr>
+<tr>
+<td><code>ListTransactionsOfDatasetResponse.nextPageToken</code></td>
+<td>string</td>
+<td>否</td>
+<td>The page token indicates where to start paging. This should be omitted from the first page's request.<br>To fetch the next page, clients should take the value from the <code>nextPageToken</code> field of the previous response<br>and use it to populate the <code>pageToken</code> field of the next request.</td>
+</tr>
+</tbody>
+</table>
+<pre><code class="language-json">{
+  &quot;data&quot;: [
+    {
+      &quot;transactionType&quot;: &quot;APPEND&quot;,
+      &quot;createdTime&quot;: &quot;2020-09-30T14:30:00Z&quot;,
+      &quot;rid&quot;: &quot;ri.foundry.main.transaction.0a0207cb-26b7-415b-bc80-66a3aa3933f4&quot;,
+      &quot;closedTime&quot;: &quot;2020-09-30T21:00:00Z&quot;,
+      &quot;status&quot;: &quot;COMMITTED&quot;
+    }
+  ],
+  &quot;nextPageToken&quot;: &quot;v1.QnVpbGQgdGhlIEZ1dHVyZTogaHR0cHM6Ly93d3cucGFsYW50aXIuY29tL2NhcmVlcnMvP2xldmVyLXNvdXJjZSU1YiU1ZD1BUElEb2NzI29wZW4tcG9zaXRpb25z&quot;
+}
+</code></pre>
+<h2>Error responses</h2>
+<table>
+<thead>
+<tr>
+<th>错误码</th>
+<th>错误名称</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>NOT_FOUND</td>
+<td><code>BranchNotFound</code></td>
+<td>The requested branch could not be found, or the client token does not have access to it.</td>
+</tr>
+<tr>
+<td>NOT_FOUND</td>
+<td><code>DatasetNotFound</code></td>
+<td>The requested dataset could not be found, or the client token does not have access to it.</td>
+</tr>
+</tbody>
+</table>
+</body>
+</html>

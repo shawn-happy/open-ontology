@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Calculate destination point</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Calculate destination point</h1>
+<blockquote>
+<p>Supported in: Batch, Faster, Streaming</p>
+</blockquote>
+<p>Calculates the destination point along a specified path given a starting point, course, and distance.</p>
+<p><strong>Expression categories:</strong> Geospatial</p>
+<h2>Declared arguments</h2>
+<ul>
+<li><strong>Course:</strong> Current course in degrees.<br><em>Expression\<Double></em></li>
+<li><strong>Distance:</strong> Distance to destination in meters.<br><em>Expression\<Double></em></li>
+<li><strong>Starting point:</strong> Longitude and latitude for point a.<br><em>Expression\<GeoPoint></em></li>
+<li><em>optional</em> <strong>Calculation method:</strong> The path to follow along the surface of a spherical approximation of the earth. Defaults to great circle.<br><em>Enum\<Great Circle, Loxodrome/Rhumb Line></em></li>
+</ul>
+<p><strong>Output type:</strong> <em>GeoPoint</em></p>
+<h2>Examples</h2>
+<h3>Example 1: Base case</h3>
+<p><strong>Argument values:</strong></p>
+<ul>
+<li><strong>Course:</strong> <code>course</code></li>
+<li><strong>Distance:</strong> <code>distance</code></li>
+<li><strong>Starting point:</strong> <code>point_a</code></li>
+<li><strong>Calculation method:</strong> <code>GREAT_CIRCLE</code></li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>point_a</th>
+<th>course</th>
+<th>distance</th>
+<th><strong>Output</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>{<br>â<strong>latitude</strong>: 48.8567,<br>â<strong>longitude</strong>: 2.3508,<br>}</td>
+<td>225.0</td>
+<td>32000.0</td>
+<td>{<br>â<strong>latitude</strong>: 48.65279552300661,<br>â<strong>longitude</strong>: 2.0427666779658806,<br>}</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3>Example 2: Base case</h3>
+<p><strong>Argument values:</strong></p>
+<ul>
+<li><strong>Course:</strong> <code>course</code></li>
+<li><strong>Distance:</strong> <code>distance</code></li>
+<li><strong>Starting point:</strong> <code>point_a</code></li>
+<li><strong>Calculation method:</strong> <code>LOXODROME</code></li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>point_a</th>
+<th>course</th>
+<th>distance</th>
+<th><strong>Output</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>{<br>â<strong>latitude</strong>: 48.8567,<br>â<strong>longitude</strong>: 2.3508,<br>}</td>
+<td>225.0</td>
+<td>32000.0</td>
+<td>{<br>â<strong>latitude</strong>: 48.65320703115239,<br>â<strong>longitude</strong>: 2.0421403965968183,<br>}</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3>Example 3: Null case</h3>
+<p><strong>Argument values:</strong></p>
+<ul>
+<li><strong>Course:</strong> <code>course</code></li>
+<li><strong>Distance:</strong> <code>distance</code></li>
+<li><strong>Starting point:</strong> <code>point_a</code></li>
+<li><strong>Calculation method:</strong> <em>null</em></li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>point_a</th>
+<th>course</th>
+<th>distance</th>
+<th><strong>Output</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>{<br>â<strong>latitude</strong>: 48.8567,<br>â<strong>longitude</strong>: 2.3508,<br>}</td>
+<td>225.0</td>
+<td>32000.0</td>
+<td>{<br>â<strong>latitude</strong>: 48.65279552300661,<br>â<strong>longitude</strong>: 2.0427666779658806,<br>}</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3>Example 4: Edge case</h3>
+<p><strong>Argument values:</strong></p>
+<ul>
+<li><strong>Course:</strong> <code>course</code></li>
+<li><strong>Distance:</strong> <code>distance</code></li>
+<li><strong>Starting point:</strong> <code>point_a</code></li>
+<li><strong>Calculation method:</strong> <code>LOXODROME</code></li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>point_a</th>
+<th>course</th>
+<th>distance</th>
+<th><strong>Output</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>{<br>â<strong>latitude</strong>: 42.779577,<br>â<strong>longitude</strong>: -156.581761,<br>}</td>
+<td>10.0</td>
+<td>8000000.0</td>
+<td>{<br>â<strong>latitude</strong>: 90.0,<br>â<strong>longitude</strong>: 0.0,<br>}</td>
+</tr>
+</tbody>
+</table>
+<hr />
+</body>
+</html>

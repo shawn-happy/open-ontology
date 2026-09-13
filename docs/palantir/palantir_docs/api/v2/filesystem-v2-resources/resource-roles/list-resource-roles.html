@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>List Resource Roles</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../../../index.html">返回目录</a></div>
+<p><code>GET /api/v2/filesystem/resources/{resourceRid}/roles</code></p>
+<p>List the roles on a resource.</p>
+<p>Third-party applications using this endpoint via OAuth2 must request the following operation scope: <code>api:filesystem-read</code>.</p>
+<p><strong>OAuth2 scopes</strong>: <code>api:filesystem-read</code></p>
+<h2>Path parameters</h2>
+<table>
+<thead>
+<tr>
+<th>参数</th>
+<th>类型</th>
+<th>必填</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>resourceRid</code></td>
+<td>string</td>
+<td>是</td>
+<td>The unique resource identifier (RID) of a resource.<br>示例: <code>ri.foundry.main.dataset.c26f11c8-cdb3-4f44-9f5d-9816ea1c82da</code></td>
+</tr>
+</tbody>
+</table>
+<h2>Query parameters</h2>
+<table>
+<thead>
+<tr>
+<th>参数</th>
+<th>类型</th>
+<th>必填</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>includeInherited</code></td>
+<td>boolean</td>
+<td>否</td>
+<td>Whether to include inherited roles on the resource.</td>
+</tr>
+<tr>
+<td><code>pageSize</code></td>
+<td>integer</td>
+<td>否</td>
+<td>The page size to use for the endpoint.</td>
+</tr>
+<tr>
+<td><code>pageToken</code></td>
+<td>string</td>
+<td>否</td>
+<td>The page token indicates where to start paging. This should be omitted from the first page's request.<br>To fetch the next page, clients should take the value from the <code>nextPageToken</code> field of the previous response<br>and use it to populate the <code>pageToken</code> field of the next request.</td>
+</tr>
+</tbody>
+</table>
+<h2>Response</h2>
+<p><strong>ListResourceRolesResponse</strong></p>
+<table>
+<thead>
+<tr>
+<th>参数</th>
+<th>类型</th>
+<th>必填</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ListResourceRolesResponse</code></td>
+<td>object</td>
+<td>是</td>
+<td>示例: <code>{"data":[{"resourceRolePrincipal":{"type":"principalWithId","principalId":"f05f8da4-b84c-4fca-9c77-8af0b13d11de","principalType":"GROUP"},"roleId":"8bf49052-dc37-4528-8bf0-b551cfb71268"}],"nextPageToken":"v1.QnVpbGQgdGhlIEZ1dHVyZTogaHR0cHM6Ly93d3cucGFsYW50aXIuY29tL2NhcmVlcnMvP2xldmVyLXNvdXJjZSU1YiU1ZD1BUElEb2NzI29wZW4tcG9zaXRpb25z"}</code></td>
+</tr>
+<tr>
+<td><code>ListResourceRolesResponse.data</code></td>
+<td>list<ResourceRole></td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListResourceRolesResponse.data.ResourceRole</code></td>
+<td>object</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListResourceRolesResponse.data.ResourceRole.resourceRolePrincipal</code></td>
+<td>union</td>
+<td>是</td>
+<td>示例: <code>{"type":"principalWithId","principalId":"f05f8da4-b84c-4fca-9c77-8af0b13d11de","principalType":"GROUP"}</code></td>
+</tr>
+<tr>
+<td><code>ListResourceRolesResponse.data.ResourceRole.resourceRolePrincipal.principalWithId</code></td>
+<td>object</td>
+<td>否</td>
+<td>Represents a user principal or group principal with an ID.</td>
+</tr>
+<tr>
+<td><code>ListResourceRolesResponse.data.ResourceRole.resourceRolePrincipal.principalWithId.principalId</code></td>
+<td>string</td>
+<td>是</td>
+<td>The ID of a Foundry Group or User.<br>示例: <code>f05f8da4-b84c-4fca-9c77-8af0b13d11de</code></td>
+</tr>
+<tr>
+<td><code>ListResourceRolesResponse.data.ResourceRole.resourceRolePrincipal.principalWithId.principalType</code></td>
+<td>enum</td>
+<td>是</td>
+<td>示例: <code>USER</code></td>
+</tr>
+<tr>
+<td><code>ListResourceRolesResponse.data.ResourceRole.resourceRolePrincipal.everyone</code></td>
+<td>object</td>
+<td>否</td>
+<td>A principal representing all users of the platform.</td>
+</tr>
+<tr>
+<td><code>ListResourceRolesResponse.data.ResourceRole.roleId</code></td>
+<td>string</td>
+<td>是</td>
+<td>The unique ID for a Role. Roles are sets of permissions that grant different levels of access to resources.<br>The default roles in Foundry are: Owner, Editor, Viewer, and Discoverer. See more about<br><a href="https://www.palantir.com/docs/foundry/security/projects-and-roles#roles">roles</a> in the user documentation.<br>示例: <code>8bf49052-dc37-4528-8bf0-b551cfb71268</code></td>
+</tr>
+<tr>
+<td><code>ListResourceRolesResponse.nextPageToken</code></td>
+<td>string</td>
+<td>否</td>
+<td>The page token indicates where to start paging. This should be omitted from the first page's request.<br>To fetch the next page, clients should take the value from the <code>nextPageToken</code> field of the previous response<br>and use it to populate the <code>pageToken</code> field of the next request.</td>
+</tr>
+</tbody>
+</table>
+<pre><code class="language-json">{
+  &quot;data&quot;: [
+    {
+      &quot;resourceRolePrincipal&quot;: {
+        &quot;type&quot;: &quot;principalWithId&quot;,
+        &quot;principalId&quot;: &quot;f05f8da4-b84c-4fca-9c77-8af0b13d11de&quot;,
+        &quot;principalType&quot;: &quot;GROUP&quot;
+      },
+      &quot;roleId&quot;: &quot;8bf49052-dc37-4528-8bf0-b551cfb71268&quot;
+    }
+  ],
+  &quot;nextPageToken&quot;: &quot;v1.QnVpbGQgdGhlIEZ1dHVyZTogaHR0cHM6Ly93d3cucGFsYW50aXIuY29tL2NhcmVlcnMvP2xldmVyLXNvdXJjZSU1YiU1ZD1BUElEb2NzI29wZW4tcG9zaXRpb25z&quot;
+}
+</code></pre>
+<h2>Error responses</h2>
+<table>
+<thead>
+<tr>
+<th>错误码</th>
+<th>错误名称</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>NOT_FOUND</td>
+<td><code>ResourceNotFound</code></td>
+<td>The given Resource could not be found.</td>
+</tr>
+</tbody>
+</table>
+</body>
+</html>

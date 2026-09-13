@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Multi-datasource object types (MDOs)</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Multi-datasource object types (MDOs)</h1>
+<p>:::callout{theme="neutral"}
+Multi-datasource object types (MDOs) are only available in Object Storage v2.
+:::</p>
+<p>A multi-datasource object type (MDO) is backed by multiple datasources in the Ontology. At this time, only <a href="https://www.palantir.com/docs/foundry/data-integration/datasets/">Foundry datasets</a> or <a href="https://www.palantir.com/docs/foundry/security/restricted-views/">restricted views</a> can be used for MDOs. Streaming sources are not supported.</p>
+<h2>Types of multi-datasource object types (MDOs)</h2>
+<p>There are two distinct categories of MDOs:</p>
+<ul>
+<li><strong>Column-wise MDO:</strong> A join-like MDO case where distinct subsets of properties for an object type can be integrated from different datasources. Column-wise MDOs can be used to support use cases where there is a need for column-level access controls.</li>
+<li><strong>Row-wise MDO:</strong> A union-like MDO case where full objects (an object with all of its properties) can be integrated from multiple datasources sharing the same schema. Row-wise MDOs can be used to support use cases where there is a need for row-level access controls. In Foundry, <a href="https://www.palantir.com/docs/foundry/object-permissioning/configuring-rv-access-controls/">restricted views</a> provide support for use cases in which you might use row-wise MDOs. Row-wise MDOs themselves are not available.</li>
+</ul>
+<p>:::callout{theme="warning"}
+Foundry only supports column-wise MDOs and does not support row-wise MDOs. Most row-wise MDO use cases can be accomplished with <a href="https://www.palantir.com/docs/foundry/object-permissioning/configuring-rv-access-controls/">restricted views</a>. If you have a use case for row-wise MDOs that <strong>cannot</strong> be enabled via restricted views, contact your Palantir representative for assistance.
+:::</p>
+<h2>Configure a multi-datasource object type</h2>
+<p>After <a href="https://www.palantir.com/docs/foundry/object-link-types/create-object-type/#create-a-new-object-type-manually">creating an object type</a> in Ontology Manager using Object Storage v2, navigate to the <strong>Datasource</strong> metadata section of the object type from the left sidebar. Then, select <strong>Add new backing datasource</strong> to choose a dataset.</p>
+<p><img src="../../_resources/external-e15fed59b0cf.png" alt="New object type" width="500" /></p>
+<p>The <strong>Map primary key</strong> helper will appear and prompt you for a column with values matching the primary key of the object type. Once you choose a column, multiple backing datasets will appear under the <strong>Backing datasource</strong> section.</p>
+<p><img src="../../_resources/external-42562d108b6e.png" alt="New object type" width="500" /></p>
+<p>Navigate to the <strong>Properties</strong> metadata section from the left sidebar to add new fields to the newly added dataset.</p>
+<h2>FAQ</h2>
+<h3>Are multi-datasource object types available for an object type indexed into Object Storage v1 (Phonograph)?</h3>
+<p>No. MDOs are only supported in Object Storage v2 and are not available for Object Storage v1 (Phonograph).</p>
+<h3>Are both column-wise MDO and row-wise MDO supported?</h3>
+<p>Only column-wise MDOs are currently available. If you have a use case for row-wise MDOs that cannot be enabled via restricted views, contact your Palantir representative for assistance.</p>
+<h3>Are user edits and materializations supported for MDO?</h3>
+<p>Yes, <a href="https://www.palantir.com/docs/foundry/object-edits/overview/">user edits</a> and <a href="https://www.palantir.com/docs/foundry/object-edits/materializations/">materializations</a> are supported for MDO.</p>
+<h3>What happens if a user cannot view some of the input datasources for a given object type? What will the user experience be like?</h3>
+<p>If a user lacks <code>Viewer</code> permission on some of the input datasources, the properties mapped from those datasources will appear as <code>null</code> when displaying an object to the user. However, the user will still be able to view the schema of that object type (such as seeing property names), since access to the object type is controlled separately from the input datasource.</p>
+<p><a href="https://www.palantir.com/docs/foundry/object-permissioning/ontology-permissions/">Learn more about permissions for object types.</a></p>
+<h3>Is property multiplicity supported?</h3>
+<p>Property multiplicity refers to multiple input datasources feeding overlapping columns/properties of an object type in the column-wise MDO case. Property multiplicity is currently not supported. This means that a specific property of an object type must come from oneâand only oneâof the input datasources (except for the primary key property, which must exist in every input datasource to join all datasources).</p>
+<h3>Can a property corresponding to a restricted view policy be mapped to multiple restricted view datasources if they share the same policy?</h3>
+<p>No, this is not supported; each restricted view datasource should have a separate policy property on the object type. Some of these properties can be marked as hidden in the <a href="https://www.palantir.com/docs/foundry/ontology-manager/overview/#property-editor-view">Ontology Manager</a> to avoid cluttering front-end applications.</p>
+<h3>What is the difference between MDOs and linking two distinct object types with a foreign key relation? How should users decide between these options?</h3>
+<p>MDOs are intended to provide a user-friendly way to configure the same setup as a single object type to build an organization's digital twin. Multiple object types with links between them can also be used for cases in which that is how users understand and interact with their data. Note that querying and traversing links between multiple object types is a more expensive operation than filtering on a property on the same object type.</p>
+<h3>Which objects appear if two column-wise datasources for an object have different sets of primary keys?</h3>
+<p>If two column-wise datasources for an object have different sets of primary keys, the behavior will be similar to the case in which some users do not have access to some input datasources. In these cases, primary keys that do not exist in a datasource will have the properties that are mapped from that particular input datasource displayed as <code>null</code>.</p>
+<h3>Is there a limit to the number of datasources an object type can have?</h3>
+<p>Object types are limited to a maximum of 70 datasources. Only datasources that are synced to object storage count towards this limit, so it does not include media sets or time series syncs.</p>
+<h3>Can I use MDOs with streaming object types?</h3>
+<p>No, MDOs are not supported with streaming object types. This is a known limitation of Object Storage v2.</p>
+</body>
+</html>

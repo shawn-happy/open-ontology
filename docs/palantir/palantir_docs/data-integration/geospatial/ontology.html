@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Use geospatial data in the Ontology</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Use geospatial data in the Ontology</h1>
+<p>:::callout{theme="warning"}
+The <code>geospatial-tools</code> library is no longer actively developed; instead, use Pipeline Builder to load, transform, and wield geospatial data. The functionality for manipulating geospatial data types described on this page has been superseded by Pipeline Builder's geospatial capabilities. <a href="https://www.palantir.com/docs/foundry/pipeline-builder/transforms-geospatial/">Learn more about Pipeline Builder's geospatial features.</a>
+:::</p>
+<h2>How to configure Ontology datasets with vector data</h2>
+<p>Foundry's <a href="https://www.palantir.com/docs/foundry/geospatial/vector-data-in-transforms/"><code>geospatial-tools</code> library</a> was developed to parse, clean, and convert vector data in formats such as shapefile and GeoJSON into datasets which can be added to the Ontology. However, this functionality has been superseded by <a href="https://www.palantir.com/docs/foundry/pipeline-builder/transforms-geospatial/">Pipeline Builder's geospatial capabilities</a>. You should use Pipeline Builder instead of the <code>geospatial-tools</code> library as the <code>geospatial-tools</code> library is no longer maintained and may not function as expected.</p>
+<h2>How to specify point and shape geometries</h2>
+<p>Foundry supports two geospatial property types, each expecting a specific string format: use the <code>geopoint</code> property type for individual <a href="#points">points</a>, and the <code>geoshape</code> property type for <a href="#polygons-and-lines">polygons and lines</a>.</p>
+<h3>Points</h3>
+<p>Point geometries can be specified using the <code>geopoint</code> property type. The contents of a <code>geopoint</code> property should be a string of either:</p>
+<ul>
+<li><code>latitude,longitude</code>: For example, <code>57.64911,10.40744</code>. Coordinates must use the WGS 84 CRS (standard latitude and longitude). <a href="https://www.palantir.com/docs/foundry/geospatial/coordinate-reference-systems-and-projections/">Learn more about coordinate reference systems and projections.</a></li>
+<li>A <a href="https://en.wikipedia.org/wiki/Geohash">Geohash â</a>: For example, <code>u4pruydqqvj</code>. Geohashes will be converted into points, using the bottom-left corner of the Geohash rectangle.</li>
+</ul>
+<p>Objects with <code>geopoint</code> properties are indexed for geospatial search.</p>
+<p><img alt="Geopoint property type in the Ontology Manager" src="../../_resources/foundry/geospatial/oma-geopoint-property-type.png" /></p>
+<h3>Polygons and lines</h3>
+<p>Polygon and line geometries can be specified using the <code>geoshape</code> property type. The contents of a <code>geoshape</code> property must be a GeoJSON Geometry string meeting the following requirements:</p>
+<ul>
+<li>Must be a GeoJSON LineString, Polygon, MultiLineString, MultiPolygon, MultiPoint, or Point. However, Point geometries should <strong>not</strong> use the <code>geoshape</code> property type; use the <a href="#points"><code>geopoint</code> property type</a> for Point geometries.</li>
+<li>Must <strong>not</strong> be a Feature, FeatureCollection, or GeometryCollection.</li>
+<li>Must comply with the <a href="https://tools.ietf.org/html/rfc7946">GeoJSON Specification (RFC 7946) â</a>.</li>
+<li>Must use WGS 84 coordinates.</li>
+<li>Polygons and MultiPolygons must be valid according to the GeoJSON Specification. Polygons and MultiPolygons must be closed, use a right-hand/counterclockwise winding order for exterior rings, and have no self-intersection.</li>
+</ul>
+<p>This is an example of valid GeoJSON for a <code>geoshape</code> property:</p>
+<pre><code class="language-json">{ &quot;type&quot;: &quot;LineString&quot;, &quot;coordinates&quot;: [ [100.0, 0.0], [101.0, 1.0] ] }
+
+</code></pre>
+<p>Objects with <code>geoshape</code> properties are indexed for geospatial search.</p>
+<p><img alt="Geoshape property type in the Ontology Manager" src="../../_resources/foundry/geospatial/oma-geoshape-property-type.png" /></p>
+<h2>How to visualize, explore, and publish geospatial data</h2>
+<p>Once your geospatial data is loaded in the Ontology, there are two primary Ontology mapping tools where your data can be used:</p>
+<ul>
+<li>The <a href="https://www.palantir.com/docs/foundry/map/overview/">Map application</a> provides immersive geospatial analysis and investigation capabilities, including time series overlay, link analysis, and simulations.</li>
+<li><a href="https://www.palantir.com/docs/foundry/workshop/overview/">Workshop</a> is an application-building framework designed for operational users and includes a robust map widget. Learn more about <a href="https://www.palantir.com/docs/foundry/workshop/widgets-map/">creating maps in Workshop</a>.</li>
+</ul>
+<p>Geospatial capabilities are also available in other Foundry applications, including <a href="https://www.palantir.com/docs/foundry/slate/widgets-visualization/#map">Slate</a>, <a href="https://www.palantir.com/docs/foundry/quiver/overview/">Quiver</a>, <a href="https://www.palantir.com/docs/foundry/object-explorer/overview/">Object Explorer</a>, and <a href="https://www.palantir.com/docs/foundry/contour/overview/">Contour</a>.</p>
+<h3>Using external layers in maps</h3>
+<p>In some cases, Foundry also supports adding external layers into maps; for instance, in situations where you have an external feature service or tile server that you want to connect directly to a Foundry map without first loading all the data into a dataset.</p>
+<p>Contact your Palantir representative for more details, as this requires additional configuration to enable.</p>
+<h2>Mapbox Boundaries</h2>
+<p>In partnership with <a href="https://docs.mapbox.com/data/boundaries/guides/">Mapbox â</a>, Foundry provides built-in support for creating choropleth-style layers using a variety of available options for defining region boundaries.</p>
+<p>With Boundaries, you can connect your Foundry Datasets and/or Ontology with a managed set of geographical features representing various types of boundaries, such as administrative divisions or postal code areas. Polygons in Mapbox Boundaries are edge matched for seamless global coverage, so you can create exact data visualizations and accurate analysis.</p>
+<h3>Layer types, levels, and worldviews</h3>
+<p>Mapbox provides boundaries data across multiple types, levels, and worldviews. You can explore the types and levels of boundaries available using the <a href="https://demos.mapbox.com/boundaries-explorer/">Boundaries Explorer app â</a>, as well as <a href="https://docs.mapbox.com/data/boundaries/reference/mapbox-boundaries-v4/#layer-types-and-levels">additional documentation on the different types of boundaries â</a>.</p>
+<h3>Using Mapbox Boundaries</h3>
+<p>The instructions below are for leveraging the latest version of Mapbox Boundaries (v4). If you are already using a prior version, <a href="#migrate-from-mapbox-boundaries-v3-to-v4">migrate your pipelines and applications</a> first.</p>
+<h4>Install Mapbox Boundary definitions</h4>
+<p>Mapbox boundary definitions v4 are available to download in the Foundry Marketplace. To access from your Foundry instance:</p>
+<ol>
+<li>Navigate to <code>/workspace/marketplace/discovery</code> on your Foundry instance.</li>
+<li>Search for âMapboxâ or filter to the âFoundry Storeâ using the <strong>Store</strong> filter in the left panel.</li>
+<li>Choose the <strong>Mapbox Boundary Definitions v4</strong> product.</li>
+<li>Click <strong>Install</strong>. If someone has already installed these boundaries, you will see <strong>Open</strong> instead, from which you can navigate to the current installation.</li>
+</ol>
+<p><img alt="Mapbox Boundary Definitions v4 product in Marketplace" src="../../_resources/foundry/geospatial/mapbox_product.png" /></p>
+<ol start="5">
+<li>When installing:</li>
+<li>Choose a <a href="https://www.palantir.com/docs/foundry/security/orgs-and-spaces/">space</a> to install into.</li>
+<li>As the product only contains datasets, an Ontology is not required.</li>
+<li>Enable <strong>Installation suffix</strong> to customize the project name in which the datasets will be installed.</li>
+<li>Select <strong>Install</strong> at the bottom of the left panel.</li>
+<li>Once the installation job has finished, click <strong>View installation</strong> located to the right of the product name to navigate to the installation.</li>
+</ol>
+<p><img alt="Product installation job" src="../../_resources/foundry/geospatial/mapbox_installation_job.png" /></p>
+<ol start="7">
+<li>You can access the installed boundary datasets by selecting the location link in the right panel. By default, only you will have access to this Project but you can <a href="https://www.palantir.com/docs/foundry/security/projects-and-roles/">add other users and groups in the project details panel on the right</a>.</li>
+</ol>
+<p><img alt="Product installation location" src="../../_resources/foundry/geospatial/mapbox_install_location.png" /></p>
+<p>When new minor boundary dataset versions become available, you will be able to upgrade via the banner that will appear at the top of your installation. Major version releases will be available as a new data source product.</p>
+<p><img alt="Upgrade banner" src="../../_resources/foundry/geospatial/upgrade_banner.png" /></p>
+<p>:::callout{theme="note"}
+Note that products install into a new project that has edits disabled by default to ensure safe upgrades (for example, if additional boundary datasets become available). Given that, we recommend saving content that leverages these datasets (for example, analyses, pipelines, etc) in a different project. If you need to edit the project itself, you can enable edits by selecting <strong>Settings</strong> in the left panel and then <strong>Unlock</strong>, as below.
+:::</p>
+<p><img alt="Unlock project" src="../../_resources/foundry/geospatial/unlock_project.png" /></p>
+<h4>Integrate Mapbox IDs into pipelines</h4>
+<p>In order to leverage Mapbox Boundaries, you will need a <code>mapbox ID</code> that identifies a region for a specific type of boundary at a specific level. These IDs can be found in the <a href="https://docs.mapbox.com/data/boundaries/reference/mapbox-boundaries-v4/#lookup-tables">boundaries metadata files â</a>, which are automatically available as part of the Mapbox Boundary definitions product. See <a href="#install-mapbox-boundary-definitions">Install Mapbox definitions</a> for instructions.</p>
+<p>Once you have installed the metadata files, join them against your data within Foundry in order to add the <code>mapbox_id</code> column. Depending on the type and level of boundary, the metadata files will contain other ID and/or name columns that you can use as join keys against your own data.</p>
+<p>This <code>mapbox_id</code> column will be used to configure downstream applications to display boundaries-based maps.</p>
+<h4>Configure downstream applications</h4>
+<p>Mapbox Boundaries can currently be used to produce Choropleth-style visualizations in any of the following products:</p>
+<ul>
+<li><a href="https://www.palantir.com/docs/foundry/workshop/widgets-map/">Workshop</a></li>
+<li><a href="https://www.palantir.com/docs/foundry/contour/boards-map/">Contour</a></li>
+<li><a href="https://www.palantir.com/docs/foundry/map/overview/">Map Application</a></li>
+<li><a href="https://www.palantir.com/docs/foundry/object-views/overview/">Object views</a></li>
+<li><a href="https://www.palantir.com/docs/foundry/object-explorer/overview/">Object Explorer</a></li>
+<li><a href="https://www.palantir.com/docs/foundry/quiver/overview/">Quiver</a></li>
+</ul>
+<p>The specific configuration options may differ slightly for each consuming application, but the common configuration options will include:</p>
+<ul>
+<li>The field or property in your data that contains the <code>mapbox_id</code></li>
+<li>A selection for the specific <a href="https://docs.mapbox.com/data/boundaries/reference/mapbox-boundaries-v4/#worldview-text">worldview â</a> you wish to display the data with respect to</li>
+<li>The type and level of boundary to use</li>
+</ul>
+<p>You will then be able to use data from your datasets and/or Ontology to drive the styling of these boundaries, such as the coloring of the polygons. For more specific documentation on those additional styling options, visit the documentation of the specific downstream application.</p>
+<h4>Migrate from Mapbox Boundaries v3 to v4</h4>
+<p>If you are currently using an older version of Mapboxâs Boundaries data (such as V2 or V3), we highly recommend upgrading to v4. In addition to getting updates to the boundaries themselves, the V4 release includes more reliable support for displaying region names in tooltips, as well as support for automatic zoom-to-fit for Mapbox boundaries-backed map layers, amongst other improvements.</p>
+<p>When migrating from v3 to v4, there are a few boundaries that have breaking changes. Review a <a href="https://docs.mapbox.com/data/boundaries/guides/boundaries-v4-migration-guide/#breaking-data-changes">detailed changelog of breaking changes â</a> before proceeding.</p>
+<p>To migrate the data in your pipelines, you can either:</p>
+<ul>
+<li>Leverage the <a href="https://docs.mapbox.com/data/boundaries/guides/boundaries-v4-migration-guide/#breaking-data-changes">V3 to V4 ID mapping tables â</a>, which are included in the <a href="#install-mapbox-boundary-definitions">Mapbox boundary definitions V4 product</a>. Join them against your existing boundaries data, using the <code>feature_id</code> column from V3, and pull in the new <code>mapbox_id</code> column that was added with v4. Make sure to manually account for any of the breaking changes mentioned above.</li>
+<li>Or, you can simply follow the instructions above and use the boundaries metadata CSV files to join in the <code>mapbox_id</code> column from scratch.</li>
+</ul>
+<p>Once you have added the <code>mapbox_id</code> column into your pipeline/Ontology, reconfigure downstream applications to leverage v4 boundaries, and select this new column and the corresponding boundary type/level.</p>
+</body>
+</html>

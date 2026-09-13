@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AIP Analyst Workshop widget</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>AIP Analyst Workshop widget</h1>
+<p>AIP Analyst can be embedded as a Workshop widget to provide AI-powered analysis capabilities directly in Workshop modules. The widget supports extensive configuration options to control data access, tool availability, and user interface customization.</p>
+<p><img alt="AIP Analyst Workshop widget configuration." src="../../_resources/foundry/aip-analyst/aip-analyst-workshop-widget-config.png" /></p>
+<h2>Widget configuration</h2>
+<p>The AIP Analyst widget can be configured to customize the analysis experience for your users. Configuration is organized into several sections that control how the widget behaves and what capabilities are available.</p>
+<h3>Base configuration</h3>
+<p>The base configuration controls the fundamental behavior of the AIP Analyst widget:</p>
+<ul>
+<li><strong>Custom system prompt:</strong> Provide specific instructions that guide the agent's behavior for this particular widget instance. Use this to set analytical focus, define response style, or establish domain-specific guidelines. The prompt is appended to the end of the default AIP Analyst system prompt. This can be a static value or connected to a Workshop variable for dynamic prompts.</li>
+<li><strong>Select default model:</strong> Override the application default with a specific AI model for this widget. This ensures consistent behavior across all users of your Workshop module. If the selected model cannot be attributed to this project, a fallback model is used instead.</li>
+<li><strong>Suggested prompts:</strong> Define a set of pre-populated prompts that appear when the chat is empty. These help guide users toward common questions or analytical workflows relevant to your use case. Provide a static list, or connect a Workshop variable to vary the prompts based on application state.</li>
+</ul>
+<h3>Input configuration</h3>
+<p>Input configuration allows you to pre-load <a href="https://www.palantir.com/docs/foundry/aip-analyst/using-aip-analyst/#context">context</a> and trigger analyses automatically. Preloading context gives users immediate access to relevant data without manual searching.</p>
+<ul>
+<li><strong>User message:</strong> Connect a Workshop variable to automatically start an analysis. When the variable changes, a user message containing the variable value is sent and the agent begins processing without user intervention. This enables dynamic, event-driven analyses within your Workshop application.</li>
+<li><strong>Object sets:</strong> Add a list of object sets to the context. Each object set's object type is added by default. In the chat, these object sets are named <code>Input 1</code>, <code>Input 2</code>, and so on, in the order they are specified. Once a chat has started, it stops listening for object set updates until it is reset or a new chat is created.</li>
+<li><strong>Notepad documents:</strong> Add a list of Notepad documents to the context.</li>
+<li><strong>Skills:</strong> Add a list of AIP skills that are made available to the agent. Skill names and their triggers are added to the system prompt, and the agent loads a skill's full instructions only when relevant.</li>
+<li><strong>Enable user skills:</strong> Make each user's own skill library available to the agent, and show a skills button in the chat input so they can manage it.</li>
+<li><strong>Object types:</strong> Add a list of object types to the context.</li>
+<li><strong>Functions:</strong> Add a list of functions to the context.</li>
+<li><strong>Actions:</strong> Add a list of actions to the context. For each action, you can set <strong>Should auto-submit action</strong>. When enabled, the agent submits the action autonomously; when disabled, a form is displayed for the user to submit.</li>
+<li><strong>Workshop modules:</strong> Add a list of Workshop modules to the context.</li>
+<li><strong>Datasets:</strong> Add a list of datasets to the context.</li>
+<li><strong>Media items:</strong> Add a list of media sets to the context. Individual items from each media set must be specified by RID. Only media sets of type image or PDF are supported.</li>
+<li><strong>Recent resources context:</strong> Include the user's recent resources in context when the widget loads.</li>
+<li><strong>Favorite resources context:</strong> Include the user's favorite resources in context when the widget loads.</li>
+</ul>
+<p>Each preloaded resource accepts an optional <strong>Title and description</strong> rationale. Use it to tell the agent why the resource was provided and how it should be used.</p>
+<h3>Output configuration</h3>
+<p>Output configuration enables you to extract analysis results into Workshop variables for use in other parts of your application:</p>
+<ul>
+<li><strong>Last object set:</strong> Capture the most recent object set produced during analysis. You can optionally specify an object type, in which case the variable captures the last object set of that type.</li>
+<li><strong>Last user message:</strong> Extract the user's most recent question.</li>
+<li><strong>All user messages:</strong> Retrieve the complete list of user questions from the session.</li>
+<li><strong>Last assistant message:</strong> Capture AIP Analyst's most recent response.</li>
+<li><strong>All assistant messages:</strong> Extract all responses generated by the agent.</li>
+<li><strong>All Vega chart specs:</strong> Extract all resolved Vega-Lite chart specifications as strings, enabling you to render charts elsewhere in your Workshop module. Data is embedded in these specifications, so they are snapshots rather than live views.</li>
+<li><strong>All messages:</strong> Retrieve all messages from the session, including tool calls, with an option to include the configured input context items. The JSON shape of tool use and tool result messages is subject to change and carries no backwards compatibility guarantee.</li>
+<li><strong>Selected cited object:</strong> Capture the object referenced by the most recently selected inline citation. Setting this variable overrides the default inline reference behavior.</li>
+<li><strong>Selected cited media reference:</strong> Capture the media reference of the most recently selected inline citation. The variable must be a struct with the fields <code>mediaItemRid</code>, <code>mediaSetRid</code>, and <code>mediaItemReadToken</code>. Setting this variable overrides the default inline reference behavior.</li>
+<li><strong>Active tab agent running:</strong> A boolean indicating whether the agent is currently running in the active tab. Use this to show loading states or disable inputs while analysis is in progress.</li>
+</ul>
+<p>These outputs can drive visualizations, filters, or other logic in your Workshop module.</p>
+<h4>Apply actions</h4>
+<p>You can configure actions that trigger in response to analysis events. Each action must be configured with all required parameters, because it is executed exactly as configured. Both options can optionally display a toast notification indicating whether the action succeeded, which may also allow reverting the action.</p>
+<ul>
+<li><strong>On user message send:</strong> Execute an action each time a user sends a message. The <strong>Text input value</strong> and <strong>Chat session ID</strong> parameters are provided by the widget. This action executes before the message is submitted, so the <strong>All user messages</strong> output will not yet contain the submitted message.</li>
+<li><strong>On agent stopped:</strong> Execute an action when the agent in the active tab stops running. The <strong>Chat session ID</strong> parameter is provided by the widget. This is useful for logging, auditing, or triggering subsequent workflows. New user messages cannot be sent while the action is running.</li>
+</ul>
+<h3>Tool configuration</h3>
+<p>Tool configuration allows you to control AIP Analyst's capabilities and scope. The filters below apply to all <strong>Object type search</strong> and <strong>Object search</strong> tool calls.</p>
+<ul>
+<li><strong>Customize default enabled tools:</strong> Select which tools are enabled by default when the widget loads. Combine this with <strong>Hide configure tools button</strong> to guarantee that AIP Analyst only uses the tools you select.</li>
+<li><strong>Filter to Ontology:</strong> Restrict search results to a single Ontology.</li>
+<li><strong>Filter to object type groups:</strong> Restrict search results to specific object type groups. Provide a static list, or connect a Workshop variable containing object type group RIDs.</li>
+<li><strong>Filter to projects:</strong> Restrict search results to entities in specific projects. Selected folders that are not projects are ignored.</li>
+<li><strong>Filter to object type statuses:</strong> Restrict search results to object types with the selected statuses.</li>
+<li><strong>Filter to object type visibilities:</strong> Restrict search results to object types with the selected visibilities.</li>
+<li><strong>Default semantic search threshold:</strong> Set the object set tool semantic search similarity threshold, as a number between <code>0</code> and <code>1</code>.</li>
+</ul>
+<p>See <a href="https://www.palantir.com/docs/foundry/aip-analyst/using-aip-analyst/#analysis-settings">Analysis settings</a> for more detail on how each scope filter behaves.</p>
+<h3>View configuration</h3>
+<p>View configuration controls which interface elements are visible to users, allowing you to create streamlined experiences tailored to your use case.</p>
+<h4>Empty state and input</h4>
+<ul>
+<li><strong>Customize empty state:</strong> Customize the title, description, and picture of the empty chat state. The picture can be either an icon with a custom color, or an uploaded image.</li>
+<li><strong>Customize input placeholder:</strong> Set the chat input box's empty state placeholder text.</li>
+<li><strong>Hide input area:</strong> Remove the chat input field, preventing users from sending messages directly in the widget. Messages can still be triggered by the <strong>User message</strong> input variable.</li>
+<li><strong>Hide input resources section:</strong> Hide the preloaded resource section in the widget's empty state.</li>
+</ul>
+<h4>Header and export</h4>
+<ul>
+<li><strong>Hide tab header:</strong> Remove the chat tab headers and disable creating new tabs. This also disables chat branching.</li>
+<li><strong>Hide PDF export button:</strong> Remove the option to export a chat as a PDF. If the tab header is hidden, the export button is shown in the bottom row instead.</li>
+<li><strong>Hide Quiver export button:</strong> Remove the option to export a chat to Quiver.</li>
+<li><strong>Hide Contour export button:</strong> Remove the option to export a chat to Contour.</li>
+<li><strong>Hide Notepad export button:</strong> Remove the option to export a chat to Notepad.</li>
+</ul>
+<h4>Chat controls</h4>
+<ul>
+<li><strong>Hide outline sidebar:</strong> Remove the analysis outline and graph sidebar.</li>
+<li><strong>Hide configure tools button:</strong> Remove the tool configuration button, so AIP Analyst can only use the default enabled tools.</li>
+<li><strong>Hide record audio button:</strong> Remove the audio recording button from the input area.</li>
+<li><strong>Add context options:</strong> Control which options are available in the <strong>Add context</strong> menu, such as object types, object sets, datasets, media sets, Notepad documents, or file uploads. Context loaded from pasted URLs, drag and drop, or message text is unaffected, and this setting does not change which tools AIP Analyst can use.</li>
+<li><strong>Hide token estimator:</strong> Remove the token usage estimator.</li>
+<li><strong>Hide model selector:</strong> Remove the AI model selector, so AIP Analyst can only use the default model.</li>
+<li><strong>Hide thinking details:</strong> Hide the model's extended thinking output from users.</li>
+<li><strong>Default collapse tools:</strong> Collapse tool usage messages by default, showing only the tool name rather than full results.</li>
+<li><strong>Hide upgrade to media set panel:</strong> Hide the prompt that offers to upgrade uploaded files into a media set.</li>
+</ul>
+<h4>Session lifecycle</h4>
+<ul>
+<li><strong>Clear chat on navigation:</strong> Clear the chat session when the user navigates away from the page, so a new session starts each time they return.</li>
+<li><strong>Reset key:</strong> Connect a Workshop variable that resets the widget to a fresh session whenever its value changes. Use this to trigger a reset from elsewhere in the module.</li>
+</ul>
+<p><img alt="AIP Analyst Workshop view configuration." src="../../_resources/foundry/aip-analyst/aip-analyst-workshop-view-config.png" /></p>
+<h3>Save configuration</h3>
+<p>Enable <strong>Analysis saving</strong> to control how the widget saves and loads <a href="https://www.palantir.com/docs/foundry/aip-analyst/analysis-resources/">analyses</a>. If analysis saving is disabled for your enrollment, the widget displays an error when these options are configured.</p>
+<ul>
+<li><strong>Save location:</strong> Define the folder where newly created analyses are stored. Enable <strong>Require save location</strong> to prevent users from changing it; note that users without permission to that folder will not be able to save analyses.</li>
+<li><strong>Loaded analysis source:</strong> Open a specific saved analysis in the widget. Hard-code a Compass resource, or connect a Workshop variable to load different analyses based on application state.</li>
+<li><strong>Unsaved analysis header:</strong> Set the header text shown for an analysis that has not yet been saved.</li>
+<li><strong>Only show analyses created in this module:</strong> Filter discoverable analyses to those created within this Workshop module. If the widget is consumed through an embedded module, the top-level module is used instead.</li>
+</ul>
+<p>:::callout{theme="neutral"}
+When a saved analysis is loaded, the tool options configured on this widget take precedence over the settings stored on the analysis. Existing chats in a saved analysis do not use this widget's configured inputs; creating a new chat or resetting the chat does.
+:::</p>
+<h3>Session persistence</h3>
+<p>By default, the AIP Analyst widget keeps draft chat state in memory while the user's browser tab remains open. This lets the widget retain conversation history, context items, and tool results when it is hidden and shown again within the same Workshop module, such as when the widget is placed in a tab or collapsible section. Refreshing or closing the browser tab clears this unsaved draft state.</p>
+<p>To reset the chat each time the widget is hidden, enable the <strong>Clear chat on navigation</strong> option in the view configuration. When enabled, the draft state is discarded when the widget is removed from the page, and a fresh session begins when it is shown again.</p>
+<p>You can also force a reset programmatically with the <strong>Reset key</strong> view option â connect a Workshop variable and the widget will reset to a fresh session whenever the variable's value changes.</p>
+<h2>Best practices</h2>
+<p>When configuring the AIP Analyst widget for your Workshop module, consider the following approaches:</p>
+<ul>
+<li><strong>Preload context for faster results:</strong> Adding relevant object types, datasets, or object sets in the input configuration eliminates initial search time and guides users toward the right data.</li>
+<li><strong>Use custom system prompts for specialized analysis:</strong> Tailor the agent's behavior by providing domain-specific instructions or analytical frameworks in the system prompt.</li>
+<li><strong>Connect variables for automated workflows:</strong> Link Workshop variables to the user message input to create dynamic, event-driven analyses that respond to user interactions elsewhere in your module.</li>
+<li><strong>Extract outputs to drive additional logic:</strong> Use output variables to incorporate AIP Analyst results into other visualizations, filters, or analytical components.</li>
+<li><strong>Limit scope for focused analysis:</strong> Apply Ontology, object type group, and project restrictions when building purpose-specific applications to improve performance and prevent access to irrelevant data.</li>
+<li><strong>Streamline the interface:</strong> Hide advanced features and controls when building guided experiences for non-technical users.</li>
+<li><strong>Use applied actions for integration:</strong> Configure the <strong>On user message send</strong> and <strong>On agent stopped</strong> actions to trigger subsequent workflows, such as logging analysis activity or saving results.</li>
+<li><strong>Provide suggested prompts:</strong> Define suggested prompts to guide users toward common questions and reduce the barrier to starting an analysis.</li>
+</ul>
+</body>
+</html>

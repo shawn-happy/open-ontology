@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Store scenario metadata as objects</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../index.html">返回目录</a></div>
+<h1>Store scenario metadata as objects</h1>
+<p>:::callout{theme="neutral" title="Beta"}
+Ontology scenarios are in the <a href="https://www.palantir.com/docs/foundry/platform-overview/development-life-cycle/">beta</a> phase of development and may not be available on your enrollment. Contact Palantir Support for access to the Ontology scenario interface.
+:::</p>
+<p>You can define and store metadata of a scenario in the Ontology, where each object represents a scenario, to create a <strong>persisted</strong> scenario.</p>
+<p>When stored in the Ontology, scenarios are shareable and collaborative. Teams can compare multiple persisted scenarios side-by-side, attach rich metadata including descriptions and authorship, and link scenarios to related objects for easy organization. Persisted scenarios inherit Foundry's permissions and governance model, ensuring proper access control, and create a durable audit trail of the decision-making process.</p>
+<h2>Configure scenario object type</h2>
+<p>To configure the scenario object type in Ontology Manager, follow the steps below:</p>
+<ol>
+<li>
+<p>In Ontology Manager, navigate to the <strong>Object types</strong> tab and select <strong>+ New object type</strong>.</p>
+</li>
+<li>
+<p>Follow the configuration wizard. At step 3 (<strong>Properties</strong>), choose to <strong>Add</strong> an interface, then search for the <strong>Ontology Scenario</strong> interface. Ensure that <strong>Scenario Reference</strong> is mapped to the primary key of your object type, then complete the remaining steps. <br><br>
+   <img alt="Persist scenario metadata in the Ontology." src="../_resources/foundry/ontology/persist-scenario-metadata-ontology-manager.png" /> <br><br></p>
+</li>
+<li>
+<p>Once the new object type is created, open the <strong>Properties</strong> tab and confirm that the <strong>Primary Key</strong> property has a value type of <strong>Scenario Reference</strong> assigned to it.</p>
+</li>
+<li>
+<p>Optionally, add additional properties to store metadata about the scenario, such as <strong>Created By</strong> or <strong>Description</strong>. Save the configuration and wait for the initial sync to complete.</p>
+</li>
+</ol>
+<h2>Configure create/save action</h2>
+<ol>
+<li>
+<p>In Ontology Manager, locate your Scenario Object Type. If you did not configure a <strong>Create Object</strong> action during the initial setup, select <strong>+ New</strong> in the <strong>Action types</strong> card to create one.</p>
+</li>
+<li>
+<p>Within the <strong>Create Object</strong> action configuration, add an additional parameter of type <strong>String</strong>. In the <strong>Constraints</strong> card, set the value type to <strong>Scenario Reference Value</strong>. Then disable the <strong>Visibility</strong> toggle to hide the parameter from end users. <br><br>
+   <img alt="Create persist scenario action in the Ontology." src="../_resources/foundry/ontology/persist-scenario-create-scenario-action-configuration.png" /> <br><br></p>
+</li>
+<li>
+<p>In the <strong>Rules</strong> tab of the Action configuration page, ensure the <strong>Unique ID</strong> property is mapped to the new <strong>Scenario Reference</strong> parameter. <br><br>
+   <img alt="Create persist scenario action property mapping in the Ontology." src="../_resources/foundry/ontology/persist-scenario-create-scenario-action-property-mapping-redacted.png" /> <br><br></p>
+</li>
+</ol>
+<h2>Persist an existing temporary scenario</h2>
+<p>Before proceeding, ensure you have completed the <a href="https://www.palantir.com/docs/foundry/ontology/temporary-scenario/">temporary scenario configuration tutorial</a>. Once your first temporary scenario is in place, follow these steps in Workshop:</p>
+<ol>
+<li>
+<p>Add a <strong>Button Group</strong> widget to your application to handle saving the scenario.</p>
+</li>
+<li>
+<p>Set the button's action to the <strong>Create Object</strong> action configured on your Scenario Object Type.</p>
+</li>
+<li>
+<p>In the <strong>Default Value</strong> configuration, set the <strong>Scenario Reference</strong> parameter to be populated by the Active Scenario variable generated by the <strong>Scenario Manager</strong> widget. <br><br>
+   <img alt="Persist scenario button parameter default." src="../_resources/foundry/ontology/persist-scenario-button-parameter-default.png" /> <br><br></p>
+</li>
+</ol>
+<h2>Create new scenario object</h2>
+<p>Make the following adjustments in Workshop to display persistent scenarios:</p>
+<ol>
+<li>
+<p>In the <strong>Create or Save Scenario</strong> action, the <strong>Scenario reference</strong> parameter does not require a default value; it will be auto-generated upon action execution.</p>
+</li>
+<li>
+<p>Replace the <strong>Scenario Manager</strong> widget with an <strong>Object List</strong> widget (or any other object display widget) configured to list your persisted Scenario objects.</p>
+</li>
+<li>
+<p>Set the <strong>Scenario Object Type</strong> as the data source for the newly added widget. <br><br>
+   <img alt="Persist scenario object list configuration in the Workshop." src="../_resources/foundry/ontology/persist-scenario-workshop-object-list-widget.png" /> <br><br></p>
+</li>
+<li>
+<p>Replace the <strong>Active Scenario</strong> variable with an <strong>Object-backed scenario</strong> variable, and set its value to the <strong>Active Object</strong> from the <strong>Object List</strong> widget. You should update the variable selection in other widgets. <br><br>
+   <img alt="Persist scenario object backed scenario variable in the Workshop." src="../_resources/foundry/ontology/persist-scenario-object-backed-scenario-variable.png" /> <br><br></p>
+</li>
+</ol>
+<h2>Control access to and govern persisted scenarios</h2>
+<p>To control who can view and edit persisted scenarios and to govern review workflows, use object properties, <a href="https://www.palantir.com/docs/foundry/object-permissioning/object-security-policies/">object security policies</a>, and <a href="https://www.palantir.com/docs/foundry/action-types/submission-criteria/">action submission criteria</a>. These controls are available because each persisted scenario is represented by an object.</p>
+<p>For example, a team can configure a scenario approval workflow in which:</p>
+<ul>
+<li>Scenario owners can view their scenarios and submit drafts for review.</li>
+<li>Members of an <a href="https://www.palantir.com/docs/foundry/security/users-and-groups/#groups">approvals group</a> can view all scenarios and approve or reject scenarios that are in review.</li>
+<li>Other users cannot view the persisted scenario objects.</li>
+</ul>
+<p>To do so:</p>
+<ol>
+<li>In Ontology Manager, add the following properties to the scenario object type:</li>
+</ol>
+<ul>
+<li><strong>Created By:</strong> Identifies the scenario owner.</li>
+<li><strong>Status:</strong> Tracks whether the scenario is <code>Draft</code>, <code>In review</code>, <code>Approved</code>, or <code>Rejected</code>.</li>
+<li><strong>Reviewed By:</strong> Optionally records the reviewer.</li>
+<li><strong>Reviewed At:</strong> Optionally records when the review occurred. <br><br>
+     <img alt="Add properties for the persisted scenario object type in Ontology Manager." src="../_resources/foundry/ontology/persist-scenario-add-properties.png" /> <br><br>
+     In the <strong>Create Object</strong> action, use action rules to set <strong>Created By</strong> to <strong>Current user</strong> and <strong>Status</strong> to the static value <code>Draft</code>. <br><br>
+     <img alt="Set action rules for the create object action in Ontology Manager." src="../_resources/foundry/ontology/persist-scenario-set-action-rules.png" /> <br><br></li>
+</ul>
+<ol start="2">
+<li>Navigate to the <strong>Security</strong> tab on the scenario object type, and configure an object security policy that allows access when either of the following conditions is true:</li>
+</ol>
+<ul>
+<li>The current user's ID matches the scenario object's <strong>Created By</strong> property.</li>
+<li>The current user's group IDs include the approvals group.</li>
+</ul>
+<p>When defining the policy, reference the approvals group by its stable group ID rather than by its name, so the policy is unaffected if the group is renamed. Users must also have permission to view the scenario object type definition. <br><br>
+   <img alt="Configure security policy for scenario object type." src="../_resources/foundry/ontology/persist-scenario-configure-granular-policy.png" /> <br><br></p>
+<ol start="3">
+<li>Configure the scenario object type to <strong>Only allow edits via actions</strong>. Then create separate actions for each permitted status transition:</li>
+</ol>
+<table>
+<thead>
+<tr>
+<th>Action</th>
+<th>Result</th>
+<th>Submission criteria</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Submit for review</strong></td>
+<td>Change <code>Draft</code> status to <code>In review</code>.</td>
+<td>The current user matches <strong>Created By</strong>, and the current status is <code>Draft</code>.</td>
+</tr>
+<tr>
+<td><strong>Approve scenario</strong></td>
+<td>Approve the scenario, change <code>In review</code> status to <code>Approved</code>, and optionally populate <strong>Reviewed By</strong> and <strong>Reviewed At</strong>.</td>
+<td>The current user's group IDs include the approvals group, and the current status is <code>In review</code>.</td>
+</tr>
+<tr>
+<td><strong>Reject scenario</strong></td>
+<td>Change <code>In review</code> status to <code>Rejected</code>, and optionally populate <strong>Reviewed By</strong> and <strong>Reviewed At</strong>.</td>
+<td>The current user's group IDs include the approvals group, and the current status is <code>In review</code>.</td>
+</tr>
+</tbody>
+</table>
+<p>Optionally, for the <strong>Approve scenario</strong> action, add an <strong>Apply Scenario</strong> rule to the action so that approval and <a href="https://www.palantir.com/docs/foundry/ontology/merge-scenario/">merging the scenario</a> occur through the same governed action.</p>
+</body>
+</html>

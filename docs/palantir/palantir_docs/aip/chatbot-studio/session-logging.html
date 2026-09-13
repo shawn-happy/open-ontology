@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Session logging</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Session logging</h1>
+<p>Chatbot executions in AIP Chatbot Studio are logged as structured events that can be exported to a Foundry streaming dataset for monitoring and analysis. Each message sent to a chatbot counts as one execution, and every execution is assigned a unique trace identifier that connects all related log entries.</p>
+<p>:::callout{theme="neutral"}
+Chatbot session log exporting uses the <a href="https://www.palantir.com/docs/foundry/administration/configure-logging/">configure logging</a> feature. Event schemas and event types are subject to change. New events may be added and existing schemas may be modified.
+:::</p>
+<h2>Prerequisites</h2>
+<p>Exporting chatbot session logs requires the log export feature. See <a href="https://www.palantir.com/docs/foundry/administration/configure-logging/#export-permissions">export permissions</a> for the required roles. Chatbot execution logs contain user identifiers that can be traced back to the user who sent the message, so access to exported log data should be carefully managed.</p>
+<p>To set up log exporting, follow the steps in the <a href="https://www.palantir.com/docs/foundry/administration/configure-logging/">Configure logging</a> documentation, including the recommended <strong>Apply markings</strong> step to apply <a href="https://www.palantir.com/docs/foundry/security/markings/">security markings</a> to the output streaming dataset to control access to log data.</p>
+<p><a href="https://www.palantir.com/docs/foundry/aip-observability/overview/">Learn how to view logs in the platform with Ontology and AIP observability.</a></p>
+<h2>Understanding chatbot execution logs</h2>
+<p>Each log entry contains common fields provided by the <a href="https://www.palantir.com/docs/foundry/administration/configure-logging/#log-schema">log schema</a>, as well as chatbot-specific event data. The chatbot-specific data consists of an <code>event_name</code> and a <code>payload</code> describing what occurred during the execution.</p>
+<h3>Common log fields</h3>
+<p>The following fields are included in every log entry and are useful for filtering and correlating logs. Logs from products across the execution flow, such as function executions and language model usage, also share these fields, so you can use them to trace the complete execution request:</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>traceId</code></td>
+<td>String</td>
+<td>A Foundry trace identifier assigned to each execution. All log entries from the same execution share the same <code>traceId</code>. Use this to follow a request end-to-end.</td>
+</tr>
+<tr>
+<td><code>uid</code></td>
+<td>String</td>
+<td>The identifier of the user who sent the message.</td>
+</tr>
+<tr>
+<td><code>owning_rid</code></td>
+<td>String</td>
+<td>The resource identifier of the source executor that initiated the execution, such as a chatbot, function, or Workshop application. For example, if Chatbot A calls a function that invokes Chatbot B, all resulting logs have Chatbot A's RID as the <code>owning_rid</code>. Use this to find all logs originating from a specific source executor, regardless of how deep the call chain goes.</td>
+</tr>
+</tbody>
+</table>
+<h3>Chatbot event data</h3>
+<p>Each chatbot event includes an <code>event_name</code> identifying the type of event and a <code>payload</code> with event-specific fields. Every event payload includes a <code>session_rid</code>, which identifies the chatbot session. Use this to group all events from a single conversation.</p>
+<h3>Sample log structure</h3>
+<p>The following is a simplified example of a log entry for a <code>user_request</code> event:</p>
+<pre><code class="language-json">{
+  &quot;time&quot;: &quot;2024-01-15T09:30:00.000Z&quot;,
+  &quot;uid&quot;: &quot;&lt;USER_ID&gt;&quot;,
+  &quot;traceId&quot;: &quot;&lt;TRACE_ID&gt;&quot;,
+  &quot;content&quot;: {
+    &quot;event_name&quot;: &quot;user_request&quot;,
+    &quot;payload&quot;: {
+      &quot;session_rid&quot;: &quot;ri.aip-agents..session.&lt;SESSION_ID&gt;&quot;,
+      &quot;user_query&quot;: {
+        &quot;content&quot;: [
+          {
+            &quot;text&quot;: {
+              &quot;content&quot;: &quot;Summarize the key points from the latest press conference transcript.&quot;
+            }
+          }
+        ]
+      }
+    }
+  }
+}
+</code></pre>
+<h2>Event types</h2>
+<p>The following event types are logged during a chatbot execution:</p>
+<table>
+<thead>
+<tr>
+<th>Event name</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>session_metadata</code></td>
+<td>Records the chatbot RID, chatbot version, session RID, and caller identifier at the start of an execution.</td>
+</tr>
+<tr>
+<td><code>user_request</code></td>
+<td>Captures the user's message along with any retrieval context and application variables.</td>
+</tr>
+<tr>
+<td><code>system_chat_message</code></td>
+<td>Contains the compiled system prompt sent to the LLM, including tool definitions.</td>
+</tr>
+<tr>
+<td><code>user_chat_message</code></td>
+<td>Contains the user message content as sent to the LLM.</td>
+</tr>
+<tr>
+<td><code>assistant_chat_message</code></td>
+<td>Contains the LLM's response content, which may include text or tool calls.</td>
+</tr>
+<tr>
+<td><code>tool_call</code></td>
+<td>Records a tool invocation, including the tool name and parsed input.</td>
+</tr>
+<tr>
+<td><code>tool_call_result</code></td>
+<td>Records the result of a tool invocation, including whether it succeeded or failed, and how long it took.</td>
+</tr>
+<tr>
+<td><code>final_response</code></td>
+<td>Contains the chatbot's final response returned to the user.</td>
+</tr>
+<tr>
+<td><code>execution_error</code></td>
+<td>Records an error that occurred during execution.</td>
+</tr>
+</tbody>
+</table>
+<h3>Session metadata</h3>
+<p>Logged once at the start of each execution with identifying information about the chatbot and session.</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>agent_rid</code></td>
+<td>String</td>
+<td>The resource identifier of the chatbot.</td>
+</tr>
+<tr>
+<td><code>agent_version</code></td>
+<td>String</td>
+<td>The version of the chatbot.</td>
+</tr>
+<tr>
+<td><code>session_rid</code></td>
+<td>String</td>
+<td>The resource identifier of the session.</td>
+</tr>
+<tr>
+<td><code>caller_identifier</code></td>
+<td>String</td>
+<td>An identifier for the caller that initiated the execution.</td>
+</tr>
+</tbody>
+</table>
+<h3>User request</h3>
+<p>Captures the full context of a user's message, including any retrieval context and application variables that were resolved for this execution.</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>session_rid</code></td>
+<td>String</td>
+<td>The session identifier.</td>
+</tr>
+<tr>
+<td><code>user_query</code></td>
+<td>UserQuery</td>
+<td>The user's message content, which may include text and media.</td>
+</tr>
+<tr>
+<td><code>contexts_from_profile</code></td>
+<td>List\<Context></td>
+<td>Retrieval contexts resolved from the chatbot's configured context sources. Each context represents a specific context type, such as Ontology, document, function-backed, or custom documentation.</td>
+</tr>
+<tr>
+<td><code>contexts_from_user_input</code></td>
+<td>List\<Context></td>
+<td>Retrieval contexts resolved from the user's input.</td>
+</tr>
+<tr>
+<td><code>application_variables</code></td>
+<td>List\<ApplicationVariable></td>
+<td>The application variables and their values at the time of the request. Each variable includes its identifier, name, value, and prompt visibility setting.</td>
+</tr>
+<tr>
+<td><code>node_id</code></td>
+<td>String</td>
+<td>An identifier for the execution node.</td>
+</tr>
+<tr>
+<td><code>parent_node_id</code></td>
+<td>String (optional)</td>
+<td>The identifier for the session node this execution was continued from.</td>
+</tr>
+</tbody>
+</table>
+<h3>Chat messages</h3>
+<p>The <code>system_chat_message</code>, <code>user_chat_message</code>, and <code>assistant_chat_message</code> events share a similar structure.</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>session_rid</code></td>
+<td>String</td>
+<td>The session identifier.</td>
+</tr>
+<tr>
+<td><code>content</code></td>
+<td>List\<Content></td>
+<td>The message content, which may include text, media references, or tool calls.</td>
+</tr>
+<tr>
+<td><code>native_tools</code></td>
+<td>List\<NativeTool></td>
+<td>The tools available to the LLM when using <a href="https://www.palantir.com/docs/foundry/chatbot-studio/tools/#tool-mode">native tool calling</a> mode. Only present in <code>system_chat_message</code>. Tools configured in prompted tool calling mode are included in the <code>content</code> field instead.</td>
+</tr>
+</tbody>
+</table>
+<h3>Tool calls</h3>
+<p>The <code>tool_call</code> event records when the chatbot invokes a tool.</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>session_rid</code></td>
+<td>String</td>
+<td>The session identifier.</td>
+</tr>
+<tr>
+<td><code>tool_name</code></td>
+<td>String</td>
+<td>The name of the tool that was called.</td>
+</tr>
+<tr>
+<td><code>parsed_tool_input</code></td>
+<td>Map\<String, String></td>
+<td>A map of input parameter names to their values.</td>
+</tr>
+</tbody>
+</table>
+<h3>Tool call results</h3>
+<p>The <code>tool_call_result</code> event records the outcome of a tool invocation.</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>session_rid</code></td>
+<td>String</td>
+<td>The session identifier.</td>
+</tr>
+<tr>
+<td><code>tool_name</code></td>
+<td>String</td>
+<td>The name of the tool that was called.</td>
+</tr>
+<tr>
+<td><code>tool_call_id</code></td>
+<td>String (optional)</td>
+<td>An identifier for the specific tool call.</td>
+</tr>
+<tr>
+<td><code>duration_milliseconds</code></td>
+<td>Long</td>
+<td>How long the tool call took to execute, in milliseconds.</td>
+</tr>
+<tr>
+<td><code>result</code></td>
+<td>ToolResult</td>
+<td>The result of the tool call, which is one of the following:</td>
+</tr>
+</tbody>
+</table>
+<p>The <code>ToolResult</code> type is one of:</p>
+<ul>
+<li><strong>Success:</strong> Contains an <code>llm_value</code> (String) with the value returned to the LLM, and a <code>variable_updates</code> list with the variable name and new value for any application variables that were updated.</li>
+<li><strong>Failure:</strong> Contains an <code>error_message</code> (String) and a <code>reason</code> (String) describing why the tool call failed.</li>
+</ul>
+<h3>Final response</h3>
+<p>Contains the chatbot's final response to the user.</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>session_rid</code></td>
+<td>String</td>
+<td>The session identifier.</td>
+</tr>
+<tr>
+<td><code>response</code></td>
+<td>FinalResponse</td>
+<td>The response content, which is one of the following:</td>
+</tr>
+</tbody>
+</table>
+<p>The <code>FinalResponse</code> type is one of:</p>
+<ul>
+<li><strong>Chatbot response:</strong> Contains a list of content items, which may include text and media.</li>
+<li><strong>Client tool call:</strong> Indicates the chatbot is deferring to a client-side action rather than returning a direct response.</li>
+</ul>
+<h3>Execution errors</h3>
+<p>Logged when an error occurs during execution.</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>session_rid</code></td>
+<td>String</td>
+<td>The session identifier.</td>
+</tr>
+<tr>
+<td><code>error_name</code></td>
+<td>String</td>
+<td>The name or type of the error.</td>
+</tr>
+</tbody>
+</table>
+<h2>Examples</h2>
+<h3>Reconstruct a conversation</h3>
+<p>To reconstruct a chat conversation with a specific chatbot:</p>
+<ol>
+<li>Filter logs where <code>owning_rid</code> matches the chatbot's RID.</li>
+<li>Filter further by <code>session_rid</code> to isolate a single conversation.</li>
+<li>For user messages, find entries where <code>event_name</code> is <code>user_request</code> and extract <code>user_query</code> from the payload.</li>
+<li>For chatbot replies, find entries where <code>event_name</code> is <code>final_response</code> and extract <code>response</code> from the payload.</li>
+</ol>
+<h3>Evaluate tool performance</h3>
+<p>To analyze how tools are performing:</p>
+<ol>
+<li>Find entries where <code>event_name</code> is <code>tool_call_result</code>. Each entry includes the <code>tool_name</code>, <code>duration_milliseconds</code>, and whether the call succeeded or failed.</li>
+<li>To measure reliability, compare the count of success results versus failure results per tool.</li>
+<li>To identify slow tools, sort by <code>duration_milliseconds</code>.</li>
+<li>To detect retries, look for multiple <code>tool_call</code> and <code>tool_call_result</code> pairs with the same <code>tool_name</code> within a single <code>traceId</code>. A failure followed by another call to the same tool indicates the chatbot retried.</li>
+</ol>
+</body>
+</html>

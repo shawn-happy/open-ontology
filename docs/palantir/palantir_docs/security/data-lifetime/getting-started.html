@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Getting started</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Getting started</h1>
+<p>Start using Data Lifetime for your organization by following the best practices and guides listed in the sections below.</p>
+<h2>Access the Data Lifetime application</h2>
+<p>You can find the Data Lifetime application using the <strong>Applications</strong> search tool, located in the navigation sidebar to the left of your screen. Search by name, or find the application under <strong>Security &amp; governance</strong>.</p>
+<p><img alt="Access Data Lifetime with the Application search tool." src="../../_resources/foundry/data-lifetime/security-and-data-governance-logo.png" /></p>
+<p>The following guides will explain specific workflows available in Data Lifetime:</p>
+<ul>
+<li><a href="https://www.palantir.com/docs/foundry/data-lifetime/deletion-policies-implications/">Implications of deletion policies</a></li>
+<li><a href="https://www.palantir.com/docs/foundry/data-lifetime/creating-a-deletion-policy/">Create a deletion policy on a dataset</a></li>
+<li><a href="https://www.palantir.com/docs/foundry/data-lifetime/removing-a-policy/">Remove deletion policies on a dataset</a></li>
+<li><a href="https://www.palantir.com/docs/foundry/data-lifetime/view-changes-applied-policy/">View policy activity history</a></li>
+<li><a href="https://www.palantir.com/docs/foundry/data-lifetime/policy-overrides/">Create policy overrides</a></li>
+<li><a href="https://www.palantir.com/docs/foundry/data-lifetime/FAQ/">FAQ</a></li>
+</ul>
+<h2>Safeguard policy use</h2>
+<p>The configuration of deletion policies is a critical and sensitive task that must be performed with care and accountability. Changes to deletion policies can cause <strong>significant impacts on data integrity</strong>, including accidental data loss or retaining data longer than legally allowed.</p>
+<p>The Data Lifetime lineage-aware deletion solution is integrated into the robust access control system in the platform, allowing organizations the ability to <strong>restrict the privilege of policy application to specific trusted users.</strong> Moreover, applying override policies requires an even higher access level within this system.</p>
+<p>Additionally, Data Lifetime can be integrated with <a href="https://www.palantir.com/docs/foundry/checkpoints/overview/">Checkpoints</a>, an application that allows organizations to require user justifications for actions in the platform. Applying Checkpoints to require justifications for applying or removing a deletion policy in Foundry can enhance data governance best practices by providing additional auditability and transparency.</p>
+</body>
+</html>

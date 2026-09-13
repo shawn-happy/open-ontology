@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Actions on structs</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Actions on structs</h1>
+<p><a href="https://www.palantir.com/docs/foundry/object-link-types/structs-overview/">Struct property</a> values can be created and modified with actions, through values supplied in a struct parameter.</p>
+<h2>Struct parameters</h2>
+<p>A struct parameter is a parameter of base type <code>STRUCT</code>, where the type contains nested parameter fields that have their own individual names and base types. A struct parameter can be only be used to supply values for a struct property. The supported base types for struct parameter fields are  <code>BOOLEAN</code>, <code>DATE</code>, <code>DOUBLE</code>, <code>GEOPOINT</code>, <code>INTEGER</code>, <code>LONG</code>, <code>STRING</code>, and <code>TIMESTAMP</code>.</p>
+<p>Below, we have a <code>Resolution</code> struct parameter for a <code>Create Ticket</code> action. The nested fields of <code>summary</code>, <code>resolutionTime</code>, and <code>owner</code> compile information on how the ticket was resolved into a single parameter.</p>
+<p><img alt="A struct parameter with nested fields." src="../../_resources/foundry/action-types/struct-parameter-nested-fields.png" /></p>
+<h2>Defining actions on struct properties</h2>
+<p>Using actions with struct parameters, you can create and modify object types with struct properties. The values for the struct property are submitted in a struct parameter mapped to the property; each individual field of the struct property is mapped to a specific field of a struct parameter. In the example below, each field of the <code>Resolution</code> struct parameter is mapped to its corresponding field in the <code>Resolution</code> struct property of the <code>Ticket</code> object type.</p>
+<p><img alt="Struct property field mappings." src="../../_resources/foundry/action-types/struct-field-mapping.png" /></p>
+<p>A mapping between a struct property and a struct parameter must be complete, with each field of the struct property mapped to a field in the struct parameter. The base type of the struct parameter field <em>must</em> match the base type of a mapped struct property field. If any breaking changes are to be made to the struct property type (for example, if a new field is added, a field is deleted, or a field's base type is changed), then the related action types must also be modified to incorporate those changes.</p>
+<h3>Struct parameters in an action form</h3>
+<p>A struct parameter can be populated through action forms similarly to any other parameter type. However, struct parameter fields are rendered as a group in the form instead of individually.</p>
+<p><img alt="Struct parameter in an action form." src="../../_resources/foundry/action-types/struct-parameter-form.png" /></p>
+<h2>Default values for struct parameter fields</h2>
+<p>Default values are defined individually for struct parameter fields. Each struct parameter field is mapped to fields of a specified object type's struct property. A default value must be defined for all fields in the struct parameter and must be mapped to fields of the same object type struct property. Only struct property fields can act as default values for struct parameter fields. The object type whose struct property fields will act as default values is specified in the <code>ObjectReference</code> parameter.</p>
+<p><img alt="Define default values for struct parameter fields." src="../../_resources/foundry/action-types/struct-parameter-default-values.png" /></p>
+<p>An instance of an object of the type specified in the <code>ObjectReference</code> parameter is supplied when submitting the action, and that object's struct property field values will automatically fill in the values of the corresponding struct parameter fields.</p>
+<p><img alt="Default values applied for struct parameter fields." src="../../_resources/foundry/action-types/struct-parameter-form-default-values.png" /></p>
+<h2>Constraints on struct parameter fields</h2>
+<p>Constraints can be configured individually for struct parameter fields, as with regular parameters. For example, a string length constraint can be defined on struct parameter fields of string types to only allow string values that are between 10 and 500 characters long. This would mean that the <code>summary</code> field of the <code>Resolution</code> struct parameter must be at least 10 characters long, but no longer than 500 characters.</p>
+<p><img alt="Define constraints for struct parameter fields." src="../../_resources/foundry/action-types/struct-parameter-field-constraint.png" /></p>
+<p>A struct parameter value is <em>only</em> valid if <em>all</em> fields meet the defined constraint. Users can only submit a struct parameter value if each field value satisfies the constraints defined on them. As defined for the <code>summary</code> field, a value shorter than 10 characters would be invalid.</p>
+<p><img alt="Constraints applied to struct parameter field values." src="../../_resources/foundry/action-types/invalid-struct-parameter-value.png" /></p>
+<h2>Limitations</h2>
+<p>Consider the following limitations when creating or modifying struct parameters with actions:</p>
+<ul>
+<li>Struct property values can only be created or modified through <em>struct parameters</em>. Other forms of entry, such as static values or references to object properties, are not supported.</li>
+<li>A struct property can only be created or modified through a <em>single</em> struct parameter. A struct property mapping in actions cannot more than one parameter.</li>
+<li>A struct parameter can only be used to create or modify <em>struct</em> properties. Struct parameter fields cannot be used individually to create or modify non-struct properties.</li>
+<li>Only references to <em>a single object type struct property values</em> can act as default values for struct parameter fields. Other forms of entry, such as static values, are not supported.</li>
+</ul>
+</body>
+</html>

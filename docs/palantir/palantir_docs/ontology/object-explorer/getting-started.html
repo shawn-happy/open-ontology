@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Getting started</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Getting started</h1>
+<p>The home page below is shown when opening Object Explorer. It is an orientation hub where one can start exploring objects, either with a specific question in mind or to discover possible object types to explore.</p>
+<p>From this view, user can perform the following primary actions:</p>
+<ul>
+<li>Searching across everything in the objects realm of the platform from the search bar <strong>(A)</strong>.</li>
+<li>Exploring a group of object types <strong>(B, C, D)</strong>.</li>
+<li>Previewing a specific object type <strong>(E)</strong>.</li>
+<li>Selecting a specific object type for exploration <strong>(F)</strong>.</li>
+</ul>
+<p><img src="../../_resources/external-c35547e6e9cb.png" alt="Object Explorer home page"/></p>
+<h2>Global search bar (A)</h2>
+<p>The global search bar performs searches across all of the Ontology. It can be used to search for individual objects, object types, saved explorations, or modules (objects-backed applications).</p>
+<p>:::callout{theme="warning"}
+If the Ontology contains more than 250 object types that a user may discover, the keyword search will be limited to the first 250 object types. To search a specific object type or a group of object types you must leverage the functionality described <a href="#group-exploration-b-c-d">below</a>.
+:::</p>
+<p><img src="../../_resources/external-db2ce86abc3e.png" alt="Global search bar"/></p>
+<p>These searches bring back results where the search terms <strong>(1)</strong> match the following:</p>
+<ul>
+<li>The titles and/or metadata (e.g. name, description, etc.) of object types, property types, saved explorations.</li>
+<li>Any title or property of individual objects.</li>
+</ul>
+<p>Some matches, namely object type and property type results, will be shown immediately as type-ahead results <strong>(3)</strong>. To see all matches, click the first option <strong>Search for...</strong> <strong>(2)</strong> to be redirected to the <a href="https://www.palantir.com/docs/foundry/object-explorer/search-objects/">search results page</a>.</p>
+<p>You can learn more about search syntax for the search bar in the <a href="https://www.palantir.com/docs/foundry/object-explorer/search-syntax/">search syntax guide</a>.</p>
+<h2>Group exploration (B, C, D)</h2>
+<p>All object types accessible to a user are displayed under the search bar in <a href="https://www.palantir.com/docs/foundry/object-explorer/configure/">configurable object groups</a>. Use the side navigation <strong>(C)</strong> to select and navigate to a group.</p>
+<h3>Search with object type groupings (B)</h3>
+<p>Object type groupings are also reflected in the global search bar. Preconfigured groups are available in the left side tab, and custom groups can be quickly configured under <strong>Object types</strong>. Selecting an object type group here allows you to perform searches on a more refined set of object types before selecting one for exploration.</p>
+<p><img src="../../_resources/external-a816ba3ed598.png" alt="Object Type Groups"/></p>
+<h3>Explore object type groups on a graph (D)</h3>
+<p>The graph is designed to help users explore the Ontology and understand the connections between the object types within a specific group.</p>
+<p>Click on the <strong>Graph</strong> icon to view the group graph, which displays the links within the object types in the group and links to other object type groups <strong>(1)</strong>. In this view, you can also remove the object type groups <strong>(2)</strong> and change the layout of the graph <strong>(3)</strong>.</p>
+<p><img src="../../_resources/external-ebba33fd24f3.png" alt="Object type group graph"/></p>
+<p>Click on a link symbol (&lt;-&gt;) to show the type of links between the object types <strong>(4)</strong>.</p>
+<p><img src="../../_resources/external-dbb24a0d7ae4.png" alt="Object type graph link"/></p>
+<p>Select a single object to view a menu <strong>(5)</strong> that allows you to explore the <a href="#preview-object-types-e">object type preview</a> or start an exploration.</p>
+<p><img src="../../_resources/external-0ece616d6582.png" alt="Object type graph menu"/></p>
+<h2>Preview object types (E)</h2>
+<p>Click on an object preview to access a quick view of an object type (without moving into the more comprehensive exploration page). In the preview, find information about the object type <strong>(1)</strong>, including the description, properties, and linked object types. Click <strong>Start Exploration</strong> <strong>(2)</strong> to start a new Exploration of the object type.</p>
+<p><img src="../../_resources/external-2b9a115028de.png" alt="Object type preview" width="400"/></p>
+<h3>Add object type as favorite (F)</h3>
+<p>Object types can be added as a favorite by clicking the star icon on their card <strong>(1)</strong>. Favorites show up in a dedicated group at the top of the side navigation.</p>
+<p>:::callout
+Favorites will also be shown in the full list of âAll object typesâ at the bottom of the interface.
+:::</p>
+<p><img src="../../_resources/external-7f283f9c531a.png" alt="Explorer"/></p>
+<h3>Explorations &amp; lists (G)</h3>
+<p>Saved explorations and lists will appear at the top of the Home page for easy accessing. They can also be found in the <strong>Artifacts</strong> tab.</p>
+</body>
+</html>

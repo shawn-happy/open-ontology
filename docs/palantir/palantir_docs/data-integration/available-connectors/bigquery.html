@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>BigQuery</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>BigQuery</h1>
+<p>Connect Foundry to Google BigQuery to read and sync data between BigQuery tables and Foundry datasets.</p>
+<h2>Supported capabilities</h2>
+<table>
+<thead>
+<tr>
+<th>Capability</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Exploration</td>
+<td>ð¢ Generally available</td>
+</tr>
+<tr>
+<td>Bulk import</td>
+<td>ð¢ Generally available</td>
+</tr>
+<tr>
+<td>Incremental</td>
+<td>ð¢ Generally available</td>
+</tr>
+<tr>
+<td>Virtual tables</td>
+<td>ð¢ Generally available</td>
+</tr>
+<tr>
+<td>Compute pushdown</td>
+<td>ð¢ Generally available</td>
+</tr>
+<tr>
+<td>Export tasks</td>
+<td>ð¡ Sunset</td>
+</tr>
+</tbody>
+</table>
+<h2>Setup</h2>
+<ol>
+<li>Open the <a href="https://www.palantir.com/docs/foundry/data-connection/overview/">Data Connection</a> application and select <strong>+ New Source</strong> in the upper right corner of the screen.</li>
+<li>Select <strong>BigQuery</strong> from the available connector types.</li>
+<li>Follow the additional configuration prompts to continue the setup of your connector using the information in the sections below.</li>
+</ol>
+<p>Learn more about <a href="https://www.palantir.com/docs/foundry/data-connection/set-up-source/">setting up a connector</a> in Foundry.</p>
+<p>:::callout{theme="warning"}
+You must have a <a href="https://cloud.google.com/iam/docs/overview#service_account0">Google Cloud IAM service account â</a> to proceed with BigQuery authentication and set up.
+:::</p>
+<h2>Authentication</h2>
+<p>The following Identity and Access Management (IAM) roles are required to use a BigQuery connector:</p>
+<p>Read BigQuery data:</p>
+<ul>
+<li><code>BigQuery Read Session User</code>: Granted on BigQuery Project</li>
+<li><code>BigQuery Data Viewer</code>: Granted on BigQuery data to read data and metadata</li>
+<li><code>BigQuery Job User</code> (optional): Granted to ingest views and run custom queries</li>
+</ul>
+<p>Export data to BigQuery from Foundry:</p>
+<ul>
+<li><code>BigQuery Data Editor</code>: Granted on BigQuery dataset or Project</li>
+<li><code>BigQuery Job User</code>: Granted on BigQuery Project</li>
+<li><code>Storage Object Admin</code>: Granted on bucket if data is exported with Google Cloud Storage</li>
+</ul>
+<p>Use temporary tables:</p>
+<ul>
+<li><code>BigQuery Data Editor</code>: Granted for BigQuery Project if dataset is automatically created by the connector</li>
+<li><code>BigQuery Data Editor</code>: Granted for the provided dataset as a place to store temporary tables</li>
+</ul>
+<p>Learn more about required roles in the <a href="https://cloud.google.com/bigquery/docs/access-control">Google Cloud documentation on access control â</a>.</p>
+<p>Choose from one of the available authentication methods:</p>
+<ul>
+<li><strong>GCP instance account:</strong> Refer to the <a href="https://cloud.google.com/compute/docs/access/create-enable-service-accounts-for-instances#using">Google Cloud documentation â</a> for information on how to set up instance-based authentication.</li>
+<li>Note that GCP instance authentication only works for connectors operating through agents that run on appropriately configured instances in GCP.</li>
+<li>
+<p>Note that <a href="https://www.palantir.com/docs/foundry/data-integration/virtual-tables/">virtual tables</a> do not support GCP instance authentication credentials.</p>
+</li>
+<li>
+<p><strong>Service account key file:</strong> Refer to the <a href="https://cloud.google.com/bigquery/docs/authentication/service-account-file">Google Cloud documentation â</a> for information on how to set up service account key file authentication. The key file can be provided as JSON or PKCS8 credentials.</p>
+</li>
+<li>
+<p><strong>Workload Identity Federation (OIDC):</strong> Follow the displayed source system configuration instructions to set up OIDC. Refer to the <a href="https://cloud.google.com/iam/docs/workload-identity-federation-with-other-providers">Google Cloud Documentation â</a> for details on Workload Identity Federation and <a href="https://www.palantir.com/docs/foundry/data-connection/oidc/">our documentation</a> for details on how OIDC works with Foundry.</p>
+</li>
+</ul>
+<h3>Networking</h3>
+<p>The BigQuery connector requires network access to the following domains on port 443:</p>
+<ul>
+<li><code>bigquery.googleapis.com</code></li>
+<li><code>bigquerystorage.googleapis.com</code></li>
+<li><code>storage.googleapis.com</code></li>
+<li><code>www.googleapis.com</code></li>
+</ul>
+<p>Additional access may be required to the following domains:</p>
+<ul>
+<li><code>oauth2.googleapis.com</code></li>
+<li><code>accounts.google.com</code></li>
+</ul>
+<p>If you are establishing a <a href="https://www.palantir.com/docs/foundry/data-connection/architecture/#foundry-worker-with-direct-connection-policies">direct connection</a> between Foundry on Google Cloud Platform (GCP) with BigQuery on GCP, you must also enable the connection through the relevant VPC service controls. If this connection is required for your setup, contact Palantir Support for additional guidance.</p>
+<h2>Connection details</h2>
+<p>The following configuration options are available for the BigQuery connector:</p>
+<table>
+<thead>
+<tr>
+<th>Option</th>
+<th>Required?</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Project ID</code></td>
+<td>Yes</td>
+<td>The ID of the BigQuery Project; This Project will be charged for BigQuery compute usage regardless of what data is synced</td>
+</tr>
+<tr>
+<td><code>Credentials settings</code></td>
+<td>Yes</td>
+<td>Configure using the <a href="#authentication">Authentication</a> guidance shown above.</td>
+</tr>
+<tr>
+<td><code>Cloud Storage bucket</code></td>
+<td>No</td>
+<td>Add a name of a Cloud Storage bucket to be used as a staging location for writing data to BigQuery.</td>
+</tr>
+<tr>
+<td><code>Proxy settings</code></td>
+<td>No</td>
+<td>Enable to allow a proxy connection to BigQuery.</td>
+</tr>
+<tr>
+<td><code>Settings for temporary tables</code></td>
+<td>No <a href="#temporary-tables-ref"><sup>[1]</sup></a></td>
+<td>Enable to use <a href="#temporary-tables">temporary tables</a>.</td>
+</tr>
+<tr>
+<td><code>gRPC Settings</code></td>
+<td>No</td>
+<td>Advanced settings used to configure gRPC channels.</td>
+</tr>
+<tr>
+<td><code>Spark settings</code></td>
+<td>No <a href="#spark-settings-ref"><sup>[2]</sup></a></td>
+<td>Enable <strong>Spark-compatible BIGNUMERIC scale and precision</strong> to read unparameterized <code>BIGNUMERIC</code> columns in Spark when using <a href="#virtual-tables">virtual tables</a>. When enabled, unparameterized <code>BIGNUMERIC</code> columns will use maximum precision and scale that is compatible with Spark's <code>DecimalType</code>.</td>
+</tr>
+<tr>
+<td><code>Additional projects</code></td>
+<td>No</td>
+<td>Add the IDs of any additional Projects that must be accessed by the same connection; the Google Cloud account used as credentials for this connector will need to have access to these Projects. The connector <code>Project Id</code> will be charged for any BigQuery data access or compute usage.</td>
+</tr>
+</tbody>
+</table>
+<p><span id="temporary-tables-ref"></span>[1] Temporary tables must be enabled when registering <a href="https://cloud.google.com/bigquery/docs/views-intro">BigQuery views â</a> via <a href="https://www.palantir.com/docs/foundry/data-integration/virtual-tables/">virtual tables</a>.</p>
+<p><span id="spark-settings-ref"></span>[2] <strong>Spark-compatible BIGNUMERIC scale and precision</strong> must be enabled in order to read unparameterized <code>BIGNUMERIC</code> columns. Given Spark supports a maximum precision and scale of 38 and 18 respectively, there may be data loss if the data's precision or scale in BigQuery exceeds these limits. Parameterized <code>BIGNUMERIC</code> columns with a precision or scale that exceed Spark's limits are not supported.</p>
+<h2>Sync data from BigQuery</h2>
+<p>:::callout{theme="neutral"}
+For more complex scenarios, use <a href="#virtual-tables">virtual tables</a> or <a href="#use-bigquery-sources-in-code">pro-code alternatives</a>.
+:::</p>
+<p>The BigQuery connector allows for advanced sync configurations for large data syncs and custom queries.</p>
+<p>To set up a BigQuery sync, select <strong>Explore and create syncs</strong> in the upper right of the source <strong>Overview</strong> screen. Next, select the tables you want to sync into Foundry. When you are ready to sync, select <strong>Create sync for x datasets</strong>.</p>
+<p>Learn more about <a href="https://www.palantir.com/docs/foundry/data-connection/source-exploration/">source exploration</a> in Foundry.</p>
+<p>After exploring your available syncs and adding them to your connector, navigate to <strong>Edit syncs</strong>. From the <strong>Syncs</strong> panel to the left, find the sync you want to configure and select <strong>&gt;</strong> to the right.</p>
+<h3>Data model</h3>
+<p>Tables from BigQuery are imported into Foundry with the data saved in Avro format. Columns of type <code>BIGNUMERIC</code> and <code>TIME</code> are not supported at the time of import.</p>
+<p>When exporting data from Foundry to BigQuery, all column types except for <code>MAPS</code>, <code>STRUCTS</code> and <code>ARRAYS</code> are supported.</p>
+<h3>Import settings</h3>
+<p>Choose what data will be synced from BigQuery into Foundry.</p>
+<h4>Sync full table</h4>
+<p>Enter the following information to sync entire tables to Foundry:</p>
+<table>
+<thead>
+<tr>
+<th>Option</th>
+<th>Required?</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>BigQuery project Id</code></td>
+<td>No</td>
+<td>The ID of the Project to which the table belongs.</td>
+</tr>
+<tr>
+<td><code>BigQuery dataset</code></td>
+<td>Yes</td>
+<td>The name of the dataset to which the table belongs.</td>
+</tr>
+<tr>
+<td><code>BigQuery table</code></td>
+<td>No</td>
+<td>The name of the table being synced into Foundry.</td>
+</tr>
+</tbody>
+</table>
+<h4>Custom SQL</h4>
+<p>Any arbitrary query can be run, and the results will be saved in Foundry. The query output must be smaller than 20GB (the maximum BigQuery table size), or temporary table usage must be enabled. Queries must start with the keyword <code>select</code> or <code>with</code>. For example: <code>SELECT * from table_name limit 100;</code>.</p>
+<h3>Incremental syncs</h3>
+<p>Typically, syncs will import all matching rows from the target table, regardless if data changed between syncs or not. Incremental syncs, by contrast, maintain state about the most recent sync and only ingest new matching rows from the target.</p>
+<p>Incremental syncs can be used when ingesting large tables from BigQuery. To use incremental syncs, the table must contain a column that is strictly monotonically increasing. Additionally, the table or query being read from must contain a column with one of the following data types:</p>
+<ul>
+<li><code>INT64</code></li>
+<li><code>FLOAT64</code></li>
+<li><code>NUMERIC</code></li>
+<li><code>BIGNUMERIC</code></li>
+<li><code>STRING</code></li>
+<li><code>TIMESTAMP</code></li>
+<li><code>DATE</code></li>
+<li><code>TIME</code></li>
+<li><code>DATETIME</code></li>
+</ul>
+<p><strong>Example:</strong> A 5 TB table contains billions of rows that we want to sync to BigQuery. The table has a <strong>monotonically increasing column</strong> called <code>id</code>. The sync can be configured to ingest 50 million rows at a time using the <code>id</code> column as the <strong>incremental column</strong>, with an initial value of -1 and a configured limit of 50 million rows.</p>
+<p>When a sync is initially run, the first 50 million rows (ascending based on <code>id</code>) containing an <code>id</code> value greater than -1 will be ingested into Foundry. For example, if this sync was run several times and the largest <code>id</code> that was ingested during the last run of this sync was <code>19384004822</code>, the next sync will ingest the next 50 million rows starting with the first <code>id</code> greater than <code>19384004822</code>, and so on.</p>
+<p>Incremental syncs require the following configurations:</p>
+<table>
+<thead>
+<tr>
+<th>Option</th>
+<th>Required?</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Column</td>
+<td>Yes</td>
+<td>Select the column that will be used for incremental ingests. The dropdown will be empty if the table does not contain any supported columns types.</td>
+</tr>
+<tr>
+<td><code>Initial value</code></td>
+<td>Yes</td>
+<td>The value from which to start syncing data.</td>
+</tr>
+<tr>
+<td><code>Limit</code></td>
+<td>No</td>
+<td>The number of records to download in a single sync.</td>
+</tr>
+</tbody>
+</table>
+<h3>Incremental syncs for custom queries</h3>
+<p>To enable incremental queries for custom query syncs, the query must be updated to match the following format:</p>
+<p><code>SELECT * from table_name where incremental_column_name &gt; @value order by incremental_column_name asc limit @limit</code></p>
+<h3>Temporary tables</h3>
+<p>When syncing more than 20GB of data from a non-standard BigQuery table, temporary tables must be enabled. Temporary tables allow BigQuery to import results from large query outputs, import data from views and other non-standard tables, and allow for large incremental imports and ingests.</p>
+<p>A single sync can import data up to the size available on the disk. For <a href="https://www.palantir.com/docs/foundry/data-connection/core-concepts/#foundry-worker">syncs running on a Foundry worker</a>, this is typically limited to 600 GB. Use incremental syncs to import larger tables.</p>
+<p>To use temporary tables, enable <strong>Settings for temporary tables</strong> in the connector configuration and, if needed, configure the following settings:</p>
+<ul>
+<li><strong>Automatically create dataset:</strong> Select this option to create a <code>Palantir_temporary_tables</code> dataset to store temporary tables. This option requires the BigQuery account to have the <code>BigQuery Data Editor</code> role on the project.</li>
+<li><strong>Provide dataset to use:</strong> Select this option to manually add the <strong>Project ID</strong> and <strong>Dataset name</strong> of the dataset you want to use to store temporary tables. This option requires the BigQuery account to have the <code>BigQuery Data Editor</code> role on the dataset provided.</li>
+</ul>
+<p>Note that temporary tables must be enabled when using <a href="https://cloud.google.com/bigquery/docs/views-intro">BigQuery views â</a> with <a href="https://www.palantir.com/docs/foundry/data-integration/virtual-tables/">virtual tables</a>.</p>
+<h2>Export data to BigQuery</h2>
+<p>:::callout{theme="neutral"}
+For more complex scenarios, use <a href="#use-bigquery-sources-in-code">pro-code alternatives</a>.
+:::</p>
+<p>Export to BigQuery is done via <a href="https://www.palantir.com/docs/foundry/data-connection/export-tasks/">export tasks</a>.</p>
+<p>The connector can export to BigQuery in two ways:</p>
+<ul>
+<li>Through <strong>Google Cloud Storage</strong> as an intermediary store (recommended). See the section below on <a href="#export-via-cloud-storage-recommended">exporting via Cloud Storage</a> for more information.</li>
+<li>Through <strong>BigQuery APIs</strong> see <a href="https://cloud.google.com/bigquery/docs/batch-loading-data#loading_data_from_local_files">Reading data from local files â</a> for details on API used</li>
+</ul>
+<p>Writing through APIs is suitable for a data scale of several million rows. The expected performance for this mode is to export one million rows in approximately two minutes. If your data scale range reaches billions of rows, use Google Cloud Storage instead.</p>
+<h3>Task configuration</h3>
+<p>To begin exporting data, you must configure an export task. Navigate to the Project folder that contains the connector to which you want to export. Right select on the connector name, then select <code>Create Data Connection Task</code>.</p>
+<p>In the left side panel of the Data Connection view, verify the <code>Source</code> name matches the connector you want to use. Then, add an input dataset to the <code>Input</code> field. The input dataset must be called <code>inputDataset</code>, and it is the Foundry dataset being exported. The export task also requires one <code>Output</code> to be configured. The output dataset must be called <code>outputDataset</code> and point to a Foundry dataset. The output dataset is used to run, schedule, and monitor the task.</p>
+<p>In the left panel of the Data Connection view:</p>
+<ol>
+<li>Verify the <code>Source</code> name matches the connector you want to use.</li>
+<li>Add an <code>Input</code> named <code>inputDataset</code>. The <strong>input dataset</strong> is the Foundry dataset being exported.</li>
+<li>Add an <code>Output</code> named <code>outputDataset</code>. The <strong>output dataset</strong> is used to run, schedule, and monitor the task.</li>
+<li>Finally, add a YAML block in the text field to define the task configuration.</li>
+</ol>
+<p>:::callout{theme="neutral"}
+The labels for the connector and input dataset that appear in the left side panel do not reflect the names defined in the YAMl.
+:::</p>
+<p>Use the following options when creating the export task YAML:</p>
+<table>
+<thead>
+<tr>
+<th>Option</th>
+<th>Required?</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>project</code></td>
+<td>No</td>
+<td>The Project ID of the connector</td>
+<td>The ID of the Project that the destination table belongs to.</td>
+</tr>
+<tr>
+<td><code>dataset</code></td>
+<td>Yes</td>
+<td></td>
+<td>The name of the dataset to which the table belongs.</td>
+</tr>
+<tr>
+<td><code>table</code></td>
+<td>Yes</td>
+<td></td>
+<td>The name of the table to which the data will be exported.</td>
+</tr>
+<tr>
+<td><code>incrementalType</code></td>
+<td>Yes</td>
+<td>SNAPSHOT</td>
+<td>The value can either be SNAPSHOT or REQUIRE_INCREMENTAL. <br /> <strong>â¢ Export in snapshot mode:</strong> Contents of the destination table will be replaced.<br /> <strong>â¢ Export in incremental mode:</strong> Contents will be <a href="#append-rows-to-output-table">appended</a> to the existing table.</td>
+</tr>
+</tbody>
+</table>
+<p>:::callout{theme="neutral"}
+To set up incremental exports, run the first export as <code>SNAPSHOT</code>, then change <code>incrementalType</code> to <code>REQUIRE_INCREMENTAL</code>.
+:::</p>
+<p>Example task configuration:</p>
+<pre><code class="language-yaml">type: magritte-bigquery-export-task
+config:
+    table:
+      dataset: datasetInBigQuery
+      table: tableInBigQuery
+      project: projectId #(Optional: Do not specify unless the Project for export differs from the Project configured for the connector.)
+    incrementalType: SNAPSHOT | REQUIRE_INCREMENTAL
+</code></pre>
+<p>:::callout{theme="neutral"}
+Only datasets containing rows stored in Parquet format are supported for export to BigQuery.
+:::</p>
+<p>After you configure the export task, select <strong>Save</strong> in the upper right corner.</p>
+<h4>Append rows to output table</h4>
+<p>If you need to append rows to the destination table, you can use <code>REQUIRE_INCREMENTAL</code> rather than replacing the dataset.</p>
+<p>:::callout{theme="warning"}
+Incremental syncs require that rows are only appended to the input dataset and that the destination table in BigQuery matches the schema of the input dataset in Foundry.
+:::</p>
+<h3>Export via Cloud Storage (recommended)</h3>
+<p>To export via Cloud Storage, a Cloud Storage bucket must be configured in the connector <a href="#connection-details">configuration settings</a>. Additionally, the Cloud Storage bucket must only be used for temporary tables for the connector so that any data temporarily written to the bucket is accessible to the least amount of users possible.</p>
+<p>We recommend exporting to BigQuery via Cloud Storage rather than BigQuery APIs; Cloud Storage operates better at scale and does not create temporary tables in BigQuery.</p>
+<h3>Export via BigQuery APIs</h3>
+<p>The export job creates a temporary table alongside the destination table; this temporary table will not have extra access restrictions applied. Additionally, the <code>SNAPSHOT</code> export drops and recreates the table, meaning the extra access restrictions will also be dropped.</p>
+<p>During an export via BigQuery APIs, data is exported to the temporary table <code>datasetName.tableName_temp_$timestamp</code>. Once the export is complete, rows are automatically transferred from the temporary table to the destination table.</p>
+<p>:::callout{theme="warning"}
+Hive table partitions are not supported for export through BigQuery APIs. For datasets partitioned with Hive tables, export through Cloud Storage instead.
+:::</p>
+<p>You can share the destination table if the export is run in <code>REQUIRE_INCREMENTAL</code> mode. Running in <code>SNAPSHOT</code> mode recreates the table on each run, and the sharing would need to be reapplied.</p>
+<p>:::callout{theme="warning"}
+To successfully export via BigQuery APIs, do not apply BigQuery row-level or column-level permissions to the exported table.
+:::</p>
+<h2>Use BigQuery sources in code</h2>
+<p><a href="https://www.palantir.com/docs/foundry/data-connection/core-concepts/#use-in-code">Pro-code alternatives</a> can be used to connect to BigQuery sources for more complex scenarios.</p>
+<p>The examples below demonstrate how to connect to a BigQuery source using the <a href="https://cloud.google.com/python/docs/reference/bigquery/latest">Python client for Google BigQuery â</a> <code>google-cloud-bigquery</code> in an <a href="https://www.palantir.com/docs/foundry/data-connection/external-transforms/">external transform</a>.</p>
+<p>These examples are based on a <code>Shipments</code> table stored in BigQuery that represents a list of package shipments with their weight, carrier, and tracking number.</p>
+<h3>Read from BigQuery with an external transform</h3>
+<p>This example reads shipments from a given list of carriers and above a certain weight.</p>
+<pre><code class="language-python">from pandas import DataFrame
+from transforms.api import lightweight, Output, Input, transform_pandas
+from transforms.external.systems import ResolvedSource, external_systems, Source
+from google.cloud import bigquery
+import json
+
+@lightweight
+@external_systems(
+    bigquery_source=Source(&quot;&lt;source_rid&gt;&quot;)
+)
+@transform_pandas(
+    Output(&quot;&lt;dataset_rid&gt;&quot;),
+    carriers_df=Input(&quot;&lt;dataset_rid&gt;&quot;) # dataframe with schema [carrier_name: String, carrier_details: String]
+)
+def read(bigquery_source: ResolvedSource, carriers_df: DataFrame) -&gt; DataFrame:
+    # Authenticate BigQuery client
+    account_info = json.loads(bigquery_source.get_secret(&quot;jsonCredentials&quot;))
+    client = bigquery.Client.from_service_account_info(account_info)
+
+    # Table reference
+    bigquery_project = &quot;&lt;bigquery_project_id&gt;&quot;
+    bigquery_dataset = &quot;&lt;bigquery_dataset_id&gt;&quot;
+    bigquery_table = &quot;&lt;bigquery_table_id&gt;&quot;
+    table_ref = f&quot;{bigquery_project}.{bigquery_dataset}.{bigquery_table}&quot;
+
+    # Filter parameters
+    carrier_list = carriers_df['carrier_name'].drop_duplicates().tolist()
+    min_weight = 10
+
+    job_config = bigquery.QueryJobConfig(
+        query_parameters=[
+            bigquery.ArrayQueryParameter(&quot;carrier_list&quot;, &quot;STRING&quot;, carrier_list),
+            bigquery.ScalarQueryParameter(&quot;min_weight&quot;, &quot;FLOAT64&quot;, min_weight)
+        ]
+    )
+
+    query = f&quot;&quot;&quot;
+        SELECT shipment_id, carrier, weight, tracking_number
+        FROM `{table_ref}`
+        WHERE carrier IN UNNEST(@carrier_list) AND weight &gt;= @min_weight
+    &quot;&quot;&quot;
+
+    query_job = client.query(query, job_config=job_config)
+    return query_job.to_dataframe()
+</code></pre>
+<h3>Write to BigQuery with an external transform</h3>
+<p>This function updates tracking numbers for shipments based on the provided shipment information, and then returns the updated shipment details.</p>
+<pre><code class="language-python">from pandas import DataFrame
+from transforms.api import lightweight, Output, Input, transform_pandas
+from transforms.external.systems import ResolvedSource, external_systems, Source
+from google.cloud import bigquery
+import json
+
+@lightweight
+@external_systems(
+    bigquery_source=Source(&quot;&lt;source_rid&gt;&quot;)
+)
+@transform_pandas(
+    Output(&quot;&lt;dataset_rid&gt;&quot;),
+    shipments_df=Input(&quot;&lt;dataset_rid&gt;&quot;), # DataFrame with schema [shipment_id: Long, tracking_number: String]
+)
+def update_tracking_numbers(bigquery_source: ResolvedSource, shipments_df: DataFrame) -&gt; DataFrame:
+    # Authenticate BigQuery client
+    account_info = json.loads(bigquery_source.get_secret(&quot;jsonCredentials&quot;))
+    client = bigquery.Client.from_service_account_info(account_info)
+
+    # Table reference
+    bigquery_project = &quot;&lt;bigquery_project_id&gt;&quot;
+    bigquery_dataset = &quot;&lt;bigquery_dataset_id&gt;&quot;
+    bigquery_table = &quot;&lt;bigquery_table_id&gt;&quot;
+    table_ref = f&quot;{bigquery_project}.{bigquery_dataset}.{bigquery_table}&quot;
+
+    # 1. Clear temporary table if it exists
+    temp_table_id = f&quot;{bigquery_project}.{bigquery_dataset}.temp_update_tracking&quot;
+    client.delete_table(temp_table_id, not_found_ok=True)
+
+
+    # 2. Upload shipments_df to a temporary table
+    load_job_config = bigquery.LoadJobConfig(
+        schema=[
+            bigquery.SchemaField(&quot;shipment_id&quot;, &quot;INT64&quot;),
+            bigquery.SchemaField(&quot;tracking_number&quot;, &quot;STRING&quot;),
+        ]
+    )
+    job = client.load_table_from_dataframe(shipments_df, temp_table_id, job_config=load_job_config)
+    job.result()  # Wait for load to finish
+
+    # 3. MERGE to update tracking_number in main table
+    merge_query = f&quot;&quot;&quot;
+    MERGE `{table_ref}` T
+    USING `{temp_table_id}` S
+    ON T.shipment_id = S.shipment_id
+    WHEN MATCHED THEN
+      UPDATE SET tracking_number = S.tracking_number
+    &quot;&quot;&quot;
+
+    client.query(merge_query).result()
+
+    # 3. (Optional) Clean up temporary table
+    client.delete_table(temp_table_id, not_found_ok=True)
+
+    # Optionally, return the updated rows as a DataFrame for confirmation
+    updated_ids = shipments_df[&quot;shipment_id&quot;].tolist()
+    query = f&quot;&quot;&quot;
+        SELECT shipment_id, tracking_number
+        FROM `{table_ref}`
+        WHERE shipment_id IN UNNEST(@updated_ids)
+    &quot;&quot;&quot;
+    job_config = bigquery.QueryJobConfig(
+        query_parameters=[
+            bigquery.ArrayQueryParameter(&quot;updated_ids&quot;, &quot;INT64&quot;, [int(x) for x in updated_ids])
+        ]
+    )
+    updated_rows = client.query(query, job_config=job_config).to_dataframe()
+    return updated_rows
+</code></pre>
+<h2>Virtual tables</h2>
+<p>This section provides additional details around using <a href="https://www.palantir.com/docs/foundry/data-integration/virtual-tables/">virtual tables</a> with a BigQuery source. This section is not applicable when syncing to Foundry datasets.</p>
+<p>The table below highlights the virtual table capabilities that are supported for BigQuery.</p>
+<table>
+<thead>
+<tr>
+<th>Capability</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Bulk registration</td>
+<td>ð¢ Generally available</td>
+</tr>
+<tr>
+<td>Automatic registration</td>
+<td>ð¢ Generally available</td>
+</tr>
+<tr>
+<td>Table inputs</td>
+<td>ð¢ Generally available: tables, views, materialized views in <a href="https://www.palantir.com/docs/foundry/code-repositories/overview/">Code Repositories</a>, <a href="https://www.palantir.com/docs/foundry/pipeline-builder/overview/">Pipeline Builder</a></td>
+</tr>
+<tr>
+<td>Table outputs</td>
+<td>ð¢ Generally available: tables in <a href="https://www.palantir.com/docs/foundry/code-repositories/overview/">Code Repositories</a>, <a href="https://www.palantir.com/docs/foundry/pipeline-builder/overview/">Pipeline Builder</a></td>
+</tr>
+<tr>
+<td>Incremental pipelines</td>
+<td>ð¢ Generally available: <code>APPEND</code> only <a href="#bigquery-incremental"><sup>[1]</sup></a></td>
+</tr>
+<tr>
+<td>Compute pushdown</td>
+<td>ð¢ Generally available</td>
+</tr>
+</tbody>
+</table>
+<p>Consult the <a href="https://www.palantir.com/docs/foundry/data-integration/virtual-tables/#supported-foundry-workflows">virtual tables documentation</a> for details on the supported Foundry workflows where BigQuery tables can be used as inputs or outputs.</p>
+<p><span id="bigquery-incremental">[1]</span> To enable incremental support for pipelines backed by BigQuery virtual tables, ensure that <a href="https://cloud.google.com/bigquery/docs/time-travel">Time Travel â</a> is enabled with the appropriate retention period. This functionality relies on <a href="https://cloud.google.com/bigquery/docs/change-history">Change History â</a> and is currently append-only. The <code>current</code> and <code>added</code> read modes in <a href="https://www.palantir.com/docs/foundry/transforms-python/incremental-usage/#incrementaltransforminput">Python Transforms</a> are supported. The <code>_CHANGE_TYPE</code> and <code>_CHANGE_TIMESTAMP</code> columns will be made available in Python Transforms.</p>
+<p>:::callout{theme="warning"}
+It is critical to ensure that incremental pipelines backed by virtual tables are built on <code>APPEND</code>-only source tables, as BigQuery does not provide <code>UPDATE</code> or <code>DELETE</code> change information. See official <a href="https://cloud.google.com/bigquery/docs/change-history">BigQuery documentation â</a> for more details.
+:::</p>
+<h3>Source configuration requirements</h3>
+<p>When using <a href="https://www.palantir.com/docs/foundry/data-integration/virtual-tables/">virtual tables</a>, remember the following source configuration requirements:</p>
+<ul>
+<li>You must use a <a href="https://www.palantir.com/docs/foundry/data-connection/core-concepts/#foundry-worker">Foundry worker</a> source. Virtual tables do not support use of <a href="https://www.palantir.com/docs/foundry/data-connection/core-concepts/#agent-worker">agent worker</a> connections.</li>
+<li>Ensure that bi-directional connectivity and allowlisting is established as described in the <a href="#networking">Networking section of this documentation</a>.</li>
+<li>If using virtual tables in Code Repositories, refer to the <a href="https://www.palantir.com/docs/foundry/data-integration/virtual-tables/#virtual-tables-in-code-repositories">Virtual Tables documentation</a> for details of additional source configuration required.</li>
+<li>Use service account key file credentials or Workload Identity Federation (OIDC). Instance-based authentication is not supported with virtual tables.</li>
+<li><a href="#temporary-tables">Temporary tables</a> must be enabled in order to register <a href="https://cloud.google.com/bigquery/docs/views-intro">BigQuery views â</a>, and the relevant roles must be added to the <a href="#authentication">authentication credentials</a>.</li>
+<li>Configure <a href="#connection-details">Spark settings</a> to read unparameterized <code>BIGNUMERIC</code> columns in Spark.</li>
+</ul>
+<p>See the <a href="#connection-details">Connection details</a> and <a href="#temporary-tables">Temporary tables</a> section above for more details.</p>
+<h2>Compute pushdown</h2>
+<p>Foundry offers the ability to push down compute to BigQuery when using virtual tables. Virtual table inputs leverage the <a href="https://github.com/GoogleCloudDataproc/spark-bigquery-connector">BigQuery Spark connector â</a> which has built-in support for predicate pushdown.</p>
+<p>When using BigQuery virtual tables registered to the same source as inputs and outputs to a pipeline, it is possible to fully federate compute to BigQuery. This feature is currently available in Python transforms. See the <a href="https://www.palantir.com/docs/foundry/transforms-python/tables-bigquery/">Python documentation</a> for details on how to push down compute to BigQuery.</p>
+<h2>Troubleshooting</h2>
+<h3>Not found: Dataset <code>&lt;dataset&gt;</code> was not found in location <code>&lt;location&gt;</code></h3>
+<p>BigQuery determines the location where a given query will be run based on either the inputs used in the query or where the results of the query are being stored. When temporary tables are used, the output is set to a temporary table in the temporary tables dataset; the location of this dataset will determine where the query is run. Ensure that all inputs of the sync and the temporary tables dataset are in the same region. If the <strong>Automatically create dataset.</strong> setting is enabled, use the Google Cloud console or Google's SDKs/APIs to determine the location of the dataset called <code>Palantir_temporary_tables</code>.</p>
+<h3>gRPC message exceeds maximum size</h3>
+<p>If syncing data with large content like JSON columns, the transfer may fail with the above error. Adjust BigQuery's <code>Maximum inbound message size</code> in <strong>gRPC Settings</strong> on the source to increase data transfer in a single API call. Remember, a single call fetches multiple rows, so setting it to the largest row size may not be enough.</p>
+<p>You can find this configuration option by navigating to <strong>Connection Settings &gt; Connection Details</strong>, then scrolling to <strong>More options</strong> and selecting <strong>gRPC Settings</strong>.</p>
+<p><img alt="The gRPC settings setting section in the BigQuery connection settings." src="../../_resources/foundry/available-connectors/grpc_settings_bigquery.png" /></p>
+<h3>Preview fails to load for a dataset or virtual table based on a BigQuery view</h3>
+<p>If your preview fails to load and the target BigQuery table is a view, this may be the result of a schema mismatch. Views' schemas are determined by the result of the SQL query defined at the time of creation. Subsequent changes to the underlying table's structure are <em>not</em> automatically applied to the view's schema and may lead to unexpected behavior when trying to consume the view (such as via a sync/virtual table in the Palantir platform.)</p>
+<p>You can verify this by comparing the schemas between the view and the underlying table in the BigQuery console, checking for any discrepancies. This can include:</p>
+<ul>
+<li>Columns present in the view but not in the underlying table (and vice versa)</li>
+<li>Having two different data types for the same column</li>
+</ul>
+<p>In the case that any discrepancies are identified, you can address them by recreating or refreshing the view using <code>CREATE OR REPLACE VIEW</code> or <code>ALTER VIEW</code>. For more information, reference this <a href="https://www.googlecloudcommunity.com/gc/Data-Analytics/View-schema-not-updated/m-p/747908#M5903">Google Cloud community post â</a> which describes the expected behavior in more detail and provides additional guidance on best practices.</p>
+</body>
+</html>

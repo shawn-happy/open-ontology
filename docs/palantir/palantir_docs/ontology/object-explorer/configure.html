@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Configure Object Explorer</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Configure Object Explorer</h1>
+<h3>Customizable object type Groupings on Home Page</h3>
+<p>To create and add an object type to a group, visit the object type's <a href="https://www.palantir.com/docs/foundry/object-link-types/create-object-type/#add-metadata-for-a-new-object-type">metadata widget</a> in the Ontology Manager. Note that you must have editor permission on the Ontology to create and add an object type to a group.</p>
+<p>If there are custom groups configured, any non-hidden object types that do not belong to a group will be placed in a group at the bottom of the page called âOtherâ.</p>
+<h3>Linking to object view from Actions success toast</h3>
+<p>Once an Action has been successfully applied, the success toast (pop-up confirmation message) can be configured to display a hyperlink to the object view for the object instance that has been created or modified. This provides quick access to the object view for newly-created or modified objects.</p>
+<p>To configure the success toast in this way, you will need to add a new type class (see code below) to the Primary Key parameter of the relevant <em>create object</em> Action or to the Object Reference List parameter of the relevant <em>modify object</em> Action. The type class can be added using the Ontology Editor app, which requires you to have ontology editing permissions.</p>
+<pre><code class="language-yaml">kind: &quot;actions&quot;
+name: &quot;view_object_with_type:&lt;OBJECT_TYPE_ID&gt;&quot;
+</code></pre>
+<p>The following example shows how to add a success toast that links to the object view for a newly-created object instance.</p>
+<ol>
+<li>The Ontology Action âCreate New Aircraftâ allows us to create a new Aircraft object instance.</li>
+</ol>
+<p><img src="../../_resources/external-94e6b89c9fb4.png" alt="Action Success Toast Typeclass"/></p>
+<ol start="2">
+<li>In the pop-up menu, input the relevant information and then select âSubmitâ. In this case, an Aircraft object instance with Id of <code>187</code> and Aircraft Registration of <code>Q-AHE</code> will be created.</li>
+</ol>
+<p><img src="../../_resources/external-742bda3c801d.png" alt="Apply Action"/></p>
+<ol start="3">
+<li>Now that we have added the type class described above on the Primary Key parameter, the success toast will display a hyperlink to the newly-created object instance <code>Q-AHE</code>. Clicking on the hyperlink will bring us to the object view of this object instance.</li>
+</ol>
+<p><img src="../../_resources/external-712a8d368ade.png" alt="Success Toast"/></p>
+<h3>Hiding Actions in Object Explorer</h3>
+<p>Actions will automatically be shown in three places across Object Explorer as described in the <a href="https://www.palantir.com/docs/foundry/action-types/use-actions/">action type documentation</a>. To hide an Action of an object type, add the <code>hubble-oe:hide-action</code> type class to the Object Reference List parameter in Ontology Editor app. You will need to have access to edit the ontology to do this.</p>
+<p><img src="../../_resources/external-71e00aa4526c.png" alt="Hide Actions Typeclass" width = "500"/></p>
+<h2>Actions on a Dynamic Object Set</h2>
+<p>:::callout{theme="warning"}
+This feature is still in development and is subject to deprecation <em>without</em> an automatic migration. Thus, using it means taking a risk that you will need to manually migrate your actions in the future. If you plan to use this particular feature, contact your Palantir representative before doing so.
+:::</p>
+<p>In some cases, you may want to use the results of an exploration as a dynamic object set, rather than a static object set. Dynamic object sets are saved as the representation of the filters applied. As such, when new data matches (or does not match) those filters, the object set will be updated.</p>
+<p>The most typical use case of this feature is to add a reference to a dynamic object set as a property value on an object instance.</p>
+<p>The following example shows how to create an action that allows you to assign a dynamic set of <code>Aircraft</code> objects to an <code>Airline</code> object, based on the Aircraft Manufacturer's Serial Numbers (MSNs).</p>
+<ol>
+<li>Ensure that the <code>Airline</code> object type has a <code>String</code> property (in this case <code>Aircraft Set</code>) where you can add a reference to a set of "Aircraft" objects as a value. Enable value formatting for this property, and select <strong>Resource RID</strong> from the dropdown. This way, the object set RIDs assigned to this property will appear as a link to the object set in Object Explorer.</li>
+</ol>
+<p><img src="../../_resources/external-7355b8bda3f6.png" alt="Value Formatting" width="300"/></p>
+<ol start="2">
+<li>Now you are ready to create the action. On the action, add a <strong>Modify Object</strong> rule on the <code>Airline</code> object type's <code>Aircraft Set</code> property.</li>
+</ol>
+<p><img src="../../_resources/external-a536a4019ebc.png" alt="Modify Object Rule" width="300"/></p>
+<ol start="3">
+<li>On the <code>Aircraft Set</code> parameter, add the following type class, where <code>&lt;OBJECT_TYPE_ID&gt;</code> is the object type ID of the object type you want this action to appear as an option for in the exploration view (in this case, the <code>Aircraft</code> object type).</li>
+</ol>
+<pre><code class="language-yaml">kind: &quot;hubble-oe-object-set-rid&quot;
+name: &lt;OBJECT_TYPE_ID&gt;
+</code></pre>
+<ol start="4">
+<li>Also on the <code>Aircraft Set</code> parameter, add the following type class, where <code>&lt;RESOURCE_RID&gt;</code> is the RID of a folder that contains the correct permissions you want to grant to the dynamic object sets. Note that the object sets are not exposed in a Project and are not searchable - this RID is only used to specify what permissions the saved object sets should receive.</li>
+</ol>
+<pre><code class="language-yaml">kind: &quot;hubble-oe-security-rid&quot;
+name: &lt;RESOURCE_RID&gt;
+</code></pre>
+<ol start="5">
+<li>Once the action has been created, navigate to an exploration on <code>Aircraft</code> objects. As an example, we might want to assign all <code>Aircraft</code> with an MSN between 5,025 and 5,050 to Frontier Airlines. To do so, filter down to those objects and select the newly created action from the Actions dropdown.</li>
+</ol>
+<p><img src="../../_resources/external-571b41e1bce6.png" alt="Assign Aircraft"/></p>
+<p>This will automatically create a dynamic object set for your current exploration and assign it to the <code>Aircraft Set</code> property on the <code>Airline</code> object you select from the dropdown.</p>
+<p><img src="../../_resources/external-ffae6eec7d3c.png" alt="Choose Airline" width="300"/></p>
+<ol start="6">
+<li>Now, a link to the set of <code>Aircraft</code> with an MSN between 5,025 and 5,050 will appear in the <code>Aircraft Set</code> property on the "Frontier Airlines Inc." object. If any new <code>Aircraft</code> with an MSN in this range are added to the ontology or any of the <code>Aircraft</code> currently in the set are removed from the ontology, the set will automatically be updated.</li>
+</ol>
+<p><img src="../../_resources/external-4ec2e3fe9283.png" alt="Airline Exploration"/></p>
+<ol start="7">
+<li>Using a Linked Objects Exploration widget, you can see the contents of this dynamic object set by visiting the Object View for "Frontier Airlines Inc.":</li>
+</ol>
+<p><img src="../../_resources/external-b01b7cd76dc5.png" alt="Linked Objects Exploration"/></p>
+<p>When configuring this widget, set the <code>Initial Exploration</code> to <strong>From Object Set RID Property</strong> and the <code>Object Set RID Property</code> to <strong>Aircraft Set</strong>.</p>
+<p><img src="../../_resources/external-26aa089e029c.png" alt="Linked Objects Exploration Configuration"/></p>
+<h3>Default Layout Administrative Users</h3>
+<p>A user who belongs to the <code>hubble-exploration-admins</code> multipass group, or who has the <code>Object Exploration Admin</code> application permission in Control Panel, can rename, delete, or save default layouts for object types. The layout includes any changes that have been made to the results table configuration. If you are an admin user and wish to set a layout as default for all users, under <strong>Set as default layout</strong> tick the <strong>For all users</strong> checkbox when saving the layout, as seen in the image below.</p>
+<p><img src="../../_resources/external-69644a21ea84.png" alt="Edit Default Layout" width="300"/></p>
+</body>
+</html>

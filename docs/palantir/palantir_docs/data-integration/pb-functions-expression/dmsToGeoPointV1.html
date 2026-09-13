@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Convert DMS to GeoPoint</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Convert DMS to GeoPoint</h1>
+<blockquote>
+<p>Supported in: Batch, Streaming</p>
+</blockquote>
+<p>Converts a geospatial coordinate string in degrees, minutes, seconds (DMS) format to a GeoPoint in accordance to user-provided formats. The default formats are <code>DDD*Â°MM*'SS*"H</code> and <code>DDD*MMSSssH</code>. The formats are run in order, and the first matching format will be returned. See formatting guide on how to write user-generated formats.</p>
+<p><strong>Expression categories:</strong> Geospatial</p>
+<h2>Declared arguments</h2>
+<ul>
+<li><strong>Coordinates:</strong> DMS coordinates to convert to a GeoPoint.<br><em>Expression\<String></em></li>
+<li><em>optional</em> <strong>Formats:</strong> Formats default to <code>DDD*Â°MM*'SS*"H</code> and <code>DDD*MMSSssH</code>.<br><em>List\<Literal\\<String>></em></li>
+</ul>
+<p><strong>Output type:</strong> <em>GeoPoint</em></p>
+<h2>Examples</h2>
+<h3>Example 1: Base case</h3>
+<p><strong>Argument values:</strong></p>
+<ul>
+<li><strong>Coordinates:</strong> <code>coordinates</code></li>
+<li><strong>Formats:</strong> <em>null</em></li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>coordinates</th>
+<th><strong>Output</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>078261594N075220923E</td>
+<td>{<br>â<strong>latitude</strong>: 78.43776111111112,<br>â<strong>longitude</strong>: 75.36923055555555,<br>}</td>
+</tr>
+<tr>
+<td>046115095S069524119W</td>
+<td>{<br>â<strong>latitude</strong>: -46.19748611111111,<br>â<strong>longitude</strong>: -69.87810833333333,<br>}</td>
+</tr>
+<tr>
+<td>023Â°45'55"N 069Â°52'11"W</td>
+<td>{<br>â<strong>latitude</strong>: 23.76527777777777,<br>â<strong>longitude</strong>: -69.86972222222222,<br>}</td>
+</tr>
+<tr>
+<td>-123Â°55'55"N 069Â°53'00"W</td>
+<td>{<br>â<strong>latitude</strong>: -123.93194444444445,<br>â<strong>longitude</strong>: -69.88333333333334,<br>}</td>
+</tr>
+<tr>
+<td>123456789N23456789E</td>
+<td>{<br>â<strong>latitude</strong>: 123.76885833333333,<br>â<strong>longitude</strong>: 23.768858333333334,<br>}</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3>Example 2: Base case</h3>
+<p><strong>Argument values:</strong></p>
+<ul>
+<li><strong>Coordinates:</strong> <code>coordinates</code></li>
+<li><strong>Formats:</strong> [H[orth][est][ast][outh] DDD* <code>degrees,</code> MM* <code>minutes, and</code> SS*.sss* <code>seconds</code>]</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>coordinates</th>
+<th><strong>Output</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>North 75 degrees, 3 minutes, and 0.33 seconds; East 123 degrees, 22 minutes, and 17.2 seconds</td>
+<td>{<br>â<strong>latitude</strong>: 75.05009166666666,<br>â<strong>longitude</strong>: 123.37144444444444,<br>}</td>
+</tr>
+<tr>
+<td>South 75 degrees, 3 minutes, and 0.33 seconds; West 123 degrees, 22 minutes, and 17.2 seconds</td>
+<td>{<br>â<strong>latitude</strong>: -75.05009166666666,<br>â<strong>longitude</strong>: -123.37144444444444,<br>}</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3>Example 3: Base case</h3>
+<p><strong>Argument values:</strong></p>
+<ul>
+<li><strong>Coordinates:</strong> <code>coordinates</code></li>
+<li><strong>Formats:</strong> <em>null</em></li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>coordinates</th>
+<th><strong>Output</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>hSllo, World!</td>
+<td><em>null</em></td>
+</tr>
+<tr>
+<td>02345N123456789E</td>
+<td><em>null</em></td>
+</tr>
+<tr>
+<td>023456784R123456789E</td>
+<td><em>null</em></td>
+</tr>
+<tr>
+<td>023456784N123456789</td>
+<td><em>null</em></td>
+</tr>
+<tr>
+<td>023456784R123456789</td>
+<td><em>null</em></td>
+</tr>
+<tr>
+<td>078261594N075220923E075220923N</td>
+<td><em>null</em></td>
+</tr>
+<tr>
+<td>078261594N</td>
+<td><em>null</em></td>
+</tr>
+<tr>
+<td>23Â°Â°45'55"N 069Â°52'11"W</td>
+<td><em>null</em></td>
+</tr>
+<tr>
+<td>23Â° 45' 55"N 069Â° 52' 11"W</td>
+<td><em>null</em></td>
+</tr>
+<tr>
+<td>23Â°55"N 069Â°52'11"W</td>
+<td><em>null</em></td>
+</tr>
+<tr>
+<td>23Â°452233'55"N 069Â°52'11"W</td>
+<td><em>null</em></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3>Example 4: Base case</h3>
+<p><strong>Argument values:</strong></p>
+<ul>
+<li><strong>Coordinates:</strong> <code>coordinates</code></li>
+<li><strong>Formats:</strong> [DDD<code>``minutes:``</code>MM<code>``seconds:``</code>SS]</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>coordinates</th>
+<th><strong>Output</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>degrees:</code> 123 <code>minutes:</code> 45 <code>seconds:</code> 67, <code>degrees:</code> 087 <code>minutes:</code> 54 <code>seconds:</code> 32</td>
+<td>{<br>â<strong>latitude</strong>: 123.76861111111111,<br>â<strong>longitude</strong>: 87.9088888888889,<br>}</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3>Example 5: Edge case</h3>
+<p><strong>Argument values:</strong></p>
+<ul>
+<li><strong>Coordinates:</strong> <code>coordinates</code></li>
+<li><strong>Formats:</strong> [SSSSSSSSS*.sssssss*H]</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>coordinates</th>
+<th><strong>Output</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>123452.4222N 98544.333E</td>
+<td>{<br>â<strong>latitude</strong>: 34.2923395,<br>â<strong>longitude</strong>: 27.373425833333332,<br>}</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3>Example 6: Edge case</h3>
+<p><strong>Argument values:</strong></p>
+<ul>
+<li><strong>Coordinates:</strong> <code>coordinates</code></li>
+<li><strong>Formats:</strong> [DDD*:MM:SSsss*H]</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>coordinates</th>
+<th><strong>Output</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>123:45:24222N 98:54:4333E</td>
+<td>{<br>â<strong>latitude</strong>: 123.75672833333333,<br>â<strong>longitude</strong>: 98.91203611111112,<br>}</td>
+</tr>
+<tr>
+<td>078261594N075220923E</td>
+<td><em>null</em></td>
+</tr>
+<tr>
+<td>-123Â°55'55"N 069Â°53'00"W</td>
+<td><em>null</em></td>
+</tr>
+</tbody>
+</table>
+<hr />
+</body>
+</html>

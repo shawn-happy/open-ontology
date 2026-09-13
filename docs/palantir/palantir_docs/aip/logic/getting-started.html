@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Getting started</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Getting started</h1>
+<p>This guide demonstrates how to access AIP Logic, introduces the AIP Logic interface, and describes how to set up a basic Logic function by composing LLM blocks and examining the LLMâs <a href="https://www.palantir.com/docs/foundry/logic/core-concepts/#debugging">chain of thought (CoT)</a> in the Debugger.</p>
+<h2>Access AIP Logic</h2>
+<p>AIP Logic can be accessed from the platformâs workspace navigation bar or by using the quick search shortcuts <code>CMD + J</code> (macOS) or <code>CTRL + J</code> (Windows). Alternatively, you can create a new Logic function from your <strong>Files</strong> by selecting <strong>+New</strong> and then selecting <strong>AIP Logic</strong>, as shown below.</p>
+<p><img src="../../_resources/external-162ffc2223cf.png" alt="Create new AIP Logic window." width="450"></p>
+<p>After opening AIP Logic, you can create a new Logic file. Note that Logic files must be saved in a project folder, not in your home folder.</p>
+<h2>Application interface</h2>
+<p>There are three main components of AIP Logicâs interface, numbered left-to-right in the notional screenshot below:</p>
+<ol>
+<li><a href="#inputs-blocks-and-outputs-configuration">Inputs, blocks, and outputs configuration</a></li>
+<li><a href="#debugger">Debugger</a></li>
+<li><a href="#run-panel">Run panel</a></li>
+</ol>
+<p><img alt="AIP Logic interface " src="../../_resources/foundry/logic/logic-app-overview.png" /></p>
+<h2>Workflow overview</h2>
+<p>A typical AIP Logic workflow starts with configuring the <a href="#inputs-blocks-and-outputs-configuration"><strong>input (A), blocks (B), and outputs (C)</strong></a> in the left panel (1). Use the <a href="#run-panel"><strong>Run panel</strong></a> (3) to generate a sample output. After Logic runs, the <a href="#debugger"><strong>Debugger</strong></a> (2) displays the chain-of-thought (CoT) prompting and steps used by the LLM to produce the output. Use the Debugger with the Run panel to visualize the final output. The Run panel also displays recent Logic runs and lets you create unit tests. The right sidebar provides integrations with <a href="https://www.palantir.com/docs/foundry/automate/overview/">Automate</a> and <a href="https://www.palantir.com/docs/foundry/aip-evals/getting-started/">AIP Evals</a>.</p>
+<h2>Inputs, blocks, and outputs configuration</h2>
+<p>When you first begin using AIP, you will see the <strong>Run</strong> panel on the right and three types of boards on the left: <a href="#inputs">inputs</a>, for optionally choosing an object and its properties, <a href="#blocks">blocks</a> for defining your Logic instructions, and <a href="#outputs">outputs</a> that represent the desired Logic function results. The output from one block can be fed into subsequent blocks.</p>
+<p>The screenshot below shows the configuration area for inputs, blocks, and outputs with the <strong>Run</strong> panel collapsed.</p>
+<p><img alt="Input, blocks, and Output configuration view." src="../../_resources/foundry/logic/inputs-blocks-output.png" /></p>
+<h2>Inputs</h2>
+<p>AIP Logic takes a variety of <em>inputs</em>. In the <strong>Inputs</strong> block (labeled as "A" in the <a href="#application-interface">application interface guide</a>), you can specify the input name and type. Supported inputs include array, boolean, date, double, float, integer, long, media reference, model, object, object list, object set, short, string, struct, and timestamp. To reference an input in a <strong>Use LLM</strong> block, see <a href="https://www.palantir.com/docs/foundry/logic/blocks/#prompts">Prompts</a>.</p>
+<h2>Blocks</h2>
+<p>An AIP Logic function is composed of blocks (labeled as "B" in the <a href="#application-interface">application interface guide</a>). Block types include <a href="https://www.palantir.com/docs/foundry/logic/blocks/#create-variable">create variable</a>, <a href="https://www.palantir.com/docs/foundry/logic/blocks/#apply-action">apply action</a>, <a href="https://www.palantir.com/docs/foundry/logic/blocks/#execute-function">execute function</a>, <a href="https://www.palantir.com/docs/foundry/logic/blocks/#use-llm">use LLM</a>, <a href="https://www.palantir.com/docs/foundry/logic/blocks/#loops">loops</a>, and <a href="https://www.palantir.com/docs/foundry/logic/blocks/#conditionals">conditionals</a>. A block's output can be used in subsequent blocks. For more information, see <a href="https://www.palantir.com/docs/foundry/logic/blocks/">Blocks</a>.</p>
+<h2>Outputs</h2>
+<p>You can define an intermediary output for every Logic block. The last block in your Logic path is the output of Logic function, labeled as "C" in the <a href="#application-interface">application interface guide</a>.</p>
+<ul>
+<li>
+<p><strong>Block output:</strong> Intermediary outputs that are passed between blocks. The output of your block can either be a primitive or an object for use in subsequent blocks.</p>
+</li>
+<li>
+<p><strong>Logic function output:</strong> The output of the Logic function that you want to return. This can be either a <strong>Value</strong> (primitive or object) or all the <strong>Ontology edits</strong> that your function has made.</p>
+</li>
+</ul>
+<h2>Debugger</h2>
+<p>Once you have composed your Logic function, you can test the Logic function by selecting <strong>Run</strong> on the right side of the view. When the Logic has been run, Debugger will open to display the LLMâs <a href="https://www.palantir.com/docs/foundry/logic/core-concepts/">chain-of-thought (CoT)</a>.</p>
+<p><img alt="Debugger view with example." src="../../_resources/foundry/logic/debugger-screen.png" /></p>
+<p>The debugger allows you to expand and collapse block cards, clear tool calls, and easily review generated prompts, making it easier to interpret the chain of thought.</p>
+<h2>Run panel</h2>
+<p>From the <strong>Run</strong> panel, you can run and evaluate your Logic, as well as review recent runs. The right-hand sidebar lets you set unit tests, run <a href="https://www.palantir.com/docs/foundry/automate/overview/">automations</a>, and view run history.</p>
+<p><img src="../../_resources/external-32e4cb5c47a7.png" alt="Run view with flight example in result box." width="400"></p>
+<p>At the bottom of the <strong>Run</strong> panel, you can also select any of your recent runs to view their output and debug log.</p>
+<p><img alt="Run and Run history view" src="../../_resources/foundry/logic/run-history-view.png" /></p>
+<p>:::callout{theme="neutral"}
+The visibility of execution logs depends on the Logic function's <a href="https://www.palantir.com/docs/foundry/logic/execution-mode-settings/">execution mode settings</a>. In user-scoped mode, which is the default, you can only see your own execution logs. In project-scoped mode, logs are visible to everyone with project access.
+:::</p>
+<p>Select the unit tests icon (<img src="../../_resources/external-3cff3714bf9a.png" alt="Unit tests icon." width="30">) to save a version of your input for performance evaluation purposes.</p>
+<p><img src="../../_resources/external-6a38feac8a45.png" alt="Unit tests examples featuring notional flight changes." width="450"></p>
+<p>To edit test case parameter names, types, and optionality, select <strong>Modify columns</strong>. Add parameters in the schema editor.</p>
+<p>In <strong>Run history</strong>, select <strong>Add as test case</strong> to convert historical execution results into test cases for new or existing evaluation suites.</p>
+<h3>Evaluate your Logic with AIP Evals</h3>
+<p>To generate an evaluation suite for your Logic function, open the <strong>Evals</strong> tab in the right sidebar and select <strong>Generate evals</strong>. AIP Evals creates test cases, configures evaluators, and sets up metrics based on your function. You can edit the generated test cases and evaluators to refine coverage and scoring. Learn more in <a href="https://www.palantir.com/docs/foundry/aip-evals/getting-started/">AIP Evals: Getting started</a>.</p>
+<h2>Use a Logic function</h2>
+<p>Logic functions can be used the same way you would use a regular <a href="https://www.palantir.com/docs/foundry/functions/functions-on-objects/">function on objects (FoO)</a> in the platform.</p>
+<ul>
+<li>You can back an action with a Logic function, then call the action from Workshop.</li>
+</ul>
+<p><img src="../../_resources/external-2ba5549ea8f9.png" alt="Create a new action type window with function and inputs selected from dropdown menus." width="550"></p>
+<ul>
+<li>You can also call a Logic function to back a Markdown widget in Workshop; in this case, the output type from the Logic function must be a string.</li>
+</ul>
+<p><img src="../../_resources/external-4b4bb981fa09.png" alt="Example showing Markdown widget setup popover in Workshop application." width="550"></p>
+<ul>
+<li>You can call a Logic function in other Logic functions, as well as in functions on objects, via the <strong>Ontology function</strong> tool in AIP Logic.</li>
+</ul>
+<h3>Running a Logic function via the command line</h3>
+<p>In the <strong>Uses</strong> tab you can copy a curl request to run the logic outside of Foundry in your terminal. Note this is not available for Logics that return ontology edits.</p>
+<p><img src="../../_resources/external-9439136f23e1.png" alt="Command line request" width="300" /></p>
+<h2>Make Ontology edits using Logic functions</h2>
+<p>When running the function in Logic, you will see all the proposed Ontology edits in your scenario in the Debugger. These edits will not actually be executed. If you wish to apply your edits to the Ontology, either:</p>
+<ul>
+<li>Call your Logic function from an action; or,</li>
+<li>Call your Logic function from an automation. You can start creating a new automation from your Logic dashboard using the <strong>Automations</strong> <img src="../../_resources/external-b29b46ffe295.png" alt="Automate icon" width="30"> option located on the right-hand side.</li>
+</ul>
+<p>For a Logic function to be able to edit the Ontology, you must:</p>
+<ol>
+<li>Set up an <strong>Apply actions tool</strong> in a <strong>Use LLM</strong> block that the Logic function can call. This allows the LLM to edit the Ontology.</li>
+</ol>
+<p><img alt="Example showing Apply actions tool with prompt to &quot;Make changes to the flight as described&quot; where an action has been preselected from a dropdown menu." src="../../_resources/foundry/logic/apply-actions-example-flight.png" /></p>
+<ol start="2">
+<li>
+<p>When you are done iterating on your Logic function, find and select the <strong>Publish</strong> option located next to save to publish the Logic function.</p>
+</li>
+<li>
+<p>Next, create a new action backed by the <strong>Logic function</strong> you have just published.</p>
+</li>
+</ol>
+<p><img alt="Example of wrapping your logic function into an action." src="../../_resources/foundry/logic/logic-function-configure-action-type.png" /></p>
+<ol start="4">
+<li>You can now use this new action in a Workshop module to power an operational workflow.
+     <img src="../../_resources/external-3f44e49c2fd4.png" alt="Workshop configuration panel with Flight Change action selected from dropdown." width="400"></li>
+</ol>
+<h2>Branching</h2>
+<p>Use Foundry branching to develop and test Logic functions in isolation. You can publish them for use in branch-aware applications such as Workshop and merge the changes through an approved proposal. For more information, see <a href="https://www.palantir.com/docs/foundry/logic/branching-logic/">Branching AIP Logic</a>.</p>
+<h2>Comparison view</h2>
+<p>In the version history tab you can compare two versions of a logic to see what changed between them. Specifically what blocks were edited, added, or removed.</p>
+<p><img src="../../_resources/external-96c27af6ea0d.png" alt="Logic comparison" width="700" /></p>
+<h2>Next steps</h2>
+<p>If you have access to AIP Logic, we recommend that you begin experimenting with LLM blocks to interact with your Ontology and build out a use case of your own. You may find it helpful to review the documentation on <a href="https://www.palantir.com/docs/foundry/functions/overview/">Functions</a> in the platform.</p>
+</body>
+</html>

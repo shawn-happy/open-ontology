@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Object type groups</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Object type groups</h1>
+<p>Object type groups are a classification primitive that help users better search and explore their ontology. Groups are created and managed using Ontology Manager, generally by ontology <a href="https://www.palantir.com/docs/foundry/object-link-types/type-groups/#group-permissions">owners and editors</a>.</p>
+<h2>Group configuration</h2>
+<p>Groups are created and managed via the groups menu, accessible in the Ontology Manager sidebar.</p>
+<p><img alt="Choose or add a new group" src="../../_resources/foundry/object-link-types/groups-menu.png" /></p>
+<p>Groups can also be added directly to object types by selecting <strong>Edit groups</strong> in the object type overview page.</p>
+<p><img alt="add a group to an object type" src="../../_resources/foundry/object-link-types/group-add-to-object.png" /></p>
+<h2>Group search and discovery</h2>
+<p>Groups are searchable in <a href="https://www.palantir.com/docs/foundry/ontology-manager/navigation/#header-search-bar">Ontology Manager's <strong>Search</strong> bar and <strong>Search</strong> bar dialog</a>. The table of object types in Ontology Manager supports displaying and filtering by group. Groups are also displayed on the <a href="https://www.palantir.com/docs/foundry/object-explorer/getting-started/#group-exploration-b-c-d">Object Explorer home page</a>.</p>
+<p><img alt="Filter By Group" src="../../_resources/foundry/object-link-types/object-type-groups-add.png" /></p>
+<h2>Group permissions</h2>
+<p>To view object type groups, users must have <strong>viewer</strong> permission on the project that the object type group is in.</p>
+<h2>Legacy group migration</h2>
+<p>As of May 22, 2024, the <em>group</em> primitive described on this page has replaced the tag-based system of legacy groups.</p>
+<p>In most cases, legacy groups were automatically migrated to object type groups at this time. Ontology owners were notified via an Upgrade Assistant intervention if manual action was necessary.</p>
+<h3>Group name visibility</h3>
+<p>Previously, if all object types inside a group were non-discoverable to a certain user (for example, due to access controls on backing datasets), the group was also non-discoverable to the user. As mentioned in the section above on <a href="https://www.palantir.com/docs/foundry/object-link-types/type-groups/#group-permissions">group permissions</a>, all groups will now be discoverable to any user that can view the ontology. This change aligns group visibility with other <a href="https://www.palantir.com/docs/foundry/object-permissioning/ontology-permissions-legacy/#ontology-roles">ontology primitives</a> to increase clarity and transparency in governance.</p>
+<h3>Migration of partially visible groups</h3>
+<p>Legacy groups that were not discoverable to one or more users were not eligible for automatic migration. In these cases, ontology owners were notified via an Upgrade Assistant intervention that manual action was necessary.</p>
+<p>On May 22 2024, legacy groups that could not be safely migrated were hidden from operational users across all applications such as Workshop and Object Explorer. To provide backward compatibility, the names of legacy groups remain stored as <a href="https://www.palantir.com/docs/foundry/object-link-types/metadata-typeclasses/">type class metadata</a> on object types.</p>
+<p>Ontology owners may continue to manually migrate these hidden, legacy groups using Ontology Manager. To do this, navigate to the <strong>Ontology Configuration</strong> menu in the bottom left corner and select <strong>Approve all Groups for migration</strong>.</p>
+</body>
+</html>

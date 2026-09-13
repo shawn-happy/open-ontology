@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Generate Object Explorer URLs</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Generate Object Explorer URLs</h1>
+<p>In the course of developing object views, or when integrating object views into Slate applications or external systems, you may need to generate URLs that link to a specific object or search for objects.</p>
+<p>To learn about how to create a URL linking to a specific Object View, see <a href="https://www.palantir.com/docs/foundry/object-views/generate-urls/">Generating Object Views URLs</a> in the Object Views documentation.</p>
+<h2>Generating a keyword-only search</h2>
+<p>If your text contains special character or spaces, you will need to encode it:</p>
+<p><code>encodeURIComponent("hello world");</code></p>
+<p>Create a URL:</p>
+<p><code>&lt;BASEURL&gt;/hubble/external/keyword/v0/&lt;MY_ENCODED_TEXT&gt;</code></p>
+<h2>Linking to explorations</h2>
+<p>Object Explorer can open links to specific object types, saved explorations, or new searches with filters described in the URL. Each type of link can be opened in the default Explore view, with charts showing aggregate results, or in the tabular Results view by appending the parameter <code>perspectiveId=results</code> to the end of the link URL.</p>
+<p><strong>Opening an object type For exploration</strong></p>
+<p>Explorations for specific object types can be opened with the <code>objectTypeId</code> URL parameter. For example:</p>
+<p><code>/workspace/hubble/exploration?objectTypeId=aircraft</code>.</p>
+<p>To open in the Results view, append the <code>perspectiveId=results</code> parameter:</p>
+<p><code>/workspace/hubble/exploration?objectTypeId=aircraft&amp;perspectiveId=results</code></p>
+<p><strong>Loading a Saved Exploration or Object Set</strong></p>
+<p>Use the <code>saved</code> route to open a saved exploration or object set.</p>
+<p><code>/workspace/hubble/exploration/saved/ri.object-set.main.versioned-object-set.4b117663-06d7-4bd1-a2be-8e1ba20998cb</code></p>
+<p>To load an object set created by another Foundry application, use the <code>external/objectSet</code> route.</p>
+<p><code>/workspace/hubble/external/objectSet/v0/ri.object-set.main.object-set.f6916120-5b52-4312-8be4-9f5764983907</code></p>
+<h2>[Advanced] Generating a complex search</h2>
+<p>Generate your set of filters to look like:</p>
+<pre><code class="language-json">{
+  &quot;keyword&quot;: &quot;&quot;,
+  &quot;objectTypes&quot;: [
+    &quot;google-reviews&quot;
+  ],
+  &quot;filters&quot;: [
+    {
+      &quot;type&quot;: &quot;propertyFilter&quot;,
+      &quot;objectType&quot;: &quot;google-reviews&quot;,
+      &quot;propertyType&quot;: &quot;Description&quot;,
+      &quot;value&quot;: {
+          &quot;type&quot;: &quot;textFilter&quot;,
+          &quot;text&quot;: &quot;hello&quot;
+      }
+    },
+    {
+      &quot;type&quot;: &quot;propertyFilter&quot;,
+      &quot;objectType&quot;: &quot;google-reviews&quot;,
+      &quot;propertyType&quot;: &quot;rating&quot;,
+      &quot;value&quot;: {
+          &quot;type&quot;: &quot;valuesFilter&quot;,
+          &quot;values&quot;: [&quot;3&quot;, &quot;4&quot;]
+      }
+    },
+    {
+      &quot;type&quot;: &quot;propertyFilter&quot;,
+      &quot;objectType&quot;: &quot;google-reviews&quot;,
+      &quot;propertyType&quot;: &quot;creation-date&quot;,
+      &quot;value&quot;: {
+          &quot;type&quot;: &quot;dateRangeFilter&quot;,
+          &quot;dateRangeFilter&quot;: {
+              &quot;start&quot;: &quot;2000-01-10&quot;,
+              &quot;end&quot;: &quot;2000-01-11&quot;
+          }
+      }
+    },
+    {
+      &quot;type&quot;: &quot;linkFilter&quot;,
+      &quot;objectType&quot;: &quot;google-reviews&quot;,
+      &quot;linkType&quot;: &quot;restaurant-to-review&quot;,
+      &quot;value&quot;: {
+          &quot;type&quot;: &quot;presenceFilter&quot;,
+          &quot;matchType&quot;: &quot;MUST_HAVE&quot;
+      }
+    }
+  ]
+}
+</code></pre>
+<p>There are more types of filters available, including:</p>
+<ul>
+<li><strong>numberRangeFilter:</strong> <code>min</code> (optional number), <code>max</code> (optional number)</li>
+<li><strong>relativeDateFilter:</strong> <code>sinceDaysAgo</code> (optional number), <code>untilDaysAgo</code> (optional number)</li>
+<li><strong>timestampRangeFilter:</strong> <code>startMillis</code> (optional number), <code>endMillis</code> (optional number)</li>
+<li><strong>relativeTimestampFilter:</strong> <code>sinceMillisAgo</code> (optional number), <code>untilMillisAgo</code> (optional number)</li>
+</ul>
+<p>:::callout{theme="neutral"}
+This example may be out of date â use the instructions below to find out the latest format.
+:::</p>
+<p>The type of the value must match the type of widget that shows by default for that property in Object Explorer. For example: <code>valuesFilter</code> for a histogram widget; <code>textFilter</code> for textbox.</p>
+<p>The recommended way to generate these filters is:</p>
+<ol>
+<li>
+<p>Open Object Explorer and build an example search, with sample values chosen for all the filters you wish to generate</p>
+</li>
+<li>
+<p>Open the Chrome Console (<em>right click</em> -&gt; <em>inspect element</em>). Make sure you inspect an element that Object Explorer provides, such as the resulting count, rather than just opening the Chrome Console.</p>
+</li>
+<li>
+<p>Run <code>await hubble_get_current_search()</code> in the console.</p>
+</li>
+</ol>
+<p>This will return the JSON for your current set of filters, which you can use to work out the correct format, and add substitutions for the values.</p>
+<p>:::callout{theme="neutral"}
+You can have many <em>PROPERTY</em> filters, but only 1 <em>LINK</em> filter.
+:::</p>
+<ol start="4">
+<li>URL encode it:</li>
+</ol>
+<p><code>encodeURIComponent(&lt;MY_FILTERS&gt;);</code></p>
+<ol start="5">
+<li>Create a URL:</li>
+</ol>
+<p><code>&lt;BASEURL&gt;/hubble/external/search/v2/{&lt;ENCODED-URL-FROM-ABOVE&gt;}</code></p>
+</body>
+</html>

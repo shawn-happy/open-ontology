@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Security considerations for local development</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Security considerations for local development</h1>
+<p>The best way to ensure no data leaves the platform during transforms preview is to execute it within <a href="https://www.palantir.com/docs/foundry/vs-code/overview/">VS Code workspaces</a>. With this approach, no data is sent directly to your machine.</p>
+<p>Local development may be preferred over VS Code workspaces when using certain third-party tools, libraries, and extensions. Transforms preview is possible when using the Palantir extension for VS Code in local development. However, local preview might only be enabled for a subset of users due to the data security implications of streaming parts of datasets into the system memory of a user's machine to locally execute the previewed pipeline's logic.</p>
+<h2>Requirements for executing local preview</h2>
+<p>Users with <code>Download</code> operations on a dataset are allowed to export that dataset through the Foundry API. It is best practice to grant the <code>Download</code> operation with caution. Review the relevant section of <a href="https://www.palantir.com/docs/foundry/security/download-controls/#grant-users-roles-that-limit-download-operations">download controls</a> for details. Running a transforms preview locally requires the <code>Download</code> operation on all input datasets (and outputs in the case of incremental transforms).</p>
+<p>Additionally, a platform administrator must enable local preview in the Code Repositories settings page in <a href="https://www.palantir.com/docs/foundry/code-repositories/configure-repositories-in-control-panel/">Control Panel</a>. Local preview is only possible when both conditions are satisfied. This ensures local preview cannot be used to elevate any users' permissions on datasets.</p>
+<h2>Data lifecycle during local preview</h2>
+<p>During preview, no input datasets are stored on disk. Preview Engine sets up an S3 connection to Foundry using <a href="https://www.palantir.com/docs/foundry/data-integration/foundry-s3-api/">Foundry's S3 compatible API</a>. This implementation results in each local preview producing events tracked in <a href="https://www.palantir.com/docs/foundry/security/audit-logs-overview/">audit logs</a> for full visibility.</p>
+<p>PySpark (for legacy transforms) or Polars (for lightweight transforms) then streams the required parts of the datasets into memory. The subset of the data streamed is determined by the <a href="https://www.palantir.com/docs/foundry/palantir-extension-for-visual-studio-code/code-defined-filtering/">code-defined input filters</a> you chose and the previewed pipeline's logic. All caching during preview execution resides in system memory.</p>
+<p>At the end of a preview invocation, at most 10000 rows of the resulting output datasets written by the transform are stored in a cache folder to enable displaying them in VS Code's Preview table. You can set the location of this cache folder in the Palantir extension's settings under the <strong>Palantir &gt; Cache: Path</strong> key.</p>
+<p><img alt="Palantir cache settings inside the VS Code settings page." src="../../_resources/foundry/palantir-extension-for-visual-studio-code/cache-settings.png" /></p>
+<p>The result caches are kept for as little time as necessary while maintaining the Palantir extension's features. The result caches are deleted:</p>
+<ul>
+<li>At the beginning of each new preview run.</li>
+<li>When VS Code is exited gracefully, such as when the window's <strong>Close</strong> button is selected.</li>
+<li>On each startup of VS Code.</li>
+</ul>
+<p>Additionally, you can manually delete the caches by calling the <code>Delete all locally stored Python transforms preview results</code> command in the command palette. The command can be assigned to a keybinding through the <code>palantir.transforms.datasets.cleanUp</code> identifier as well.</p>
+<p><img alt="VS Code command palette showing the &quot;Palantir: Delete all locally stored Python transforms preview results&quot; command." src="../../_resources/foundry/palantir-extension-for-visual-studio-code/delete-caches.png" /></p>
+<h2>Risk assessment</h2>
+<p>The data residency features of secure streaming local preview described above aim to prevent accidental and unintentional data exfiltration. These features are not meant to, and cannot prevent intentional abuse.</p>
+<p>For example, there is no mechanism for stopping users from deliberately writing data to any folder on their machines during preview execution. Users who have the <code>Download</code> operation on a dataset are expected to exercise reasonable judgment when handling said datasets both when using Foundry's public data access endpoints and when executing local preview.</p>
+<p>For technical setup instructions for local preview, review our documentation on <a href="https://www.palantir.com/docs/foundry/transforms-common/local-preview/">previewing transforms in local development</a>.</p>
+</body>
+</html>

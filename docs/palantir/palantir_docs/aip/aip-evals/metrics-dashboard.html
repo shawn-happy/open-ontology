@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Evaluations metrics dashboard</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Evaluations metrics dashboard</h1>
+<p>Metrics from evaluation suite runs are collected in reports that can be viewed in the AIP Evals metrics dashboard. Here, you can view charts and statistics or compare aggregate results from evaluation functions and/or results from individual test cases. Note that metric objectives are not supported in the dashboard view.</p>
+<p><img alt="The aggregate metrics view in the evaluations metrics dashboard" src="../../_resources/foundry/aip-evals/evals-logic-metric-dashboard.png" /></p>
+<p>To access the dashboard select <strong>View metrics dashboard</strong> in the run results view on the Logic sidebar or the <strong>Run tests</strong> tab on the evaluation suite page.</p>
+<p><img alt="Access the metrics dashboard" src="../../_resources/foundry/aip-evals/aip-evals-metrics-dashboard-access.png" /></p>
+<p>For deeper analysis and debugging, you can access the LLM trace viewer. Navigate to the <strong>View tests</strong> tab and double click into a test case to open the trace viewer. Here, you will be able to view execution information outlining how the function result was computed. If you are using a custom LLM as a judge evaluator, the LLM trace viewer will also include information about the decision-making process of the LLM judge.</p>
+<p><img alt="Navigate from the metrics dashboard to the LLM trace viewer." src="../../_resources/foundry/aip-evals/aip-evals-metric-dashboard-debug-trace.gif" /></p>
+</body>
+</html>

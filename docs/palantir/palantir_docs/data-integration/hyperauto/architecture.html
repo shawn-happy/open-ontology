@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>HyperAuto V2 architecture</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>HyperAuto V2 architecture</h1>
+<p>:::callout{theme="neutral"}
+This page describes the architecture of HyperAuto V2.
+For a description of HyperAuto V1's architecture, visit <a href="https://www.palantir.com/docs/foundry/hyperauto/v1-overview/#architecture">HyperAuto V1 overview</a>.
+:::</p>
+<p>HyperAuto V2 provides orchestration and automation around three main components of the data integration workflow - <a href="https://www.palantir.com/docs/foundry/data-connection/core-concepts/#syncs">Data Syncs</a>, <a href="https://www.palantir.com/docs/foundry/pipeline-builder/overview/">Builder Pipelines</a>, and <a href="https://www.palantir.com/docs/foundry/ontology/overview/">Ontology</a> - in order to automatically generate ready-to-use outputs from supported sources.</p>
+<p>HyperAuto leverages the metadata of a data source, querying the source in real-time to derive opinions on how syncs should be built, what transformation logic should be applied, and how an appropriate Ontology can be designed.</p>
+<p>A HyperAuto pipeline refers to all resources managed by a single HyperAuto instance, from syncs to objects. Each pipeline takes a user-provided list of source tables as an input, syncs them to Foundry (if required) and transforms them into valuable, ready-to-use output datasets and (optionally) <a href="https://www.palantir.com/docs/foundry/ontology/overview/">Ontology Objects</a>. Users may make multiple HyperAuto pipelines per source to fit their individual needs.</p>
+<p><img alt="Graph of HyperAuto V2's architecture" src="../../_resources/foundry/hyperauto/hyperauto-v2-architecture-graph.png" /></p>
+<h2>Data syncs</h2>
+<p>:::callout{theme="neutral"}
+HyperAuto also supports the use of static files when no direct connection to the source exists, in which case this section does not apply. See the <a href="https://www.palantir.com/docs/foundry/hyperauto/folder-based-sap/">folder-based SAP documentation</a> to learn more.
+:::</p>
+<p>HyperAuto provides access to the entire set of visible tables on the source. If a user selects a source table that is not mapped to an existing data sync, a new data sync will be automatically generated.</p>
+<p>If one or multiple data syncs already exist for the selected source table, the latest sync will be selected by default. You can change that selection on the <strong>Input Configuration</strong> page by hovering over the <strong>Configure input table</strong> button. From there, either select a different existing sync to use or choose to create a new sync.</p>
+<p>:::callout{theme="neutral"}
+Depending on data scale, generation may take significantly longer if HyperAuto has created new data syncs. This is because data syncs require an initial run before the rest of the HyperAuto process, such as builder pipeline generation, can take place.
+:::</p>
+<p><img alt="HyperAuto Input Configuration Map Existing Syncs" src="../../_resources/foundry/hyperauto/hyperauto-v2-map-existing-syncs.png" /></p>
+<h2>Data transformation (Pipeline Builder)</h2>
+<p>Data transformation within HyperAuto pipelines allows hard-to-use source data to be converted into cleaned, enriched outputs that can be immediately used for analysis and application building.</p>
+<p>HyperAuto pipelines are powered by automatically generated <a href="https://www.palantir.com/docs/foundry/pipeline-builder/overview/">builder pipelines</a> - the primary method of data transformation within Foundry.</p>
+<p>HyperAuto dynamically generates opinionated transformation logic based on the source type and the user's preferences. Users can view this builder pipeline by selecting <strong>View pipeline</strong> from the HyperAuto Pipeline Overview page. Edits to this pipeline are performed by changing the HyperAuto configuration through a <a href="https://www.palantir.com/docs/foundry/hyperauto/proposals/">proposal</a>.</p>
+<p>The types of transform functionality available within HyperAuto are as follows:</p>
+<ul>
+<li><strong>Cleaning:</strong> Source systems often export data with common "cleanliness" issues, such as incorrect data types, poor handling of null / empty values or unwanted whitespace in string values. HyperAuto provides opinionated transformation options to fix these issues (and more).</li>
+<li><strong>Renaming:</strong> By using the source's metadata, HyperAuto can rename the output tables and columns to be descriptive and self-explanatory, rather than sticking with an often non-human-readable schema.</li>
+<li><strong>Joining:</strong> Source systems often store related information (such as metadata) in separate tables, for example when conforming to the "normal" data model. HyperAuto uses its understanding of the source's data model to join these tables together, providing a de-normalized, rich set of output datasets that allow for ease of analysis and a strong foundation for an Ontology.</li>
+<li><strong>Filtering:</strong> Unwanted rows (such as duplicates) can be filtered out automatically by HyperAuto, for example to de-duplicate change-data-capture inputs.</li>
+</ul>
+<p>Both <strong>batch</strong> and real-time <strong>streaming</strong> pipeline modes are supported, see <a href="https://www.palantir.com/docs/foundry/hyperauto/configuration-options/#pipeline-modes">configuration options</a> for more detail.</p>
+<p><img alt="Generated Pipeline Builder graph" src="../../_resources/foundry/hyperauto/hyperauto-v2-builder-pipeline.png" /></p>
+<h2>Ontology</h2>
+<p>HyperAuto can use the source's data model to dynamically generate an <a href="https://www.palantir.com/docs/foundry/ontology/overview/">Ontology</a> based on the generated output datasets, including defining the semantic links between the objects.</p>
+<p>Enabling this setting allows you to go from a new (supported) source to a fully-defined Ontology in a matter of minutes, with no manual intervention required.</p>
+<p>If you are interested in this feature, contact your Palantir representative.</p>
+<h2>Resource management</h2>
+<p>HyperAuto pipelines are designed to fully control any resources they create, allowing the user to consistently receive benefits and upgrades to their system, including performance upgrades and bug fixes. The design of these pipelines also makes it easy to tweak already-generated resources, such as adding a new transform step or input to the pipeline.</p>
+<p>Any edits to the underlying resources (for example, syncs or builder pipelines) must be managed via the HyperAuto application to avoid change conflicts.</p>
+<p>If needed, deleting the HyperAuto pipeline resource will remove its ownership over the corresponding builder pipeline, allowing direct edits to the builder pipeline as normal.</p>
+</body>
+</html>

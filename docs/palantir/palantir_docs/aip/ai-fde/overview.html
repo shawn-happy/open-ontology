@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AI FDE</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<p><img alt="AI FDE overview header image." src="../../_resources/foundry/ai-fde/ai-fde-overview-hero.png" /></p>
+<h1>AI FDE</h1>
+<p><strong>AI FDE</strong>, the AI-powered forward deployed engineer, is an interactive agent that operates Foundry for you through conversational commands. AI FDE translates natural language requests into Foundry operations, allowing you to perform data transformations, manage code repositories, build and maintain your ontology, and more. You can also provide AI FDE with context from Foundry to facilitate and inform operations.</p>
+<h2>Requirements</h2>
+<p>AI FDE requires <a href="https://www.palantir.com/docs/foundry/aip/enable-aip-features/">AIP to be enabled</a> on your enrollment. It is also recommended that <a href="https://www.palantir.com/docs/foundry/global-branching/overview/">Global Branching</a> be enabled to support Ontology edits from AI FDE. Contact your Palantir administrator to enable AIP and Global Branching for your enrollment.</p>
+<h2>How AI FDE works</h2>
+<p>When you provide a request in natural language, AI FDE takes the following steps:</p>
+<ol>
+<li>Analyze your intent and the provided context.</li>
+<li>Determine the appropriate Foundry operations to execute.</li>
+<li>Perform the requested actions with native tool support.</li>
+<li>Return contextual explanations and documentation.</li>
+</ol>
+<p>All operations respect the userâs existing permissions, including application and data access. You can select the specific model to use, as well as the tools and data available to the model, so that AI FDE only has access to the capabilities necessary for the requested operation.</p>
+<h3>Customizable tools</h3>
+<p>AI FDE can use tools that match the operations that users can perform in the platform, including creating object types, writing transforms, and running builds. The ability to use tools is essential for production systems that need to reliably interact with development tools, APIs, and infrastructure in real-world environments. AI FDE displays the tools used to perform actions in Foundry and keeps a record of all prompts and tools used during the active session in the <a href="https://www.palantir.com/docs/foundry/ai-fde/navigation/#chat-outline">chat outline</a>.</p>
+<h3>Context management</h3>
+<p>AI FDE gives users complete authority and visibility over what information the model can access. In its initial state, AI FDE loads minimal context to provide the model with general knowledge of Foundry concepts without access to user data. This baseline configuration ensures the system starts with a clean state for each interaction. This controlled context approach prevents the "context pollution" that can occur when irrelevant information dilutes the effectiveness of the model's reasoning; by starting with a controlled baseline, AI FDE can maintain precise governance over the model's capabilities and knowledge boundaries.</p>
+<p>Users can expand this context in multiple ways, including dragging and dropping folders, datasets, or documentation to provide relevant information. <a href="https://www.palantir.com/docs/foundry/ai-fde/navigation/#manage-context">Learn more about context management.</a></p>
+<h3>Closed-loop operation</h3>
+<p>AI FDE employs a <em>closed-loop</em> operation model, where the model executes an action, observes the result, and uses that feedback to determine its next action. This creates a continuous feedback loop where outputs from one operation become inputs for subsequent decisions, enabling complex multi-step workflows.</p>
+<p>AI FDE can perform various actions to validate its own changes, including but not limited to:</p>
+<ul>
+<li>Running a transform preview to validate transform code.</li>
+<li>Running a function preview to validate function behavior.</li>
+<li>Reviewing CI checks to validate code written in Code Repositories.</li>
+</ul>
+<h2>Capabilities</h2>
+<p>AI FDE has access to several <a href="https://www.palantir.com/docs/foundry/ai-fde/modes-and-capabilities/">modes and capabilities</a> that allow it to perform a broad range of operations. You can customize the tools available to AI FDE in the <strong>Tools</strong> menu under the request input field.</p>
+<p>AI FDE is able to perform a variety of tasks based on natural language descriptions, including:</p>
+<ul>
+<li><strong>Data integration:</strong> Building or modifying data pipelines (Python transforms or Pipeline Builder).</li>
+<li><strong>Data connection:</strong> Creating, managing, and debugging <a href="https://www.palantir.com/docs/foundry/data-connection/core-concepts/">Data Connection</a> sources, egress policies, and other capabilities.</li>
+<li><strong>Ontology editing:</strong> Creating or updating the objects, links, and actions that make up your ontology.</li>
+<li><strong>Functions editing:</strong> Writing Foundry functions in <a href="https://www.palantir.com/docs/foundry/logic/overview/">Logic</a>, TypeScript, or Python, and testing them with <a href="https://www.palantir.com/docs/foundry/aip-evals/overview/">AIP Evals</a>.</li>
+<li><strong>Exploration:</strong> Read-only investigation; understanding what exists in your platform before making changes.</li>
+<li><strong>Governance:</strong> Auditing permissions, access control, markings, and data protection.</li>
+<li><strong>OSDK React:</strong> Building React applications or custom widgets that connect to Foundry data.</li>
+<li><strong>Platform Q\&amp;A:</strong> Asking general questions about how Foundry works.</li>
+</ul>
+<p>By default, AI FDE uses branching across all workflows. AI FDE will propose changes in a Global Branch proposal or Code Repository pull request for review.</p>
+<h2>Model support</h2>
+<p>To be used by AI FDE, a model must be enabled for your enrollment. AI FDE has first-class support for Anthropic, OpenAI, Google, and xAI models along with support for native tool APIs.</p>
+<hr />
+<p>Note: AIP feature availability is subject to change and may differ between customers.</p>
+</body>
+</html>

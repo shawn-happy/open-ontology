@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Connecting to data</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../index.html">返回目录</a></div>
+<h1>Connecting to data</h1>
+<p>The first step to getting value from Foundry is to connect it to your Organization's sources of data. Foundry's tools for connecting to data support the full range of standard enterprise data sources, ranging from cloud-based object stores, file systems, and databases and data warehouses.</p>
+<p>You can connect to data in a variety of ways with different Foundry applications, depending on the type of data you need to access.</p>
+<h2>Data Connection</h2>
+<p>Connect to sources to run batch, streaming, media, and CDC syncs and to use virtual tables.</p>
+<p>The <a href="https://www.palantir.com/docs/foundry/data-connection/overview/">Data Connection</a> framework is designed to manage data over time, through discrete versions that are managed using dataset <a href="https://www.palantir.com/docs/foundry/data-integration/datasets/#transactions">transactions</a>. This framework enables full lineage of data versions across time, providing you with an understanding of which sync tasks produced which versions of a given dataset. It also enables syncing of only the data required, in cases where full data loading on each sync is not possible.</p>
+<p>Granular security in Data Connection allows federated management of data syncs across different teams. Collections of syncs, or even individual data syncs, can be made visible or editable to only specific teams (defined through role- or classification-based access controls). Learn more about <a href="https://www.palantir.com/docs/foundry/security/securing-a-data-foundation/">securing a data foundation</a>.</p>
+<p>You can manage sync metadata independently of the actual sync definitions. This allows for full branching of new configurations, where the new sync is sandboxed and tested in a branch before it affects any downstream transformation jobs.</p>
+<h2>HyperAuto</h2>
+<p>To evolve beyond simple data syncing solutions, <a href="https://www.palantir.com/docs/foundry/hyperauto/overview/">Palantir HyperAuto</a> implements support for Software-Defined Data Integration (SDDI). This toolset allows organizations to not only connect to common ERP and CRM systems, but also to programmatically generate data pipelines that clean, normalize, and harmonize datasets into a cohesive data asset at unprecedented speed. This data asset can then feed into the <a href="https://www.palantir.com/docs/foundry/ontology/overview/">Ontology</a> to translate data into operational value.</p>
+<h2>External transforms</h2>
+<p>Perform scheduled syncs and exports to external systems using REST APIs.</p>
+<p>If you want to connect to external sources to create syncs and export data, we recommend using Code Repositories to write <a href="https://www.palantir.com/docs/foundry/data-connection/external-transforms/">external Python transforms</a> using the REST API. You can also add dataset inputs and media set outputs to your transforms.</p>
+</body>
+</html>

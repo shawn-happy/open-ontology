@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Create Stream</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../../../index.html">返回目录</a></div>
+<p><code>POST /api/v2/streams/datasets/{datasetRid}/streams</code></p>
+<p>:::callout{theme=warning title=Warning}
+  This endpoint is in preview and may be modified or removed at any time.
+  To use this endpoint, add <code>preview=true</code> to the request query parameters.
+:::</p>
+<p>Creates a new branch on the backing streaming dataset, and creates a new stream on that branch.</p>
+<p>Third-party applications using this endpoint via OAuth2 must request the following operation scope: <code>api:streams-write</code>.</p>
+<p><strong>OAuth2 scopes</strong>: <code>api:streams-write</code></p>
+<h2>Path parameters</h2>
+<table>
+<thead>
+<tr>
+<th>参数</th>
+<th>类型</th>
+<th>必填</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>datasetRid</code></td>
+<td>string</td>
+<td>是</td>
+<td>The Resource Identifier (RID) of a Dataset.<br>示例: <code>ri.foundry.main.dataset.c26f11c8-cdb3-4f44-9f5d-9816ea1c82da</code></td>
+</tr>
+</tbody>
+</table>
+<h2>Query parameters</h2>
+<table>
+<thead>
+<tr>
+<th>参数</th>
+<th>类型</th>
+<th>必填</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>preview</code></td>
+<td>boolean</td>
+<td>否</td>
+<td>Enables the use of preview functionality.<br>示例: <code>true</code></td>
+</tr>
+</tbody>
+</table>
+<h2>Request body</h2>
+<pre><code class="language-json">{
+  &quot;partitionsCount&quot;: 1,
+  &quot;streamType&quot;: &quot;LOW_LATENCY&quot;,
+  &quot;branchName&quot;: &quot;master&quot;,
+  &quot;compressed&quot;: false
+}
+</code></pre>
+<h2>Response</h2>
+<p><strong>Stream</strong></p>
+<p>The created Stream</p>
+<table>
+<thead>
+<tr>
+<th>参数</th>
+<th>类型</th>
+<th>必填</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Stream</code></td>
+<td>object</td>
+<td>是</td>
+<td>The created Stream<br>示例: <code>{"schema":{"fields":[{"name":"timestamp","schema":{"nullable":false,"dataType":{"type":"timestamp"}}},{"name":"value","schema":{"nullable":false,"dataType":{"type":"string"}}}],"keyFieldNames":["timestamp"]},"partitionsCount":1,"streamType":"LOW_LATENCY","branchName":"master","viewRid":"ri.foundry-streaming.main.view.ecd4f0f6-8526-4468-9eda-14939449ad79","compressed":false}</code></td>
+</tr>
+<tr>
+<td><code>Stream.branchName</code></td>
+<td>string</td>
+<td>是</td>
+<td>The name of a Branch.<br>示例: <code>master</code></td>
+</tr>
+<tr>
+<td><code>Stream.schema</code></td>
+<td>object</td>
+<td>是</td>
+<td>The Foundry schema for this stream.<br>示例: <code>{"fields":[{"name":"timestamp","schema":{"nullable":false,"dataType":{"type":"timestamp"}}},{"name":"value","schema":{"nullable":false,"dataType":{"type":"string"}}}],"keyFieldNames":["timestamp"]}</code></td>
+</tr>
+<tr>
+<td><code>Stream.schema.fields</code></td>
+<td>list<Field></td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>Stream.schema.fields.Field</code></td>
+<td>object</td>
+<td>是</td>
+<td>A field in a Foundry schema. For more information on supported data types, see the<br><a href="https://www.palantir.com/docs/foundry/data-integration/datasets/#supported-field-types">supported field types</a> user documentation.</td>
+</tr>
+<tr>
+<td><code>Stream.schema.fields.Field.name</code></td>
+<td>string</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>Stream.schema.fields.Field.schema</code></td>
+<td>object</td>
+<td>是</td>
+<td>The specification of the type of a Foundry schema field.</td>
+</tr>
+<tr>
+<td><code>Stream.schema.fields.Field.schema.nullable</code></td>
+<td>boolean</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>Stream.schema.fields.Field.schema.customMetadata</code></td>
+<td>map</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>Stream.schema.fields.Field.schema.dataType</code></td>
+<td>union</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>Stream.schema.fields.Field.schema.dataType.struct</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>Stream.schema.fields.Field.schema.dataType.struct.subFields</code></td>
+<td>list<Field></td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>Stream.schema.fields.Field.schema.dataType.struct.subFields.Field</code></td>
+<td>object</td>
+<td>是</td>
+<td>A field in a Foundry schema. For more information on supported data types, see the<br><a href="https://www.palantir.com/docs/foundry/data-integration/datasets/#supported-field-types">supported field types</a> user documentation.</td>
+</tr>
+<tr>
+<td><code>Stream.schema.fields.Field.schema.dataType.date</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>Stream.schema.fields.Field.schema.dataType.string</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>Stream.schema.fields.Field.schema.dataType.byte</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>Stream.schema.fields.Field.schema.dataType.double</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>Stream.schema.fields.Field.schema.dataType.integer</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>Stream.schema.fields.Field.schema.dataType.float</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>Stream.schema.fields.Field.schema.dataType.long</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>Stream.schema.fields.Field.schema.dataType.boolean</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>Stream.schema.fields.Field.schema.dataType.array</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>Stream.schema.fields.Field.schema.dataType.array.itemsSchema</code></td>
+<td>object</td>
+<td>是</td>
+<td>The specification of the type of a Foundry schema field.</td>
+</tr>
+<tr>
+<td><code>Stream.schema.fields.Field.schema.dataType.binary</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>Stream.schema.fields.Field.schema.dataType.short</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>Stream.schema.fields.Field.schema.dataType.decimal</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>Stream.schema.fields.Field.schema.dataType.decimal.precision</code></td>
+<td>integer</td>
+<td>否</td>
+<td>The total number of digits of the Decimal type. The maximum value is 38.<br>示例: <code>38</code></td>
+</tr>
+<tr>
+<td><code>Stream.schema.fields.Field.schema.dataType.decimal.scale</code></td>
+<td>integer</td>
+<td>否</td>
+<td>The number of digits to the right of the decimal point. The maximum value is 38.<br>示例: <code>18</code></td>
+</tr>
+<tr>
+<td><code>Stream.schema.fields.Field.schema.dataType.map</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>Stream.schema.fields.Field.schema.dataType.map.keySchema</code></td>
+<td>object</td>
+<td>是</td>
+<td>The specification of the type of a Foundry schema field.</td>
+</tr>
+<tr>
+<td><code>Stream.schema.fields.Field.schema.dataType.map.valueSchema</code></td>
+<td>object</td>
+<td>是</td>
+<td>The specification of the type of a Foundry schema field.</td>
+</tr>
+<tr>
+<td><code>Stream.schema.fields.Field.schema.dataType.timestamp</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>Stream.schema.keyFieldNames</code></td>
+<td>list<FieldName></td>
+<td>否</td>
+<td>The names of the fields to be used as keys for partitioning records. These key fields are used to group<br>all records with the same key into the same partition, to guarantee processing order of grouped records. These<br>keys are not meant to uniquely identify records, and do not by themselves deduplicate records. To deduplicate<br>records, provide a change data capture configuration for the schema.<br>Key fields can only be of the following types:<br>- Boolean<br>- Byte<br>- Date<br>- Decimal<br>- Integer<br>- Long<br>- Short<br>- String<br>- Timestamp<br>For additional information on keys for Foundry streams, see the<br><a href="https://www.palantir.com/docs/foundry/building-pipelines/streaming-keys/">streaming keys</a> user documentation.</td>
+</tr>
+<tr>
+<td><code>Stream.schema.keyFieldNames.FieldName</code></td>
+<td>string</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>Stream.schema.changeDataCapture</code></td>
+<td>union</td>
+<td>否</td>
+<td>Configuration for utilizing the stream as a change data capture (CDC) dataset. To configure CDC on a stream, at<br>least one key needs to be provided.<br>For more information on CDC in<br>Foundry, see the <a href="https://www.palantir.com/docs/foundry/data-integration/change-data-capture/">Change Data Capture</a> user documentation.</td>
+</tr>
+<tr>
+<td><code>Stream.schema.changeDataCapture.fullRow</code></td>
+<td>object</td>
+<td>否</td>
+<td>Configuration for change data capture which resolves the latest state of the dataset based on new full rows<br>being pushed to the stream. For example, if a value for a row is updated, it is only sufficient to publish<br>the entire new state of that row to the stream.</td>
+</tr>
+<tr>
+<td><code>Stream.schema.changeDataCapture.fullRow.deletionFieldName</code></td>
+<td>string</td>
+<td>是</td>
+<td>The name of a boolean field in the schema that indicates whether or not a row has been deleted.</td>
+</tr>
+<tr>
+<td><code>Stream.schema.changeDataCapture.fullRow.orderingFieldName</code></td>
+<td>string</td>
+<td>是</td>
+<td>The name of an ordering field that determines the newest state for a row in the dataset.<br>The ordering field can only be of the following types:<br>- Byte<br>- Date<br>- Decimal<br>- Integer<br>- Long<br>- Short<br>- String<br>- Timestamp</td>
+</tr>
+<tr>
+<td><code>Stream.viewRid</code></td>
+<td>string</td>
+<td>是</td>
+<td>The view that this stream corresponds to.<br>示例: <code>ri.foundry-streaming.main.view.ecd4f0f6-8526-4468-9eda-14939449ad79</code></td>
+</tr>
+<tr>
+<td><code>Stream.partitionsCount</code></td>
+<td>integer</td>
+<td>是</td>
+<td>The number of partitions for the Foundry stream. Defaults to 1.<br>Generally, each partition can handle about 5 mb/s of data, so for higher volume streams, more partitions<br>are recommended.<br>示例: <code>1</code></td>
+</tr>
+<tr>
+<td><code>Stream.streamType</code></td>
+<td>enum</td>
+<td>是</td>
+<td>A conceptual representation of the expected shape of the data for a stream. HIGH_THROUGHPUT and<br>LOW_LATENCY are not compatible with each other. Defaults to LOW_LATENCY.<br>示例: <code>LOW_LATENCY</code></td>
+</tr>
+<tr>
+<td><code>Stream.compressed</code></td>
+<td>boolean</td>
+<td>是</td>
+<td>Whether or not compression is enabled for the stream. Defaults to false.<br>示例: <code>false</code></td>
+</tr>
+</tbody>
+</table>
+<pre><code class="language-json">{
+  &quot;schema&quot;: {
+    &quot;fields&quot;: [
+      {
+        &quot;name&quot;: &quot;timestamp&quot;,
+        &quot;schema&quot;: {
+          &quot;nullable&quot;: false,
+          &quot;dataType&quot;: {
+            &quot;type&quot;: &quot;timestamp&quot;
+          }
+        }
+      },
+      {
+        &quot;name&quot;: &quot;value&quot;,
+        &quot;schema&quot;: {
+          &quot;nullable&quot;: false,
+          &quot;dataType&quot;: {
+            &quot;type&quot;: &quot;string&quot;
+          }
+        }
+      }
+    ],
+    &quot;keyFieldNames&quot;: [
+      &quot;timestamp&quot;
+    ]
+  },
+  &quot;partitionsCount&quot;: 1,
+  &quot;streamType&quot;: &quot;LOW_LATENCY&quot;,
+  &quot;branchName&quot;: &quot;master&quot;,
+  &quot;viewRid&quot;: &quot;ri.foundry-streaming.main.view.ecd4f0f6-8526-4468-9eda-14939449ad79&quot;,
+  &quot;compressed&quot;: false
+}
+</code></pre>
+<h2>Error responses</h2>
+<table>
+<thead>
+<tr>
+<th>错误码</th>
+<th>错误名称</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>CONFLICT</td>
+<td><code>BranchAlreadyExists</code></td>
+<td>The branch cannot be created because a branch with that name already exists.</td>
+</tr>
+<tr>
+<td>INVALID_ARGUMENT</td>
+<td><code>InvalidSchema</code></td>
+<td>The schema failed validations</td>
+</tr>
+<tr>
+<td>INVALID_ARGUMENT</td>
+<td><code>InvalidFieldSchema</code></td>
+<td>The field schema failed validations</td>
+</tr>
+<tr>
+<td>INVALID_ARGUMENT</td>
+<td><code>InvalidStreamType</code></td>
+<td>The stream type is invalid.</td>
+</tr>
+<tr>
+<td>PERMISSION_DENIED</td>
+<td><code>CreateStreamPermissionDenied</code></td>
+<td>Could not create the Stream.</td>
+</tr>
+</tbody>
+</table>
+</body>
+</html>

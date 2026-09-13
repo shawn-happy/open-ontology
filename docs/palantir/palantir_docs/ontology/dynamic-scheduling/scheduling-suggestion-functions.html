@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Suggestion Function</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Suggestion Function</h1>
+<p>A key challenge in scheduling and resource allocation workflows is knowing where and when specific events can occur or where they can be moved. Most schedules have limitations and not all schedule options are equally appropriate; by building these limitations and criteria into logic, tools can help users quickly evaluate choices. The Suggestion Functions feature helps guide user behavior by visually indicating the suitability of potential schedule object puck placement based on logic defined by your organization.</p>
+<p>Each Suggestion Function is backed by a TypeScript function. The output of the rule logic can be used to highlight areas where an assignment can be made or, by contrast, areas where assignments cannot be made. Application builders have the option to enforce these suggestions through a setting in the Workshop widget configuration. When turned on, this feature will force placement of the puck to the closest highlighted region.</p>
+<p>:::callout{theme="neutral"}
+The results of the Suggestion Functions in the Scheduling Gantt Chart are static. The function is run during initial application load and any actions made afterwards are <strong>not</strong> accounted for. This has implications for whether this feature is suitable for your workflow.
+:::</p>
+<p>Below are two examples of how Suggestion Functions can be used effectively.</p>
+<p>In the following image, the Suggestion Function has been written to suggest the preferred location of the individual who is being assigned (in this case, âSusanâ). The green area indicates that Garden City is Susanâs preferred location, while Sandbar, indicated in grey, is not preferred.</p>
+<p><img src="../../_resources/external-d06a7f080ca1.png" alt="Example: Suggestion function interface." width="700" ></p>
+<p>In the below example, an application is used to assign flights to pilots. The vertical slice of time (in green), indicates to the scheduler that they should not adjust the start/end time of the flight, but only the individual who is the pilot.</p>
+<p><img src="../../_resources/external-5fdd2dafccc9.png" alt="Example: Suggestion function interface." width="700" ></p>
+<h2>Functions interface</h2>
+<p>The types below represent the necessary information to write a Search Function when triggered from either a row or a puck, which includes details about the search group.</p>
+<pre><code>/*
+   Suggestion functions take in a list of puck primary keys as well as
+   the Gantt's start/end time and returns a mapping of puck primary keys
+   to a mapping of row primary keys to an array of time slots. 
+*/
+
+
+type ISuggestion = (
+    scheduleObjectPrimaryKeys: string[],
+    domainStart: Timestamp,
+    domainEnd: Timestamp,
+) =&gt; FunctionsMap&lt;string, FunctionsMap&lt;string, Array&lt;ISuggestionSlot&gt;&gt;&gt;
+
+/* Suggestion types */
+
+export interface IDomain {
+    start: Long;
+    end: Long;
+}
+
+/* rating is used to determine the highlight color in widget UI. Based on
+   scale of -1 to 1. Closer to 1 and the highlight will be darker shade of
+   green. Closer to -1 and the highlight will be red. 
+*/
+
+export interface ISuggestionSlot {
+    domain: IDomain;
+    rating: Float;
+}
+
+export type IValidSlots = Array&lt;ISuggestionSlot&gt;;
+export type ISlotMappings = FunctionsMap&lt;string, IValidSlots&gt;;
+export type ISuggestionResult = FunctionsMap&lt;string, ISlotMappings&gt;;
+
+
+/*
+  In workflows where schedule objects have a set start/end time and may only change
+  assigned resources (vertical slice highlighted), the ALL_ROWS_ID can be used 
+  as a shortcut. 
+*/
+
+export const ALL_ROWS_ID = &quot;__ALL_ROWS&quot;;
+
+
+</code></pre>
+</body>
+</html>

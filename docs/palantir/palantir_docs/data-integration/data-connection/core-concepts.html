@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Core concepts</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Core concepts</h1>
+<p>This page describes the core concepts used throughout Data Connection.</p>
+<h2>Sources</h2>
+<p>A <strong>Source</strong> represents a single connection to an external system, including any configuration necessary to specify and locate the target system (typically a URL) and the <a href="#credentials">credentials</a> required to successfully authenticate. Sources must be configured with a particular <a href="#workers">worker</a> defining where compute for any <a href="#capabilities">capabilities</a> used with the source will be run. Note that the <a href="#agent-worker">agent worker</a> also
+controls the networking between the Palantir platform and the target system.</p>
+<p>A source is set up based on a particular <strong>connector</strong> (also referred to as a <strong>source type</strong>). A <a href="https://www.palantir.com/docs/foundry/data-integration/source-type-overview/">broad range of connectors are available in the Palantir platform</a>, designed to support the most common data systems across organizations. Depending on the connector and worker selected, different <a href="#capabilities">capabilities</a> may be available.</p>
+<p>For systems without a dedicated connector, the generic connector or <a href="https://www.palantir.com/docs/foundry/available-connectors/rest-apis/#rest-api-source">REST API source</a> may be used with code-based connectivity options such as <a href="https://www.palantir.com/docs/foundry/data-connection/external-transforms/">external transforms</a>, <a href="https://www.palantir.com/docs/foundry/data-connection/external-functions/">external functions</a>, and <a href="https://www.palantir.com/docs/foundry/compute-modules/overview/">compute modules</a>.</p>
+<h3>Credentials</h3>
+<p>A <em>credential</em> is a secret value that is required to access a particular system; that is, credentials are used for authentication. Credentials can be passwords, tokens, API keys, or other secret values. In the Palantir platform, all credentials are encrypted and stored securely. Depending on the worker, secrets may be stored locally on a Data Connection agent, or directly in the platform.</p>
+<p>Some sources are able to authenticate without storing any secrets, such as when using <a href="https://www.palantir.com/docs/foundry/data-connection/oidc/">OpenID connect</a>, <a href="https://www.palantir.com/docs/foundry/administration/configure-outbound-applications/">outbound applications</a>, or a <a href="https://www.palantir.com/docs/foundry/administration/configure-cloud-identities/">cloud identity</a>.</p>
+<h2>Workers</h2>
+<p>Worker defines <em>where</em> compute for <a href="#capabilities">capabilities</a> is run, while <a href="#networking-and-egress-policies">networking</a> defines <em>how</em> target systems are reached. See <a href="https://www.palantir.com/docs/foundry/data-connection/architecture/">architecture diagrams</a> for examples of how worker and networking work together.</p>
+<p>Sources run on a <a href="#foundry-worker">Foundry worker</a>. <a href="#agent-worker">Agent worker</a> is a legacy option retained for existing customers; see <a href="https://www.palantir.com/docs/foundry/data-connection/foundry-worker-vs-agent-worker/">Foundry worker vs. agent worker</a> for the comparison.</p>
+<p>:::callout{theme="neutral"}
+Not all worker types are available for all source types.
+:::</p>
+<h3>Foundry worker</h3>
+<p>:::callout{theme="neutral"}
+Originally, Foundry worker only supported <a href="https://www.palantir.com/docs/foundry/administration/configure-egress/#direct-connection-egress-policies">direct egress policies</a>, so sources of that worker type were called "direct connection" sources. Now that these sources also support <a href="https://www.palantir.com/docs/foundry/administration/configure-egress/#agent-proxy-egress-policies">agent proxy policies</a>, they have been renamed to "Foundry worker" sources to avoid confusion.
+:::</p>
+<p>Foundry worker sources run compute for their source capabilities in Foundry. These sources benefit from Foundry's containerized and scalable job execution, improved stability, and do not incur the maintenance overhead associated with <a href="#agents">agents</a>. All sources can be <a href="#use-in-code">used in code</a>.</p>
+<p>Networking is configured through <a href="#networking-and-egress-policies">egress policies</a> and enables <a href="https://www.palantir.com/docs/foundry/data-connection/architecture/#foundry-worker-with-direct-connection-policies">direct connection</a> and connections over an <a href="https://www.palantir.com/docs/foundry/data-connection/architecture/#foundry-worker-with-agent-proxy-policy">agent proxy</a>.</p>
+<h3>Agent worker</h3>
+<p>:::callout{theme="warning" title="Legacy"}
+Agent worker is in the <a href="https://www.palantir.com/docs/foundry/platform-overview/development-life-cycle/">legacy</a> phase of development. We recommend <a href="https://www.palantir.com/docs/foundry/data-connection/foundry-worker-vs-agent-worker/#switch-source-from-agent-worker-to-foundry-worker">migrating existing agent worker sources to Foundry worker</a>. See <a href="https://www.palantir.com/docs/foundry/data-connection/foundry-worker-vs-agent-worker/">Foundry worker vs. agent worker</a> for the operational reasons behind this recommendation.
+:::</p>
+<p>Agent worker sources run compute for their source capabilities on a customer-provided host via an <a href="#agents">agent</a>. Networking is configured manually on the agent host firewall and proxy settings; the host must have network access to the source systems it is connecting to.</p>
+<h2>Networking and egress policies</h2>
+<p>Networking defines <em>how</em> target systems are reached, while <a href="#workers">worker</a> defines <em>where</em> <a href="#capabilities">capabilities</a> compute are executed. See <a href="https://www.palantir.com/docs/foundry/data-connection/architecture/">architecture diagrams</a> for examples on how worker and networking are compatible with each other.</p>
+<p>For <a href="#foundry-worker">Foundry worker</a> sources, networking is configured via egress policies. They define at a granular level how each target system can be reached from Foundry, and which egress destinations are permitted.</p>
+<p>Sources support two policy types:</p>
+<ul>
+<li><strong><a href="https://www.palantir.com/docs/foundry/administration/configure-egress/#direct-connection-egress-policies">Direct connection policies</a>:</strong> Used for systems directly accessible from Foundry. For cloud-hosted Foundry instances, this means the public Internet. For privately hosted Foundry, this means the network where Foundry is installed.</li>
+<li><strong><a href="https://www.palantir.com/docs/foundry/administration/configure-egress/#agent-proxy-egress-policies">Agent proxy policies</a>:</strong> Used for accessing external systems hosted in a different network from Foundry. For cloud-hosted Foundry instances, this means external systems hosted on-premise. Requires the set up of an <a href="#agents">agent</a>. The agent host itself must have its networking configured to reach the target systems. <strong>Agent proxy policies are only available on Foundry enrollments running on Rubix, Palantir's Kubernetes-based infrastructure</strong>.</li>
+</ul>
+<p>:::callout{theme="neutral"}
+Both direct connection and agent proxy policies can be assigned to the same source for use cases requiring both network paths. An example of this would be use cases needing to retrieve credentials from an internet-hosted system, and using said credentials to authenticate with an on-premise system.
+:::</p>
+<p><a href="https://www.palantir.com/docs/foundry/administration/configure-egress/">Learn more about egress policies.</a></p>
+<p>For <a href="#agent-worker">agent worker</a> sources, networking is configured directly on the agent host.</p>
+<h2>Agents</h2>
+<p>An <strong>agent</strong> is a downloadable program installed within your organizational network and managed from Foundry's <a href="https://www.palantir.com/docs/foundry/data-connection/overview/">Data Connection</a> interface. Agents have the ability to connect to different external systems within your organizational network and are used to power connections leveraging <a href="https://www.palantir.com/docs/foundry/administration/configure-egress/#agent-proxy-egress-policies">agent proxy policies</a> and <a href="#agent-worker">agent worker connections</a>.</p>
+<p>Read more about <a href="https://www.palantir.com/docs/foundry/data-connection/set-up-agent/">how to set up an agent</a>.</p>
+<h2>Capabilities</h2>
+<p>Sources may support a variety of <em>capabilities</em>, where each capability represents some functionality that can run over the source connection. There are a wide range of supported capabilities for bringing data into Foundry, pushing data out of Foundry, virtualizing data stored outside of Foundry, and making interactive requests to other systems.</p>
+<p>A summary of available capabilities is included in the following table. For more information about capabilities supported for a specific connector, refer to that connector's documentation page.</p>
+<table>
+<thead>
+<tr>
+<th>Capability</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="#batch-syncs"><strong>Batch syncs</strong></a></td>
+<td>Sync data from an external source to a <a href="https://www.palantir.com/docs/foundry/data-integration/datasets/">dataset</a>.</td>
+</tr>
+<tr>
+<td><a href="#iceberg-syncs"><strong>Iceberg syncs</strong></a></td>
+<td>Sync data from an external source to a Foundry <a href="https://www.palantir.com/docs/foundry/iceberg/overview/">Iceberg table</a>.</td>
+</tr>
+<tr>
+<td><a href="#streaming-syncs"><strong>Streaming syncs</strong></a></td>
+<td>Sync data from an external message queue to a <a href="https://www.palantir.com/docs/foundry/data-integration/streams/">stream</a>.</td>
+</tr>
+<tr>
+<td><a href="#change-data-capture-syncs"><strong>Change data capture (CDC) syncs</strong></a></td>
+<td>Sync data from a database to a <a href="https://www.palantir.com/docs/foundry/data-integration/streams/">stream</a> with <a href="https://www.palantir.com/docs/foundry/data-integration/change-data-capture/#change-data-capture-in-streams">CDC metadata</a>.</td>
+</tr>
+<tr>
+<td><a href="#media-syncs"><strong>Media syncs</strong></a></td>
+<td>Sync data from an external source to a <a href="https://www.palantir.com/docs/foundry/data-integration/media-sets/">media set</a>.</td>
+</tr>
+<tr>
+<td><a href="#hyperauto"><strong>HyperAuto</strong></a></td>
+<td><a href="https://www.palantir.com/docs/foundry/hyperauto/overview/">Sync an entire system automatically</a>.</td>
+</tr>
+<tr>
+<td><a href="#file-exports"><strong>File exports</strong></a></td>
+<td>Push data as files from a <a href="https://www.palantir.com/docs/foundry/data-integration/datasets/">dataset</a> to an external system.</td>
+</tr>
+<tr>
+<td><a href="#table-exports"><strong>Table exports</strong></a></td>
+<td>Push data with a schema from a <a href="https://www.palantir.com/docs/foundry/data-integration/datasets/">dataset</a> to an external database.</td>
+</tr>
+<tr>
+<td><a href="#streaming-exports"><strong>Streaming exports</strong></a></td>
+<td>Push data from a <a href="https://www.palantir.com/docs/foundry/data-integration/streams/">stream</a> to an external message queue.</td>
+</tr>
+<tr>
+<td><a href="#webhooks"><strong>Webhooks</strong></a></td>
+<td>Make structured requests to an external system interactively.</td>
+</tr>
+<tr>
+<td><a href="#virtual-tables"><strong>Virtual tables</strong></a></td>
+<td>Register data from an external data warehouse to use as a <a href="https://www.palantir.com/docs/foundry/data-integration/virtual-tables/">virtual table</a>.</td>
+</tr>
+<tr>
+<td><a href="#virtual-media"><strong>Virtual media</strong></a></td>
+<td>Register unstructured media from an external system as a <a href="https://www.palantir.com/docs/foundry/data-integration/media-sets/">media set</a>.</td>
+</tr>
+<tr>
+<td><a href="#exploration"><strong>Exploration</strong></a></td>
+<td>Interactively explore the data and schema of an external system before using other capabilities.</td>
+</tr>
+<tr>
+<td><a href="#use-in-code"><strong>Use in code</strong></a></td>
+<td>Use a source in code to extend or customize any functionality not covered by the point-and-click-configurable capabilities listed above. This is only available for <a href="#foundry-worker">Foundry worker</a> sources.</td>
+</tr>
+</tbody>
+</table>
+<p>Additional capabilities are being developed, and capability coverage is regularly updated in the documentation for specific connectors.</p>
+<p>Supported capabilities for specific connectors are also displayed on the new source page in the Data Connection application. It is possible to search both by connector name and by capability. The example below shows the results of a search for sources that support a "virtual" option.</p>
+<p><img alt="Screenshot of the new source page showing capabilities available on connector cards with a search for &quot;virtual&quot;." src="../../_resources/foundry/data-connection/data-connection-new-source-page.png" /></p>
+<h3>Batch syncs</h3>
+<p><strong>Batch syncs</strong> read data from an external system and write it into a Foundry <a href="https://www.palantir.com/docs/foundry/data-integration/datasets/">dataset</a>. A batch sync defines what data should be read and which dataset to output into in Foundry. Batch syncs can be configured to sync data incrementally and allow syncing data both with and without a corresponding schema. <a href="https://www.palantir.com/docs/foundry/data-connection/set-up-sync/">Learn how to set up a sync.</a></p>
+<p>Batch syncs are <a href="https://www.palantir.com/docs/foundry/data-integration/datasets/#transactions">transactional</a>. Each sync run writes data within a single transaction on the output dataset. If a sync fails at any point during execution, the transaction is aborted and no data from that run is committed. This means that a partial failure does not result in partial data; the output dataset remains unchanged from its state before the failed sync. The specific error depends on the cause of the failure. You can inspect the error message and full stack trace for a failed run on the sync's <strong>Runs</strong> tab. For common failure patterns, learn how to <a href="https://www.palantir.com/docs/foundry/data-connection/syncs-troubleshooting/">troubleshoot syncs</a>.</p>
+<p>In general, there are two main types of batch syncs:</p>
+<ul>
+<li><strong>File batch syncs:</strong> Allows syncing files without a schema directly into a Foundry dataset. These files may then be accessed in downstream transforms; for example, using <a href="https://www.palantir.com/docs/foundry/transforms-python/unstructured-files/">file-based transforms</a>. The most common systems that support file batch syncs are filesystems and blob stores such as <a href="https://www.palantir.com/docs/foundry/available-connectors/amazon-s3/">S3</a>, <a href="https://www.palantir.com/docs/foundry/available-connectors/onelake-and-azure-blob-filesystem/">ABFS</a>, <a href="https://www.palantir.com/docs/foundry/available-connectors/google-cloud-storage/">Google Cloud Storage</a>, <a href="https://www.palantir.com/docs/foundry/available-connectors/smb/">SMB</a>, and <a href="https://www.palantir.com/docs/foundry/available-connectors/sharepoint-online/">Sharepoint online</a>. <a href="https://www.palantir.com/docs/foundry/data-connection/file-based-syncs/">Learn more about file batch syncs.</a></li>
+<li><strong>Table batch syncs:</strong> Allows syncing data with a schema into a Foundry dataset. Part of the sync definition in this case also includes how to translate types between the external system schema and the supported Foundry schema options. The most common systems that support table batch syncs are databases and SaaS providers such as <a href="https://www.palantir.com/docs/foundry/available-connectors/microsoft-sql-server/">Microsoft SQL Server</a>, <a href="https://www.palantir.com/docs/foundry/available-connectors/postgresql/">Postgres</a>, <a href="https://www.palantir.com/docs/foundry/sap/overview/">SAP</a>, <a href="https://www.palantir.com/docs/foundry/available-connectors/salesforce/">Salesforce</a>, and <a href="https://www.palantir.com/docs/foundry/available-connectors/netsuite-overview/">Netsuite</a>.</li>
+</ul>
+<h3>Iceberg syncs</h3>
+<p><strong>Iceberg syncs</strong> read data from an external source and write it directly into a Foundry <a href="https://www.palantir.com/docs/foundry/iceberg/overview/">Iceberg table</a>, rather than a standard <a href="https://www.palantir.com/docs/foundry/data-integration/datasets/">dataset</a>. Iceberg syncs support both non-incremental and incremental ingestion, along with several write modes. Iceberg syncs are only supported on the <a href="#foundry-worker">Foundry worker</a> runtime and are available for a subset of connectors. <a href="https://www.palantir.com/docs/foundry/iceberg/syncs/">Learn more about syncing data to Iceberg tables from Data Connection.</a></p>
+<h3>Streaming syncs</h3>
+<p><strong>Streaming syncs</strong> provide the ability to stream data from systems that provide low latency data feeds. Data is delivered into a <a href="https://www.palantir.com/docs/foundry/data-integration/streams/">streaming dataset</a>. Some examples of systems that support streaming syncs include <a href="https://www.palantir.com/docs/foundry/available-connectors/kafka/">Kafka</a>, <a href="https://www.palantir.com/docs/foundry/available-connectors/amazon-kinesis/">Amazon Kinesis</a>, and <a href="https://www.palantir.com/docs/foundry/available-connectors/pubsub/">Google Pub/Sub</a>.</p>
+<p><a href="https://www.palantir.com/docs/foundry/data-connection/set-up-streaming-sync/">Learn more about streaming syncs.</a></p>
+<h3>Change data capture syncs</h3>
+<p><strong>Change data capture (CDC) syncs</strong> are similar to streaming syncs, with additional changelog metadata automatically propagated to the streaming dataset where data is delivered. This type of sync is normally used for databases that support some form of low-latency replication. <a href="https://www.palantir.com/docs/foundry/data-integration/change-data-capture/#create-a-change-data-capture-sync">Learn more about change data capture syncs.</a></p>
+<h3>Media syncs</h3>
+<p><strong>Media syncs</strong> allow importing media data into a <a href="https://www.palantir.com/docs/foundry/data-integration/media-sets/">media set</a>. Media sets provide better tooling than standard datasets for ingesting, transforming, and consuming media data throughout Foundry. When dealing with PDFs, images, videos, and other media, we recommend using media sets over datasets. <a href="https://www.palantir.com/docs/foundry/data-connection/media-set-sync/">Learn more about media syncs.</a></p>
+<h3>HyperAuto</h3>
+<p><strong>HyperAuto</strong> is a specialized capability that can dynamically discover the schema of your SAP system and automate syncs, pipelines, and creation of a corresponding ontology within Foundry. HyperAuto is currently only supported for SAP. <a href="https://www.palantir.com/docs/foundry/hyperauto/overview/">Learn more about HyperAuto.</a></p>
+<h3>File exports</h3>
+<p><strong>File exports</strong> are the opposite of file batch syncs. When doing a file export, data is taken directly from the underlying files contained within a Foundry dataset, which are written as-is to a filesystem location in the target system. <a href="https://www.palantir.com/docs/foundry/data-connection/export-overview/#file-exports">Learn more about file exports.</a></p>
+<h3>Table exports</h3>
+<p><strong>Table exports</strong> are the opposite of table batch syncs. When performing a table export, data is exported as rows from a Foundry dataset with a schema, which are then written to a table in the target system. <a href="https://www.palantir.com/docs/foundry/data-connection/export-overview/#table-exports">Learn more about table exports.</a></p>
+<h3>Streaming exports</h3>
+<p><strong>Streaming exports</strong> are the opposite of streaming syncs. When doing a streaming export, data is exported from a Foundry stream, and records are written to the specified streaming queue or topic in the target system. <a href="https://www.palantir.com/docs/foundry/data-connection/export-overview/#streaming-exports">Learn more about streaming exports.</a></p>
+<h3>Webhooks</h3>
+<p><strong>Webhooks</strong> represent a request to a source system outside of Foundry. Webhook requests can be flexibly defined in Data Connection to enable a broad range of connections to external systems. <a href="https://www.palantir.com/docs/foundry/data-connection/webhooks-overview/">Learn more about webhooks.</a></p>
+<h3>Virtual tables</h3>
+<p><strong>Virtual tables</strong> represent the ability to register tabular data from an external system into a virtual table resource in Foundry.</p>
+<p>In addition to registering individual virtual tables, this capability also allows for dynamic discovery and automatic registration of all tables found in an external system.</p>
+<p><a href="https://www.palantir.com/docs/foundry/data-integration/virtual-tables/">Learn more about virtual tables.</a></p>
+<h3>Virtual media</h3>
+<p><strong>Virtual media</strong> works similarly to <a href="#media-syncs">media syncs</a>, allowing media from an external system to be used in a <a href="https://www.palantir.com/docs/foundry/data-integration/media-sets/">media set</a> but without copying the data into Foundry. Instead, media files contained in an external system can be registered as virtual media items in a specific media set.</p>
+<p><a href="https://www.palantir.com/docs/foundry/media-sets-advanced-formats/virtual-media-sets/">Learn more about virtual media.</a></p>
+<h3>Exploration</h3>
+<p>The interactive <strong>exploration</strong> capability allows you to see what data is contained in an external system before performing syncs, exports, or other capabilities that interact with that system.</p>
+<p>Exploration is most commonly used to check that a connection is working as intended and that the correct permissions and credentials are being used to connect.</p>
+<h3>Use in code</h3>
+<p>The ability to use connections from code is intended to allow developers to extend and customize connections from Foundry to other systems. Palantir's general principle is that anything possible in the platform using dedicated connectors and point-and-click configuration options should also be achievable by writing custom code. At any point, developers should be able to switch to code-based connectivity for more granular control over the functionality or performance of workflows that perform external connections.</p>
+<p>Any connector may be used in code; in most cases, we recommend using either the <a href="https://www.palantir.com/docs/foundry/available-connectors/rest-apis/#rest-api-source">REST API source</a> or <a href="https://www.palantir.com/docs/foundry/available-connectors/generic/">generic connector</a> when connecting from code.</p>
+<p>:::callout{theme="neutral"}
+<a href="#agent-worker">Agent worker</a> connections cannot be used in code. Also, some credential types such as cloud identity, outbound application, and OIDC may not currently be used from code.
+:::</p>
+<table>
+<thead>
+<tr>
+<th>Use in code option</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>External transforms</td>
+<td><a href="https://www.palantir.com/docs/foundry/data-connection/external-transforms/">External transforms</a> allow transforms written in Python to communicate with external systems. </br></br> External transforms are a code-based alternative for <a href="#batch-syncs">file batch syncs</a>, <a href="#file-exports">file exports</a>, <a href="#batch-syncs">table batch syncs</a>, <a href="#table-exports">table exports</a>, and <a href="#media-syncs">media syncs</a>. External transforms may also be used to register data into <a href="#virtual-media">virtual media sets</a> and <a href="#virtual-tables">virtual tables</a>.</td>
+</tr>
+<tr>
+<td>External functions (webhooks)</td>
+<td><a href="https://www.palantir.com/docs/foundry/data-connection/external-functions/">External functions</a> written in TypeScript support importing a source in order to invoke existing webhooks defined on that source. This allows existing webhook calls to be wrapped in custom typescript logic and error handling.</td>
+</tr>
+<tr>
+<td>External functions (direct)</td>
+<td><a href="https://www.palantir.com/docs/foundry/data-connection/external-functions/">External functions</a> now allow direct calls to external systems using <code>fetch</code> for TypeScript and <code>requests</code> for Python. External functions are a code-based alternative for <a href="#webhooks">webhooks</a>.</td>
+</tr>
+<tr>
+<td>Compute modules</td>
+<td><a href="https://www.palantir.com/docs/foundry/compute-modules/overview/">Compute modules</a> allow for long-running compute and writing connections in arbitrary languages. </br></br> Compute modules may be used as a code-based alternative for <a href="#streaming-syncs">streaming syncs</a>, <a href="#streaming-exports">streaming exports</a>, <a href="#change-data-capture-syncs">change data capture syncs</a>, and <a href="#webhooks">webhooks</a>.</td>
+</tr>
+<tr>
+<td>External models</td>
+<td><a href="https://www.palantir.com/docs/foundry/integrate-models/external-model-connection/">External models</a> currently do not support importing sources. Instead, you must use network egress policies directly.</td>
+</tr>
+<tr>
+<td>Code workspaces</td>
+<td><a href="https://www.palantir.com/docs/foundry/code-workspaces/overview/">Code workspaces</a> currently do not support importing sources. Instead, you must use network egress policies directly.</td>
+</tr>
+<tr>
+<td>Code workbooks</td>
+<td><a href="https://www.palantir.com/docs/foundry/code-workbook/overview/">Code workbooks</a> currently do not support external connections.</td>
+</tr>
+</tbody>
+</table>
+<h2>Other concepts</h2>
+<p>Data connection also includes a variety of other concepts relevant for specific workflows. Some concepts were previously used and are now sunset, but are retained here for reference.</p>
+<h3>Syncs</h3>
+<p>Historically, the term <strong>Sync</strong> was used in a generic way to refer to bringing data into Foundry. Syncs are now separated into the more specific capabilities listed above. More details are available for each capability, such as <strong>batch syncs</strong>, <strong>streaming syncs</strong>, <strong>change data capture syncs</strong>, <strong>media syncs</strong>, and so on.</p>
+<h3>Tasks [Sunset]</h3>
+<p>:::callout{theme="warning" title="Sunset"}
+Tasks are in the <a href="https://www.palantir.com/docs/foundry/platform-overview/development-life-cycle/">sunset</a> phase of development and will be deprecated at a future date. Full support remains available. We recommend migrating your workflows to <a href="#use-in-code">code-based connectivity options</a>.
+:::</p>
+<p>The plugin framework used to implement connectors allows custom extensions called <strong>tasks</strong>. Tasks represent a unit of functionality configured by providing YAML and implemented in Java as part of the Data Connection plugin. Palantir has stopped developing new tasks, and all officially supported capabilities have migrated away from using tasks.</p>
+<h3>Direct connection</h3>
+<p>Connections running in Foundry originally only supported direct connections and were referred to as a "direct connection". These connections have now been incorporated into the <a href="#foundry-worker">Foundry worker</a> concept.</p>
+</body>
+</html>

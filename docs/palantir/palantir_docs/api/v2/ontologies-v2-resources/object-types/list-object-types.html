@@ -1,0 +1,2215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>List Object Types</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../../../index.html">返回目录</a></div>
+<p><code>GET /api/v2/ontologies/{ontology}/objectTypes</code></p>
+<p>Lists the object types for the given Ontology.</p>
+<p>Each page may be smaller or larger than the requested page size. However, it is guaranteed that if there are
+more results available, at least one result will be present in the
+response.</p>
+<p>Note: the <code>aliases</code> field is not populated on this endpoint and will always be empty. To retrieve object type
+aliases, use the get-by-RID read paths (e.g. <code>getObjectTypeV2</code>).</p>
+<p>Third-party applications using this endpoint via OAuth2 must request the following operation scope: <code>api:ontologies-read</code>.</p>
+<p><strong>OAuth2 scopes</strong>: <code>api:ontologies-read</code></p>
+<h2>Path parameters</h2>
+<table>
+<thead>
+<tr>
+<th>参数</th>
+<th>类型</th>
+<th>必填</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ontology</code></td>
+<td>string</td>
+<td>是</td>
+<td>The API name or RID of the Ontology. To find the API name or RID, use the <strong>List Ontologies</strong> endpoint or<br>check the <strong>Ontology Manager</strong>.<br>示例: <code>palantir</code></td>
+</tr>
+</tbody>
+</table>
+<h2>Query parameters</h2>
+<table>
+<thead>
+<tr>
+<th>参数</th>
+<th>类型</th>
+<th>必填</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>branch</code></td>
+<td>string</td>
+<td>否</td>
+<td>The Foundry branch to list the object types from. If not specified, the default branch will be used.<br>Branches are an experimental feature and not all workflows are supported.<br>示例: <code>ri.branch..branch.d827184f-ee0e-4351-8b70-efbe51e07252</code></td>
+</tr>
+<tr>
+<td><code>pageSize</code></td>
+<td>integer</td>
+<td>否</td>
+<td>The desired size of the page to be returned. Defaults to 500.<br>See <a href="https://www.palantir.com/docs/foundry/api/general/overview/paging/#page-sizes">page sizes</a> for details.</td>
+</tr>
+<tr>
+<td><code>pageToken</code></td>
+<td>string</td>
+<td>否</td>
+<td>The page token indicates where to start paging. This should be omitted from the first page's request.<br>To fetch the next page, clients should take the value from the <code>nextPageToken</code> field of the previous response<br>and use it to populate the <code>pageToken</code> field of the next request.</td>
+</tr>
+<tr>
+<td><code>includeDatasources</code></td>
+<td>boolean</td>
+<td>否</td>
+<td>When set to <code>true</code>, the <code>datasources</code> field on each returned object type is populated with the<br>datasources backing it. Defaults to <code>false</code>.</td>
+</tr>
+</tbody>
+</table>
+<h2>Response</h2>
+<p><strong>ListObjectTypesV2Response</strong></p>
+<p>Success response.</p>
+<table>
+<thead>
+<tr>
+<th>参数</th>
+<th>类型</th>
+<th>必填</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ListObjectTypesV2Response</code></td>
+<td>object</td>
+<td>是</td>
+<td>Success response.<br>示例: <code>{"nextPageToken":"v1.QnVpbGQgdGhlIEZ1dHVyZTogaHR0cHM6Ly93d3cucGFsYW50aXIuY29tL2NhcmVlcnMvP2xldmVyLXNvdXJjZSU1YiU1ZD1BUElEb2NzI29wZW4tcG9zaXRpb25z","data":[{"apiName":"employee","description":"A full-time or part-time employee of our firm","displayName":"Employee","status":"ACTIVE","primaryKey":"employeeId","properties":{"employeeId":{"dataType":{"type":"integer"},"rid":"ri.ontology.main.property.571d3d4d-150a-4dd4-b1a7-d16c1ed7d996"},"fullName":{"dataType":{"type":"string"},"rid":"ri.ontology.main.property.5721baa7-26d5-4ca8-b092-d47dcc724ab1"},"office":{"description":"The unique ID of the employee's primary assigned office","dataType":{"type":"string"},"rid":"ri.ontology.main.property.554fa8c4-3b6e-4d3f-adef-acc9f0f54633"},"startDate":{"description":"The date the employee was hired (most recently, if they were re-hired)","dataType":{"type":"date"},"rid":"ri.ontology.main.property.3b081417-fe68-4010-ade8-68b298116ed4"},"rid":"ri.ontology.main.object-type.401ac022-89eb-4591-8b7e-0a912b9efb44"}},{"apiName":"office","description":"A physical location (not including rented co-working spaces)","displayName":"Office","status":"ACTIVE","primaryKey":"officeId","properties":{"officeId":{"dataType":{"type":"string"}},"address":{"description":"The office's physical address (not necessarily shipping address)","dataType":{"type":"string"}},"capacity":{"description":"The maximum seated-at-desk capacity of the office (maximum fire-safe capacity may be higher)","dataType":{"type":"integer"}},"rid":"ri.ontology.main.object-type.9a0e4409-9b50-499f-a637-a3b8334060d9"}}]}</code></td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.nextPageToken</code></td>
+<td>string</td>
+<td>否</td>
+<td>The page token indicates where to start paging. This should be omitted from the first page's request.<br>To fetch the next page, clients should take the value from the <code>nextPageToken</code> field of the previous response<br>and use it to populate the <code>pageToken</code> field of the next request.</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data</code></td>
+<td>list<ObjectTypeV2></td>
+<td>否</td>
+<td>The list of object types in the current page.</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2</code></td>
+<td>object</td>
+<td>是</td>
+<td>Represents an object type in the Ontology.</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.apiName</code></td>
+<td>string</td>
+<td>是</td>
+<td>The name of the object type in the API in camelCase format. To find the API name for your Object Type, use the<br><code>List object types</code> endpoint or check the <strong>Ontology Manager</strong>.</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.displayName</code></td>
+<td>string</td>
+<td>是</td>
+<td>The display name of the entity.</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.status</code></td>
+<td>enum</td>
+<td>是</td>
+<td>The release status of the entity.<br>示例: <code>ACTIVE</code></td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.description</code></td>
+<td>string</td>
+<td>否</td>
+<td>The description of the object type.</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.pluralDisplayName</code></td>
+<td>string</td>
+<td>是</td>
+<td>The plural display name of the object type.</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.icon</code></td>
+<td>union</td>
+<td>是</td>
+<td>A union currently only consisting of the BlueprintIcon (more icon types may be added in the future).</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.icon.blueprint</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.icon.blueprint.color</code></td>
+<td>string</td>
+<td>是</td>
+<td>A hexadecimal color code.</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.icon.blueprint.name</code></td>
+<td>string</td>
+<td>是</td>
+<td>The <a href="https://blueprintjs.com/docs/#icons/icons-list">name</a> of the Blueprint icon.<br>Used to specify the Blueprint icon to represent the object type in a React app.</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.primaryKey</code></td>
+<td>string</td>
+<td>是</td>
+<td>The name of the property in the API. To find the API name for your property, use the <code>Get object type</code><br>endpoint or check the <strong>Ontology Manager</strong>.</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.properties</code></td>
+<td>map</td>
+<td>否</td>
+<td>A map of the properties of the object type.</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.properties.PropertyApiName</code></td>
+<td>string</td>
+<td>是</td>
+<td>The name of the property in the API. To find the API name for your property, use the <code>Get object type</code><br>endpoint or check the <strong>Ontology Manager</strong>.</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.properties.PropertyV2</code></td>
+<td>object</td>
+<td>是</td>
+<td>Details about some property of an object.</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.properties.PropertyV2.description</code></td>
+<td>string</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.properties.PropertyV2.displayName</code></td>
+<td>string</td>
+<td>否</td>
+<td>The display name of the entity.</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.properties.PropertyV2.dataType</code></td>
+<td>union</td>
+<td>是</td>
+<td>A union of all the types supported by Ontology Object properties.</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.properties.PropertyV2.dataType.date</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.properties.PropertyV2.dataType.struct</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.properties.PropertyV2.dataType.struct.structFieldTypes</code></td>
+<td>list<StructFieldType></td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.properties.PropertyV2.dataType.struct.structFieldTypes.StructFieldType</code></td>
+<td>object</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.properties.PropertyV2.dataType.struct.structFieldTypes.StructFieldType.apiName</code></td>
+<td>string</td>
+<td>是</td>
+<td>The name of a struct field in the Ontology.</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.properties.PropertyV2.dataType.struct.structFieldTypes.StructFieldType.rid</code></td>
+<td>string</td>
+<td>是</td>
+<td>The unique resource identifier of a struct field, useful for interacting with other Foundry APIs.</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.properties.PropertyV2.dataType.struct.structFieldTypes.StructFieldType.dataType</code></td>
+<td>union</td>
+<td>是</td>
+<td>A union of all the types supported by Ontology Object properties.</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.properties.PropertyV2.dataType.struct.structFieldTypes.StructFieldType.typeClasses</code></td>
+<td>list<TypeClass></td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.properties.PropertyV2.dataType.struct.structFieldTypes.StructFieldType.typeClasses.TypeClass</code></td>
+<td>object</td>
+<td>是</td>
+<td>Additional metadata that can be interpreted by user applications that interact with the Ontology</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.properties.PropertyV2.dataType.struct.structFieldTypes.StructFieldType.typeClasses.TypeClass.kind</code></td>
+<td>string</td>
+<td>是</td>
+<td>A namespace for the type class.</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.properties.PropertyV2.dataType.struct.structFieldTypes.StructFieldType.typeClasses.TypeClass.name</code></td>
+<td>string</td>
+<td>是</td>
+<td>The value of the type class.</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.properties.PropertyV2.dataType.struct.mainValue</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.properties.PropertyV2.dataType.struct.mainValue.mainValueType</code></td>
+<td>union</td>
+<td>是</td>
+<td>A union of all the types supported by Ontology Object properties.</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.properties.PropertyV2.dataType.struct.mainValue.fields</code></td>
+<td>list<StructFieldApiName></td>
+<td>否</td>
+<td>The fields which comprise the main value of the struct.</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.properties.PropertyV2.dataType.struct.mainValue.fields.StructFieldApiName</code></td>
+<td>string</td>
+<td>是</td>
+<td>The name of a struct field in the Ontology.</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.properties.PropertyV2.dataType.string</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.properties.PropertyV2.dataType.byte</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.properties.PropertyV2.dataType.double</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.properties.PropertyV2.dataType.geopoint</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.properties.PropertyV2.dataType.geotimeSeriesReference</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.properties.PropertyV2.dataType.integer</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.properties.PropertyV2.dataType.float</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.properties.PropertyV2.dataType.geoshape</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.properties.PropertyV2.dataType.long</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.properties.PropertyV2.dataType.boolean</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.properties.PropertyV2.dataType.cipherText</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.properties.PropertyV2.dataType.cipherText.defaultCipherChannel</code></td>
+<td>string</td>
+<td>否</td>
+<td>An optional Cipher Channel RID which can be used for encryption updates to empty values.<br>示例: <code>ri.bellaso.main.cipher-channel.00000000-0000-0000-0000-000000000000</code></td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.properties.PropertyV2.dataType.marking</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.properties.PropertyV2.dataType.marking.markingType</code></td>
+<td>enum</td>
+<td>否</td>
+<td>The kind of marking applied by a marking property type.<br>- <code>CBAC</code>: Classification-based access control markings.<br>- <code>MANDATORY</code>: Standard non-classification markings. Example - Organizations.</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.properties.PropertyV2.dataType.attachment</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.properties.PropertyV2.dataType.mediaReference</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.properties.PropertyV2.dataType.timeseries</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.properties.PropertyV2.dataType.timeseries.itemType</code></td>
+<td>union</td>
+<td>是</td>
+<td>A union of the types supported by time series properties.</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.properties.PropertyV2.dataType.timeseries.itemType.string</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.properties.PropertyV2.dataType.timeseries.itemType.double</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.properties.PropertyV2.dataType.timeseries.itemType.numericOrNonNumeric</code></td>
+<td>object</td>
+<td>否</td>
+<td>The time series property can either contain either numeric or non-numeric data. This enables mixed sensor types<br>where some sensor time series are numeric and others are categorical. A boolean property reference can be used<br>to determine if the series is numeric or non-numeric. Without this property, the series type can be either<br>numeric or non-numeric and must be inferred from the result of a time series query.</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.properties.PropertyV2.dataType.timeseries.itemType.numericOrNonNumeric.isNonNumericPropertyTypeId</code></td>
+<td>string</td>
+<td>否</td>
+<td>The boolean property type ID specifying whether the series is numeric or non-numeric. If the value is true,<br>the series is non-numeric.</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.properties.PropertyV2.dataType.array</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.properties.PropertyV2.dataType.array.subType</code></td>
+<td>union</td>
+<td>是</td>
+<td>A union of all the types supported by Ontology Object properties.</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.properties.PropertyV2.dataType.array.reducers</code></td>
+<td>list<OntologyObjectArrayTypeReducer></td>
+<td>否</td>
+<td>If non-empty, this property can be reduced to a single value of the subtype. The reducers are applied in<br>order to determine a winning value. The array can be loaded as a reduced value or as the full array in an<br>object set.</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.properties.PropertyV2.dataType.array.reducers.OntologyObjectArrayTypeReducer</code></td>
+<td>object</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.properties.PropertyV2.dataType.array.reducers.OntologyObjectArrayTypeReducer.direction</code></td>
+<td>enum</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.properties.PropertyV2.dataType.array.reducers.OntologyObjectArrayTypeReducer.field</code></td>
+<td>string</td>
+<td>否</td>
+<td>The name of a struct field in the Ontology.</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.properties.PropertyV2.dataType.short</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.properties.PropertyV2.dataType.vector</code></td>
+<td>object</td>
+<td>否</td>
+<td>Represents a fixed size vector of floats. These can be used for vector similarity searches.</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.properties.PropertyV2.dataType.vector.dimension</code></td>
+<td>integer</td>
+<td>是</td>
+<td>The dimension of the vector.</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.properties.PropertyV2.dataType.vector.supportsSearchWith</code></td>
+<td>list<VectorSimilarityFunction></td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.properties.PropertyV2.dataType.vector.supportsSearchWith.VectorSimilarityFunction</code></td>
+<td>object</td>
+<td>是</td>
+<td>The vector similarity function to support approximate nearest neighbors search. Will result in an index<br>specific for the function.</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.properties.PropertyV2.dataType.vector.supportsSearchWith.VectorSimilarityFunction.value</code></td>
+<td>enum</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.properties.PropertyV2.dataType.vector.embeddingModel</code></td>
+<td>union</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.properties.PropertyV2.dataType.vector.embeddingModel.lms</code></td>
+<td>object</td>
+<td>否</td>
+<td>A model provided by Language Model Service.</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.properties.PropertyV2.dataType.vector.embeddingModel.lms.value</code></td>
+<td>enum</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.properties.PropertyV2.dataType.vector.embeddingModel.foundryLiveDeployment</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.properties.PropertyV2.dataType.vector.embeddingModel.foundryLiveDeployment.rid</code></td>
+<td>string</td>
+<td>否</td>
+<td>The live deployment identifier. This rid is of the format 'ri.foundry-ml-live.main.live-deployment.<uuid>'.</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.properties.PropertyV2.dataType.vector.embeddingModel.foundryLiveDeployment.inputParamName</code></td>
+<td>string</td>
+<td>否</td>
+<td>The name of the input parameter to the model which should contain the query string.</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.properties.PropertyV2.dataType.vector.embeddingModel.foundryLiveDeployment.outputParamName</code></td>
+<td>string</td>
+<td>否</td>
+<td>The name of the output parameter to the model which should contain the computed embedding.</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.properties.PropertyV2.dataType.decimal</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.properties.PropertyV2.dataType.decimal.precision</code></td>
+<td>integer</td>
+<td>否</td>
+<td>The total number of digits of the Decimal type. The maximum value is 38.<br>示例: <code>38</code></td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.properties.PropertyV2.dataType.decimal.scale</code></td>
+<td>integer</td>
+<td>否</td>
+<td>The number of digits to the right of the decimal point. The maximum value is 38.<br>示例: <code>18</code></td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.properties.PropertyV2.dataType.timestamp</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.properties.PropertyV2.rid</code></td>
+<td>string</td>
+<td>是</td>
+<td>The unique resource identifier of a property.</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.properties.PropertyV2.status</code></td>
+<td>union</td>
+<td>否</td>
+<td>The status to indicate whether the PropertyType is either Experimental, Active, Deprecated, or Example.</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.properties.PropertyV2.status.deprecated</code></td>
+<td>object</td>
+<td>否</td>
+<td>This status indicates that the PropertyType is reaching the end of its life and will be removed as per the<br>deadline specified.</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.properties.PropertyV2.status.deprecated.message</code></td>
+<td>string</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.properties.PropertyV2.status.deprecated.deadline</code></td>
+<td>string</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.properties.PropertyV2.status.deprecated.replacedBy</code></td>
+<td>string</td>
+<td>否</td>
+<td>The unique resource identifier of a property.</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.properties.PropertyV2.status.active</code></td>
+<td>object</td>
+<td>否</td>
+<td>This status indicates that the PropertyType will not change on short notice and should thus be safe to use in<br>user facing workflows.</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.properties.PropertyV2.status.experimental</code></td>
+<td>object</td>
+<td>否</td>
+<td>This status indicates that the PropertyType is in development.</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.properties.PropertyV2.status.example</code></td>
+<td>object</td>
+<td>否</td>
+<td>This status indicates that the PropertyType is an example. It is backed by notional data that should not be<br>used for actual workflows, but can be used to test those workflows.</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.properties.PropertyV2.visibility</code></td>
+<td>enum</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.properties.PropertyV2.valueTypeApiName</code></td>
+<td>string</td>
+<td>否</td>
+<td>The name of the value type in the API in camelCase format.</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.properties.PropertyV2.valueFormatting</code></td>
+<td>union</td>
+<td>否</td>
+<td>This feature is experimental and may change in a future release.<br>Comprehensive formatting configuration for displaying property values in user interfaces.<br>Supports different value types including numbers, dates, timestamps, booleans, and known Foundry types.<br>Each formatter type provides specific options tailored to that data type:<br>- Numbers: Support for percentages, currencies, units, scaling, and custom formatting<br>- Dates/Timestamps: Localized and custom formatting patterns<br>- Booleans: Custom true/false display text<br>- Known types: Special formatting for Foundry-specific identifiers</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.properties.PropertyV2.valueFormatting.date</code></td>
+<td>object</td>
+<td>否</td>
+<td>Formatting configuration for date property values.</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.properties.PropertyV2.valueFormatting.date.format</code></td>
+<td>union</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.properties.PropertyV2.valueFormatting.date.format.stringFormat</code></td>
+<td>object</td>
+<td>否</td>
+<td>A strictly specified date format pattern.</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.properties.PropertyV2.valueFormatting.date.format.stringFormat.pattern</code></td>
+<td>string</td>
+<td>是</td>
+<td>A valid format string composed of date/time patterns.</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.properties.PropertyV2.valueFormatting.date.format.localizedFormat</code></td>
+<td>object</td>
+<td>否</td>
+<td>Predefined localized formatting options.</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.properties.PropertyV2.valueFormatting.date.format.localizedFormat.format</code></td>
+<td>enum</td>
+<td>是</td>
+<td>Localized date/time format types.</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.properties.PropertyV2.valueFormatting.number</code></td>
+<td>object</td>
+<td>否</td>
+<td>Wrapper for numeric formatting options.</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.properties.PropertyV2.valueFormatting.number.numberType</code></td>
+<td>union</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.properties.PropertyV2.valueFormatting.number.numberType.standard</code></td>
+<td>object</td>
+<td>否</td>
+<td>Standard number formatting with configurable options.<br>This provides basic number formatting without any special units, scaling, or transformations.</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.properties.PropertyV2.valueFormatting.number.numberType.standard.baseFormatOptions</code></td>
+<td>object</td>
+<td>是</td>
+<td>Base number formatting options that can be applied to all number formatters.<br>Controls precision, grouping, rounding, and notation. Consistent with JavaScript's Intl.NumberFormat.<br>Examples:<br>- useGrouping: true makes 1234567 display as "1,234,567"<br>- maximumFractionDigits: 2 makes 3.14159 display as "3.14"<br>- notation: SCIENTIFIC makes 1234 display as "1.234E3"</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.properties.PropertyV2.valueFormatting.number.numberType.standard.baseFormatOptions.useGrouping</code></td>
+<td>boolean</td>
+<td>否</td>
+<td>If true, show a locale-appropriate number grouping (e.g. thousands for en).</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.properties.PropertyV2.valueFormatting.number.numberType.standard.baseFormatOptions.convertNegativeToParenthesis</code></td>
+<td>boolean</td>
+<td>否</td>
+<td>If true, wrap negative numbers in parentheses instead of a minus sign.</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.properties.PropertyV2.valueFormatting.number.numberType.standard.baseFormatOptions.minimumIntegerDigits</code></td>
+<td>integer</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.properties.PropertyV2.valueFormatting.number.numberType.standard.baseFormatOptions.minimumFractionDigits</code></td>
+<td>integer</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.properties.PropertyV2.valueFormatting.number.numberType.standard.baseFormatOptions.maximumFractionDigits</code></td>
+<td>integer</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.properties.PropertyV2.valueFormatting.number.numberType.standard.baseFormatOptions.minimumSignificantDigits</code></td>
+<td>integer</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.properties.PropertyV2.valueFormatting.number.numberType.standard.baseFormatOptions.maximumSignificantDigits</code></td>
+<td>integer</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.properties.PropertyV2.valueFormatting.number.numberType.standard.baseFormatOptions.notation</code></td>
+<td>enum</td>
+<td>否</td>
+<td>Number notation style options:<br>- STANDARD: Regular number display ("1,234")<br>- SCIENTIFIC: Scientific notation ("1.234E3")<br>- ENGINEERING: Engineering notation ("1.234E3")<br>- COMPACT: Compact notation ("1.2K")</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.properties.PropertyV2.valueFormatting.number.numberType.standard.baseFormatOptions.roundingMode</code></td>
+<td>enum</td>
+<td>否</td>
+<td>Number rounding behavior:<br>- CEIL: Always round up (3.1 becomes 4)<br>- FLOOR: Always round down (3.9 becomes 3)<br>- ROUND_CLOSEST: Round to nearest (3.4 becomes 3, 3.6 becomes 4)</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.properties.PropertyV2.valueFormatting.number.numberType.duration</code></td>
+<td>object</td>
+<td>否</td>
+<td>Format numeric values representing time durations.<br>- Human readable: 3661 seconds displays as "1h 1m 1s"<br>- Timecode: 3661 seconds displays as "01:01:01"</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.properties.PropertyV2.valueFormatting.number.numberType.duration.formatStyle</code></td>
+<td>union</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.properties.PropertyV2.valueFormatting.number.numberType.duration.formatStyle.humanReadable</code></td>
+<td>object</td>
+<td>否</td>
+<td>Formats the duration as a human-readable written string.</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.properties.PropertyV2.valueFormatting.number.numberType.duration.formatStyle.humanReadable.showFullUnits</code></td>
+<td>boolean</td>
+<td>否</td>
+<td>Whether to show full or abbreviated time units.</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.properties.PropertyV2.valueFormatting.number.numberType.duration.formatStyle.timecode</code></td>
+<td>object</td>
+<td>否</td>
+<td>Formats the duration in a timecode format.</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.properties.PropertyV2.valueFormatting.number.numberType.duration.precision</code></td>
+<td>enum</td>
+<td>否</td>
+<td>Specifies the maximum precision to apply when formatting a duration.</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.properties.PropertyV2.valueFormatting.number.numberType.duration.baseValue</code></td>
+<td>enum</td>
+<td>是</td>
+<td>Specifies the unit of the input duration value.</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.properties.PropertyV2.valueFormatting.number.numberType.fixedValues</code></td>
+<td>object</td>
+<td>否</td>
+<td>Map integer values to custom human-readable strings.<br>Example: {1: "First", 2: "Second", 3: "Third"} would display 2 as "Second".</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.properties.PropertyV2.valueFormatting.number.numberType.fixedValues.values</code></td>
+<td>map</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.properties.PropertyV2.valueFormatting.number.numberType.fixedValues.values.FixedValuesMapKey</code></td>
+<td>integer</td>
+<td>是</td>
+<td>Integer key for fixed value mapping.</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.properties.PropertyV2.valueFormatting.number.numberType.affix</code></td>
+<td>object</td>
+<td>否</td>
+<td>Attach arbitrary text before and/or after the formatted number.<br>Example: prefix "USD " and postfix " total" displays as "USD 1,234.56 total"</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.properties.PropertyV2.valueFormatting.number.numberType.affix.baseFormatOptions</code></td>
+<td>object</td>
+<td>是</td>
+<td>Base number formatting options that can be applied to all number formatters.<br>Controls precision, grouping, rounding, and notation. Consistent with JavaScript's Intl.NumberFormat.<br>Examples:<br>- useGrouping: true makes 1234567 display as "1,234,567"<br>- maximumFractionDigits: 2 makes 3.14159 display as "3.14"<br>- notation: SCIENTIFIC makes 1234 display as "1.234E3"</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.properties.PropertyV2.valueFormatting.number.numberType.affix.baseFormatOptions.useGrouping</code></td>
+<td>boolean</td>
+<td>否</td>
+<td>If true, show a locale-appropriate number grouping (e.g. thousands for en).</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.properties.PropertyV2.valueFormatting.number.numberType.affix.baseFormatOptions.convertNegativeToParenthesis</code></td>
+<td>boolean</td>
+<td>否</td>
+<td>If true, wrap negative numbers in parentheses instead of a minus sign.</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.properties.PropertyV2.valueFormatting.number.numberType.affix.baseFormatOptions.minimumIntegerDigits</code></td>
+<td>integer</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.properties.PropertyV2.valueFormatting.number.numberType.affix.baseFormatOptions.minimumFractionDigits</code></td>
+<td>integer</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.properties.PropertyV2.valueFormatting.number.numberType.affix.baseFormatOptions.maximumFractionDigits</code></td>
+<td>integer</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.properties.PropertyV2.valueFormatting.number.numberType.affix.baseFormatOptions.minimumSignificantDigits</code></td>
+<td>integer</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.properties.PropertyV2.valueFormatting.number.numberType.affix.baseFormatOptions.maximumSignificantDigits</code></td>
+<td>integer</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.properties.PropertyV2.valueFormatting.number.numberType.affix.baseFormatOptions.notation</code></td>
+<td>enum</td>
+<td>否</td>
+<td>Number notation style options:<br>- STANDARD: Regular number display ("1,234")<br>- SCIENTIFIC: Scientific notation ("1.234E3")<br>- ENGINEERING: Engineering notation ("1.234E3")<br>- COMPACT: Compact notation ("1.2K")</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.properties.PropertyV2.valueFormatting.number.numberType.affix.baseFormatOptions.roundingMode</code></td>
+<td>enum</td>
+<td>否</td>
+<td>Number rounding behavior:<br>- CEIL: Always round up (3.1 becomes 4)<br>- FLOOR: Always round down (3.9 becomes 3)<br>- ROUND_CLOSEST: Round to nearest (3.4 becomes 3, 3.6 becomes 4)</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.properties.PropertyV2.valueFormatting.number.numberType.affix.affix</code></td>
+<td>object</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.properties.PropertyV2.valueFormatting.number.numberType.affix.affix.prefix</code></td>
+<td>union</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.properties.PropertyV2.valueFormatting.number.numberType.affix.affix.prefix.constant</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.properties.PropertyV2.valueFormatting.number.numberType.affix.affix.prefix.constant.value</code></td>
+<td>string</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.properties.PropertyV2.valueFormatting.number.numberType.affix.affix.prefix.propertyType</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.properties.PropertyV2.valueFormatting.number.numberType.affix.affix.prefix.propertyType.propertyApiName</code></td>
+<td>string</td>
+<td>是</td>
+<td>The API name of the PropertyType</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.properties.PropertyV2.valueFormatting.number.numberType.affix.affix.postfix</code></td>
+<td>union</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.properties.PropertyV2.valueFormatting.number.numberType.affix.affix.postfix.constant</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.properties.PropertyV2.valueFormatting.number.numberType.affix.affix.postfix.constant.value</code></td>
+<td>string</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.properties.PropertyV2.valueFormatting.number.numberType.affix.affix.postfix.propertyType</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.properties.PropertyV2.valueFormatting.number.numberType.affix.affix.postfix.propertyType.propertyApiName</code></td>
+<td>string</td>
+<td>是</td>
+<td>The API name of the PropertyType</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.properties.PropertyV2.valueFormatting.number.numberType.scale</code></td>
+<td>object</td>
+<td>否</td>
+<td>Scale the numeric value by dividing by the specified factor and append an appropriate suffix.<br>- THOUSANDS: 1500 displays as "1.5K"<br>- MILLIONS: 2500000 displays as "2.5M"<br>- BILLIONS: 3200000000 displays as "3.2B"</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.properties.PropertyV2.valueFormatting.number.numberType.scale.scaleType</code></td>
+<td>enum</td>
+<td>是</td>
+<td>Scale factor options for large numbers:<br>- THOUSANDS: Divide by 1,000 and add "K" suffix<br>- MILLIONS: Divide by 1,000,000 and add "M" suffix<br>- BILLIONS: Divide by 1,000,000,000 and add "B" suffix</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.properties.PropertyV2.valueFormatting.number.numberType.scale.baseFormatOptions</code></td>
+<td>object</td>
+<td>是</td>
+<td>Base number formatting options that can be applied to all number formatters.<br>Controls precision, grouping, rounding, and notation. Consistent with JavaScript's Intl.NumberFormat.<br>Examples:<br>- useGrouping: true makes 1234567 display as "1,234,567"<br>- maximumFractionDigits: 2 makes 3.14159 display as "3.14"<br>- notation: SCIENTIFIC makes 1234 display as "1.234E3"</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.properties.PropertyV2.valueFormatting.number.numberType.scale.baseFormatOptions.useGrouping</code></td>
+<td>boolean</td>
+<td>否</td>
+<td>If true, show a locale-appropriate number grouping (e.g. thousands for en).</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.properties.PropertyV2.valueFormatting.number.numberType.scale.baseFormatOptions.convertNegativeToParenthesis</code></td>
+<td>boolean</td>
+<td>否</td>
+<td>If true, wrap negative numbers in parentheses instead of a minus sign.</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.properties.PropertyV2.valueFormatting.number.numberType.scale.baseFormatOptions.minimumIntegerDigits</code></td>
+<td>integer</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.properties.PropertyV2.valueFormatting.number.numberType.scale.baseFormatOptions.minimumFractionDigits</code></td>
+<td>integer</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.properties.PropertyV2.valueFormatting.number.numberType.scale.baseFormatOptions.maximumFractionDigits</code></td>
+<td>integer</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.properties.PropertyV2.valueFormatting.number.numberType.scale.baseFormatOptions.minimumSignificantDigits</code></td>
+<td>integer</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.properties.PropertyV2.valueFormatting.number.numberType.scale.baseFormatOptions.maximumSignificantDigits</code></td>
+<td>integer</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.properties.PropertyV2.valueFormatting.number.numberType.scale.baseFormatOptions.notation</code></td>
+<td>enum</td>
+<td>否</td>
+<td>Number notation style options:<br>- STANDARD: Regular number display ("1,234")<br>- SCIENTIFIC: Scientific notation ("1.234E3")<br>- ENGINEERING: Engineering notation ("1.234E3")<br>- COMPACT: Compact notation ("1.2K")</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.properties.PropertyV2.valueFormatting.number.numberType.scale.baseFormatOptions.roundingMode</code></td>
+<td>enum</td>
+<td>否</td>
+<td>Number rounding behavior:<br>- CEIL: Always round up (3.1 becomes 4)<br>- FLOOR: Always round down (3.9 becomes 3)<br>- ROUND_CLOSEST: Round to nearest (3.4 becomes 3, 3.6 becomes 4)</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.properties.PropertyV2.valueFormatting.number.numberType.currency</code></td>
+<td>object</td>
+<td>否</td>
+<td>Format numbers as currency values with proper symbols and styling.<br>Example: 1234.56 with currency "USD" displays as "USD 1,234.56" (standard) or "USD 1.2K" (compact)</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.properties.PropertyV2.valueFormatting.number.numberType.currency.baseFormatOptions</code></td>
+<td>object</td>
+<td>是</td>
+<td>Base number formatting options that can be applied to all number formatters.<br>Controls precision, grouping, rounding, and notation. Consistent with JavaScript's Intl.NumberFormat.<br>Examples:<br>- useGrouping: true makes 1234567 display as "1,234,567"<br>- maximumFractionDigits: 2 makes 3.14159 display as "3.14"<br>- notation: SCIENTIFIC makes 1234 display as "1.234E3"</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.properties.PropertyV2.valueFormatting.number.numberType.currency.baseFormatOptions.useGrouping</code></td>
+<td>boolean</td>
+<td>否</td>
+<td>If true, show a locale-appropriate number grouping (e.g. thousands for en).</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.properties.PropertyV2.valueFormatting.number.numberType.currency.baseFormatOptions.convertNegativeToParenthesis</code></td>
+<td>boolean</td>
+<td>否</td>
+<td>If true, wrap negative numbers in parentheses instead of a minus sign.</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.properties.PropertyV2.valueFormatting.number.numberType.currency.baseFormatOptions.minimumIntegerDigits</code></td>
+<td>integer</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.properties.PropertyV2.valueFormatting.number.numberType.currency.baseFormatOptions.minimumFractionDigits</code></td>
+<td>integer</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.properties.PropertyV2.valueFormatting.number.numberType.currency.baseFormatOptions.maximumFractionDigits</code></td>
+<td>integer</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.properties.PropertyV2.valueFormatting.number.numberType.currency.baseFormatOptions.minimumSignificantDigits</code></td>
+<td>integer</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.properties.PropertyV2.valueFormatting.number.numberType.currency.baseFormatOptions.maximumSignificantDigits</code></td>
+<td>integer</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.properties.PropertyV2.valueFormatting.number.numberType.currency.baseFormatOptions.notation</code></td>
+<td>enum</td>
+<td>否</td>
+<td>Number notation style options:<br>- STANDARD: Regular number display ("1,234")<br>- SCIENTIFIC: Scientific notation ("1.234E3")<br>- ENGINEERING: Engineering notation ("1.234E3")<br>- COMPACT: Compact notation ("1.2K")</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.properties.PropertyV2.valueFormatting.number.numberType.currency.baseFormatOptions.roundingMode</code></td>
+<td>enum</td>
+<td>否</td>
+<td>Number rounding behavior:<br>- CEIL: Always round up (3.1 becomes 4)<br>- FLOOR: Always round down (3.9 becomes 3)<br>- ROUND_CLOSEST: Round to nearest (3.4 becomes 3, 3.6 becomes 4)</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.properties.PropertyV2.valueFormatting.number.numberType.currency.style</code></td>
+<td>enum</td>
+<td>是</td>
+<td>Currency rendering style options:<br>- STANDARD: Full currency formatting (e.g., "USD 1,234.56")<br>- COMPACT: Abbreviated currency formatting (e.g., "USD 1.2K")</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.properties.PropertyV2.valueFormatting.number.numberType.currency.currencyCode</code></td>
+<td>union</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.properties.PropertyV2.valueFormatting.number.numberType.currency.currencyCode.constant</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.properties.PropertyV2.valueFormatting.number.numberType.currency.currencyCode.constant.value</code></td>
+<td>string</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.properties.PropertyV2.valueFormatting.number.numberType.currency.currencyCode.propertyType</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.properties.PropertyV2.valueFormatting.number.numberType.currency.currencyCode.propertyType.propertyApiName</code></td>
+<td>string</td>
+<td>是</td>
+<td>The API name of the PropertyType</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.properties.PropertyV2.valueFormatting.number.numberType.standardUnit</code></td>
+<td>object</td>
+<td>否</td>
+<td>Format numbers with standard units supported by Intl.NumberFormat.<br>Examples: "meter", "kilogram", "celsius", "percent"<br>Input: 25 with unit "celsius" displays as "25 degrees C"</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.properties.PropertyV2.valueFormatting.number.numberType.standardUnit.baseFormatOptions</code></td>
+<td>object</td>
+<td>是</td>
+<td>Base number formatting options that can be applied to all number formatters.<br>Controls precision, grouping, rounding, and notation. Consistent with JavaScript's Intl.NumberFormat.<br>Examples:<br>- useGrouping: true makes 1234567 display as "1,234,567"<br>- maximumFractionDigits: 2 makes 3.14159 display as "3.14"<br>- notation: SCIENTIFIC makes 1234 display as "1.234E3"</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.properties.PropertyV2.valueFormatting.number.numberType.standardUnit.baseFormatOptions.useGrouping</code></td>
+<td>boolean</td>
+<td>否</td>
+<td>If true, show a locale-appropriate number grouping (e.g. thousands for en).</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.properties.PropertyV2.valueFormatting.number.numberType.standardUnit.baseFormatOptions.convertNegativeToParenthesis</code></td>
+<td>boolean</td>
+<td>否</td>
+<td>If true, wrap negative numbers in parentheses instead of a minus sign.</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.properties.PropertyV2.valueFormatting.number.numberType.standardUnit.baseFormatOptions.minimumIntegerDigits</code></td>
+<td>integer</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.properties.PropertyV2.valueFormatting.number.numberType.standardUnit.baseFormatOptions.minimumFractionDigits</code></td>
+<td>integer</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.properties.PropertyV2.valueFormatting.number.numberType.standardUnit.baseFormatOptions.maximumFractionDigits</code></td>
+<td>integer</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.properties.PropertyV2.valueFormatting.number.numberType.standardUnit.baseFormatOptions.minimumSignificantDigits</code></td>
+<td>integer</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.properties.PropertyV2.valueFormatting.number.numberType.standardUnit.baseFormatOptions.maximumSignificantDigits</code></td>
+<td>integer</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.properties.PropertyV2.valueFormatting.number.numberType.standardUnit.baseFormatOptions.notation</code></td>
+<td>enum</td>
+<td>否</td>
+<td>Number notation style options:<br>- STANDARD: Regular number display ("1,234")<br>- SCIENTIFIC: Scientific notation ("1.234E3")<br>- ENGINEERING: Engineering notation ("1.234E3")<br>- COMPACT: Compact notation ("1.2K")</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.properties.PropertyV2.valueFormatting.number.numberType.standardUnit.baseFormatOptions.roundingMode</code></td>
+<td>enum</td>
+<td>否</td>
+<td>Number rounding behavior:<br>- CEIL: Always round up (3.1 becomes 4)<br>- FLOOR: Always round down (3.9 becomes 3)<br>- ROUND_CLOSEST: Round to nearest (3.4 becomes 3, 3.6 becomes 4)</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.properties.PropertyV2.valueFormatting.number.numberType.standardUnit.unit</code></td>
+<td>union</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.properties.PropertyV2.valueFormatting.number.numberType.standardUnit.unit.constant</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.properties.PropertyV2.valueFormatting.number.numberType.standardUnit.unit.constant.value</code></td>
+<td>string</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.properties.PropertyV2.valueFormatting.number.numberType.standardUnit.unit.propertyType</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.properties.PropertyV2.valueFormatting.number.numberType.standardUnit.unit.propertyType.propertyApiName</code></td>
+<td>string</td>
+<td>是</td>
+<td>The API name of the PropertyType</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.properties.PropertyV2.valueFormatting.number.numberType.customUnit</code></td>
+<td>object</td>
+<td>否</td>
+<td>Format numbers with custom units not supported by standard formatting.<br>Use this for domain-specific units like "requests/sec", "widgets", etc.<br>Example: 1500 with unit "widgets" displays as "1,500 widgets"</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.properties.PropertyV2.valueFormatting.number.numberType.customUnit.baseFormatOptions</code></td>
+<td>object</td>
+<td>是</td>
+<td>Base number formatting options that can be applied to all number formatters.<br>Controls precision, grouping, rounding, and notation. Consistent with JavaScript's Intl.NumberFormat.<br>Examples:<br>- useGrouping: true makes 1234567 display as "1,234,567"<br>- maximumFractionDigits: 2 makes 3.14159 display as "3.14"<br>- notation: SCIENTIFIC makes 1234 display as "1.234E3"</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.properties.PropertyV2.valueFormatting.number.numberType.customUnit.baseFormatOptions.useGrouping</code></td>
+<td>boolean</td>
+<td>否</td>
+<td>If true, show a locale-appropriate number grouping (e.g. thousands for en).</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.properties.PropertyV2.valueFormatting.number.numberType.customUnit.baseFormatOptions.convertNegativeToParenthesis</code></td>
+<td>boolean</td>
+<td>否</td>
+<td>If true, wrap negative numbers in parentheses instead of a minus sign.</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.properties.PropertyV2.valueFormatting.number.numberType.customUnit.baseFormatOptions.minimumIntegerDigits</code></td>
+<td>integer</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.properties.PropertyV2.valueFormatting.number.numberType.customUnit.baseFormatOptions.minimumFractionDigits</code></td>
+<td>integer</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.properties.PropertyV2.valueFormatting.number.numberType.customUnit.baseFormatOptions.maximumFractionDigits</code></td>
+<td>integer</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.properties.PropertyV2.valueFormatting.number.numberType.customUnit.baseFormatOptions.minimumSignificantDigits</code></td>
+<td>integer</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.properties.PropertyV2.valueFormatting.number.numberType.customUnit.baseFormatOptions.maximumSignificantDigits</code></td>
+<td>integer</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.properties.PropertyV2.valueFormatting.number.numberType.customUnit.baseFormatOptions.notation</code></td>
+<td>enum</td>
+<td>否</td>
+<td>Number notation style options:<br>- STANDARD: Regular number display ("1,234")<br>- SCIENTIFIC: Scientific notation ("1.234E3")<br>- ENGINEERING: Engineering notation ("1.234E3")<br>- COMPACT: Compact notation ("1.2K")</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.properties.PropertyV2.valueFormatting.number.numberType.customUnit.baseFormatOptions.roundingMode</code></td>
+<td>enum</td>
+<td>否</td>
+<td>Number rounding behavior:<br>- CEIL: Always round up (3.1 becomes 4)<br>- FLOOR: Always round down (3.9 becomes 3)<br>- ROUND_CLOSEST: Round to nearest (3.4 becomes 3, 3.6 becomes 4)</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.properties.PropertyV2.valueFormatting.number.numberType.customUnit.unit</code></td>
+<td>union</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.properties.PropertyV2.valueFormatting.number.numberType.customUnit.unit.constant</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.properties.PropertyV2.valueFormatting.number.numberType.customUnit.unit.constant.value</code></td>
+<td>string</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.properties.PropertyV2.valueFormatting.number.numberType.customUnit.unit.propertyType</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.properties.PropertyV2.valueFormatting.number.numberType.customUnit.unit.propertyType.propertyApiName</code></td>
+<td>string</td>
+<td>是</td>
+<td>The API name of the PropertyType</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.properties.PropertyV2.valueFormatting.number.numberType.ratio</code></td>
+<td>object</td>
+<td>否</td>
+<td>Display the value as a ratio with different scaling factors and suffixes:<br>- PERCENTAGE: Multiply by 100 and add "%" suffix (0.15 â "15%")<br>- PER_MILLE: Multiply by 1000 and add "â°" suffix (0.015 â "15â°")<br>- BASIS_POINTS: Multiply by 10000 and add "bps" suffix (0.0015 â "15bps")</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.properties.PropertyV2.valueFormatting.number.numberType.ratio.ratioType</code></td>
+<td>enum</td>
+<td>是</td>
+<td>Ratio format options for displaying proportional values:<br>- PERCENTAGE: Multiply by 100 and add "%" suffix<br>- PER_MILLE: Multiply by 1000 and add "â°" suffix<br>- BASIS_POINTS: Multiply by 10000 and add "bps" suffix</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.properties.PropertyV2.valueFormatting.number.numberType.ratio.baseFormatOptions</code></td>
+<td>object</td>
+<td>是</td>
+<td>Base number formatting options that can be applied to all number formatters.<br>Controls precision, grouping, rounding, and notation. Consistent with JavaScript's Intl.NumberFormat.<br>Examples:<br>- useGrouping: true makes 1234567 display as "1,234,567"<br>- maximumFractionDigits: 2 makes 3.14159 display as "3.14"<br>- notation: SCIENTIFIC makes 1234 display as "1.234E3"</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.properties.PropertyV2.valueFormatting.number.numberType.ratio.baseFormatOptions.useGrouping</code></td>
+<td>boolean</td>
+<td>否</td>
+<td>If true, show a locale-appropriate number grouping (e.g. thousands for en).</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.properties.PropertyV2.valueFormatting.number.numberType.ratio.baseFormatOptions.convertNegativeToParenthesis</code></td>
+<td>boolean</td>
+<td>否</td>
+<td>If true, wrap negative numbers in parentheses instead of a minus sign.</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.properties.PropertyV2.valueFormatting.number.numberType.ratio.baseFormatOptions.minimumIntegerDigits</code></td>
+<td>integer</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.properties.PropertyV2.valueFormatting.number.numberType.ratio.baseFormatOptions.minimumFractionDigits</code></td>
+<td>integer</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.properties.PropertyV2.valueFormatting.number.numberType.ratio.baseFormatOptions.maximumFractionDigits</code></td>
+<td>integer</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.properties.PropertyV2.valueFormatting.number.numberType.ratio.baseFormatOptions.minimumSignificantDigits</code></td>
+<td>integer</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.properties.PropertyV2.valueFormatting.number.numberType.ratio.baseFormatOptions.maximumSignificantDigits</code></td>
+<td>integer</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.properties.PropertyV2.valueFormatting.number.numberType.ratio.baseFormatOptions.notation</code></td>
+<td>enum</td>
+<td>否</td>
+<td>Number notation style options:<br>- STANDARD: Regular number display ("1,234")<br>- SCIENTIFIC: Scientific notation ("1.234E3")<br>- ENGINEERING: Engineering notation ("1.234E3")<br>- COMPACT: Compact notation ("1.2K")</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.properties.PropertyV2.valueFormatting.number.numberType.ratio.baseFormatOptions.roundingMode</code></td>
+<td>enum</td>
+<td>否</td>
+<td>Number rounding behavior:<br>- CEIL: Always round up (3.1 becomes 4)<br>- FLOOR: Always round down (3.9 becomes 3)<br>- ROUND_CLOSEST: Round to nearest (3.4 becomes 3, 3.6 becomes 4)</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.properties.PropertyV2.valueFormatting.boolean</code></td>
+<td>object</td>
+<td>否</td>
+<td>Formatting configuration for boolean property values.</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.properties.PropertyV2.valueFormatting.boolean.valueIfTrue</code></td>
+<td>string</td>
+<td>是</td>
+<td>Value to display if this boolean is true</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.properties.PropertyV2.valueFormatting.boolean.valueIfFalse</code></td>
+<td>string</td>
+<td>是</td>
+<td>Value to display if this boolean is false</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.properties.PropertyV2.valueFormatting.knownType</code></td>
+<td>object</td>
+<td>否</td>
+<td>Formatting configuration for known Foundry types.</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.properties.PropertyV2.valueFormatting.knownType.knownType</code></td>
+<td>enum</td>
+<td>是</td>
+<td>Known Foundry types for specialized formatting:<br>- userOrGroupRid: Format as user or group<br>- resourceRid: Format as resource<br>- artifactGid: Format as artifact</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.properties.PropertyV2.valueFormatting.timestamp</code></td>
+<td>object</td>
+<td>否</td>
+<td>Formatting configuration for timestamp property values.</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.properties.PropertyV2.valueFormatting.timestamp.format</code></td>
+<td>union</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.properties.PropertyV2.valueFormatting.timestamp.format.stringFormat</code></td>
+<td>object</td>
+<td>否</td>
+<td>A strictly specified date format pattern.</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.properties.PropertyV2.valueFormatting.timestamp.format.stringFormat.pattern</code></td>
+<td>string</td>
+<td>是</td>
+<td>A valid format string composed of date/time patterns.</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.properties.PropertyV2.valueFormatting.timestamp.format.localizedFormat</code></td>
+<td>object</td>
+<td>否</td>
+<td>Predefined localized formatting options.</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.properties.PropertyV2.valueFormatting.timestamp.format.localizedFormat.format</code></td>
+<td>enum</td>
+<td>是</td>
+<td>Localized date/time format types.</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.properties.PropertyV2.valueFormatting.timestamp.displayTimezone</code></td>
+<td>union</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.properties.PropertyV2.valueFormatting.timestamp.displayTimezone.static</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.properties.PropertyV2.valueFormatting.timestamp.displayTimezone.static.zoneId</code></td>
+<td>union</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.properties.PropertyV2.valueFormatting.timestamp.displayTimezone.static.zoneId.constant</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.properties.PropertyV2.valueFormatting.timestamp.displayTimezone.static.zoneId.constant.value</code></td>
+<td>string</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.properties.PropertyV2.valueFormatting.timestamp.displayTimezone.static.zoneId.propertyType</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.properties.PropertyV2.valueFormatting.timestamp.displayTimezone.static.zoneId.propertyType.propertyApiName</code></td>
+<td>string</td>
+<td>是</td>
+<td>The API name of the PropertyType</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.properties.PropertyV2.valueFormatting.timestamp.displayTimezone.user</code></td>
+<td>object</td>
+<td>否</td>
+<td>The user's local timezone.</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.properties.PropertyV2.typeClasses</code></td>
+<td>list<TypeClass></td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.properties.PropertyV2.typeClasses.TypeClass</code></td>
+<td>object</td>
+<td>是</td>
+<td>Additional metadata that can be interpreted by user applications that interact with the Ontology</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.properties.PropertyV2.typeClasses.TypeClass.kind</code></td>
+<td>string</td>
+<td>是</td>
+<td>A namespace for the type class.</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.properties.PropertyV2.typeClasses.TypeClass.name</code></td>
+<td>string</td>
+<td>是</td>
+<td>The value of the type class.</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.properties.PropertyV2.dataConstraints</code></td>
+<td>object</td>
+<td>否</td>
+<td>Data constraints for a property type, including nullability information.</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.properties.PropertyV2.dataConstraints.nullability</code></td>
+<td>enum</td>
+<td>否</td>
+<td>Indicates whether values in mapped datasources and values created through actions may be null. Null values may<br>still be observed for objects that are not present in the datasource mapping.</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.rid</code></td>
+<td>string</td>
+<td>是</td>
+<td>The unique resource identifier of an object type, useful for interacting with other Foundry APIs.</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.titleProperty</code></td>
+<td>string</td>
+<td>是</td>
+<td>The name of the property in the API. To find the API name for your property, use the <code>Get object type</code><br>endpoint or check the <strong>Ontology Manager</strong>.</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.visibility</code></td>
+<td>enum</td>
+<td>否</td>
+<td>The suggested visibility of the object type.</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.aliases</code></td>
+<td>list<string></td>
+<td>否</td>
+<td>Alternative names (synonyms) for the object type, usable as search terms. This field is only populated on<br>the get-by-RID read paths (e.g. <code>getObjectTypeV2</code>); it is always empty on the <code>listObjectTypesV2</code> endpoint.</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.datasources</code></td>
+<td>list<ObjectTypeDatasource></td>
+<td>否</td>
+<td>The datasources backing this object type which the user has access to see. Only populated when the request<br>specifies <code>includeDatasources=true</code>. This list may be empty if the user doesn't have access to any<br>datasources.</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.datasources.ObjectTypeDatasource</code></td>
+<td>object</td>
+<td>是</td>
+<td>A datasource that supplies property values for an object type. Each object type can have one or more<br>datasources; together they back all of the object type's properties. The <code>definition</code> carries the RID of the<br>backing Foundry resource (for example, the dataset RID for a dataset-backed object type), enabling callers to<br>navigate from an object type to its backing data.</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.datasources.ObjectTypeDatasource.rid</code></td>
+<td>string</td>
+<td>是</td>
+<td>Randomly generated identifier for an object type's datasource.<br>示例: <code>ri.ontology.main.datasource.6e1b3641-2d96-4e7c-9c0f-73f7d1f3a16f</code></td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.datasources.ObjectTypeDatasource.definition</code></td>
+<td>union</td>
+<td>是</td>
+<td>The definition of an object type datasource, identifying the kind of Foundry resource that backs the object<br>type.</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.datasources.ObjectTypeDatasource.definition.timeSeries</code></td>
+<td>object</td>
+<td>否</td>
+<td>An object type datasource backed by a time series sync, providing values for time-dependent properties.</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.datasources.ObjectTypeDatasource.definition.timeSeries.timeSeriesSyncRid</code></td>
+<td>string</td>
+<td>是</td>
+<td>The RID identifying a time series sync.</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.datasources.ObjectTypeDatasource.definition.timeSeries.properties</code></td>
+<td>list<PropertyApiName></td>
+<td>否</td>
+<td>The set of properties that are bound to the time series.</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.datasources.ObjectTypeDatasource.definition.timeSeries.properties.PropertyApiName</code></td>
+<td>string</td>
+<td>是</td>
+<td>The name of the property in the API. To find the API name for your property, use the <code>Get object type</code><br>endpoint or check the <strong>Ontology Manager</strong>.</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.datasources.ObjectTypeDatasource.definition.unsupported</code></td>
+<td>object</td>
+<td>否</td>
+<td>A datasource of a kind not yet exposed in the public API. The <code>unsupportedType</code> discriminator supplies the<br>underlying OMS variant so callers can recognize known but unmodelled cases (e.g., derived properties). Variants<br>the adapter does not recognise at all are returned with an <code>"unknown"</code> discriminator. The <code>properties</code> list<br>enumerates the property API names this datasource backs. The <code>properties</code> will be empty for <code>"unknown"</code><br>datasources.</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.datasources.ObjectTypeDatasource.definition.unsupported.unsupportedType</code></td>
+<td>string</td>
+<td>是</td>
+<td>A short, stable discriminator naming the underlying OMS variant. E.g., <code>"derivedProperties"</code> for<br>derived-properties datasources or <code>"unknown"</code> for variants the adapter does not recognize.</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.datasources.ObjectTypeDatasource.definition.unsupported.properties</code></td>
+<td>list<PropertyApiName></td>
+<td>否</td>
+<td>The property API names that this datasource backs.</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.datasources.ObjectTypeDatasource.definition.unsupported.properties.PropertyApiName</code></td>
+<td>string</td>
+<td>是</td>
+<td>The name of the property in the API. To find the API name for your property, use the <code>Get object type</code><br>endpoint or check the <strong>Ontology Manager</strong>.</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.datasources.ObjectTypeDatasource.definition.restrictedView</code></td>
+<td>object</td>
+<td>否</td>
+<td>An object type datasource backed by a Foundry restricted view.</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.datasources.ObjectTypeDatasource.definition.restrictedView.restrictedViewRid</code></td>
+<td>string</td>
+<td>是</td>
+<td>The RID of a Foundry restricted view.<br>示例: <code>ri.foundry.main.restricted-view.8b2adf7c-ba8e-4d33-9bd7-46cc1c321ad4</code></td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.datasources.ObjectTypeDatasource.definition.restrictedView.propertyMapping</code></td>
+<td>map</td>
+<td>否</td>
+<td>A mapping from property API name to a description of how that property is bound to the restricted view.<br>Properties whose mapping info cannot be modeled are omitted.</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.datasources.ObjectTypeDatasource.definition.restrictedView.propertyMapping.PropertyApiName</code></td>
+<td>string</td>
+<td>是</td>
+<td>The name of the property in the API. To find the API name for your property, use the <code>Get object type</code><br>endpoint or check the <strong>Ontology Manager</strong>.</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.datasources.ObjectTypeDatasource.definition.restrictedView.propertyMapping.PropertyTypeMappingInfo</code></td>
+<td>union</td>
+<td>是</td>
+<td>Describes how a single object type property is bound to its backing tabular datasource. A property may be backed<br>by a single column, by a struct (with nested field mappings), or be edit-only (no backing column even though it<br>is permissioned to the tabular datasource).</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.datasources.ObjectTypeDatasource.definition.restrictedView.propertyMapping.PropertyTypeMappingInfo.struct</code></td>
+<td>object</td>
+<td>否</td>
+<td>A mapping from the backing column struct field names to a struct property's fields.</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.datasources.ObjectTypeDatasource.definition.restrictedView.propertyMapping.PropertyTypeMappingInfo.struct.column</code></td>
+<td>string</td>
+<td>是</td>
+<td>The name of a column in a tabular datasource.</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.datasources.ObjectTypeDatasource.definition.restrictedView.propertyMapping.PropertyTypeMappingInfo.struct.fields</code></td>
+<td>map</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.datasources.ObjectTypeDatasource.definition.restrictedView.propertyMapping.PropertyTypeMappingInfo.struct.fields.StructFieldName</code></td>
+<td>string</td>
+<td>是</td>
+<td>The name of a field in a <code>Struct</code>.</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.datasources.ObjectTypeDatasource.definition.restrictedView.propertyMapping.PropertyTypeMappingInfo.struct.fields.StructFieldPropertyMapping</code></td>
+<td>object</td>
+<td>是</td>
+<td>A single struct field's mapping where <code>apiName</code> is the name of a struct field.</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.datasources.ObjectTypeDatasource.definition.restrictedView.propertyMapping.PropertyTypeMappingInfo.struct.fields.StructFieldPropertyMapping.apiName</code></td>
+<td>string</td>
+<td>是</td>
+<td>The name of a struct field in the Ontology.</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.datasources.ObjectTypeDatasource.definition.restrictedView.propertyMapping.PropertyTypeMappingInfo.column</code></td>
+<td>object</td>
+<td>否</td>
+<td>A property bound to a single column in the backing datasource.</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.datasources.ObjectTypeDatasource.definition.restrictedView.propertyMapping.PropertyTypeMappingInfo.column.column</code></td>
+<td>string</td>
+<td>是</td>
+<td>The name of a column in a tabular datasource.</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.datasources.ObjectTypeDatasource.definition.restrictedView.propertyMapping.PropertyTypeMappingInfo.editOnly</code></td>
+<td>object</td>
+<td>否</td>
+<td>A property on an object type that is permissioned to a tabular datasource, but the contents are only populated through Actions.</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.datasources.ObjectTypeDatasource.definition.stream</code></td>
+<td>object</td>
+<td>否</td>
+<td>An object type datasource backed by a Foundry stream.</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.datasources.ObjectTypeDatasource.definition.stream.streamRid</code></td>
+<td>string</td>
+<td>是</td>
+<td>The RID of a Foundry stream.<br>示例: <code>ri.foundry.main.stream.f7e91c94-1cb2-4e34-8fdb-3da7c1a91e8b</code></td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.datasources.ObjectTypeDatasource.definition.stream.branch</code></td>
+<td>string</td>
+<td>否</td>
+<td>The id of a datasource branch. Branch ids are user supplied strings, not RIDs.<br>示例: <code>master</code></td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.datasources.ObjectTypeDatasource.definition.stream.propertyMapping</code></td>
+<td>map</td>
+<td>否</td>
+<td>A mapping from property API name to a description of how that property is bound to the stream. Properties<br>whose mapping info cannot be modeled are omitted.</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.datasources.ObjectTypeDatasource.definition.stream.propertyMapping.PropertyApiName</code></td>
+<td>string</td>
+<td>是</td>
+<td>The name of the property in the API. To find the API name for your property, use the <code>Get object type</code><br>endpoint or check the <strong>Ontology Manager</strong>.</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.datasources.ObjectTypeDatasource.definition.stream.propertyMapping.PropertyTypeMappingInfo</code></td>
+<td>union</td>
+<td>是</td>
+<td>Describes how a single object type property is bound to its backing tabular datasource. A property may be backed<br>by a single column, by a struct (with nested field mappings), or be edit-only (no backing column even though it<br>is permissioned to the tabular datasource).</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.datasources.ObjectTypeDatasource.definition.stream.propertyMapping.PropertyTypeMappingInfo.struct</code></td>
+<td>object</td>
+<td>否</td>
+<td>A mapping from the backing column struct field names to a struct property's fields.</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.datasources.ObjectTypeDatasource.definition.stream.propertyMapping.PropertyTypeMappingInfo.struct.column</code></td>
+<td>string</td>
+<td>是</td>
+<td>The name of a column in a tabular datasource.</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.datasources.ObjectTypeDatasource.definition.stream.propertyMapping.PropertyTypeMappingInfo.struct.fields</code></td>
+<td>map</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.datasources.ObjectTypeDatasource.definition.stream.propertyMapping.PropertyTypeMappingInfo.struct.fields.StructFieldName</code></td>
+<td>string</td>
+<td>是</td>
+<td>The name of a field in a <code>Struct</code>.</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.datasources.ObjectTypeDatasource.definition.stream.propertyMapping.PropertyTypeMappingInfo.struct.fields.StructFieldPropertyMapping</code></td>
+<td>object</td>
+<td>是</td>
+<td>A single struct field's mapping where <code>apiName</code> is the name of a struct field.</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.datasources.ObjectTypeDatasource.definition.stream.propertyMapping.PropertyTypeMappingInfo.struct.fields.StructFieldPropertyMapping.apiName</code></td>
+<td>string</td>
+<td>是</td>
+<td>The name of a struct field in the Ontology.</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.datasources.ObjectTypeDatasource.definition.stream.propertyMapping.PropertyTypeMappingInfo.column</code></td>
+<td>object</td>
+<td>否</td>
+<td>A property bound to a single column in the backing datasource.</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.datasources.ObjectTypeDatasource.definition.stream.propertyMapping.PropertyTypeMappingInfo.column.column</code></td>
+<td>string</td>
+<td>是</td>
+<td>The name of a column in a tabular datasource.</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.datasources.ObjectTypeDatasource.definition.stream.propertyMapping.PropertyTypeMappingInfo.editOnly</code></td>
+<td>object</td>
+<td>否</td>
+<td>A property on an object type that is permissioned to a tabular datasource, but the contents are only populated through Actions.</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.datasources.ObjectTypeDatasource.definition.mediaSetView</code></td>
+<td>object</td>
+<td>否</td>
+<td>An object type datasource backed by a Foundry media set view, providing media for media reference properties.</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.datasources.ObjectTypeDatasource.definition.mediaSetView.mediaSetRid</code></td>
+<td>string</td>
+<td>是</td>
+<td>The Resource Identifier (RID) of a Media Set in Foundry.</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.datasources.ObjectTypeDatasource.definition.mediaSetView.mediaSetViewRid</code></td>
+<td>string</td>
+<td>是</td>
+<td>The Resource Identifier (RID) of a single View of a Media Set. A Media Set View is an independent collection of Media Items.</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.datasources.ObjectTypeDatasource.definition.mediaSetView.properties</code></td>
+<td>list<PropertyApiName></td>
+<td>否</td>
+<td>The set of properties that are bound to the media view.</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.datasources.ObjectTypeDatasource.definition.mediaSetView.properties.PropertyApiName</code></td>
+<td>string</td>
+<td>是</td>
+<td>The name of the property in the API. To find the API name for your property, use the <code>Get object type</code><br>endpoint or check the <strong>Ontology Manager</strong>.</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.datasources.ObjectTypeDatasource.definition.direct</code></td>
+<td>object</td>
+<td>否</td>
+<td>An object type datasource backed by a direct-write source. Property values are written directly to the<br>datasource rather than being read from a separate Foundry resource. Unlike an edits-only datasource, a direct<br>datasource has a backing source that values are written to by some writer. An edits-only datasource has no<br>backing source at all and its properties are populated solely via Actions.</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.datasources.ObjectTypeDatasource.definition.direct.directSourceRid</code></td>
+<td>string</td>
+<td>是</td>
+<td>The RID of a direct-write source backing an object type.<br>示例: <code>ri.ontology.main.direct-source.6e1b3641-2d96-4e7c-9c0f-73f7d1f3a16f</code></td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.datasources.ObjectTypeDatasource.definition.direct.propertyMapping</code></td>
+<td>map</td>
+<td>否</td>
+<td>A mapping from property API name to a description of how that property is bound to the direct datasource.<br>Properties whose mapping info cannot be modeled are omitted.</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.datasources.ObjectTypeDatasource.definition.direct.propertyMapping.PropertyApiName</code></td>
+<td>string</td>
+<td>是</td>
+<td>The name of the property in the API. To find the API name for your property, use the <code>Get object type</code><br>endpoint or check the <strong>Ontology Manager</strong>.</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.datasources.ObjectTypeDatasource.definition.direct.propertyMapping.PropertyTypeMappingInfo</code></td>
+<td>union</td>
+<td>是</td>
+<td>Describes how a single object type property is bound to its backing tabular datasource. A property may be backed<br>by a single column, by a struct (with nested field mappings), or be edit-only (no backing column even though it<br>is permissioned to the tabular datasource).</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.datasources.ObjectTypeDatasource.definition.direct.propertyMapping.PropertyTypeMappingInfo.struct</code></td>
+<td>object</td>
+<td>否</td>
+<td>A mapping from the backing column struct field names to a struct property's fields.</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.datasources.ObjectTypeDatasource.definition.direct.propertyMapping.PropertyTypeMappingInfo.struct.column</code></td>
+<td>string</td>
+<td>是</td>
+<td>The name of a column in a tabular datasource.</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.datasources.ObjectTypeDatasource.definition.direct.propertyMapping.PropertyTypeMappingInfo.struct.fields</code></td>
+<td>map</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.datasources.ObjectTypeDatasource.definition.direct.propertyMapping.PropertyTypeMappingInfo.struct.fields.StructFieldName</code></td>
+<td>string</td>
+<td>是</td>
+<td>The name of a field in a <code>Struct</code>.</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.datasources.ObjectTypeDatasource.definition.direct.propertyMapping.PropertyTypeMappingInfo.struct.fields.StructFieldPropertyMapping</code></td>
+<td>object</td>
+<td>是</td>
+<td>A single struct field's mapping where <code>apiName</code> is the name of a struct field.</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.datasources.ObjectTypeDatasource.definition.direct.propertyMapping.PropertyTypeMappingInfo.struct.fields.StructFieldPropertyMapping.apiName</code></td>
+<td>string</td>
+<td>是</td>
+<td>The name of a struct field in the Ontology.</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.datasources.ObjectTypeDatasource.definition.direct.propertyMapping.PropertyTypeMappingInfo.column</code></td>
+<td>object</td>
+<td>否</td>
+<td>A property bound to a single column in the backing datasource.</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.datasources.ObjectTypeDatasource.definition.direct.propertyMapping.PropertyTypeMappingInfo.column.column</code></td>
+<td>string</td>
+<td>是</td>
+<td>The name of a column in a tabular datasource.</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.datasources.ObjectTypeDatasource.definition.direct.propertyMapping.PropertyTypeMappingInfo.editOnly</code></td>
+<td>object</td>
+<td>否</td>
+<td>A property on an object type that is permissioned to a tabular datasource, but the contents are only populated through Actions.</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.datasources.ObjectTypeDatasource.definition.geotimeSeries</code></td>
+<td>object</td>
+<td>否</td>
+<td>An object type datasource backed by a Geotime series integration, providing values for Geotime series reference<br>properties.</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.datasources.ObjectTypeDatasource.definition.geotimeSeries.geotimeSeriesIntegrationRid</code></td>
+<td>string</td>
+<td>是</td>
+<td>The unique resource identifier of a geotime integration.</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.datasources.ObjectTypeDatasource.definition.geotimeSeries.properties</code></td>
+<td>list<PropertyApiName></td>
+<td>否</td>
+<td>The set of properties that are bound to the Geotime series.</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.datasources.ObjectTypeDatasource.definition.geotimeSeries.properties.PropertyApiName</code></td>
+<td>string</td>
+<td>是</td>
+<td>The name of the property in the API. To find the API name for your property, use the <code>Get object type</code><br>endpoint or check the <strong>Ontology Manager</strong>.</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.datasources.ObjectTypeDatasource.definition.editsOnly</code></td>
+<td>object</td>
+<td>否</td>
+<td>An object type datasource that is not backed by any external Foundry resource. All properties on the object type<br>can only be populated via Actions. Other datasources have edit only <em>properties</em>, which are permissioned to the<br>backing tabular datasource. This datasource has no backing tabular datasource and is a true edit only object<br>type. Note that this datasource type is incompatible with any other datasource and all the properties on the<br>object type are backed by it.</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.datasources.ObjectTypeDatasource.definition.dataset</code></td>
+<td>object</td>
+<td>否</td>
+<td>An object type datasource backed by a Foundry dataset.</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.datasources.ObjectTypeDatasource.definition.dataset.datasetRid</code></td>
+<td>string</td>
+<td>是</td>
+<td>The Resource Identifier (RID) of a Dataset.<br>示例: <code>ri.foundry.main.dataset.c26f11c8-cdb3-4f44-9f5d-9816ea1c82da</code></td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.datasources.ObjectTypeDatasource.definition.dataset.branch</code></td>
+<td>string</td>
+<td>否</td>
+<td>The id of a datasource branch. Branch ids are user supplied strings, not RIDs.<br>示例: <code>master</code></td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.datasources.ObjectTypeDatasource.definition.dataset.propertyMapping</code></td>
+<td>map</td>
+<td>否</td>
+<td>A mapping from property API name to a description of how that property is bound to the dataset. Properties<br>whose mapping info cannot be modeled are omitted.</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.datasources.ObjectTypeDatasource.definition.dataset.propertyMapping.PropertyApiName</code></td>
+<td>string</td>
+<td>是</td>
+<td>The name of the property in the API. To find the API name for your property, use the <code>Get object type</code><br>endpoint or check the <strong>Ontology Manager</strong>.</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.datasources.ObjectTypeDatasource.definition.dataset.propertyMapping.PropertyTypeMappingInfo</code></td>
+<td>union</td>
+<td>是</td>
+<td>Describes how a single object type property is bound to its backing tabular datasource. A property may be backed<br>by a single column, by a struct (with nested field mappings), or be edit-only (no backing column even though it<br>is permissioned to the tabular datasource).</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.datasources.ObjectTypeDatasource.definition.dataset.propertyMapping.PropertyTypeMappingInfo.struct</code></td>
+<td>object</td>
+<td>否</td>
+<td>A mapping from the backing column struct field names to a struct property's fields.</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.datasources.ObjectTypeDatasource.definition.dataset.propertyMapping.PropertyTypeMappingInfo.struct.column</code></td>
+<td>string</td>
+<td>是</td>
+<td>The name of a column in a tabular datasource.</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.datasources.ObjectTypeDatasource.definition.dataset.propertyMapping.PropertyTypeMappingInfo.struct.fields</code></td>
+<td>map</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.datasources.ObjectTypeDatasource.definition.dataset.propertyMapping.PropertyTypeMappingInfo.struct.fields.StructFieldName</code></td>
+<td>string</td>
+<td>是</td>
+<td>The name of a field in a <code>Struct</code>.</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.datasources.ObjectTypeDatasource.definition.dataset.propertyMapping.PropertyTypeMappingInfo.struct.fields.StructFieldPropertyMapping</code></td>
+<td>object</td>
+<td>是</td>
+<td>A single struct field's mapping where <code>apiName</code> is the name of a struct field.</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.datasources.ObjectTypeDatasource.definition.dataset.propertyMapping.PropertyTypeMappingInfo.struct.fields.StructFieldPropertyMapping.apiName</code></td>
+<td>string</td>
+<td>是</td>
+<td>The name of a struct field in the Ontology.</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.datasources.ObjectTypeDatasource.definition.dataset.propertyMapping.PropertyTypeMappingInfo.column</code></td>
+<td>object</td>
+<td>否</td>
+<td>A property bound to a single column in the backing datasource.</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.datasources.ObjectTypeDatasource.definition.dataset.propertyMapping.PropertyTypeMappingInfo.column.column</code></td>
+<td>string</td>
+<td>是</td>
+<td>The name of a column in a tabular datasource.</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.datasources.ObjectTypeDatasource.definition.dataset.propertyMapping.PropertyTypeMappingInfo.editOnly</code></td>
+<td>object</td>
+<td>否</td>
+<td>A property on an object type that is permissioned to a tabular datasource, but the contents are only populated through Actions.</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.datasources.ObjectTypeDatasource.definition.table</code></td>
+<td>object</td>
+<td>否</td>
+<td>An object type datasource backed by a Foundry table.</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.datasources.ObjectTypeDatasource.definition.table.tableRid</code></td>
+<td>string</td>
+<td>是</td>
+<td>The RID of a Foundry table.<br>示例: <code>ri.tables.main.table.beb574f7-019c-4a01-abd1-ff3c97bfaec8</code></td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.datasources.ObjectTypeDatasource.definition.table.branch</code></td>
+<td>string</td>
+<td>否</td>
+<td>The id of a datasource branch. Branch ids are user supplied strings, not RIDs.<br>示例: <code>master</code></td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.datasources.ObjectTypeDatasource.definition.table.propertyMapping</code></td>
+<td>map</td>
+<td>否</td>
+<td>A mapping from property API name to a description of how that property is bound to the table. Properties<br>whose mapping info cannot be modeled are omitted.</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.datasources.ObjectTypeDatasource.definition.table.propertyMapping.PropertyApiName</code></td>
+<td>string</td>
+<td>是</td>
+<td>The name of the property in the API. To find the API name for your property, use the <code>Get object type</code><br>endpoint or check the <strong>Ontology Manager</strong>.</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.datasources.ObjectTypeDatasource.definition.table.propertyMapping.PropertyTypeMappingInfo</code></td>
+<td>union</td>
+<td>是</td>
+<td>Describes how a single object type property is bound to its backing tabular datasource. A property may be backed<br>by a single column, by a struct (with nested field mappings), or be edit-only (no backing column even though it<br>is permissioned to the tabular datasource).</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.datasources.ObjectTypeDatasource.definition.table.propertyMapping.PropertyTypeMappingInfo.struct</code></td>
+<td>object</td>
+<td>否</td>
+<td>A mapping from the backing column struct field names to a struct property's fields.</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.datasources.ObjectTypeDatasource.definition.table.propertyMapping.PropertyTypeMappingInfo.struct.column</code></td>
+<td>string</td>
+<td>是</td>
+<td>The name of a column in a tabular datasource.</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.datasources.ObjectTypeDatasource.definition.table.propertyMapping.PropertyTypeMappingInfo.struct.fields</code></td>
+<td>map</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.datasources.ObjectTypeDatasource.definition.table.propertyMapping.PropertyTypeMappingInfo.struct.fields.StructFieldName</code></td>
+<td>string</td>
+<td>是</td>
+<td>The name of a field in a <code>Struct</code>.</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.datasources.ObjectTypeDatasource.definition.table.propertyMapping.PropertyTypeMappingInfo.struct.fields.StructFieldPropertyMapping</code></td>
+<td>object</td>
+<td>是</td>
+<td>A single struct field's mapping where <code>apiName</code> is the name of a struct field.</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.datasources.ObjectTypeDatasource.definition.table.propertyMapping.PropertyTypeMappingInfo.struct.fields.StructFieldPropertyMapping.apiName</code></td>
+<td>string</td>
+<td>是</td>
+<td>The name of a struct field in the Ontology.</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.datasources.ObjectTypeDatasource.definition.table.propertyMapping.PropertyTypeMappingInfo.column</code></td>
+<td>object</td>
+<td>否</td>
+<td>A property bound to a single column in the backing datasource.</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.datasources.ObjectTypeDatasource.definition.table.propertyMapping.PropertyTypeMappingInfo.column.column</code></td>
+<td>string</td>
+<td>是</td>
+<td>The name of a column in a tabular datasource.</td>
+</tr>
+<tr>
+<td><code>ListObjectTypesV2Response.data.ObjectTypeV2.datasources.ObjectTypeDatasource.definition.table.propertyMapping.PropertyTypeMappingInfo.editOnly</code></td>
+<td>object</td>
+<td>否</td>
+<td>A property on an object type that is permissioned to a tabular datasource, but the contents are only populated through Actions.</td>
+</tr>
+</tbody>
+</table>
+<pre><code class="language-json">{
+  &quot;nextPageToken&quot;: &quot;v1.QnVpbGQgdGhlIEZ1dHVyZTogaHR0cHM6Ly93d3cucGFsYW50aXIuY29tL2NhcmVlcnMvP2xldmVyLXNvdXJjZSU1YiU1ZD1BUElEb2NzI29wZW4tcG9zaXRpb25z&quot;,
+  &quot;data&quot;: [
+    {
+      &quot;apiName&quot;: &quot;employee&quot;,
+      &quot;description&quot;: &quot;A full-time or part-time employee of our firm&quot;,
+      &quot;displayName&quot;: &quot;Employee&quot;,
+      &quot;status&quot;: &quot;ACTIVE&quot;,
+      &quot;primaryKey&quot;: &quot;employeeId&quot;,
+      &quot;properties&quot;: {
+        &quot;employeeId&quot;: {
+          &quot;dataType&quot;: {
+            &quot;type&quot;: &quot;integer&quot;
+          },
+          &quot;rid&quot;: &quot;ri.ontology.main.property.571d3d4d-150a-4dd4-b1a7-d16c1ed7d996&quot;
+        },
+        &quot;fullName&quot;: {
+          &quot;dataType&quot;: {
+            &quot;type&quot;: &quot;string&quot;
+          },
+          &quot;rid&quot;: &quot;ri.ontology.main.property.5721baa7-26d5-4ca8-b092-d47dcc724ab1&quot;
+        },
+        &quot;office&quot;: {
+          &quot;description&quot;: &quot;The unique ID of the employee's primary assigned office&quot;,
+          &quot;dataType&quot;: {
+            &quot;type&quot;: &quot;string&quot;
+          },
+          &quot;rid&quot;: &quot;ri.ontology.main.property.554fa8c4-3b6e-4d3f-adef-acc9f0f54633&quot;
+        },
+        &quot;startDate&quot;: {
+          &quot;description&quot;: &quot;The date the employee was hired (most recently, if they were re-hired)&quot;,
+          &quot;dataType&quot;: {
+            &quot;type&quot;: &quot;date&quot;
+          },
+          &quot;rid&quot;: &quot;ri.ontology.main.property.3b081417-fe68-4010-ade8-68b298116ed4&quot;
+        },
+        &quot;rid&quot;: &quot;ri.ontology.main.object-type.401ac022-89eb-4591-8b7e-0a912b9efb44&quot;
+      }
+    },
+    {
+      &quot;apiName&quot;: &quot;office&quot;,
+      &quot;description&quot;: &quot;A physical location (not including rented co-working spaces)&quot;,
+      &quot;displayName&quot;: &quot;Office&quot;,
+      &quot;status&quot;: &quot;ACTIVE&quot;,
+      &quot;primaryKey&quot;: &quot;officeId&quot;,
+      &quot;properties&quot;: {
+        &quot;officeId&quot;: {
+          &quot;dataType&quot;: {
+            &quot;type&quot;: &quot;string&quot;
+          }
+        },
+        &quot;address&quot;: {
+          &quot;description&quot;: &quot;The office's physical address (not necessarily shipping address)&quot;,
+          &quot;dataType&quot;: {
+            &quot;type&quot;: &quot;string&quot;
+          }
+        },
+        &quot;capacity&quot;: {
+          &quot;description&quot;: &quot;The maximum seated-at-desk capacity of the office (maximum fire-safe capacity may be higher)&quot;,
+          &quot;dataType&quot;: {
+            &quot;type&quot;: &quot;integer&quot;
+          }
+        },
+        &quot;rid&quot;: &quot;ri.ontology.main.object-type.9a0e4409-9b50-499f-a637-a3b8334060d9&quot;
+      }
+    }
+  ]
+}
+</code></pre>
+</body>
+</html>

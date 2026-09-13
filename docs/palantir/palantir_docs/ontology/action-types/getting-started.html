@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Getting started</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Getting started</h1>
+<p>In this guide, we will create a simple action type for changing the priority on a ticket.</p>
+<p>We will configure submission criteria to make sure that the priority is <code>P0</code>, <code>P1</code>, or <code>P2</code>, and that the ticket status is <code>Open</code>.</p>
+<h2>Prerequisites</h2>
+<p>For this guide, we will use a <code>Demo Ticket</code> object type, which has four properties:</p>
+<ul>
+<li><code>Ticket ID</code></li>
+<li><code>Title</code></li>
+<li><code>Priority</code></li>
+<li><code>Status</code></li>
+</ul>
+<p>We also have two demo objects available:</p>
+<table>
+<thead>
+<tr>
+<th>Ticket ID</th>
+<th>Title</th>
+<th>Status</th>
+<th>Priority</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>PDS-123</td>
+<td>Demo Ticket One</td>
+<td>Open</td>
+<td>P2</td>
+</tr>
+<tr>
+<td>PDS-124</td>
+<td>Demo Ticket Two</td>
+<td>Closed</td>
+<td>P1</td>
+</tr>
+</tbody>
+</table>
+<p>You can recreate these in your Ontology if desired, but it is not essential.</p>
+<p>Note that for a user to be able to take an action defined in an action type configuration, <a href="https://www.palantir.com/docs/foundry/object-link-types/allow-editing/#set-up-the-prerequisites">additional configuration is required</a>. If running Object Storage v2, the user must enable edits with a toggle. If running Object Storage v1 (Phonograph), a writeback dataset must be created. Note that <a href="https://www.palantir.com/docs/foundry/object-databases/object-storage-v1/">Object Storage v1</a> is in a <a href="https://www.palantir.com/docs/foundry/platform-overview/development-life-cycle/">planned deprecation</a> phase of development; <a href="https://www.palantir.com/docs/foundry/object-backend/osv1-osv2-migration/">migrate to Object Storage v2</a>.</p>
+<h2>Create a new action type</h2>
+<p>We start by creating a new action type for changing the ticket's priority. In the Ontology Manager, select <strong>Action types</strong> on the left sidebar, then choose <strong>New action type</strong> at the top right of the view.</p>
+<p><img alt="Create a new action type" src="../../_resources/foundry/action-types/actions_wizard.png" /></p>
+<p>The creation wizard allows you to configure the most important features of an action type. On the <strong>Action type</strong> step, open the <strong>Object</strong> tab, select the <code>Demo Ticket</code> object type, then choose <strong>Modify object(s)</strong> under <strong>Object actions</strong>. On the <strong>Mapping</strong> step, add the <code>Priority</code> property by selecting <strong>Add property</strong>. On the <strong>Metadata</strong> step, enter an <strong>Action type name</strong> for your action type. Continue to the final step and select <strong>Create</strong>.</p>
+<p>You can now see the full detailed view of your action type. You can make additional adjustments, like adding a <strong>Description</strong> in the <strong>Overview</strong> tab or adding additional properties to modify in the <strong>Rules</strong> tab.</p>
+<h2>Edit parameters</h2>
+<p>Select the <strong>Parameters</strong> tab to get an overview of the parameters. The <code>Ticket</code> and <code>Priority</code> parameters have already been created based on the <strong>Rule</strong>.</p>
+<p><img alt="Actions form" src="../../_resources/foundry/action-types/actions_form.png" /></p>
+<p>Select the <code>Priority</code> parameter to limit the values it can take on. Change the constraints from <strong>User input</strong> to <strong>Multiple choice</strong>. This will allow you to pick what values can be chosen for this parameter. Add <code>P0</code>, <code>P1</code>, and <code>P2</code> as options. If you applied your action to an object now, you could change the priority of a ticket to <code>P0</code>, <code>P1</code>, or <code>P2</code>. You will now add submission criteria that will restrict you to only changing the priority for open tickets.</p>
+<p><img alt="Priority parameter" src="../../_resources/foundry/action-types/actions_constraints.png" /></p>
+<h2>Add submission criteria</h2>
+<p>Open the submission criteria section in the <strong>Security &amp; Submission Criteria</strong> tab from the sidebar. Create a new condition by selecting <strong>Condition</strong> in the <strong>Execution</strong> section. Using the <strong>Parameter</strong> condition template, set a condition on the <code>Ticket</code> object parameter's <code>Status</code> property. Using the <code>is</code> operator, you can then do an exact string comparison between the ticket status and the specific value <code>Open</code>.</p>
+<p><img alt="Submission criteria" src="../../_resources/foundry/action-types/actions_submission_criteria.png" /></p>
+<p>Add a failure message so users can see why an action has failed. Your action definition is now complete, and you can configure it to show up next to the Object View in Object Explorer.</p>
+<h2>Add the action to an Object View</h2>
+<p>Go to <strong>Demo Ticket One</strong> and edit its Object View. Add a new widget to the top, and choose the <strong>Actions</strong> widget. In the sidebar, select <strong>Add Item</strong>. Copy the action RID from the Ontology Manager and paste it into the Action RID field. Name the label "Change Ticket Priority".</p>
+<p><img alt="Add the action to an Object View" src="../../_resources/foundry/action-types/getting_started_add_RID.png" /></p>
+<p>By default, the action form will show every parameter as a field in the action form, including the <code>Ticket</code> parameter. Additionally, an action does not know that it should fill the current object in for the <code>Ticket</code> parameter. We will configure the action form to hide the ticket field (so the user cannot change the status of a different ticket), and set its value to the current object.
+Under <strong>Default value</strong>, select <strong>Add Item</strong>. Type the parameter ID for the <code>Ticket</code> parameterâin this tutorial, we set it to <code>ticket</code>. Change the value type to <strong>Environment variable</strong> and select <strong>Current object</strong>. Finally, change the display option to <strong>Hidden</strong>.</p>
+<p><img alt="Configure the action form" src="../../_resources/foundry/action-types/getting_started_configure_action_form.png" /></p>
+<p>You will now see the action button on the preview page:</p>
+<p><img alt="Action button on Preview page" src="../../_resources/foundry/action-types/getting_started_preview_page.png" /></p>
+<p>You can now save and publish the Object View.</p>
+<p>:::callout{theme="neutral"}
+Before you apply an action, you can validate its submission criteria, rules, and resulting edits with a <a href="https://www.palantir.com/docs/foundry/action-types/test-run/">test run</a> in Ontology Manager.
+:::</p>
+<h2>Apply the action</h2>
+<p>Visit an open ticket and select the <strong>Change Ticket Priority</strong> button we configured. You should see the action form appear over the view. Clicking into the <strong>Priority</strong> field will show the single selected submission criterion we configured on the parameter:</p>
+<p><img alt="Changing ticket priority with action" src="../../_resources/foundry/action-types/getting_started_apply_action.png" /></p>
+<p>Pick a priority and select <strong>Submit</strong>. The form will disappear and the object view will update with the new priority. Our submission criteria said that it should not be possible to run this action on a closed ticket. If we open Demo Ticket Two, which is closed, we see the following:</p>
+<p><img alt="Submission criteria prevents action from running on closed ticket" src="../../_resources/foundry/action-types/getting_started_testing_validation.png" /></p>
+<h2>Resolve conflicting user edits (actions) and datasource updates</h2>
+<p>Object instances in the Foundry Ontology can be created and modified by both input datasources and user edits/actions. When a single object instance (that is, a row or object with a specific primary key value) receives data from both the input datasource and user edits, these received values must be transparently resolved with a conflict resolution strategy.</p>
+<p>There are two strategies for resolving conflicts:</p>
+<ul>
+<li>Strategy 1: Apply user edits (default)</li>
+<li>Strategy 2: Apply most recent value (may not be available on your enrollment)</li>
+</ul>
+<p><a href="https://www.palantir.com/docs/foundry/object-edits/how-edits-applied/#resolve-conflicting-user-edits-and-datasource-updates">Learn more about how to resolve conflicting user edits and datasource updates.</a></p>
+<h2>Next steps</h2>
+<ul>
+<li><a href="https://www.palantir.com/docs/foundry/action-types/explore-action-types/">Explore the other action types you can build, including link, function, webhook, and scenario actions.</a></li>
+<li><a href="https://www.palantir.com/docs/foundry/action-types/permissions/">Learn more about action permissions.</a></li>
+<li><a href="https://www.palantir.com/docs/foundry/action-types/function-actions-getting-started/">Create a function-backed action.</a></li>
+<li><a href="https://www.palantir.com/docs/foundry/action-types/use-actions/">Use an action elsewhere in the platform.</a></li>
+<li><a href="https://www.palantir.com/docs/foundry/object-edits/how-edits-applied/#resolve-conflicting-user-edits-and-datasource-updates">Resolve conflicting user edits (actions) and datasource updates</a></li>
+</ul>
+</body>
+</html>

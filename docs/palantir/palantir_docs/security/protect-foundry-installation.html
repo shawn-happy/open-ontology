@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Protecting your self-hosted Foundry installation</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../index.html">返回目录</a></div>
+<h1>Protecting your self-hosted Foundry installation</h1>
+<p>Palantir Foundry is designed to provide secure collaboration in almost any environment, from the cloud to the edge. If you are running Foundry outside of Palantirâs managed SaaS platform, such as in your own datacenter or on your own cloud, observe the following guidance for protecting your installation.</p>
+<h2>Physical access</h2>
+<p>If your Foundry installation is deployed on bare-metal hardware, such as in a datacenter, it is crucial you implement strong physical security controls. Access to servers running Foundry should be restricted to authorized personnel, have time-bound and documented access, and follow industry best practices.</p>
+<p>As physical security is foundational to information security, unauthorized access to the hardware running Foundry could allow an adversary the opportunity to perform various attacks and subvert security controls.</p>
+<h2>Data encryption</h2>
+<p>To maintain information security, your data must be encrypted both <a href="#data-at-rest">at rest</a> and <a href="#data-in-transit">in transit</a>.</p>
+<h3>Data at rest</h3>
+<p>While all data in Foundry is encrypted at-rest using application-level encryption, you should encrypt all underlying servers and storage devices used in your Foundry installation.</p>
+<ul>
+<li>You should use an industry-standard encryption solution for full-disk encryption. This could include open source projects (such as <a href="https://gitlab.com/cryptsetup/cryptsetup/-/wikis/home">LUKS â</a>), commercially available software, hardware implementations like self-encrypting drives, or solutions offered by cloud service providers.</li>
+<li>You should store cryptographic key material in hardware, such as a hardware security module (HSM).</li>
+<li>You should use strong cryptographic standards for disk encryption, such as AES-256 or AES-128.</li>
+</ul>
+<h3>Data in transit</h3>
+<p>All data transmitted between your clients and Foundry should be protected using strong encryption protocols and ciphers.</p>
+<ul>
+<li>You should use a valid certificate issued by a trusted certificate authority with a lifespan of 90 days, up to a maximum lifespan of one year.</li>
+<li>You should only support connections using transport layer security (TLS) versions 1.2 or higher.</li>
+<li>You should only support strong TLS cipher suites. You should adjust this based upon compatibility and security needs.</li>
+<li>We recommend using elliptical curve Diffie-Hellman exchange (ECDHE) with CHACHA-POLY1305 or AES-{128-256} in GCM mode. CBC-mode cipher suites should be avoided where possible.</li>
+</ul>
+<h2>Identity security</h2>
+<h3>Single sign-on</h3>
+<p>You should centrally manage identities in your single sign-on provider.</p>
+<ul>
+<li>All users should be required to use named accounts. Accounts should not be shared.</li>
+<li>You should require strong multi-factor authentication for all users. Where possible, modern technologies like FIDO2 should be used. SMS- or email-based multi-factor authentication should not be used.</li>
+</ul>
+<h3>Credential hygiene</h3>
+<p>You should require your users to have strong credential hygiene. Passwordless authentication is strongly recommended.</p>
+<ul>
+<li>You should require your users to have a sufficiently strong, long, and unique password for access.</li>
+<li>You should not let your users reuse their password with other services outside your environment.</li>
+<li>You should require your users to rotate passwords if they are accidentally entered on an unauthorized domain.</li>
+</ul>
+<h3>Zero trust</h3>
+<p>You should use modern zero trust technologies to protect your Foundry installation.</p>
+<ul>
+<li>You should use zero trust technologies to only allow access to authorized users on the basis of identity and device health and verification.</li>
+<li>You should deny access to your Foundry installation from untrusted, unhealthy, or unknown devices.</li>
+</ul>
+<h2>Network security</h2>
+<h3>Network segmentation</h3>
+<p>Your Foundry installation should be highly segmented from the rest of your environment.</p>
+<ul>
+<li>Network isolation should be implemented using firewalls or other technology. An allowlist of approved protocols, ports, and subnets should be used to gate access to services.</li>
+<li>You should deny all inbound traffic by default to your Foundry installation.</li>
+<li>You should only expose your Foundry installation to the minimum set of networks where possible. It is not recommended to expose your Foundry installation to the public Internet without additional controls in place, such as intrusion detection systems and web application firewalls.</li>
+<li>You should silo off your Foundry installation in a dedicated private network (VLAN/subnet).</li>
+</ul>
+<h3>Egress controls</h3>
+<p>Network traffic originating from your Foundry installation should be strictly controlled.</p>
+<ul>
+<li>You should require all network connections from Foundry to be gated by a proxy or other network security device.</li>
+<li>You should maintain an allowlist of permitted destinations by IP or domain to which your Foundry installation can connect.</li>
+<li>You should deny all other network access by your Foundry installation.</li>
+</ul>
+<h3>Network security</h3>
+<p>You should use network security controls to protect your Palantir Foundry installation.</p>
+<ul>
+<li>You should use network security controls, such as intrusion detection systems, to identify anomalous activity.</li>
+<li>You should use firewalls to identify and block network exploitation or attack attempts.</li>
+<li>You should use data-loss prevention (DLP) technologies to look for unauthorized data transfers.</li>
+<li>You should collect network security logs from your networks to identify anomalous activity.</li>
+</ul>
+<h2>Infrastructure security</h2>
+<h3>Server hardening</h3>
+<p>The servers used for your Foundry installation should be hardened using industry-standard configuration guidance such as CIS or NIST controls.</p>
+<ul>
+<li>You should only use a modern, supported operating system.</li>
+<li>You should perform aggressive vulnerability management and patching on the hosts used for your Foundry installation. Critical security vulnerabilities should be patched in 30 days or less.</li>
+</ul>
+<h3>Host security</h3>
+<p>You should use host security controls to protect your Foundry installation.</p>
+<ul>
+<li>You should collect audit and security logs from your hosts to identify anomalous activity.</li>
+<li>You should use host-based security controls, such as intrusion detection systems, to identify anomalous activity.</li>
+<li>You should use data-loss prevention (DLP) technologies to look for unauthorized data transfers.</li>
+</ul>
+<h3>Privileged access</h3>
+<p>You should strictly control privileged access to your Foundry installation.</p>
+<ul>
+<li>The backend infrastructure hosting your Foundry installation should be restricted to be accessible exclusively via dedicated bastion servers or jump hosts.</li>
+<li>Multi-factor authentication should be required for all infrastructure or cloud-level access to your Foundry installation.</li>
+</ul>
+<h3>Backups</h3>
+<p>You should take periodic full-disk backups of your Foundry installation for organizational continuity purposes.</p>
+<ul>
+<li>Foundry has a service (â<a href="https://www.palantir.com/docs/foundry/security/disaster-recovery/#platform-metadata-and-configuration">Rescue</a>â) that is designed to perform application backups and restoration.</li>
+<li>You should minimally perform full-disk backups of Rescue service data. It is highly recommended to perform full-disk backups of <em>all</em> Foundry hosts.</li>
+<li>You should encrypt your backups and ensure they are stored in a durable and/or offline location. Ransomware and other malicious actors typically try to destroy backups before performing other malicious actions.</li>
+<li>You should test your backup and restoration process at least annually.</li>
+</ul>
+<h3>Application patching</h3>
+<p>You should apply security patches to your Foundry installation as soon as possible.</p>
+<ul>
+<li>If your Foundry installation is Apollo-connected, your Foundry installation will automatically receive security updates. These updates generally do not require action from you.</li>
+<li>If you do not use Apollo, you should apply security updates as soon as they are made available. Critical security vulnerabilities should be patched in 30 days or less.</li>
+</ul>
+</body>
+</html>

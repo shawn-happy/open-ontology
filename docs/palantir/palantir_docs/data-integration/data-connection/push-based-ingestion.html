@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Push data into a stream</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Push data into a stream</h1>
+<p>Most data ingestion in Foundry focuses on pulling data from a source system and syncing it into a dataset or stream.</p>
+<p>With streams, Foundry supports <strong>push-based ingestion</strong> to support event-based workflows.</p>
+<p>Push-based record ingestion in Foundry follows the same principles as typical REST services. Through a series of REST endpoints, we expose a push-based API that can consume records and write them into streams and datasets. The following high-level information is required to push into a stream:</p>
+<ul>
+<li>The dataset resource identifier of the stream.</li>
+<li>The name of the branch.</li>
+<li>A token to authenticate the request.</li>
+</ul>
+<p>:::callout{theme="neutral"}
+If you already have a Foundry source configured for your data, you may want to connect with that source instead. Learn how to <a href="https://www.palantir.com/docs/foundry/data-connection/set-up-streaming-sync/">set up a streaming sync</a> with an existing source, or learn how to <a href="https://www.palantir.com/docs/foundry/available-connectors/kafka/">set up a Kafka source</a>. <br><br>
+If you need to receive inbound webhooks from systems that cannot properly authenticate with Foundry or conform to standard stream schemas, consider using <a href="https://www.palantir.com/docs/foundry/data-connection/listeners-overview/">listeners</a>.
+:::</p>
+<p>Below, we will discuss the steps required to push data into a stream:</p>
+<ol>
+<li><a href="#part-1-initial-setup">Set up</a> a new stream.</li>
+<li><a href="#part-2-push-records-into-the-stream">Push records</a> into the stream.</li>
+<li><a href="#part-3-share-the-stream">Share</a> the stream.</li>
+<li><a href="#part-4-test-the-stream">Test</a> the stream.</li>
+</ol>
+<h2>Part 1. Initial setup</h2>
+<p>First, begin the stream creation workflow.</p>
+<ol>
+<li>Log into Foundry.</li>
+<li>Navigate to a <a href="https://www.palantir.com/docs/foundry/compass/move-and-share-resources/">Project</a>.</li>
+<li>Select <strong>+ New</strong> in the top right corner.</li>
+<li>Scroll down and select <strong>Stream</strong>.</li>
+</ol>
+<p><img alt="Create stream" src="../../_resources/external-03f1b4252173.png"></p>
+<p>Next, we must define the schema, throughput, and keys for the stream.</p>
+<ul>
+<li><strong>Schema</strong> defines the structure and types of your stream data.</li>
+<li><strong>Throughput</strong> represents the data processing rate and will impact the number of partitions used in your stream. Learn more in our <a href="https://www.palantir.com/docs/foundry/building-pipelines/streaming-performance-considerations/#throughput">throughput</a> and <a href="https://www.palantir.com/docs/foundry/data-integration/streams/#partitions">partitions</a> documentation.</li>
+<li><strong>Keys</strong> are used to guarantee ordering for unique IDs when using multiple partitions. Learn more in our <a href="https://www.palantir.com/docs/foundry/building-pipelines/streaming-keys/">streaming keys</a> documentation.</li>
+</ul>
+<p>For this tutorial, we will create a simple single partition stream.</p>
+<ul>
+<li>Set the schema to <code>sensor_id: String</code>, <code>temperature: Double</code>, and <code>created_at: Timestamp</code>.</li>
+<li>Set the throughput to <code>Normal</code>.</li>
+</ul>
+<p>Then, configure your stream.</p>
+<ul>
+<li>Automatically generate schema from an existing JSON blob by selecting the <code>Generate from JSON sample...</code> button and pasting in your existing JSON blob.</li>
+<li>Set up <a href="https://www.palantir.com/docs/foundry/data-integration/change-data-capture/">change data capture</a> if you are streaming real-time updates from a relational database.</li>
+<li>Consider the parallelism requirements of your stream to determine if you need higher throughput settings. Review our <a href="https://www.palantir.com/docs/foundry/data-integration/streams/#partitions">partitions</a> documentation for more information.</li>
+<li>Consider setting a key for ordering guarantees when using multiple partitions.</li>
+</ul>
+<p><img alt="Define stream" src="../../_resources/external-1de104b9f277.png"></p>
+<p>:::callout{theme="neutral"}
+All validation errors must be addressed before selecting <strong>Create stream</strong>. Hover over the tooltips on the bottom of the page for more details about the error.
+:::</p>
+<p>Select the <strong>Create stream</strong> button in the bottom right corner to navigate to the <strong>Connect</strong> page. Here, you can specify how to connect to the streaming data.</p>
+<h2>Part 2. Push records into the stream</h2>
+<p>We are now ready to connect our stream.</p>
+<ol>
+<li>For push-based ingestion, select one of the options under the <strong>Connect via API</strong> section.</li>
+</ol>
+<p>Any language or technology that can make HTTP requests can be used to push records. We provide examples for cURL, Python, JavaScript via Node, and Java. If you want to ingest data via a Foundry sync instead of pushing the data into Foundry, review how to <a href="https://www.palantir.com/docs/foundry/data-connection/set-up-streaming-sync/">set up a streaming sync</a>.</p>
+<p>For this example, we will select <strong>cURL</strong>.</p>
+<pre><code>&lt;img alt="Stream connection" src="../../_resources/external-c373a67c9777.png"&gt;
+</code></pre>
+<p>You will then land on the <strong>Push</strong> data workflow page.</p>
+<ol start="2">
+<li>Next, select an authentication mechanism. We support two ways to authenticate to the request:</li>
+</ol>
+<ul>
+<li><strong>Push with a third-party application (recommended):</strong> This method uses an OAuth2 workflow to create a secure token that can be used to push records into your stream.</li>
+<li>
+<p><strong>Push with a personal token:</strong> This method uses a user-generated token for testing purposes only.</p>
+<p><img alt="Stream push options" src="../../_resources/external-ee7442314d2d.png"></p>
+</li>
+</ul>
+<ol start="3">
+<li>For this tutorial, choose the <strong>Push with a third-party application</strong> method. You need an application that authenticates with the client credentials grant, so that Foundry issues it a client ID, a client secret, and a service user. Create that application through whichever route is available on your enrollment:</li>
+</ol>
+<ul>
+<li><strong>Developer Console (recommended):</strong> <a href="https://www.palantir.com/docs/foundry/consumer-mode/client-credentials-setup/">Set up client credentials</a>, choosing <strong>Backend service</strong> on the <strong>Application type</strong> page and <strong>Application permissions</strong> on the <strong>Permissions</strong> page. Once you have the client ID and secret, continue with step 8 below. Steps 9 through 11 apply only to the Control Panel route, because choosing <strong>Application permissions</strong> already enables the client credentials grant.</li>
+<li><strong>Control Panel:</strong> If Developer Console is not enabled for you, follow <a href="https://www.palantir.com/docs/foundry/platform-security-third-party/register-3pa/">Registering third-party applications</a> to register a confidential client with the client credentials grant enabled. Steps 4 through 11 below walk through this route.</li>
+</ul>
+<p>Either route requires the <code>api:use-streams-write</code> operation in the application's operation restrictions before it can push records into the stream; see <a href="https://www.palantir.com/docs/foundry/developer-console/application-restrictions/#operation-restrictions">Operation restrictions</a>.</p>
+<pre><code>&lt;img alt="Stream push third party auth" src="../../_resources/external-f6a85c885312.png"&gt;
+</code></pre>
+<ol start="4">
+<li>
+<p><strong>Control Panel route:</strong> Select <strong>Go to third-party applications</strong> to open the third-party application management page in your Foundry platform settings.</p>
+</li>
+<li>
+<p>Select <strong>Register new application</strong> at the top right of your screen.</p>
+<p><img alt="Third party new app" src="../../_resources/external-8bb08c788bd4.png"></p>
+</li>
+<li>
+<p>Choose a name, and set the client type to <strong>Server application</strong>.</p>
+<p><img alt="Third party create app" src="../../_resources/external-86a11f5ebd7d.png"></p>
+</li>
+<li>
+<p>Select <strong>Create,</strong> and you will be presented with your client ID and secret.</p>
+</li>
+</ol>
+<p>:::callout{theme="warning"}
+   The client secret will not be accessible once you leave this page. Be sure to store it in a secure location.
+   :::</p>
+<ol start="8">
+<li>
+<p>Now, you can add the client ID and secret into the <strong>Push</strong> workflow page.</p>
+<p><img alt="Add client secret" src="../../_resources/external-c9b88eb473b6.png"></p>
+</li>
+<li>
+<p>Scroll down to the <strong>Configuring the Application</strong> section of the workflow, then select <strong>Manage application</strong> to open the <strong>Third-party applications</strong> management page in your Foundry platform settings.</p>
+<p><img alt="Configure third party app" src="../../_resources/external-26e4fe9eb133.png"></p>
+</li>
+<li>
+<p>Next, enable the <strong>Client credentials grant</strong> setting.</p>
+<p><img alt="Configure grant" src="../../_resources/external-c98cc9fab763.png"></p>
+</li>
+<li>
+<p>Finally, click <strong>Save</strong> in the upper right corner.</p>
+</li>
+</ol>
+<h2>Part 3: Share the stream</h2>
+<p>Now, we need to share the stream with the application we created.</p>
+<ol>
+<li>
+<p>First, return to the <strong>Push</strong> workflow page. Under the <strong>Using Your New Application</strong> section in the workflow, find the client ID that you generated.</p>
+<p><img alt="Client ID" src="../../_resources/external-6ad458a64b88.png"></p>
+</li>
+<li>
+<p>Next, select <strong>Share</strong> on the top right to open the <strong>Roles</strong> tab of the stream <strong>Details</strong> sidebar to the right side of your screen.</p>
+<p><img alt="Share third party app" src="../../_resources/external-428c7cfb9a17.png"></p>
+</li>
+<li>
+<p>Copy and paste the client ID into the <strong>Roles</strong> search field to find the application you created. Select the <strong>+</strong> to search for and choose the <code>Editor</code> role.</p>
+</li>
+<li>
+<p>Choose <strong>Save</strong> at the bottom of the side panel to share the stream.</p>
+</li>
+<li>
+<p>Return to the push workflow and select <strong>Next step.</strong></p>
+</li>
+</ol>
+<h2>Part 4: Test the stream</h2>
+<p>You will now be presented with code examples that can be used to push test records into the stream. The code examples differ depending on what language you selected in the previous steps. For this example, we are using cURL.</p>
+<p>:::callout{theme="neutral"}
+Before running cURL commands, be sure to install <a href="https://jqlang.org/">jq â</a> for command line JSON parsing.
+:::</p>
+<ol>
+<li>First, copy the command from the first box. This will hit Foundryâs OAuth2 endpoint, providing you with an access token you can use to push records.</li>
+</ol>
+<p><img alt="Push records with cURL" src="../../_resources/external-a9ec44e21af2.png"></p>
+<ol start="2">
+<li>Execute the command in a bash terminal on your Mac, Windows, or Linux machine.</li>
+</ol>
+<p>Once the command is executed, you will have an available variable called <code>$ACCESS_TOKEN</code>. You will use this variable in the next command to push records.</p>
+<p>The second command will use cURL to hit a Foundry endpoint with a post request that contains the records we want to insert into the stream. The command is prepopulated with a dummy record to push into the stream, but you could provide any data in the HTTP request that adheres to the schema of the stream.</p>
+<ol start="3">
+<li>Copy and paste the second command into your terminal and execute it.</li>
+</ol>
+<p>If the command is successful, you will see records appear in the stream.</p>
+<pre><code>&lt;img alt="View records" src="../../_resources/external-67b27f163853.png"&gt;
+</code></pre>
+<p>To change the data pushed into the stream, modify the data parameter of the post request.</p>
+<pre><code>[{ \&quot;value\&quot;: {\&quot;sensor_id\&quot;:\&quot;sensor4\&quot;,\&quot;temperature\&quot;:4.132} }]
+</code></pre>
+<p>You can also send test records into the stream from the user interface by expanding the <strong>Test with JSON</strong> card.</p>
+<p><img alt="Test with JSON" src="../../_resources/external-d86e2963f5e5.png"></p>
+<h2>Next  steps</h2>
+<p>Now that you have successfully pushed data into a stream, you are ready to start transforming your data.  Select <strong>Start pipelining</strong> to navigate to the Pipeline Builder application where you will build your streaming pipeline. Learn how to <a href="https://www.palantir.com/docs/foundry/building-pipelines/create-stream-pipeline-pb/">transform your data</a>, and learn more about the <a href="https://www.palantir.com/docs/foundry/pipeline-builder/overview/">different transforms available in Pipeline Builder</a>.</p>
+</body>
+</html>

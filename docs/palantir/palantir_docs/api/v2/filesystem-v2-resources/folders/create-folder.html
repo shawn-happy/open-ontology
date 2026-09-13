@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Create Folder</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../../../index.html">返回目录</a></div>
+<p><code>POST /api/v2/filesystem/folders</code></p>
+<p>Creates a new Folder.</p>
+<p>Third-party applications using this endpoint via OAuth2 must request the following operation scope: <code>api:filesystem-write</code>.</p>
+<p><strong>OAuth2 scopes</strong>: <code>api:filesystem-write</code></p>
+<h2>Request body</h2>
+<pre><code class="language-json">{
+  &quot;parentFolderRid&quot;: &quot;ri.compass.main.folder.4cae7c13-b59f-48f6-9ef2-dbde603e4e33&quot;,
+  &quot;displayName&quot;: &quot;My Folder&quot;
+}
+</code></pre>
+<h2>Response</h2>
+<p><strong>Folder</strong></p>
+<p>The created Folder</p>
+<table>
+<thead>
+<tr>
+<th>参数</th>
+<th>类型</th>
+<th>必填</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Folder</code></td>
+<td>object</td>
+<td>是</td>
+<td>The created Folder<br>示例: <code>{"projectRid":"ri.compass.main.folder.4cae7c13-b59f-48f6-9ef2-dbde603e4e33","updatedTime":"2024-09-25T17:29:35.974Z","updatedBy":"f05f8da4-b84c-4fca-9c77-8af0b13d11de","displayName":"My Folder","description":"This dataset contains important data about Empyrean Airlines","rid":"ri.compass.main.folder.01a79a9d-e293-48db-a585-9ffe221536e8","type":"FOLDER","spaceRid":"ri.compass.main.folder.a86ad5f5-3db5-48e4-9fdd-00aa3e5731ca","trashStatus":"NOT_TRASHED","parentFolderRid":"ri.compass.main.folder.4cae7c13-b59f-48f6-9ef2-dbde603e4e33","path":"/Empyrean Airlines/My Important Project/My Folder","createdBy":"f05f8da4-b84c-4fca-9c77-8af0b13d11de","createdTime":"2024-09-25T17:29:35.974Z"}</code></td>
+</tr>
+<tr>
+<td><code>Folder.rid</code></td>
+<td>string</td>
+<td>是</td>
+<td>The unique resource identifier (RID) of a Folder.<br>示例: <code>ri.compass.main.folder.01a79a9d-e293-48db-a585-9ffe221536e8</code></td>
+</tr>
+<tr>
+<td><code>Folder.displayName</code></td>
+<td>string</td>
+<td>是</td>
+<td>The display name of the resource<br>示例: <code>My Folder</code></td>
+</tr>
+<tr>
+<td><code>Folder.description</code></td>
+<td>string</td>
+<td>否</td>
+<td>The description associated with the Folder.</td>
+</tr>
+<tr>
+<td><code>Folder.documentation</code></td>
+<td>string</td>
+<td>否</td>
+<td>The documentation associated with the Folder.</td>
+</tr>
+<tr>
+<td><code>Folder.path</code></td>
+<td>string</td>
+<td>是</td>
+<td>The full path to the resource, including the resource name itself<br>示例: <code>/Empyrean Airlines/My Important Project/My Folder</code></td>
+</tr>
+<tr>
+<td><code>Folder.type</code></td>
+<td>enum</td>
+<td>是</td>
+<td>A folder can be a regular Folder, a<br><a href="https://www.palantir.com/docs/foundry/getting-started/projects-and-resources/#projects">Project</a> or a<br><a href="https://www.palantir.com/docs/foundry/security/orgs-and-spaces/#spaces">Space</a>.<br>示例: <code>FOLDER</code></td>
+</tr>
+<tr>
+<td><code>Folder.createdBy</code></td>
+<td>string</td>
+<td>是</td>
+<td>The Foundry user who created this resource<br>示例: <code>f05f8da4-b84c-4fca-9c77-8af0b13d11de</code></td>
+</tr>
+<tr>
+<td><code>Folder.updatedBy</code></td>
+<td>string</td>
+<td>是</td>
+<td>The Foundry user who last updated this resource<br>示例: <code>f05f8da4-b84c-4fca-9c77-8af0b13d11de</code></td>
+</tr>
+<tr>
+<td><code>Folder.createdTime</code></td>
+<td>string</td>
+<td>是</td>
+<td>The time at which the resource was created.<br>示例: <code>2024-09-25T17:29:35.974Z</code></td>
+</tr>
+<tr>
+<td><code>Folder.updatedTime</code></td>
+<td>string</td>
+<td>是</td>
+<td>The time at which the resource was most recently updated.<br>示例: <code>2024-09-25T17:29:35.974Z</code></td>
+</tr>
+<tr>
+<td><code>Folder.trashStatus</code></td>
+<td>enum</td>
+<td>是</td>
+<td>The trash status of the Folder. If trashed, this could either be because the Folder itself has been<br>trashed or because one of its ancestors has been trashed.<br>示例: <code>NOT_TRASHED</code></td>
+</tr>
+<tr>
+<td><code>Folder.parentFolderRid</code></td>
+<td>string</td>
+<td>是</td>
+<td>The parent folder Resource Identifier (RID). For Projects, this will be the Space RID and for Spaces,<br>this value will be the root folder (<code>ri.compass.main.folder.0</code>).<br>示例: <code>ri.compass.main.folder.4cae7c13-b59f-48f6-9ef2-dbde603e4e33</code></td>
+</tr>
+<tr>
+<td><code>Folder.projectRid</code></td>
+<td>string</td>
+<td>否</td>
+<td>The Project Resource Identifier (RID) that the Folder lives in. If the Folder is a Space, this value will<br>not be defined.<br>示例: <code>ri.compass.main.folder.4cae7c13-b59f-48f6-9ef2-dbde603e4e33</code></td>
+</tr>
+<tr>
+<td><code>Folder.spaceRid</code></td>
+<td>string</td>
+<td>是</td>
+<td>The Space Resource Identifier (RID) that the Folder lives in. If the Folder is a Space, this value will<br>be the same as the Folder RID.<br>示例: <code>ri.compass.main.folder.a86ad5f5-3db5-48e4-9fdd-00aa3e5731ca</code></td>
+</tr>
+</tbody>
+</table>
+<pre><code class="language-json">{
+  &quot;projectRid&quot;: &quot;ri.compass.main.folder.4cae7c13-b59f-48f6-9ef2-dbde603e4e33&quot;,
+  &quot;updatedTime&quot;: &quot;2024-09-25T17:29:35.974Z&quot;,
+  &quot;updatedBy&quot;: &quot;f05f8da4-b84c-4fca-9c77-8af0b13d11de&quot;,
+  &quot;displayName&quot;: &quot;My Folder&quot;,
+  &quot;description&quot;: &quot;This dataset contains important data about Empyrean Airlines&quot;,
+  &quot;rid&quot;: &quot;ri.compass.main.folder.01a79a9d-e293-48db-a585-9ffe221536e8&quot;,
+  &quot;type&quot;: &quot;FOLDER&quot;,
+  &quot;spaceRid&quot;: &quot;ri.compass.main.folder.a86ad5f5-3db5-48e4-9fdd-00aa3e5731ca&quot;,
+  &quot;trashStatus&quot;: &quot;NOT_TRASHED&quot;,
+  &quot;parentFolderRid&quot;: &quot;ri.compass.main.folder.4cae7c13-b59f-48f6-9ef2-dbde603e4e33&quot;,
+  &quot;path&quot;: &quot;/Empyrean Airlines/My Important Project/My Folder&quot;,
+  &quot;createdBy&quot;: &quot;f05f8da4-b84c-4fca-9c77-8af0b13d11de&quot;,
+  &quot;createdTime&quot;: &quot;2024-09-25T17:29:35.974Z&quot;
+}
+</code></pre>
+<h2>Error responses</h2>
+<table>
+<thead>
+<tr>
+<th>错误码</th>
+<th>错误名称</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>CONFLICT</td>
+<td><code>ResourceNameAlreadyExists</code></td>
+<td>The provided resource name is already in use by another resource in the same folder.</td>
+</tr>
+<tr>
+<td>INVALID_ARGUMENT</td>
+<td><code>GetRootFolderNotSupported</code></td>
+<td>Getting the root folder as a resource is not supported.</td>
+</tr>
+<tr>
+<td>INVALID_ARGUMENT</td>
+<td><code>CreateFolderOutsideProjectNotSupported</code></td>
+<td>The given resource is not a folder.</td>
+</tr>
+<tr>
+<td>INVALID_ARGUMENT</td>
+<td><code>InvalidFolder</code></td>
+<td>The given resource is not a Folder.</td>
+</tr>
+<tr>
+<td>INVALID_ARGUMENT</td>
+<td><code>InvalidDisplayName</code></td>
+<td>The display name of a resource should not be exactly <code>.</code> or <code>..</code>, contain a forward slash <code>/</code> and must be<br>less than or equal to 700 characters.</td>
+</tr>
+<tr>
+<td>INVALID_ARGUMENT</td>
+<td><code>MissingDisplayName</code></td>
+<td>A Display Name must be provided.</td>
+</tr>
+<tr>
+<td>PERMISSION_DENIED</td>
+<td><code>CreateFolderPermissionDenied</code></td>
+<td>Could not create the Folder.</td>
+</tr>
+<tr>
+<td>NOT_FOUND</td>
+<td><code>FolderNotFound</code></td>
+<td>The given Folder could not be found.</td>
+</tr>
+</tbody>
+</table>
+</body>
+</html>

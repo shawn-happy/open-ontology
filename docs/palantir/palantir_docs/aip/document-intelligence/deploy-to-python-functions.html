@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Deploy extraction strategies to Python functions</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Deploy extraction strategies to Python functions</h1>
+<p>Follow the <strong>Deploy to functions</strong> guide in AIP Document Intelligence and use the generated code snippets to set up a Python functions repository with your extraction strategy.</p>
+<h2>Setup</h2>
+<p>To get started with document extraction in functions, first <a href="https://www.palantir.com/docs/foundry/functions/python-getting-started/">create a Python functions repository</a> or use an existing one.</p>
+<p>Set up the repository with the correct imports and permissions to run document extraction:</p>
+<ol>
+<li>Install the platform SDK (if not already installed):</li>
+</ol>
+<ul>
+<li>Select <strong>Libraries</strong> in the left side panel to <a href="https://www.palantir.com/docs/foundry/code-repositories/libraries/#python">add a library</a>.</li>
+<li>Install <code>foundry-platform-sdk</code> version &gt;= 1.78.</li>
+<li>If you need chunking, install <code>aip-workflows</code> version &gt;= 0.40.0.</li>
+<li>If you want to embed, install <code>openai</code>.</li>
+</ul>
+<ol start="2">
+<li>For LLM-based extractions, <a href="https://www.palantir.com/docs/foundry/functions/language-models-python-tsv2/#import-a-language-model">import your selected model</a> into the repository.</li>
+<li>Set up the function to have a <a href="https://www.palantir.com/docs/foundry/functions/manage-functions/#time-limit">larger timeout</a>. We suggest choosing the maximum value allowed by your enrollment. Note that for handling many PDFs and high page count PDFs, you will need to use these functions as part of an extraction strategy.</li>
+</ol>
+<p>The following sections explain the various code snippets included in the <strong>Deploy to functions</strong> guide.</p>
+<h2>Helper functions</h2>
+<p>Helper functions are the same for all extraction strategies. You can copy them into the same Python file as your function, or into a shared utilities file if you have multiple functions. They are available in-platform and included below for reference.</p>
+<pre><code class="language-python">from dataclasses import dataclass
+from time import sleep
+from typing import Optional
+
+from foundry_sdk import FoundryClient
+from foundry_sdk._errors import PalantirException, PalantirQoSException, PalantirRPCException
+from foundry_sdk._errors.palantir_qos_exception import QoSRetryHint
+from foundry_sdk.v2.media_sets import models
+from functions.api import function
+
+
+@dataclass
+class TransformResult:
+    &quot;&quot;&quot;The outcome of a transform. Functions return this instead of raising on failure so your
+    orchestration can branch on the result.
+
+    result: The extracted content (Markdown or JSON, depending on your configuration) on success,
+        otherwise None.
+    error: The specific error name on failure (or a human-readable reason for rate-limit and
+        availability errors), otherwise None.
+    retryable: True when the failure is transient (rate limits or service availability) and worth
+        retrying, False when it is not, and None on success.
+    &quot;&quot;&quot;
+
+    result: Optional[str]
+    error: Optional[str]
+    retryable: Optional[bool]
+
+
+def _create_transform_job(
+    media_set_rid: str, media_item_rid: str, transformation: models.DocumentToTextTransformation
+) -&gt; str:
+    fc = FoundryClient()
+    job_initiation_resp = fc.media_sets.MediaSet.transform(
+        media_set_rid=media_set_rid,
+        media_item_rid=media_item_rid,
+        transformation=transformation,
+        preview=True,
+    )
+    job_id = job_initiation_resp.job_id
+    return job_id
+
+
+def _is_transform_finished(media_set_rid: str, media_item_rid: str, job_id: str) -&gt; bool:
+    fc = FoundryClient()
+    status = fc.media_sets.MediaSet.get_status(media_set_rid, media_item_rid, job_id, preview=True)
+    return status.status in (&quot;SUCCESSFUL&quot;, &quot;FAILED&quot;)
+
+
+def _get_transform_result(media_set_rid: str, media_item_rid: str, job_id: str) -&gt; str:
+    fc = FoundryClient()
+    result = fc.media_sets.MediaSet.get_result(media_set_rid, media_item_rid, job_id, preview=True)
+    return result.decode(&quot;utf-8&quot;)
+
+
+def _run_transform_blocking(
+    media_set_rid: str, media_item_rid: str, transformation: models.DocumentToTextTransformation
+) -&gt; str:
+    job_id = _create_transform_job(media_set_rid, media_item_rid, transformation)
+    while not _is_transform_finished(media_set_rid, media_item_rid, job_id):
+        sleep(0.5)
+    return _get_transform_result(media_set_rid, media_item_rid, job_id)
+
+
+def _run_transform_error_handled(
+    media_set_rid: str, media_item_rid: str, transformation: models.DocumentToTextTransformation
+) -&gt; TransformResult:
+    try:
+        result_text = _run_transform_blocking(media_set_rid, media_item_rid, transformation)
+        return TransformResult(result=result_text, error=None, retryable=None)
+    except PalantirQoSException as e:
+        retryable = e.retry_hint != QoSRetryHint.DO_NOT_RETRY
+        return TransformResult(result=None, error=e.reason, retryable=retryable)
+    except PalantirRPCException as e:
+        return TransformResult(result=None, error=e.name or type(e).__name__, retryable=False)
+    except PalantirException as e:
+        return TransformResult(result=None, error=type(e).__name__, retryable=False)
+</code></pre>
+<h2>Your extraction strategy</h2>
+<p>This function corresponds to your extraction strategy and requires a media input and a given page. Because the function is dynamically generated, copy the code from inside the app. Whatever name you publish it under will be registered, so you can rename it as needed. You can provide the media input as a media set and item RID string combination or as an object property; use the selector in the top left to choose the template. The object property template requires you to <a href="https://www.palantir.com/docs/foundry/functions/python-functions-on-objects/#generate-a-python-ontology-sdk">import your object</a>.</p>
+<p><img alt="The deployed Python function code shown in the AIP Document Intelligence app." src="../../_resources/foundry/document-intelligence/deployed-python-functions.png" /></p>
+<h2>Chunking and embedding functions</h2>
+<p>Optionally, chunk extracted text and generate embeddings for downstream use in search or retrieval workflows. The functions below are static; the chunk size, chunk overlap, and embedding model are configured in the app, so replace the default parameter values with the ones you selected.</p>
+<pre><code class="language-python">from functions.api import function, Array, Boolean, Float, Integer, String
+from aip_workflows.document_intelligence.transforms import DocumentChunker
+
+@function(beta=True)
+def chunk_text(
+    texts: Array[String],
+    chunk_size: Integer = 8192,
+    chunk_overlap: Integer = 0,
+    concat_before_chunk: Boolean = False,
+    chunk_mode: String = &quot;markdown&quot;,
+) -&gt; Array[Array[String]]:
+    &quot;&quot;&quot;
+    Chunks a list of text strings.
+    Args:
+        texts: A list of text strings to chunk.
+        chunk_size: Maximum number of characters per chunk.
+        chunk_overlap: Number of overlapping characters between consecutive chunks.
+        concat_before_chunk: If True, concatenates all texts into a single string before chunking,
+            returning a single inner list. Recommended when input is per-page text of a document.
+            If False, chunks each text independently, returning one inner list per input text.
+        chunk_mode: The chunking strategy to use. Options:
+            - &quot;markdown&quot;: Recommended for Markdown text.
+            - &quot;recursive&quot;: Recommended for raw text without any format.
+    Returns:
+        A list of lists of chunk strings. Each inner list contains the chunks for one input text.
+        When concat_before_chunk is True, input texts are concatenated into a single string so the
+        output list has length of 1.
+    &quot;&quot;&quot;
+    chunks = DocumentChunker.create_chunks(
+        texts,
+        chunk_mode=chunk_mode,
+        chunk_size=chunk_size,
+        chunk_overlap=chunk_overlap,
+        strip_markdown=True,
+        concat_before_chunk=concat_before_chunk,
+    )
+    if concat_before_chunk:
+        return [chunks]
+    return chunks
+
+from foundry_sdk.v2.language_models.utils import (
+    get_foundry_token,
+    get_openai_base_url,
+    get_http_client,
+)
+from openai import OpenAI
+
+@function(beta=True)
+def embed_text(
+    texts: Array[String],
+    embedding_model_rid: String = &quot;&lt;YOUR_EMBEDDING_MODEL_RID&gt;&quot;,
+) -&gt; Array[Array[Float]]:
+    &quot;&quot;&quot;
+    Generates embeddings for a list of text strings using the configured embedding model.
+    Args:
+        texts: A list of text strings to embed.
+        embedding_model_rid: The RID of the embedding model to use.
+    Returns:
+        A list of vector embeddings, one per input text.
+    &quot;&quot;&quot;
+    client = OpenAI(
+        api_key=get_foundry_token(preview=True),
+        base_url=get_openai_base_url(preview=True),
+        http_client=get_http_client(preview=True),
+    )
+
+    response = client.embeddings.create(
+        input=texts,
+        model=embedding_model_rid,
+    )
+
+    return [response.data[i].embedding for i in range(len(texts))]
+</code></pre>
+</body>
+</html>

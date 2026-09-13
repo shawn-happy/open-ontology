@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cast media schema</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Cast media schema</h1>
+<blockquote>
+<p>Supported in:</p>
+</blockquote>
+<p>Casts a media reference to a specific media schema and format. This is useful when the input media has a generic schema (multimodal) but the actual content is known to be a specific type (such as a png image). The cast narrows the type metadata to allow downstream operations that require specific schema types.</p>
+<p><strong>Expression categories:</strong> Media</p>
+<h2>Declared arguments</h2>
+<ul>
+<li><strong>Media:</strong> The media reference to cast the schema type of.<br><em>Expression\<Media reference></em></li>
+<li><strong>Media format:</strong> The specific format to cast to.<br><em>Enum\<BMP, DOCX, EML, FLAC, JP2K, JPEG, MKV, MOV, MP2, MP3, and more ...></em></li>
+</ul>
+<p><strong>Output type:</strong> <em>Media reference</em></p>
+</body>
+</html>

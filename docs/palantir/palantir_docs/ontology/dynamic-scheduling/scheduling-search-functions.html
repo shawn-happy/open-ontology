@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Search Functions</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Search Functions</h1>
+<p>Search Functions enable users to quickly find and evaluate possible solutions to the specific, unique problems that arise in their scheduling workflow.</p>
+<p>Each Search Function is backed by a TypeScript function. The flexible interface allows builders to write functions that can return pucks, time slots, or a combination of both. Additionally, Search Functions can be row-based or puck-based.</p>
+<p>For row-based Search Functions, users must right-click on an empty space and pass in row object and time as function inputs. For puck-based Search Functions, users must right-click on a puck to pass in object and time as function inputs.</p>
+<p>The image below displays the interface for a Search Function returning pucks.</p>
+<p><img src="../../_resources/external-ba8d35c0e844.png" alt="Example: search function returning pucks" width="700" ></p>
+<p>The image below displays the interface for a Search Function returning time slots.</p>
+<p><img src="../../_resources/external-03787d84ee6d.png" alt="Example: search function returning time slots" width="700" ></p>
+<p>After a Search Function is executed, a new search group will be created in the Scheduling Gantt Chart with the results highlighted in yellow. Search groups can be collapsed and expanded by selecting the caret symbol (<strong>^</strong>) on the right side of the group header. Additionally, users can view search results in detail by selecting the <strong>Results Overview</strong> option to open a panel with the output of the Search Function, as displayed in the below image.</p>
+<p><img src="../../_resources/external-351709adc019.png" alt="Search Function results overview interface." width="700" ></p>
+<h2>Functions interface</h2>
+<p>The types below represent the necessary information to write a Search Function when triggered from either a row or a puck, including details about the search group.</p>
+<pre><code>type IPuckSearch = (puck: ObjectReference) =&gt; ISearchResult
+type IRowSearch = (rowId: string, selectedTime: Timestamp) =&gt; ISearchResult
+
+
+/*
+   Search Functions can return time slots, pucks, or both. SLOT and PUCK 
+   are used as types in IHighlight.
+*/
+
+export enum HighlightType {
+    SLOT = &quot;SLOT&quot;,
+    PUCK = &quot;PUCK&quot;,
+}
+
+
+/*
+   Used in IHighlight for functions that will return a set of timeslots.  
+*/
+
+export interface IDomain {
+    start: Long;
+    end: Long;
+}
+
+/*
+   Used to determine what is highlighted in the UI after search function is run
+*/
+
+export interface IHighlight {
+    type: string;
+    // needed for &quot;SLOT&quot;
+    domain?: IDomain;
+    containerId?: string;
+    // needed for &quot;PUCK&quot;
+    schedulableObjectPrimaryKey?: string;
+    schedulableObjectTypeId?: string;
+    // optional
+    comment?: string;
+}
+
+/*
+   Defines the title of newly created search group and the rows the 
+   function returns.
+*/
+export interface IRowGroup {
+    title: string;
+    containerIds: string[];
+    highlights: IHighlight[];
+}
+
+/*
+   Overall return type of function. 
+*/
+
+export interface ISearchResult {
+    rowGroup?: IRowGroup;
+    sourcePuckIds?: string[];
+    error?: string;
+}
+</code></pre>
+</body>
+</html>

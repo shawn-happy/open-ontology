@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Benefits of VS Code workspaces</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Benefits of VS Code workspaces</h1>
+<p>This page provides an overview of the benefits of using VS Code in Foundry to write and manage code. In particular, the benefits below should be considered when deciding whether to switch from Code Repositories to VS Code in Foundry.</p>
+<h2>AI-powered coding assistance with Continue</h2>
+<p>VS Code in Foundry comes with <a href="https://www.palantir.com/docs/foundry/vs-code/ai-development-tools/#continue">Continue</a>, an AI coding assistant preconfigured to work with Palantir-provided language models and equipped with knowledge about relevant Palantir SDKs and your Python transforms or OSDK repository. With this contextual understanding of your data structures, ontology, and organization, Continue can generate more accurate and relevant code suggestions and access Foundry-specific tools to accelerate your workflows.</p>
+<h2>Enhanced preview features</h2>
+<p>VS Code in Foundry provides powerful preview capabilities that go beyond basic sampling:</p>
+<ul>
+<li><strong>Full dataset preview in Python transforms repositories:</strong> Use <a href="https://www.palantir.com/docs/foundry/palantir-extension-for-visual-studio-code/transforms-preview/#full-dataset">full dataset preview</a> to preview the full output of transforms without random sampling, giving you accurate results that match production behavior.</li>
+<li><strong>Accurate incremental preview:</strong> The Palantir extension runs the same <a href="https://www.palantir.com/docs/foundry/palantir-extension-for-visual-studio-code/transforms-preview/#understanding-incremental-preview-results">incremental resolution and evaluation logic</a> as production builds for both Spark and lightweight transforms, with full support for v1 and v2 incremental semantics. This way, you can see exactly how your incremental transforms will behave.</li>
+<li><strong>Custom filtering:</strong> Specify your own <a href="https://www.palantir.com/docs/foundry/palantir-extension-for-visual-studio-code/code-defined-filtering/">code-defined filters</a> to control exactly what data gets loaded during preview, enabling targeted testing of specific scenarios.</li>
+</ul>
+<h2>Optimized VS Code language server</h2>
+<p>The highly optimized language server in VS Code enables an efficient, responsive developer experience, with major speed boosts for features like linting and auto-complete.</p>
+<h2>Integrated terminal</h2>
+<p>VS Code's integrated terminal gives you full control over your development environment. Automate workflows with scripts, run commands to perform bulk operations, and efficiently manage version control with the command line interface.</p>
+<h2>Flexibility to work in Foundry or locally</h2>
+<p><strong>VS Code workspaces</strong> provide you with an environment deployed on Palantir infrastructure and accessible from the Palantir platform. Alternatively, the <a href="https://www.palantir.com/docs/foundry/palantir-extension-for-visual-studio-code/overview/"><strong>Palantir extension for Visual Studio Code</strong></a> can be installed in your local VS Code IDE to integrate directly with your code in Foundry.</p>
+<p>For a detailed comparison to help you decide which is right for you, review our documentation on <a href="https://www.palantir.com/docs/foundry/vs-code/local-vs-workspace-guide/">choosing between local development and VS Code workspaces</a>.</p>
+<h2>Customizable user experience</h2>
+<p>VS Code workspaces enables you to customize your workflow and save your coding preferences, such as custom key bindings, configurable color themes and layouts, and other UI settings.</p>
+<p>Learn more about the motivation for <a href="https://community.palantir.com/t/why-we-built-it-foundry-for-vs-code/3486">VS Code integration with Foundry â</a> and additional <a href="https://www.palantir.com/docs/foundry/palantir-extension-for-visual-studio-code/extension-features/">features of the VS Code extension</a>.</p>
+<hr />
+<p>Note: AIP feature availability is subject to change and may differ between customers.</p>
+<p>VS Code workspaces and the Palantir extension for Visual Studio Code are not affiliated with or endorsed by Microsoft.</p>
+<p>The Continue extension is a product of Continue Dev, Inc. No affiliation or endorsement is implied.</p>
+</body>
+</html>

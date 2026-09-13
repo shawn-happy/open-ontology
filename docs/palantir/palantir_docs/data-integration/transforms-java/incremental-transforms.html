@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Incremental transforms</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Incremental transforms</h1>
+<p>:::callout{theme="warning" title="Warning"}
+Incremental computation is an advanced feature. Ensure that you
+understand the rest of the user guide before making use of this feature.
+:::</p>
+<p>The transforms shown so far in the user guide recompute their entire
+output datasets every time they are run. This can lead to a lot of
+unnecessary work. Consider the following example:</p>
+<pre><code class="language-java">package myproject.datasets;
+
+import com.palantir.transforms.lang.java.api.*;
+import org.apache.spark.sql.Dataset;
+import org.apache.spark.sql.Row;
+
+public final class FilterTransform {
+
+   @Compute
+   public void myComputeFunction(
+           @Input(&quot;/examples/students_hair_eye_color&quot;) FoundryInput myInput,
+           @Output(&quot;/examples/students_hair_eye_color_filtered&quot;) FoundryOutput myOutput) {
+       Dataset&lt;Row&gt; inputDf = myInput.asDataFrame().read();
+       myOutput.getDataFrameWriter(inputDf.filter(&quot;eye = 'Brown'&quot;)).write();
+   }
+}
+</code></pre>
+<p>If any new data is added to the <code>/examples/students_hair_eye_color</code>
+input dataset, the <code>filter()</code> is performed over the entire input, rather
+than just the new data added to the input. This is wasteful in compute
+resource and time.</p>
+<p>If a transform can become aware of its build history, it can be smarter
+about how to compute its output. More specifically, it can use the
+changes made to the inputs to modify the output dataset. This process of
+using already materialized data when re-materializing tables is called
+<em>incremental computation</em>. Without incremental computation, the output
+dataset is always replaced by the latest output of the transform.</p>
+<p>Go back to the example transform shown above. The transform
+performs a <code>filter()</code> over the <code>students</code> dataset to write out students
+with brown hair. With incremental computation, if data about two new
+students is appended to <code>students</code>, the transform can use information
+about its build history to append only the new brown-haired students to
+the output:</p>
+<pre><code>RAW                              DERIVED
++---+-----+-----+                  +---+-----+-----+
+| id| hair|  eye|                  | id| hair|  eye|
++---+-----+-----+     Build 1      +---+-----+-----+
+| 17|Black|Brown|    ---------&gt;    | 18|Brown|Brown|
+| 18|Brown|Brown|                  +---+-----+-----+
+| 19|  Red|Brown|
++---+-----+-----+                            ...
+   ...
++---+-----+-----+     Build 2      +---+-----+-----+
+| 20|Brown|Brown|    ---------&gt;    | 20|Brown|Brown|
+| 21|Black|Blue |                  +---+-----+-----+
++---+-----+-----+
+</code></pre>
+<h2>Write an incremental transform</h2>
+<p>We will guide you step by step on how to write an incremental transform
+using <em>transforms-java</em>. As opposed to <em>transforms-python</em>,
+<em>transforms-java</em> does not use annotations to automatically verify
+incrementality and apply transformations in incremental fashion. The
+process of writing incremental transforms in java is controlled more
+directly by the user, who can explicitly decide in which case a
+transformation should act incrementally and when not. By interpreting
+how the input dataset was modified, the user can decide whether to
+update the output dataset in incremental fashion or in snapshot-like
+fashion.</p>
+<h3>Interpret your input</h3>
+<p>The first step to take involves interpretation of your input. The input
+dataset could be modified in multiple ways, and we will be able to apply
+incremental transformations only in some specific circumstances.
+DataFrameModificationType (or FilesModificationType) expresses the different ways a dataset can be modified. The different modes are:</p>
+<ul>
+<li>APPENDED</li>
+<li>UPDATED</li>
+<li>NEW_VIEW</li>
+<li>UNCHANGED</li>
+</ul>
+<p>Based on how the input has changed we can make decisions on what to read
+from the input dataset and what to write to the output dataset.</p>
+<h3>Read the input</h3>
+<p>Knowing how the input was modified allows us to read it accordingly. If
+a transaction only appended data we are sure we can safely act
+incrementally and read only what was modified. If, instead, we have a
+change to the input dataset including modification of already existing
+rows we may want to re read the whole view. <em>Transforms-Java</em> API allows
+for different read modes for input dataset thanks to the
+<code>readForRange()</code> method.
+ReadRange exposes the possible reading ranges. The different modes are:</p>
+<ul>
+<li>UNPROCESSED</li>
+<li>PROCESSED</li>
+<li>ENTIRE_VIEW</li>
+</ul>
+<p>By interpreting the input modification type we can then decide how to
+read our data, as shown in the example below.</p>
+<pre><code class="language-java">private ReadRange getReadRange(FoundryInput input) {
+     switch (input.asDataFrame().modificationType()) {
+         case UNCHANGED:
+             LOG.info(&quot;No changes in input dataset, read only unprocessed&quot;);
+             return ReadRange.UNPROCESSED;
+         case APPENDED:
+             LOG.info(&quot;Append-only changes in input dataset, read only unprocessed&quot;);
+             return ReadRange.UNPROCESSED;
+         case UPDATED:
+             LOG.info(&quot;Update-type changes in input dataset, read entire view&quot;);
+             return ReadRange.ENTIRE_VIEW;
+         case NEW_VIEW:
+             LOG.info(&quot;New view in input dataset, read entire view&quot;);
+             return ReadRange.ENTIRE_VIEW;
+         default:
+             throw new IllegalArgumentException(&quot;Unknown ModificationType for input dataset &quot;
+                 + input.asDataFrame().modificationType());
+     }
+}
+</code></pre>
+<p>We can then modify our <code>compute</code> method accordingly.</p>
+<pre><code class="language-java">@Compute
+public void myComputeFunction(
+        @Input(&quot;/examples/students_hair_eye_color&quot;) FoundryInput myInput,
+        @Output(&quot;/examples/students_hair_eye_color_filtered&quot;) FoundryOutput myOutput) {
+    Dataset&lt;Row&gt; inputDf = myInput.asDataFrame().readForRange(getReadRange(myInput));
+    myOutput.getDataFrameWriter(inputDf.filter(&quot;eye = 'Brown'&quot;)).write();
+}
+</code></pre>
+<p>:::callout{theme="warning" title="Warning"}
+At this point we are only reading different portions of the input
+dataset but not acting differently on the output dataset. Running the
+code in this example up to this point will always result in a snapshot
+transaction on the output, no matter which portion of the input you are
+reading. Proceed until the end of the tutorial before applying your
+incremental transforms in order to understand how to correctly modify
+the output dataset.
+:::</p>
+<h3>Transform the data</h3>
+<p>In this step it is on the user to apply whichever transformation of the
+data is needed. Remember that depending on the input modification the
+data read will differ. In our case the transformation is a simple filter
+for brown eyes, that we can isolate as:</p>
+<pre><code class="language-java">inputDf = inputDf.filter(&quot;eye = 'Brown'&quot;);
+</code></pre>
+<h3>Write the output</h3>
+<p>Once we have interpreted the modifications in the input dataset, read
+the desired portion of the input and transformed the data according to
+our transformation logic, we can write our output accordingly.
+WriteMode provides the different writing modes. The different modes are:</p>
+<ul>
+<li>SNAPSHOT</li>
+<li>UPDATE</li>
+</ul>
+<p>For example, in our case, we can choose the output type based on the
+input modification type.</p>
+<pre><code class="language-java">private WriteMode getWriteMode(FoundryInput input) {
+     switch (input.asDataFrame().modificationType()) {
+         case UNCHANGED:
+             LOG.info(&quot;No changes in input dataset, writing in update mode&quot;);
+             return WriteMode.UPDATE;
+         case APPENDED:
+             LOG.info(&quot;Append-only changes in input dataset, writing in update mode&quot;);
+             return WriteMode.UPDATE;
+         case UPDATED:
+             LOG.info(&quot;Update-type changes in input dataset, writing in snapshot mode&quot;);
+             return WriteMode.SNAPSHOT;
+         case NEW_VIEW:
+             LOG.info(&quot;new view in input dataset, writing in snapshot mode&quot;);
+             return WriteMode.SNAPSHOT;
+         default:
+             throw new IllegalArgumentException(&quot;Unknown ModificationType for input dataset &quot; + input.asDataFrame().modificationType());
+     }
+ }
+</code></pre>
+<p>:::callout{theme="warning" title="Warning"}
+Do not confuse <code>WriteMode.UPDATE</code> and
+<code>DataFrameModificationType.UPDATED</code>. The former results in an
+incremental modification of output dataset that will result in a
+<code>DataFrameModificationType.APPENDED</code> for downstream datasets. The latter
+is a modification of the input dataset that includes both appends and
+modification in existing rows.
+:::</p>
+<p>Finally, the <code>write()</code> function can be modified to include a
+write mode:</p>
+<pre><code class="language-java">@Compute
+public void myComputeFunction(
+        @Input(&quot;/examples/students_hair_eye_color&quot;) FoundryInput myInput,
+        @Output(&quot;/examples/students_hair_eye_color_filtered&quot;) FoundryOutput myOutput) {
+    Dataset&lt;Row&gt; inputDf = myInput.asDataFrame().readForRange(getReadRange(myInput));
+    myOutput.getDataFrameWriter(inputDf.filter(&quot;eye = 'Brown'&quot;)).write(getWriteMode(myInput));
+}
+</code></pre>
+<h3>Putting it all together</h3>
+<p>We can build a simple incremental filtering transform by putting the
+pieces together.</p>
+<pre><code class="language-java">package myproject.datasets;
+
+import com.palantir.transforms.lang.java.api.*;
+import org.apache.spark.sql.Dataset;
+import org.apache.spark.sql.Row;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+public final class FilterTransform {
+
+    private static final Logger LOG = LoggerFactory.getLogger(FilterTransform.class);
+
+    @Compute
+    public void myComputeFunction(
+            @Input(&quot;/examples/students_hair_eye_color&quot;) FoundryInput myInput,
+            @Output(&quot;/examples/students_hair_eye_color_filtered&quot;) FoundryOutput myOutput) {
+        Dataset&lt;Row&gt; inputDf = myInput.asDataFrame().readForRange(getReadRange(myInput));
+        myOutput.getDataFrameWriter(inputDf.filter(&quot;eye = 'Brown'&quot;)).write(getWriteMode(myInput));
+    }
+
+   private ReadRange getReadRange(FoundryInput input) {
+        switch (input.asDataFrame().modificationType()) {
+            case UNCHANGED:
+                LOG.info(&quot;No changes in input dataset, read only unprocessed&quot;);
+                return ReadRange.UNPROCESSED;
+            case APPENDED:
+                LOG.info(&quot;Append-only changes in input dataset, read only unprocessed&quot;);
+                return ReadRange.UNPROCESSED;
+            case UPDATED:
+                LOG.info(&quot;Update-type changes in input dataset, read entire view&quot;);
+                return ReadRange.ENTIRE_VIEW;
+            case NEW_VIEW:
+                LOG.info(&quot;New view in input dataset, read entire view&quot;);
+                return ReadRange.ENTIRE_VIEW;
+            default:
+                throw new IllegalArgumentException(&quot;Unknown ModificationType for input dataset &quot;
+                    + input.asDataFrame().modificationType());
+        }
+   }
+
+   private WriteMode getWriteMode(FoundryInput input) {
+        switch (input.asDataFrame().modificationType()) {
+            case UNCHANGED:
+                LOG.info(&quot;No changes in input dataset, writing in update mode&quot;);
+                return WriteMode.UPDATE;
+            case APPENDED:
+                LOG.info(&quot;Append-only changes in input dataset, writing in update mode&quot;);
+                return WriteMode.UPDATE;
+            case UPDATED:
+                LOG.info(&quot;Update-type changes in input dataset, writing in snapshot mode&quot;);
+                return WriteMode.SNAPSHOT;
+            case NEW_VIEW:
+                LOG.info(&quot;new view in input dataset, writing in snapshot mode&quot;);
+                return WriteMode.SNAPSHOT;
+            default:
+                throw new IllegalArgumentException(&quot;Unknown ModificationType for input dataset &quot; + input.asDataFrame().modificationType());
+        }
+    }
+}
+</code></pre>
+<p>As introduced above, we evaluate the input modification type and read
+the input accordingly. We then decide whether to incrementally update
+the output dataset or start a new snapshot transaction.</p>
+<h2>Write an incremental low-level transform using files</h2>
+<p>Low-level transforms that read and write raw files through <code>ReadOnlyLogicalFileSystem</code> and <code>WriteOnlyLogicalFileSystem</code>, rather than through DataFrames, follow the same incremental principles described above. The main difference is where the read range and write mode are set: on the file system objects returned by <code>FoundryFiles</code> and <code>FoundryOutput</code>, instead of on a <code>Dataset&lt;Row&gt;</code> reader and a <code>DataFrameWriter</code>.</p>
+<h3>Choose the read range and write mode</h3>
+<p><code>FoundryInput.asFiles()</code> returns a <code>FoundryFiles</code> object. Its <code>modificationType()</code> method returns a <code>FilesModificationType</code>, the file-based equivalent of <code>DataFrameModificationType</code>. Use the modification type to choose both settings:</p>
+<table>
+<thead>
+<tr>
+<th><code>FilesModificationType</code></th>
+<th><code>ReadRange</code></th>
+<th><code>WriteMode</code></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>UNCHANGED</code> or <code>APPENDED</code></td>
+<td><code>UNPROCESSED</code></td>
+<td><code>UPDATE</code></td>
+</tr>
+<tr>
+<td><code>UPDATED</code> or <code>NEW_VIEW</code></td>
+<td><code>ENTIRE_VIEW</code></td>
+<td><code>SNAPSHOT</code></td>
+</tr>
+</tbody>
+</table>
+<p>Pass the selected <code>ReadRange</code> to <code>FoundryFiles.getFileSystem()</code> to obtain a <code>ReadOnlyLogicalFileSystem</code> scoped to the required files. Pass the selected <code>WriteMode</code> to <code>FoundryOutput.getFileSystem()</code> to either update or replace the output dataset.</p>
+<p>:::callout{theme="warning" title="Warning"}
+Calling the no-argument <code>myOutput.getFileSystem()</code> always results in a snapshot transaction on the output, regardless of which <code>ReadRange</code> was used for the input. Pass a <code>WriteMode</code> explicitly to write incrementally.
+:::</p>
+<h3>Putting the low-level transform together</h3>
+<p>The example below copies files from an input dataset to an output dataset. It selects the read range and write mode based on how the input was modified.</p>
+<pre><code class="language-java">package myproject.datasets;
+
+import com.google.common.io.ByteStreams;
+import com.palantir.transforms.lang.java.api.Compute;
+import com.palantir.transforms.lang.java.api.FoundryFiles;
+import com.palantir.transforms.lang.java.api.FoundryInput;
+import com.palantir.transforms.lang.java.api.FoundryOutput;
+import com.palantir.transforms.lang.java.api.Input;
+import com.palantir.transforms.lang.java.api.Output;
+import com.palantir.transforms.lang.java.api.ReadOnlyLogicalFileSystem;
+import com.palantir.transforms.lang.java.api.ReadRange;
+import com.palantir.transforms.lang.java.api.WriteMode;
+import com.palantir.transforms.lang.java.api.WriteOnlyLogicalFileSystem;
+
+public final class IncrementalFileCopyTransform {
+
+    @Compute
+    public void myComputeFunction(
+            @Input(&quot;/examples/raw_files&quot;) FoundryInput myInput,
+            @Output(&quot;/examples/raw_files_copy&quot;) FoundryOutput myOutput) {
+        FoundryFiles inputFiles = myInput.asFiles();
+        ReadRange readRange;
+        WriteMode writeMode;
+        switch (inputFiles.modificationType()) {
+            case UNCHANGED:
+            case APPENDED:
+                readRange = ReadRange.UNPROCESSED;
+                writeMode = WriteMode.UPDATE;
+                break;
+            case UPDATED:
+            case NEW_VIEW:
+                readRange = ReadRange.ENTIRE_VIEW;
+                writeMode = WriteMode.SNAPSHOT;
+                break;
+            default:
+                throw new IllegalArgumentException(&quot;Unknown FilesModificationType for input dataset &quot;
+                    + inputFiles.modificationType());
+        }
+
+        ReadOnlyLogicalFileSystem inputFileSystem = inputFiles.getFileSystem(readRange);
+        WriteOnlyLogicalFileSystem outputFileSystem = myOutput.getFileSystem(writeMode);
+
+        inputFileSystem.listAllFiles().forEach(path -&gt; inputFileSystem.readFrom(path, inputStream -&gt; {
+            outputFileSystem.writeTo(path, outputStream -&gt; ByteStreams.copy(inputStream, outputStream));
+            return null;
+        }));
+    }
+}
+</code></pre>
+<p>This transform reads only the required input files and chooses between an incremental update and a full snapshot for the output.</p>
+<p>:::callout{theme="neutral"}
+See <a href="https://www.palantir.com/docs/foundry/transforms-java/unstructured-files/">Read and write unstructured files</a> for more examples of reading and writing files with <code>ReadOnlyLogicalFileSystem</code> and <code>WriteOnlyLogicalFileSystem</code> that do not use incremental behavior.
+:::</p>
+<h2>Best practices</h2>
+<h3>Switch between snapshot and incremental</h3>
+<p>Suppose you want to mostly run incremental transforms but sometimes
+need to rerun a snapshot of your dataset.</p>
+<p>To avoid manually hardcoding the desired result, you can add a new input that results in the output using the <code>SNAPSHOT</code> write mode whenever this input is modified. This new input will essentially then act as a snapshot trigger dataset. Note that you will have to adapt the read range of the transform's other inputs based on the modification type of this new snapshot trigger dataset.</p>
+<p>It is also possible to externally force a snapshot by creating an empty append transaction without provenance. However, <em>transforms-java</em> does not expose such functionality, and it is therefore out of the scope of this guide.</p>
+<h2>Advanced features</h2>
+<p>:::callout{theme="warning" title="Warning"}
+The advanced features in this section can have serious negative effects if used incorrectly. Do <em>not</em> use these features if you are not absolutely certain of the implications. If run without appropriate care and caution, there is a high risk of unwanted consequences. Contact your Palantir representative if you have any questions.
+:::</p>
+<p>:::callout{theme="warning" title="Warning"}
+Advanced features are usually included with annotations on top of your <code>@Compute</code> function. However, if your transform is manually registered, you will need to add the properties to the Transform Builder instead.
+:::</p>
+<h3>Ignore incremental deletes</h3>
+<p>If an incremental build depends on an append-only dataset growing indefinitely and there is insufficient disk space for that growth, it may become necessary to delete parts of the upstream dataset.
+However, this may break incrementality as the modification of the original dataset will not result in an <code>APPENDED</code> modification type.
+<code>IncrementalOptions.IGNORE_INCREMENTAL_DELETES</code> will avoid this and not treat deletions in the upstream dataset as breaking changes.</p>
+<p>:::callout{theme="warning" title="Warning"}
+It is only possible to ignore incremental deletes in low-level transforms.
+:::</p>
+<pre><code class="language-java">    @Compute
+    @UseIncrementalOptions(IncrementalOptions.IGNORE_INCREMENTAL_DELETES)
+    public void myComputeFunction(
+           @Input(&quot;/Users/admin/students_data&quot;) FoundryInput myInput,
+           @Output(&quot;/Users/admin/students_data_filtered&quot;) FoundryOutput myOutput) {
+    ...
+</code></pre>
+<p>If your transform is manually registered, add the property to the builder as in the following code block.</p>
+<pre><code class="language-java">    LowLevelTransform lowLevelManualTransform = LowLevelTransform.builder()
+               .computeFunctionInstance(new MyLowLevelManualFunction())
+               .putParameterToInputAlias(&quot;myInput&quot;, &quot;/path/to/input/dataset&quot;)
+               .putParameterToOutputAlias(&quot;myOutput&quot;, &quot;/path/to/output/dataset&quot;)
+               .ignoreIncrementalDeletes(true)
+               .build();
+</code></pre>
+<h3>Ignore schema change</h3>
+<p>:::callout{theme="warning" title="Warning"}
+Note that a schema modification in the input dataset may have unexpected consequences when combined with incremental transforms.</p>
+<p>Read all of the documentation below and ensure that you understand all potential implications before using this feature.
+:::</p>
+<p>:::callout{theme="warning" title="Warning"}
+It is only possible to ignore schema changes in low level transforms.
+:::</p>
+<p>If the schema of the dataset an incremental build depends on changes, the change will result in a <code>DataFrameModificationType.NEW_VIEW</code>, possibly breaking incrementality.</p>
+<p>However, if the <code>IncrementalOptions.USE_SCHEMA_MODIFICATION_TYPE</code> option is set, a schema change will not result in a new view.
+Instead, the schema change in the input dataset will be interpreted as <code>DataFrameModificationType.UNCHANGED</code> and a SchemaModificationType flag <code>SchemaModificationType.NEW_SCHEMA</code> will be set, allowing the user to explicitly treat this special case.</p>
+<pre><code class="language-java">        @Compute
+        @UseIncrementalOptions(IncrementalOptions.USE_SCHEMA_MODIFICATION_TYPE)
+        public void myComputeFunction(
+               @Input(&quot;/Users/admin/students_data&quot;) FoundryInput myInput,
+               @Output(&quot;/Users/admin/students_data_filtered&quot;) FoundryOutput myOutput) {
+        ...
+        }
+</code></pre>
+<p>If your transform is manually registered, add the property to the builder as in the following code block.</p>
+<pre><code class="language-java">    LowLevelTransform lowLevelManualTransform = LowLevelTransform.builder()
+               .computeFunctionInstance(new MyLowLevelManualFunction())
+               .putParameterToInputAlias(&quot;myInput&quot;, &quot;/path/to/input/dataset&quot;)
+               .putParameterToOutputAlias(&quot;myOutput&quot;, &quot;/path/to/output/dataset&quot;)
+               .useSchemaModificationType(true)
+               .build();
+</code></pre>
+<p>The build related to the transformation will succeed or fail depending on how the transformation depends on the input dataset.
+More precisely, if the transformation depends on columns involved in the schema change, modification to those columns will make the incremental transformation fail.
+In these cases, a new snapshot is required before being able to use incremental transforms again.</p>
+<p>The transformation <em>depends</em> on a certain column if:</p>
+<ul>
+<li>It contains modifications depending explicitly on that column (for example, if we have <code>filter("eye = 'Brown'")</code> and the column <code>eye</code> is renamed or deleted in the RAW dataset, then if we retrigger our <code>FilterTransform</code> the incremental update will fail).</li>
+<li>Modified columns appeared in the output dataset (for example, if we remove the column <code>hair</code> in our example RAW datasets, our <code>FilterTransform</code> will fail).</li>
+</ul>
+<p>If the transformation does not depend on the schema changes, the incremental build will succeed.</p>
+<p>For example, if we first add a <code>select</code> statement for <code>id</code> and <code>eye</code> in our transformation and trigger an initial snapshot build from the RAW dataset, and then remove the column <code>hair</code> in the RAW dataset, the incremental build will succeed and the schema change will not have any effect on the incremental transformation.
+The build will also always succeed in case of additive changes to the schema (e.g. adding a new column).</p>
+</body>
+</html>

@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>OSDK integration</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>OSDK integration</h1>
+<p>The Ontology SDK (OSDK) can be used within compute modules to interact with Foundry ontology objects. This page covers how to grant the necessary permissions, configure your compute module, and use the OSDK in both local Docker builds and Code Repositories.</p>
+<h2>Prerequisites</h2>
+<p>Before using the OSDK in your compute module, you must grant your application service user access to the required Ontology resources and configure your compute module with the appropriate credentials.</p>
+<h3>Grant access to the application service user</h3>
+<p>The client ID from <strong>Developer Console</strong> must have access to the Ontology resources your compute module will use.</p>
+<ol>
+<li>Navigate to the <strong>OAuth &amp; restrictions</strong> tab in <strong>Developer Console</strong>, and select <strong>Troubleshoot access</strong> in the <strong>Resource and operation restrictions</strong> section.</li>
+<li>In the <strong>Security</strong> tab of the resource you want to access, search for your client ID and add the user.</li>
+<li>For Ontology objects backed by datasets, you may need to grant access to both the object set and the underlying dataset. Refer to the <a href="https://www.palantir.com/docs/foundry/platform-security-third-party/third-party-apps-overview/">third-party applications documentation</a> for the latest guidance on configuring access.</li>
+</ol>
+<h3>Configure your compute module</h3>
+<p>Your compute module requires network egress and application credentials to use the OSDK.</p>
+<ol>
+<li>Add a <a href="https://www.palantir.com/docs/foundry/compute-modules/sources/">source</a> for your Foundry hostname, since egress is disabled by default.</li>
+<li>From the <strong>Configure</strong> tab of your compute module, select <strong>Application permissions</strong>. For more information on execution modes, review the <a href="https://www.palantir.com/docs/foundry/compute-modules/execution-modes/">execution modes</a> documentation.</li>
+<li>Select <strong>Use other app credentials</strong>.</li>
+<li>Enter the client ID and client secret from Developer Console, select <strong>Apply</strong>, and save your configuration.</li>
+</ol>
+<p><img alt="The application credentials configuration panel with client ID and client secret fields." src="../../_resources/foundry/compute-modules/osdk-application-credentials.png" /></p>
+<p>You can access the credentials from your compute module code using the reserved <code>CLIENT_ID</code> and <code>CLIENT_SECRET</code> <a href="https://www.palantir.com/docs/foundry/compute-modules/containers/#reserved-environment-variables-reference">environment variables</a>:</p>
+<p>```python tab="Python"
+from compute_modules.auth import retrieve_third_party_id_and_creds</p>
+<p>client_id, client_secret = retrieve_third_party_id_and_creds()</p>
+<pre><code>
+```java tab=&quot;Java&quot;
+String clientId = System.getenv(&quot;CLIENT_ID&quot;);
+String clientSecret = System.getenv(&quot;CLIENT_SECRET&quot;);
+</code></pre>
+<h2>Use OSDK with local Docker builds (Python)</h2>
+<p>This section walks through creating an OSDK-backed compute module using a local Docker build with Python.</p>
+<h3>Set up your OSDK</h3>
+<ol>
+<li>Create an application in <strong>Developer Console</strong> and generate your OSDK. Select <strong>Python</strong> as the language, <strong>Backend service</strong> as the application type, and <strong>Application permissions</strong> for the permission model.</li>
+<li>Install the OSDK library with pip using the command from Developer Console.</li>
+</ol>
+<h3>Write your compute module code</h3>
+<p>The following example demonstrates how to authenticate with the OSDK and query an Ontology object from within a compute module function:</p>
+<pre><code class="language-python">from demo_python_sdk import FoundryClient, ConfidentialClientAuth
+import logging
+import os
+from compute_modules.logging import get_logger, set_internal_log_level
+from compute_modules.auth import retrieve_third_party_id_and_creds
+from compute_modules.annotations import function
+
+CLIENT_ID, CLIENT_CREDS = retrieve_third_party_id_and_creds()
+
+set_internal_log_level(logging.INFO)
+logger = get_logger(__name__)
+logger.setLevel(logging.INFO)
+
+foundry_url = os.environ[&quot;FOUNDRY_URL&quot;]
+
+@function
+def get_object(context, event):
+    auth = ConfidentialClientAuth(
+        client_id=CLIENT_ID,
+        client_secret=CLIENT_CREDS,
+        hostname=foundry_url,
+        should_refresh=True,
+    )
+    client = FoundryClient(auth=auth, hostname=foundry_url)
+    EmployeeObject = client.ontology.objects.Employee
+    logger.info(EmployeeObject.take(1))
+    return &quot;Success&quot;
+</code></pre>
+<h3>Create your Dockerfile</h3>
+<p>When building locally, the OSDK library is hosted in a private Foundry Artifact repository. You must use a <code>FOUNDRY_TOKEN</code> secret during the Docker build to authenticate with the repository.</p>
+<pre><code class="language-dockerfile">FROM --platform=linux/amd64 python:3.12
+COPY requirements.txt .
+RUN --mount=type=secret,id=FOUNDRY_TOKEN,env=FOUNDRY_TOKEN \
+    pip install -r requirements.txt --upgrade \
+    --extra-index-url &quot;https://user:$FOUNDRY_TOKEN@yourenrollment.palantirfoundry.com/artifacts/api/repositories/ri.artifacts.main.repository.REDACTED/contents/release/pypi/simple&quot; \
+    --extra-index-url &quot;https://user:$FOUNDRY_TOKEN@yourenrollment.palantirfoundry.com/artifacts/api/repositories/ri.foundry-sdk-asset-bundle.main.artifacts.repository/contents/release/pypi/simple&quot;
+COPY src .
+USER 5000
+ENTRYPOINT [&quot;python&quot;, &quot;app.py&quot;]
+</code></pre>
+<p>:::callout{theme="warning"}
+Replace <code>yourenrollment.palantirfoundry.com</code> with your actual Foundry enrollment URL, and replace the repository RIDs with the values provided in Developer Console.
+:::</p>
+<h3>Build and push the image</h3>
+<p>Build the Docker image using the following command, passing the <code>FOUNDRY_TOKEN</code> as a build secret:</p>
+<pre><code class="language-bash">docker buildx build --platform=linux/amd64 \
+    --secret id=FOUNDRY_TOKEN,env=FOUNDRY_TOKEN \
+    -t yourenrollment-container-registry.palantirfoundry.com/hello-world:0.0.1 .
+</code></pre>
+<p>For more information on building and publishing Docker images, review the <a href="https://www.palantir.com/docs/foundry/compute-modules/containers/">containers</a> documentation.</p>
+<h2>Use OSDK with Code Repositories</h2>
+<p>If you are developing your compute module in Code Repositories, you can add the OSDK as a library dependency instead of installing it locally.</p>
+<h3>Python</h3>
+<ol>
+<li>Create an application in Developer Console and generate your OSDK. Select <strong>Python</strong> as the language, <strong>Backend service</strong> as the application type, and <strong>Application permissions</strong> for the permission model. A Conda SDK will be created.</li>
+</ol>
+<p><img alt="The Conda SDK generated in Developer Console for Python compute modules." src="../../_resources/foundry/compute-modules/python-conda-sdk.png" /></p>
+<ol start="2">
+<li>In your Python Code Repository, open the <strong>Libraries</strong> panel, search for the Conda SDK generated in the previous step, and add it.</li>
+</ol>
+<p><img alt="The Libraries panel in a Python Code Repository showing the Conda SDK search result." src="../../_resources/foundry/compute-modules/python-find-osdk.png" /></p>
+<ol start="3">
+<li>Use the OSDK in your compute module code:</li>
+</ol>
+<pre><code class="language-python">import os
+from osdk_compute_module_demo_sdk import ConfidentialClientAuth, FoundryClient
+from compute_modules.auth import retrieve_third_party_id_and_creds
+from compute_modules.annotations import function
+
+foundry_url = os.environ[&quot;FOUNDRY_URL&quot;]
+CLIENT_ID, CLIENT_CREDS = retrieve_third_party_id_and_creds()
+
+@function
+def print_object(context, event):
+    auth = ConfidentialClientAuth(
+        client_id=CLIENT_ID,
+        client_secret=CLIENT_CREDS,
+        hostname=foundry_url,
+        should_refresh=True,
+        scopes=[
+            &quot;api:ontologies-read&quot;,
+            &quot;api:ontologies-write&quot;,
+            &quot;api:mediasets-read&quot;,
+            &quot;api:mediasets-write&quot;,
+        ],
+    )
+    client = FoundryClient(auth=auth, hostname=foundry_url)
+    EmployeeObject = client.ontology.objects.Employee
+    return str(EmployeeObject.take(1))
+</code></pre>
+<h3>Java</h3>
+<ol>
+<li>Create an application in Developer Console and generate your OSDK. Select <strong>Java</strong> as the language, <strong>Backend service</strong> as the application type, and <strong>Application permissions</strong> for the permission model. A Maven locator will be provided, such as <code>com.palantir.foundry:osdk-compute-module-demo-sdk</code>.</li>
+</ol>
+<p><img alt="The Maven SDK locator generated in Developer Console for Java compute modules." src="../../_resources/foundry/compute-modules/java-maven-sdk.png" /></p>
+<ol start="2">
+<li>In your Java Code Repository, open the <strong>Libraries</strong> panel, search for the Maven SDK generated in the previous step, and add it.</li>
+</ol>
+<p><img alt="The Libraries panel in a Java Code Repository showing the Maven SDK search result." src="../../_resources/foundry/compute-modules/java-find-maven-sdk.png" /></p>
+<ol start="3">
+<li>Toggle hidden files and find the <code>build.gradle</code> file in your deployed application definition directory. Add the Maven locators as dependencies.</li>
+</ol>
+<p><img alt="The hidden files toggle in a Java Code Repository for accessing the build.gradle file." src="../../_resources/foundry/compute-modules/java-show-hidden-files.png" /></p>
+<p><img alt="The build.gradle file with the OSDK Maven dependency added." src="../../_resources/foundry/compute-modules/java-add-sdk-gradle.png" /></p>
+<ol start="4">
+<li>Use the OSDK in your compute module code:</li>
+</ol>
+<pre><code class="language-java">import com.palantir.foundry.osdk_compute_module_demo_sdk.FoundryClient;
+import com.palantir.foundry.osdk_compute_module_demo_sdk.objects.Employee;
+import com.palantir.osdk.api.Auth;
+import com.palantir.osdk.api.auth.ConfidentialClientAuth;
+import com.palantir.osdk.internal.api.FoundryConnectionConfig;
+import java.util.List;
+
+static String return_object() {
+    Auth auth = ConfidentialClientAuth.builder()
+            .clientId(System.getenv(&quot;CLIENT_ID&quot;))
+            .clientSecret(System.getenv(&quot;CLIENT_SECRET&quot;))
+            .build();
+
+    FoundryClient client = FoundryClient.builder()
+            .auth(auth)
+            .connectionConfig(FoundryConnectionConfig.builder()
+                    .foundryUri(&quot;https://yourenrollment.palantirfoundry.com&quot;)
+                    .build())
+            .build();
+
+    List&lt;Employee&gt; objects = client.ontology().objects().Employee()
+            .fetchStream().toList();
+    return objects.get(0).toString();
+}
+</code></pre>
+<h2>Marketplace-installed compute modules</h2>
+<p>When a compute module installed through Marketplace uses the OSDK, the ontology RID from the Marketplace installation project is linked to the compute module through the <code>FOUNDRY_ONTOLOGY_RID</code> environment variable. This is the ontology RID of the installation project, not the original source project.</p>
+<p>:::callout{theme="warning"}
+The API names of all Ontology entities must match between the source and target ontologies. If the API names do not match, the OSDK will not be able to resolve the entities in the target ontology.
+:::</p>
+<p>Use the <code>FOUNDRY_ONTOLOGY_RID</code> environment variable when initializing the OSDK client to ensure your compute module references the correct ontology:</p>
+<p>```python tab="Python"
+import os</p>
+<p>FOUNDRY_ONTOLOGY_RID = os.environ.get("FOUNDRY_ONTOLOGY_RID")
+CLIENT = FoundryClient(auth=AUTH, hostname=HOSTNAME, rid=FOUNDRY_ONTOLOGY_RID)</p>
+<pre><code>
+```javascript tab=&quot;TypeScript&quot;
+const originalOntologyRid: string = &quot;{YOUR_ORIGINAL_ONTOLOGY_RID}&quot;;
+const ontologyRid: string = process.env.FOUNDRY_ONTOLOGY_RID ?? originalOntologyRid;
+const client: Client = createClient(url, ontologyRid, auth);
+</code></pre>
+</body>
+</html>

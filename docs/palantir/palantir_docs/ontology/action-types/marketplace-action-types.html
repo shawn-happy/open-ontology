@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Add action types to Marketplace product</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Add action types to Marketplace product</h1>
+<p>Use <a href="https://www.palantir.com/docs/foundry/devops/overview/">Foundry DevOps</a> to include your action types in <a href="https://www.palantir.com/docs/foundry/devops/core-concepts/#product">Marketplace products</a> for other users to install and reuse. <a href="https://www.palantir.com/docs/foundry/foundry-devops/create-products/">Learn how to create your first product.</a></p>
+<h2>Supported features</h2>
+<p>Most action type features are supported, except actions that reference <a href="https://www.palantir.com/docs/foundry/object-link-types/marketplace-ontology-types/#unsupported-features">object types with unsupported features</a>. When preparing your action type for packaging, ensure your action type <a href="https://www.palantir.com/docs/foundry/action-types/getting-started/#add-submission-criteria"><strong>Security &amp; Submission criteria</strong></a> does not reference a user; update any user references to refer to groups instead.</p>
+<h2>Adding action types to products</h2>
+<p>To add an action type to a product, first <a href="https://www.palantir.com/docs/foundry/foundry-devops/create-products/">create a product</a> and then select the <strong>Action type</strong> content type as below.</p>
+<p><img alt="Add action type." src="../../_resources/foundry/action-types/marketplace-add-action-type.png" /></p>
+<p>You will then be prompted to choose an action type.</p>
+<p><img alt="Add action type dialogue." src="../../_resources/foundry/action-types/marketplace-add-action-type-dialog.png" /></p>
+<p>While you can select action types directly, we recommend first adding content like <a href="https://www.palantir.com/docs/foundry/workshop/marketplace-workshop/">Workshop applications</a> and then selecting relevant actions via the dependencies panel as shown below.</p>
+<p><img alt="Add action type via panel." src="../../_resources/foundry/action-types/marketplace-add-action-type-panel.png" /></p>
+</body>
+</html>

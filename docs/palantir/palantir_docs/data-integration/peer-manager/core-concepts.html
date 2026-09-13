@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Core concepts</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Core concepts</h1>
+<p>This page provides an introduction to the core concepts for peering that are relevant to Peer Manager.</p>
+<h2>Peer connections</h2>
+<p>Once established, you can use peer connections to share data between distinct <a href="https://www.palantir.com/docs/foundry/security/orgs-and-spaces/#spaces">spaces</a> across two Foundry <a href="https://www.palantir.com/docs/foundry/administration/enrollments-and-organizations/">enrollments</a>. A peer connection's configuration controls the types of data that may peer, the direction the data will peer, and the set of <a href="https://www.palantir.com/docs/foundry/security/classification-based-access-controls/">classification</a> and other <a href="https://www.palantir.com/docs/foundry/security/markings/">markings</a> that can peer over the connection.</p>
+<h3>Data types</h3>
+<p>Through a peer connection, you can peer <a href="https://www.palantir.com/docs/foundry/object-link-types/object-types-overview/">Foundry objects</a>, <a href="https://www.palantir.com/docs/foundry/ontology/core-concepts/#object-type">object sets configured in Object Explorer</a>, and <a href="https://www.palantir.com/docs/foundry/peer-manager/configure-file-peering/">Gotham files</a>.</p>
+<p>:::callout{theme="neutral"}
+It is not yet possible to peer other Foundry resources over an established peer connection, such as <a href="https://www.palantir.com/docs/foundry/workshop/overview/">Workshop</a> applications. However, you can use <a href="https://www.palantir.com/docs/foundry/marketplace/overview/">Marketplace</a> to distribute Workshop applications as well as other Foundry data products. When used together, Marketplace and peering enable you to create real-time collaborative workflows across enrollments.
+:::</p>
+<h3>Connection security</h3>
+<p>A peer connection's security defines the set of security markings that are allowed to peer over the connection.</p>
+<p>The <em>classification</em> marking on the peer connection defines the highest classification that is allowed to peer. Resources with <a href="https://www.palantir.com/docs/foundry/security/classification-based-access-controls/">Classification-based Access Control (CBAC)</a> markings up to and including the peer connection's CBAC will be allowed to peer.</p>
+<p>The <a href="https://www.palantir.com/docs/foundry/security/markings/"><em>markings</em></a> on a peer connection provide an additional level of access control, as any markings on the resource to peer <em>must</em> be included in the peer connection's security.</p>
+<p>Only data which satisfies the peer connection's security requirements may peer using that connection. Review the table below to help you determine how peering security functions in practice.</p>
+<table>
+<thead>
+<tr>
+<th>Peer connection security</th>
+<th>Resource to peer's classification</th>
+<th>Resource to peer's additional markings</th>
+<th>Will resource peer?</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>MOCK SECRET with no additional markings</td>
+<td>MOCK UNCLASSIFIED</td>
+<td><code>Operational</code></td>
+<td>â No. The  <code>Operational</code> marking on the resource to peer is not included on the peer connection.</td>
+</tr>
+<tr>
+<td>MOCK SECRET with no additional markings</td>
+<td>MOCK SECRET</td>
+<td>None</td>
+<td>â  Yes</td>
+</tr>
+<tr>
+<td>MOCK SECRET with additional markings [<code>Operational</code>, <code>Exercise</code>]</td>
+<td>MOCK UNCLASSIFIED</td>
+<td><code>Operational</code></td>
+<td>â  Yes</td>
+</tr>
+<tr>
+<td>MOCK SECRET with additional markings [<code>Operational</code>, <code>Exercise</code>]</td>
+<td>MOCK SECRET</td>
+<td>None</td>
+<td>â  Yes</td>
+</tr>
+</tbody>
+</table>
+<h3>Peer connection management permissions</h3>
+<p>Users can only manage a peer connection if they can manage the associated local space.</p>
+<h2>How your enrollment appears to remote peers</h2>
+<p>When you peer with another enrollment, users on the remote peer enrollment can identify your enrollment by its <a href="https://www.palantir.com/docs/foundry/administration/configure-platform-experience/#configure-the-platform-title">platform title configured by an <strong>Enrollment administrator</strong> in Control Panel</a>. Peer Manager displays the platform title under <strong>Remote enrollment</strong> in the <strong>Peer connections</strong> tab alongside the configured peer connections.</p>
+<p>:::callout{theme="neutral"}
+Any enrollment that participates in a peer connection should configure a platform title, ensuring remote peers can clearly identify the enrollment. If you do not set a platform title, then Peer Manager falls back to a potentially less descriptive identifier, such as the space name.
+:::</p>
+<p>In addition to the platform title, Peer Manager also shares your enrollment's medium-sized <a href="https://www.palantir.com/docs/foundry/administration/configure-platform-experience/#configure-the-platform-logo">platform logo</a> with the remote peers after its configuration.</p>
+<h2>Peering jobs</h2>
+<p>Peer Manager sends data between spaces via peering jobs. Each job corresponds to a specific data type sent in a particular direction. Peer Manager enumerates all jobs for a given connection in the connection's <strong>Overview</strong> page.</p>
+<p>Export jobs run as either <em>concurrent</em> jobs, which peer data in real time as it changes, or <em>sequential</em> jobs, which run one at a time to backfill any data the real-time path missed. For a full explanation of job types, statuses, and how to filter the jobs table, see <a href="https://www.palantir.com/docs/foundry/peer-manager/peering-jobs/">Peering jobs</a>.</p>
+</body>
+</html>

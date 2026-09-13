@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Use AIP Chatbots through Foundry APIs</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Use AIP Chatbots through Foundry APIs</h1>
+<p>To build applications on top of the Foundry platform, you can embed chatbots into your applications using the <a href="https://www.palantir.com/docs/foundry/api/v2/aip-agents-v2-resources/sessions/create-session">Palantir APIs</a>.</p>
+<h2>What can I do with the APIs?</h2>
+<p>Easily build multi-shot interactions with your chatbots over the API, using its options to:</p>
+<ul>
+<li>Start new conversations for a given task or context by <a href="https://www.palantir.com/docs/foundry/api/v2/aip-agents-v2-resources/sessions/create-session">creating</a> a new session with your chatbot.</li>
+<li>Orchestrate complex back-and-forth task prompts with the <a href="https://www.palantir.com/docs/foundry/api/v2/aip-agents-v2-resources/sessions/streaming-continue-session">streaming</a> or <a href="https://www.palantir.com/docs/foundry/api/v2/aip-agents-v2-resources/sessions/blocking-continue-session">blocking</a> APIs, with built-in state management to track these updates to your sessions for you.</li>
+<li>Provide custom application inputs to the chatbot through the options for application state in the API. These use the <code>parameter</code> previously used in Chatbot Studio, now available as Application state/variables. Use the <code>parameterInputs</code> field in requests to provide inputs. Use the <code>parameterUpdates</code> field for blocking responses (or <a href="https://www.palantir.com/docs/foundry/api/v2/aip-agents-v2-resources/contents/get-content">load the session exchange</a> after streaming) to read custom outputs.</li>
+</ul>
+<p>For straightforward, single-use tasks that do not need extensive session management, consider using <a href="https://www.palantir.com/docs/foundry/chatbot-studio/chatbots-as-functions/">chatbots as functions</a>. You can access a chatbot as a function from a third-party application using the Palantir OSDK.</p>
+<h2>Deploy an AIP Chatbot to a Developer Console application</h2>
+<p>Once you have configured and published your AIP Chatbot, you can create and configure a Developer Console application to interact with your AIP Chatbot in a custom application.</p>
+<p>To enable your Developer Console application to interact with your AIP Chatbot using <a href="https://www.palantir.com/docs/foundry/api/aip-agents-v2-resources/agents/agent-basics/">platform APIs</a>, follow the steps in <a href="https://www.palantir.com/docs/foundry/developer-console/create-application/">create a new Developer Console application</a> to create a new SDK application with access to Platform SDK resources:</p>
+<p>:::callout{theme="neutral"}
+To use an AIP Chatbot from an Ontology SDK application, you must configure the AIP Chatbot to only use object types, action types or function types from a single Ontology.
+:::</p>
+<ol>
+<li>On the <strong>Resources</strong> page, select the Ontology used by your AIP Chatbot, then select all object types, action types and function types used in your AIP Chatbot configuration. Ensure you select the types used for the application state and all tools and retrieval context configured for your AIP Chatbot.</li>
+<li>Next, select the <strong>Platform SDK</strong> tab. Under <strong>Projects access</strong>, add the project containing your AIP Chatbot. To find the project for the AIP Chatbot, open the AIP Chatbot in Chatbot Studio and inspect the filesystem path details next to the AIP Chatbot's name in the header.</li>
+<li>If your AIP Chatbot is configured to use any other filesystem resources, such as a media set for <a href="https://www.palantir.com/docs/foundry/chatbot-studio/retrieval-context/#document-context">document context</a>, ensure these are in the same project as your AIP Chatbot, or add all additional projects for these resources to the <strong>Projects access</strong> section.</li>
+</ol>
+<p><img alt="Use the Platform SDK tab to add the project for your AIP Chatbot." src="../../_resources/foundry/chatbot-studio/osdk-platform-sdk-projects-access-agent.png" /></p>
+<ol start="4">
+<li>Finally, enable operations for the <strong>AIP Chatbots API</strong> in the <strong>Client allowed operations</strong> table. To check the operations required for the different AIP Chatbot platform APIs, refer to the <a href="https://www.palantir.com/docs/foundry/api/aip-agents-v2-resources/agents/agent-basics/">platform API</a> documentation.</li>
+</ol>
+<p>:::callout{theme="neutral"}
+To allow your Developer Console application to create and send messages in conversation sessions with an AIP Chatbot, you must enable the <strong>AIP Chatbots write permission</strong>.
+:::</p>
+<p><img alt="Enable the AIP Chatbot API operations in the Client allowed operations table." src="../../_resources/foundry/chatbot-studio/osdk-platform-sdk-client-operations-chatbots.png" /></p>
+<ol start="5">
+<li>Refer to the <a href="https://www.palantir.com/docs/foundry/developer-console/create-application/">Developer Console</a> documentation steps to review and finalize creation of your application.</li>
+</ol>
+<h3>Update an AIP Chatbot used in Developer Console applications</h3>
+<p>Once you have configured a Developer Console application to allow interaction with an AIP Chatbot through <strong>Platform SDK</strong> resources, you will need to update the application if any of the Ontology or platform resources used by your AIP Chatbot are modified.</p>
+<p>For example, if you add any new object types, action types or function types to the AIP Chatbot, you must add these to the <strong>Ontology SDK</strong> resources for your application in Developer Console. Similarly, if you add any platform resources to your AIP Chatbot, such as additional media sets for document context retrieval, you must add these to the <strong>Platform SDK</strong> resources for your application. Developer Console application resources <em>are not</em> updated automatically when changes occur to the types of resources used by your AIP Chatbot.</p>
+<h3>Create conversations with AIP Chatbots in custom applications</h3>
+<p>To get started bootstrapping a new application, refer to the documentation examples for <a href="https://www.palantir.com/docs/foundry/developer-console/how-to-bootstrapping-typescript/">TypeScript</a> or <a href="https://www.palantir.com/docs/foundry/developer-console/how-to-bootstrapping-python/">Python</a>, or <a href="https://www.palantir.com/docs/foundry/developer-console/how-to-add-to-existing-typescript/">add the SDK to an existing application</a>.</p>
+<p>Once you have created your application, use the <a href="https://www.palantir.com/docs/foundry/api/aip-agents-v2-resources/sessions/create-session">Create Session</a> platform API to create a new conversation with your AIP Chatbot.</p>
+<p>:::callout{theme="neutral"}
+The <strong>Sessions</strong> APIs for AIP Chatbots require you to specify the <code>agentRid</code> for the AIP Chatbot to use for conversation session interactions. <br><br>
+You can find this by opening the project for your AIP Chatbot, selecting the AIP Chatbot and using the <strong>Copy to clipboard</strong> option for the RID under <strong>Metadata</strong> in the file overview. <br><br>
+<img alt="Copy the AIP Chatbot RID from the AIP Chatbot file details to use with the platform APIs." src="../../_resources/foundry/chatbot-studio/get-aip-agent-rid.png" />
+:::</p>
+<p>Once you have created a new session, use the <code>sessionRid</code> value in the returned response to send a new message to the AIP Chatbot and get responses using the <a href="https://www.palantir.com/docs/foundry/api/aip-agents-v2-resources/sessions/blocking-continue-session"><code>Blocking continue session</code></a> or <a href="https://www.palantir.com/docs/foundry/api/aip-agents-v2-resources/sessions/streaming-continue-session"><code>Streaming continue session</code></a> platform APIs. Use the blocking API to wait to receive the full AIP Chatbot response once it is fully generated, or use the streaming API to receive a stream of the AIP Chatbot's answer text as it is generated.</p>
+<p>You can load conversation metadata for a session using the <a href="https://www.palantir.com/docs/foundry/api/aip-agents-v2-resources/sessions/get-session"><code>Get Session</code></a> API, and load the history of exchanges (messages sent by your application and responses from the AIP Chatbot) for a session with the <a href="https://www.palantir.com/docs/foundry/api/aip-agents-v2-resources/contents/get-content"><code>Get Content</code></a> API.</p>
+<p>You can use the <a href="https://www.palantir.com/docs/foundry/api/v2/aip-agents-v2-resources/session-traces/get-session-trace"><code>Get Session Trace</code></a> API to retrieve the sequence of steps taken by the AIP Chatbot, which can be useful for debugging or understanding the chatbot's reasoning process. The endpoint requires a <code>sessionTraceId</code> which you can obtain in two ways:</p>
+<ul>
+<li>For new exchanges:</li>
+<li>Generate a random UUIDv4 to use as the <code>sessionTraceId</code> in the request to the <a href="https://www.palantir.com/docs/foundry/api/v2/aip-agents-v2-resources/sessions/blocking-continue-session"><code>Blocking continue session</code></a> or <a href="https://www.palantir.com/docs/foundry/api/v2/aip-agents-v2-resources/sessions/streaming-continue-session"><code>Streaming continue session</code></a> APIs. This option allows you to poll the <a href="https://www.palantir.com/docs/foundry/api/v2/aip-agents-v2-resources/session-traces/get-session-trace">'Get Session Trace'</a> API and see the real-time trace of the chatbot's answer generation.</li>
+<li>Inspect the <code>sessionTraceId</code> field in the response from the <a href="https://www.palantir.com/docs/foundry/api/v2/aip-agents-v2-resources/sessions/blocking-continue-session"><code>Blocking continue session</code></a> API.</li>
+<li>For existing exchanges:</li>
+<li>Inspect the <code>sessionTraceId</code> field on the exchange results in the response from the <a href="https://www.palantir.com/docs/foundry/api/v2/aip-agents-v2-resources/contents/get-content"><code>Get Content</code></a> API.</li>
+</ul>
+<p>Refer to the platform API documentation for code examples on how to use these APIs in your target application language.</p>
+</body>
+</html>

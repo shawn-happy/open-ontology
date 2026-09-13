@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CSV parsing</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>CSV parsing</h1>
+<p>Foundry supports <strong>CSV datasets</strong>. These are datasets that contain files in the CSV format.</p>
+<p>The CSV format can use different delimiters, quote characters, and escape characters. To manage this, you can define parameters that control how CSV files are parsed. These parameters are stored in the schema of a dataset. Foundry will use inference to suggest a sensible set of parameters for a given dataset, but results should be validated and changes made if necessary.</p>
+<h2>Parsing in Foundry</h2>
+<p>Foundry CSV datasets will generally have the <code>TextDataFrameReader</code> defined as their <code>dataFrameReaderClass</code> in the schema. This supports a set of custom parameters that can help deal with messy data effectively. At execution time, this delegates to the <a href="https://spark.apache.org/docs/latest/sql-data-sources-csv.html">Spark CSV DataFrameReader â</a> for the best possible performance and reliability.</p>
+<h2>Configuration</h2>
+<p>In Foundry, you can view the schema on any dataset in the <a href="https://www.palantir.com/docs/foundry/dataset-preview/overview/">Dataset Preview</a> application by navigating to the <strong>Details</strong> tab and selecting <strong>Schema</strong>. For more details on the schema, see the <a href="https://www.palantir.com/docs/foundry/data-integration/datasets/">Dataset</a> documentation.</p>
+<p>CSV schemas can be manipulated in the <strong>Edit Schema</strong> UI, available from <a href="https://www.palantir.com/docs/foundry/dataset-preview/overview/">Dataset Preview</a> when viewing the preview tab. This will help visualize the options available and how they affect the output dataset. In cases where CSVs are particularly malformed, you may need to manually edit the schema to get the desired output.</p>
+<h3>TextDataFrameReader options</h3>
+<p>To manually configure the <code>TextDataFrameReader</code> options in the schema, you can navigate to the schema page in the <strong>Details</strong> tab of <a href="https://www.palantir.com/docs/foundry/dataset-preview/overview/">Dataset Preview</a> and select <strong>Edit</strong>. At the bottom of the schema, there should be a section as follows:</p>
+<pre><code class="language-json">  &quot;dataFrameReaderClass&quot;: &quot;com.palantir.foundry.spark.input.TextDataFrameReader&quot;,
+  &quot;customMetadata&quot;: {
+    &quot;textParserParams&quot;: {
+      &quot;parser&quot;: &quot;CSV_PARSER&quot;,
+      &quot;charsetName&quot;: &quot;UTF-8&quot;,
+      &quot;fieldDelimiter&quot;: &quot;,&quot;,
+      &quot;recordDelimiter&quot;: &quot;\n&quot;,
+      &quot;quoteCharacter&quot;: &quot;\&quot;&quot;,
+      &quot;dateFormat&quot;: {},
+      &quot;skipLines&quot;: 1,
+      &quot;jaggedRowBehavior&quot;: &quot;THROW_EXCEPTION&quot;,
+      &quot;parseErrorBehavior&quot;: &quot;THROW_EXCEPTION&quot;,
+      &quot;addFilePath&quot;: false,
+      &quot;addFilePathInsteadOfUri&quot;: false,
+      &quot;addImportedAt&quot;: false,
+      &quot;initialReadTimeout&quot;: &quot;1 hour&quot;
+    }
+  }
+}
+</code></pre>
+<p>The following options are available for the <code>TextDataFrameReader</code>:</p>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Purpose</th>
+<th>Accepted values</th>
+<th>Required?</th>
+<th>Parsers supported</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>parser</td>
+<td>The parser type to use.</td>
+<td>CSV_PARSER, MULTILINE_CSV_PARSER, SIMPLE_PARSER, SINGLE_COLUMN_PARSER</td>
+<td>Yes</td>
+<td>N/A</td>
+</tr>
+<tr>
+<td>nullValues</td>
+<td>The values that should be parsed to null.</td>
+<td>A list of strings</td>
+<td>Yes</td>
+<td>all</td>
+</tr>
+<tr>
+<td>fieldDelimiter</td>
+<td>The delimiter character for splitting a record into multiple fields.</td>
+<td>A one-character string</td>
+<td>No, default to , (comma)</td>
+<td>CSV_PARSER, MULTILINE_CSV_PARSER, SIMPLE_PARSER</td>
+</tr>
+<tr>
+<td>recordDelimiter</td>
+<td>The end of line symbols for splitting a CSV file into multiple records.</td>
+<td>A string ends with newline character</td>
+<td>No, default to \n (newline)      CSV_PARSER, MULTILINE_CSV_PARSER</td>
+<td></td>
+</tr>
+<tr>
+<td>quoteCharacter</td>
+<td>The quote character for CSV parsing.</td>
+<td>A one-character string</td>
+<td>No, default to " (doublequote)</td>
+<td>CSV_PARSER, MULTILINE_CSV_PARSER</td>
+</tr>
+<tr>
+<td>dateFormat</td>
+<td>Format strings for date parsing in certain columns.</td>
+<td>A map that maps column names to JodaTime DateTimeFormat patterns</td>
+<td>No, default to empty map</td>
+<td>CSV_PARSER, MULTILINE_CSV_PARSER, SIMPLE_PARSER</td>
+</tr>
+<tr>
+<td>skipLines</td>
+<td>The number of lines to skip parsing at the start of each file.</td>
+<td>A non-negative number</td>
+<td>No, default to 0</td>
+<td>all</td>
+</tr>
+<tr>
+<td>jaggedRowBehavior</td>
+<td>Behavior when there are more or fewer columns than types specified in the header.</td>
+<td>THROW_EXCEPTION, DROP_ROW</td>
+<td>No, defaults to THROW_EXCEPTION</td>
+<td>N/A</td>
+</tr>
+<tr>
+<td>parseErrorBehavior</td>
+<td>Behavior when a value fails to parse into the requested type specified in the header.</td>
+<td>THROW_EXCEPTION, REPLACE_WITH_NULL</td>
+<td>No, defaults to THROW_EXCEPTION</td>
+<td>N/A</td>
+</tr>
+<tr>
+<td>addFilePath</td>
+<td>Each row is augmented by a file path.</td>
+<td>Boolean</td>
+<td>No, default to false</td>
+<td>all</td>
+</tr>
+<tr>
+<td>addImportedAt</td>
+<td>Each row is augmented by the import time.</td>
+<td>Boolean</td>
+<td>No, default to false</td>
+<td>all</td>
+</tr>
+<tr>
+<td>initialReadTimeout</td>
+<td>Limits the time the parser will wait to read the first row.</td>
+<td>A human-readable duration</td>
+<td>No, default to 1 hour</td>
+<td>all</td>
+</tr>
+</tbody>
+</table>
+<h3>Spark CSV options</h3>
+<p>If you are already familiar with the Spark CSV DataFrameReader, you can configure the <code>dataFrameReaderClass</code> to be <code>DataSourceDataFrameReader</code> and the <code>format</code> to be <code>csv</code> in the <code>customMetadata</code>.</p>
+<p>See the <a href="https://spark.apache.org/docs/latest/sql-data-sources-csv.html">Spark CSV DataFrameReader documentation â</a> for a list of supported options. You can add the configurations as key-value pairs like this:</p>
+<pre><code class="language-json">  &quot;dataFrameReaderClass&quot;: &quot;com.palantir.foundry.spark.input.DataSourceDataFrameReader&quot;,
+  &quot;customMetadata&quot;: {
+    &quot;format&quot;: &quot;csv&quot;,
+    &quot;options&quot;: {
+      &quot;unescapedQuoteHandling&quot;: &quot;STOP_AT_DELIMITER&quot;,
+      &quot;multiline&quot;: true,
+      ...
+    }
+  }
+
+</code></pre>
+<p>:::callout{theme="neutral"}
+Note that the schema options listed above are only applicable to datasets constructed from CSV files.
+:::</p>
+</body>
+</html>

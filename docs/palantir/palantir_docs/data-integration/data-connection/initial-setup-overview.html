@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Initial setup overview</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Initial setup overview</h1>
+<p>This guide will walk you through the process of connecting your organization's data to Foundry.</p>
+<p>Before starting, it is important to recognize that this first step towards connecting your organizational data to Foundry is fundamentally a <strong>networking concept</strong>. The initial setup is best done by someone familiar with network engineering and aware of the organization's network topology and configurations, such as firewall rules.</p>
+<h2>Conceptual overview</h2>
+<p>Connecting data to Foundry requires that three components are configured in the following order:</p>
+<h3>1. Configure networking connectivity</h3>
+<p>You must first ensure that there is a valid networking path between Foundry and the external system.</p>
+<p>For external systems hosted on the same network from Foundry's network (for cloud-hosted Foundry instances, this is typically systems accessible over the Internet), define <a href="https://www.palantir.com/docs/foundry/administration/configure-egress/#direct-connection-egress-policies">direct connection egress policies</a> to route the traffic. Make sure that the external system allows inbound connections from Foundry.</p>
+<p>For external systems hosted on a separate network from Foundry's network (for cloud-hosted Foundry instances, this is typically on-premise systems), an <a href="https://www.palantir.com/docs/foundry/data-connection/core-concepts/#agents">agent</a> is required. An agent is Palantir software that runs within your organizationâs network and functions as a secure intermediary between your organizationâs data sources and your Foundry instance. Make sure the external system allows inbound connections from the agent and that the agent can establish outbound connections to the external system as well as to Foundry.</p>
+<p>The agent can then be used to define <a href="https://www.palantir.com/docs/foundry/administration/configure-egress/#agent-proxy-egress-policies">agent proxy egress policies</a> to route traffic through the agent when using a <a href="https://www.palantir.com/docs/foundry/data-connection/core-concepts/#foundry-worker">Foundry worker</a>.</p>
+<p>Agents can also be used as a legacy <a href="https://www.palantir.com/docs/foundry/data-connection/core-concepts/#agent-worker">agent worker</a> where capabilities execute on the agent host. New sources should use Foundry worker; see <a href="https://www.palantir.com/docs/foundry/data-connection/foundry-worker-vs-agent-worker/">Foundry worker vs. agent worker</a>.</p>
+<p>Agents can be shared by agent worker sources and sources using agent proxy egress policies, though we recommend always having multiple agents assigned to a given source to <a href="#high-availability">maximize availability</a>.</p>
+<p>Learn more about various <a href="https://www.palantir.com/docs/foundry/data-connection/architecture/">architecture patterns</a>.</p>
+<h3>2. Source configuration</h3>
+<p>You must <a href="https://www.palantir.com/docs/foundry/data-connection/set-up-source/">configure a source</a>, or connection, to connect your external system to Foundry before executing any <a href="https://www.palantir.com/docs/foundry/data-connection/core-concepts/#capabilities">capability</a>. An external system could be, for example, a Postgres database, an S3 bucket, a filesystem on a Linux server, an SAP instance, or a REST API accessible over the Internet.</p>
+<h3>3. Capability configuration</h3>
+<p>Once a source is configured to connect to the external system, you must configure the <a href="https://www.palantir.com/docs/foundry/data-connection/core-concepts/#capabilities">capability</a> to execute on that source. Capabilities include batch syncs of data, streaming syncs, webhooks, exports, and more.</p>
+<p>A <a href="https://www.palantir.com/docs/foundry/data-connection/set-up-sync/">batch sync</a>, for example, reads specific data from an external system and ingests it into Foundry. If you have a PostgreSQL database that contains multiple tables, you might configure a sync to ingest one specific table into Foundry. Once a sync has successfully run, the result in Foundry will be a <a href="https://www.palantir.com/docs/foundry/data-integration/datasets/">dataset</a> to use across all of Foundry's data pipelining, model development, and analytical tools.</p>
+<h2>Roles and workflows</h2>
+<p>Most Foundry users will never need to set up a new agent themselves. Agent setup requires an IT-focused skill set, though the same agent can be reused to support multiple sources and syncs. Some organizations can operate long-term with agents set up during the first week of a Foundry deployment. New agents are only needed to access data that your existing agents cannot access (due to network segmentation or data scale, for example) or to set up an additional agent to allow for <a href="#high-availability">high availability</a>.</p>
+<p>The table below summarizes the configuration frequency and skill set required for maintaining the resources required for connecting to data:</p>
+<table>
+<thead>
+<tr>
+<th>Resource</th>
+<th>Frequency of configuration</th>
+<th>Typical user role</th>
+<th>Knowledge required</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Agent</td>
+<td>Rare</td>
+<td>IT / Network Engineer</td>
+<td>Network and firewall policies; Linux VMs; SSH</td>
+</tr>
+<tr>
+<td>Source</td>
+<td>Occasional</td>
+<td>IT / Network Engineer; Data Engineer</td>
+<td>Debugging network access; credential management</td>
+</tr>
+<tr>
+<td>Sync</td>
+<td>Frequent</td>
+<td>Data Engineer; Data Scientist</td>
+<td>Writing SQL queries; managing files</td>
+</tr>
+</tbody>
+</table>
+<h2>High availability</h2>
+<p>We recommend setting up redundant hardware to establish a high availability (HA) architecture. High availability increases resiliency and allows no-downtime maintenance during operating hours.</p>
+<p>Foundry offers HA at the source level, meaning that if a source is assigned to multiple agents, Foundry will dispatch ingestions to one of the healthy agents. We strongly recommend configuring agents in a high availability setup at the start of source creation; adding extra agents to a created source requires re-entering the credentials for that source.</p>
+<p>The following best practices are recommended when setting up high availability:</p>
+<ul>
+<li>Always install agents by pairs, on similar hardware.</li>
+<li>Give each agent in a pair similar names, such as <code>agent-1</code> and <code>agent-2</code>.</li>
+<li>Systematically assign both agents in a pair to every source.</li>
+<li>Configure non-overlapping upgrade windows on both agents in a pair. Upgrade windows should be during business days and provide sufficient soaking time. Doing so ensures that any unexpected issues with an update will be contained to a single agent and can be detected by operators or administrators.</li>
+</ul>
+<h2>Next steps</h2>
+<p>To get started, move on to <a href="https://www.palantir.com/docs/foundry/data-connection/set-up-source/">setting up a source</a>.</p>
+</body>
+</html>

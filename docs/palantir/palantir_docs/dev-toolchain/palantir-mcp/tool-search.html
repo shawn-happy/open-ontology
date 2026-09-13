@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tool search</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Tool search</h1>
+<p>Palantir MCP supports on-demand tool discovery through tool search. When tool search is enabled, the server exposes a single tool, <code>search_tools</code>, at startup instead of the full tool catalog. Your agent activates additional tools only as it searches for them, so fewer tool definitions load into your context, which reduces token usage.</p>
+<h2>How tool search works</h2>
+<p>By default, all tools load at startup and remain available throughout the session. When tool search is enabled, Palantir MCP starts up exposing only the <code>search_tools</code> tool. From there:</p>
+<ol>
+<li>When you prompt the agent, the agent calls <code>search_tools</code> with a short description of your task.</li>
+<li><code>search_tools</code> ranks the catalog locally on tool name, category, and curated keywords, with no extra model call or network round-trip. It then activates the best-matching tools and returns their descriptions.</li>
+<li>The agent calls the activated tool directly.</li>
+</ol>
+<p>This keeps your context small. Instead of loading dozens of tool definitions up front, the agent loads only the handful relevant to the task.</p>
+<p>Activated tools remain in your tool list and your context for the rest of the session. Reconnecting to the server resets your tool list to only <code>search_tools</code>.</p>
+<p>:::callout{theme="neutral"}
+<strong>Client requirement:</strong> Tool search relies on your MCP client refreshing its tool list when new tools are activated, using the <code>tools/list_changed</code> notification. Clients that do not refresh dynamically will not see newly activated tools. For this reason, Continue does not use tool search.
+:::</p>
+<h2>Enable tool search</h2>
+<p>Tool search is opt-in. By default, all tools load at startup. To enable tool search, either:</p>
+<ul>
+<li>Pass the <code>--tool-search</code> argument to the server, or</li>
+<li>Set the environment variable <code>PALANTIR_MCP_TOOL_SEARCH=true</code>.</li>
+</ul>
+<p>The two options are equivalent; use whichever fits your setup.</p>
+<p>In the examples below, replace <code>&lt;your-foundry-hostname&gt;</code> with your Foundry hostname (for example, <code>mycompany.palantirfoundry.com</code>).</p>
+<h3>Claude Code</h3>
+<p>When you add Palantir MCP with <code>claude mcp add</code>, pass the <code>--tool-search</code> argument. The argument must go after the <code>--</code> separator, as an argument to <code>palantir-mcp</code> and not to <code>claude mcp add</code>.</p>
+<pre><code class="language-bash">claude mcp add palantir-mcp \
+    --scope project \
+    -e FOUNDRY_TOKEN=&lt;token&gt; \
+    -- npx &quot;-y&quot; &quot;palantir-mcp&quot; &quot;--tool-search&quot; &quot;--foundry-api-url&quot; &quot;https://&lt;your-foundry-hostname&gt;&quot;
+</code></pre>
+<p>Alternatively, set the environment variable:</p>
+<pre><code class="language-bash">claude mcp add palantir-mcp \
+    --scope project \
+    -e FOUNDRY_TOKEN=&lt;token&gt; \
+    -e PALANTIR_MCP_TOOL_SEARCH=true \
+    -- npx &quot;-y&quot; &quot;palantir-mcp&quot; &quot;--foundry-api-url&quot; &quot;https://&lt;your-foundry-hostname&gt;&quot;
+</code></pre>
+<h3>Agents</h3>
+<p>In a pro-code agent, add the <code>--tool-search</code> argument to the server configuration:</p>
+<pre><code class="language-typescript">export const PALANTIR_MCP_CONFIGURATION: McpStdioServerConfig = {
+  type: &quot;stdio&quot;,
+  command: &quot;palantir-mcp&quot;,
+  args: [&quot;start&quot;, &quot;--tool-search&quot;, &quot;code-workspaces&quot;],
+  env: {
+    FOUNDRY_PROXY_URL: `https://${process.env.FOUNDRY_PROXY_URL!}/`,
+    FOUNDRY_SERVICE_DISCOVERY_V2: process.env.FOUNDRY_SERVICE_DISCOVERY_V2!,
+    FOUNDRY_EXTERNAL_HOST: &quot;https://&lt;your-foundry-hostname&gt;&quot;,
+    FOUNDRY_PROXY_TOKEN: process.env.FOUNDRY_PROXY_TOKEN!,
+    FOUNDRY_SCOPED_TOKEN: process.env.FOUNDRY_SCOPED_TOKEN!,
+    MAESTRO_REPO_RID: process.env.MAESTRO_REPO_RID!,
+    NODE_EXTRA_CA_CERTS: process.env.NODE_EXTRA_CA_CERTS!,
+  },
+};
+</code></pre>
+<p>Alternatively, add <code>PALANTIR_MCP_TOOL_SEARCH: "true"</code> to the <code>env</code> block instead of passing the <code>--tool-search</code> argument.</p>
+</body>
+</html>

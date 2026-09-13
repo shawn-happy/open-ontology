@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Create GeoPoint from coordinate system</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Create GeoPoint from coordinate system</h1>
+<blockquote>
+<p>Supported in: Batch, Streaming</p>
+</blockquote>
+<p>Takes a pair of coordinates from a source coordinate system and transforms them into WGS 84 latitude/longitude values. Coordinate systems (also know as coordinate reference systems or spatial reference systems) represent different systems for identifying the location of a point on the globe and are often identified by key in standardized databases such as EPSG. If the given projection is not supported or either coordinate is null, returns null. This expression is for advanced users. It is recommended to use the "Create GeoPoint" expression if you do not need to deal with coordinate systems.</p>
+<p><strong>Expression categories:</strong> Geospatial</p>
+<h2>Declared arguments</h2>
+<ul>
+<li><strong>Source coordinate system:</strong> Coordinate system identifier formatted as "authority:id". For example, UTM zone 18N could be identified by EPSG:32618.<br><em>Literal\<String></em></li>
+<li><strong>X coordinate:</strong> X coordinate (often "easting") in the source coordinate system.<br><em>Expression\<Numeric></em></li>
+<li><strong>Y coordinate:</strong> Y coordinate (often "northing") in the source coordinate system.<br><em>Expression\<Numeric></em></li>
+</ul>
+<p><strong>Output type:</strong> <em>GeoPoint</em></p>
+<h2>Examples</h2>
+<h3>Example 1: Base case</h3>
+<p><strong>Argument values:</strong></p>
+<ul>
+<li><strong>Source coordinate system:</strong> EPSG:32618</li>
+<li><strong>X coordinate:</strong> <code>x_coordinate</code></li>
+<li><strong>Y coordinate:</strong> <code>y_coordinate</code></li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>x_coordinate</th>
+<th>y_coordinate</th>
+<th><strong>Output</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>322190.2233952965</td>
+<td>4306505.703879281</td>
+<td>{<br>âlatitude -&gt; 38.88944258,<br>âlongitude -&gt; -77.05014581,<br>}</td>
+</tr>
+<tr>
+<td>323243.1361536059</td>
+<td>4318298.06539618</td>
+<td>{<br>âlatitude -&gt; 38.99585379643137,<br>âlongitude -&gt; -77.04105678275415,<br>}</td>
+</tr>
+<tr>
+<td>407063.63465300016</td>
+<td>4764873.719585404</td>
+<td>{<br>âlatitude -&gt; 43.03086518778498,<br>âlongitude -&gt; -76.14077251822197,<br>}</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3>Example 2: Base case</h3>
+<p><strong>Argument values:</strong></p>
+<ul>
+<li><strong>Source coordinate system:</strong> EPSG:28992</li>
+<li><strong>X coordinate:</strong> <code>x_coordinate</code></li>
+<li><strong>Y coordinate:</strong> <code>y_coordinate</code></li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>x_coordinate</th>
+<th>y_coordinate</th>
+<th><strong>Output</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>142735.75</td>
+<td>470715.91</td>
+<td>{<br>âlatitude -&gt; 52.22438577,<br>âlongitude -&gt; 5.20771293,<br>}</td>
+</tr>
+<tr>
+<td>92891.44163</td>
+<td>437357.50015</td>
+<td>{<br>âlatitude -&gt; 51.9212285,<br>âlongitude -&gt; 4.4843492,<br>}</td>
+</tr>
+<tr>
+<td>81047.96352</td>
+<td>454913.24287</td>
+<td>{<br>âlatitude -&gt; 52.0775512,<br>âlongitude -&gt; 4.3084213,<br>}</td>
+</tr>
+</tbody>
+</table>
+<hr />
+</body>
+</html>

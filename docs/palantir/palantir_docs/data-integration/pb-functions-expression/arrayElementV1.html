@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Array element</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Array element</h1>
+<blockquote>
+<p>Supported in: Batch, Faster, Streaming</p>
+</blockquote>
+<p>Returns the element at a given position from the input array. Positions outside of the array will return <code>null</code>.</p>
+<p><strong>Expression categories:</strong> Array</p>
+<h2>Declared arguments</h2>
+<ul>
+<li><strong>Array:</strong> Array from which to extract element.<br><em>Expression\<Array\\<T>></em></li>
+<li><strong>Position:</strong> Position of element to extract from array. First element is at position 1. If position is negative, accesses elements from last to first (example: -1 will return last element).<br><em>Expression\<Integer></em></li>
+</ul>
+<p><strong>Type variable bounds:</strong> <em>T accepts AnyType</em></p>
+<p><strong>Output type:</strong> <em>T</em></p>
+<h2>Examples</h2>
+<h3>Example 1: Base case</h3>
+<p><strong>Argument values:</strong></p>
+<ul>
+<li><strong>Array:</strong> [ 10, 11, 12 ]</li>
+<li><strong>Position:</strong> 1</li>
+</ul>
+<p><strong>Output:</strong> 10</p>
+<hr />
+<h3>Example 2: Null case</h3>
+<p><strong>Description:</strong> Output null if position greater than array length.</p>
+<p><strong>Argument values:</strong></p>
+<ul>
+<li><strong>Array:</strong> [ 1, 2, 4 ]</li>
+<li><strong>Position:</strong> 10</li>
+</ul>
+<p><strong>Output:</strong> <em>null</em></p>
+<hr />
+<h3>Example 3: Null case</h3>
+<p><strong>Description:</strong> Index array from the end using negative index.</p>
+<p><strong>Argument values:</strong></p>
+<ul>
+<li><strong>Array:</strong> [ 1, 2, 4 ]</li>
+<li><strong>Position:</strong> -1</li>
+</ul>
+<p><strong>Output:</strong> 4</p>
+<hr />
+<h3>Example 4: Null case</h3>
+<p><strong>Argument values:</strong></p>
+<ul>
+<li><strong>Array:</strong> <code>array</code></li>
+<li><strong>Position:</strong> <code>position</code></li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>array</th>
+<th>position</th>
+<th><strong>Output</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>[ 1, 2, 3 ]</td>
+<td><em>null</em></td>
+<td><em>null</em></td>
+</tr>
+<tr>
+<td><em>null</em></td>
+<td>1</td>
+<td><em>null</em></td>
+</tr>
+<tr>
+<td><em>null</em></td>
+<td><em>null</em></td>
+<td><em>null</em></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3>Example 5: Edge case</h3>
+<p><strong>Argument values:</strong></p>
+<ul>
+<li><strong>Array:</strong> <code>array</code></li>
+<li><strong>Position:</strong> <code>position</code></li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>array</th>
+<th>position</th>
+<th><strong>Output</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>[ 1, 2, 3 ]</td>
+<td>0</td>
+<td><em>null</em></td>
+</tr>
+</tbody>
+</table>
+<hr />
+</body>
+</html>

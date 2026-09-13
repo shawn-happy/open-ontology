@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Azure DevOps</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Azure DevOps</h1>
+<!-- BEGIN GENERATED:intro -->
+
+<p>The Azure DevOps connector is a <a href="https://www.palantir.com/docs/foundry/data-integration/foundry-provided-drivers/">Palantir-provided driver</a> for Azure DevOps.</p>
+<p>To create a new Azure DevOps source, follow the <a href="https://www.palantir.com/docs/foundry/data-integration/foundry-provided-drivers/#setup">standard setup flow for Palantir-provided drivers</a>, then use the sections below for Azure DevOps-specific configuration and networking. For the complete property reference, see the <a href="https://cdn.cdata.com/help/HNK/jdbc/pg_connectionj.htm">official Azure DevOps driver documentation â</a>.</p>
+<!-- END GENERATED:intro -->
+
+<!-- BEGIN GENERATED:capabilities -->
+
+<h2>Supported capabilities</h2>
+<table>
+<thead>
+<tr>
+<th>Capability</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Exploration</td>
+<td>ð¢ Generally available</td>
+</tr>
+<tr>
+<td>Batch syncs</td>
+<td>ð¢ Generally available</td>
+</tr>
+<tr>
+<td>Incremental</td>
+<td>ð¢ Generally available</td>
+</tr>
+<tr>
+<td><a href="#oauth-20-authentication">OAuth 2.0 authentication</a></td>
+<td>ð¢ Generally available</td>
+</tr>
+<tr>
+<td><a href="#table-exports">Table exports</a></td>
+<td>ð¢ Generally available</td>
+</tr>
+</tbody>
+</table>
+<!-- END GENERATED:capabilities -->
+
+<!-- BEGIN GENERATED:configuration -->
+
+<h2>Configuration</h2>
+<p>The properties below are mandatory or recommended.</p>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Required?</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="https://cdn.cdata.com/help/HNK/jdbc/RSBAzureDevOps_p_AzureDevOpsEdition.htm"><code>AzureDevOpsEdition</code> â</a></td>
+<td>Mandatory</td>
+<td>The edition of AzureDevOps being used. Set either [AzureDevOps Online] or [AzureDevOps OnPremise].</td>
+<td><code>AzureDevOps Online</code></td>
+</tr>
+<tr>
+<td><a href="https://cdn.cdata.com/help/HNK/jdbc/RSBAzureDevOps_p_Organization.htm"><code>Organization</code> â</a></td>
+<td>Mandatory</td>
+<td>The name of the Organization or Collection, depending upon the value of AzureDevOpsEdition .</td>
+<td>â</td>
+</tr>
+<tr>
+<td><a href="https://cdn.cdata.com/help/HNK/jdbc/RSBAzureDevOps_p_AuthScheme.htm"><code>AuthScheme</code> â</a></td>
+<td>Recommended</td>
+<td>The type of authentication to use when connecting to Azure DevOps. Azure DevOps OnPremise connections support only Basic authentication.</td>
+<td><code>Basic</code></td>
+</tr>
+<tr>
+<td><a href="https://cdn.cdata.com/help/HNK/jdbc/RSBAzureDevOps_p_Catalog.htm"><code>Catalog</code> â</a></td>
+<td>Recommended</td>
+<td>Specify this property to connect with a particular catalog.</td>
+<td>â</td>
+</tr>
+<tr>
+<td><a href="https://cdn.cdata.com/help/HNK/jdbc/RSBAzureDevOps_p_IncludeCustomFields.htm"><code>IncludeCustomFields</code> â</a></td>
+<td>Recommended</td>
+<td>A boolean indicating if you would like to include custom fields in the column listing.</td>
+<td><code>TRUE</code></td>
+</tr>
+<tr>
+<td><a href="https://cdn.cdata.com/help/HNK/jdbc/RSBAzureDevOps_p_InitiateOAuth.htm"><code>InitiateOAuth</code> â</a></td>
+<td>Recommended</td>
+<td>Specifies the process for obtaining or refreshing the OAuth access token, which maintains user access while an authenticated, authorized user is working.</td>
+<td><code>REFRESH</code></td>
+</tr>
+<tr>
+<td><a href="https://cdn.cdata.com/help/HNK/jdbc/RSBAzureDevOps_p_OAuthClientId.htm"><code>OAuthClientId</code> â</a></td>
+<td>Recommended</td>
+<td>Specifies the client Id that was assigned when the custom OAuth application was created. (Also known as the consumer key.) This ID registers the custom application with the OAuth authorization server.</td>
+<td>â</td>
+</tr>
+<tr>
+<td><a href="https://cdn.cdata.com/help/HNK/jdbc/RSBAzureDevOps_p_OAuthClientSecret.htm"><code>OAuthClientSecret</code> â</a></td>
+<td>Recommended</td>
+<td>Specifies the client secret that was assigned when the custom OAuth application was created. (Also known as the consumer secret). This secret registers the custom application with the OAuth authorization server.</td>
+<td>â</td>
+</tr>
+<tr>
+<td><a href="https://cdn.cdata.com/help/HNK/jdbc/RSBAzureDevOps_p_PersonalAccessToken.htm"><code>PersonalAccessToken</code> â</a></td>
+<td>Recommended</td>
+<td>The personal access token used for accessing the data in your organization.</td>
+<td>â</td>
+</tr>
+<tr>
+<td><a href="https://cdn.cdata.com/help/HNK/jdbc/RSBAzureDevOps_p_Schema.htm"><code>Schema</code> â</a></td>
+<td>Recommended</td>
+<td>Specify this property to connect with a particular schema.</td>
+<td><code>REST</code></td>
+</tr>
+</tbody>
+</table>
+<!-- END GENERATED:configuration -->
+
+<!-- BEGIN GENERATED:networking -->
+
+<h2>Networking</h2>
+<p>The table below lists the domains that the source must be able to access to run.</p>
+<p>For each domain, add a corresponding <a href="https://www.palantir.com/docs/foundry/administration/configure-egress/">egress policy</a>. If the source is hosted on-premises and not directly reachable from Foundry, use an <a href="https://www.palantir.com/docs/foundry/administration/configure-egress/#agent-proxy-egress-policies">agent proxy egress policy</a> instead. The agent host itself must also be able to reach the listed domains. See <a href="https://www.palantir.com/docs/foundry/data-connection/agent-proxy/">using an agent as a proxy</a> for details.</p>
+<table>
+<thead>
+<tr>
+<th>Domain</th>
+<th>Required</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>dev.azure.com</td>
+<td>If <code>Schema=REST</code> (default) AND <code>AzureDevOpsEdition='AzureDevOps Online'</code> (default)</td>
+</tr>
+<tr>
+<td>analytics.dev.azure.com</td>
+<td>If <code>Schema=Analytics</code> AND <code>AzureDevOpsEdition='AzureDevOps Online'</code> (default)</td>
+</tr>
+<tr>
+<td>\<URL></td>
+<td>If <code>AzureDevOpsEdition='AzureDevOps OnPremise'</code></td>
+</tr>
+<tr>
+<td>login.microsoftonline.com</td>
+<td>If <code>AuthScheme=AzureAD</code> (default) AND <code>AzureEnvironment=GLOBAL</code> (default)</td>
+</tr>
+<tr>
+<td>login.chinacloudapi.cn</td>
+<td>If <code>AuthScheme=AzureAD</code> (default) AND <code>AzureEnvironment=CHINA</code></td>
+</tr>
+<tr>
+<td>login.microsoftonline.us</td>
+<td>If <code>AuthScheme=AzureAD</code> (default) AND <code>AzureEnvironment=USGOVT</code> or USGOVTDOD</td>
+</tr>
+</tbody>
+</table>
+<!-- END GENERATED:networking -->
+
+<!-- BEGIN GENERATED:oauth -->
+
+<h2>OAuth 2.0 authentication</h2>
+<p>This connector supports OAuth 2.0 authentication. Follow the <a href="https://www.palantir.com/docs/foundry/data-integration/foundry-provided-drivers/#oauth-20-authentication">OAuth 2.0 guidance for Palantir-provided drivers</a> to configure and authorize the connection.</p>
+<!-- END GENERATED:oauth -->
+
+<!-- BEGIN GENERATED:table-exports -->
+
+<h2>Table exports</h2>
+<p>This connector supports table exports. Learn how to <a href="https://www.palantir.com/docs/foundry/data-connection/export-overview/#table-exports">set up a table export</a>.</p>
+<!-- END GENERATED:table-exports -->
+</body>
+</html>

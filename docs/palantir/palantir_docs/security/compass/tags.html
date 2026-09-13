@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tags</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Tags</h1>
+<p>Tags are structured metadata that can be applied to resources for categorization and discovery. Tags are a helpful construct, but they do <strong>not</strong> add or imply security.</p>
+<p>Tags are organized into categories; the visibility of each category can be restricted to one or more Organizations. For example, to organize sales data for a large international company you might create tag categories for region (such as âEUâ, âAPACâ, or âNAâ) and financial year (like â2021â or â2022â). Users can then filter collections in the Data Catalog and search by tag.</p>
+<p>To generate comprehensive tags, consider the dimensions of your data. Common tag categories include:</p>
+<ul>
+<li>Type or category of data (for instance, you may wish to tag log data differently than reference tables).</li>
+<li>Source system (the external system from which a dataset originates).</li>
+<li>Refresh schedule (such as daily, weekly, or none if static).</li>
+</ul>
+<p>Tags related to use cases may also be helpful, such as:</p>
+<ul>
+<li>Region</li>
+<li>Department</li>
+<li>Project</li>
+</ul>
+<p>Below is a <a href="https://www.palantir.com/docs/foundry/compass/data-catalog/">Data Catalog</a> with tagged datasets and a tagged module:</p>
+<p><img alt="Example of tagged data in Data Catalog." src="../../_resources/foundry/compass/tags-0.png" /></p>
+<h2>Manage tags</h2>
+<p>You can manage tags and tag categories in the <strong>Tags</strong> section of Platform Settings. Select the <strong>New tag category</strong> to create a new tag category. By default, a new tag category will be restricted to the Organization of which you are a member.</p>
+<p><img alt="Create new tag category." src="../../_resources/foundry/compass/tags-1.png" /></p>
+<p>After you create a tag category, you can add multiple tags within the category. You can also add additional Organizations to the tag category if you want to expand access.</p>
+<p><img alt="Add tags to category." src="../../_resources/foundry/compass/tags-2.png" /></p>
+<p>To delete a tag category, select the category and then <strong>Delete category</strong>. Similarly, to delete a tag, select the tag, then <strong>Delete tag</strong>. You cannot undo delete actions, and the category or tag will be removed from all resources.</p>
+<h2>Enable tag usage</h2>
+<p>Only users granted a role with the "Apply tags to resources in Compass" workflow are able to apply tags to resources. If you do not currently hold a role with this workflow, request an administrator to assign it via the <strong>Organizations permissions</strong> tab in Control Panel.</p>
+</body>
+</html>

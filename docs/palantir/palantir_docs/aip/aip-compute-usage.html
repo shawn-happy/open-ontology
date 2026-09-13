@@ -1,0 +1,2442 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Compute usage with AIP</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../index.html">返回目录</a></div>
+<h1>Compute usage with AIP</h1>
+<p>AIP compute usage involves large language models (LLMs). Fundamentally, LLMs take text as an input and respond with text as an output. The amount of text input and output is measured in <a href="#tokens-in-aip">tokens</a>. <a href="#usage-based-pricing-compute-translation-for-aip">Compute usage for LLMs</a> is measured in compute-seconds per some number of tokens. Different models may have different rates for compute usage, as described <a href="#usage-based-pricing-compute-translation-for-aip">below</a>.</p>
+<h2>Tokens in AIP</h2>
+<p>Tokens are the basic units of text that LLMs use to process and understand input. A token can be as short as a single character or as long as a whole word depending on the language and the specific model.</p>
+<p>Importantly, tokens do not map one-to-one with words. For example, common words might be a single token, but longer or less common words may be split into multiple tokens. Even punctuation marks and spaces can be considered tokens.</p>
+<p>Different model providers have distinct definitions for what constitutes a token; for instance, <a href="https://help.openai.com/en/articles/4936856-what-are-tokens-and-how-to-count-them">OpenAI â</a> and <a href="https://docs.anthropic.com/claude/docs/glossary#tokens">Anthropic â</a>. On average, tokens are around 4 characters long, with a character being a single letter or punctuation mark.</p>
+<p>In AIP, tokens are consumed by applications that send prompts to and receive prompts from LLMs. Each of these prompts and responses consist of a measurable number of tokens. These tokens can be sent to multiple LLM providers; due to differences between providers, these tokens are converted into <em>compute-seconds</em> to match the price of the underlying model provider.</p>
+<p>All applications that provide LLM-backed capabilities consume tokens when being used. See the following list for the set of applications that may use tokens when you interact with their LLM-backed capabilities.</p>
+<ul>
+<li>AIP Assist</li>
+<li>AIP Logic</li>
+<li>AIP Error Enhancer</li>
+<li>AIP Code Assist</li>
+<li>AIP Analyst</li>
+<li>AI FDE</li>
+<li>Workshop LLM-backed tools</li>
+<li>Quiver LLM-backed tools</li>
+<li>Pipeline Builder LLM-backed tools</li>
+<li>Direct calls to the Language Model Service (including both Python and TypeScript libraries)</li>
+</ul>
+<p>AIP routes text directly to backing LLMs which run the tokenization themselves. The size of the text will dictate the amount of compute that is used by the backing model to serve the response.</p>
+<p>Take the following example sentence that is sent to the <code>GPT-4o</code> model.</p>
+<p><code>AIP incorporates all of Palantir's advanced security measures for the protection of sensitive data in compliance with industry regulations.</code></p>
+<p>This sentence contains 140 characters and will tokenize in the following way, with a <code>|</code> character separating each token. Note that a token is not always equivalent to a word; some words are broken into multiple tokens, like <code>AIP</code> and <code>Palantir</code> in the example below.</p>
+<p><code>A|IP| incorporates| all| of| Pal|ant|ir|'s| advanced| security| measures| for| the| protection| of| sensitive| data| in| compliance| with| industry| regulations|.</code></p>
+<p>This sentence contains 24 tokens and will use the following number of compute-seconds:</p>
+<pre><code>compute-seconds = 24 tokens * 43 compute-seconds / 10,000 tokens
+compute-seconds = 24 * 43 / 10,000
+compute-seconds = 0.1032
+</code></pre>
+<p>The number of tokens and characters in the above sentence was verified with <a href="https://platform.openai.com/tokenizer">OpenAI's Tokenizer feature â</a>.</p>
+<h2>Understanding drivers of compute usage with AIP</h2>
+<p>Usage of compute-seconds resulting from LLM tokens is attached directly to the individual application resource that requests the usage. For example, if you use AIP to automatically explain a pipeline in Pipeline Builder, the compute-seconds used by the LLM to generate that explanation will be attributed to that specific pipeline. This is true across the platform; keeping this in mind will help you track where you are using tokens.</p>
+<p>In some cases, compute usage is not attributable to a single resource in the platform; examples include AIP Assist and Error Explainer, among others. When usage is not attributable to a single resource, the tokens will be attributed to the user folder initiating the use of tokens.</p>
+<p>We recommend staying aware of the tokens that are sent to LLMs on your behalf. Generally, the more information that you include when using LLMs, the more compute-seconds will be used. For example, the following scenarios describe different ways of using compute-seconds.</p>
+<ul>
+<li>In Pipeline Builder, you can ask AIP to explain your transformation nodes; the number of selected nodes affects the number of tokens used by the LLM to generate a response, and thus compute-second usage. This is because as the number of nodes increases, so does the amount of text the LLM must process regarding the configuration of those nodes.</li>
+<li>In AIP Assist, asking the LLM to generate large blocks of code requires more output tokens. Shorter responses use fewer tokens and thus less compute.</li>
+<li>In AIP Logic, sending large amounts of text with your prompts requires more tokens and thus more compute-seconds.</li>
+</ul>
+<h3>Exporting AIP token usage data</h3>
+<p>To analyze your enrollment's LLM usage in detail, you can export the <strong>AIP Token Usage</strong> dataset from the <strong>Internal dataset export</strong> section in Control Panel. This dataset provides daily breakdowns of token consumption by model and resource, along with the corresponding usage in compute-seconds and currency. For more information, see <a href="https://www.palantir.com/docs/foundry/administration/internal-dataset-export/">Internal dataset export</a>.</p>
+<h2>Usage-based pricing compute translation for AIP</h2>
+<p>:::callout{theme="warning"}
+The following rates apply to Foundry enrollments hosted on AWS. These rates <strong>may not apply to enterprise customers</strong>. If you have an enterprise contract with Palantir, contact your Palantir representative to confirm the rates that apply to you.
+:::</p>
+<table>
+<thead>
+<tr>
+<th>Model</th>
+<th>Foundry region</th>
+<th>Compute seconds per 10k input tokens</th>
+<th>Compute seconds per 10k output tokens</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="https://docs.x.ai/docs/models#models-and-pricing">Grok-2 â</a></td>
+<td>North America</td>
+<td>36</td>
+<td>182</td>
+</tr>
+<tr>
+<td></td>
+<td>EU / UK</td>
+<td>31</td>
+<td>154</td>
+</tr>
+<tr>
+<td></td>
+<td>South America / APAC / Middle East</td>
+<td>25</td>
+<td>125</td>
+</tr>
+<tr>
+<td><a href="https://docs.x.ai/docs/models#models-and-pricing">Grok-2-Vision â</a></td>
+<td>North America</td>
+<td>36</td>
+<td>182</td>
+</tr>
+<tr>
+<td></td>
+<td>EU / UK</td>
+<td>31</td>
+<td>154</td>
+</tr>
+<tr>
+<td></td>
+<td>South America / APAC / Middle East</td>
+<td>25</td>
+<td>125</td>
+</tr>
+<tr>
+<td><a href="https://docs.x.ai/docs/models#models-and-pricing">Grok-3 â</a></td>
+<td>North America</td>
+<td>55</td>
+<td>273</td>
+</tr>
+<tr>
+<td></td>
+<td>EU / UK</td>
+<td>46</td>
+<td>231</td>
+</tr>
+<tr>
+<td></td>
+<td>South America / APAC / Middle East</td>
+<td>38</td>
+<td>188</td>
+</tr>
+<tr>
+<td><a href="https://docs.x.ai/docs/models#models-and-pricing">Grok-3-Mini-Reasoning â</a></td>
+<td>North America</td>
+<td>5.5</td>
+<td>9.1</td>
+</tr>
+<tr>
+<td></td>
+<td>EU / UK</td>
+<td>4.6</td>
+<td>7.7</td>
+</tr>
+<tr>
+<td></td>
+<td>South America / APAC / Middle East</td>
+<td>3.8</td>
+<td>6.3</td>
+</tr>
+<tr>
+<td><a href="https://docs.x.ai/docs/models#models-and-pricing">Grok-4 &lt;= 128k tokens â</a></td>
+<td>North America</td>
+<td>54.5</td>
+<td>272.7</td>
+</tr>
+<tr>
+<td></td>
+<td>EU / UK</td>
+<td>46.2</td>
+<td>230.8</td>
+</tr>
+<tr>
+<td></td>
+<td>South America / APAC / Middle East</td>
+<td>37.5</td>
+<td>187.5</td>
+</tr>
+<tr>
+<td><a href="https://docs.x.ai/docs/models#models-and-pricing">Grok-4 &gt; 128k tokens â</a></td>
+<td>North America</td>
+<td>109.1</td>
+<td>545.5</td>
+</tr>
+<tr>
+<td></td>
+<td>EU / UK</td>
+<td>92.3</td>
+<td>461.5</td>
+</tr>
+<tr>
+<td></td>
+<td>South America / APAC / Middle East</td>
+<td>75.0</td>
+<td>375.0</td>
+</tr>
+<tr>
+<td><a href="https://docs.x.ai/docs/models/grok-4-fast-reasoning">Grok-4 Fast Reasoning &lt;= 128k tokens â</a></td>
+<td>North America</td>
+<td>3.6</td>
+<td>9.1</td>
+</tr>
+<tr>
+<td></td>
+<td>EU / UK</td>
+<td>3.1</td>
+<td>7.7</td>
+</tr>
+<tr>
+<td></td>
+<td>South America / APAC / Middle East</td>
+<td>2.5</td>
+<td>6.3</td>
+</tr>
+<tr>
+<td><a href="https://docs.x.ai/docs/models/grok-4-fast-reasoning">Grok-4 Fast Reasoning &gt; 128k tokens â</a></td>
+<td>North America</td>
+<td>7.3</td>
+<td>18.2</td>
+</tr>
+<tr>
+<td></td>
+<td>EU / UK</td>
+<td>6.2</td>
+<td>15.4</td>
+</tr>
+<tr>
+<td></td>
+<td>South America / APAC / Middle East</td>
+<td>5.0</td>
+<td>12.5</td>
+</tr>
+<tr>
+<td><a href="https://docs.x.ai/docs/models/grok-4-fast-non-reasoning">Grok-4 Fast Non-Reasoning &lt;= 128k tokens â</a></td>
+<td>North America</td>
+<td>3.6</td>
+<td>9.1</td>
+</tr>
+<tr>
+<td></td>
+<td>EU / UK</td>
+<td>3.1</td>
+<td>7.7</td>
+</tr>
+<tr>
+<td></td>
+<td>South America / APAC / Middle East</td>
+<td>2.5</td>
+<td>6.3</td>
+</tr>
+<tr>
+<td><a href="https://docs.x.ai/docs/models/grok-4-fast-non-reasoning">Grok-4 Fast Non-Reasoning &gt; 128k tokens â</a></td>
+<td>North America</td>
+<td>7.3</td>
+<td>18.2</td>
+</tr>
+<tr>
+<td></td>
+<td>EU / UK</td>
+<td>6.2</td>
+<td>15.4</td>
+</tr>
+<tr>
+<td></td>
+<td>South America / APAC / Middle East</td>
+<td>5.0</td>
+<td>12.5</td>
+</tr>
+<tr>
+<td><a href="https://docs.x.ai/docs/models/grok-code-fast-1">Grok Code Fast 1 â</a></td>
+<td>North America</td>
+<td>3.6</td>
+<td>27.3</td>
+</tr>
+<tr>
+<td></td>
+<td>EU / UK</td>
+<td>3.1</td>
+<td>23.1</td>
+</tr>
+<tr>
+<td></td>
+<td>South America / APAC / Middle East</td>
+<td>2.5</td>
+<td>18.8</td>
+</tr>
+<tr>
+<td><a href="https://docs.x.ai/developers/models/grok-4-1-fast-non-reasoning">Grok-4.1 Fast Non-Reasoning â</a></td>
+<td>North America</td>
+<td>3.6</td>
+<td>9.1</td>
+</tr>
+<tr>
+<td></td>
+<td>EU / UK</td>
+<td>3.1</td>
+<td>7.7</td>
+</tr>
+<tr>
+<td></td>
+<td>South America / APAC / Middle East</td>
+<td>2.5</td>
+<td>6.3</td>
+</tr>
+<tr>
+<td><a href="https://docs.x.ai/developers/models/grok-4-1-fast-reasoning">Grok-4.1 Fast Reasoning â</a></td>
+<td>North America</td>
+<td>3.6</td>
+<td>9.1</td>
+</tr>
+<tr>
+<td></td>
+<td>EU / UK</td>
+<td>3.1</td>
+<td>7.7</td>
+</tr>
+<tr>
+<td></td>
+<td>South America / APAC / Middle East</td>
+<td>2.5</td>
+<td>6.3</td>
+</tr>
+<tr>
+<td><a href="https://docs.x.ai/developers/models">Grok-4.20 Reasoning &lt;= 200k tokens â</a></td>
+<td>North America</td>
+<td>36.4</td>
+<td>109.1</td>
+</tr>
+<tr>
+<td></td>
+<td>EU / UK</td>
+<td>30.8</td>
+<td>92.3</td>
+</tr>
+<tr>
+<td></td>
+<td>South America / APAC / Middle East</td>
+<td>25.0</td>
+<td>75.0</td>
+</tr>
+<tr>
+<td><a href="https://docs.x.ai/developers/models">Grok-4.20 Reasoning &gt; 200k tokens â</a></td>
+<td>North America</td>
+<td>72.7</td>
+<td>218.2</td>
+</tr>
+<tr>
+<td></td>
+<td>EU / UK</td>
+<td>61.5</td>
+<td>184.6</td>
+</tr>
+<tr>
+<td></td>
+<td>South America / APAC / Middle East</td>
+<td>50.0</td>
+<td>150.0</td>
+</tr>
+<tr>
+<td><a href="https://docs.x.ai/developers/models">Grok-4.20 Non-Reasoning &lt;= 200k tokens â</a></td>
+<td>North America</td>
+<td>36.4</td>
+<td>109.1</td>
+</tr>
+<tr>
+<td></td>
+<td>EU / UK</td>
+<td>30.8</td>
+<td>92.3</td>
+</tr>
+<tr>
+<td></td>
+<td>South America / APAC / Middle East</td>
+<td>25.0</td>
+<td>75.0</td>
+</tr>
+<tr>
+<td><a href="https://docs.x.ai/developers/models">Grok-4.20 Non-Reasoning &gt; 200k tokens â</a></td>
+<td>North America</td>
+<td>72.7</td>
+<td>218.2</td>
+</tr>
+<tr>
+<td></td>
+<td>EU / UK</td>
+<td>61.5</td>
+<td>184.6</td>
+</tr>
+<tr>
+<td></td>
+<td>South America / APAC / Middle East</td>
+<td>50.0</td>
+<td>150.0</td>
+</tr>
+<tr>
+<td><a href="https://docs.x.ai/developers/pricing">Grok-4.3 &lt;= 200k tokens â</a></td>
+<td>North America</td>
+<td>22.7</td>
+<td>45.5</td>
+</tr>
+<tr>
+<td></td>
+<td>EU / UK</td>
+<td>19.2</td>
+<td>38.5</td>
+</tr>
+<tr>
+<td></td>
+<td>South America / APAC / Middle East</td>
+<td>15.6</td>
+<td>31.3</td>
+</tr>
+<tr>
+<td><a href="https://docs.x.ai/developers/pricing">Grok-4.3 &gt; 200k tokens â</a></td>
+<td>North America</td>
+<td>45.5</td>
+<td>90.9</td>
+</tr>
+<tr>
+<td></td>
+<td>EU / UK</td>
+<td>38.5</td>
+<td>76.9</td>
+</tr>
+<tr>
+<td></td>
+<td>South America / APAC / Middle East</td>
+<td>31.3</td>
+<td>62.5</td>
+</tr>
+<tr>
+<td><a href="https://docs.x.ai/developers/pricing">Grok-4.5 &lt;= 200k tokens â</a></td>
+<td>North America</td>
+<td>36.4</td>
+<td>109.1</td>
+</tr>
+<tr>
+<td></td>
+<td>EU / UK</td>
+<td>30.8</td>
+<td>92.3</td>
+</tr>
+<tr>
+<td></td>
+<td>South America / APAC / Middle East</td>
+<td>25.0</td>
+<td>75.0</td>
+</tr>
+<tr>
+<td><a href="https://docs.x.ai/developers/pricing">Grok-4.5 &gt; 200k tokens â</a></td>
+<td>North America</td>
+<td>72.7</td>
+<td>218.2</td>
+</tr>
+<tr>
+<td></td>
+<td>EU / UK</td>
+<td>61.5</td>
+<td>184.6</td>
+</tr>
+<tr>
+<td></td>
+<td>South America / APAC / Middle East</td>
+<td>50.0</td>
+<td>150.0</td>
+</tr>
+<tr>
+<td><a href="https://docs.x.ai/developers/pricing">Grok-4.6 &lt;= 200k tokens â</a></td>
+<td>North America</td>
+<td>36.4</td>
+<td>109.1</td>
+</tr>
+<tr>
+<td></td>
+<td>EU / UK</td>
+<td>30.8</td>
+<td>92.3</td>
+</tr>
+<tr>
+<td></td>
+<td>South America / APAC / Middle East</td>
+<td>25.0</td>
+<td>75.0</td>
+</tr>
+<tr>
+<td><a href="https://docs.x.ai/developers/pricing">Grok-4.6 &gt; 200k tokens â</a></td>
+<td>North America</td>
+<td>72.7</td>
+<td>218.2</td>
+</tr>
+<tr>
+<td></td>
+<td>EU / UK</td>
+<td>61.5</td>
+<td>184.6</td>
+</tr>
+<tr>
+<td></td>
+<td>South America / APAC / Middle East</td>
+<td>50.0</td>
+<td>150.0</td>
+</tr>
+<tr>
+<td><a href="https://docs.x.ai/developers/pricing">Grok Build 0.1 &lt;= 200k tokens â</a></td>
+<td>North America</td>
+<td>18.2</td>
+<td>36.4</td>
+</tr>
+<tr>
+<td></td>
+<td>EU / UK</td>
+<td>15.4</td>
+<td>30.8</td>
+</tr>
+<tr>
+<td></td>
+<td>South America / APAC / Middle East</td>
+<td>12.5</td>
+<td>25.0</td>
+</tr>
+<tr>
+<td><a href="https://docs.x.ai/developers/pricing">Grok Build 0.1 &gt; 200k tokens â</a></td>
+<td>North America</td>
+<td>36.4</td>
+<td>72.7</td>
+</tr>
+<tr>
+<td></td>
+<td>EU / UK</td>
+<td>30.8</td>
+<td>61.5</td>
+</tr>
+<tr>
+<td></td>
+<td>South America / APAC / Middle East</td>
+<td>25.0</td>
+<td>50.0</td>
+</tr>
+<tr>
+<td><a href="https://developers.openai.com/api/docs/models/gpt-4.5">GPT-4.5 â</a></td>
+<td>North America</td>
+<td>1159.1</td>
+<td>2318.2</td>
+</tr>
+<tr>
+<td></td>
+<td>EU / UK</td>
+<td>980.8</td>
+<td>1961.5</td>
+</tr>
+<tr>
+<td></td>
+<td>South America / APAC / Middle East</td>
+<td>796.9</td>
+<td>1593.8</td>
+</tr>
+<tr>
+<td><a href="https://developers.openai.com/api/docs/models/gpt-4o">GPT-4o â</a></td>
+<td>North America</td>
+<td>43</td>
+<td>172</td>
+</tr>
+<tr>
+<td></td>
+<td>EU / UK</td>
+<td>36</td>
+<td>145</td>
+</tr>
+<tr>
+<td></td>
+<td>South America / APAC / Middle East</td>
+<td>30</td>
+<td>118</td>
+</tr>
+<tr>
+<td><a href="https://developers.openai.com/api/docs/models/gpt-4o-mini">GPT-4o mini â</a></td>
+<td>North America</td>
+<td>2.6</td>
+<td>10.3</td>
+</tr>
+<tr>
+<td></td>
+<td>EU / UK</td>
+<td>2.2</td>
+<td>8.7</td>
+</tr>
+<tr>
+<td></td>
+<td>South America / APAC / Middle East</td>
+<td>1.8</td>
+<td>7.1</td>
+</tr>
+<tr>
+<td><a href="https://developers.openai.com/api/docs/models/gpt-4.1">GPT-4.1 â</a></td>
+<td>North America</td>
+<td>31</td>
+<td>124</td>
+</tr>
+<tr>
+<td></td>
+<td>EU / UK</td>
+<td>26</td>
+<td>105</td>
+</tr>
+<tr>
+<td></td>
+<td>South America / APAC / Middle East</td>
+<td>21</td>
+<td>85</td>
+</tr>
+<tr>
+<td><a href="https://developers.openai.com/api/docs/models/gpt-4.1-mini">GPT-4.1-mini â</a></td>
+<td>North America</td>
+<td>6.2</td>
+<td>24.7</td>
+</tr>
+<tr>
+<td></td>
+<td>EU / UK</td>
+<td>5.2</td>
+<td>20.9</td>
+</tr>
+<tr>
+<td></td>
+<td>South America / APAC / Middle East</td>
+<td>4.3</td>
+<td>17</td>
+</tr>
+<tr>
+<td><a href="https://developers.openai.com/api/docs/models/gpt-4.1-nano">GPT-4.1-nano â</a></td>
+<td>North America</td>
+<td>1.5</td>
+<td>6.2</td>
+</tr>
+<tr>
+<td></td>
+<td>EU / UK</td>
+<td>1.3</td>
+<td>5.2</td>
+</tr>
+<tr>
+<td></td>
+<td>South America / APAC / Middle East</td>
+<td>1.1</td>
+<td>4.3</td>
+</tr>
+<tr>
+<td><a href="https://developers.openai.com/api/docs/models/gpt-5">GPT-5 â</a></td>
+<td>North America</td>
+<td>20.5</td>
+<td>163.6</td>
+</tr>
+<tr>
+<td></td>
+<td>EU / UK</td>
+<td>17.3</td>
+<td>138.5</td>
+</tr>
+<tr>
+<td></td>
+<td>South America / APAC / Middle East</td>
+<td>14.1</td>
+<td>112.5</td>
+</tr>
+<tr>
+<td><a href="https://developers.openai.com/api/docs/models/gpt-5-mini">GPT-5-mini â</a></td>
+<td>North America</td>
+<td>4.1</td>
+<td>32.7</td>
+</tr>
+<tr>
+<td></td>
+<td>EU / UK</td>
+<td>3.5</td>
+<td>27.7</td>
+</tr>
+<tr>
+<td></td>
+<td>South America / APAC / Middle East</td>
+<td>2.8</td>
+<td>22.5</td>
+</tr>
+<tr>
+<td><a href="https://developers.openai.com/api/docs/models/gpt-5-nano">GPT-5-nano â</a></td>
+<td>North America</td>
+<td>0.82</td>
+<td>6.5</td>
+</tr>
+<tr>
+<td></td>
+<td>EU / UK</td>
+<td>0.69</td>
+<td>5.5</td>
+</tr>
+<tr>
+<td></td>
+<td>South America / APAC / Middle East</td>
+<td>0.56</td>
+<td>4.5</td>
+</tr>
+<tr>
+<td><a href="https://developers.openai.com/api/docs/models/gpt-5-pro">GPT-5-pro â</a></td>
+<td>North America</td>
+<td>231.8</td>
+<td>1854.5</td>
+</tr>
+<tr>
+<td></td>
+<td>EU / UK</td>
+<td>196.2</td>
+<td>1569.2</td>
+</tr>
+<tr>
+<td></td>
+<td>South America / APAC / Middle East</td>
+<td>159.4</td>
+<td>1275.0</td>
+</tr>
+<tr>
+<td><a href="https://developers.openai.com/api/docs/models/gpt-oss-20b">GPT-OSS-20B â</a></td>
+<td>North America</td>
+<td>1.1</td>
+<td>4.9</td>
+</tr>
+<tr>
+<td></td>
+<td>EU / UK</td>
+<td>1.0</td>
+<td>4.2</td>
+</tr>
+<tr>
+<td></td>
+<td>South America / APAC / Middle East</td>
+<td>0.79</td>
+<td>3.4</td>
+</tr>
+<tr>
+<td><a href="https://developers.openai.com/api/docs/models/gpt-oss-120b">GPT-OSS-120B â</a></td>
+<td>North America</td>
+<td>2.5</td>
+<td>9.8</td>
+</tr>
+<tr>
+<td></td>
+<td>EU / UK</td>
+<td>2.1</td>
+<td>8.3</td>
+</tr>
+<tr>
+<td></td>
+<td>South America / APAC / Middle East</td>
+<td>1.7</td>
+<td>6.8</td>
+</tr>
+<tr>
+<td><a href="https://developers.openai.com/api/docs/models/gpt-5-codex">GPT-5 Codex â</a></td>
+<td>North America</td>
+<td>20.5</td>
+<td>163.6</td>
+</tr>
+<tr>
+<td></td>
+<td>EU / UK</td>
+<td>17.3</td>
+<td>138.5</td>
+</tr>
+<tr>
+<td></td>
+<td>South America / APAC / Middle East</td>
+<td>14.1</td>
+<td>112.5</td>
+</tr>
+<tr>
+<td><a href="https://developers.openai.com/api/docs/models/gpt-5.1-codex-mini">GPT-5.1 Codex Mini â</a></td>
+<td>North America</td>
+<td>5.5</td>
+<td>36.4</td>
+</tr>
+<tr>
+<td></td>
+<td>EU / UK</td>
+<td>4.6</td>
+<td>30.8</td>
+</tr>
+<tr>
+<td></td>
+<td>South America / APAC / Middle East</td>
+<td>3.8</td>
+<td>25</td>
+</tr>
+<tr>
+<td><a href="https://developers.openai.com/api/docs/models/gpt-5.1-codex">GPT-5.1 Codex â</a></td>
+<td>North America</td>
+<td>23.6</td>
+<td>181.8</td>
+</tr>
+<tr>
+<td></td>
+<td>EU / UK</td>
+<td>20</td>
+<td>153.8</td>
+</tr>
+<tr>
+<td></td>
+<td>South America / APAC / Middle East</td>
+<td>16.3</td>
+<td>125</td>
+</tr>
+<tr>
+<td><a href="https://developers.openai.com/api/docs/models/gpt-5.1">GPT-5.1 â</a></td>
+<td>North America</td>
+<td>23.6</td>
+<td>181.8</td>
+</tr>
+<tr>
+<td></td>
+<td>EU / UK</td>
+<td>20</td>
+<td>153.8</td>
+</tr>
+<tr>
+<td></td>
+<td>South America / APAC / Middle East</td>
+<td>16.3</td>
+<td>125</td>
+</tr>
+<tr>
+<td><a href="https://developers.openai.com/api/docs/models/gpt-5.1-codex-max">GPT-5.1 Codex Max â</a></td>
+<td>North America</td>
+<td>22.7</td>
+<td>181.8</td>
+</tr>
+<tr>
+<td></td>
+<td>EU / UK</td>
+<td>19.2</td>
+<td>153.8</td>
+</tr>
+<tr>
+<td></td>
+<td>South America / APAC / Middle East</td>
+<td>15.6</td>
+<td>125.0</td>
+</tr>
+<tr>
+<td><a href="https://developers.openai.com/api/docs/models/gpt-5.2">GPT-5.2 â</a></td>
+<td>North America</td>
+<td>31.8</td>
+<td>254.5</td>
+</tr>
+<tr>
+<td></td>
+<td>EU / UK</td>
+<td>26.9</td>
+<td>215.4</td>
+</tr>
+<tr>
+<td></td>
+<td>South America / APAC / Middle East</td>
+<td>21.9</td>
+<td>175.0</td>
+</tr>
+<tr>
+<td><a href="https://developers.openai.com/api/docs/models/gpt-5.2-codex">GPT-5.2 Codex â</a></td>
+<td>North America</td>
+<td>32.7</td>
+<td>254.5</td>
+</tr>
+<tr>
+<td></td>
+<td>EU / UK</td>
+<td>27.7</td>
+<td>215.4</td>
+</tr>
+<tr>
+<td></td>
+<td>South America / APAC / Middle East</td>
+<td>22.5</td>
+<td>175</td>
+</tr>
+<tr>
+<td><a href="https://developers.openai.com/api/docs/models/gpt-5.2-pro">GPT-5.2 Pro â</a></td>
+<td>North America</td>
+<td>381.8</td>
+<td>3054.5</td>
+</tr>
+<tr>
+<td></td>
+<td>EU / UK</td>
+<td>323.1</td>
+<td>2584.6</td>
+</tr>
+<tr>
+<td></td>
+<td>South America / APAC / Middle East</td>
+<td>262.5</td>
+<td>2100.0</td>
+</tr>
+<tr>
+<td><a href="https://developers.openai.com/api/docs/models/gpt-5.3-codex">GPT-5.3 Codex â</a></td>
+<td>North America</td>
+<td>31.8</td>
+<td>254.5</td>
+</tr>
+<tr>
+<td></td>
+<td>EU / UK</td>
+<td>26.9</td>
+<td>215.4</td>
+</tr>
+<tr>
+<td></td>
+<td>South America / APAC / Middle East</td>
+<td>21.9</td>
+<td>175.0</td>
+</tr>
+<tr>
+<td><a href="https://developers.openai.com/api/docs/models/gpt-5.4">GPT-5.4 &lt;= 272k tokens â</a></td>
+<td>North America</td>
+<td>45.5</td>
+<td>272.7</td>
+</tr>
+<tr>
+<td></td>
+<td>EU / UK</td>
+<td>38.5</td>
+<td>230.8</td>
+</tr>
+<tr>
+<td></td>
+<td>South America / APAC / Middle East</td>
+<td>31.3</td>
+<td>187.5</td>
+</tr>
+<tr>
+<td><a href="https://developers.openai.com/api/docs/models/gpt-5.4">GPT-5.4 &gt; 272k tokens â</a></td>
+<td>North America</td>
+<td>90.9</td>
+<td>409.1</td>
+</tr>
+<tr>
+<td></td>
+<td>EU / UK</td>
+<td>76.9</td>
+<td>346.2</td>
+</tr>
+<tr>
+<td></td>
+<td>South America / APAC / Middle East</td>
+<td>62.5</td>
+<td>281.3</td>
+</tr>
+<tr>
+<td><a href="https://developers.openai.com/api/docs/models/gpt-5.4-pro">GPT-5.4 Pro &lt;= 272k tokens â</a></td>
+<td>North America</td>
+<td>545.5</td>
+<td>3272.7</td>
+</tr>
+<tr>
+<td></td>
+<td>EU / UK</td>
+<td>461.5</td>
+<td>2769.2</td>
+</tr>
+<tr>
+<td></td>
+<td>South America / APAC / Middle East</td>
+<td>375.0</td>
+<td>2250.0</td>
+</tr>
+<tr>
+<td><a href="https://developers.openai.com/api/docs/models/gpt-5.4-pro">GPT-5.4 Pro &gt; 272k tokens â</a></td>
+<td>North America</td>
+<td>1090.9</td>
+<td>4909.1</td>
+</tr>
+<tr>
+<td></td>
+<td>EU / UK</td>
+<td>923.1</td>
+<td>4153.8</td>
+</tr>
+<tr>
+<td></td>
+<td>South America / APAC / Middle East</td>
+<td>750.0</td>
+<td>3375.0</td>
+</tr>
+<tr>
+<td><a href="https://developers.openai.com/api/docs/models/gpt-5.4-mini">GPT-5.4-mini â</a></td>
+<td>North America</td>
+<td>13.6</td>
+<td>81.8</td>
+</tr>
+<tr>
+<td></td>
+<td>EU / UK</td>
+<td>11.5</td>
+<td>69.2</td>
+</tr>
+<tr>
+<td></td>
+<td>South America / APAC / Middle East</td>
+<td>9.4</td>
+<td>56.3</td>
+</tr>
+<tr>
+<td><a href="https://developers.openai.com/api/docs/models/gpt-5.4-nano">GPT-5.4-nano â</a></td>
+<td>North America</td>
+<td>3.6</td>
+<td>22.7</td>
+</tr>
+<tr>
+<td></td>
+<td>EU / UK</td>
+<td>3.1</td>
+<td>19.2</td>
+</tr>
+<tr>
+<td></td>
+<td>South America / APAC / Middle East</td>
+<td>2.5</td>
+<td>15.6</td>
+</tr>
+<tr>
+<td><a href="https://developers.openai.com/api/docs/models/gpt-5.5">GPT-5.5 &lt;= 272k tokens â</a></td>
+<td>North America</td>
+<td>81.8</td>
+<td>490.9</td>
+</tr>
+<tr>
+<td></td>
+<td>EU / UK</td>
+<td>69.2</td>
+<td>415.4</td>
+</tr>
+<tr>
+<td></td>
+<td>South America / APAC / Middle East</td>
+<td>56.3</td>
+<td>337.5</td>
+</tr>
+<tr>
+<td><a href="https://developers.openai.com/api/docs/models/gpt-5.5">GPT-5.5 &gt; 272k tokens â</a></td>
+<td>North America</td>
+<td>163.6</td>
+<td>736.4</td>
+</tr>
+<tr>
+<td></td>
+<td>EU / UK</td>
+<td>138.5</td>
+<td>623.1</td>
+</tr>
+<tr>
+<td></td>
+<td>South America / APAC / Middle East</td>
+<td>112.5</td>
+<td>506.3</td>
+</tr>
+<tr>
+<td><a href="https://developers.openai.com/api/docs/pricing">GPT-5.6 Sol &lt;= 272k tokens â</a></td>
+<td>North America</td>
+<td>81.8</td>
+<td>490.9</td>
+</tr>
+<tr>
+<td></td>
+<td>EU / UK</td>
+<td>69.2</td>
+<td>415.4</td>
+</tr>
+<tr>
+<td></td>
+<td>South America / APAC / Middle East</td>
+<td>56.3</td>
+<td>337.5</td>
+</tr>
+<tr>
+<td><a href="https://developers.openai.com/api/docs/pricing">GPT-5.6 Sol &gt; 272k tokens â</a></td>
+<td>North America</td>
+<td>163.6</td>
+<td>736.4</td>
+</tr>
+<tr>
+<td></td>
+<td>EU / UK</td>
+<td>138.5</td>
+<td>623.1</td>
+</tr>
+<tr>
+<td></td>
+<td>South America / APAC / Middle East</td>
+<td>112.5</td>
+<td>506.3</td>
+</tr>
+<tr>
+<td><a href="https://developers.openai.com/api/docs/pricing">GPT-5.6 Terra &lt;= 272k tokens â</a></td>
+<td>North America</td>
+<td>32.7</td>
+<td>196.4</td>
+</tr>
+<tr>
+<td></td>
+<td>EU / UK</td>
+<td>27.7</td>
+<td>166.2</td>
+</tr>
+<tr>
+<td></td>
+<td>South America / APAC / Middle East</td>
+<td>22.5</td>
+<td>135.0</td>
+</tr>
+<tr>
+<td><a href="https://developers.openai.com/api/docs/pricing">GPT-5.6 Terra &gt; 272k tokens â</a></td>
+<td>North America</td>
+<td>65.5</td>
+<td>294.5</td>
+</tr>
+<tr>
+<td></td>
+<td>EU / UK</td>
+<td>55.4</td>
+<td>249.2</td>
+</tr>
+<tr>
+<td></td>
+<td>South America / APAC / Middle East</td>
+<td>45.0</td>
+<td>202.5</td>
+</tr>
+<tr>
+<td><a href="https://developers.openai.com/api/docs/pricing">GPT-5.6 Luna &lt;= 272k tokens â</a></td>
+<td>North America</td>
+<td>3.3</td>
+<td>19.6</td>
+</tr>
+<tr>
+<td></td>
+<td>EU / UK</td>
+<td>2.8</td>
+<td>16.6</td>
+</tr>
+<tr>
+<td></td>
+<td>South America / APAC / Middle East</td>
+<td>2.3</td>
+<td>13.5</td>
+</tr>
+<tr>
+<td><a href="https://developers.openai.com/api/docs/pricing">GPT-5.6 Luna &gt; 272k tokens â</a></td>
+<td>North America</td>
+<td>6.5</td>
+<td>29.5</td>
+</tr>
+<tr>
+<td></td>
+<td>EU / UK</td>
+<td>5.5</td>
+<td>24.9</td>
+</tr>
+<tr>
+<td></td>
+<td>South America / APAC / Middle East</td>
+<td>4.5</td>
+<td>20.3</td>
+</tr>
+<tr>
+<td><a href="https://developers.openai.com/api/docs/models/gpt-realtime">GPT Realtime â</a></td>
+<td>North America</td>
+<td>72.7</td>
+<td>290.9</td>
+</tr>
+<tr>
+<td></td>
+<td>EU / UK</td>
+<td>61.5</td>
+<td>246.2</td>
+</tr>
+<tr>
+<td></td>
+<td>South America / APAC / Middle East</td>
+<td>50</td>
+<td>200</td>
+</tr>
+<tr>
+<td><a href="https://developers.openai.com/api/docs/models/gpt-realtime-1.5">GPT Realtime 1.5 â</a></td>
+<td>North America</td>
+<td>72.7</td>
+<td>290.9</td>
+</tr>
+<tr>
+<td></td>
+<td>EU / UK</td>
+<td>61.5</td>
+<td>246.2</td>
+</tr>
+<tr>
+<td></td>
+<td>South America / APAC / Middle East</td>
+<td>50.0</td>
+<td>200.0</td>
+</tr>
+<tr>
+<td><a href="https://developers.openai.com/api/docs/models/o1">o1 â</a></td>
+<td>North America</td>
+<td>232</td>
+<td>927</td>
+</tr>
+<tr>
+<td></td>
+<td>EU / UK</td>
+<td>196</td>
+<td>785</td>
+</tr>
+<tr>
+<td></td>
+<td>South America / APAC / Middle East</td>
+<td>159</td>
+<td>638</td>
+</tr>
+<tr>
+<td><a href="https://developers.openai.com/api/docs/models/o1-mini">o1-mini â</a></td>
+<td>North America</td>
+<td>17</td>
+<td>68</td>
+</tr>
+<tr>
+<td></td>
+<td>EU / UK</td>
+<td>14</td>
+<td>58</td>
+</tr>
+<tr>
+<td></td>
+<td>South America / APAC / Middle East</td>
+<td>12</td>
+<td>47</td>
+</tr>
+<tr>
+<td><a href="https://developers.openai.com/api/docs/models/o3">o3 â</a></td>
+<td>North America</td>
+<td>31</td>
+<td>124</td>
+</tr>
+<tr>
+<td></td>
+<td>EU / UK</td>
+<td>26</td>
+<td>105</td>
+</tr>
+<tr>
+<td></td>
+<td>South America / APAC / Middle East</td>
+<td>21</td>
+<td>85</td>
+</tr>
+<tr>
+<td><a href="https://developers.openai.com/api/docs/models/o3-mini">o3-mini â</a></td>
+<td>North America</td>
+<td>17</td>
+<td>68</td>
+</tr>
+<tr>
+<td></td>
+<td>EU / UK</td>
+<td>14</td>
+<td>58</td>
+</tr>
+<tr>
+<td></td>
+<td>South America / APAC / Middle East</td>
+<td>12</td>
+<td>47</td>
+</tr>
+<tr>
+<td><a href="https://developers.openai.com/api/docs/models/o3-pro">o3-pro â</a></td>
+<td>North America</td>
+<td>345.5</td>
+<td>1381.8</td>
+</tr>
+<tr>
+<td></td>
+<td>EU / UK</td>
+<td>292.3</td>
+<td>1169.2</td>
+</tr>
+<tr>
+<td></td>
+<td>South America / APAC / Middle East</td>
+<td>237.5</td>
+<td>950.0</td>
+</tr>
+<tr>
+<td><a href="https://developers.openai.com/api/docs/models/o4-mini">o4-mini â</a></td>
+<td>North America</td>
+<td>17</td>
+<td>68</td>
+</tr>
+<tr>
+<td></td>
+<td>EU / UK</td>
+<td>14</td>
+<td>58</td>
+</tr>
+<tr>
+<td></td>
+<td>South America / APAC / Middle East</td>
+<td>12</td>
+<td>47</td>
+</tr>
+<tr>
+<td><a href="https://developers.openai.com/api/docs/guides/embeddings"><code>ada</code> embedding â</a></td>
+<td>North America</td>
+<td>1.68</td>
+<td>N/A</td>
+</tr>
+<tr>
+<td></td>
+<td>EU / UK</td>
+<td>1.42</td>
+<td>N/A</td>
+</tr>
+<tr>
+<td></td>
+<td>South America / APAC / Middle East</td>
+<td>1.16</td>
+<td>N/A</td>
+</tr>
+<tr>
+<td><a href="https://developers.openai.com/api/docs/guides/embeddings">text-embedding-3-large â</a></td>
+<td>North America</td>
+<td>2.24</td>
+<td>N/A</td>
+</tr>
+<tr>
+<td></td>
+<td>EU / UK</td>
+<td>1.89</td>
+<td>N/A</td>
+</tr>
+<tr>
+<td></td>
+<td>South America / APAC / Middle East</td>
+<td>1.54</td>
+<td>N/A</td>
+</tr>
+<tr>
+<td><a href="https://developers.openai.com/api/docs/guides/embeddings">text-embedding-3-small â</a></td>
+<td>North America</td>
+<td>0.34</td>
+<td>N/A</td>
+</tr>
+<tr>
+<td></td>
+<td>EU / UK</td>
+<td>0.29</td>
+<td>N/A</td>
+</tr>
+<tr>
+<td></td>
+<td>South America / APAC / Middle East</td>
+<td>0.24</td>
+<td>N/A</td>
+</tr>
+<tr>
+<td><a href="https://developers.openai.com/api/docs/models/text-embedding-3-large">OpenAI Text Embedding 3 Large â</a></td>
+<td>North America</td>
+<td>2.2</td>
+<td>N/A</td>
+</tr>
+<tr>
+<td></td>
+<td>EU / UK</td>
+<td>1.9</td>
+<td>N/A</td>
+</tr>
+<tr>
+<td></td>
+<td>South America / APAC / Middle East</td>
+<td>1.5</td>
+<td>N/A</td>
+</tr>
+<tr>
+<td><a href="https://developers.openai.com/api/docs/models/text-embedding-3-small">OpenAI Text Embedding 3 Small â</a></td>
+<td>North America</td>
+<td>0.3</td>
+<td>N/A</td>
+</tr>
+<tr>
+<td></td>
+<td>EU / UK</td>
+<td>0.3</td>
+<td>N/A</td>
+</tr>
+<tr>
+<td></td>
+<td>South America / APAC / Middle East</td>
+<td>0.2</td>
+<td>N/A</td>
+</tr>
+<tr>
+<td><a href="https://developers.openai.com/api/docs/models/text-embedding-ada-002">OpenAI Text Embedding Ada 002 â</a></td>
+<td>North America</td>
+<td>1.7</td>
+<td>N/A</td>
+</tr>
+<tr>
+<td></td>
+<td>EU / UK</td>
+<td>1.4</td>
+<td>N/A</td>
+</tr>
+<tr>
+<td></td>
+<td>South America / APAC / Middle East</td>
+<td>1.2</td>
+<td>N/A</td>
+</tr>
+<tr>
+<td><a href="https://www.anthropic.com/news/claude-3-family">Anthropic Claude 3 â</a></td>
+<td>North America</td>
+<td>52</td>
+<td>258</td>
+</tr>
+<tr>
+<td></td>
+<td>EU / UK</td>
+<td>44</td>
+<td>218</td>
+</tr>
+<tr>
+<td></td>
+<td>South America / APAC / Middle East</td>
+<td>35</td>
+<td>177</td>
+</tr>
+<tr>
+<td><a href="https://www.anthropic.com/claude/haiku">Anthropic Claude 3 Haiku â</a></td>
+<td>North America</td>
+<td>4.3</td>
+<td>21.5</td>
+</tr>
+<tr>
+<td></td>
+<td>EU / UK</td>
+<td>3.6</td>
+<td>18.2</td>
+</tr>
+<tr>
+<td></td>
+<td>South America / APAC / Middle East</td>
+<td>3.0</td>
+<td>14.8</td>
+</tr>
+<tr>
+<td><a href="https://www.anthropic.com/claude/haiku">Anthropic Claude 3.5 Haiku â</a></td>
+<td>North America</td>
+<td>12</td>
+<td>62</td>
+</tr>
+<tr>
+<td></td>
+<td>EU / UK</td>
+<td>10</td>
+<td>52</td>
+</tr>
+<tr>
+<td></td>
+<td>South America / APAC / Middle East</td>
+<td>9</td>
+<td>43</td>
+</tr>
+<tr>
+<td><a href="https://www.anthropic.com/claude/haiku">Anthropic Claude 4.5 Haiku â</a></td>
+<td>North America</td>
+<td>17.3</td>
+<td>86.4</td>
+</tr>
+<tr>
+<td></td>
+<td>EU / UK</td>
+<td>14.6</td>
+<td>73.1</td>
+</tr>
+<tr>
+<td></td>
+<td>South America / APAC / Middle East</td>
+<td>11.9</td>
+<td>59.4</td>
+</tr>
+<tr>
+<td><a href="https://www.anthropic.com/claude/sonnet">Anthropic Claude 3.5 Sonnet â</a></td>
+<td>North America</td>
+<td>52</td>
+<td>258</td>
+</tr>
+<tr>
+<td></td>
+<td>EU / UK</td>
+<td>44</td>
+<td>218</td>
+</tr>
+<tr>
+<td></td>
+<td>South America / APAC / Middle East</td>
+<td>35</td>
+<td>177</td>
+</tr>
+<tr>
+<td><a href="https://www.anthropic.com/claude/sonnet">Anthropic Claude 3.5 Sonnet v2 â</a></td>
+<td>North America</td>
+<td>46</td>
+<td>232</td>
+</tr>
+<tr>
+<td></td>
+<td>EU / UK</td>
+<td>39</td>
+<td>196</td>
+</tr>
+<tr>
+<td></td>
+<td>South America / APAC / Middle East</td>
+<td>32</td>
+<td>159</td>
+</tr>
+<tr>
+<td><a href="https://www.anthropic.com/claude/sonnet">Anthropic Claude 4 Sonnet â</a></td>
+<td>North America</td>
+<td>46.4</td>
+<td>231.8</td>
+</tr>
+<tr>
+<td></td>
+<td>EU / UK</td>
+<td>39.2</td>
+<td>196.2</td>
+</tr>
+<tr>
+<td></td>
+<td>South America / APAC / Middle East</td>
+<td>31.9</td>
+<td>159.4</td>
+</tr>
+<tr>
+<td><a href="https://www.anthropic.com/claude/sonnet">Anthropic Claude 4.5 Sonnet â</a></td>
+<td>North America</td>
+<td>51.8</td>
+<td>259.1</td>
+</tr>
+<tr>
+<td></td>
+<td>EU / UK</td>
+<td>43.8</td>
+<td>219.2</td>
+</tr>
+<tr>
+<td></td>
+<td>South America / APAC / Middle East</td>
+<td>35.6</td>
+<td>178.1</td>
+</tr>
+<tr>
+<td><a href="https://www.anthropic.com/claude/sonnet">Anthropic Claude 4.6 Sonnet â</a></td>
+<td>North America</td>
+<td>54.5</td>
+<td>272.7</td>
+</tr>
+<tr>
+<td></td>
+<td>EU / UK</td>
+<td>46.2</td>
+<td>230.8</td>
+</tr>
+<tr>
+<td></td>
+<td>South America / APAC / Middle East</td>
+<td>37.5</td>
+<td>187.5</td>
+</tr>
+<tr>
+<td><a href="https://platform.claude.com/docs/en/about-claude/pricing">Anthropic Claude 5 Sonnet â</a></td>
+<td>North America</td>
+<td>36.4</td>
+<td>181.8</td>
+</tr>
+<tr>
+<td></td>
+<td>EU / UK</td>
+<td>30.8</td>
+<td>153.8</td>
+</tr>
+<tr>
+<td></td>
+<td>South America / APAC / Middle East</td>
+<td>25.0</td>
+<td>125.0</td>
+</tr>
+<tr>
+<td><a href="https://www.anthropic.com/claude/opus">Anthropic Claude 4 Opus â</a></td>
+<td>North America</td>
+<td>232</td>
+<td>1159</td>
+</tr>
+<tr>
+<td></td>
+<td>EU / UK</td>
+<td>196</td>
+<td>981</td>
+</tr>
+<tr>
+<td></td>
+<td>South America / APAC / Middle East</td>
+<td>159</td>
+<td>797</td>
+</tr>
+<tr>
+<td><a href="https://www.anthropic.com/claude/opus">Anthropic Claude 4.1 Opus â</a></td>
+<td>North America</td>
+<td>259</td>
+<td>1295</td>
+</tr>
+<tr>
+<td></td>
+<td>EU / UK</td>
+<td>219</td>
+<td>1096</td>
+</tr>
+<tr>
+<td></td>
+<td>South America / APAC / Middle East</td>
+<td>178</td>
+<td>891</td>
+</tr>
+<tr>
+<td><a href="https://www.anthropic.com/claude/opus">Anthropic Claude 4.5 Opus â</a></td>
+<td>North America</td>
+<td>90.9</td>
+<td>454.5</td>
+</tr>
+<tr>
+<td></td>
+<td>EU / UK</td>
+<td>76.9</td>
+<td>384.6</td>
+</tr>
+<tr>
+<td></td>
+<td>South America / APAC / Middle East</td>
+<td>62.5</td>
+<td>312.5</td>
+</tr>
+<tr>
+<td><a href="https://www.anthropic.com/claude/opus">Anthropic Claude 4.6 Opus â</a></td>
+<td>North America</td>
+<td>90.9</td>
+<td>454.5</td>
+</tr>
+<tr>
+<td></td>
+<td>EU / UK</td>
+<td>76.9</td>
+<td>384.6</td>
+</tr>
+<tr>
+<td></td>
+<td>South America / APAC / Middle East</td>
+<td>62.5</td>
+<td>312.5</td>
+</tr>
+<tr>
+<td><a href="https://www.anthropic.com/claude/opus">Anthropic Claude 4.7 Opus â</a></td>
+<td>North America</td>
+<td>90.9</td>
+<td>454.5</td>
+</tr>
+<tr>
+<td></td>
+<td>EU / UK</td>
+<td>76.9</td>
+<td>384.6</td>
+</tr>
+<tr>
+<td></td>
+<td>South America / APAC / Middle East</td>
+<td>62.5</td>
+<td>312.5</td>
+</tr>
+<tr>
+<td><a href="https://www.anthropic.com/claude/opus">Anthropic Claude 4.8 Opus â</a></td>
+<td>North America</td>
+<td>90.9</td>
+<td>454.5</td>
+</tr>
+<tr>
+<td></td>
+<td>EU / UK</td>
+<td>76.9</td>
+<td>384.6</td>
+</tr>
+<tr>
+<td></td>
+<td>South America / APAC / Middle East</td>
+<td>62.5</td>
+<td>312.5</td>
+</tr>
+<tr>
+<td><a href="https://platform.claude.com/docs/en/about-claude/pricing">Anthropic Claude 5 Opus â</a></td>
+<td>North America</td>
+<td>90.9</td>
+<td>454.5</td>
+</tr>
+<tr>
+<td></td>
+<td>EU / UK</td>
+<td>76.9</td>
+<td>384.6</td>
+</tr>
+<tr>
+<td></td>
+<td>South America / APAC / Middle East</td>
+<td>62.5</td>
+<td>312.5</td>
+</tr>
+<tr>
+<td><a href="https://docs.mistral.ai/models/overview">Mistral Small 24B â</a></td>
+<td>North America</td>
+<td>158</td>
+<td>525</td>
+</tr>
+<tr>
+<td></td>
+<td>EU / UK</td>
+<td>133</td>
+<td>444</td>
+</tr>
+<tr>
+<td></td>
+<td>South America / APAC / Middle East</td>
+<td>108</td>
+<td>361</td>
+</tr>
+<tr>
+<td><a href="https://docs.mistral.ai/getting-started/models/models_overview/">Mistral Small 24B Instruct â</a></td>
+<td>North America</td>
+<td>157.5</td>
+<td>525</td>
+</tr>
+<tr>
+<td></td>
+<td>EU / UK</td>
+<td>133.3</td>
+<td>444.2</td>
+</tr>
+<tr>
+<td></td>
+<td>South America / APAC / Middle East</td>
+<td>108.3</td>
+<td>360.9</td>
+</tr>
+<tr>
+<td><a href="https://www.llama.com/docs/model-cards-and-prompt-formats/llama3_1/">Llama 3.1_8B â</a></td>
+<td>North America</td>
+<td>158</td>
+<td>525</td>
+</tr>
+<tr>
+<td></td>
+<td>EU / UK</td>
+<td>133</td>
+<td>444</td>
+</tr>
+<tr>
+<td></td>
+<td>South America / APAC / Middle East</td>
+<td>108</td>
+<td>361</td>
+</tr>
+<tr>
+<td><a href="https://www.llama.com/docs/model-cards-and-prompt-formats/llama3_3/">Llama 3.3_70B â</a></td>
+<td>North America</td>
+<td>158</td>
+<td>525</td>
+</tr>
+<tr>
+<td></td>
+<td>EU / UK</td>
+<td>133</td>
+<td>444</td>
+</tr>
+<tr>
+<td></td>
+<td>South America / APAC / Middle East</td>
+<td>108</td>
+<td>361</td>
+</tr>
+<tr>
+<td><a href="https://www.llama.com/docs/model-cards-and-prompt-formats/llama3_3/">Llama 3.3 70B Instruct â</a></td>
+<td>North America</td>
+<td>157.5</td>
+<td>525</td>
+</tr>
+<tr>
+<td></td>
+<td>EU / UK</td>
+<td>133.3</td>
+<td>444.2</td>
+</tr>
+<tr>
+<td></td>
+<td>South America / APAC / Middle East</td>
+<td>108.3</td>
+<td>360.9</td>
+</tr>
+<tr>
+<td><a href="https://www.llama.com/docs/model-cards-and-prompt-formats/llama4/">Llama 4 Scout_17B 16E Instruct â</a></td>
+<td>North America</td>
+<td>1.5</td>
+<td>5.7</td>
+</tr>
+<tr>
+<td></td>
+<td>EU / UK</td>
+<td>1.2</td>
+<td>4.8</td>
+</tr>
+<tr>
+<td></td>
+<td>South America / APAC / Middle East</td>
+<td>1.0</td>
+<td>3.9</td>
+</tr>
+<tr>
+<td><a href="https://www.llama.com/docs/model-cards-and-prompt-formats/llama4/">Llama 4 Maverick_17B 128E Instruct â</a></td>
+<td>North America</td>
+<td>2.1</td>
+<td>8.4</td>
+</tr>
+<tr>
+<td></td>
+<td>EU / UK</td>
+<td>1.8</td>
+<td>7.1</td>
+</tr>
+<tr>
+<td></td>
+<td>South America / APAC / Middle East</td>
+<td>1.4</td>
+<td>5.8</td>
+</tr>
+<tr>
+<td><a href="https://build.nvidia.com/nvidia/nemotron-3-nano-30b-a3b/modelcard">Nemotron 3 Nano 30B â</a></td>
+<td>North America</td>
+<td>1.1</td>
+<td>4.4</td>
+</tr>
+<tr>
+<td></td>
+<td>EU / UK</td>
+<td>0.9</td>
+<td>3.7</td>
+</tr>
+<tr>
+<td></td>
+<td>South America / APAC / Middle East</td>
+<td>0.8</td>
+<td>3.0</td>
+</tr>
+<tr>
+<td><a href="https://build.nvidia.com/nvidia/nemotron-3-super-120b-a12b/modelcard">Nemotron 3 Super 120B â</a></td>
+<td>North America</td>
+<td>2.7</td>
+<td>11.8</td>
+</tr>
+<tr>
+<td></td>
+<td>EU / UK</td>
+<td>2.3</td>
+<td>10.0</td>
+</tr>
+<tr>
+<td></td>
+<td>South America / APAC / Middle East</td>
+<td>1.9</td>
+<td>8.1</td>
+</tr>
+<tr>
+<td><a href="https://build.nvidia.com/nvidia/nemotron-3-ultra-550b-a55b/modelcard">Nemotron 3 Ultra 550B A55B NVFP4 â</a></td>
+<td>North America</td>
+<td>10.9</td>
+<td>43.6</td>
+</tr>
+<tr>
+<td></td>
+<td>EU / UK</td>
+<td>9.2</td>
+<td>36.9</td>
+</tr>
+<tr>
+<td></td>
+<td>South America / APAC / Middle East</td>
+<td>7.5</td>
+<td>30.0</td>
+</tr>
+<tr>
+<td><a href="https://aws.amazon.com/bedrock/pricing/">DeepSeek V3.2 â</a></td>
+<td>North America</td>
+<td>9.3</td>
+<td>27.9</td>
+</tr>
+<tr>
+<td></td>
+<td>EU / UK</td>
+<td>7.9</td>
+<td>23.6</td>
+</tr>
+<tr>
+<td></td>
+<td>South America / APAC / Middle East</td>
+<td>6.4</td>
+<td>19.1</td>
+</tr>
+<tr>
+<td><a href="https://aws.amazon.com/bedrock/pricing/">Kimi K2.5 â</a></td>
+<td>North America</td>
+<td>9.0</td>
+<td>17.1</td>
+</tr>
+<tr>
+<td></td>
+<td>EU / UK</td>
+<td>7.6</td>
+<td>14.4</td>
+</tr>
+<tr>
+<td></td>
+<td>South America / APAC / Middle East</td>
+<td>6.2</td>
+<td>11.7</td>
+</tr>
+<tr>
+<td><a href="https://aws.amazon.com/bedrock/pricing/">GLM-5 â</a></td>
+<td>North America</td>
+<td>45.2</td>
+<td>62.2</td>
+</tr>
+<tr>
+<td></td>
+<td>EU / UK</td>
+<td>38.2</td>
+<td>52.7</td>
+</tr>
+<tr>
+<td></td>
+<td>South America / APAC / Middle East</td>
+<td>31.1</td>
+<td>42.8</td>
+</tr>
+<tr>
+<td><a href="https://aws.amazon.com/bedrock/pricing/">Qwen3 32B â</a></td>
+<td>North America</td>
+<td>2.3</td>
+<td>9.2</td>
+</tr>
+<tr>
+<td></td>
+<td>EU / UK</td>
+<td>1.9</td>
+<td>7.7</td>
+</tr>
+<tr>
+<td></td>
+<td>South America / APAC / Middle East</td>
+<td>1.6</td>
+<td>6.3</td>
+</tr>
+<tr>
+<td><a href="https://aws.amazon.com/bedrock/pricing/">Qwen3 235B A22B 2507 â</a></td>
+<td>North America</td>
+<td>3.4</td>
+<td>13.3</td>
+</tr>
+<tr>
+<td></td>
+<td>EU / UK</td>
+<td>2.9</td>
+<td>11.3</td>
+</tr>
+<tr>
+<td></td>
+<td>South America / APAC / Middle East</td>
+<td>2.3</td>
+<td>9.1</td>
+</tr>
+<tr>
+<td><a href="https://aws.amazon.com/bedrock/pricing/">MiniMax M2 â</a></td>
+<td>North America</td>
+<td>5.9</td>
+<td>23.3</td>
+</tr>
+<tr>
+<td></td>
+<td>EU / UK</td>
+<td>5.0</td>
+<td>19.7</td>
+</tr>
+<tr>
+<td></td>
+<td>South America / APAC / Middle East</td>
+<td>4.1</td>
+<td>16.0</td>
+</tr>
+<tr>
+<td><a href="https://aws.amazon.com/bedrock/pricing/">MiniMax M2.5 â</a></td>
+<td>North America</td>
+<td>5.9</td>
+<td>23.3</td>
+</tr>
+<tr>
+<td></td>
+<td>EU / UK</td>
+<td>5.0</td>
+<td>19.7</td>
+</tr>
+<tr>
+<td></td>
+<td>South America / APAC / Middle East</td>
+<td>4.1</td>
+<td>16.0</td>
+</tr>
+<tr>
+<td><a href="https://www.snowflake.com/en/data-cloud/arctic/">Snowflake Arctic Embed â</a></td>
+<td>North America</td>
+<td>38</td>
+<td>38</td>
+</tr>
+<tr>
+<td></td>
+<td>EU / UK</td>
+<td>32</td>
+<td>32</td>
+</tr>
+<tr>
+<td></td>
+<td>South America / APAC / Middle East</td>
+<td>26</td>
+<td>26</td>
+</tr>
+<tr>
+<td><a href="https://www.snowflake.com/en/data-cloud/arctic/">Snowflake Arctic Embed M â</a></td>
+<td>North America</td>
+<td>38.2</td>
+<td>38.2</td>
+</tr>
+<tr>
+<td></td>
+<td>EU / UK</td>
+<td>32.3</td>
+<td>32.3</td>
+</tr>
+<tr>
+<td></td>
+<td>South America / APAC / Middle East</td>
+<td>26.2</td>
+<td>26.2</td>
+</tr>
+<tr>
+<td><a href="https://ai.google.dev/gemini-api/docs/pricing">Gemma 4 31B â</a></td>
+<td>North America</td>
+<td>2.1</td>
+<td>4.8</td>
+</tr>
+<tr>
+<td></td>
+<td>EU / UK</td>
+<td>1.8</td>
+<td>4.0</td>
+</tr>
+<tr>
+<td></td>
+<td>South America / APAC / Middle East</td>
+<td>1.5</td>
+<td>3.3</td>
+</tr>
+<tr>
+<td><a href="https://ai.google.dev/pricing#1_5flash">Gemini 1.5 Flash â</a></td>
+<td>North America</td>
+<td>1.3</td>
+<td>5.2</td>
+</tr>
+<tr>
+<td></td>
+<td>EU / UK</td>
+<td>1.1</td>
+<td>4.4</td>
+</tr>
+<tr>
+<td></td>
+<td>South America / APAC / Middle East</td>
+<td>0.9</td>
+<td>3.5</td>
+</tr>
+<tr>
+<td><a href="https://ai.google.dev/pricing#1_5pro">Gemini 1.5 Pro â</a></td>
+<td>North America</td>
+<td>21</td>
+<td>86</td>
+</tr>
+<tr>
+<td></td>
+<td>EU / UK</td>
+<td>18</td>
+<td>73</td>
+</tr>
+<tr>
+<td></td>
+<td>South America / APAC / Middle East</td>
+<td>15</td>
+<td>59</td>
+</tr>
+<tr>
+<td><a href="https://ai.google.dev/gemini-api/docs/pricing#gemini-2.0-flash">Gemini 2.0 Flash â</a></td>
+<td>North America</td>
+<td>1.5</td>
+<td>6.2</td>
+</tr>
+<tr>
+<td></td>
+<td>EU / UK</td>
+<td>1.3</td>
+<td>5.2</td>
+</tr>
+<tr>
+<td></td>
+<td>South America / APAC / Middle East</td>
+<td>1.1</td>
+<td>4.3</td>
+</tr>
+<tr>
+<td><a href="https://ai.google.dev/gemini-api/docs/pricing#gemini-2.5-flash-lite">Gemini 2.5 Flash Lite â</a></td>
+<td>North America</td>
+<td>1.7</td>
+<td>6.9</td>
+</tr>
+<tr>
+<td></td>
+<td>EU / UK</td>
+<td>1.5</td>
+<td>5.8</td>
+</tr>
+<tr>
+<td></td>
+<td>South America / APAC / Middle East</td>
+<td>1.2</td>
+<td>4.8</td>
+</tr>
+<tr>
+<td><a href="https://ai.google.dev/gemini-api/docs/pricing#gemini-2.5-flash">Gemini 2.5 Flash â</a></td>
+<td>North America</td>
+<td>5.2</td>
+<td>43.2</td>
+</tr>
+<tr>
+<td></td>
+<td>EU / UK</td>
+<td>4.4</td>
+<td>36.5</td>
+</tr>
+<tr>
+<td></td>
+<td>South America / APAC / Middle East</td>
+<td>3.6</td>
+<td>29.7</td>
+</tr>
+<tr>
+<td><a href="https://ai.google.dev/gemini-api/docs/pricing#gemini-2.5-pro">Gemini 2.5 Pro &lt;= 200k tokens â</a></td>
+<td>North America</td>
+<td>21.6</td>
+<td>172.7</td>
+</tr>
+<tr>
+<td></td>
+<td>EU / UK</td>
+<td>18.3</td>
+<td>146.2</td>
+</tr>
+<tr>
+<td></td>
+<td>South America / APAC / Middle East</td>
+<td>14.8</td>
+<td>118.8</td>
+</tr>
+<tr>
+<td><a href="https://ai.google.dev/gemini-api/docs/pricing#gemini-2.5-pro">Gemini 2.5 Pro &gt; 200k tokens â</a></td>
+<td>North America</td>
+<td>43.2</td>
+<td>259.1</td>
+</tr>
+<tr>
+<td></td>
+<td>EU / UK</td>
+<td>36.5</td>
+<td>219.1</td>
+</tr>
+<tr>
+<td></td>
+<td>South America / APAC / Middle East</td>
+<td>29.7</td>
+<td>178.1</td>
+</tr>
+<tr>
+<td><a href="https://ai.google.dev/gemini-api/docs/pricing#gemini-3-flash-preview">Gemini 3 Flash â</a></td>
+<td>North America</td>
+<td>9.1</td>
+<td>54.5</td>
+</tr>
+<tr>
+<td></td>
+<td>EU / UK</td>
+<td>7.7</td>
+<td>46.2</td>
+</tr>
+<tr>
+<td></td>
+<td>South America / APAC / Middle East</td>
+<td>6.3</td>
+<td>37.5</td>
+</tr>
+<tr>
+<td><a href="https://ai.google.dev/gemini-api/docs/models/gemini-3-pro-preview">Gemini 3 Pro &lt;= 200k tokens â</a></td>
+<td>North America</td>
+<td>34.5</td>
+<td>207.3</td>
+</tr>
+<tr>
+<td></td>
+<td>EU / UK</td>
+<td>29.2</td>
+<td>175.4</td>
+</tr>
+<tr>
+<td></td>
+<td>South America / APAC / Middle East</td>
+<td>23.8</td>
+<td>142.5</td>
+</tr>
+<tr>
+<td><a href="https://ai.google.dev/gemini-api/docs/models/gemini-3-pro-preview">Gemini 3 Pro &gt; 200k tokens â</a></td>
+<td>North America</td>
+<td>69.1</td>
+<td>310.9</td>
+</tr>
+<tr>
+<td></td>
+<td>EU / UK</td>
+<td>58.5</td>
+<td>263.1</td>
+</tr>
+<tr>
+<td></td>
+<td>South America / APAC / Middle East</td>
+<td>47.5</td>
+<td>213.8</td>
+</tr>
+<tr>
+<td><a href="https://ai.google.dev/gemini-api/docs/pricing#gemini-3.1-pro-preview">Gemini 3.1 Pro &lt;= 200k tokens â</a></td>
+<td>North America</td>
+<td>34.5</td>
+<td>207.3</td>
+</tr>
+<tr>
+<td></td>
+<td>EU / UK</td>
+<td>29.2</td>
+<td>175.4</td>
+</tr>
+<tr>
+<td></td>
+<td>South America / APAC / Middle East</td>
+<td>23.8</td>
+<td>142.5</td>
+</tr>
+<tr>
+<td><a href="https://ai.google.dev/gemini-api/docs/pricing#gemini-3.1-pro-preview">Gemini 3.1 Pro &gt; 200k tokens â</a></td>
+<td>North America</td>
+<td>69.1</td>
+<td>310.9</td>
+</tr>
+<tr>
+<td></td>
+<td>EU / UK</td>
+<td>58.5</td>
+<td>263.1</td>
+</tr>
+<tr>
+<td></td>
+<td>South America / APAC / Middle East</td>
+<td>47.5</td>
+<td>213.8</td>
+</tr>
+<tr>
+<td><a href="https://ai.google.dev/gemini-api/docs/pricing#gemini-3.1-flash-lite-preview">Gemini 3.1 Flash Lite â</a></td>
+<td>North America</td>
+<td>4.5</td>
+<td>27.3</td>
+</tr>
+<tr>
+<td></td>
+<td>EU / UK</td>
+<td>3.8</td>
+<td>23.1</td>
+</tr>
+<tr>
+<td></td>
+<td>South America / APAC / Middle East</td>
+<td>3.1</td>
+<td>18.8</td>
+</tr>
+<tr>
+<td><a href="https://ai.google.dev/gemini-api/docs/pricing">Gemini 3.5 Flash â</a></td>
+<td>North America</td>
+<td>25.9</td>
+<td>155.5</td>
+</tr>
+<tr>
+<td></td>
+<td>EU / UK</td>
+<td>21.9</td>
+<td>131.5</td>
+</tr>
+<tr>
+<td></td>
+<td>South America / APAC / Middle East</td>
+<td>17.8</td>
+<td>106.9</td>
+</tr>
+<tr>
+<td><a href="https://ai.google.dev/gemini-api/docs/pricing">Gemini 3.5 Flash Lite â</a></td>
+<td>North America</td>
+<td>5.2</td>
+<td>43.2</td>
+</tr>
+<tr>
+<td></td>
+<td>EU / UK</td>
+<td>4.4</td>
+<td>36.5</td>
+</tr>
+<tr>
+<td></td>
+<td>South America / APAC / Middle East</td>
+<td>3.6</td>
+<td>29.7</td>
+</tr>
+<tr>
+<td><a href="https://ai.google.dev/gemini-api/docs/pricing">Gemini 3.6 Flash â</a></td>
+<td>North America</td>
+<td>13.0</td>
+<td>64.8</td>
+</tr>
+<tr>
+<td></td>
+<td>EU / UK</td>
+<td>11.0</td>
+<td>54.8</td>
+</tr>
+<tr>
+<td></td>
+<td>South America / APAC / Middle East</td>
+<td>8.9</td>
+<td>44.5</td>
+</tr>
+<tr>
+<td><a href="https://ai.google.dev/gemini-api/docs/pricing">Gemini 3.7 Flash â</a></td>
+<td>North America</td>
+<td>13.0</td>
+<td>64.8</td>
+</tr>
+<tr>
+<td></td>
+<td>EU / UK</td>
+<td>11.0</td>
+<td>54.8</td>
+</tr>
+<tr>
+<td></td>
+<td>South America / APAC / Middle East</td>
+<td>8.9</td>
+<td>44.5</td>
+</tr>
+<tr>
+<td><a href="https://ai.google.dev/gemini-api/docs/pricing">Gemini Live 2.5 Flash Native Audio â</a></td>
+<td>North America</td>
+<td>8.6</td>
+<td>51.8</td>
+</tr>
+<tr>
+<td></td>
+<td>EU / UK</td>
+<td>7.3</td>
+<td>43.8</td>
+</tr>
+<tr>
+<td></td>
+<td>South America / APAC / Middle East</td>
+<td>5.9</td>
+<td>35.6</td>
+</tr>
+<tr>
+<td><a href="https://ai.google.dev/gemini-api/docs/pricing#gemini-embedding-2">Gemini Embedding 2 Text â</a></td>
+<td>North America</td>
+<td>3.6</td>
+<td>N/A</td>
+</tr>
+<tr>
+<td></td>
+<td>EU / UK</td>
+<td>3.1</td>
+<td>N/A</td>
+</tr>
+<tr>
+<td></td>
+<td>South America / APAC / Middle East</td>
+<td>2.5</td>
+<td>N/A</td>
+</tr>
+<tr>
+<td>Document Information Extraction</td>
+<td>North America</td>
+<td>182</td>
+<td>N/A</td>
+</tr>
+<tr>
+<td></td>
+<td>EU / UK</td>
+<td>154</td>
+<td>N/A</td>
+</tr>
+<tr>
+<td></td>
+<td>South America / APAC / Middle East</td>
+<td>125</td>
+<td>N/A</td>
+</tr>
+</tbody>
+</table>
+</body>
+</html>

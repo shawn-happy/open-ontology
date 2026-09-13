@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Parse JSON string</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Parse JSON string</h1>
+<blockquote>
+<p>Supported in: Batch, Faster, Streaming</p>
+</blockquote>
+<p>Parses JSON string following the given schema definition, ignoring any fields not in the schema.</p>
+<p><strong>Expression categories:</strong> Data preparation, Popular, String, Struct</p>
+<h2>Declared arguments</h2>
+<ul>
+<li><strong>JSON:</strong> JSON to be parsed using the schema.<br><em>Expression\<String></em></li>
+<li><strong>Schema:</strong> Schema definition used when parsing the JSON strings.<br><em>Type\<Array\\<AnyType> | Map\\<String, String> | Struct></em></li>
+<li><em>optional</em> <strong>Output mode:</strong> The 'simple' output mode will treat fields that fail to parse as null. The 'with errors' output mode will return a parsable struct with any errors found during parsing in an 'error' field and a valid parsed json in the 'ok' field.<br><em>Enum\<Simple, With errors></em></li>
+</ul>
+<p><strong>Output type:</strong> <em>Array\<AnyType> | Map\<String, String> | Struct</em></p>
+<h2>Examples</h2>
+<h3>Example 1: Base case</h3>
+<p><strong>Argument values:</strong></p>
+<ul>
+<li><strong>JSON:</strong> <code>json</code></li>
+<li><strong>Schema:</strong> Struct\<airline:String, airport:Struct\\<id:String, miles:Integer>></li>
+<li><strong>Output mode:</strong> <em>null</em></li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>json</th>
+<th><strong>Output</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>{<br>â"airline": "XB-112",<br>â"airport": {<br>â    "id": "JFK",<br>â    "miles": 2000<br>â}<br>}</td>
+<td>{<br>â<strong>airline</strong>: XB-112,<br>â<strong>airport</strong>: {<br>â<strong>id</strong>: JFK,<br>â<strong>miles</strong>: 2000,<br>},<br>}</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3>Example 2: Base case</h3>
+<p><strong>Argument values:</strong></p>
+<ul>
+<li><strong>JSON:</strong> <code>json</code></li>
+<li><strong>Schema:</strong> Struct\<airline:String, airport:Struct\\<id:String, miles:Integer>></li>
+<li><strong>Output mode:</strong> <code>WITH_ERRORS</code></li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>json</th>
+<th><strong>Output</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>{<br>â"airline": "XB-112",<br>â"airport": {<br>â    "id": "JFK",<br>â    "miles": 2000<br>â}<br>}</td>
+<td>{<br>â<strong>error</strong>: <em>null</em>,<br>â<strong>ok</strong>: {<br>â<strong>airline</strong>: XB-112,<br>â<strong>airport</strong>: {<br>â<strong>id</strong>: JFK,<br>â<strong>miles</strong>: 2000,<br>},<br>},<br>}</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3>Example 3: Null case</h3>
+<p><strong>Description:</strong> When a requested field is missing in the input JSON the field becomes null.</p>
+<p><strong>Argument values:</strong></p>
+<ul>
+<li><strong>JSON:</strong> <code>json</code></li>
+<li><strong>Schema:</strong> Struct\<airline:String, airport:Struct\\<id:String, miles:Integer>></li>
+<li><strong>Output mode:</strong> <em>null</em></li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>json</th>
+<th><strong>Output</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>{<br>â"airline": "XB-112",<br>â"airport": {<br>â    "id": "JFK"<br>â}<br>}</td>
+<td>{<br>â<strong>airline</strong>: XB-112,<br>â<strong>airport</strong>: {<br>â<strong>id</strong>: JFK,<br>â<strong>miles</strong>: <em>null</em>,<br>},<br>}</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3>Example 4: Null case</h3>
+<p><strong>Argument values:</strong></p>
+<ul>
+<li><strong>JSON:</strong> <code>json</code></li>
+<li><strong>Schema:</strong> Struct\<airline:String, airport:Struct\\<id:String, miles:Integer>></li>
+<li><strong>Output mode:</strong> <em>null</em></li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>json</th>
+<th><strong>Output</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><em>null</em></td>
+<td><em>null</em></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3>Example 5: Null case</h3>
+<p><strong>Argument values:</strong></p>
+<ul>
+<li><strong>JSON:</strong> <code>json</code></li>
+<li><strong>Schema:</strong> Struct\<airline:String, airport:Struct\\<id:String, miles:Integer>></li>
+<li><strong>Output mode:</strong> <code>WITH_ERRORS</code></li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>json</th>
+<th><strong>Output</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><em>null</em></td>
+<td>{<br>â<strong>error</strong>: JSON input is null or empty,<br>â<strong>ok</strong>: <em>null</em>,<br>}</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3>Example 6: Null case</h3>
+<p><strong>Description:</strong> When a requested field is null in the input JSON the field becomes null.</p>
+<p><strong>Argument values:</strong></p>
+<ul>
+<li><strong>JSON:</strong> <code>json</code></li>
+<li><strong>Schema:</strong> Struct\<airline:String, airport:Struct\\<id:String, miles:Integer>></li>
+<li><strong>Output mode:</strong> <em>null</em></li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>json</th>
+<th><strong>Output</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>{<br>â"airline": "XB-112",<br>â"airport": {<br>â    "id": "JFK",<br>â    "miles": null<br>â}<br>}</td>
+<td>{<br>â<strong>airline</strong>: XB-112,<br>â<strong>airport</strong>: {<br>â<strong>id</strong>: JFK,<br>â<strong>miles</strong>: <em>null</em>,<br>},<br>}</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3>Example 7: Null case</h3>
+<p><strong>Description:</strong> Test field of struct being an array.</p>
+<p><strong>Argument values:</strong></p>
+<ul>
+<li><strong>JSON:</strong> <code>json</code></li>
+<li><strong>Schema:</strong> Struct\<airline:String, airport:Struct\\<id:String, countries:Array\\<String>>></li>
+<li><strong>Output mode:</strong> <em>null</em></li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>json</th>
+<th><strong>Output</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>{<br>â"airline": "XB-112",<br>â"airport": {<br>â    "id": "JFK",<br>â    "countries": ["USA", "Canada"]<br>â}<br>}</td>
+<td>{<br>â<strong>airline</strong>: XB-112,<br>â<strong>airport</strong>: {<br>â<strong>countries</strong>: [ USA, Canada ],<br>â<strong>id</strong>: JFK,<br>},<br>}</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3>Example 8: Null case</h3>
+<p><strong>Description:</strong> Test field of struct being empty string.</p>
+<p><strong>Argument values:</strong></p>
+<ul>
+<li><strong>JSON:</strong> <code>json</code></li>
+<li><strong>Schema:</strong> Struct\<airline:String, airport:Struct\\<id:String, countries:Array\\<String>>></li>
+<li><strong>Output mode:</strong> <em>null</em></li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>json</th>
+<th><strong>Output</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>{<br>â"airline": "XB-112",<br>â"airport": {<br>â    "id": "",<br>â    "countries": ["USA", "Canada"]<br>â}<br>}</td>
+<td>{<br>â<strong>airline</strong>: XB-112,<br>â<strong>airport</strong>: {<br>â<strong>countries</strong>: [ USA, Canada ],<br>â<strong>id</strong>: <em>empty string</em>,<br>},<br>}</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3>Example 9: Null case</h3>
+<p><strong>Description:</strong> Test field of struct being an array with null element.</p>
+<p><strong>Argument values:</strong></p>
+<ul>
+<li><strong>JSON:</strong> <code>json</code></li>
+<li><strong>Schema:</strong> Struct\<airline:String, airport:Struct\\<id:String, countries:Array\\<String>>></li>
+<li><strong>Output mode:</strong> <em>null</em></li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>json</th>
+<th><strong>Output</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>{<br>â"airline": "XB-112",<br>â"airport": {<br>â    "id": "JFK",<br>â    "countries": ["USA", null]<br>â}<br>}</td>
+<td>{<br>â<strong>airline</strong>: XB-112,<br>â<strong>airport</strong>: {<br>â<strong>countries</strong>: [ USA, <em>null</em> ],<br>â<strong>id</strong>: JFK,<br>},<br>}</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3>Example 10: Null case</h3>
+<p><strong>Description:</strong> Test field of struct being a null string.</p>
+<p><strong>Argument values:</strong></p>
+<ul>
+<li><strong>JSON:</strong> <code>json</code></li>
+<li><strong>Schema:</strong> Struct\<airline:String, airport:Struct\\<id:String, countries:Array\\<String>>></li>
+<li><strong>Output mode:</strong> <em>null</em></li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>json</th>
+<th><strong>Output</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>{<br>â"airline": "XB-112",<br>â"airport": {<br>â    "id": null,<br>â    "countries": ["USA", "Canada"]<br>â}<br>}</td>
+<td>{<br>â<strong>airline</strong>: XB-112,<br>â<strong>airport</strong>: {<br>â<strong>countries</strong>: [ USA, Canada ],<br>â<strong>id</strong>: <em>null</em>,<br>},<br>}</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3>Example 11: Null case</h3>
+<p><strong>Description:</strong> Test struct with one field being a map.</p>
+<p><strong>Argument values:</strong></p>
+<ul>
+<li><strong>JSON:</strong> <code>json</code></li>
+<li><strong>Schema:</strong> Struct\<airline:String, airport:Struct\\<id:String, countries:Map\\<String, Integer>>></li>
+<li><strong>Output mode:</strong> <em>null</em></li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>json</th>
+<th><strong>Output</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>{<br>â"airline": "XB-112",<br>â"airport": {<br>â    "id": "JFK",<br>â    "countries": {"USA": 4}<br>â}<br>}</td>
+<td>{<br>â<strong>airline</strong>: XB-112,<br>â<strong>airport</strong>: {<br>â<strong>countries</strong>: {<br>âUSA -&gt; 4,<br>},<br>â<strong>id</strong>: JFK,<br>},<br>}</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3>Example 12: Null case</h3>
+<p><strong>Description:</strong> Parse struct with double field.</p>
+<p><strong>Argument values:</strong></p>
+<ul>
+<li><strong>JSON:</strong> <code>json</code></li>
+<li><strong>Schema:</strong> Struct\<airline:String, airport:Struct\\<id:String, miles:Double>></li>
+<li><strong>Output mode:</strong> <em>null</em></li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>json</th>
+<th><strong>Output</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>{<br>â"airline": "XB-112",<br>â"airport": {<br>â    "id": "JFK",<br>â    "miles": 4.2<br>â}<br>}</td>
+<td>{<br>â<strong>airline</strong>: XB-112,<br>â<strong>airport</strong>: {<br>â<strong>id</strong>: JFK,<br>â<strong>miles</strong>: 4.2,<br>},<br>}</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3>Example 13: Null case</h3>
+<p><strong>Description:</strong> Ints parsed as doubles should return doubles.</p>
+<p><strong>Argument values:</strong></p>
+<ul>
+<li><strong>JSON:</strong> <code>json</code></li>
+<li><strong>Schema:</strong> Struct\<airline:String, airport:Struct\\<id:String, miles:Double>></li>
+<li><strong>Output mode:</strong> <em>null</em></li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>json</th>
+<th><strong>Output</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>{<br>â"airline": "XB-112",<br>â"airport": {<br>â    "id": "JFK",<br>â    "miles": 4<br>â}<br>}</td>
+<td>{<br>â<strong>airline</strong>: XB-112,<br>â<strong>airport</strong>: {<br>â<strong>id</strong>: JFK,<br>â<strong>miles</strong>: 4.0,<br>},<br>}</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3>Example 14: Null case</h3>
+<p><strong>Description:</strong> When a map has a null value, the resultant struct will have a null value.</p>
+<p><strong>Argument values:</strong></p>
+<ul>
+<li><strong>JSON:</strong> <code>json</code></li>
+<li><strong>Schema:</strong> Struct\<airline:String, airport:Struct\\<id:String, countries:Map\\<String, Integer>>></li>
+<li><strong>Output mode:</strong> <em>null</em></li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>json</th>
+<th><strong>Output</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>{<br>â"airline": "XB-112",<br>â"airport": {<br>â    "id": "JFK",<br>â    "countries": {"USA": null}<br>â}<br>}</td>
+<td>{<br>â<strong>airline</strong>: XB-112,<br>â<strong>airport</strong>: {<br>â<strong>countries</strong>: {<br>âUSA -&gt; <em>null</em>,<br>},<br>â<strong>id</strong>: JFK,<br>},<br>}</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3>Example 15: Edge case</h3>
+<p><strong>Argument values:</strong></p>
+<ul>
+<li><strong>JSON:</strong> <code>json</code></li>
+<li><strong>Schema:</strong> Struct\<airline:String, airport:Struct\\<id:String, miles:Integer>></li>
+<li><strong>Output mode:</strong> <code>WITH_ERRORS</code></li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>json</th>
+<th><strong>Output</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>invalid</td>
+<td>{<br>â<strong>error</strong>: The JSON content is invalid or malformed,<br>â<strong>ok</strong>: <em>null</em>,<br>}</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3>Example 16: Edge case</h3>
+<p><strong>Argument values:</strong></p>
+<ul>
+<li><strong>JSON:</strong> <code>json</code></li>
+<li><strong>Schema:</strong> Struct\<boolVal:Boolean, byteVal:Byte, shortVal:Short, intVal:Integer, longVal:Long, doubleVal:Double, floatVal:Float, dateVal:Date, timestampVal:Timestamp, decimalVal:Decimal(9, 4), myMap:Map\\<String, Integer>, myArray:Array\\<Integer>></li>
+<li><strong>Output mode:</strong> <code>WITH_ERRORS</code></li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>json</th>
+<th><strong>Output</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>{<br>â"timestampVal": "This is a string."<br>}</td>
+<td>{<br>â<strong>error</strong>: The JSON content does not match the expected type,<br>â<strong>ok</strong>: <em>null</em>,<br>}</td>
+</tr>
+<tr>
+<td>{"boolVal": 5}<br></td>
+<td>{<br>â<strong>error</strong>: The JSON content does not match the expected type,<br>â<strong>ok</strong>: <em>null</em>,<br>}</td>
+</tr>
+<tr>
+<td>{"byteVal": "This is not a byte."}<br></td>
+<td>{<br>â<strong>error</strong>: The JSON content does not match the expected type,<br>â<strong>ok</strong>: <em>null</em>,<br>}</td>
+</tr>
+<tr>
+<td>{"shortVal": "This is not a short."}<br></td>
+<td>{<br>â<strong>error</strong>: The JSON content does not match the expected type,<br>â<strong>ok</strong>: <em>null</em>,<br>}</td>
+</tr>
+<tr>
+<td>{"longVal": "This is not a long."}<br></td>
+<td>{<br>â<strong>error</strong>: The JSON content does not match the expected type,<br>â<strong>ok</strong>: <em>null</em>,<br>}</td>
+</tr>
+<tr>
+<td>{"intVal": 5.2}<br></td>
+<td>{<br>â<strong>error</strong>: The JSON content does not match the expected type,<br>â<strong>ok</strong>: <em>null</em>,<br>}</td>
+</tr>
+<tr>
+<td>{"doubleVal": "This is not a double."}<br></td>
+<td>{<br>â<strong>error</strong>: The JSON content does not match the expected type,<br>â<strong>ok</strong>: <em>null</em>,<br>}</td>
+</tr>
+<tr>
+<td>{"floatVal": "This is not a float."}<br></td>
+<td>{<br>â<strong>error</strong>: The JSON content does not match the expected type,<br>â<strong>ok</strong>: <em>null</em>,<br>}</td>
+</tr>
+<tr>
+<td>{"dateVal": "32/13/2020"}<br></td>
+<td>{<br>â<strong>error</strong>: The JSON content does not match the expected type,<br>â<strong>ok</strong>: <em>null</em>,<br>}</td>
+</tr>
+<tr>
+<td>{"decimalVal": "This is not a decimal."}<br></td>
+<td>{<br>â<strong>error</strong>: The JSON content does not match the expected type,<br>â<strong>ok</strong>: <em>null</em>,<br>}</td>
+</tr>
+<tr>
+<td>{"myMap": {"a": "str"}}<br></td>
+<td>{<br>â<strong>error</strong>: The JSON content does not match the expected type,<br>â<strong>ok</strong>: <em>null</em>,<br>}</td>
+</tr>
+<tr>
+<td>{"myArray": ["a", "b"]}<br></td>
+<td>{<br>â<strong>error</strong>: The JSON content does not match the expected type,<br>â<strong>ok</strong>: <em>null</em>,<br>}</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3>Example 17: Edge case</h3>
+<p><strong>Argument values:</strong></p>
+<ul>
+<li><strong>JSON:</strong> <code>json</code></li>
+<li><strong>Schema:</strong> Struct\<airport:Struct\\<id:String, miles:Integer>, boolVal:Boolean></li>
+<li><strong>Output mode:</strong> <code>WITH_ERRORS</code></li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>json</th>
+<th><strong>Output</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>{<br>â"boolVal": true<br>}</td>
+<td>{<br>â<strong>error</strong>: <em>null</em>,<br>â<strong>ok</strong>: {<br>â<strong>airport</strong>: <em>null</em>,<br>â<strong>boolVal</strong>: true,<br>},<br>}</td>
+</tr>
+<tr>
+<td>{<br>â"boolVal": "This is a string."<br>}</td>
+<td>{<br>â<strong>error</strong>: The JSON content does not match the expected type,<br>â<strong>ok</strong>: <em>null</em>,<br>}</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3>Example 18: Edge case</h3>
+<p><strong>Argument values:</strong></p>
+<ul>
+<li><strong>JSON:</strong> <code>json</code></li>
+<li><strong>Schema:</strong> Struct\<airline:String, airport:Struct\\<id:String, miles:Integer>></li>
+<li><strong>Output mode:</strong> <code>WITH_ERRORS</code></li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>json</th>
+<th><strong>Output</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>{<br>â"arrival_time":<br></td>
+<td>{<br>â<strong>error</strong>: There was an unexpected EOF while parsing the JSON,<br>â<strong>ok</strong>: <em>null</em>,<br>}</td>
+</tr>
+</tbody>
+</table>
+<hr />
+</body>
+</html>

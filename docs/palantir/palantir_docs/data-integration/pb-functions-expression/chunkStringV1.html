@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Chunk string</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Chunk string</h1>
+<blockquote>
+<p>Supported in: Batch, Streaming</p>
+</blockquote>
+<p>Chunk string into chunks of a specified size and on specified separators.</p>
+<p><strong>Expression categories:</strong> String</p>
+<h2>Declared arguments</h2>
+<ul>
+<li><strong>Expression:</strong> The column containing the document text to chunk.<br><em>Expression\<String></em></li>
+<li><em>optional</em> <strong>Chunk overlap:</strong> Allow chunks to overlap in content by around this number. Must be greater than or equal to 0 and less than the selected chunk size.<br><em>Literal\<Integer></em></li>
+<li><em>optional</em> <strong>Chunk size:</strong> Create chunks of size around this number. Must be greater than 0.<br><em>Literal\<Integer></em></li>
+<li><em>optional</em> <strong>Keep separator:</strong> Include the separator in the output chunks.<br><em>Literal\<Boolean></em></li>
+<li><em>optional</em> <strong>Separators:</strong> Chunk string on these provided separators. The default separators has the effect of trying to keep all paragraphs, and then sentences, and then words together for as long as possible.<br><em>List\<Literal\\<String>></em></li>
+</ul>
+<p><strong>Output type:</strong> <em>Array\<String></em></p>
+<h2>Examples</h2>
+<h3>Example 1: Base case</h3>
+<p><strong>Argument values:</strong></p>
+<ul>
+<li><strong>Expression:</strong> <code>string</code></li>
+<li><strong>Chunk overlap:</strong> <em>null</em></li>
+<li><strong>Chunk size:</strong> 10</li>
+<li><strong>Keep separator:</strong> <em>null</em></li>
+<li><strong>Separators:</strong> <em>null</em></li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>string</th>
+<th><strong>Output</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>hello</td>
+<td>[ hello ]</td>
+</tr>
+<tr>
+<td>hello world. the quick brown fox jumps over the fence.</td>
+<td>[ hello, world., the quick, brown fox, jumps, over the, fence. ]</td>
+</tr>
+<tr>
+<td>hello world.<br>the quick brown fox<br>jumps over the fence.</td>
+<td>[ hello, world., the quick, brown fox, jumps, over the, fence. ]</td>
+</tr>
+<tr>
+<td>hello world.<br>the quick brown fox<br>jumps over the fence.</td>
+<td>[ hello, world., the quick, brown fox, jumps, over the, fence. ]</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3>Example 2: Base case</h3>
+<p><strong>Argument values:</strong></p>
+<ul>
+<li><strong>Expression:</strong> A quick-brown-fox-jumps over the lazy dog</li>
+<li><strong>Chunk overlap:</strong> <em>null</em></li>
+<li><strong>Chunk size:</strong> 10</li>
+<li><strong>Keep separator:</strong> false</li>
+<li><strong>Separators:</strong> [<br><br>, <br>,  ]</li>
+</ul>
+<p><strong>Output:</strong> [ A, quick-brown-fox-jumps, over the, lazy dog ]</p>
+<hr />
+<h3>Example 3: Base case</h3>
+<p><strong>Argument values:</strong></p>
+<ul>
+<li><strong>Expression:</strong> A quick brown fox jumps over the lazy dog</li>
+<li><strong>Chunk overlap:</strong> 5</li>
+<li><strong>Chunk size:</strong> 10</li>
+<li><strong>Keep separator:</strong> <em>null</em></li>
+<li><strong>Separators:</strong> <em>null</em></li>
+</ul>
+<p><strong>Output:</strong> [ A quick, brown fox, fox jumps, over the, the lazy, lazy dog ]</p>
+<hr />
+<h3>Example 4: Base case</h3>
+<p><strong>Argument values:</strong></p>
+<ul>
+<li><strong>Expression:</strong> Text1|Text2||Text3</li>
+<li><strong>Chunk overlap:</strong> <em>null</em></li>
+<li><strong>Chunk size:</strong> 10</li>
+<li><strong>Keep separator:</strong> false</li>
+<li><strong>Separators:</strong> [||, |]</li>
+</ul>
+<p><strong>Output:</strong> [ Text1, Text2, Text3 ]</p>
+<hr />
+<h3>Example 5: Base case</h3>
+<p><strong>Argument values:</strong></p>
+<ul>
+<li><strong>Expression:</strong> Text1|Text2||Text3</li>
+<li><strong>Chunk overlap:</strong> <em>null</em></li>
+<li><strong>Chunk size:</strong> 10</li>
+<li><strong>Keep separator:</strong> <em>null</em></li>
+<li><strong>Separators:</strong> [||, |]</li>
+</ul>
+<p><strong>Output:</strong> [ Text1, |Text2, ||Text3 ]</p>
+<hr />
+<h3>Example 6: Base case</h3>
+<p><strong>Argument values:</strong></p>
+<ul>
+<li><strong>Expression:</strong> Text1, Text2<br><br>Text3<br>Text4</li>
+<li><strong>Chunk overlap:</strong> <em>null</em></li>
+<li><strong>Chunk size:</strong> 256</li>
+<li><strong>Keep separator:</strong> <em>null</em></li>
+<li><strong>Separators:</strong> <em>null</em></li>
+</ul>
+<p><strong>Output:</strong> [ Text1, Text2<br><br>Text3<br>Text4 ]</p>
+<hr />
+<h3>Example 7: Base case</h3>
+<p><strong>Argument values:</strong></p>
+<ul>
+<li><strong>Expression:</strong> Text1 Text2<br><br>Text3<br>Text4</li>
+<li><strong>Chunk overlap:</strong> <em>null</em></li>
+<li><strong>Chunk size:</strong> 10</li>
+<li><strong>Keep separator:</strong> <em>null</em></li>
+<li><strong>Separators:</strong> <em>null</em></li>
+</ul>
+<p><strong>Output:</strong> [ Text1, Text2, Text3, Text4 ]</p>
+<hr />
+</body>
+</html>

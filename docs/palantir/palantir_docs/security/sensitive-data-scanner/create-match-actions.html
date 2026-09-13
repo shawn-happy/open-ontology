@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Create Match Actions</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Create Match Actions</h1>
+<p>Match actions allow Sensitive Data Scanner to perform an automatic action on your behalf on a dataset that is detected as a match. There are three types of match actions:</p>
+<ul>
+<li><strong>"Apply Markings" Match Action:</strong> Instructs Sensitive Data Scanner to apply markings on the datasets that matched any of the specified match conditions.</li>
+<li><strong>"Create Issues" Match Action:</strong> Instructs Sensitive Data Scanner to create an issue on the columns that match any of the specified match conditions.</li>
+<li><strong>"Obfuscate Data" Match Actions:</strong> Instructs Sensitive Data Scanner to encrypt or hash the matched data using <a href="https://www.palantir.com/docs/foundry/cipher/overview/">Cipher</a>.</li>
+</ul>
+<p>:::callout{theme="warning" title="Test your match conditions"}
+If your sensitive data scan covers a large number of datasets, we recommend that you test the match conditions before proceeding further since misconfigured match conditions can produce false positives in the form of unwanted issues or Markings on datasets.</p>
+<p>You can test the match conditions by selecting <strong>No Match Actions</strong> for your scan. Once you have verified that the match condition matches the expected format of data, you can then select one of the other Match actions for future one-time scans or Recurring Scans.
+:::</p>
+<p>Similar to creating match conditions, there are two ways to start creating match actions â either from the Sensitive Data Scanner landing page, or while creating a sensitive data scan.</p>
+<p>From the landing page, select <strong>Add</strong> above the <strong>Available match actions</strong> listed in the match actions sidebar.</p>
+<p><img alt="create-match-action-landing-page" src="../../_resources/foundry/sensitive-data-scanner/create-match-action-landing-page.png" /></p>
+<p>While creating a sensitive data scan, on the <strong>Select match actions</strong> page, you can also create a match action by clicking <strong>Create match action</strong> and immediately use that in your scan.</p>
+<p><img alt="create-match-action-create-scan" src="../../_resources/foundry/sensitive-data-scanner/select-match-actions.png" /></p>
+<p>Both of these starting points open the same match action creation process. From there you can choose whether to create an <strong>Add markings</strong> match action, or a <strong>Create issues</strong> match action.</p>
+<h2>Create an âApply Markingsâ Match Action</h2>
+<p>This is an example of the creation process for an <strong>"Apply markings" match action</strong>. In this example, the PII Marking will be applied on matching datasets.</p>
+<p>Additionally, the <strong>Reapply markings that have been manually removed</strong> option is unselected, meaning that if the marking was previously applied by Sensitive Data Scanner (for example, during a previous scan), and was manually removed by the user, the marking will not be re-applied. Enabling the option allows the marking to be re-applied.</p>
+<p><img alt="Create match action prompt." src="../../_resources/foundry/sensitive-data-scanner/apply-marking-match-action.png" /></p>
+<h2>Create a âCreate Issuesâ Match Action</h2>
+<p>This is an example of the creation process for a Create issues match action. Here, you will notice that two users have been selected as Assignees of the issues that Sensitive Data Scanner will create upon highlighting a match â âGovernance adminâ and âData control officerâ.</p>
+<p>Additionally, there are advanced configurations available for âCreate Issuesâ match actions:</p>
+<ul>
+<li><strong>Issue text:</strong> You can customize the text that the issue will have in it when the match action is performed.</li>
+<li><strong>Issue label:</strong> You can select one of the issue labels available to your <a href="https://www.palantir.com/docs/foundry/security/orgs-and-spaces/#spaces">space</a> to facilitate effective triaging of issues.</li>
+<li><strong>Issue severity:</strong> You can set the priority of the issue, depending on the scan you would like to run.</li>
+<li><strong>Notify dataset creator about the issue:</strong> If checked, the user that created the dataset will be informed that sensitive data was found in the dataset that they created.</li>
+<li><strong>Do not open new issue if:</strong></li>
+<li><strong>Archived</strong> â If checked, Sensitive Data Scanner will not create a new issue if a previous scan created an issue that was then manually archived.</li>
+<li><strong>Closed</strong> â If checked, Sensitive Data Scanner will not create a new issue if a previous scan created an issue that was then manually closed.</li>
+</ul>
+<p><img alt="create-issues-match-action" src="../../_resources/foundry/sensitive-data-scanner/create-issues-match-actions.png" /></p>
+<h2>Create an "Obfuscate Data" Match Action</h2>
+<p><em>Obfuscate Data</em> Match Actions allow you to automatically encrypt or hash matched data using <a href="https://www.palantir.com/docs/foundry/cipher/overview/">Cipher</a>. For each scanned resource, Sensitive Data Scanner will create an output dataset containing the obfuscated data.</p>
+<p>To create a new Obfuscate Data Match Action, you can open the <strong>Create Match Action</strong> dialog and select <strong>Obfuscate data</strong>.</p>
+<p>You will need a <a href="https://www.palantir.com/docs/foundry/cipher/core-concepts/#channels">Cipher Channel</a> and a <a href="https://www.palantir.com/docs/foundry/cipher/core-concepts/#licenses">Cipher License</a>. If you do not have those already, you can create them in Cipher.</p>
+<p>The Cipher Channel specifies the cryptographic algorithm used for the obfuscation. Sensitive Data Scanner supports:</p>
+<ul>
+<li>Probabilistic encryption: AES GCM SIV</li>
+<li>Deterministic encryption: AES SIV</li>
+<li>Hashing: SHA512 and SHA256</li>
+</ul>
+<p>Note that Visual obfuscation channels are not supported in Sensitive Data Scanner.</p>
+<p>A Cipher License grants a set of permissions to interact with a Cipher channel. Sensitive Data Scanner requires an <a href="https://www.palantir.com/docs/foundry/cipher/getting-started/#admin-license">Admin License</a>, as it requires cryptographic key access to perform the obfuscation.</p>
+<p>Once you made sure you have a Cipher License available, you can select it in the <strong>Create Match Action</strong> dialog.</p>
+<p><img alt="create-obfuscate-data-action" src="../../_resources/foundry/sensitive-data-scanner/create-obfuscate-data-action.png" /></p>
+<p>The Match Action can only be applied on scanned resources that are located in the same project as the Cipher license.</p>
+<p>:::callout{theme="warning"}
+An Obfuscate Data Action will create an output dataset for every scanned dataset. Depending on the number of scanned resources, this can lead to a large amount of created output datasets. We recommend running this scan on a small amount of data.</p>
+<p>Obfuscate Data Actions are <strong>not reversible</strong> through the Sensitive Data Scanner. Any datasets created by Sensitive Data Scanner must be deleted manually.
+:::</p>
+<h3>Obfuscation modes</h3>
+<p>Select the <strong>Show advanced configuration</strong> panel to expand a set of four different options to customize the obfuscation mode. This defines what specific data will be obfuscated in case of a match:</p>
+<p><img alt="obfuscation-modes" src="../../_resources/foundry/sensitive-data-scanner/obfuscation-modes.png" /></p>
+<ul>
+<li>Entire column (default): Obfuscate the entire column if a match is found.</li>
+<li>Entire row: Obfuscate the entire row if a match is found.</li>
+<li>Matched cell only: Obfuscate only the cells in which a match is found.</li>
+<li>Matched segments only: Obfuscate only the text segments that match the match condition.</li>
+</ul>
+</body>
+</html>

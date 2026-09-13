@@ -1,0 +1,1661 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>List Action Types</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../../../index.html">返回目录</a></div>
+<p><code>GET /api/v2/ontologies/{ontology}/actionTypes</code></p>
+<p>Lists the action types for the given Ontology.</p>
+<p>Each page may be smaller than the requested page size. However, it is guaranteed that if there are more
+results available, at least one result will be present in the response.</p>
+<p>Third-party applications using this endpoint via OAuth2 must request the following operation scope: <code>api:ontologies-read</code>.</p>
+<p><strong>OAuth2 scopes</strong>: <code>api:ontologies-read</code></p>
+<h2>Path parameters</h2>
+<table>
+<thead>
+<tr>
+<th>参数</th>
+<th>类型</th>
+<th>必填</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ontology</code></td>
+<td>string</td>
+<td>是</td>
+<td>The API name or RID of the Ontology. To find the API name or RID, use the <strong>List Ontologies</strong> endpoint or<br>check the <strong>Ontology Manager</strong>.<br>示例: <code>palantir</code></td>
+</tr>
+</tbody>
+</table>
+<h2>Query parameters</h2>
+<table>
+<thead>
+<tr>
+<th>参数</th>
+<th>类型</th>
+<th>必填</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>branch</code></td>
+<td>string</td>
+<td>否</td>
+<td>The Foundry branch to list the action types from. If not specified, the default branch will be used.<br>Branches are an experimental feature and not all workflows are supported.<br>示例: <code>ri.branch..branch.d827184f-ee0e-4351-8b70-efbe51e07252</code></td>
+</tr>
+<tr>
+<td><code>pageSize</code></td>
+<td>integer</td>
+<td>否</td>
+<td>The desired size of the page to be returned. Defaults to 500.<br>See <a href="https://www.palantir.com/docs/foundry/api/general/overview/paging/#page-sizes">page sizes</a> for details.</td>
+</tr>
+<tr>
+<td><code>pageToken</code></td>
+<td>string</td>
+<td>否</td>
+<td>The page token indicates where to start paging. This should be omitted from the first page's request.<br>To fetch the next page, clients should take the value from the <code>nextPageToken</code> field of the previous response<br>and use it to populate the <code>pageToken</code> field of the next request.</td>
+</tr>
+</tbody>
+</table>
+<h2>Response</h2>
+<p><strong>ListActionTypesResponseV2</strong></p>
+<p>Success response.</p>
+<table>
+<thead>
+<tr>
+<th>参数</th>
+<th>类型</th>
+<th>必填</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ListActionTypesResponseV2</code></td>
+<td>object</td>
+<td>是</td>
+<td>Success response.<br>示例: <code>{"nextPageToken":"v1.QnVpbGQgdGhlIEZ1dHVyZTogaHR0cHM6Ly93d3cucGFsYW50aXIuY29tL2NhcmVlcnMvP2xldmVyLXNvdXJjZSU1YiU1ZD1BUElEb2NzI29wZW4tcG9zaXRpb25z","data":[{"apiName":"promote-employee","description":"Update an employee's title and compensation","parameters":{"employeeId":{"dataType":{"type":"integer"}},"newTitle":{"dataType":{"type":"string"}},"newCompensation":{"dataType":{"type":"double"}}},"rid":"ri.ontology.main.action-type.7ed72754-7491-428a-bb18-4d7296eb2167"},{"apiName":"move-office","description":"Update an office's physical location","parameters":{"officeId":{"dataType":{"type":"string"}},"newAddress":{"description":"The office's new physical address (not necessarily shipping address)","dataType":{"type":"string"}},"newCapacity":{"description":"The maximum seated-at-desk capacity of the new office (maximum fire-safe capacity may be higher)","dataType":{"type":"integer"}}},"rid":"ri.ontology.main.action-type.9f84017d-cf17-4fa8-84c3-8e01e5d594f2"}]}</code></td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.nextPageToken</code></td>
+<td>string</td>
+<td>否</td>
+<td>The page token indicates where to start paging. This should be omitted from the first page's request.<br>To fetch the next page, clients should take the value from the <code>nextPageToken</code> field of the previous response<br>and use it to populate the <code>pageToken</code> field of the next request.</td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.data</code></td>
+<td>list<ActionTypeV2></td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.data.ActionTypeV2</code></td>
+<td>object</td>
+<td>是</td>
+<td>Represents an action type in the Ontology.</td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.data.ActionTypeV2.apiName</code></td>
+<td>string</td>
+<td>是</td>
+<td>The name of the action type in the API. To find the API name for your Action Type, use the <code>List action types</code><br>endpoint or check the <strong>Ontology Manager</strong>.</td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.data.ActionTypeV2.description</code></td>
+<td>string</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.data.ActionTypeV2.displayName</code></td>
+<td>string</td>
+<td>否</td>
+<td>The display name of the entity.</td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.data.ActionTypeV2.status</code></td>
+<td>enum</td>
+<td>是</td>
+<td>The release status of the entity.<br>示例: <code>ACTIVE</code></td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.data.ActionTypeV2.parameters</code></td>
+<td>map</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.data.ActionTypeV2.parameters.ParameterId</code></td>
+<td>string</td>
+<td>是</td>
+<td>The unique identifier of the parameter. Parameters are used as inputs when an action or query is applied.<br>Parameters can be viewed and managed in the <strong>Ontology Manager</strong>.</td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.data.ActionTypeV2.parameters.ActionParameterV2</code></td>
+<td>object</td>
+<td>是</td>
+<td>Details about a parameter of an action.</td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.data.ActionTypeV2.parameters.ActionParameterV2.displayName</code></td>
+<td>string</td>
+<td>是</td>
+<td>The display name of the entity.</td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.data.ActionTypeV2.parameters.ActionParameterV2.description</code></td>
+<td>string</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.data.ActionTypeV2.parameters.ActionParameterV2.dataType</code></td>
+<td>union</td>
+<td>是</td>
+<td>A union of all the types supported by Ontology Action parameters.</td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.data.ActionTypeV2.parameters.ActionParameterV2.dataType.date</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.data.ActionTypeV2.parameters.ActionParameterV2.dataType.interfaceObject</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.data.ActionTypeV2.parameters.ActionParameterV2.dataType.interfaceObject.interfaceTypeApiName</code></td>
+<td>string</td>
+<td>否</td>
+<td>The name of the interface type in the API in UpperCamelCase format. To find the API name for your interface<br>type, use the <code>List interface types</code> endpoint or check the <strong>Ontology Manager</strong>.</td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.data.ActionTypeV2.parameters.ActionParameterV2.dataType.struct</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.data.ActionTypeV2.parameters.ActionParameterV2.dataType.struct.fields</code></td>
+<td>list<OntologyStructField></td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.data.ActionTypeV2.parameters.ActionParameterV2.dataType.struct.fields.OntologyStructField</code></td>
+<td>object</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.data.ActionTypeV2.parameters.ActionParameterV2.dataType.struct.fields.OntologyStructField.name</code></td>
+<td>string</td>
+<td>是</td>
+<td>The name of a field in a <code>Struct</code>.</td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.data.ActionTypeV2.parameters.ActionParameterV2.dataType.struct.fields.OntologyStructField.fieldType</code></td>
+<td>union</td>
+<td>是</td>
+<td>A union of all the primitive types used by Palantir's Ontology-based products.</td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.data.ActionTypeV2.parameters.ActionParameterV2.dataType.struct.fields.OntologyStructField.fieldType.date</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.data.ActionTypeV2.parameters.ActionParameterV2.dataType.struct.fields.OntologyStructField.fieldType.struct</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.data.ActionTypeV2.parameters.ActionParameterV2.dataType.struct.fields.OntologyStructField.fieldType.set</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.data.ActionTypeV2.parameters.ActionParameterV2.dataType.struct.fields.OntologyStructField.fieldType.set.itemType</code></td>
+<td>union</td>
+<td>是</td>
+<td>A union of all the primitive types used by Palantir's Ontology-based products.</td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.data.ActionTypeV2.parameters.ActionParameterV2.dataType.struct.fields.OntologyStructField.fieldType.string</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.data.ActionTypeV2.parameters.ActionParameterV2.dataType.struct.fields.OntologyStructField.fieldType.byte</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.data.ActionTypeV2.parameters.ActionParameterV2.dataType.struct.fields.OntologyStructField.fieldType.double</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.data.ActionTypeV2.parameters.ActionParameterV2.dataType.struct.fields.OntologyStructField.fieldType.integer</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.data.ActionTypeV2.parameters.ActionParameterV2.dataType.struct.fields.OntologyStructField.fieldType.float</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.data.ActionTypeV2.parameters.ActionParameterV2.dataType.struct.fields.OntologyStructField.fieldType.any</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.data.ActionTypeV2.parameters.ActionParameterV2.dataType.struct.fields.OntologyStructField.fieldType.long</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.data.ActionTypeV2.parameters.ActionParameterV2.dataType.struct.fields.OntologyStructField.fieldType.boolean</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.data.ActionTypeV2.parameters.ActionParameterV2.dataType.struct.fields.OntologyStructField.fieldType.cipherText</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.data.ActionTypeV2.parameters.ActionParameterV2.dataType.struct.fields.OntologyStructField.fieldType.cipherText.defaultCipherChannel</code></td>
+<td>string</td>
+<td>否</td>
+<td>An optional Cipher Channel RID which can be used for encryption updates to empty values.<br>示例: <code>ri.bellaso.main.cipher-channel.00000000-0000-0000-0000-000000000000</code></td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.data.ActionTypeV2.parameters.ActionParameterV2.dataType.struct.fields.OntologyStructField.fieldType.marking</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.data.ActionTypeV2.parameters.ActionParameterV2.dataType.struct.fields.OntologyStructField.fieldType.marking.markingType</code></td>
+<td>enum</td>
+<td>否</td>
+<td>The kind of marking applied by a marking property type.<br>- <code>CBAC</code>: Classification-based access control markings.<br>- <code>MANDATORY</code>: Standard non-classification markings. Example - Organizations.</td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.data.ActionTypeV2.parameters.ActionParameterV2.dataType.struct.fields.OntologyStructField.fieldType.unsupported</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.data.ActionTypeV2.parameters.ActionParameterV2.dataType.struct.fields.OntologyStructField.fieldType.unsupported.unsupportedType</code></td>
+<td>string</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.data.ActionTypeV2.parameters.ActionParameterV2.dataType.struct.fields.OntologyStructField.fieldType.unsupported.params</code></td>
+<td>map</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.data.ActionTypeV2.parameters.ActionParameterV2.dataType.struct.fields.OntologyStructField.fieldType.unsupported.params.UnsupportedTypeParamKey</code></td>
+<td>string</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.data.ActionTypeV2.parameters.ActionParameterV2.dataType.struct.fields.OntologyStructField.fieldType.unsupported.params.UnsupportedTypeParamValue</code></td>
+<td>string</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.data.ActionTypeV2.parameters.ActionParameterV2.dataType.struct.fields.OntologyStructField.fieldType.mediaReference</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.data.ActionTypeV2.parameters.ActionParameterV2.dataType.struct.fields.OntologyStructField.fieldType.array</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.data.ActionTypeV2.parameters.ActionParameterV2.dataType.struct.fields.OntologyStructField.fieldType.array.itemType</code></td>
+<td>union</td>
+<td>是</td>
+<td>A union of all the primitive types used by Palantir's Ontology-based products.</td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.data.ActionTypeV2.parameters.ActionParameterV2.dataType.struct.fields.OntologyStructField.fieldType.objectSet</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.data.ActionTypeV2.parameters.ActionParameterV2.dataType.struct.fields.OntologyStructField.fieldType.objectSet.objectApiName</code></td>
+<td>string</td>
+<td>否</td>
+<td>The name of the object type in the API in camelCase format. To find the API name for your Object Type, use the<br><code>List object types</code> endpoint or check the <strong>Ontology Manager</strong>.</td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.data.ActionTypeV2.parameters.ActionParameterV2.dataType.struct.fields.OntologyStructField.fieldType.objectSet.objectTypeApiName</code></td>
+<td>string</td>
+<td>否</td>
+<td>The name of the object type in the API in camelCase format. To find the API name for your Object Type, use the<br><code>List object types</code> endpoint or check the <strong>Ontology Manager</strong>.</td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.data.ActionTypeV2.parameters.ActionParameterV2.dataType.struct.fields.OntologyStructField.fieldType.binary</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.data.ActionTypeV2.parameters.ActionParameterV2.dataType.struct.fields.OntologyStructField.fieldType.short</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.data.ActionTypeV2.parameters.ActionParameterV2.dataType.struct.fields.OntologyStructField.fieldType.decimal</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.data.ActionTypeV2.parameters.ActionParameterV2.dataType.struct.fields.OntologyStructField.fieldType.decimal.precision</code></td>
+<td>integer</td>
+<td>否</td>
+<td>The total number of digits of the Decimal type. The maximum value is 38.<br>示例: <code>38</code></td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.data.ActionTypeV2.parameters.ActionParameterV2.dataType.struct.fields.OntologyStructField.fieldType.decimal.scale</code></td>
+<td>integer</td>
+<td>否</td>
+<td>The number of digits to the right of the decimal point. The maximum value is 38.<br>示例: <code>18</code></td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.data.ActionTypeV2.parameters.ActionParameterV2.dataType.struct.fields.OntologyStructField.fieldType.map</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.data.ActionTypeV2.parameters.ActionParameterV2.dataType.struct.fields.OntologyStructField.fieldType.map.keyType</code></td>
+<td>union</td>
+<td>是</td>
+<td>A union of all the primitive types used by Palantir's Ontology-based products.</td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.data.ActionTypeV2.parameters.ActionParameterV2.dataType.struct.fields.OntologyStructField.fieldType.map.valueType</code></td>
+<td>union</td>
+<td>是</td>
+<td>A union of all the primitive types used by Palantir's Ontology-based products.</td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.data.ActionTypeV2.parameters.ActionParameterV2.dataType.struct.fields.OntologyStructField.fieldType.timestamp</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.data.ActionTypeV2.parameters.ActionParameterV2.dataType.struct.fields.OntologyStructField.fieldType.object</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.data.ActionTypeV2.parameters.ActionParameterV2.dataType.struct.fields.OntologyStructField.fieldType.object.objectApiName</code></td>
+<td>string</td>
+<td>是</td>
+<td>The name of the object type in the API in camelCase format. To find the API name for your Object Type, use the<br><code>List object types</code> endpoint or check the <strong>Ontology Manager</strong>.</td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.data.ActionTypeV2.parameters.ActionParameterV2.dataType.struct.fields.OntologyStructField.fieldType.object.objectTypeApiName</code></td>
+<td>string</td>
+<td>是</td>
+<td>The name of the object type in the API in camelCase format. To find the API name for your Object Type, use the<br><code>List object types</code> endpoint or check the <strong>Ontology Manager</strong>.</td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.data.ActionTypeV2.parameters.ActionParameterV2.dataType.struct.fields.OntologyStructField.required</code></td>
+<td>boolean</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.data.ActionTypeV2.parameters.ActionParameterV2.dataType.string</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.data.ActionTypeV2.parameters.ActionParameterV2.dataType.double</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.data.ActionTypeV2.parameters.ActionParameterV2.dataType.integer</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.data.ActionTypeV2.parameters.ActionParameterV2.dataType.geoshape</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.data.ActionTypeV2.parameters.ActionParameterV2.dataType.long</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.data.ActionTypeV2.parameters.ActionParameterV2.dataType.objectType</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.data.ActionTypeV2.parameters.ActionParameterV2.dataType.boolean</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.data.ActionTypeV2.parameters.ActionParameterV2.dataType.marking</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.data.ActionTypeV2.parameters.ActionParameterV2.dataType.marking.markingType</code></td>
+<td>enum</td>
+<td>否</td>
+<td>The kind of marking applied by a marking property type.<br>- <code>CBAC</code>: Classification-based access control markings.<br>- <code>MANDATORY</code>: Standard non-classification markings. Example - Organizations.</td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.data.ActionTypeV2.parameters.ActionParameterV2.dataType.scenarioReference</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.data.ActionTypeV2.parameters.ActionParameterV2.dataType.attachment</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.data.ActionTypeV2.parameters.ActionParameterV2.dataType.mediaReference</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.data.ActionTypeV2.parameters.ActionParameterV2.dataType.array</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.data.ActionTypeV2.parameters.ActionParameterV2.dataType.array.subType</code></td>
+<td>union</td>
+<td>是</td>
+<td>A union of all the types supported by Ontology Action parameters.</td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.data.ActionTypeV2.parameters.ActionParameterV2.dataType.objectSet</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.data.ActionTypeV2.parameters.ActionParameterV2.dataType.objectSet.objectApiName</code></td>
+<td>string</td>
+<td>否</td>
+<td>The name of the object type in the API in camelCase format. To find the API name for your Object Type, use the<br><code>List object types</code> endpoint or check the <strong>Ontology Manager</strong>.</td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.data.ActionTypeV2.parameters.ActionParameterV2.dataType.objectSet.objectTypeApiName</code></td>
+<td>string</td>
+<td>否</td>
+<td>The name of the object type in the API in camelCase format. To find the API name for your Object Type, use the<br><code>List object types</code> endpoint or check the <strong>Ontology Manager</strong>.</td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.data.ActionTypeV2.parameters.ActionParameterV2.dataType.geohash</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.data.ActionTypeV2.parameters.ActionParameterV2.dataType.vector</code></td>
+<td>object</td>
+<td>否</td>
+<td>Represents a fixed size vector of floats. These can be used for vector similarity searches.</td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.data.ActionTypeV2.parameters.ActionParameterV2.dataType.vector.dimension</code></td>
+<td>integer</td>
+<td>是</td>
+<td>The dimension of the vector.</td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.data.ActionTypeV2.parameters.ActionParameterV2.dataType.vector.supportsSearchWith</code></td>
+<td>list<VectorSimilarityFunction></td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.data.ActionTypeV2.parameters.ActionParameterV2.dataType.vector.supportsSearchWith.VectorSimilarityFunction</code></td>
+<td>object</td>
+<td>是</td>
+<td>The vector similarity function to support approximate nearest neighbors search. Will result in an index<br>specific for the function.</td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.data.ActionTypeV2.parameters.ActionParameterV2.dataType.vector.supportsSearchWith.VectorSimilarityFunction.value</code></td>
+<td>enum</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.data.ActionTypeV2.parameters.ActionParameterV2.dataType.vector.embeddingModel</code></td>
+<td>union</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.data.ActionTypeV2.parameters.ActionParameterV2.dataType.vector.embeddingModel.lms</code></td>
+<td>object</td>
+<td>否</td>
+<td>A model provided by Language Model Service.</td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.data.ActionTypeV2.parameters.ActionParameterV2.dataType.vector.embeddingModel.lms.value</code></td>
+<td>enum</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.data.ActionTypeV2.parameters.ActionParameterV2.dataType.vector.embeddingModel.foundryLiveDeployment</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.data.ActionTypeV2.parameters.ActionParameterV2.dataType.vector.embeddingModel.foundryLiveDeployment.rid</code></td>
+<td>string</td>
+<td>否</td>
+<td>The live deployment identifier. This rid is of the format 'ri.foundry-ml-live.main.live-deployment.<uuid>'.</td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.data.ActionTypeV2.parameters.ActionParameterV2.dataType.vector.embeddingModel.foundryLiveDeployment.inputParamName</code></td>
+<td>string</td>
+<td>否</td>
+<td>The name of the input parameter to the model which should contain the query string.</td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.data.ActionTypeV2.parameters.ActionParameterV2.dataType.vector.embeddingModel.foundryLiveDeployment.outputParamName</code></td>
+<td>string</td>
+<td>否</td>
+<td>The name of the output parameter to the model which should contain the computed embedding.</td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.data.ActionTypeV2.parameters.ActionParameterV2.dataType.decimal</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.data.ActionTypeV2.parameters.ActionParameterV2.dataType.decimal.precision</code></td>
+<td>integer</td>
+<td>否</td>
+<td>The total number of digits of the Decimal type. The maximum value is 38.<br>示例: <code>38</code></td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.data.ActionTypeV2.parameters.ActionParameterV2.dataType.decimal.scale</code></td>
+<td>integer</td>
+<td>否</td>
+<td>The number of digits to the right of the decimal point. The maximum value is 38.<br>示例: <code>18</code></td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.data.ActionTypeV2.parameters.ActionParameterV2.dataType.object</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.data.ActionTypeV2.parameters.ActionParameterV2.dataType.object.objectApiName</code></td>
+<td>string</td>
+<td>是</td>
+<td>The name of the object type in the API in camelCase format. To find the API name for your Object Type, use the<br><code>List object types</code> endpoint or check the <strong>Ontology Manager</strong>.</td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.data.ActionTypeV2.parameters.ActionParameterV2.dataType.object.objectTypeApiName</code></td>
+<td>string</td>
+<td>是</td>
+<td>The name of the object type in the API in camelCase format. To find the API name for your Object Type, use the<br><code>List object types</code> endpoint or check the <strong>Ontology Manager</strong>.</td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.data.ActionTypeV2.parameters.ActionParameterV2.dataType.timestamp</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.data.ActionTypeV2.parameters.ActionParameterV2.required</code></td>
+<td>boolean</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.data.ActionTypeV2.parameters.ActionParameterV2.typeClasses</code></td>
+<td>list<TypeClass></td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.data.ActionTypeV2.parameters.ActionParameterV2.typeClasses.TypeClass</code></td>
+<td>object</td>
+<td>是</td>
+<td>Additional metadata that can be interpreted by user applications that interact with the Ontology</td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.data.ActionTypeV2.parameters.ActionParameterV2.typeClasses.TypeClass.kind</code></td>
+<td>string</td>
+<td>是</td>
+<td>A namespace for the type class.</td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.data.ActionTypeV2.parameters.ActionParameterV2.typeClasses.TypeClass.name</code></td>
+<td>string</td>
+<td>是</td>
+<td>The value of the type class.</td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.data.ActionTypeV2.parameters.ActionParameterV2.validation</code></td>
+<td>object</td>
+<td>否</td>
+<td>Validation metadata surfaced for a parameter.</td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.data.ActionTypeV2.parameters.ActionParameterV2.validation.defaultValidation</code></td>
+<td>object</td>
+<td>是</td>
+<td>Validation constraints for a parameter.</td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.data.ActionTypeV2.parameters.ActionParameterV2.validation.defaultValidation.allowedValues</code></td>
+<td>union</td>
+<td>否</td>
+<td>The allowed-values constraint configured on an action parameter.</td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.data.ActionTypeV2.parameters.ActionParameterV2.validation.defaultValidation.allowedValues.oneOf</code></td>
+<td>object</td>
+<td>否</td>
+<td>The parameter value must be one of a fixed set of labelled options.</td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.data.ActionTypeV2.parameters.ActionParameterV2.validation.defaultValidation.allowedValues.oneOf.options</code></td>
+<td>list<ParameterAllowedValueOption></td>
+<td>否</td>
+<td>The predefined set of options.</td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.data.ActionTypeV2.parameters.ActionParameterV2.validation.defaultValidation.allowedValues.oneOf.options.ParameterAllowedValueOption</code></td>
+<td>object</td>
+<td>是</td>
+<td>A possible value for the parameter.</td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.data.ActionTypeV2.parameters.ActionParameterV2.validation.defaultValidation.allowedValues.oneOf.options.ParameterAllowedValueOption.displayName</code></td>
+<td>string</td>
+<td>是</td>
+<td>The display name of the entity.</td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.data.ActionTypeV2.parameters.ActionParameterV2.validation.defaultValidation.allowedValues.oneOf.options.ParameterAllowedValueOption.value</code></td>
+<td>any</td>
+<td>是</td>
+<td>Represents the value of data in the following format. Note that these values can be nested, for example an array of structs.<br>| Type                                | JSON encoding                                         | Example                                                                                                                                                       |<br>|-------------------------------------|-------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------|<br>| Array                               | array                                                 | <code>["alpha", "bravo", "charlie"]</code>                                                                                                                               |<br>| Attachment                          | string                                                | <code>"ri.attachments.main.attachment.2f944bae-5851-4204-8615-920c969a9f2e"</code>                                                                                       |<br>| Boolean                             | boolean                                               | <code>true</code>                                                                                                                                                        |<br>| Byte                                | number                                                | <code>31</code>                                                                                                                                                          |<br>| CipherText                          | string                                                | <code>"CIPHER::ri.bellaso.main.cipher-channel.e414ab9e-b606-499a-a0e1-844fa296ba7e::unzjs3VifsTxuIpf1fH1CJ7OaPBr2bzMMdozPaZJtCii8vVG60yXIEmzoOJaEl9mfFFe::CIPHER"</code> |<br>| Date                                | ISO 8601 extended local date string                   | <code>"2021-05-01"</code>                                                                                                                                                |<br>| Decimal                             | string                                                | <code>"2.718281828"</code>                                                                                                                                               |<br>| Double                              | number                                                | <code>3.14159265</code>                                                                                                                                                  |<br>| EntrySet                            | array of JSON objects                                 | <code>[{"key": "EMP1234", "value": "true"}, {"key": "EMP4444", "value": "false"}]</code>                                                                                 |<br>| Float                               | number                                                | <code>3.14159265</code>                                                                                                                                                  |<br>| Integer                             | number                                                | <code>238940</code>                                                                                                                                                      |<br>| Long                                | string                                                | <code>"58319870951433"</code>                                                                                                                                            |<br>| Marking                             | string                                                | <code>"MU"</code>                                                                                                                                                        |<br>| Null                                | null                                                  | <code>null</code>                                                                                                                                                        |<br>| Object Set                          | string OR the object set definition                   | <code>ri.object-set.main.versioned-object-set.h13274m8-23f5-431c-8aee-a4554157c57z</code>                                                                                |<br>| Ontology Object Reference           | JSON encoding of the object's primary key             | <code>10033123</code> or <code>"EMP1234"</code>                                                                                                                                     |<br>| Ontology Interface Object Reference | JSON encoding of the object's API name and primary key| <code>{"objectTypeApiName":"Employee", "primaryKeyValue":"EMP1234"}</code>                                                                                               |<br>| Ontology Object Type Reference      | string of the object type's api name                  | <code>"Employee"</code>                                                                                                                                                  |<br>| Scenario Reference                  | string of the scenario RID                            | <code>"ri.actions..scenario.cf2a8a49-8b56-446d-ab04-a6bc7fadef48"</code>                                                                                                 |<br>| Set                                 | array                                                 | <code>["alpha", "bravo", "charlie"]</code>                                                                                                                               |<br>| Short                               | number                                                | <code>8739</code>                                                                                                                                                        |<br>| String                              | string                                                | <code>"Call me Ishmael"</code>                                                                                                                                           |<br>| Struct                              | JSON object                                           | <code>{"name": "John Doe", "age": 42}</code>                                                                                                                             |<br>| TwoDimensionalAggregation           | JSON object                                           | <code>{"groups": [{"key": "alpha", "value": 100}, {"key": "beta", "value": 101}]}</code>                                                                                 |<br>| ThreeDimensionalAggregation         | JSON object                                           | <code>{"groups": [{"key": "NYC", "groups": [{"key": "Engineer", "value" : 100}]}]}</code>                                                                                |<br>| Timestamp                           | ISO 8601 extended offset date-time string in UTC zone | <code>"2021-01-04T05:00:00Z"</code>                                                                                                                                      |</td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.data.ActionTypeV2.parameters.ActionParameterV2.validation.defaultValidation.allowedValues.oneOf.otherValuesAllowed</code></td>
+<td>boolean</td>
+<td>是</td>
+<td>Whether values outside <code>options</code> are allowed.</td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.data.ActionTypeV2.parameters.ActionParameterV2.validation.defaultValidation.allowedValues.datetime</code></td>
+<td>object</td>
+<td>否</td>
+<td>The parameter value must fall within the specified date or timestamp range.</td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.data.ActionTypeV2.parameters.ActionParameterV2.validation.defaultValidation.allowedValues.datetime.gt</code></td>
+<td>union</td>
+<td>否</td>
+<td>A datetime bound value.</td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.data.ActionTypeV2.parameters.ActionParameterV2.validation.defaultValidation.allowedValues.datetime.gt.now</code></td>
+<td>object</td>
+<td>否</td>
+<td>The current evaluation time itself. Carries no fields.</td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.data.ActionTypeV2.parameters.ActionParameterV2.validation.defaultValidation.allowedValues.datetime.gt.fixed</code></td>
+<td>object</td>
+<td>否</td>
+<td>An absolute datetime bound (ISO 8601 timestamp or date string).</td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.data.ActionTypeV2.parameters.ActionParameterV2.validation.defaultValidation.allowedValues.datetime.gt.fixed.value</code></td>
+<td>union</td>
+<td>是</td>
+<td>The source of a constraint bound value: either a literal or a reference to another parameter that is<br>resolved when the action is validated or applied.</td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.data.ActionTypeV2.parameters.ActionParameterV2.validation.defaultValidation.allowedValues.datetime.gt.fixed.value.static</code></td>
+<td>object</td>
+<td>否</td>
+<td>A literal constraint value.</td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.data.ActionTypeV2.parameters.ActionParameterV2.validation.defaultValidation.allowedValues.datetime.gt.fixed.value.static.value</code></td>
+<td>any</td>
+<td>是</td>
+<td>Represents the value of data in the following format. Note that these values can be nested, for example an array of structs.<br>| Type                                | JSON encoding                                         | Example                                                                                                                                                       |<br>|-------------------------------------|-------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------|<br>| Array                               | array                                                 | <code>["alpha", "bravo", "charlie"]</code>                                                                                                                               |<br>| Attachment                          | string                                                | <code>"ri.attachments.main.attachment.2f944bae-5851-4204-8615-920c969a9f2e"</code>                                                                                       |<br>| Boolean                             | boolean                                               | <code>true</code>                                                                                                                                                        |<br>| Byte                                | number                                                | <code>31</code>                                                                                                                                                          |<br>| CipherText                          | string                                                | <code>"CIPHER::ri.bellaso.main.cipher-channel.e414ab9e-b606-499a-a0e1-844fa296ba7e::unzjs3VifsTxuIpf1fH1CJ7OaPBr2bzMMdozPaZJtCii8vVG60yXIEmzoOJaEl9mfFFe::CIPHER"</code> |<br>| Date                                | ISO 8601 extended local date string                   | <code>"2021-05-01"</code>                                                                                                                                                |<br>| Decimal                             | string                                                | <code>"2.718281828"</code>                                                                                                                                               |<br>| Double                              | number                                                | <code>3.14159265</code>                                                                                                                                                  |<br>| EntrySet                            | array of JSON objects                                 | <code>[{"key": "EMP1234", "value": "true"}, {"key": "EMP4444", "value": "false"}]</code>                                                                                 |<br>| Float                               | number                                                | <code>3.14159265</code>                                                                                                                                                  |<br>| Integer                             | number                                                | <code>238940</code>                                                                                                                                                      |<br>| Long                                | string                                                | <code>"58319870951433"</code>                                                                                                                                            |<br>| Marking                             | string                                                | <code>"MU"</code>                                                                                                                                                        |<br>| Null                                | null                                                  | <code>null</code>                                                                                                                                                        |<br>| Object Set                          | string OR the object set definition                   | <code>ri.object-set.main.versioned-object-set.h13274m8-23f5-431c-8aee-a4554157c57z</code>                                                                                |<br>| Ontology Object Reference           | JSON encoding of the object's primary key             | <code>10033123</code> or <code>"EMP1234"</code>                                                                                                                                     |<br>| Ontology Interface Object Reference | JSON encoding of the object's API name and primary key| <code>{"objectTypeApiName":"Employee", "primaryKeyValue":"EMP1234"}</code>                                                                                               |<br>| Ontology Object Type Reference      | string of the object type's api name                  | <code>"Employee"</code>                                                                                                                                                  |<br>| Scenario Reference                  | string of the scenario RID                            | <code>"ri.actions..scenario.cf2a8a49-8b56-446d-ab04-a6bc7fadef48"</code>                                                                                                 |<br>| Set                                 | array                                                 | <code>["alpha", "bravo", "charlie"]</code>                                                                                                                               |<br>| Short                               | number                                                | <code>8739</code>                                                                                                                                                        |<br>| String                              | string                                                | <code>"Call me Ishmael"</code>                                                                                                                                           |<br>| Struct                              | JSON object                                           | <code>{"name": "John Doe", "age": 42}</code>                                                                                                                             |<br>| TwoDimensionalAggregation           | JSON object                                           | <code>{"groups": [{"key": "alpha", "value": 100}, {"key": "beta", "value": 101}]}</code>                                                                                 |<br>| ThreeDimensionalAggregation         | JSON object                                           | <code>{"groups": [{"key": "NYC", "groups": [{"key": "Engineer", "value" : 100}]}]}</code>                                                                                |<br>| Timestamp                           | ISO 8601 extended offset date-time string in UTC zone | <code>"2021-01-04T05:00:00Z"</code>                                                                                                                                      |</td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.data.ActionTypeV2.parameters.ActionParameterV2.validation.defaultValidation.allowedValues.datetime.gt.fixed.value.parameterLength</code></td>
+<td>object</td>
+<td>否</td>
+<td>The bound is the number of elements in another list parameter's value on the same action type. Clients<br>should tolerate a reference that cannot be resolved, as the referenced parameter is not itself guaranteed<br>to be surfaced.</td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.data.ActionTypeV2.parameters.ActionParameterV2.validation.defaultValidation.allowedValues.datetime.gt.fixed.value.parameterLength.parameterId</code></td>
+<td>string</td>
+<td>是</td>
+<td>The unique identifier of the parameter. Parameters are used as inputs when an action or query is applied.<br>Parameters can be viewed and managed in the <strong>Ontology Manager</strong>.</td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.data.ActionTypeV2.parameters.ActionParameterV2.validation.defaultValidation.allowedValues.datetime.gt.fixed.value.parameterValue</code></td>
+<td>object</td>
+<td>否</td>
+<td>The bound is the value of another parameter on the same action type. Clients should tolerate a reference<br>that cannot be resolved, as the referenced parameter is not itself guaranteed to be surfaced.</td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.data.ActionTypeV2.parameters.ActionParameterV2.validation.defaultValidation.allowedValues.datetime.gt.fixed.value.parameterValue.parameterId</code></td>
+<td>string</td>
+<td>是</td>
+<td>The unique identifier of the parameter. Parameters are used as inputs when an action or query is applied.<br>Parameters can be viewed and managed in the <strong>Ontology Manager</strong>.</td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.data.ActionTypeV2.parameters.ActionParameterV2.validation.defaultValidation.allowedValues.datetime.gt.relative</code></td>
+<td>object</td>
+<td>否</td>
+<td>A datetime expressed as an offset from the current time.</td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.data.ActionTypeV2.parameters.ActionParameterV2.validation.defaultValidation.allowedValues.datetime.gt.relative.duration</code></td>
+<td>string</td>
+<td>是</td>
+<td>The magnitude of a relative datetime offset.</td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.data.ActionTypeV2.parameters.ActionParameterV2.validation.defaultValidation.allowedValues.datetime.gt.relative.unit</code></td>
+<td>enum</td>
+<td>是</td>
+<td>Time unit for relative datetime offsets.</td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.data.ActionTypeV2.parameters.ActionParameterV2.validation.defaultValidation.allowedValues.datetime.gt.relative.tense</code></td>
+<td>enum</td>
+<td>是</td>
+<td>Direction of a relative datetime offset.</td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.data.ActionTypeV2.parameters.ActionParameterV2.validation.defaultValidation.allowedValues.datetime.gte</code></td>
+<td>union</td>
+<td>否</td>
+<td>A datetime bound value.</td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.data.ActionTypeV2.parameters.ActionParameterV2.validation.defaultValidation.allowedValues.datetime.gte.now</code></td>
+<td>object</td>
+<td>否</td>
+<td>The current evaluation time itself. Carries no fields.</td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.data.ActionTypeV2.parameters.ActionParameterV2.validation.defaultValidation.allowedValues.datetime.gte.fixed</code></td>
+<td>object</td>
+<td>否</td>
+<td>An absolute datetime bound (ISO 8601 timestamp or date string).</td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.data.ActionTypeV2.parameters.ActionParameterV2.validation.defaultValidation.allowedValues.datetime.gte.fixed.value</code></td>
+<td>union</td>
+<td>是</td>
+<td>The source of a constraint bound value: either a literal or a reference to another parameter that is<br>resolved when the action is validated or applied.</td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.data.ActionTypeV2.parameters.ActionParameterV2.validation.defaultValidation.allowedValues.datetime.gte.fixed.value.static</code></td>
+<td>object</td>
+<td>否</td>
+<td>A literal constraint value.</td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.data.ActionTypeV2.parameters.ActionParameterV2.validation.defaultValidation.allowedValues.datetime.gte.fixed.value.static.value</code></td>
+<td>any</td>
+<td>是</td>
+<td>Represents the value of data in the following format. Note that these values can be nested, for example an array of structs.<br>| Type                                | JSON encoding                                         | Example                                                                                                                                                       |<br>|-------------------------------------|-------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------|<br>| Array                               | array                                                 | <code>["alpha", "bravo", "charlie"]</code>                                                                                                                               |<br>| Attachment                          | string                                                | <code>"ri.attachments.main.attachment.2f944bae-5851-4204-8615-920c969a9f2e"</code>                                                                                       |<br>| Boolean                             | boolean                                               | <code>true</code>                                                                                                                                                        |<br>| Byte                                | number                                                | <code>31</code>                                                                                                                                                          |<br>| CipherText                          | string                                                | <code>"CIPHER::ri.bellaso.main.cipher-channel.e414ab9e-b606-499a-a0e1-844fa296ba7e::unzjs3VifsTxuIpf1fH1CJ7OaPBr2bzMMdozPaZJtCii8vVG60yXIEmzoOJaEl9mfFFe::CIPHER"</code> |<br>| Date                                | ISO 8601 extended local date string                   | <code>"2021-05-01"</code>                                                                                                                                                |<br>| Decimal                             | string                                                | <code>"2.718281828"</code>                                                                                                                                               |<br>| Double                              | number                                                | <code>3.14159265</code>                                                                                                                                                  |<br>| EntrySet                            | array of JSON objects                                 | <code>[{"key": "EMP1234", "value": "true"}, {"key": "EMP4444", "value": "false"}]</code>                                                                                 |<br>| Float                               | number                                                | <code>3.14159265</code>                                                                                                                                                  |<br>| Integer                             | number                                                | <code>238940</code>                                                                                                                                                      |<br>| Long                                | string                                                | <code>"58319870951433"</code>                                                                                                                                            |<br>| Marking                             | string                                                | <code>"MU"</code>                                                                                                                                                        |<br>| Null                                | null                                                  | <code>null</code>                                                                                                                                                        |<br>| Object Set                          | string OR the object set definition                   | <code>ri.object-set.main.versioned-object-set.h13274m8-23f5-431c-8aee-a4554157c57z</code>                                                                                |<br>| Ontology Object Reference           | JSON encoding of the object's primary key             | <code>10033123</code> or <code>"EMP1234"</code>                                                                                                                                     |<br>| Ontology Interface Object Reference | JSON encoding of the object's API name and primary key| <code>{"objectTypeApiName":"Employee", "primaryKeyValue":"EMP1234"}</code>                                                                                               |<br>| Ontology Object Type Reference      | string of the object type's api name                  | <code>"Employee"</code>                                                                                                                                                  |<br>| Scenario Reference                  | string of the scenario RID                            | <code>"ri.actions..scenario.cf2a8a49-8b56-446d-ab04-a6bc7fadef48"</code>                                                                                                 |<br>| Set                                 | array                                                 | <code>["alpha", "bravo", "charlie"]</code>                                                                                                                               |<br>| Short                               | number                                                | <code>8739</code>                                                                                                                                                        |<br>| String                              | string                                                | <code>"Call me Ishmael"</code>                                                                                                                                           |<br>| Struct                              | JSON object                                           | <code>{"name": "John Doe", "age": 42}</code>                                                                                                                             |<br>| TwoDimensionalAggregation           | JSON object                                           | <code>{"groups": [{"key": "alpha", "value": 100}, {"key": "beta", "value": 101}]}</code>                                                                                 |<br>| ThreeDimensionalAggregation         | JSON object                                           | <code>{"groups": [{"key": "NYC", "groups": [{"key": "Engineer", "value" : 100}]}]}</code>                                                                                |<br>| Timestamp                           | ISO 8601 extended offset date-time string in UTC zone | <code>"2021-01-04T05:00:00Z"</code>                                                                                                                                      |</td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.data.ActionTypeV2.parameters.ActionParameterV2.validation.defaultValidation.allowedValues.datetime.gte.fixed.value.parameterLength</code></td>
+<td>object</td>
+<td>否</td>
+<td>The bound is the number of elements in another list parameter's value on the same action type. Clients<br>should tolerate a reference that cannot be resolved, as the referenced parameter is not itself guaranteed<br>to be surfaced.</td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.data.ActionTypeV2.parameters.ActionParameterV2.validation.defaultValidation.allowedValues.datetime.gte.fixed.value.parameterLength.parameterId</code></td>
+<td>string</td>
+<td>是</td>
+<td>The unique identifier of the parameter. Parameters are used as inputs when an action or query is applied.<br>Parameters can be viewed and managed in the <strong>Ontology Manager</strong>.</td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.data.ActionTypeV2.parameters.ActionParameterV2.validation.defaultValidation.allowedValues.datetime.gte.fixed.value.parameterValue</code></td>
+<td>object</td>
+<td>否</td>
+<td>The bound is the value of another parameter on the same action type. Clients should tolerate a reference<br>that cannot be resolved, as the referenced parameter is not itself guaranteed to be surfaced.</td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.data.ActionTypeV2.parameters.ActionParameterV2.validation.defaultValidation.allowedValues.datetime.gte.fixed.value.parameterValue.parameterId</code></td>
+<td>string</td>
+<td>是</td>
+<td>The unique identifier of the parameter. Parameters are used as inputs when an action or query is applied.<br>Parameters can be viewed and managed in the <strong>Ontology Manager</strong>.</td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.data.ActionTypeV2.parameters.ActionParameterV2.validation.defaultValidation.allowedValues.datetime.gte.relative</code></td>
+<td>object</td>
+<td>否</td>
+<td>A datetime expressed as an offset from the current time.</td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.data.ActionTypeV2.parameters.ActionParameterV2.validation.defaultValidation.allowedValues.datetime.gte.relative.duration</code></td>
+<td>string</td>
+<td>是</td>
+<td>The magnitude of a relative datetime offset.</td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.data.ActionTypeV2.parameters.ActionParameterV2.validation.defaultValidation.allowedValues.datetime.gte.relative.unit</code></td>
+<td>enum</td>
+<td>是</td>
+<td>Time unit for relative datetime offsets.</td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.data.ActionTypeV2.parameters.ActionParameterV2.validation.defaultValidation.allowedValues.datetime.gte.relative.tense</code></td>
+<td>enum</td>
+<td>是</td>
+<td>Direction of a relative datetime offset.</td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.data.ActionTypeV2.parameters.ActionParameterV2.validation.defaultValidation.allowedValues.datetime.lt</code></td>
+<td>union</td>
+<td>否</td>
+<td>A datetime bound value.</td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.data.ActionTypeV2.parameters.ActionParameterV2.validation.defaultValidation.allowedValues.datetime.lt.now</code></td>
+<td>object</td>
+<td>否</td>
+<td>The current evaluation time itself. Carries no fields.</td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.data.ActionTypeV2.parameters.ActionParameterV2.validation.defaultValidation.allowedValues.datetime.lt.fixed</code></td>
+<td>object</td>
+<td>否</td>
+<td>An absolute datetime bound (ISO 8601 timestamp or date string).</td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.data.ActionTypeV2.parameters.ActionParameterV2.validation.defaultValidation.allowedValues.datetime.lt.fixed.value</code></td>
+<td>union</td>
+<td>是</td>
+<td>The source of a constraint bound value: either a literal or a reference to another parameter that is<br>resolved when the action is validated or applied.</td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.data.ActionTypeV2.parameters.ActionParameterV2.validation.defaultValidation.allowedValues.datetime.lt.fixed.value.static</code></td>
+<td>object</td>
+<td>否</td>
+<td>A literal constraint value.</td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.data.ActionTypeV2.parameters.ActionParameterV2.validation.defaultValidation.allowedValues.datetime.lt.fixed.value.static.value</code></td>
+<td>any</td>
+<td>是</td>
+<td>Represents the value of data in the following format. Note that these values can be nested, for example an array of structs.<br>| Type                                | JSON encoding                                         | Example                                                                                                                                                       |<br>|-------------------------------------|-------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------|<br>| Array                               | array                                                 | <code>["alpha", "bravo", "charlie"]</code>                                                                                                                               |<br>| Attachment                          | string                                                | <code>"ri.attachments.main.attachment.2f944bae-5851-4204-8615-920c969a9f2e"</code>                                                                                       |<br>| Boolean                             | boolean                                               | <code>true</code>                                                                                                                                                        |<br>| Byte                                | number                                                | <code>31</code>                                                                                                                                                          |<br>| CipherText                          | string                                                | <code>"CIPHER::ri.bellaso.main.cipher-channel.e414ab9e-b606-499a-a0e1-844fa296ba7e::unzjs3VifsTxuIpf1fH1CJ7OaPBr2bzMMdozPaZJtCii8vVG60yXIEmzoOJaEl9mfFFe::CIPHER"</code> |<br>| Date                                | ISO 8601 extended local date string                   | <code>"2021-05-01"</code>                                                                                                                                                |<br>| Decimal                             | string                                                | <code>"2.718281828"</code>                                                                                                                                               |<br>| Double                              | number                                                | <code>3.14159265</code>                                                                                                                                                  |<br>| EntrySet                            | array of JSON objects                                 | <code>[{"key": "EMP1234", "value": "true"}, {"key": "EMP4444", "value": "false"}]</code>                                                                                 |<br>| Float                               | number                                                | <code>3.14159265</code>                                                                                                                                                  |<br>| Integer                             | number                                                | <code>238940</code>                                                                                                                                                      |<br>| Long                                | string                                                | <code>"58319870951433"</code>                                                                                                                                            |<br>| Marking                             | string                                                | <code>"MU"</code>                                                                                                                                                        |<br>| Null                                | null                                                  | <code>null</code>                                                                                                                                                        |<br>| Object Set                          | string OR the object set definition                   | <code>ri.object-set.main.versioned-object-set.h13274m8-23f5-431c-8aee-a4554157c57z</code>                                                                                |<br>| Ontology Object Reference           | JSON encoding of the object's primary key             | <code>10033123</code> or <code>"EMP1234"</code>                                                                                                                                     |<br>| Ontology Interface Object Reference | JSON encoding of the object's API name and primary key| <code>{"objectTypeApiName":"Employee", "primaryKeyValue":"EMP1234"}</code>                                                                                               |<br>| Ontology Object Type Reference      | string of the object type's api name                  | <code>"Employee"</code>                                                                                                                                                  |<br>| Scenario Reference                  | string of the scenario RID                            | <code>"ri.actions..scenario.cf2a8a49-8b56-446d-ab04-a6bc7fadef48"</code>                                                                                                 |<br>| Set                                 | array                                                 | <code>["alpha", "bravo", "charlie"]</code>                                                                                                                               |<br>| Short                               | number                                                | <code>8739</code>                                                                                                                                                        |<br>| String                              | string                                                | <code>"Call me Ishmael"</code>                                                                                                                                           |<br>| Struct                              | JSON object                                           | <code>{"name": "John Doe", "age": 42}</code>                                                                                                                             |<br>| TwoDimensionalAggregation           | JSON object                                           | <code>{"groups": [{"key": "alpha", "value": 100}, {"key": "beta", "value": 101}]}</code>                                                                                 |<br>| ThreeDimensionalAggregation         | JSON object                                           | <code>{"groups": [{"key": "NYC", "groups": [{"key": "Engineer", "value" : 100}]}]}</code>                                                                                |<br>| Timestamp                           | ISO 8601 extended offset date-time string in UTC zone | <code>"2021-01-04T05:00:00Z"</code>                                                                                                                                      |</td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.data.ActionTypeV2.parameters.ActionParameterV2.validation.defaultValidation.allowedValues.datetime.lt.fixed.value.parameterLength</code></td>
+<td>object</td>
+<td>否</td>
+<td>The bound is the number of elements in another list parameter's value on the same action type. Clients<br>should tolerate a reference that cannot be resolved, as the referenced parameter is not itself guaranteed<br>to be surfaced.</td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.data.ActionTypeV2.parameters.ActionParameterV2.validation.defaultValidation.allowedValues.datetime.lt.fixed.value.parameterLength.parameterId</code></td>
+<td>string</td>
+<td>是</td>
+<td>The unique identifier of the parameter. Parameters are used as inputs when an action or query is applied.<br>Parameters can be viewed and managed in the <strong>Ontology Manager</strong>.</td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.data.ActionTypeV2.parameters.ActionParameterV2.validation.defaultValidation.allowedValues.datetime.lt.fixed.value.parameterValue</code></td>
+<td>object</td>
+<td>否</td>
+<td>The bound is the value of another parameter on the same action type. Clients should tolerate a reference<br>that cannot be resolved, as the referenced parameter is not itself guaranteed to be surfaced.</td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.data.ActionTypeV2.parameters.ActionParameterV2.validation.defaultValidation.allowedValues.datetime.lt.fixed.value.parameterValue.parameterId</code></td>
+<td>string</td>
+<td>是</td>
+<td>The unique identifier of the parameter. Parameters are used as inputs when an action or query is applied.<br>Parameters can be viewed and managed in the <strong>Ontology Manager</strong>.</td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.data.ActionTypeV2.parameters.ActionParameterV2.validation.defaultValidation.allowedValues.datetime.lt.relative</code></td>
+<td>object</td>
+<td>否</td>
+<td>A datetime expressed as an offset from the current time.</td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.data.ActionTypeV2.parameters.ActionParameterV2.validation.defaultValidation.allowedValues.datetime.lt.relative.duration</code></td>
+<td>string</td>
+<td>是</td>
+<td>The magnitude of a relative datetime offset.</td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.data.ActionTypeV2.parameters.ActionParameterV2.validation.defaultValidation.allowedValues.datetime.lt.relative.unit</code></td>
+<td>enum</td>
+<td>是</td>
+<td>Time unit for relative datetime offsets.</td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.data.ActionTypeV2.parameters.ActionParameterV2.validation.defaultValidation.allowedValues.datetime.lt.relative.tense</code></td>
+<td>enum</td>
+<td>是</td>
+<td>Direction of a relative datetime offset.</td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.data.ActionTypeV2.parameters.ActionParameterV2.validation.defaultValidation.allowedValues.datetime.lte</code></td>
+<td>union</td>
+<td>否</td>
+<td>A datetime bound value.</td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.data.ActionTypeV2.parameters.ActionParameterV2.validation.defaultValidation.allowedValues.datetime.lte.now</code></td>
+<td>object</td>
+<td>否</td>
+<td>The current evaluation time itself. Carries no fields.</td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.data.ActionTypeV2.parameters.ActionParameterV2.validation.defaultValidation.allowedValues.datetime.lte.fixed</code></td>
+<td>object</td>
+<td>否</td>
+<td>An absolute datetime bound (ISO 8601 timestamp or date string).</td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.data.ActionTypeV2.parameters.ActionParameterV2.validation.defaultValidation.allowedValues.datetime.lte.fixed.value</code></td>
+<td>union</td>
+<td>是</td>
+<td>The source of a constraint bound value: either a literal or a reference to another parameter that is<br>resolved when the action is validated or applied.</td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.data.ActionTypeV2.parameters.ActionParameterV2.validation.defaultValidation.allowedValues.datetime.lte.fixed.value.static</code></td>
+<td>object</td>
+<td>否</td>
+<td>A literal constraint value.</td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.data.ActionTypeV2.parameters.ActionParameterV2.validation.defaultValidation.allowedValues.datetime.lte.fixed.value.static.value</code></td>
+<td>any</td>
+<td>是</td>
+<td>Represents the value of data in the following format. Note that these values can be nested, for example an array of structs.<br>| Type                                | JSON encoding                                         | Example                                                                                                                                                       |<br>|-------------------------------------|-------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------|<br>| Array                               | array                                                 | <code>["alpha", "bravo", "charlie"]</code>                                                                                                                               |<br>| Attachment                          | string                                                | <code>"ri.attachments.main.attachment.2f944bae-5851-4204-8615-920c969a9f2e"</code>                                                                                       |<br>| Boolean                             | boolean                                               | <code>true</code>                                                                                                                                                        |<br>| Byte                                | number                                                | <code>31</code>                                                                                                                                                          |<br>| CipherText                          | string                                                | <code>"CIPHER::ri.bellaso.main.cipher-channel.e414ab9e-b606-499a-a0e1-844fa296ba7e::unzjs3VifsTxuIpf1fH1CJ7OaPBr2bzMMdozPaZJtCii8vVG60yXIEmzoOJaEl9mfFFe::CIPHER"</code> |<br>| Date                                | ISO 8601 extended local date string                   | <code>"2021-05-01"</code>                                                                                                                                                |<br>| Decimal                             | string                                                | <code>"2.718281828"</code>                                                                                                                                               |<br>| Double                              | number                                                | <code>3.14159265</code>                                                                                                                                                  |<br>| EntrySet                            | array of JSON objects                                 | <code>[{"key": "EMP1234", "value": "true"}, {"key": "EMP4444", "value": "false"}]</code>                                                                                 |<br>| Float                               | number                                                | <code>3.14159265</code>                                                                                                                                                  |<br>| Integer                             | number                                                | <code>238940</code>                                                                                                                                                      |<br>| Long                                | string                                                | <code>"58319870951433"</code>                                                                                                                                            |<br>| Marking                             | string                                                | <code>"MU"</code>                                                                                                                                                        |<br>| Null                                | null                                                  | <code>null</code>                                                                                                                                                        |<br>| Object Set                          | string OR the object set definition                   | <code>ri.object-set.main.versioned-object-set.h13274m8-23f5-431c-8aee-a4554157c57z</code>                                                                                |<br>| Ontology Object Reference           | JSON encoding of the object's primary key             | <code>10033123</code> or <code>"EMP1234"</code>                                                                                                                                     |<br>| Ontology Interface Object Reference | JSON encoding of the object's API name and primary key| <code>{"objectTypeApiName":"Employee", "primaryKeyValue":"EMP1234"}</code>                                                                                               |<br>| Ontology Object Type Reference      | string of the object type's api name                  | <code>"Employee"</code>                                                                                                                                                  |<br>| Scenario Reference                  | string of the scenario RID                            | <code>"ri.actions..scenario.cf2a8a49-8b56-446d-ab04-a6bc7fadef48"</code>                                                                                                 |<br>| Set                                 | array                                                 | <code>["alpha", "bravo", "charlie"]</code>                                                                                                                               |<br>| Short                               | number                                                | <code>8739</code>                                                                                                                                                        |<br>| String                              | string                                                | <code>"Call me Ishmael"</code>                                                                                                                                           |<br>| Struct                              | JSON object                                           | <code>{"name": "John Doe", "age": 42}</code>                                                                                                                             |<br>| TwoDimensionalAggregation           | JSON object                                           | <code>{"groups": [{"key": "alpha", "value": 100}, {"key": "beta", "value": 101}]}</code>                                                                                 |<br>| ThreeDimensionalAggregation         | JSON object                                           | <code>{"groups": [{"key": "NYC", "groups": [{"key": "Engineer", "value" : 100}]}]}</code>                                                                                |<br>| Timestamp                           | ISO 8601 extended offset date-time string in UTC zone | <code>"2021-01-04T05:00:00Z"</code>                                                                                                                                      |</td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.data.ActionTypeV2.parameters.ActionParameterV2.validation.defaultValidation.allowedValues.datetime.lte.fixed.value.parameterLength</code></td>
+<td>object</td>
+<td>否</td>
+<td>The bound is the number of elements in another list parameter's value on the same action type. Clients<br>should tolerate a reference that cannot be resolved, as the referenced parameter is not itself guaranteed<br>to be surfaced.</td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.data.ActionTypeV2.parameters.ActionParameterV2.validation.defaultValidation.allowedValues.datetime.lte.fixed.value.parameterLength.parameterId</code></td>
+<td>string</td>
+<td>是</td>
+<td>The unique identifier of the parameter. Parameters are used as inputs when an action or query is applied.<br>Parameters can be viewed and managed in the <strong>Ontology Manager</strong>.</td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.data.ActionTypeV2.parameters.ActionParameterV2.validation.defaultValidation.allowedValues.datetime.lte.fixed.value.parameterValue</code></td>
+<td>object</td>
+<td>否</td>
+<td>The bound is the value of another parameter on the same action type. Clients should tolerate a reference<br>that cannot be resolved, as the referenced parameter is not itself guaranteed to be surfaced.</td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.data.ActionTypeV2.parameters.ActionParameterV2.validation.defaultValidation.allowedValues.datetime.lte.fixed.value.parameterValue.parameterId</code></td>
+<td>string</td>
+<td>是</td>
+<td>The unique identifier of the parameter. Parameters are used as inputs when an action or query is applied.<br>Parameters can be viewed and managed in the <strong>Ontology Manager</strong>.</td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.data.ActionTypeV2.parameters.ActionParameterV2.validation.defaultValidation.allowedValues.datetime.lte.relative</code></td>
+<td>object</td>
+<td>否</td>
+<td>A datetime expressed as an offset from the current time.</td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.data.ActionTypeV2.parameters.ActionParameterV2.validation.defaultValidation.allowedValues.datetime.lte.relative.duration</code></td>
+<td>string</td>
+<td>是</td>
+<td>The magnitude of a relative datetime offset.</td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.data.ActionTypeV2.parameters.ActionParameterV2.validation.defaultValidation.allowedValues.datetime.lte.relative.unit</code></td>
+<td>enum</td>
+<td>是</td>
+<td>Time unit for relative datetime offsets.</td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.data.ActionTypeV2.parameters.ActionParameterV2.validation.defaultValidation.allowedValues.datetime.lte.relative.tense</code></td>
+<td>enum</td>
+<td>是</td>
+<td>Direction of a relative datetime offset.</td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.data.ActionTypeV2.parameters.ActionParameterV2.validation.defaultValidation.allowedValues.attachment</code></td>
+<td>object</td>
+<td>否</td>
+<td>The parameter value (an attachment rid) must reference an attachment within the configured size limit.</td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.data.ActionTypeV2.parameters.ActionParameterV2.validation.defaultValidation.allowedValues.attachment.maxSizeBytes</code></td>
+<td>string</td>
+<td>否</td>
+<td>The size of the file or attachment in bytes.<br>示例: <code>72526847</code></td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.data.ActionTypeV2.parameters.ActionParameterV2.validation.defaultValidation.allowedValues.valueType</code></td>
+<td>object</td>
+<td>否</td>
+<td>The parameter value must conform to the referenced value type.</td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.data.ActionTypeV2.parameters.ActionParameterV2.validation.defaultValidation.allowedValues.valueType.apiName</code></td>
+<td>string</td>
+<td>是</td>
+<td>The name of the value type in the API in camelCase format.</td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.data.ActionTypeV2.parameters.ActionParameterV2.validation.defaultValidation.allowedValues.valueType.rid</code></td>
+<td>string</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.data.ActionTypeV2.parameters.ActionParameterV2.validation.defaultValidation.allowedValues.valueType.versionId</code></td>
+<td>string</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.data.ActionTypeV2.parameters.ActionParameterV2.validation.defaultValidation.allowedValues.markdown</code></td>
+<td>object</td>
+<td>否</td>
+<td>The parameter value (a markdown-formatted string) must satisfy the configured length bounds.</td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.data.ActionTypeV2.parameters.ActionParameterV2.validation.defaultValidation.allowedValues.markdown.gte</code></td>
+<td>integer</td>
+<td>否</td>
+<td>Character length greater than or equal.</td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.data.ActionTypeV2.parameters.ActionParameterV2.validation.defaultValidation.allowedValues.markdown.lte</code></td>
+<td>integer</td>
+<td>否</td>
+<td>Character length less than or equal.</td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.data.ActionTypeV2.parameters.ActionParameterV2.validation.defaultValidation.allowedValues.range</code></td>
+<td>object</td>
+<td>否</td>
+<td>The parameter value must fall within the specified numeric range.</td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.data.ActionTypeV2.parameters.ActionParameterV2.validation.defaultValidation.allowedValues.range.gt</code></td>
+<td>union</td>
+<td>否</td>
+<td>The source of a constraint bound value: either a literal or a reference to another parameter that is<br>resolved when the action is validated or applied.</td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.data.ActionTypeV2.parameters.ActionParameterV2.validation.defaultValidation.allowedValues.range.gt.static</code></td>
+<td>object</td>
+<td>否</td>
+<td>A literal constraint value.</td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.data.ActionTypeV2.parameters.ActionParameterV2.validation.defaultValidation.allowedValues.range.gt.static.value</code></td>
+<td>any</td>
+<td>是</td>
+<td>Represents the value of data in the following format. Note that these values can be nested, for example an array of structs.<br>| Type                                | JSON encoding                                         | Example                                                                                                                                                       |<br>|-------------------------------------|-------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------|<br>| Array                               | array                                                 | <code>["alpha", "bravo", "charlie"]</code>                                                                                                                               |<br>| Attachment                          | string                                                | <code>"ri.attachments.main.attachment.2f944bae-5851-4204-8615-920c969a9f2e"</code>                                                                                       |<br>| Boolean                             | boolean                                               | <code>true</code>                                                                                                                                                        |<br>| Byte                                | number                                                | <code>31</code>                                                                                                                                                          |<br>| CipherText                          | string                                                | <code>"CIPHER::ri.bellaso.main.cipher-channel.e414ab9e-b606-499a-a0e1-844fa296ba7e::unzjs3VifsTxuIpf1fH1CJ7OaPBr2bzMMdozPaZJtCii8vVG60yXIEmzoOJaEl9mfFFe::CIPHER"</code> |<br>| Date                                | ISO 8601 extended local date string                   | <code>"2021-05-01"</code>                                                                                                                                                |<br>| Decimal                             | string                                                | <code>"2.718281828"</code>                                                                                                                                               |<br>| Double                              | number                                                | <code>3.14159265</code>                                                                                                                                                  |<br>| EntrySet                            | array of JSON objects                                 | <code>[{"key": "EMP1234", "value": "true"}, {"key": "EMP4444", "value": "false"}]</code>                                                                                 |<br>| Float                               | number                                                | <code>3.14159265</code>                                                                                                                                                  |<br>| Integer                             | number                                                | <code>238940</code>                                                                                                                                                      |<br>| Long                                | string                                                | <code>"58319870951433"</code>                                                                                                                                            |<br>| Marking                             | string                                                | <code>"MU"</code>                                                                                                                                                        |<br>| Null                                | null                                                  | <code>null</code>                                                                                                                                                        |<br>| Object Set                          | string OR the object set definition                   | <code>ri.object-set.main.versioned-object-set.h13274m8-23f5-431c-8aee-a4554157c57z</code>                                                                                |<br>| Ontology Object Reference           | JSON encoding of the object's primary key             | <code>10033123</code> or <code>"EMP1234"</code>                                                                                                                                     |<br>| Ontology Interface Object Reference | JSON encoding of the object's API name and primary key| <code>{"objectTypeApiName":"Employee", "primaryKeyValue":"EMP1234"}</code>                                                                                               |<br>| Ontology Object Type Reference      | string of the object type's api name                  | <code>"Employee"</code>                                                                                                                                                  |<br>| Scenario Reference                  | string of the scenario RID                            | <code>"ri.actions..scenario.cf2a8a49-8b56-446d-ab04-a6bc7fadef48"</code>                                                                                                 |<br>| Set                                 | array                                                 | <code>["alpha", "bravo", "charlie"]</code>                                                                                                                               |<br>| Short                               | number                                                | <code>8739</code>                                                                                                                                                        |<br>| String                              | string                                                | <code>"Call me Ishmael"</code>                                                                                                                                           |<br>| Struct                              | JSON object                                           | <code>{"name": "John Doe", "age": 42}</code>                                                                                                                             |<br>| TwoDimensionalAggregation           | JSON object                                           | <code>{"groups": [{"key": "alpha", "value": 100}, {"key": "beta", "value": 101}]}</code>                                                                                 |<br>| ThreeDimensionalAggregation         | JSON object                                           | <code>{"groups": [{"key": "NYC", "groups": [{"key": "Engineer", "value" : 100}]}]}</code>                                                                                |<br>| Timestamp                           | ISO 8601 extended offset date-time string in UTC zone | <code>"2021-01-04T05:00:00Z"</code>                                                                                                                                      |</td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.data.ActionTypeV2.parameters.ActionParameterV2.validation.defaultValidation.allowedValues.range.gt.parameterLength</code></td>
+<td>object</td>
+<td>否</td>
+<td>The bound is the number of elements in another list parameter's value on the same action type. Clients<br>should tolerate a reference that cannot be resolved, as the referenced parameter is not itself guaranteed<br>to be surfaced.</td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.data.ActionTypeV2.parameters.ActionParameterV2.validation.defaultValidation.allowedValues.range.gt.parameterLength.parameterId</code></td>
+<td>string</td>
+<td>是</td>
+<td>The unique identifier of the parameter. Parameters are used as inputs when an action or query is applied.<br>Parameters can be viewed and managed in the <strong>Ontology Manager</strong>.</td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.data.ActionTypeV2.parameters.ActionParameterV2.validation.defaultValidation.allowedValues.range.gt.parameterValue</code></td>
+<td>object</td>
+<td>否</td>
+<td>The bound is the value of another parameter on the same action type. Clients should tolerate a reference<br>that cannot be resolved, as the referenced parameter is not itself guaranteed to be surfaced.</td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.data.ActionTypeV2.parameters.ActionParameterV2.validation.defaultValidation.allowedValues.range.gt.parameterValue.parameterId</code></td>
+<td>string</td>
+<td>是</td>
+<td>The unique identifier of the parameter. Parameters are used as inputs when an action or query is applied.<br>Parameters can be viewed and managed in the <strong>Ontology Manager</strong>.</td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.data.ActionTypeV2.parameters.ActionParameterV2.validation.defaultValidation.allowedValues.range.gte</code></td>
+<td>union</td>
+<td>否</td>
+<td>The source of a constraint bound value: either a literal or a reference to another parameter that is<br>resolved when the action is validated or applied.</td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.data.ActionTypeV2.parameters.ActionParameterV2.validation.defaultValidation.allowedValues.range.gte.static</code></td>
+<td>object</td>
+<td>否</td>
+<td>A literal constraint value.</td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.data.ActionTypeV2.parameters.ActionParameterV2.validation.defaultValidation.allowedValues.range.gte.static.value</code></td>
+<td>any</td>
+<td>是</td>
+<td>Represents the value of data in the following format. Note that these values can be nested, for example an array of structs.<br>| Type                                | JSON encoding                                         | Example                                                                                                                                                       |<br>|-------------------------------------|-------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------|<br>| Array                               | array                                                 | <code>["alpha", "bravo", "charlie"]</code>                                                                                                                               |<br>| Attachment                          | string                                                | <code>"ri.attachments.main.attachment.2f944bae-5851-4204-8615-920c969a9f2e"</code>                                                                                       |<br>| Boolean                             | boolean                                               | <code>true</code>                                                                                                                                                        |<br>| Byte                                | number                                                | <code>31</code>                                                                                                                                                          |<br>| CipherText                          | string                                                | <code>"CIPHER::ri.bellaso.main.cipher-channel.e414ab9e-b606-499a-a0e1-844fa296ba7e::unzjs3VifsTxuIpf1fH1CJ7OaPBr2bzMMdozPaZJtCii8vVG60yXIEmzoOJaEl9mfFFe::CIPHER"</code> |<br>| Date                                | ISO 8601 extended local date string                   | <code>"2021-05-01"</code>                                                                                                                                                |<br>| Decimal                             | string                                                | <code>"2.718281828"</code>                                                                                                                                               |<br>| Double                              | number                                                | <code>3.14159265</code>                                                                                                                                                  |<br>| EntrySet                            | array of JSON objects                                 | <code>[{"key": "EMP1234", "value": "true"}, {"key": "EMP4444", "value": "false"}]</code>                                                                                 |<br>| Float                               | number                                                | <code>3.14159265</code>                                                                                                                                                  |<br>| Integer                             | number                                                | <code>238940</code>                                                                                                                                                      |<br>| Long                                | string                                                | <code>"58319870951433"</code>                                                                                                                                            |<br>| Marking                             | string                                                | <code>"MU"</code>                                                                                                                                                        |<br>| Null                                | null                                                  | <code>null</code>                                                                                                                                                        |<br>| Object Set                          | string OR the object set definition                   | <code>ri.object-set.main.versioned-object-set.h13274m8-23f5-431c-8aee-a4554157c57z</code>                                                                                |<br>| Ontology Object Reference           | JSON encoding of the object's primary key             | <code>10033123</code> or <code>"EMP1234"</code>                                                                                                                                     |<br>| Ontology Interface Object Reference | JSON encoding of the object's API name and primary key| <code>{"objectTypeApiName":"Employee", "primaryKeyValue":"EMP1234"}</code>                                                                                               |<br>| Ontology Object Type Reference      | string of the object type's api name                  | <code>"Employee"</code>                                                                                                                                                  |<br>| Scenario Reference                  | string of the scenario RID                            | <code>"ri.actions..scenario.cf2a8a49-8b56-446d-ab04-a6bc7fadef48"</code>                                                                                                 |<br>| Set                                 | array                                                 | <code>["alpha", "bravo", "charlie"]</code>                                                                                                                               |<br>| Short                               | number                                                | <code>8739</code>                                                                                                                                                        |<br>| String                              | string                                                | <code>"Call me Ishmael"</code>                                                                                                                                           |<br>| Struct                              | JSON object                                           | <code>{"name": "John Doe", "age": 42}</code>                                                                                                                             |<br>| TwoDimensionalAggregation           | JSON object                                           | <code>{"groups": [{"key": "alpha", "value": 100}, {"key": "beta", "value": 101}]}</code>                                                                                 |<br>| ThreeDimensionalAggregation         | JSON object                                           | <code>{"groups": [{"key": "NYC", "groups": [{"key": "Engineer", "value" : 100}]}]}</code>                                                                                |<br>| Timestamp                           | ISO 8601 extended offset date-time string in UTC zone | <code>"2021-01-04T05:00:00Z"</code>                                                                                                                                      |</td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.data.ActionTypeV2.parameters.ActionParameterV2.validation.defaultValidation.allowedValues.range.gte.parameterLength</code></td>
+<td>object</td>
+<td>否</td>
+<td>The bound is the number of elements in another list parameter's value on the same action type. Clients<br>should tolerate a reference that cannot be resolved, as the referenced parameter is not itself guaranteed<br>to be surfaced.</td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.data.ActionTypeV2.parameters.ActionParameterV2.validation.defaultValidation.allowedValues.range.gte.parameterLength.parameterId</code></td>
+<td>string</td>
+<td>是</td>
+<td>The unique identifier of the parameter. Parameters are used as inputs when an action or query is applied.<br>Parameters can be viewed and managed in the <strong>Ontology Manager</strong>.</td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.data.ActionTypeV2.parameters.ActionParameterV2.validation.defaultValidation.allowedValues.range.gte.parameterValue</code></td>
+<td>object</td>
+<td>否</td>
+<td>The bound is the value of another parameter on the same action type. Clients should tolerate a reference<br>that cannot be resolved, as the referenced parameter is not itself guaranteed to be surfaced.</td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.data.ActionTypeV2.parameters.ActionParameterV2.validation.defaultValidation.allowedValues.range.gte.parameterValue.parameterId</code></td>
+<td>string</td>
+<td>是</td>
+<td>The unique identifier of the parameter. Parameters are used as inputs when an action or query is applied.<br>Parameters can be viewed and managed in the <strong>Ontology Manager</strong>.</td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.data.ActionTypeV2.parameters.ActionParameterV2.validation.defaultValidation.allowedValues.range.lt</code></td>
+<td>union</td>
+<td>否</td>
+<td>The source of a constraint bound value: either a literal or a reference to another parameter that is<br>resolved when the action is validated or applied.</td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.data.ActionTypeV2.parameters.ActionParameterV2.validation.defaultValidation.allowedValues.range.lt.static</code></td>
+<td>object</td>
+<td>否</td>
+<td>A literal constraint value.</td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.data.ActionTypeV2.parameters.ActionParameterV2.validation.defaultValidation.allowedValues.range.lt.static.value</code></td>
+<td>any</td>
+<td>是</td>
+<td>Represents the value of data in the following format. Note that these values can be nested, for example an array of structs.<br>| Type                                | JSON encoding                                         | Example                                                                                                                                                       |<br>|-------------------------------------|-------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------|<br>| Array                               | array                                                 | <code>["alpha", "bravo", "charlie"]</code>                                                                                                                               |<br>| Attachment                          | string                                                | <code>"ri.attachments.main.attachment.2f944bae-5851-4204-8615-920c969a9f2e"</code>                                                                                       |<br>| Boolean                             | boolean                                               | <code>true</code>                                                                                                                                                        |<br>| Byte                                | number                                                | <code>31</code>                                                                                                                                                          |<br>| CipherText                          | string                                                | <code>"CIPHER::ri.bellaso.main.cipher-channel.e414ab9e-b606-499a-a0e1-844fa296ba7e::unzjs3VifsTxuIpf1fH1CJ7OaPBr2bzMMdozPaZJtCii8vVG60yXIEmzoOJaEl9mfFFe::CIPHER"</code> |<br>| Date                                | ISO 8601 extended local date string                   | <code>"2021-05-01"</code>                                                                                                                                                |<br>| Decimal                             | string                                                | <code>"2.718281828"</code>                                                                                                                                               |<br>| Double                              | number                                                | <code>3.14159265</code>                                                                                                                                                  |<br>| EntrySet                            | array of JSON objects                                 | <code>[{"key": "EMP1234", "value": "true"}, {"key": "EMP4444", "value": "false"}]</code>                                                                                 |<br>| Float                               | number                                                | <code>3.14159265</code>                                                                                                                                                  |<br>| Integer                             | number                                                | <code>238940</code>                                                                                                                                                      |<br>| Long                                | string                                                | <code>"58319870951433"</code>                                                                                                                                            |<br>| Marking                             | string                                                | <code>"MU"</code>                                                                                                                                                        |<br>| Null                                | null                                                  | <code>null</code>                                                                                                                                                        |<br>| Object Set                          | string OR the object set definition                   | <code>ri.object-set.main.versioned-object-set.h13274m8-23f5-431c-8aee-a4554157c57z</code>                                                                                |<br>| Ontology Object Reference           | JSON encoding of the object's primary key             | <code>10033123</code> or <code>"EMP1234"</code>                                                                                                                                     |<br>| Ontology Interface Object Reference | JSON encoding of the object's API name and primary key| <code>{"objectTypeApiName":"Employee", "primaryKeyValue":"EMP1234"}</code>                                                                                               |<br>| Ontology Object Type Reference      | string of the object type's api name                  | <code>"Employee"</code>                                                                                                                                                  |<br>| Scenario Reference                  | string of the scenario RID                            | <code>"ri.actions..scenario.cf2a8a49-8b56-446d-ab04-a6bc7fadef48"</code>                                                                                                 |<br>| Set                                 | array                                                 | <code>["alpha", "bravo", "charlie"]</code>                                                                                                                               |<br>| Short                               | number                                                | <code>8739</code>                                                                                                                                                        |<br>| String                              | string                                                | <code>"Call me Ishmael"</code>                                                                                                                                           |<br>| Struct                              | JSON object                                           | <code>{"name": "John Doe", "age": 42}</code>                                                                                                                             |<br>| TwoDimensionalAggregation           | JSON object                                           | <code>{"groups": [{"key": "alpha", "value": 100}, {"key": "beta", "value": 101}]}</code>                                                                                 |<br>| ThreeDimensionalAggregation         | JSON object                                           | <code>{"groups": [{"key": "NYC", "groups": [{"key": "Engineer", "value" : 100}]}]}</code>                                                                                |<br>| Timestamp                           | ISO 8601 extended offset date-time string in UTC zone | <code>"2021-01-04T05:00:00Z"</code>                                                                                                                                      |</td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.data.ActionTypeV2.parameters.ActionParameterV2.validation.defaultValidation.allowedValues.range.lt.parameterLength</code></td>
+<td>object</td>
+<td>否</td>
+<td>The bound is the number of elements in another list parameter's value on the same action type. Clients<br>should tolerate a reference that cannot be resolved, as the referenced parameter is not itself guaranteed<br>to be surfaced.</td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.data.ActionTypeV2.parameters.ActionParameterV2.validation.defaultValidation.allowedValues.range.lt.parameterLength.parameterId</code></td>
+<td>string</td>
+<td>是</td>
+<td>The unique identifier of the parameter. Parameters are used as inputs when an action or query is applied.<br>Parameters can be viewed and managed in the <strong>Ontology Manager</strong>.</td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.data.ActionTypeV2.parameters.ActionParameterV2.validation.defaultValidation.allowedValues.range.lt.parameterValue</code></td>
+<td>object</td>
+<td>否</td>
+<td>The bound is the value of another parameter on the same action type. Clients should tolerate a reference<br>that cannot be resolved, as the referenced parameter is not itself guaranteed to be surfaced.</td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.data.ActionTypeV2.parameters.ActionParameterV2.validation.defaultValidation.allowedValues.range.lt.parameterValue.parameterId</code></td>
+<td>string</td>
+<td>是</td>
+<td>The unique identifier of the parameter. Parameters are used as inputs when an action or query is applied.<br>Parameters can be viewed and managed in the <strong>Ontology Manager</strong>.</td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.data.ActionTypeV2.parameters.ActionParameterV2.validation.defaultValidation.allowedValues.range.lte</code></td>
+<td>union</td>
+<td>否</td>
+<td>The source of a constraint bound value: either a literal or a reference to another parameter that is<br>resolved when the action is validated or applied.</td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.data.ActionTypeV2.parameters.ActionParameterV2.validation.defaultValidation.allowedValues.range.lte.static</code></td>
+<td>object</td>
+<td>否</td>
+<td>A literal constraint value.</td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.data.ActionTypeV2.parameters.ActionParameterV2.validation.defaultValidation.allowedValues.range.lte.static.value</code></td>
+<td>any</td>
+<td>是</td>
+<td>Represents the value of data in the following format. Note that these values can be nested, for example an array of structs.<br>| Type                                | JSON encoding                                         | Example                                                                                                                                                       |<br>|-------------------------------------|-------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------|<br>| Array                               | array                                                 | <code>["alpha", "bravo", "charlie"]</code>                                                                                                                               |<br>| Attachment                          | string                                                | <code>"ri.attachments.main.attachment.2f944bae-5851-4204-8615-920c969a9f2e"</code>                                                                                       |<br>| Boolean                             | boolean                                               | <code>true</code>                                                                                                                                                        |<br>| Byte                                | number                                                | <code>31</code>                                                                                                                                                          |<br>| CipherText                          | string                                                | <code>"CIPHER::ri.bellaso.main.cipher-channel.e414ab9e-b606-499a-a0e1-844fa296ba7e::unzjs3VifsTxuIpf1fH1CJ7OaPBr2bzMMdozPaZJtCii8vVG60yXIEmzoOJaEl9mfFFe::CIPHER"</code> |<br>| Date                                | ISO 8601 extended local date string                   | <code>"2021-05-01"</code>                                                                                                                                                |<br>| Decimal                             | string                                                | <code>"2.718281828"</code>                                                                                                                                               |<br>| Double                              | number                                                | <code>3.14159265</code>                                                                                                                                                  |<br>| EntrySet                            | array of JSON objects                                 | <code>[{"key": "EMP1234", "value": "true"}, {"key": "EMP4444", "value": "false"}]</code>                                                                                 |<br>| Float                               | number                                                | <code>3.14159265</code>                                                                                                                                                  |<br>| Integer                             | number                                                | <code>238940</code>                                                                                                                                                      |<br>| Long                                | string                                                | <code>"58319870951433"</code>                                                                                                                                            |<br>| Marking                             | string                                                | <code>"MU"</code>                                                                                                                                                        |<br>| Null                                | null                                                  | <code>null</code>                                                                                                                                                        |<br>| Object Set                          | string OR the object set definition                   | <code>ri.object-set.main.versioned-object-set.h13274m8-23f5-431c-8aee-a4554157c57z</code>                                                                                |<br>| Ontology Object Reference           | JSON encoding of the object's primary key             | <code>10033123</code> or <code>"EMP1234"</code>                                                                                                                                     |<br>| Ontology Interface Object Reference | JSON encoding of the object's API name and primary key| <code>{"objectTypeApiName":"Employee", "primaryKeyValue":"EMP1234"}</code>                                                                                               |<br>| Ontology Object Type Reference      | string of the object type's api name                  | <code>"Employee"</code>                                                                                                                                                  |<br>| Scenario Reference                  | string of the scenario RID                            | <code>"ri.actions..scenario.cf2a8a49-8b56-446d-ab04-a6bc7fadef48"</code>                                                                                                 |<br>| Set                                 | array                                                 | <code>["alpha", "bravo", "charlie"]</code>                                                                                                                               |<br>| Short                               | number                                                | <code>8739</code>                                                                                                                                                        |<br>| String                              | string                                                | <code>"Call me Ishmael"</code>                                                                                                                                           |<br>| Struct                              | JSON object                                           | <code>{"name": "John Doe", "age": 42}</code>                                                                                                                             |<br>| TwoDimensionalAggregation           | JSON object                                           | <code>{"groups": [{"key": "alpha", "value": 100}, {"key": "beta", "value": 101}]}</code>                                                                                 |<br>| ThreeDimensionalAggregation         | JSON object                                           | <code>{"groups": [{"key": "NYC", "groups": [{"key": "Engineer", "value" : 100}]}]}</code>                                                                                |<br>| Timestamp                           | ISO 8601 extended offset date-time string in UTC zone | <code>"2021-01-04T05:00:00Z"</code>                                                                                                                                      |</td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.data.ActionTypeV2.parameters.ActionParameterV2.validation.defaultValidation.allowedValues.range.lte.parameterLength</code></td>
+<td>object</td>
+<td>否</td>
+<td>The bound is the number of elements in another list parameter's value on the same action type. Clients<br>should tolerate a reference that cannot be resolved, as the referenced parameter is not itself guaranteed<br>to be surfaced.</td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.data.ActionTypeV2.parameters.ActionParameterV2.validation.defaultValidation.allowedValues.range.lte.parameterLength.parameterId</code></td>
+<td>string</td>
+<td>是</td>
+<td>The unique identifier of the parameter. Parameters are used as inputs when an action or query is applied.<br>Parameters can be viewed and managed in the <strong>Ontology Manager</strong>.</td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.data.ActionTypeV2.parameters.ActionParameterV2.validation.defaultValidation.allowedValues.range.lte.parameterValue</code></td>
+<td>object</td>
+<td>否</td>
+<td>The bound is the value of another parameter on the same action type. Clients should tolerate a reference<br>that cannot be resolved, as the referenced parameter is not itself guaranteed to be surfaced.</td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.data.ActionTypeV2.parameters.ActionParameterV2.validation.defaultValidation.allowedValues.range.lte.parameterValue.parameterId</code></td>
+<td>string</td>
+<td>是</td>
+<td>The unique identifier of the parameter. Parameters are used as inputs when an action or query is applied.<br>Parameters can be viewed and managed in the <strong>Ontology Manager</strong>.</td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.data.ActionTypeV2.parameters.ActionParameterV2.validation.defaultValidation.allowedValues.mustBeEmpty</code></td>
+<td>object</td>
+<td>否</td>
+<td>The parameter must be omitted or empty.</td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.data.ActionTypeV2.parameters.ActionParameterV2.validation.defaultValidation.allowedValues.text</code></td>
+<td>object</td>
+<td>否</td>
+<td>The parameter value (a string) must satisfy the configured length bounds and/or regex<br>pattern.</td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.data.ActionTypeV2.parameters.ActionParameterV2.validation.defaultValidation.allowedValues.text.gte</code></td>
+<td>integer</td>
+<td>否</td>
+<td>Character length greater than or equal.</td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.data.ActionTypeV2.parameters.ActionParameterV2.validation.defaultValidation.allowedValues.text.lte</code></td>
+<td>integer</td>
+<td>否</td>
+<td>Character length less than or equal.</td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.data.ActionTypeV2.parameters.ActionParameterV2.validation.defaultValidation.allowedValues.text.regex</code></td>
+<td>string</td>
+<td>否</td>
+<td>The regular expression. Format and supported syntax match Elasticsearch regex semantics.</td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.data.ActionTypeV2.parameters.ActionParameterV2.validation.defaultValidation.allowedValues.text.configuredFailureMessage</code></td>
+<td>string</td>
+<td>否</td>
+<td>Message returned when the value does not match the pattern.</td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.data.ActionTypeV2.parameters.ActionParameterV2.validation.defaultValidation.arraySize</code></td>
+<td>object</td>
+<td>否</td>
+<td>Bounds on the size of an array-typed parameter.</td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.data.ActionTypeV2.parameters.ActionParameterV2.validation.defaultValidation.arraySize.gte</code></td>
+<td>integer</td>
+<td>否</td>
+<td>Greater than or equal.</td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.data.ActionTypeV2.parameters.ActionParameterV2.validation.defaultValidation.arraySize.lte</code></td>
+<td>integer</td>
+<td>否</td>
+<td>Less than or equal.</td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.data.ActionTypeV2.rid</code></td>
+<td>string</td>
+<td>是</td>
+<td>The unique resource identifier of an action type, useful for interacting with other Foundry APIs.</td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.data.ActionTypeV2.operations</code></td>
+<td>list<LogicRule></td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.data.ActionTypeV2.operations.LogicRule</code></td>
+<td>union</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.data.ActionTypeV2.operations.LogicRule.deleteInterfaceObject</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.data.ActionTypeV2.operations.LogicRule.deleteInterfaceObject.interfaceTypeApiName</code></td>
+<td>string</td>
+<td>是</td>
+<td>The name of the interface type in the API in UpperCamelCase format. To find the API name for your interface<br>type, use the <code>List interface types</code> endpoint or check the <strong>Ontology Manager</strong>.</td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.data.ActionTypeV2.operations.LogicRule.modifyInterfaceObject</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.data.ActionTypeV2.operations.LogicRule.modifyInterfaceObject.interfaceTypeApiName</code></td>
+<td>string</td>
+<td>是</td>
+<td>The name of the interface type in the API in UpperCamelCase format. To find the API name for your interface<br>type, use the <code>List interface types</code> endpoint or check the <strong>Ontology Manager</strong>.</td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.data.ActionTypeV2.operations.LogicRule.modifyObject</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.data.ActionTypeV2.operations.LogicRule.modifyObject.objectTypeApiName</code></td>
+<td>string</td>
+<td>是</td>
+<td>The name of the object type in the API in camelCase format. To find the API name for your Object Type, use the<br><code>List object types</code> endpoint or check the <strong>Ontology Manager</strong>.</td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.data.ActionTypeV2.operations.LogicRule.deleteObject</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.data.ActionTypeV2.operations.LogicRule.deleteObject.objectTypeApiName</code></td>
+<td>string</td>
+<td>是</td>
+<td>The name of the object type in the API in camelCase format. To find the API name for your Object Type, use the<br><code>List object types</code> endpoint or check the <strong>Ontology Manager</strong>.</td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.data.ActionTypeV2.operations.LogicRule.createInterfaceObject</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.data.ActionTypeV2.operations.LogicRule.createInterfaceObject.interfaceTypeApiName</code></td>
+<td>string</td>
+<td>是</td>
+<td>The name of the interface type in the API in UpperCamelCase format. To find the API name for your interface<br>type, use the <code>List interface types</code> endpoint or check the <strong>Ontology Manager</strong>.</td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.data.ActionTypeV2.operations.LogicRule.deleteLink</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.data.ActionTypeV2.operations.LogicRule.deleteLink.linkTypeApiNameAtoB</code></td>
+<td>string</td>
+<td>是</td>
+<td>The name of the link type in the API. To find the API name for your Link Type, check the <strong>Ontology Manager</strong><br>application.</td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.data.ActionTypeV2.operations.LogicRule.deleteLink.linkTypeApiNameBtoA</code></td>
+<td>string</td>
+<td>是</td>
+<td>The name of the link type in the API. To find the API name for your Link Type, check the <strong>Ontology Manager</strong><br>application.</td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.data.ActionTypeV2.operations.LogicRule.deleteLink.aSideObjectTypeApiName</code></td>
+<td>string</td>
+<td>是</td>
+<td>The name of the object type in the API in camelCase format. To find the API name for your Object Type, use the<br><code>List object types</code> endpoint or check the <strong>Ontology Manager</strong>.</td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.data.ActionTypeV2.operations.LogicRule.deleteLink.bSideObjectTypeApiName</code></td>
+<td>string</td>
+<td>是</td>
+<td>The name of the object type in the API in camelCase format. To find the API name for your Object Type, use the<br><code>List object types</code> endpoint or check the <strong>Ontology Manager</strong>.</td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.data.ActionTypeV2.operations.LogicRule.createObject</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.data.ActionTypeV2.operations.LogicRule.createObject.objectTypeApiName</code></td>
+<td>string</td>
+<td>是</td>
+<td>The name of the object type in the API in camelCase format. To find the API name for your Object Type, use the<br><code>List object types</code> endpoint or check the <strong>Ontology Manager</strong>.</td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.data.ActionTypeV2.operations.LogicRule.createLink</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.data.ActionTypeV2.operations.LogicRule.createLink.linkTypeApiNameAtoB</code></td>
+<td>string</td>
+<td>是</td>
+<td>The name of the link type in the API. To find the API name for your Link Type, check the <strong>Ontology Manager</strong><br>application.</td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.data.ActionTypeV2.operations.LogicRule.createLink.linkTypeApiNameBtoA</code></td>
+<td>string</td>
+<td>是</td>
+<td>The name of the link type in the API. To find the API name for your Link Type, check the <strong>Ontology Manager</strong><br>application.</td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.data.ActionTypeV2.operations.LogicRule.createLink.aSideObjectTypeApiName</code></td>
+<td>string</td>
+<td>是</td>
+<td>The name of the object type in the API in camelCase format. To find the API name for your Object Type, use the<br><code>List object types</code> endpoint or check the <strong>Ontology Manager</strong>.</td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.data.ActionTypeV2.operations.LogicRule.createLink.bSideObjectTypeApiName</code></td>
+<td>string</td>
+<td>是</td>
+<td>The name of the object type in the API in camelCase format. To find the API name for your Object Type, use the<br><code>List object types</code> endpoint or check the <strong>Ontology Manager</strong>.</td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.data.ActionTypeV2.operations.LogicRule.applyScenario</code></td>
+<td>object</td>
+<td>否</td>
+<td>An Action rule that applies the edits accumulated on a referenced Scenario onto the ontology data context<br>where the Action is applied. If the Action is applied in the context of main ontology data, the edits are<br>applied there. If the Action is applied in the context of another Scenario, the edits are applied in that<br>other Scenario.<br>The scenario is supplied through the parameter identified by <code>scenarioParameter</code> of type<br><code>scenarioReference</code>. The affected object types and link types are explicitly enumerated in the scope.</td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.data.ActionTypeV2.operations.LogicRule.applyScenario.scenarioParameter</code></td>
+<td>string</td>
+<td>是</td>
+<td>The unique identifier of the parameter. Parameters are used as inputs when an action or query is applied.<br>Parameters can be viewed and managed in the <strong>Ontology Manager</strong>.</td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.data.ActionTypeV2.operations.LogicRule.applyScenario.objectTypeApiNames</code></td>
+<td>list<ObjectTypeApiName></td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.data.ActionTypeV2.operations.LogicRule.applyScenario.objectTypeApiNames.ObjectTypeApiName</code></td>
+<td>string</td>
+<td>是</td>
+<td>The name of the object type in the API in camelCase format. To find the API name for your Object Type, use the<br><code>List object types</code> endpoint or check the <strong>Ontology Manager</strong>.</td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.data.ActionTypeV2.operations.LogicRule.applyScenario.linkTypes</code></td>
+<td>list<ObjectTypeLinkTypeApiNameMapping></td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.data.ActionTypeV2.operations.LogicRule.applyScenario.linkTypes.ObjectTypeLinkTypeApiNameMapping</code></td>
+<td>object</td>
+<td>是</td>
+<td>Groups link type API names by the object type they're scoped to. Link type API names are only unique within<br>an object type, so this pairing is required to identify a link type unambiguously.</td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.data.ActionTypeV2.operations.LogicRule.applyScenario.linkTypes.ObjectTypeLinkTypeApiNameMapping.objectTypeApiName</code></td>
+<td>string</td>
+<td>是</td>
+<td>The name of the object type in the API in camelCase format. To find the API name for your Object Type, use the<br><code>List object types</code> endpoint or check the <strong>Ontology Manager</strong>.</td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.data.ActionTypeV2.operations.LogicRule.applyScenario.linkTypes.ObjectTypeLinkTypeApiNameMapping.linkTypes</code></td>
+<td>list<LinkTypeApiName></td>
+<td>否</td>
+<td>The list of link type API names scoped by the object type.</td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.data.ActionTypeV2.operations.LogicRule.applyScenario.linkTypes.ObjectTypeLinkTypeApiNameMapping.linkTypes.LinkTypeApiName</code></td>
+<td>string</td>
+<td>是</td>
+<td>The name of the link type in the API. To find the API name for your Link Type, check the <strong>Ontology Manager</strong><br>application.</td>
+</tr>
+<tr>
+<td><code>ListActionTypesResponseV2.data.ActionTypeV2.toolDescription</code></td>
+<td>string</td>
+<td>否</td>
+<td>Optional description intended for tool use contexts, such as AI agents.</td>
+</tr>
+</tbody>
+</table>
+<pre><code class="language-json">{
+  &quot;nextPageToken&quot;: &quot;v1.QnVpbGQgdGhlIEZ1dHVyZTogaHR0cHM6Ly93d3cucGFsYW50aXIuY29tL2NhcmVlcnMvP2xldmVyLXNvdXJjZSU1YiU1ZD1BUElEb2NzI29wZW4tcG9zaXRpb25z&quot;,
+  &quot;data&quot;: [
+    {
+      &quot;apiName&quot;: &quot;promote-employee&quot;,
+      &quot;description&quot;: &quot;Update an employee's title and compensation&quot;,
+      &quot;parameters&quot;: {
+        &quot;employeeId&quot;: {
+          &quot;dataType&quot;: {
+            &quot;type&quot;: &quot;integer&quot;
+          }
+        },
+        &quot;newTitle&quot;: {
+          &quot;dataType&quot;: {
+            &quot;type&quot;: &quot;string&quot;
+          }
+        },
+        &quot;newCompensation&quot;: {
+          &quot;dataType&quot;: {
+            &quot;type&quot;: &quot;double&quot;
+          }
+        }
+      },
+      &quot;rid&quot;: &quot;ri.ontology.main.action-type.7ed72754-7491-428a-bb18-4d7296eb2167&quot;
+    },
+    {
+      &quot;apiName&quot;: &quot;move-office&quot;,
+      &quot;description&quot;: &quot;Update an office's physical location&quot;,
+      &quot;parameters&quot;: {
+        &quot;officeId&quot;: {
+          &quot;dataType&quot;: {
+            &quot;type&quot;: &quot;string&quot;
+          }
+        },
+        &quot;newAddress&quot;: {
+          &quot;description&quot;: &quot;The office's new physical address (not necessarily shipping address)&quot;,
+          &quot;dataType&quot;: {
+            &quot;type&quot;: &quot;string&quot;
+          }
+        },
+        &quot;newCapacity&quot;: {
+          &quot;description&quot;: &quot;The maximum seated-at-desk capacity of the new office (maximum fire-safe capacity may be higher)&quot;,
+          &quot;dataType&quot;: {
+            &quot;type&quot;: &quot;integer&quot;
+          }
+        }
+      },
+      &quot;rid&quot;: &quot;ri.ontology.main.action-type.9f84017d-cf17-4fa8-84c3-8e01e5d594f2&quot;
+    }
+  ]
+}
+</code></pre>
+</body>
+</html>

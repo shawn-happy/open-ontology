@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Parse Classifications</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../../../index.html">返回目录</a></div>
+<p><code>POST /api/v2/admin/markings/parseClassifications</code></p>
+<p>:::callout{theme=warning title=Warning}
+  This endpoint is in preview and may be modified or removed at any time.
+  To use this endpoint, add <code>preview=true</code> to the request query parameters.
+:::</p>
+<p>Parses classification marking strings (e.g. 'S//NF') into their component marking IDs. Strings that cannot be parsed are returned in 'errors' with a human-readable message.</p>
+<p>Third-party applications using this endpoint via OAuth2 must request the following operation scope: <code>api:admin-read</code>.</p>
+<p><strong>OAuth2 scopes</strong>: <code>api:admin-read</code></p>
+<h2>Query parameters</h2>
+<table>
+<thead>
+<tr>
+<th>参数</th>
+<th>类型</th>
+<th>必填</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>preview</code></td>
+<td>boolean</td>
+<td>否</td>
+<td>Enables the use of preview functionality.<br>示例: <code>true</code></td>
+</tr>
+</tbody>
+</table>
+<h2>Request body</h2>
+<pre><code class="language-json">{
+  &quot;classificationStrings&quot;: [
+    &quot;MTS//MNF&quot;,
+    &quot;INVALID_MARKING&quot;
+  ]
+}
+</code></pre>
+<h2>Response</h2>
+<p><strong>ParseClassificationsResponse</strong></p>
+<table>
+<thead>
+<tr>
+<th>参数</th>
+<th>类型</th>
+<th>必填</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ParseClassificationsResponse</code></td>
+<td>object</td>
+<td>是</td>
+<td>示例: <code>{"parsed":{"MTS//MNF":["MNF","MTS"]},"errors":{"INVALID_MARKING":"Unknown marking: INVALID_MARKING"}}</code></td>
+</tr>
+<tr>
+<td><code>ParseClassificationsResponse.parsed</code></td>
+<td>map</td>
+<td>否</td>
+<td>Map of valid classification strings to their component marking IDs. Strings that could not be parsed are absent from this map and appear in 'errors' instead.<br>示例: <code>{"MTS//MNF":["MNF","MTS"]}</code></td>
+</tr>
+<tr>
+<td><code>ParseClassificationsResponse.parsed.array</code></td>
+<td>list<MarkingId></td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ParseClassificationsResponse.parsed.array.MarkingId</code></td>
+<td>string</td>
+<td>是</td>
+<td>The ID of a security marking.</td>
+</tr>
+<tr>
+<td><code>ParseClassificationsResponse.errors</code></td>
+<td>map</td>
+<td>否</td>
+<td>Map of classification strings that could not be parsed to a human-readable error message.<br>示例: <code>{"INVALID_MARKING":"Unknown marking: INVALID_MARKING"}</code></td>
+</tr>
+</tbody>
+</table>
+<pre><code class="language-json">{
+  &quot;parsed&quot;: {
+    &quot;MTS//MNF&quot;: [
+      &quot;MNF&quot;,
+      &quot;MTS&quot;
+    ]
+  },
+  &quot;errors&quot;: {
+    &quot;INVALID_MARKING&quot;: &quot;Unknown marking: INVALID_MARKING&quot;
+  }
+}
+</code></pre>
+<h2>Error responses</h2>
+<table>
+<thead>
+<tr>
+<th>错误码</th>
+<th>错误名称</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>PERMISSION_DENIED</td>
+<td><code>ParseClassificationsPermissionDenied</code></td>
+<td>The provided token does not have permission to parse the given classification strings.</td>
+</tr>
+<tr>
+<td>INVALID_ARGUMENT</td>
+<td><code>CbacUnavailable</code></td>
+<td>CBAC is not available.</td>
+</tr>
+</tbody>
+</table>
+</body>
+</html>

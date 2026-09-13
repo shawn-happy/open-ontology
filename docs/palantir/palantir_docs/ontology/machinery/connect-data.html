@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Connect data to Machinery</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Connect data to Machinery</h1>
+<p>By connecting a process to a datasource, you can bridge the gap between an abstract process definition and real-world observations. This data can be used to conduct initial <a href="https://www.palantir.com/docs/foundry/machinery/process-mining/">process mining</a> or to <a href="https://www.palantir.com/docs/foundry/machinery/analyze-and-monitor/">monitor performance and find bottlenecks</a>.</p>
+<p>Machinery connects to two types of object data in the ontology: <a href="#process-objects">process objects</a> and <a href="#log-objects">log objects</a>. The side panel for data configuration is accessible through the main toolbox or from process containers.</p>
+<h2>Process objects</h2>
+<p>A process object is an entity that goes through a process.</p>
+<p>For example, this may be an <code>Employee</code> for an onboarding process, or an <code>Invoice</code> for a purchase-to-pay process. The state of the entity is explicitly tracked by a string property, typically called <code>state</code>. The values of the <code>state</code> property (for instance, "created" or "approved") are represented by state nodes on the graph.</p>
+<p>:::callout{theme="neutral"}
+A state value may have dependencies, like submission criteria in actions or automations that are triggered by a certain state condition. Changing the state value in Machinery does not update these dependencies, nor does it change the values in the ontology data.
+:::</p>
+<p>In the multi-process setting, each process container captures exactly one state property on an object type.</p>
+<p><img alt="Example of a multiple object type process, showcasing multiple processes, nesting, and hierarchy." src="../../_resources/foundry/machinery/multiple-object-type-processes.png" /></p>
+<p>As in the resource example screenshot above, an object type can have multiple state properties; for instance, a coarse state and a granular state.</p>
+<p>The process object type represents the latest state of the entity, and therefore cannot inform on state transitions and temporal patterns.</p>
+<p><img src="../../_resources/external-54112c0db29c.png" width=350 alt="Ontology configuration side panel." ></p>
+<h2>Log objects</h2>
+<p>A log object represents an individual change to an entityâs state. Log objects contain a reference to the process entity, its previous state, its new state, and the timing of the transitions.</p>
+<ul>
+<li><strong>Log ID (string) [required]:</strong> The primary key of the log object.</li>
+<li><strong>Process ID (string) [required]:</strong> The primary key of the process object that is being tracked. Use when setting up an Ontology link between the process object and the Log object.</li>
+<li><strong>Old state (string) [required]:</strong> The start state of the transition.</li>
+<li><strong>New state (string) [required]:</strong> The end state of the transition.</li>
+<li><strong>Timestamp (timestamp) [required]:</strong> Timestamp of entering the end state.</li>
+<li><strong>isLatest (boolean) [optional]:</strong> True if this log is the most recent for the process object, otherwise False.</li>
+<li><strong>Duration (long) [optional]:</strong> Duration in milliseconds since entering the old state.</li>
+<li><strong>Path (string) [optional]:</strong> A list of all states encountered so far, including the current state. Must be a serialized JSON string.</li>
+<li><strong>Action type RID (string) [optional]:</strong> An identifier of the action type that caused the transition. Typically, <code>NULL</code> for external changes.</li>
+<li><strong>Owning RID (string) [optional]:</strong> An identifier of the application from which the action was executed. Allows discrimination between manual and automated Actions. <code>NULL</code> for external changes.</li>
+</ul>
+<p>Maintaining such a log requires orchestration when edits are made. Machinery provides a standard solution that can be installed from within the application. Setting up a log object type requires a process object type.</p>
+<p><img src="../../_resources/external-8917f454d94b.png" width=350 alt="Ontology configuration side panel." ></p>
+<p>A dialog will guide you through the setup. You can choose which source of edits you want to track:</p>
+<ul>
+<li>If the process object type receives changes from external datasource, you can select and configure a changelog dataset.</li>
+<li>If the process object type can be edited in the platform, you can choose to <a href="https://www.palantir.com/docs/foundry/object-edits/user-edit-history/">enable edit history on the process object type</a> and include those edits in the log object type. Machinery will automatically create a materialization dataset of the edit history to make it available for aggregated analysis.</li>
+</ul>
+<p>:::callout{theme="neutral"}
+Tracking logs from platform edits for object types with multiple datasources or row-level permissions is currently not supported.
+:::</p>
+<p>If you want to track changes from external datasources, you must select a dataset in standard changelog format, which is a simpler version of Machineryâs log object type schema. That dataset is typically upstream of the object type datasource, and contains the following columns:</p>
+<ul>
+<li><strong>processId (string) [required]:</strong> A unique identifier of the process entity.</li>
+<li><strong>state (string) [required]:</strong> The new state the process has entered.</li>
+<li><strong>timestamp (timestamp) [required]:</strong> The timestamp at which the transition occurred.</li>
+<li><strong>isDeleted (boolean) [optional]:</strong> Property that flags an entity as deleted. If isDeleted of the latest log is <code>True</code>, that object will not appear in the ontology.</li>
+</ul>
+<p>On confirmation, Machinery will install a <a href="https://www.palantir.com/docs/foundry/marketplace/overview/">Marketplace product</a> into a folder of your choosing. This product contains a <a href="https://www.palantir.com/docs/foundry/pipeline-builder/overview/">Pipeline Builder</a> pipeline that computes log entries from the configured sources into the correct format. The product also deploys the log object type itself with an ontology link to your process object type.</p>
+<p>After the installation is complete, the pipeline needs to complete an initial build, and the log object type needs to be indexed in the databases before the data is available for mining and monitoring.</p>
+<p>:::callout{theme="neutral"}
+The deployed pipeline is scheduled to run on every change to any of its datasources. As a result, the log object type lags behind the process object type by one build and one indexing job, typically about 2-5 minutes. If you require real-time updates, you need to maintain a custom log object type.
+:::</p>
+<p>You can manually map a custom log object type if it fulfills the minimal schema.</p>
+</body>
+</html>

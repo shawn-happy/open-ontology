@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Publish and deploy custom endpoints</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Publish and deploy custom endpoints</h1>
+<p>After configuring your custom endpoints, you can test and deploy them by cutting a new release of your endpoint set. Each new release is a snapshot of your current configuration, and can be managed with semantic versioning. See <a href="https://www.palantir.com/docs/foundry/custom-endpoints/core-concepts/#endpoint-set-publishing-and-releases">endpoint set publishing</a> for more information.</p>
+<h2>Publish and deploy a new endpoint set release</h2>
+<p>Follow the instructions below to publish a new endpoint set release:</p>
+<ol>
+<li>Open the endpoint set to be published in the Custom Endpoints application and navigate to the <strong>Versions</strong> tab.</li>
+<li>Select <strong>Tag and deploy new version</strong> in the top right of the <strong>Endpoint set versions</strong> table to create a new endpoint set release. To avoid automatically deploying this version, select <strong>Tag without deploying</strong>. <br><br>
+   <img alt="The 'Tag and deploy new version' option in the 'Versions' tab." src="../../_resources/foundry/custom-endpoints/versions-page.png" /></li>
+</ol>
+<h2>Test your custom endpoints</h2>
+<p>Versions should be accessible on approved subdomains immediately after the version is published and deployed. Follow the instructions below to test your custom endpoints:</p>
+<ol>
+<li>Get the <code>FOUNDRY_TOKEN</code> environment variable in your terminal with a <a href="https://www.palantir.com/docs/foundry/platform-security-third-party/user-generated-tokens/">user-generated token</a> with the following command, or the equivalent for your operating system.</li>
+</ol>
+<p><code>bash
+   export FOUNDRY_TOKEN=&lt;token&gt;</code></p>
+<ol start="2">
+<li>
+<p>In the <strong>Versions</strong> tab of your endpoint set, select your <strong>Deployed Version &gt; Custom Endpoint</strong> and copy the example CURL request provided. You can also view the endpoint configuration here. <br><br>
+   <img alt="Tag and deploy a new version." src="../../_resources/foundry/custom-endpoints/endpoint-configuration-display.png" /> <br><br></p>
+</li>
+<li>
+<p>Run the CURL command, and you should now be able to interact directly with the ontology using your custom endpoint.</p>
+</li>
+</ol>
+<p>For details on using custom endpoints in production, refer to <a href="https://www.palantir.com/docs/foundry/custom-endpoints/use-custom-endpoints/">Using custom endpoints in your applications</a>.</p>
+<h2>Manage releases through multi-version deployment</h2>
+<p>You can manage your releases, ensure stability, and test your endpoints with multi-version deployment. This offering allows beta, stable, and legacy versions to all be accessible on a single subdomain. You can access an endpoint's deployed version by passing in an <code>endpoint-api-version</code> header in your request.</p>
+<p><img alt="Multiple deployed versions." src="../../_resources/foundry/custom-endpoints/multiple-versions.png" /></p>
+</body>
+</html>

@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AIP Assist application integrations</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>AIP Assist application integrations</h1>
+<p>AIP Assist offers various integration points with other applications on the Palantir platform, and we are continuously evaluating them to improve and expand AIP Assistâs footprint. These integrations streamline common workflows and reduce the frictional cost of getting help from AIP Assist. If you have any ideas for additional, high-value integrations,let us know by posting in the <a href="https://community.palantir.com/c/get-involved/9">Get Involved â</a> section of our Developer Community forum. AIP Assist application integrations are designed to be highly visible in-platform, but you can also consult the reference below to explore the available integrations.</p>
+<h2>AIP Assist in Code Repositories</h2>
+<h3>Ask AIP Assist</h3>
+<p>When viewing a code file in Code Repositories, you will see the <strong>Ask AIP Assist</strong> helper, which provides a series of preconfigured, code-related actions that AIP Assist can take to aid development.</p>
+<p><img src="../../_resources/external-7f161de1dfed.png" alt='The "Ask AIP Assist" option in Code Repositories.' width="500"></p>
+<h3>Code repository attachments</h3>
+<p>In Code Repositories, the AIP Assist sidebar displays configuration options that allow you to include attachments to provide AIP Assist with additional context. You can choose to include a number of different components, including the entire repository, one or multiple files, or a highlighted snippet of code.</p>
+<p><img src="../../_resources/external-6c5c7a40b827.png" alt="The AIP Assist attachment options in Code Repositories." width="500"></p>
+<p>With this functionality you can ask AIP Assist to:</p>
+<ul>
+<li>Explain the relationship between different files.</li>
+<li>Optimize code snippets.</li>
+<li>Search for particular code across the repository.</li>
+<li>Summarize or explain snippets, files, or the entire repository.</li>
+</ul>
+<p><img src="../../_resources/external-325d7668eb9b.png" alt="A sample question to AIP Assist asking for optimized code." width="500"></p>
+<p>AIP Assist will also have access to the metadata of referenced datasets and objects in attachments, enabling users to ask specific questions about Ontology objects and input or output datasets.</p>
+<p><img alt="A sample question asking AIP Assist about dataset metadata." src="../../_resources/foundry/assist/aip-assist-input-dataset.png" /></p>
+<h2>AIP Assist in Carbon workspaces</h2>
+<p>You can select <strong>Enable AIP Assist</strong> in Carbon workspaces to allow users to interact with AIP Assist chatbots (formerly AIP Assist agents) that are tailored to support specific user groups. This requires that dedicated AIP Assist chatbots be configured in <a href="https://www.palantir.com/docs/foundry/chatbot-studio/overview/">AIP Chatbot Studio</a> for users to interact with.</p>
+<p>For more information refer to <a href="https://www.palantir.com/docs/foundry/carbon/configuration-general/#enable-aip-assist">enabling AIP Assist in Carbon workspaces</a>.</p>
+<h2>AIP Assist in Contour</h2>
+<p>When using the expression board in Contour, you can ask AIP Assist to perform a few different actions related to authoring expressions, such as explaining code, finding bugs, and translating code into expressions.</p>
+<p><img alt="AIP Assist options in Contour." src="../../_resources/foundry/assist/aip-assist-in-contour.png" /></p>
+<h2>AIP Assist in Workshop</h2>
+<h3>Send to AIP Assist</h3>
+<p>The Workshop Button widget allows developers to add a <code>Send to AIP Assist</code> event that will open AIP Assist and ask it a preconfigured prompt that is either based on static text or a dynamic variable value.</p>
+<p>This functionality is powerful when used in coordination with AIP Assist Agents that are trained on custom documentation about the Workshop application in which the Send to AIP Assist button widget is used. When configuring the <code>Send to AIP Assist</code> event in Workshop, it is possible to set the default AIP Assist Agent that will be used when responding to the configured prompt.</p>
+<p>For more information refer to the <code>Send to AIP Assist</code> event <a href="https://www.palantir.com/docs/foundry/workshop/concepts-events/#aip-assist">documentation</a>.</p>
+<h2>AIP Assist in Slate</h2>
+<h3>Ask AIP Assist</h3>
+<p>You can use the <code>slate.askAIPAssist</code> action to open <a href="https://www.palantir.com/docs/foundry/assist/overview/">AIP Assist</a>, and specify an optional <code>prompt</code> string argument that will be sent to AIP Assist as the user's message. The <code>prompt</code> can be derived from the current user's application state to enable targeted questions to AIP Assist.</p>
+<p>For more information refer to the <a href="https://www.palantir.com/docs/foundry/slate/concepts-events-and-actions-index/#slateaskaipassist">Slate Ask AIP Assist</a> documentation.</p>
+<h2>AIP Assist in Issues</h2>
+<h3>AIP Assist in the issue submission form</h3>
+<p>To facilitate in-platform support, AIP Assist has been incorporated into the issue filing flow in the Issues application. Users can select <strong>Open AIP Assist and get immediate help</strong> to consult AIP Assist before filing issues.</p>
+<p><img src="../../_resources/external-b2075ba62edd.png" alt="AIP Assist in the issue submission flow." width="500"></p>
+<h3>AIP Assist in issues</h3>
+<p>If you have already created an issue, you can use integrated AIP Assist tools to get immediate support. AIP Assist can either provide an answer to the issue based on issue information and user questions, or summarize a lengthy issue to optimize issue resolution.</p>
+<p><img src="../../_resources/external-2857b365e08d.png" alt="The option to ask AIP Assist to answer or summarize an issue." width="500"></p>
+<h2>AIP Assist in Ontology Manager</h2>
+<p>AIP Assist has been integrated with Ontology Manager to aid in the resolution of errors during Ontology updates. When updating an Ontology, navigate to the <strong>Errors</strong> tab and select <strong>Explain with AIP Assist</strong> on an error to have AIP Assist provide suggested actions for error resolution and error explanations.</p>
+<p><img alt="The AIP Assist option in Ontology Manager." src="../../_resources/foundry/assist/aip-assist-ontology-manager.png" /></p>
+</body>
+</html>

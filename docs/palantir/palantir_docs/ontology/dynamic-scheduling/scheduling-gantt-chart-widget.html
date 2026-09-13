@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Scheduling Gantt Chart widget</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Scheduling Gantt Chart widget</h1>
+<p>The Scheduling Gantt Chart is a Workshop widget that renders an interactive Gantt chart for scheduling or resource allocation workflows. Before setting up the widget, ensure you have configured your <a href="https://www.palantir.com/docs/foundry/dynamic-scheduling/scheduling-ontology-primitives/">dynamic scheduling Ontology</a>.</p>
+<p>Module builders configuring a Scheduling Gantt Chart widget can:</p>
+<ul>
+<li>Set title and sub-title properties for resource object rows (including icons and function backed properties).</li>
+<li>Select actions, events, and recommendations that appear in right-click menus.</li>
+<li>Choose a <a href="https://www.palantir.com/docs/foundry/dynamic-scheduling/scheduling-schedule-layer-style/">puck style</a> and customize colors and interactions (allocation behavior, snap behavior) for pucks.</li>
+</ul>
+<p>In the example below, the Scheduling Gantt Chart assigns pilots to flights.</p>
+<p><img src="../../_resources/external-f88afdb0cde0.png" alt="Scheduling Gantt chart example: Assigning pilots to flights." width="800" ></p>
+<h2>Widget layout</h2>
+<p>The image below provides an overview of the widget layout.</p>
+<p><img src="../../_resources/external-8ac0920fb2a8.png" alt="Sample widget layout." width="1000" ></p>
+<ol>
+<li><strong>Schedule objects (pucks):</strong> Each schedule object is rendered as a puck on the Scheduling Gantt Chart. Users can drag and drop these pucks to update the objectâs start time, end time, and/or linked resource object. Pucks are backed by two additional capabilities:
+   * <strong>Schedule object details:</strong> Appear as a card when the cursor hovers over a puck. By default the card will show the start/end time, the status of any rules configured on the schedule object type, and a link to the object view. Builders can also add properties they would like displayed.
+   * <strong>Right-click menu:</strong> Triggered when a user right-clicks on a puck. Builders can configure actions, events, and recommendations.</li>
+<li><strong>Resource object or rows:</strong> Each resource object is rendered as a row in the Scheduling Gantt Chart.
+   * <strong>Resource object details:</strong> Appear as a card when the cursor hovers over a row. Cards display the object title, properties selected by the application builder and a link to the object view.</li>
+<li><strong>Search bar:</strong> The Scheduling Gantt Chart widget includes an in-widget search bar. Results will be highlighted with a yellow border as users enter search terms. Pressing the <code>Enter</code> key will create a new search group with the results.</li>
+<li><strong>Violation rules filter:</strong> The violation rules filter is used to focus on aspects of the schedule that need attention. You can toggle on/off the rules to be evaluated for their schedule and filter down to objects that are violating selected rules.</li>
+<li><strong>User preferences (deprecated):</strong> Users can define and save their preferred setup. Customizable options include:
+   * <strong>Timezone:</strong> By default, all timestamps in Foundry are in UTC. This feature will handle the timezone offset for user selections.
+   * <strong>Collapse pucks:</strong> The widget will automatically consolidate overlapping pucks into a single puck to preserve screen real-estate. This toggle allows users to turn this feature on and off.
+   * <strong>Show time now line:</strong> Current time will be represented by a red vertical line.
+   * <strong>Expand legend:</strong> Determine if the legend is to be expanded or collapsed by default.
+   * <strong>Expand unscheduled:</strong> Determine if the unscheduled drawer is to expanded or collapsed by default.
+   * <strong>Expand all nested pucks:</strong> Determine if nested pucks are to be expanded or collapsed by default.
+   * <strong>Scroll to pucks on external selection:</strong> If enabled, when users select a schedule object outside of the widget, the timeline will scroll to the location of the selected object.
+   * <strong>Persist row widths:</strong> Users are able to resize the width of resource object rows by dragging the row border. The width preference may be saved so that width does not reset to default when the application is reloaded.
+   * <strong>Persist row/grouping order:</strong> Users are able to manually reorder resource object rows by dragging and dropping them. The order preference may be saved so that the order does not reset to default when the application is reloaded.</li>
+<li><strong>Unscheduled drawer:</strong> Schedule objects are considered unscheduled if they do not have both a start/end time and a linked resource object. If any or all of these properties are null, schedule object pucks will appear in the unscheduled drawer.</li>
+<li><strong>Change log:</strong> The change log keeps track of all edits a user has made to their schedule.</li>
+<li><strong>Review changes:</strong> This option will be displayed when using scenarios. Selecting it generates a pop-up with a summary of all Ontology edits made in the active scenario and any remaining validation rule violations. Confirm to execute the Ontology edits.</li>
+</ol>
+<h2>Widget setup</h2>
+<p>The Scheduling Gantt Chart widget includes several required and optional configuration settings. This section presents an overview, and the required settings are specifically marked as such.</p>
+<h3>Timeline data</h3>
+<ul>
+<li><strong>Start Timestamp [REQUIRED]:</strong> The beginning of the timeline.</li>
+<li><strong>End Timestamp [REQUIRED]:</strong> The end of the timeline.</li>
+</ul>
+<h3>Timeline configuration</h3>
+<ul>
+<li><strong>Custom Display Range:</strong> Configure the time period that is displayed in the timeline when users initially open the Workshop module. Users will be able to scroll the full length of the Scheduling Gantt Chart, unless specified elsewhere.</li>
+<li><strong>Custom Timeline Grid Precision:</strong> Select a unit of time for Gantt chart grid lines that will override default grid lines.</li>
+<li><strong>Disable timeline zoom and scroll:</strong> Disable users' ability to use the timeline scroll or zoom features.</li>
+<li><strong>Operating Hours:</strong> Delineate ranges in the chart as "Operating/non-operating". These regions will be shaded in different colors. You can configure daily schedules, custom time ranges, or weekday-based schedules. Optionally, enable <strong>Collapse by default</strong> to collapse non-operating hours when the Gantt chart initially renders.</li>
+<li><strong>Timeline Date-Time Formatting:</strong> Customize the date and time formatting for the timeline at different zoom levels. You can configure format strings for minute, hour, day, week, month, quarter, and year milestones. If no format is provided, a default will be used.</li>
+</ul>
+<h3>Row data</h3>
+<ul>
+<li><strong>Fixed Resource Object Set [REQUIRED]:</strong> Rendered in the interface as the rows of the Scheduling Gantt Chart widget. Each object within the set will correspond to one row.</li>
+</ul>
+<h3>Row configuration</h3>
+<ul>
+<li><strong>Title Icon:</strong> Select an icon that appears alongside the title property of each row.</li>
+<li><strong>Row Title:</strong> Select a property to override the default row title. You can also toggle whether the row title is displayed when the property value is null.</li>
+<li><strong>Sub-Titles:</strong> Select one or more properties of the resource object set that will appear underneath the object title. Additionally, select an icon for each sub-title, as demonstrated in the image below. <br><br> <img src="../../_resources/external-6138575ccdf3.png" alt="Scheduling Gantt Chart widget with subtitles configured." width="200" > <br><br></li>
+<li><strong>Group-By Property:</strong> Select a property of a fixed resource object set that divides fixed resources (rows) into subgroups. The defined groups can be opened or closed via a toggle in chart. In the below example, the resources have been divided into the groups "Garden City," "Garza," and "Hoople." <br><br> <img src="../../_resources/external-0c6c2a43630a.png" alt="Scheduling Gantt Chart widget grouping configuration." width="300" > <br><br> <img src="../../_resources/external-bb9d1387de2a.png" alt="Scheduling Gantt Chart widget grouping configuration." width="300" > <br><br></li>
+<li><strong>Default Sorts:</strong> Allow one or more default sorts to be applied to the ordering of rows in the chart.</li>
+<li><strong>Right Click Menu:</strong> See <a href="https://www.palantir.com/docs/foundry/dynamic-scheduling/scheduling-row-level-triggering-actions-and-events/">triggering actions and events on a row</a> for more information.</li>
+<li><strong>Action configuration:</strong> Configure actions related to resource object type. These actions can be standard Ontology create, modify, or delete actions, or a custom <a href="https://www.palantir.com/docs/foundry/functions/functions-on-objects/">FoO-backed action</a>.</li>
+<li><strong>Search function:</strong> Configure row-level recommendation function. This function is initiated when the user right-clicks a time in the chart where there is nothing scheduled. The placement of cursor corresponds to a specific time and resource object which can then be used as inputs to the function.</li>
+<li><strong>On Row Select Event:</strong> Configure Workshop events to trigger when a row is selected in the chart. For example, cause a drawer with a more detailed object view to appear.</li>
+<li><strong>Popover Actions:</strong> Configure actions to replace the default popover that appears when hovering over a row.</li>
+</ul>
+<h3>Input data (pucks)</h3>
+<p>Each schedule layer is configured independently within the <strong>Input Data (Pucks)</strong> section. A schedule layer represents a set of <code>Schedule</code> objects displayed as pucks on the Gantt chart. Each layer has its own sub-sections for data, drag-and-drop behavior, appearance, interactions, and rules.</p>
+<p>For each schedule layer, you can select a <a href="https://www.palantir.com/docs/foundry/dynamic-scheduling/scheduling-schedule-layer-style/">puck style</a> to change the visual representation. See <a href="https://www.palantir.com/docs/foundry/dynamic-scheduling/scheduling-schedule-layer-style/">schedule layer (puck) styling</a> for more information on puck styles, coloring, and properties.</p>
+<h4>Data</h4>
+<ul>
+<li><strong>Schedule Object Set [REQUIRED]:</strong> The <code>Schedule</code> objects to be rendered in the chart.</li>
+<li><strong>Linked Resource Property [REQUIRED]:</strong> The property from the <code>Schedule</code> object that links to the <code>Resource</code> object.</li>
+<li><strong>Start Time Property [REQUIRED]:</strong> The property from the <code>Schedule</code> object to use as the start time.</li>
+<li><strong>End Time Property [REQUIRED]:</strong> The property from the <code>Schedule</code> object to use as the end time.</li>
+<li><strong>Object set filter for unallocated pucks:</strong> An optional object filter that only applies to unallocated pucks.</li>
+</ul>
+<h4>Drag &amp; drop</h4>
+<p>The <strong>Drag &amp; Drop</strong> sub-section configures how pucks can be moved within the chart. See the <a href="https://www.palantir.com/docs/foundry/dynamic-scheduling/scheduling-drag-and-drop/">drag-and-drop documentation</a> for detailed setup instructions.</p>
+<ul>
+<li><strong>Allocation Behavior:</strong> Determine how the placement of pucks will occur in the Scheduling Gantt Chart. The predefined options include:</li>
+<li><strong>Allocate:</strong> Drag-and-drop pucks anywhere in the chart. Multiple pucks can be assigned to the same resource at the same time. <br><br> <img src="../../_resources/external-bf03243932bc.gif" alt="Puck behavior example: Allocate." width="600"> <br><br></li>
+<li><strong>Allocate (no overlaps):</strong> Similar to <strong>Allocate</strong>, this option ensures that pucks of the same object type do not overlap. When a puck is dropped on top of another puck, the existing puck, along with everything scheduled at a later time period, will automatically shift to prevent overlaps and maintain the sequence. <br><br> <img src="../../_resources/external-bdf960fa1499.gif" alt="Puck behavior example: Allocate no overlap." width="600"> <br><br></li>
+<li><strong>Allocate (resource only):</strong> This option enables built-in support for when schedule objects can only be moved to different resources.</li>
+<li><strong>Allocate (time only):</strong> This option enables built-in support for when schedule objects can only be moved in time.</li>
+<li><strong>Simple swap:</strong> Similar to <strong>Allocate (no overlaps)</strong> with the exception that when a puck is dropped on top of another puck, the pucks will switch places with one another. <br><br> <img src="../../_resources/external-31156dc30439.gif" alt="Puck behavior example: Swap." width="600"> <br><br></li>
+<li><strong>Swap with downstream:</strong> Similar to <strong>Simple swap</strong>, this option allows the selected pucks to switch places. However, in this case, all subsequent pucks assigned after the swapped pucks will also follow their respective predecessors, effectively shifting the entire sequence downstream. <br><br> <img src="../../_resources/external-4228315192de.gif" alt="Puck behavior example: Swap with downstream." width="600"> <br><br></li>
+<li>
+<p><strong>Snap to previous:</strong> Pucks will automatically snap to the end of the closest existing puck on a given row. <br><br> <img src="../../_resources/external-31156dc30439.gif" alt="Puck behavior example: Snap to previous." width="600"> <br><br></p>
+</li>
+<li>
+<p><strong>Snap Behavior:</strong> By default, users are able to assign objects to any time on the Scheduling Gantt Chart widget, down to the specific minute. Snap behavior allows builders to set defined intervals of when objects can be assigned. Once a puck is dropped to a new placement in the chart, the puck will snap to the beginning of the closest interval.</p>
+</li>
+</ul>
+<p>For example, a user configuring a schedule to support doctors' appointments may determine that all assignments (appointments) need to begin on the hour (:00) or half past the hour (:30).</p>
+<ul>
+<li>The <strong>Snap Interval Size</strong> should be the integer that determines the duration of each interval. In the example below, the interval is set to 8 hours. <br><br> <img src="../../_resources/external-1150853b2d91.gif" alt="Snap behavior example." width="600"> <br><br></li>
+<li>
+<p>The <strong>Start Timestamp</strong> option refers to the time at which the snap interval begins. By default, snap intervals begin at the start timestamp for the Scheduling Gantt Chart widget. When configured, this variable will override the default start and snap the puck into place at the configured time.</p>
+</li>
+<li>
+<p><strong>Save Handler Action:</strong> The action that is called when a puck is dragged and dropped or resized.</p>
+</li>
+<li>A save handler must modify the following parameters on the <code>Schedule</code> object. Each parameter must be marked as optional.<ul>
+<li>Resource ID (the foreign key to the resource object)</li>
+<li>Start time</li>
+<li>End time</li>
+</ul>
+</li>
+<li>When configuring a save handler action, you should supply widget provided parameters as the defaults. Refer to the scheduling <a href="https://www.palantir.com/docs/foundry/dynamic-scheduling/scheduling-drag-and-drop/">drag-and-drop documentation</a> for more information.</li>
+</ul>
+<h4>Appearance</h4>
+<ul>
+<li><strong>Color Config:</strong> Select the colors that will be used for all pucks in this schedule layer. You can choose from the following color options:</li>
+<li><strong>Static:</strong> When this is selected, all pucks will be the same color, chosen with a dropdown color picker. Statically colored pucks look like the image below. <br><br> <img src="../../_resources/external-a258ddc647c5.png" alt="Non-configured puck formatting." width="600" > <br><br></li>
+<li><strong>Segmented by:</strong> The Gantt will rotate through a set of default colors to color pucks on the chart. <br><br></li>
+<li><strong>Conditional coloring:</strong> Configure conditional coloring rules that determine puck colors based on property values.</li>
+<li><strong>Function-backed:</strong> Configure a <a href="https://www.palantir.com/docs/foundry/workshop/functions-use/">function</a> that returns a map from each schedule object to either a hex color string or a <a href="https://www.palantir.com/docs/foundry/functions/types-reference/">custom type</a> with <code>color</code> and <code>name</code> fields. Supplying <code>name</code> enables legend support.</li>
+<li><strong>Puck Title:</strong> Select a property to override the default puck title.</li>
+<li><strong>Puck Properties:</strong> Select properties to appear directly on each puck. Properties will appear on the puck in the same order as in the widget configuration.</li>
+<li><strong>Popover Properties:</strong> Select properties to display when hovering over each puck. Properties will display in the same order as declared in the configuration.</li>
+<li><strong>Puck Sort Order:</strong> Apply a sort on pucks when they are overlapping within a layer. This does not apply to background pucks.</li>
+</ul>
+<h4>Interactions</h4>
+<ul>
+<li><strong>Custom Suggestions:</strong> Select the suggestion function for your schedule object. The function results will be rendered as highlighted areas on the chart when users pick up a puck. This can be used to indicate where users can or should place pucks. When <strong>Enforce Suggestions</strong> is enabled, users can only drop pucks in highlighted regions (hold Shift to override). See <a href="https://www.palantir.com/docs/foundry/dynamic-scheduling/scheduling-suggestion-functions/">suggestion functions</a> for more information.</li>
+<li><strong>Drag Cursor to Create Action:</strong> Enables a drag action across the interface to create a new object for the schedulable object type. The user initiates action by holding Shift and dragging their cursor within the widget. See the <a href="https://www.palantir.com/docs/foundry/dynamic-scheduling/scheduling-drag-to-create/">drag to create documentation</a> for more information. <br><br> <img src="../../_resources/external-856ed6a0e633.gif" alt="Drag cursor to create action example." width="600"> <br><br></li>
+<li><strong>Right Click Menu:</strong></li>
+<li><strong>Action configuration:</strong> Configure actions related to the schedule object type. These may be standard Ontology create, modify, or delete actions, or a custom Function-on-Objects-backed action.</li>
+<li><strong>Search function:</strong> Configure puck-level recommendation function. This function is initiated when the user right-clicks a puck. The start/end time of the schedule object and the object itself can then be used as inputs to the function.</li>
+<li><strong>Events:</strong> Configure combinations of standard Workshop events that can be triggered within the widget.</li>
+<li><strong>Popover Actions:</strong> Configure actions that appear in tabs on the puck popover, replacing the default popover view.</li>
+<li><strong>Enable Cross Widget Drops:</strong> Allow users to drag objects from other widgets into this schedule layer. When enabled, configure a drop action that determines how the dropped object is processed.</li>
+<li><strong>On Puck Select Event:</strong> Configure Workshop events to trigger when a puck is selected in the chart.</li>
+</ul>
+<h4>Rules</h4>
+<p>Optional validation rules to apply to the schedule layer. See <a href="https://www.palantir.com/docs/foundry/dynamic-scheduling/scheduling-validation-rules/">validation rules</a> for more information.</p>
+<p>:::callout{theme="note"}
+Background and Event puck styles do not support Rules.
+:::</p>
+<h3>Layout</h3>
+<p>The <strong>Layout</strong> section is organized into four sub-sections that control the visual presentation of the widget.</p>
+<h4>Timeline</h4>
+<ul>
+<li><strong>Timeline Location:</strong> Places the timeline at either the top or bottom of the chart.</li>
+<li><strong>Display Cursor Time Flag:</strong> When toggled on, a vertical line with a flag will be rendered on the timeline corresponding to the placement of the cursor. You can configure the time display format for the flag. <br><br> <img src="../../_resources/external-ac1891c82633.png" alt="Display cursor time flag in schedule interface example." width="300" > <br><br></li>
+<li><strong>Timezone:</strong> Configure the timezone used for displaying times throughout the widget. This can be set to a static value or backed by a Workshop variable to allow dynamic timezone selection.</li>
+<li><strong>Expand Legend:</strong> Determine if the legend is expanded or collapsed by default.</li>
+</ul>
+<h4>Top bar</h4>
+<ul>
+<li><strong>Hide Header:</strong> Hides the header, including the search bar, validation rule filters, and user preferences.</li>
+<li><strong>Custom Header Date/Time Formatting:</strong> Configure a custom date and time format string for the header date range display.</li>
+</ul>
+<h4>Bottom bar</h4>
+<ul>
+<li><strong>Hide Footer:</strong> Hides the footer, including the unscheduled drawer, change log, and review option.</li>
+<li><strong>Hide Unscheduled:</strong> When toggled on, the unscheduled toggle button will be hidden.</li>
+<li><strong>Expand Unscheduled:</strong> When toggled on, the unscheduled pucks drawer will be expanded by default.</li>
+<li><strong>Standard Unallocated Puck Size:</strong> By default, the size of the puck is proportional to time duration, as in the image below. <br><br> <img src="../../_resources/external-0b9aba7906d0.png" alt="Example: Standard unallocated puck size." width="500" > <br><br>
+  When the <strong>Standard Unallocated Puck Size</strong> is toggled on, the puck size is standardized in the unallocated area, as in the image below. <br><br> <img src="../../_resources/external-9bbcabbce430.png" alt="Example: Standardized puck size." width="500" > <br><br></li>
+</ul>
+<h4>Puck display</h4>
+<ul>
+<li><strong>Split Rows by Schedule Layer:</strong> Each schedule layer contains a sub-row on a given fixed resource. The order of schedule layers and labels are determined in the <strong>Input Data (Pucks)</strong> setting and will appear when hovering over the object. This setting is toggled off by default and is only applicable when the application is configured with multiple schedule layers. <br><br> <img src="../../_resources/external-74b4978734f9.png" alt="Example: split rows by schedule layer." width="600" > <br><br></li>
+<li><strong>Expand All Nested Pucks:</strong> When enabled, pucks with nested children will be expanded by default.</li>
+<li><strong>Collapse overlapping pucks:</strong> The widget will consolidate overlapping pucks into a single puck to preserve screen real estate.</li>
+<li><strong>Disable Popovers:</strong> When toggled on, popovers are disabled.</li>
+</ul>
+<h3>Metrics</h3>
+<p>The <strong>Metrics</strong> section allows you to supply custom functions to add metrics to the Gantt chart. You can configure two types of metrics:</p>
+<ul>
+<li><strong>Header Metrics:</strong> Metrics that are aligned to the time axis of the chart.</li>
+<li><strong>Row Metrics:</strong> Metrics that are aligned to each row within the chart.</li>
+</ul>
+<p>See <a href="https://www.palantir.com/docs/foundry/dynamic-scheduling/scheduling-inline-metrics/">inline metrics</a> for more information.</p>
+<h3>Output</h3>
+<p>The Scheduling Gantt Chart widget generates output variables that can be used by other Workshop widgets to enhance your application. These output variables include:</p>
+<ul>
+<li><strong>Selected Objects:</strong> An object set of objects selected in the widget.</li>
+<li><strong>Search Results Output:</strong> An object set of the objects returned by the most recent search/recommendation. This output will only populate if the function returns objects.</li>
+<li><strong>User Preferences (deprecated):</strong> A serialized string that can be used with the module interface or state saving to persist saved user preferences.</li>
+</ul>
+<h3>Scenarios</h3>
+<p>Configure <a href="https://www.palantir.com/docs/foundry/ontology/overview-ontology-scenario/">Ontology scenarios</a> for the Scheduling Gantt Chart widget.</p>
+<ul>
+<li><strong>Enable Scenarios:</strong> When toggled on, allows the specification of a scenario variable that can be used in all other scenario-aware workflows. Actions made in the widget will first be written to the scenario. When toggled off, actions made in the widget will be written directly to the Ontology.</li>
+<li><strong>Disable Scenario:</strong> A boolean variable that controls whether scenarios are disabled. When set to true, actions are written directly to the Ontology.</li>
+</ul>
+</body>
+</html>

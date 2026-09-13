@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Get Access Requirements</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../../../index.html">返回目录</a></div>
+<p><code>GET /api/v2/filesystem/resources/{resourceRid}/getAccessRequirements</code></p>
+<p>Returns a list of access requirements a user needs in order to view a resource. Access requirements are
+composed of Organizations and Markings, and can either be applied directly to the resource or inherited.</p>
+<p>Third-party applications using this endpoint via OAuth2 must request the following operation scope: <code>api:filesystem-read</code>.</p>
+<p><strong>OAuth2 scopes</strong>: <code>api:filesystem-read</code></p>
+<h2>Path parameters</h2>
+<table>
+<thead>
+<tr>
+<th>参数</th>
+<th>类型</th>
+<th>必填</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>resourceRid</code></td>
+<td>string</td>
+<td>是</td>
+<td>The unique resource identifier (RID) of a resource.<br>示例: <code>ri.foundry.main.dataset.c26f11c8-cdb3-4f44-9f5d-9816ea1c82da</code></td>
+</tr>
+</tbody>
+</table>
+<h2>Response</h2>
+<p><strong>AccessRequirements</strong></p>
+<p>Access requirements for a resource are composed of Markings and Organizations. Organizations are disjunctive,<br>while Markings are conjunctive.</p>
+<table>
+<thead>
+<tr>
+<th>参数</th>
+<th>类型</th>
+<th>必填</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>AccessRequirements</code></td>
+<td>object</td>
+<td>是</td>
+<td>Access requirements for a resource are composed of Markings and Organizations. Organizations are disjunctive,<br>while Markings are conjunctive.<br>示例: <code>{"markings":[{"markingId":"18212f9a-0e63-4b79-96a0-aae04df23336"}],"organizations":[{"organizationRid":"ri.multipass..organization.c30ee6ad-b5e4-4afe-a74f-fe4a289f2faa","markingId":"18212f9a-0e63-4b79-96a0-aae04df23336"}]}</code></td>
+</tr>
+<tr>
+<td><code>AccessRequirements.organizations</code></td>
+<td>list<Organization></td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>AccessRequirements.organizations.Organization</code></td>
+<td>object</td>
+<td>是</td>
+<td><a href="https://www.palantir.com/docs/foundry/security/orgs-and-spaces/#organizations">Organizations</a> are access requirements applied to<br>Projects that enforce strict silos between groups of users and resources. Every user is a member of only<br>one Organization, but can be a guest member of multiple Organizations. In order to meet access requirements,<br>users must be a member or guest member of at least one Organization applied to a Project.<br>Organizations are inherited via the file hierarchy and direct dependencies.</td>
+</tr>
+<tr>
+<td><code>AccessRequirements.organizations.Organization.markingId</code></td>
+<td>string</td>
+<td>是</td>
+<td>The ID of a security marking.<br>示例: <code>18212f9a-0e63-4b79-96a0-aae04df23336</code></td>
+</tr>
+<tr>
+<td><code>AccessRequirements.organizations.Organization.organizationRid</code></td>
+<td>string</td>
+<td>是</td>
+<td>示例: <code>ri.multipass..organization.c30ee6ad-b5e4-4afe-a74f-fe4a289f2faa</code></td>
+</tr>
+<tr>
+<td><code>AccessRequirements.organizations.Organization.isDirectlyApplied</code></td>
+<td>boolean</td>
+<td>是</td>
+<td>Boolean flag to indicate if the marking is directly applied to the resource, or if it's applied<br>to a parent resource and inherited by the current resource.</td>
+</tr>
+<tr>
+<td><code>AccessRequirements.markings</code></td>
+<td>list<Marking></td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>AccessRequirements.markings.Marking</code></td>
+<td>object</td>
+<td>是</td>
+<td><a href="https://www.palantir.com/docs/foundry/security/markings/">Markings</a> provide an additional level of access control for files,<br>folders, and Projects within Foundry. Markings define eligibility criteria that restrict visibility<br>and actions to users who meet those criteria. To access a resource, a user must be a member of all<br>Markings applied to a resource to access it.</td>
+</tr>
+<tr>
+<td><code>AccessRequirements.markings.Marking.markingId</code></td>
+<td>string</td>
+<td>是</td>
+<td>The ID of a security marking.<br>示例: <code>18212f9a-0e63-4b79-96a0-aae04df23336</code></td>
+</tr>
+<tr>
+<td><code>AccessRequirements.markings.Marking.isDirectlyApplied</code></td>
+<td>boolean</td>
+<td>是</td>
+<td>Boolean flag to indicate if the marking is directly applied to the resource, or if it's applied<br>to a parent resource and inherited by the current resource.</td>
+</tr>
+</tbody>
+</table>
+<pre><code class="language-json">{
+  &quot;markings&quot;: [
+    {
+      &quot;markingId&quot;: &quot;18212f9a-0e63-4b79-96a0-aae04df23336&quot;
+    }
+  ],
+  &quot;organizations&quot;: [
+    {
+      &quot;organizationRid&quot;: &quot;ri.multipass..organization.c30ee6ad-b5e4-4afe-a74f-fe4a289f2faa&quot;,
+      &quot;markingId&quot;: &quot;18212f9a-0e63-4b79-96a0-aae04df23336&quot;
+    }
+  ]
+}
+</code></pre>
+<h2>Error responses</h2>
+<table>
+<thead>
+<tr>
+<th>错误码</th>
+<th>错误名称</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>PERMISSION_DENIED</td>
+<td><code>GetAccessRequirementsPermissionDenied</code></td>
+<td>Could not getAccessRequirements the Resource.</td>
+</tr>
+<tr>
+<td>NOT_FOUND</td>
+<td><code>ResourceNotFound</code></td>
+<td>The given Resource could not be found.</td>
+</tr>
+</tbody>
+</table>
+</body>
+</html>

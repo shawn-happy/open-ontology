@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Feature list: Palantir extension for Visual Studio Code</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Feature list: Palantir extension for Visual Studio Code</h1>
+<p>This page describes the features available in the Palantir extension for Visual Studio Code.</p>
+<ul>
+<li><a href="https://www.palantir.com/docs/foundry/palantir-extension-for-visual-studio-code/transforms-preview/">Transforms preview</a></li>
+<li><a href="https://www.palantir.com/docs/foundry/palantir-extension-for-visual-studio-code/active-preview/">Active preview</a></li>
+<li><a href="https://www.palantir.com/docs/foundry/palantir-extension-for-visual-studio-code/code-defined-filtering/">Code-defined input filters</a></li>
+<li><a href="https://www.palantir.com/docs/foundry/palantir-extension-for-visual-studio-code/debug-transforms/">Debug transforms</a></li>
+<li><a href="https://www.palantir.com/docs/foundry/palantir-extension-for-visual-studio-code/transforms-build/">Build transforms</a></li>
+<li><a href="https://www.palantir.com/docs/foundry/palantir-extension-for-visual-studio-code/transforms-type-hints/">Transforms type hints</a></li>
+<li><a href="https://www.palantir.com/docs/foundry/palantir-extension-for-visual-studio-code/python-libraries/">Python libraries</a></li>
+<li><a href="https://www.palantir.com/docs/foundry/palantir-extension-for-visual-studio-code/environment-debugger/">Debug Python environment</a></li>
+</ul>
+<h2>Commands</h2>
+<p>The following sections list the commands available in the Palantir extension for Visual Studio Code. Use these commands to enhance your workflow when working with Python transforms within the Palantir ecosystem, such as during pipeline development.</p>
+<p>If a command is not integrated within the interface, you can invoke it using the <strong>Command Palette</strong>. You can access the Command Palette with the <code>Cmd+Shift+P</code> (macOS) or <code>Ctrl+Shift+P</code> (Windows/Linux) keyboard shortcut.</p>
+<h3>Preview and build</h3>
+<h4>Run preview</h4>
+<p>Executes a preview of the current transform file.</p>
+<ul>
+<li>Command: <code>palantir.transforms.previewFile</code></li>
+<li>Icon: <img alt="The Run preview icon, which is a fast-forward symbol." src="../../_resources/external-7aa690460403.svg" width="30"></li>
+</ul>
+<h4>Build on Foundry</h4>
+<p>Initiates a build process for the selected file on Foundry.</p>
+<ul>
+<li>Command: <code>palantir.transforms.buildFile</code></li>
+<li>Icon: <img alt="The Build on Foundry icon, which is a hammer symbol." src="../../_resources/external-d885e0a3bcfa.svg" width="30"></li>
+</ul>
+<h4>Open preview panel</h4>
+<p>Displays the preview panel for quick access to transform previews.</p>
+<ul>
+<li>Command: <code>palantir.transforms.openPreviewPanel</code></li>
+</ul>
+<h3>Transform management</h3>
+<h4>Create new transform</h4>
+<p>Initializes a new transform project.</p>
+<ul>
+<li>Command: <code>palantir.transforms.createTransform</code></li>
+</ul>
+<h4>Install Python environment</h4>
+<p>Sets up the Python environment necessary for developing transforms.</p>
+<ul>
+<li>Command: <code>palantir.transforms.initializePythonEnvironment</code></li>
+</ul>
+<h4>Install Python test environment</h4>
+<p>Sets up the Python test environment for transform development.</p>
+<ul>
+<li>Command: <code>palantir.transforms.initializePythonTestEnvironment</code></li>
+</ul>
+<h3>Repository and file management</h3>
+<h4>Open file in browser</h4>
+<p>Opens the currently selected file in a web browser.</p>
+<ul>
+<li>Command: <code>palantir.openFileInBrowser</code></li>
+</ul>
+<h4>Open repository</h4>
+<p>Provides a quick way to access the repository in a web browser.</p>
+<ul>
+<li>Command: <code>palantir.openRepository</code></li>
+</ul>
+<h3>Accessibility</h3>
+<h4>High contrast display</h4>
+<p>Provides a quick way to toggle between high contrast and normal themes in VS Code.</p>
+<ul>
+<li>Command: <code>palantir.toggleHighContrastTheme</code></li>
+<li>Keyboard shortcut (macOS/Windows): <code>ctrl + option + h</code> / <code>ctrl + alt + h</code></li>
+</ul>
+<h3>Commands for local development only</h3>
+<h4>Clone code repository</h4>
+<p>Allows cloning of repositories for local development.</p>
+<ul>
+<li>Command: <code>palantir.cloneRepository</code></li>
+</ul>
+<h4>Restart Code Assist workspace</h4>
+<p>Restarts the workspace for Code Assist.</p>
+<ul>
+<li>Command: <code>palantir.code-assist.restartWorkspace</code></li>
+</ul>
+<h4>Refresh token</h4>
+<p>Refreshes the authentication token to maintain access to Palantir services.</p>
+<ul>
+<li>Command: <code>palantir.refreshToken</code></li>
+<li>Icon: <img alt="The refresh icon, which is a circle with an arrow at one end." src="../../_resources/external-780e1844b952.svg" width="30"></li>
+</ul>
+<h2>Snippets</h2>
+<p><a href="https://code.visualstudio.com/docs/editor/userdefinedsnippets">Snippets in Visual Studio Code â</a> are templates that make it easier to enter repeating code patterns.</p>
+<p>Below is a list of all available snippets in the Palantir extension for Visual Studio Code. The symbol <strong>â</strong> represents the <code>Tab</code> key.</p>
+<h3>Long-form snippets</h3>
+<table>
+<thead>
+<tr>
+<th>Snippet</th>
+<th>Output code template</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>python_transformâ</code></td>
+<td>A Python transform</td>
+</tr>
+<tr>
+<td><code>polars_transformâ</code></td>
+<td>A Python lightweight transform using Polars</td>
+</tr>
+<tr>
+<td><code>pandas_transformâ</code></td>
+<td>A Python lightweight transform using pandas</td>
+</tr>
+</tbody>
+</table>
+<h3>Short-form snippets</h3>
+<table>
+<thead>
+<tr>
+<th>Snippet</th>
+<th>Output code template</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ptfâ</code></td>
+<td>A Python transform</td>
+</tr>
+<tr>
+<td><code>pltfâ</code></td>
+<td>A Python lightweight transform using Polars</td>
+</tr>
+<tr>
+<td><code>pdtfâ</code></td>
+<td>A Python lightweight transform using pandas</td>
+</tr>
+</tbody>
+</table>
+</body>
+</html>

@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>List Spaces</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../../../index.html">返回目录</a></div>
+<p><code>GET /api/v2/filesystem/spaces</code></p>
+<p>Lists all Spaces.</p>
+<p>This is a paged endpoint. Each page may be smaller or larger than the requested page size. However, it is guaranteed that if there are more results available, the <code>nextPageToken</code> field will be populated. To get the next page, make the same request again, but set the value of the <code>pageToken</code> query parameter to be value of the <code>nextPageToken</code> value of the previous response. If there is no <code>nextPageToken</code> field in the response, you are on the last page.</p>
+<p>Third-party applications using this endpoint via OAuth2 must request the following operation scope: <code>api:filesystem-read</code>.</p>
+<p><strong>OAuth2 scopes</strong>: <code>api:filesystem-read</code></p>
+<h2>Query parameters</h2>
+<table>
+<thead>
+<tr>
+<th>参数</th>
+<th>类型</th>
+<th>必填</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>pageSize</code></td>
+<td>integer</td>
+<td>否</td>
+<td>The page size to use for the endpoint.</td>
+</tr>
+<tr>
+<td><code>pageToken</code></td>
+<td>string</td>
+<td>否</td>
+<td>The page token indicates where to start paging. This should be omitted from the first page's request.<br>To fetch the next page, clients should take the value from the <code>nextPageToken</code> field of the previous response<br>and use it to populate the <code>pageToken</code> field of the next request.</td>
+</tr>
+</tbody>
+</table>
+<h2>Response</h2>
+<p><strong>ListSpacesResponse</strong></p>
+<table>
+<thead>
+<tr>
+<th>参数</th>
+<th>类型</th>
+<th>必填</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ListSpacesResponse</code></td>
+<td>object</td>
+<td>是</td>
+<td>示例: <code>{"data":[{"path":"/My space-576e4","usageAccountRid":"ri.resource-policy-manager.global.usage-account.0c91194d-b5e3-4c4f-b96f-7a7f3f50e95c","fileSystemId":"hdfs","displayName":"My Space","organizations":["ri.multipass..organization.c30ee6ad-b5e4-4afe-a74f-fe4a289f2faa"],"description":"This space is for xyz","deletionPolicyOrganizations":["ri.multipass..organization.c30ee6ad-b5e4-4afe-a74f-fe4a289f2faa"],"defaultRoleSetId":"3181190f-f6b8-4649-90ec-64fa2d847204","spaceMavenIdentifier":"com.palantir.your-space","rid":"ri.compass.main.folder.c410f510-2937-420e-8ea3-8c9bcb3c1791"}],"nextPageToken":"v1.QnVpbGQgdGhlIEZ1dHVyZTogaHR0cHM6Ly93d3cucGFsYW50aXIuY29tL2NhcmVlcnMvP2xldmVyLXNvdXJjZSU1YiU1ZD1BUElEb2NzI29wZW4tcG9zaXRpb25z"}</code></td>
+</tr>
+<tr>
+<td><code>ListSpacesResponse.data</code></td>
+<td>list<Space></td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListSpacesResponse.data.Space</code></td>
+<td>object</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListSpacesResponse.data.Space.rid</code></td>
+<td>string</td>
+<td>是</td>
+<td>The unique resource identifier (RID) of a Space.<br>示例: <code>ri.compass.main.folder.c410f510-2937-420e-8ea3-8c9bcb3c1791</code></td>
+</tr>
+<tr>
+<td><code>ListSpacesResponse.data.Space.displayName</code></td>
+<td>string</td>
+<td>是</td>
+<td>The display name of the resource<br>示例: <code>My Space</code></td>
+</tr>
+<tr>
+<td><code>ListSpacesResponse.data.Space.description</code></td>
+<td>string</td>
+<td>否</td>
+<td>The description of the Space.<br>示例: <code>This space is for xyz</code></td>
+</tr>
+<tr>
+<td><code>ListSpacesResponse.data.Space.path</code></td>
+<td>string</td>
+<td>是</td>
+<td>The full path to the resource, including the resource name itself<br>示例: <code>/My space-576e4</code></td>
+</tr>
+<tr>
+<td><code>ListSpacesResponse.data.Space.fileSystemId</code></td>
+<td>string</td>
+<td>是</td>
+<td>The ID of the Filesystem for this Space, which is where the contents of the Space are stored. If not provided, the default Filesystem for this Enrollment will be used.<br>示例: <code>hdfs</code></td>
+</tr>
+<tr>
+<td><code>ListSpacesResponse.data.Space.usageAccountRid</code></td>
+<td>string</td>
+<td>是</td>
+<td>The RID of the Usage Account for this Space. Resource usage for projects in this space will accrue to this Usage Account by default. If not provided, the default Usage Account for this Enrollment will be used.<br>示例: <code>ri.resource-policy-manager.global.usage-account.0c91194d-b5e3-4c4f-b96f-7a7f3f50e95c</code></td>
+</tr>
+<tr>
+<td><code>ListSpacesResponse.data.Space.organizations</code></td>
+<td>list<OrganizationRid></td>
+<td>否</td>
+<td>The list of Organizations that are provisioned access to this Space. In order to access this Space, a user must be a member of at least one of these Organizations.</td>
+</tr>
+<tr>
+<td><code>ListSpacesResponse.data.Space.organizations.OrganizationRid</code></td>
+<td>string</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListSpacesResponse.data.Space.deletionPolicyOrganizations</code></td>
+<td>list<OrganizationRid></td>
+<td>否</td>
+<td>By default, this Space will use a Last Out deletion policy, meaning that this Space and its projects will be deleted when the last Organization listed here is deleted. Only Organizations in the Space's Enrollment can be included here.</td>
+</tr>
+<tr>
+<td><code>ListSpacesResponse.data.Space.deletionPolicyOrganizations.OrganizationRid</code></td>
+<td>string</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListSpacesResponse.data.Space.defaultRoleSetId</code></td>
+<td>string</td>
+<td>是</td>
+<td>The ID of the default Role Set for this Space, which defines the set of roles that Projects in this Space must use. If not provided, the default Role Set for Projects will be used.<br>示例: <code>3181190f-f6b8-4649-90ec-64fa2d847204</code></td>
+</tr>
+<tr>
+<td><code>ListSpacesResponse.data.Space.spaceMavenIdentifier</code></td>
+<td>string</td>
+<td>否</td>
+<td>The maven identifier used as the prefix to the maven coordinate that uniquely identifies resources published from this space. This is only present if configured in control panel in the space settings.<br>示例: <code>com.palantir.your-space</code></td>
+</tr>
+<tr>
+<td><code>ListSpacesResponse.nextPageToken</code></td>
+<td>string</td>
+<td>否</td>
+<td>The page token indicates where to start paging. This should be omitted from the first page's request.<br>To fetch the next page, clients should take the value from the <code>nextPageToken</code> field of the previous response<br>and use it to populate the <code>pageToken</code> field of the next request.</td>
+</tr>
+</tbody>
+</table>
+<pre><code class="language-json">{
+  &quot;data&quot;: [
+    {
+      &quot;path&quot;: &quot;/My space-576e4&quot;,
+      &quot;usageAccountRid&quot;: &quot;ri.resource-policy-manager.global.usage-account.0c91194d-b5e3-4c4f-b96f-7a7f3f50e95c&quot;,
+      &quot;fileSystemId&quot;: &quot;hdfs&quot;,
+      &quot;displayName&quot;: &quot;My Space&quot;,
+      &quot;organizations&quot;: [
+        &quot;ri.multipass..organization.c30ee6ad-b5e4-4afe-a74f-fe4a289f2faa&quot;
+      ],
+      &quot;description&quot;: &quot;This space is for xyz&quot;,
+      &quot;deletionPolicyOrganizations&quot;: [
+        &quot;ri.multipass..organization.c30ee6ad-b5e4-4afe-a74f-fe4a289f2faa&quot;
+      ],
+      &quot;defaultRoleSetId&quot;: &quot;3181190f-f6b8-4649-90ec-64fa2d847204&quot;,
+      &quot;spaceMavenIdentifier&quot;: &quot;com.palantir.your-space&quot;,
+      &quot;rid&quot;: &quot;ri.compass.main.folder.c410f510-2937-420e-8ea3-8c9bcb3c1791&quot;
+    }
+  ],
+  &quot;nextPageToken&quot;: &quot;v1.QnVpbGQgdGhlIEZ1dHVyZTogaHR0cHM6Ly93d3cucGFsYW50aXIuY29tL2NhcmVlcnMvP2xldmVyLXNvdXJjZSU1YiU1ZD1BUElEb2NzI29wZW4tcG9zaXRpb25z&quot;
+}
+</code></pre>
+</body>
+</html>

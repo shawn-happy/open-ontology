@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Getting started</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Getting started</h1>
+<p>This page explains the structure and configuration options available when using the Palantir R SDK to write data transformations in Foundry.</p>
+<h2>Repository structure</h2>
+<p>Each R transform is defined and configured by a transforms spec, with the definition written in YAML format and saved in the <code>.transforms</code> folder. The full content of the repo project will be available at runtime and can be used for the transform.</p>
+<pre><code>.
+âââ .transforms
+|    âââ happiness_ranking.yml
+|
+âââ project
+|    âââ src
+|        âââ top_10.R
+âââ .Rprofile
+</code></pre>
+<p>For R transforms published from <a href="https://www.palantir.com/docs/foundry/code-workspaces/overview/">Code Workspaces</a>, transform spec files are rendered and configurable via the UI.</p>
+<h2>Write and configure a simple R transform</h2>
+<p>In the example below, we write a simple data transformation that reads a tabular dataset, applies a filter using the R package <code>dplyr</code>, and produces an output dataset with the filtered result.</p>
+<pre><code class="language-R">library(foundry)
+library(dplyr)
+
+happiness_2019 &lt;- datasets.read_table(&quot;happiness_2019&quot;)
+top_10 &lt;- happiness_2019 %&gt;% filter(Overall_rank &lt;= 10)
+datasets.write_table(top_10, &quot;top_10_happiest_countries&quot;)
+
+</code></pre>
+<p>Here, we have the corresponding transform spec file that contains the definition of the transform:</p>
+<p>Replace the <code>dataset.rid</code> fields with the dataset RID of your input and output datasets. Note that output datasets must first be created manually as we do not currently support creating new output datasets during checks time.</p>
+<p>You can add additional inputs and outputs by adding a new item to the <code>inputs</code> or <code>outputs</code> list.</p>
+<pre><code class="language-yaml">inputs:
+- alias: &quot;happiness_2019&quot;
+  properties:
+    type: &quot;dataset&quot;
+    dataset:
+      rid: &quot;&lt;input dataset rid here&gt;&quot;
+outputs:
+- alias: &quot;top_10_happiest_countries&quot;
+  properties:
+    type: &quot;dataset&quot;
+    dataset:
+      rid: &quot;&lt;output dataset rid here&gt;&quot;
+- alias: &quot;second-output&quot;
+  properties:
+    type: &quot;dataset&quot;
+    dataset:
+      rid: &quot;&lt;second output dataset rid here&gt;&quot;
+runtime:
+  type: &quot;rscript&quot;
+  rscript:
+    identifier: &quot;R.4.1.x&quot;
+    filePath: &quot;project/src/top_10.R&quot;
+</code></pre>
+<p>Runtime configurations:</p>
+<ul>
+<li><code>identifier</code>: Identifies the runtime for the transform; for example, R.4.1.x refers to R minor version release 4.1.</li>
+<li><code>filePath</code>: The relative file path from the root of the project to the R script file that will be executed.</li>
+</ul>
+<h2>Write unstructured data</h2>
+<p>In this example, we use <code>ggplot2</code> to generate a plot with a linear regression line and save the plot as a PNG to an output dataset.</p>
+<pre><code class="language-R">library(foundry)
+library(ggplot2)
+
+happiness_2019 &lt;- datasets.read_table(&quot;happiness_2019&quot;)
+
+png(&quot;/tmp/model_plot.png&quot;)
+plot &lt;- ggplot(happiness_2019, aes(GDP_per_capita, Overall_rank)) + geom_point() 
+plot + stat_smooth(method = &quot;lm&quot;, formula = y ~ x, geom = &quot;smooth&quot;)
+dev.off()
+
+datasets.upload_files(&quot;/tmp/model_plot.png&quot;, &quot;happinessGDP_plot&quot;)
+
+</code></pre>
+<pre><code class="language-yaml">inputs:
+- alias: &quot;happiness_2019&quot;
+  properties:
+    type: &quot;dataset&quot;
+    dataset:
+      rid: &quot;&lt;input dataset rid here&gt;&quot;
+outputs:
+- alias: &quot;happinessGDP_plot&quot;
+  properties:
+    type: &quot;dataset&quot;
+    dataset:
+      rid: &quot;&lt;output dataset rid here&gt;&quot;
+runtime:
+  type: &quot;rscript&quot;
+  rscript:
+    identifier: &quot;R.4.1.x&quot;
+    filePath: &quot;project/src/gdp_plot.R&quot;
+</code></pre>
+<h2>Manage R packages and environments</h2>
+<p>By default, R transform repositories are configured with <a href="https://www.palantir.com/docs/foundry/code-repositories/artifact-repositories-overview/">Artifacts Repositories</a> that mirror Positâ¢ Package Manager and Bioconductor. We recommend that users use <a href="https://rstudio.github.io/renv/articles/renv.html">renv â</a> to install R packages and manage the R environment for their transforms.</p>
+<p>In <a href="https://www.palantir.com/docs/foundry/code-workspaces/rstudio/">Code Workspace RStudioÂ® Workbench</a>, <code>renv</code> is installed and available by default. Users can search for available packages in the <strong>Packages</strong> panel and generate the corresponding R code to install them.</p>
+<p>R transforms also support restoring from <code>renv.lock</code>. If there is a <code>renv.lock</code> file present in the repositories, you can run <code>renv.restore()</code> at the beginning of your transform or in <code>.Rprofile</code> to restore the R environment.</p>
+<p>The following examples show R commands that can be run to install packages needed for an R transform and generate a <code>renv.lock</code> file to save the state of the project libraries. The generated lock file can then be committed and used to restore the project later.</p>
+<pre><code class="language-R">renv::install(&quot;dplyr&quot;)
+renv::install(&quot;arrow&quot;)
+renv::snapshot()
+</code></pre>
+<hr />
+<p><em>RStudioÂ® is a trademark of Positâ¢.</em></p>
+<p>All third-party trademarks (including logos and icons) referenced remain the property of their respective owners. No affiliation or endorsement is implied.</p>
+</body>
+</html>

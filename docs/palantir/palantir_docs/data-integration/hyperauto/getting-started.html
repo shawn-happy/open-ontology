@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Getting started with HyperAuto V2</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Getting started with HyperAuto V2</h1>
+<p>:::callout{theme="neutral"}
+This guide is for HyperAuto V2. To get started with HyperAuto V1, see the <a href="https://www.palantir.com/docs/foundry/hyperauto/v1-getting-started/">HyperAuto V1 documentation</a>.
+:::</p>
+<p>:::callout{theme="neutral"}
+If you do not have a direct connection to a system and are working with static data, you can create a <a href="https://www.palantir.com/docs/foundry/hyperauto/folder-based-sap/">folder-based pipeline</a>.
+:::</p>
+<p>Create your first HyperAuto pipeline by following these steps:</p>
+<ol>
+<li>
+<p>Navigate to the <a href="https://www.palantir.com/docs/foundry/hyperauto/supported-sources/">supported source</a> you would like to sync data from. You can find a list of all sources on your Foundry instance in the <a href="https://www.palantir.com/docs/foundry/data-connection/overview/">Data Connection</a> app.</p>
+<p><img src="../../_resources/external-7dfd483de9d3.png" alt="Source List" width="750"></p>
+</li>
+<li>
+<p>From the source's specific overview tab, select <strong>Create HyperAuto pipeline</strong> to open the HyperAuto pipeline wizard.</p>
+<p><img src="../../_resources/external-c4d28326c437.png" alt="Create HyperAuto pipeline button on source overview page" width="750"></p>
+</li>
+<li>
+<p>Define the name and location of the new HyperAuto Pipeline resource and any corresponding generated resources. Note that the HyperAuto pipeline must live in the same project as the input datasets.</p>
+<p><img src="../../_resources/external-b81b370f3a9a.png" alt="Name and location tab" width="750"></p>
+</li>
+<li>
+<p>Select the source sub-system if appropriate (for example, the "context" for SAP sources), along with the ingestion method (either batch or streaming, see <a href="https://www.palantir.com/docs/foundry/hyperauto/architecture/">architecture</a> for more info).</p>
+<p><img src="../../_resources/external-b8dd4a9a52f4.png" alt="Source config screen in the wizard" width="750"></p>
+</li>
+<li>
+<p>In the <strong>Input Configuration</strong> step, choose the source tables from which you would like to process data. You can select tables individually, by category ("module"), or by workflow. You can also select tables without Data Connection syncs as inputs. If a chosen input has existing syncs, HyperAuto will default to using the most recent one. To reconfigure a selected input, hover over the <strong>Configure input</strong> table button. From this menu, you can either choose an alternative existing sync or create a new sync.</p>
+<p><img src="../../_resources/external-141632c8f0bf.png" alt="Input configuration" width="750"></p>
+</li>
+<li>
+<p>Decide the desired pipeline configuration, including the language and transformation options. For more info, see <a href="https://www.palantir.com/docs/foundry/hyperauto/configuration-options/">configuration options</a>.</p>
+<p><img src="../../_resources/external-fdd673fa8ba1.png" alt="Pipeline configuration" width="750"></p>
+</li>
+<li>
+<p>Select <strong>Create HyperAuto pipeline</strong>. Your new HyperAuto pipeline will be created and begin processing data. You will be redirected to the pipeline's overview page where you can monitor the generation progress.</p>
+<p><img src="../../_resources/external-ec93d0173cc5.png" alt="Generating" width="750"></p>
+</li>
+<li>
+<p>Once generation has succeeded, you can use the overview page to manage and monitor the pipeline and its related resources, including input syncs and datasets, and output datasets and objects.</p>
+</li>
+</ol>
+<ul>
+<li>
+<p>Select <strong>View builder pipeline</strong> to open the read-only builder pipeline and view the transformation logic in more detail.</p>
+<p><img src="../../_resources/external-89accc28a637.png" alt="HyperAuto generated builder pipeline" width="750"></p>
+</li>
+<li>
+<p>The <strong>Configuration</strong> tab displays the input and pipeline configuration for the HyperAuto pipeline. Select <strong>Edit</strong> in this tab to make a new <a href="https://www.palantir.com/docs/foundry/hyperauto/proposals/">proposal</a> and update the configuration.</p>
+<p><img src="../../_resources/external-0bb9be568c1a.png" alt="HyperAuto pipeline" width="750"></p>
+</li>
+</ul>
+</body>
+</html>

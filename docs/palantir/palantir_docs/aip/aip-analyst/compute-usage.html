@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Compute usage with AIP Analyst</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Compute usage with AIP Analyst</h1>
+<p>AIP Analyst is an agentic application: a single question can result in many model calls and many queries against Foundry. Understanding where that usage comes from helps you predict cost, choose a model, and design efficient analyses.</p>
+<p>Usage from AIP Analyst falls into two categories:</p>
+<ul>
+<li><strong>LLM tokens:</strong> Every model call consumes input and output tokens, which are converted into compute-seconds at a rate that depends on the model. See <a href="#llm-token-usage">LLM token usage</a>.</li>
+<li><strong>Federated Foundry compute:</strong> Each tool call runs against an underlying Foundry system, such as the Ontology, a dataset, or a function, and consumes that system's compute in addition to the tokens spent asking for and reading the result. See <a href="#federated-foundry-compute">Federated Foundry compute</a>.</li>
+</ul>
+<p>:::callout{theme="neutral"}
+If you have an enterprise contract with Palantir, contact your Palantir representative before proceeding with compute usage calculations.
+:::</p>
+<h2>LLM token usage</h2>
+<p>AIP Analyst works by repeatedly sending the conversation to a model and acting on the response. Each request includes the system instructions, your messages, the definitions of the enabled tools, and the results of earlier tool calls that are still in <a href="https://www.palantir.com/docs/foundry/aip-analyst/using-aip-analyst/#context">context</a>. The model's reply, including any extended thinking, counts as output tokens.</p>
+<p>Three consequences follow from this design:</p>
+<ul>
+<li><strong>Token usage grows as a conversation continues,</strong> because earlier messages and tool results are resent with each new turn. A long analysis costs more per question at the end than at the beginning.</li>
+<li><strong>Large tool results are the dominant driver.</strong> Loading thousands of objects, returning a wide SQL result set, or reading a long PDF places a large amount of text into context, where it is resent on every subsequent turn until it is removed.</li>
+<li><strong>The set of enabled tools has a cost of its own,</strong> because tool definitions are included in each request. Disabling categories you do not need in the <strong>Tools</strong> menu reduces the size of every request in the analysis.</li>
+</ul>
+<p>Token-to-compute-second rates vary significantly between models. For the current rates, see <a href="https://www.palantir.com/docs/foundry/aip/aip-compute-usage/#usage-based-pricing-compute-translation-for-aip">Usage-based pricing compute translation for AIP</a>. For general background on how tokens are counted, see <a href="https://www.palantir.com/docs/foundry/aip/aip-compute-usage/#tokens-in-aip">Tokens in AIP</a>.</p>
+<p>The model used for an analysis is recorded with the analysis, so a saved analysis reopens with the same model. See <a href="https://www.palantir.com/docs/foundry/aip-analyst/analysis-resources/#per-analysis-settings">Per-analysis settings</a>.</p>
+<h2>Federated Foundry compute</h2>
+<p>Most AIP Analyst tools do not perform computation themselves. Instead, they call an existing Foundry system on your behalf, and that system's usual compute model applies. The following table maps each <a href="https://www.palantir.com/docs/foundry/aip-analyst/capabilities/">tool category</a> to the system that performs the work.</p>
+<table>
+<thead>
+<tr>
+<th>Tool category</th>
+<th>Work performed by</th>
+<th>Usage documentation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Ontology</td>
+<td>Ontology query layer</td>
+<td><a href="https://www.palantir.com/docs/foundry/ontologies/query-compute-usage/">Compute usage with Ontology queries</a></td>
+</tr>
+<tr>
+<td>Actions</td>
+<td>Ontology writeback</td>
+<td><a href="https://www.palantir.com/docs/foundry/ontologies/query-compute-usage/#ontology-query-compute-2026">Ontology Query Compute</a></td>
+</tr>
+<tr>
+<td>Datasets</td>
+<td>SQL against datasets</td>
+<td><a href="https://www.palantir.com/docs/foundry/sql-warehousing/compute-usage/">Compute usage with SQL in Foundry</a></td>
+</tr>
+<tr>
+<td>Functions</td>
+<td>Function execution</td>
+<td><a href="https://www.palantir.com/docs/foundry/functions/optimize-performance/#understand-function-compute-costs">Understand function compute costs</a></td>
+</tr>
+<tr>
+<td>Time series</td>
+<td>Time series query layer</td>
+<td><a href="https://www.palantir.com/docs/foundry/time-series/compute-usage/">Time series query compute usage</a></td>
+</tr>
+<tr>
+<td>Media</td>
+<td>Media set transformations and downloads</td>
+<td><a href="https://www.palantir.com/docs/foundry/media-sets-advanced-formats/media-usage-limits/">Media set compute usage</a></td>
+</tr>
+<tr>
+<td>Contour</td>
+<td>Contour analyses</td>
+<td><a href="https://www.palantir.com/docs/foundry/contour/compute-usage/">Compute usage with Contour</a></td>
+</tr>
+<tr>
+<td>Quiver and Notepad</td>
+<td>The applications embedded in the resource, such as Ontology queries</td>
+<td><a href="https://www.palantir.com/docs/foundry/resource-management/usage-types/#list-of-foundry-applications-and-associated-usage">List of Foundry applications and associated usage</a></td>
+</tr>
+<tr>
+<td>Workshop</td>
+<td>Workshop module configuration metadata</td>
+<td><a href="https://www.palantir.com/docs/foundry/aip/aip-compute-usage/">Compute usage with AIP</a></td>
+</tr>
+<tr>
+<td>Machinery</td>
+<td>Machinery process graph metadata</td>
+<td><a href="https://www.palantir.com/docs/foundry/aip/aip-compute-usage/">Compute usage with AIP</a></td>
+</tr>
+<tr>
+<td>Visualization and Planning</td>
+<td>The model only</td>
+<td><a href="https://www.palantir.com/docs/foundry/aip/aip-compute-usage/">Compute usage with AIP</a></td>
+</tr>
+</tbody>
+</table>
+<p>Tools in the <strong>Visualization</strong> and <strong>Planning</strong> categories, such as <strong>Create visualization</strong> and <strong>Context cleanup</strong>, do not query a separate backend. Their cost is the tokens spent producing and reading the result. The <strong>Workshop lookup</strong> and <strong>Machinery lookup</strong> tools behave the same way. Each reads a resource's configuration rather than running a query, so its cost is the tokens spent reading the returned definition. Any subsequent work on the object types, functions, or action types they surface is charged to the corresponding category.</p>
+<p>:::callout{theme="neutral"}
+AIP Analyst Ontology tools query the same Ontology layer as Object Explorer, Workshop, and the <a href="https://www.palantir.com/docs/foundry/ontology-sdk/overview/">Ontology SDK (OSDK)</a>, and they are measured under the same model. An <strong>Ontology aggregation</strong> issued by AIP Analyst is charged as an aggregation query in the same way as the equivalent request from an OSDK application. What differs is the number of queries. An agent exploring an unfamiliar Ontology issues more searches and more discarded intermediate queries than an application built around a fixed set of known queries.
+:::</p>
+<p>Note that resources AIP Analyst creates continue to consume compute after the analysis ends. A published Quiver dashboard or a saved Contour analysis uses compute each time someone opens it, attributed to that resource rather than to AIP Analyst.</p>
+<h2>Cost attribution</h2>
+<p>Compute-seconds in Foundry are usually attributed to resources rather than to users. For AIP Analyst, token usage is attributed as follows:</p>
+<ul>
+<li><strong>Saved analyses:</strong> Usage is attributed to the <a href="https://www.palantir.com/docs/foundry/aip-analyst/analysis-resources/">analysis resource</a>.</li>
+<li><strong>Embedded analyses:</strong> Usage is attributed to the owning resource, such as the Workshop module containing the <a href="https://www.palantir.com/docs/foundry/aip-analyst/workshop-widget/">AIP Analyst widget</a>.</li>
+<li><strong>Unsaved analyses:</strong> By default, usage is attributed to the user who ran the analysis. If the <strong>Unsaved analysis cost attribution</strong> setting is configured, usage is attributed to the project selected in that setting instead. See <a href="https://www.palantir.com/docs/foundry/aip-analyst/using-aip-analyst/#general">General settings</a>.</li>
+</ul>
+<p>Compute that AIP Analyst federates to other applications follows those applications' own attribution rules. For Ontology queries in particular, compute attaches to the resource where the query originated where one exists, and otherwise to the object types being queried. See <a href="https://www.palantir.com/docs/foundry/ontologies/query-compute-usage/#investigating-foundry-compute-usage-from-ontology-queries">Investigating Foundry compute usage from Ontology queries</a>.</p>
+<h2>Monitor your usage</h2>
+<p>You can review usage at several levels of granularity:</p>
+<ul>
+<li><strong>During an analysis:</strong> The token estimator in the session shows the current context size. The <a href="https://www.palantir.com/docs/foundry/aip-analyst/using-aip-analyst/#outline">outline</a> reports token usage for each individual tool call, which makes it straightforward to identify the step that loaded too much data.</li>
+<li><strong>Across your enrollment:</strong> Export the <strong>AIP Token Usage</strong> dataset from Control Panel for daily token consumption broken down by model and resource. See <a href="https://www.palantir.com/docs/foundry/aip/aip-compute-usage/#exporting-aip-token-usage-data">Exporting AIP token usage data</a>.</li>
+<li><strong>Alongside other usage:</strong> Review compute-seconds by project and resource in <a href="https://www.palantir.com/docs/foundry/resource-management/overview/">Resource Management</a>, and track model requests over time with <a href="https://www.palantir.com/docs/foundry/workflow-lineage/aip-usage-observability/#aip-usage-metrics">AIP usage metrics</a>.</li>
+</ul>
+<h2>Manage your usage</h2>
+<p>The levers below reduce usage without changing the questions you can ask.</p>
+<h3>Keep context small</h3>
+<ul>
+<li><strong>Remove data you no longer need.</strong> Use the <a href="https://www.palantir.com/docs/foundry/aip-analyst/capabilities/#planning">context cleanup</a> tool, or hide individual tool results from the outline, so large results stop being resent on every turn.</li>
+<li><strong>Branch instead of continuing.</strong> When you move to an unrelated question, create a new tab rather than extending a long conversation. See <a href="https://www.palantir.com/docs/foundry/aip-analyst/using-aip-analyst/#tabs-and-branching">Tabs and branching</a>.</li>
+<li><strong>Aggregate rather than load.</strong> Prefer <strong>Ontology aggregation</strong> or <strong>Ontology SQL</strong> over loading a large object set and asking the model to summarize it. A single row of aggregated output costs a fraction of the objects behind it.</li>
+</ul>
+<h3>Narrow the search space</h3>
+<ul>
+<li><strong>Limit the search scope.</strong> Restricting the Ontology, object type groups, projects, statuses, and visibilities reduces both the number of search queries the agent issues and the size of their results. See <a href="https://www.palantir.com/docs/foundry/aip-analyst/using-aip-analyst/#limit-search-scope">Limit search scope</a>.</li>
+<li><strong>Load the right context in advance.</strong> Adding the relevant object types or datasets up front removes exploratory search entirely. In the <a href="https://www.palantir.com/docs/foundry/aip-analyst/workshop-widget/#input-configuration">Workshop widget</a>, preloading context and fixing the enabled tools makes the usage of a guided workflow far more predictable.</li>
+<li><strong>Disable unused tool categories.</strong> Fewer enabled tools means smaller requests and fewer opportunities for the agent to explore an unproductive path.</li>
+</ul>
+<h3>Choose an appropriate model</h3>
+<p>Rates differ by more than an order of magnitude between the largest and smallest models. Reserve the most capable models for genuinely difficult reasoning, and prefer smaller models for routine lookups and summarization. For embedded workflows where the question is known in advance, set the model explicitly and hide the model selector so usage stays predictable. See <a href="https://www.palantir.com/docs/foundry/aip-analyst/embed/#view-options">View options</a> and <a href="https://www.palantir.com/docs/foundry/aip-analyst/workshop-widget/#chat-controls">Chat controls</a>.</p>
+<h2>Integrated tools compared with functions and agents</h2>
+<p>When a workflow is well understood, you can move work out of the agent's tool loop and into a resource that AIP Analyst calls, or that runs entirely on its own. Doing so changes both the cost profile and the reliability of the result.</p>
+<table>
+<thead>
+<tr>
+<th>Approach</th>
+<th>How AIP Analyst uses it</th>
+<th>Token cost</th>
+<th>Best suited to</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Integrated tools</td>
+<td>The agent selects and calls tools directly, one step at a time</td>
+<td>Highest: every intermediate result enters context, and each step needs a model call</td>
+<td>Ad-hoc and exploratory questions, where the steps are not known in advance</td>
+</tr>
+<tr>
+<td>Skills</td>
+<td>The agent loads a set of reusable instructions, then uses integrated tools to follow them</td>
+<td>Similar to integrated tools, with fewer wasted steps</td>
+<td>Recurring analyses that follow a known approach but still need judgment</td>
+</tr>
+<tr>
+<td>Functions</td>
+<td>The agent calls the function once with <strong>Execute function</strong> and reads the returned value</td>
+<td>Low: only the inputs and the returned value enter context</td>
+<td>Deterministic, repeated computation, such as a business calculation or a fixed multi-step query</td>
+</tr>
+<tr>
+<td>Pro-code agents</td>
+<td>Triggered outside the session; results are read back from the Ontology</td>
+<td>Separate from the analysis: the agent runs its own model loop</td>
+<td>Long-running or autonomous work that does not need to complete inside an interactive session</td>
+</tr>
+</tbody>
+</table>
+<p>Use the following guidance to choose between them:</p>
+<ul>
+<li><strong>Prefer integrated tools while the question is still taking shape.</strong> Their advantage is that no prior modeling is required, and the <a href="https://www.palantir.com/docs/foundry/aip-analyst/using-aip-analyst/#graph">graph</a> view makes each step auditable. Their cost is that intermediate data passes through the model's context.</li>
+<li><strong>Move logic into a <a href="https://www.palantir.com/docs/foundry/functions/overview/">function</a> once it stabilizes.</strong> A function collapses what would be many tool calls into one. Its intermediate data never enters the analysis context, its result is deterministic rather than reasoned, and its compute is attributed to the function. This is usually the correct choice for a calculation you expect to repeat, and it is generally both cheaper and more reliable than asking the agent to derive the logic again each time.</li>
+<li><strong>Use a <a href="https://www.palantir.com/docs/foundry/aip-analyst/using-aip-analyst/#skills">skill</a> to capture an approach rather than a computation.</strong> A skill records how to tackle a class of question. Because the agent still uses integrated tools to carry it out, a skill improves consistency but does not by itself reduce federated compute.</li>
+<li><strong>Use a <a href="https://www.palantir.com/docs/foundry/agents/overview/">pro-code agent</a> for work that should not block an interactive session.</strong> Pro-code agents run asynchronously and are not subject to the synchronous function execution limit, which makes them appropriate for long-running tasks.</li>
+</ul>
+<p>:::callout{theme="neutral"}
+Pro-code agents are not a drop-in replacement for an AIP Analyst tool. A published agent function returns <code>Void</code>, so it cannot be called as a query function and cannot return a value into the analysis. Have the agent write its results to Ontology objects, then read those objects from AIP Analyst. See <a href="https://www.palantir.com/docs/foundry/agents/publish-and-call/">Publish and call a pro-code agent</a>.
+:::</p>
+<p>A practical pattern is to combine the approaches. Explore with integrated tools until you understand the analysis, then move the stable, expensive parts into a function and keep AIP Analyst for the interpretation and presentation around it.</p>
+<h2>Related resources</h2>
+<ul>
+<li><a href="https://www.palantir.com/docs/foundry/aip/aip-compute-usage/">Compute usage with AIP</a></li>
+<li><a href="https://www.palantir.com/docs/foundry/ontologies/query-compute-usage/">Compute usage with Ontology queries</a></li>
+<li><a href="https://www.palantir.com/docs/foundry/resource-management/usage-types/">Usage types</a></li>
+<li><a href="https://www.palantir.com/docs/foundry/aip/supported-llms/">Supported LLMs</a></li>
+</ul>
+</body>
+</html>

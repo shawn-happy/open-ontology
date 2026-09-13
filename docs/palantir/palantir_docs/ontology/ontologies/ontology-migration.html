@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Migrate ontological resource between Ontologies</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Migrate ontological resource between Ontologies</h1>
+<p>Every ontology resource is automatically linked to the ontology it is created in. After their creation, resources can be moved between ontologies. Migrating resources between ontologies also changes the permissions on the resources, however, it does not impact the permissions on the underlying data and the input datasources. When migrating objects between Ontologies all edits will be preserved by default.</p>
+<p>To migrate resources from one ontology to another, do the following:</p>
+<ol>
+<li>
+<p>Navigate to the ontology that owns the resource via the Ontology switcher located in the top right corner in the <strong>Ontology Manager</strong>. <br><br>
+   <img alt="Screenshot of ontology selection dropdown menu." src="../../_resources/foundry/ontologies/ontology-switcher.png" /> <br><br></p>
+</li>
+<li>
+<p>Select <strong>Migrate resources</strong> in the same ontology to start the migration process. Then, select the target ontology in the top row using the ontology selection dropdown menu. <br><br>
+   <img alt="Screenshot of ontology migration target selection." src="../../_resources/foundry/ontologies/ontology-migration-switcher.png" /> <br><br></p>
+</li>
+<li>
+<p>Select the object types, link types, action types, and workflows to migrate. A preview of the selection of resources to be migrated are shown in their current ontology (left) and in the target ontology (right). Note that it is impossible to migrate object types from a private ontology to the default ontology unless the object type was originally created in the default ontology. <br><br>
+   <img alt="Screenshot of ontology migration dialog." src="../../_resources/foundry/ontologies/ontology-migration.png" /> <br><br></p>
+</li>
+</ol>
+<p>:::callout{theme="warning" title="Migrating to default ontology"}
+Make sure that you are migrating connected resources together. The migration fails if related ontological resources are missing in the selection.
+:::</p>
+<ol start="4">
+<li>After completing the selection, select <strong>Submit</strong> to migrate the resources.</li>
+</ol>
+</body>
+</html>

@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Protecting against phishing</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../index.html">返回目录</a></div>
+<h1>Protecting against phishing</h1>
+<p>Phishing is the most common attack vector used by adversaries when attempting to compromise technical infrastructure. If an attacker successfully used a phishing attack to take over or steal credentials from a Foundry customerâs SSO account, theyâd likely try using those credentials to access the Foundry platform. Palantir has engineered several controls to assist in mitigating potential security impact from phishing attacks. However, in the spirit of maintaining a <a href="https://www.palantir.com/docs/foundry/security/shared-security-responsibility-model/">shared security model</a>, Palantir also advises that customers observe several best practices in an effort to harden their own attack surface against phishing.</p>
+<h2>Multi-factor authentication (MFA)</h2>
+<p>Foundry customers are responsible for managing access and identity for users via single sign-on (SSO). One of the most impactful controls in securing the authentication workflow is enforcement of multi-factor authentication (MFA). Ensuring that all users are enrolled in MFA means that an attacker would need to defeat multiple security controls to inappropriately access the Foundry platform.</p>
+<h2>Ingress Controls</h2>
+<p>Palantir natively supports ingress controls, as described in the <a href="https://www.palantir.com/docs/foundry/administration/configure-ingress/">Configure network ingress documentation</a>. Palantir recommends strict IP allowlisting as a defense-in-depth control intended to deny adversaries the network access required to take offensive action.</p>
+<p>Additionally, any ingress controls on the Foundry side can be mirrored in oneâs SSO controls for redundancy.</p>
+<h2>Conditional Access</h2>
+<p>If using Microsoft Azure AD (or an IdP with similar features), consider leveraging <a href="https://docs.microsoft.com/en-us/azure/active-directory/conditional-access/overview">conditional access policies â</a> to further enforce access to Foundry. Even in cases where IP ingress restrictions are untenable, there may still be security value in restricting access based on other factors, such as enrollment in device management.</p>
+<h2>Single Sign-On (SSO)</h2>
+<p>If implementing a single sign-on (SSO) solution with appropriate security controls is infeasible for any customer, contact your Palantir representative; we may be able to provide one for you.</p>
+<h2>Operational Security</h2>
+<p>Humans are generally the key point-of-failure in successful phishing attacks, and proper OpSec training is key to ensuring that users do not fall victim. Some key points to cover with personnel include:</p>
+<ul>
+<li>Password hygiene and management.</li>
+<li>Recognizing legitimate web domains (such as palantirfoundry.com) vs. fraudulent sites operated by adversaries.</li>
+<li>Recognizing legitimate emails from the Foundry platform vs. emails from fraudulent senders.</li>
+</ul>
+<h2>Ask a Trusted Source</h2>
+<p>If you are in need of engineering assistance, or general security guidance, contact your Palantir representative; we are happy to assist with controls to mitigate against attacker activity.</p>
+</body>
+</html>

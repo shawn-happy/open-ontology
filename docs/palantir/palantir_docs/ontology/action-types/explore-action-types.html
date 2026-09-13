@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Explore other action types</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Explore other action types</h1>
+<p>The <a href="https://www.palantir.com/docs/foundry/action-types/getting-started/">getting started</a> tutorial builds one kind of action type: a rule that modifies a property on a single object. Action types can express much more than a property edit. The same configuration surface also lets you create and delete objects, manage links between objects, run custom logic in a function, call an external system, notify users, trigger a build, and merge scenario edits.</p>
+<p>This page introduces each of these capabilities, describes when to use it, and links to the reference documentation. The examples continue with the <code>Demo Ticket</code> object type from the <a href="https://www.palantir.com/docs/foundry/action-types/getting-started/">getting started</a> tutorial, so you can follow along in the same Ontology.</p>
+<h2>Prerequisites</h2>
+<ul>
+<li>Complete the <a href="https://www.palantir.com/docs/foundry/action-types/getting-started/">getting started</a> tutorial. It covers the creation wizard, parameters, and submission criteria that the rest of this page assumes you know.</li>
+<li>Confirm that the object types you plan to change are <a href="https://www.palantir.com/docs/foundry/object-link-types/allow-editing/#set-up-the-prerequisites">configured for editing</a>.</li>
+</ul>
+<h2>Where to configure rules</h2>
+<p>The capabilities below are configured through rules, and rules can be added in two places.</p>
+<p>The creation wizard configures the first rule of a new action type. On the <strong>Action type</strong> step, open the <strong>Object</strong> tab, select the object type, then choose the change the action makes under <strong>Object actions</strong>. Select the properties to include on the <strong>Mapping</strong> step. The <a href="https://www.palantir.com/docs/foundry/action-types/getting-started/">getting started</a> tutorial walks through this flow.</p>
+<p><img alt="The first step of the action type creation wizard, where you select the object type and the change that the action makes." src="../../_resources/foundry/action-types/actions_wizard.png" /></p>
+<p>For an action type that already exists, open it in <a href="https://www.palantir.com/docs/foundry/ontology-manager/overview/">Ontology Manager</a>, select the <strong>Rules</strong> tab, then select <strong>Add new rule</strong> to choose the rule you need. Every rule described on this page can be added here.</p>
+<p><img src="../../_resources/external-0cca1ef48b7c.png" alt="The Add new rule dropdown menu on the Rules tab of an action type." width="500" /></p>
+<p>A single action type can combine several rules. The <a href="#run-custom-logic-with-a-function">function rule</a> is the exception: it cannot be combined with the other Ontology rules.</p>
+<h2>Choose a rule</h2>
+<table>
+<thead>
+<tr>
+<th>Goal</th>
+<th>Rule to add</th>
+<th>Learn more</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Create a new object</td>
+<td><strong>Create object</strong></td>
+<td><a href="#create-and-delete-objects">Create and delete objects</a></td>
+</tr>
+<tr>
+<td>Create an object only when the user does not supply one</td>
+<td><strong>Create or modify object</strong></td>
+<td><a href="#create-and-delete-objects">Create and delete objects</a></td>
+</tr>
+<tr>
+<td>Delete an existing object</td>
+<td><strong>Delete object</strong></td>
+<td><a href="#create-and-delete-objects">Create and delete objects</a></td>
+</tr>
+<tr>
+<td>Relate two objects, or remove the relationship</td>
+<td><strong>Create link</strong> or <strong>Delete link</strong></td>
+<td><a href="#manage-links-between-objects">Manage links between objects</a></td>
+</tr>
+<tr>
+<td>Express logic that rules cannot describe</td>
+<td><strong>Run function</strong></td>
+<td><a href="#run-custom-logic-with-a-function">Run custom logic with a function</a></td>
+</tr>
+<tr>
+<td>Send a request to a system outside Foundry</td>
+<td><strong>Webhook</strong></td>
+<td><a href="#call-an-external-system-with-a-webhook">Call an external system with a webhook</a></td>
+</tr>
+<tr>
+<td>Call an external system before any edits are applied</td>
+<td><strong>Writeback Webhook</strong></td>
+<td><a href="#call-an-external-system-with-a-webhook">Call an external system with a webhook</a></td>
+</tr>
+<tr>
+<td>Tell a user that something changed</td>
+<td><strong>Notification</strong></td>
+<td><a href="#notify-users-when-an-action-is-applied">Notify users when an action is applied</a></td>
+</tr>
+<tr>
+<td>Recompute datasets when the action is applied</td>
+<td><strong>Schedule</strong></td>
+<td><a href="#trigger-a-build">Trigger a build</a></td>
+</tr>
+<tr>
+<td>Commit the edits staged in a scenario</td>
+<td><strong>Apply scenario</strong></td>
+<td><a href="#merge-scenario-edits">Merge scenario edits</a></td>
+</tr>
+<tr>
+<td>Change objects of any type that implements an interface</td>
+<td>Interface rules</td>
+<td><a href="#act-on-interfaces">Act on interfaces</a></td>
+</tr>
+</tbody>
+</table>
+<p>The <a href="https://www.palantir.com/docs/foundry/action-types/rules/">rules</a> reference describes every rule in detail.</p>
+<h2>Create and delete objects</h2>
+<p>The getting started tutorial modifies an object that the user selects. To create a new ticket instead, add a <strong>Create object</strong> rule and select the <code>Demo Ticket</code> object type. The primary key of the object type, <code>Ticket ID</code> in this example, is a required property that must be filled. Add the other properties the new object needs, such as <code>Title</code>, <code>Status</code>, and <code>Priority</code>, by selecting <strong>Add property</strong>.</p>
+<p>Each property you add automatically creates a parameter of the same name and maps the property to it. You can instead map a property to a property of an object reference parameter, to a static value that users cannot change, or to the current user or the time of submission. Review <a href="https://www.palantir.com/docs/foundry/action-types/rules/#values-and-parameters">values and parameters</a> for all mapping options.</p>
+<p>Two related rules cover the remaining cases:</p>
+<ul>
+<li><strong>Create or modify object:</strong> Modifies the object supplied in an object reference parameter. When no object is supplied, a new object is created with either an automatically generated unique ID or a primary key that the user submits.</li>
+<li><strong>Delete object:</strong> Deletes the object supplied in an object reference parameter. This rule cannot reference an object that the same action creates.</li>
+</ul>
+<p>:::callout{theme="neutral"}
+When an action type contains several rules, Foundry compiles them into a single edit for each object, so the order of the rules affects the result and some combinations are not supported. Review <a href="https://www.palantir.com/docs/foundry/action-types/rules/#invalid-combinations">invalid combinations</a> before you combine create, modify, and delete rules in one action type.
+:::</p>
+<h2>Manage links between objects</h2>
+<p>Actions can maintain the relationships between objects as well as their properties. Which rule you need depends on the cardinality of the <a href="https://www.palantir.com/docs/foundry/object-link-types/link-types-overview/">link type</a>.</p>
+<p>For a many-to-many link type, add a <strong>Create link</strong> rule to relate two objects that are supplied through object reference parameters, or a <strong>Delete link</strong> rule to remove the relationship between them.</p>
+<p>For a one-to-one or one-to-many link type, the relationship is stored in a foreign key property on the object. Use a <strong>Modify object</strong> rule to set or clear that property instead of a link rule.</p>
+<p>You can also create an object and its many-to-many links in a single action. Configure a <strong>Create object</strong> rule with an object type that has a many-to-many link type, then select <strong>Add link</strong> below <strong>Add property</strong> to select the link type and configure the links.</p>
+<h2>Run custom logic with a function</h2>
+<p>Rules describe edits as declarative mappings, which is not always sufficient. Consider backing the action with an <a href="https://www.palantir.com/docs/foundry/functions/edits-overview/">Ontology edit function</a> when you want to modify every object linked to the one the user selected, compute a property value from business logic that reads several objects, or create objects of several types and link them together.</p>
+<p>Add a single <strong>Run function</strong> rule, then select the published function and the version to use. Every input of the function is created as a parameter on the action type, which you can then constrain like any other parameter. A <strong>Run function</strong> rule cannot be combined with the other <a href="https://www.palantir.com/docs/foundry/action-types/rules/#ontology-rules">Ontology rules</a>, because function code alone can express everything they can.</p>
+<p>Follow the <a href="https://www.palantir.com/docs/foundry/action-types/function-actions-getting-started/">function-backed actions tutorial</a> for the full walkthrough, including how to <a href="https://www.palantir.com/docs/foundry/action-types/function-actions-getting-started/#changing-function-version">change the function version</a> that an action references. By default the action stays on the version you selected. Enable <a href="https://www.palantir.com/docs/foundry/action-types/function-actions-getting-started/#auto-upgrades">auto upgrades</a> to resolve a version range at runtime instead, and review the permission and breaking-change trade-offs described there before you do.</p>
+<h2>Call an external system with a webhook</h2>
+<p>When a system outside Foundry is the source of truth for part of a process, a webhook rule sends a request to that system as part of applying the action. Action parameters can be passed to the webhook as inputs.</p>
+<p>Two separate rules send the request, and the rule you add determines when it runs:</p>
+<ul>
+<li><strong>Webhook:</strong> The request is sent after the object edits are applied. Add this rule from the <strong>Side Effects</strong> group. An action type can contain several of these, and a failure is not shown to the end user, who may already have seen the success message.</li>
+<li><strong>Writeback Webhook:</strong> The request is sent before any other rule is evaluated. Add this rule from the <strong>External Request</strong> group. If the request fails, no edits are applied and the end user sees the failure. An action type can contain only one, and its <a href="https://www.palantir.com/docs/foundry/action-types/webhooks/#output-parameters">output parameters</a> can be used by later rules.</li>
+</ul>
+<p>The webhook must already exist in <a href="https://www.palantir.com/docs/foundry/data-connection/webhooks-setup/">Data Connection</a> before you can select it in the rule. Follow <a href="https://www.palantir.com/docs/foundry/action-types/set-up-webhook/">set up a webhook</a> for the configuration steps, and review <a href="https://www.palantir.com/docs/foundry/action-types/webhooks/">webhooks</a> for input parameters, output parameters, and authentication options.</p>
+<h2>Notify users when an action is applied</h2>
+<p>A <strong>Notification</strong> rule tells users that the action was applied. Recipients can be a fixed set of users or derived from a property of an object parameter, and the content can be a template that references the action's parameters. Each recipient receives an in-platform push notification, an email, or both, according to their own notification preferences.</p>
+<p>Notifications are sent once all the action's edits have been applied, but their content is generated from the state of the Ontology before those edits. Follow <a href="https://www.palantir.com/docs/foundry/action-types/set-up-notification/">set up a notification</a> for a worked example, and review <a href="https://www.palantir.com/docs/foundry/action-types/notifications/">notifications</a> for all recipient and content options.</p>
+<h2>Trigger a build</h2>
+<p>A <strong>Schedule</strong> rule triggers the build of a <a href="https://www.palantir.com/docs/foundry/data-integration/schedules/">schedule</a> when the action is applied. Add this rule from the <strong>Advanced</strong> group. This lets an end-user workflow in the Ontology recompute datasets as part of the action. The schedule must be in <a href="https://www.palantir.com/docs/foundry/data-integration/schedules/#project-scope">project-scoped mode</a>.</p>
+<p>An action type with a schedule rule applies its Ontology edits after the build begins rather than waiting for the build to finish. Review <a href="https://www.palantir.com/docs/foundry/action-types/trigger-schedule-build/">trigger schedule build</a> to learn how to pass values to a parameterized schedule and how to record the resulting schedule run RID on an object.</p>
+<h2>Merge scenario edits</h2>
+<p>Edits made inside a <a href="https://www.palantir.com/docs/foundry/ontology/overview-ontology-scenario/">scenario</a> exist only in that scenario's sandbox and do not affect the main Ontology. A merge action commits all the staged edits as a single transaction. The merge action requires a <strong>Scenario</strong> parameter holding the RID of the scenario, and that value is typically passed from a Workshop variable or an Ontology SDK application.</p>
+<p>There are two routes to a merge action:</p>
+<ul>
+<li>Create a new action type and select the <strong>Scenario</strong> tab in the creation wizard, then define the scope of the merge by adding the relevant <strong>Object types</strong> and <strong>Link types</strong>.</li>
+<li>Add an <strong>Apply scenario</strong> rule to an action type that already exists, from its <strong>Rules</strong> tab.</li>
+</ul>
+<p>In both cases, use the <strong>Security &amp; Submission Criteria</strong> tab of the action type to define which users are permitted to run the merge. Review <a href="https://www.palantir.com/docs/foundry/ontology/merge-scenario/#configure-the-merge-action">merge scenarios</a> for the full configuration.</p>
+<p>:::callout{theme="neutral"}
+Ontology scenarios are in the <a href="https://www.palantir.com/docs/foundry/platform-overview/development-life-cycle/">beta</a> phase of development and may not be available on your enrollment. Contact Palantir Support to request access to scenarios.
+:::</p>
+<h2>Act on interfaces</h2>
+<p>Interfaces have a dedicated rule for each Ontology edit:</p>
+<ul>
+<li><strong>Create object of interface</strong></li>
+<li><strong>Modify object of interface</strong></li>
+<li><strong>Delete object of interface</strong></li>
+<li><strong>Create link on object of interface</strong></li>
+<li><strong>Delete link on object of interface</strong></li>
+</ul>
+<p>Each rule targets any object type that implements the interface rather than one specific object type. The modify and delete rules take an interface reference parameter in place of an object reference parameter. Review <a href="https://www.palantir.com/docs/foundry/action-types/actions-on-interfaces/">actions on interfaces</a>.</p>
+<h2>Map a struct property in a rule</h2>
+<p><a href="https://www.palantir.com/docs/foundry/object-link-types/structs-overview/">Struct properties</a> take their values from a struct parameter whose nested fields mirror the fields of the property. Map the property inside a rule, and ensure that every field is mapped. Review <a href="https://www.palantir.com/docs/foundry/action-types/actions-on-structs/">actions on structs</a>.</p>
+<h2>Next steps</h2>
+<ul>
+<li><a href="https://www.palantir.com/docs/foundry/action-types/test-run/">Validate an action type with a test run.</a></li>
+<li><a href="https://www.palantir.com/docs/foundry/action-types/rules/">Review the full rules reference.</a></li>
+<li><a href="https://www.palantir.com/docs/foundry/action-types/parameter-overview/">Shape what users can submit with parameters.</a></li>
+<li><a href="https://www.palantir.com/docs/foundry/action-types/submission-criteria/">Restrict when an action can be applied with submission criteria.</a></li>
+<li><a href="https://www.palantir.com/docs/foundry/action-types/use-actions/">Use an action elsewhere in the platform.</a></li>
+</ul>
+</body>
+</html>

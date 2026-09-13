@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Feature support by language</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Feature support by language</h1>
+<p>Not all features are supported by all languages. Refer to the chart below for feature support by language.</p>
+<table>
+<thead>
+<tr>
+<th>Functions capability by language</th>
+<th>AIP Logic</th>
+<th>TypeScript v1</th>
+<th>TypeScript v2</th>
+<th>Python</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Ontology object support</td>
+<td>Yes</td>
+<td>Yes</td>
+<td>Yes</td>
+<td>Yes</td>
+<td>The ability to <a href="https://www.palantir.com/docs/foundry/functions/foo-getting-started/">access Ontology objects</a> in your function.</td>
+</tr>
+<tr>
+<td>Ontology interfaces support</td>
+<td>No</td>
+<td>No</td>
+<td>Yes</td>
+<td>No</td>
+<td>The ability to access and edit Ontology interfaces in your function.</td>
+</tr>
+<tr>
+<td>Ontology edits support</td>
+<td>Yes</td>
+<td>Yes</td>
+<td>Yes</td>
+<td>Yes</td>
+<td>The ability to <a href="https://www.palantir.com/docs/foundry/functions/edits-overview/">edit Ontology objects</a> in your function.</td>
+</tr>
+<tr>
+<td>Media handling support</td>
+<td>No</td>
+<td>Yes</td>
+<td>Partial</td>
+<td>Partial</td>
+<td>The ability to interact with <a href="https://www.palantir.com/docs/foundry/functions/media/">media items</a>. TypeScript v1 supports full media operations, including document OCR and audio transcription. TypeScript v2 and Python support media uploads via Ontology edits and basic operations on media properties, but do not support document-specific or audio-specific operations.</td>
+</tr>
+<tr>
+<td>Queryable in Workshop</td>
+<td>Yes</td>
+<td>Yes</td>
+<td>Yes</td>
+<td>Yes</td>
+<td>Invoking a function from a <a href="https://www.palantir.com/docs/foundry/workshop/functions-use/">Workshop application</a>.</td>
+</tr>
+<tr>
+<td>Usable in Pipeline Builder</td>
+<td>No</td>
+<td>No</td>
+<td>No</td>
+<td>Yes</td>
+<td>Calling a function from <a href="https://www.palantir.com/docs/foundry/functions/python-functions-builder/">Pipeline Builder pipelines</a>.</td>
+</tr>
+<tr>
+<td>Functions on models support</td>
+<td>Yes</td>
+<td>Yes</td>
+<td>Yes</td>
+<td>Yes</td>
+<td>Executing live deployment models <a href="https://www.palantir.com/docs/foundry/functions/functions-on-models/">from a function</a>. TypeScript v2 and Python require ontology-bound model functions.</td>
+</tr>
+<tr>
+<td>Language model integration</td>
+<td>No</td>
+<td>No</td>
+<td>Yes</td>
+<td>Yes</td>
+<td>Calling language models through <a href="https://www.palantir.com/docs/foundry/functions/language-models-python-tsv2/">proxy endpoints</a> using model aliases and Platform SDK imports.</td>
+</tr>
+<tr>
+<td>Semantic search support</td>
+<td>Yes</td>
+<td>Yes</td>
+<td>Yes</td>
+<td>Yes</td>
+<td>Use functions to create vectors for <a href="https://www.palantir.com/docs/foundry/ontology/overview-semantic-search/">semantic search</a>.</td>
+</tr>
+<tr>
+<td>Webhook support</td>
+<td>No</td>
+<td>Yes</td>
+<td>No</td>
+<td>No</td>
+<td>The ability to call <a href="https://www.palantir.com/docs/foundry/functions/webhooks/">webhooks from functions</a>.</td>
+</tr>
+<tr>
+<td>External API call support</td>
+<td>No</td>
+<td>Yes</td>
+<td>Yes</td>
+<td>Yes</td>
+<td>Querying external services from <a href="https://www.palantir.com/docs/foundry/functions/api-calls/">within functions</a>.</td>
+</tr>
+<tr>
+<td>Serverless execution support</td>
+<td>Yes</td>
+<td>Yes</td>
+<td>Yes</td>
+<td>Yes</td>
+<td>A serverless function will be spun up on demand when invoked.  Refer to <a href="#serverless-functions">serverless functions</a> below for more information.</td>
+</tr>
+<tr>
+<td>Deployed execution support</td>
+<td>No</td>
+<td>No</td>
+<td>Yes</td>
+<td>Yes</td>
+<td>A deployed function will have dedicated resources allocated to it, ready to serve requests.</td>
+</tr>
+<tr>
+<td>Staged writes support [Beta]</td>
+<td>No</td>
+<td>No</td>
+<td>Yes</td>
+<td>No</td>
+<td>The ability to use <a href="https://www.palantir.com/docs/foundry/functions/typescript-v2-staged-writes/">staged writes</a> for read-after-write guarantees and atomic execution in edit functions.</td>
+</tr>
+<tr>
+<td>Call function from API gateway</td>
+<td>Yes</td>
+<td>Yes</td>
+<td>Yes</td>
+<td>Yes</td>
+<td>The ability to hit a <a href="https://www.palantir.com/docs/foundry/functions/query-functions/">query function</a> from the API gateway.</td>
+</tr>
+<tr>
+<td>Marketplace support</td>
+<td>Yes</td>
+<td>Yes</td>
+<td>Yes</td>
+<td>Yes</td>
+<td>The ability to package and ship functions in <a href="https://www.palantir.com/docs/foundry/marketplace/overview/">Marketplace</a>.</td>
+</tr>
+<tr>
+<td>Bring-your-own-model</td>
+<td>Yes</td>
+<td>Yes</td>
+<td>No</td>
+<td>No</td>
+<td>The ability to register a function <a href="https://www.palantir.com/docs/foundry/aip/bring-your-own-model/">as a model</a>. The <a href="https://www.palantir.com/docs/foundry/aip/chat-completion-function-interface-quickstart/">function interface method</a> is a legacy approach that applies to TypeScript v1 only.</td>
+</tr>
+</tbody>
+</table>
+<h2>Ontology SDK support</h2>
+<p>Python and TypeScript v2 functions support the <a href="https://www.palantir.com/docs/foundry/ontology-sdk/overview/">Ontology SDK</a> (OSDK). The OSDK allows you to leverage the Ontology directly from your development environment and provides <a href="https://www.palantir.com/docs/foundry/ontology-sdk/overview/#osdk-benefits">benefits</a> such as compatibility with Developer Console and OSDK versioning. We recommend using Python or TypeScript v2 to access these benefits in your functions repository.</p>
+<h2>TypeScript v1 vs. TypeScript v2</h2>
+<p>Both TypeScript v1 and TypeScript v2 allow users to leverage TypeScript's core language features, but there are differences in supported platform features, as shown in the feature support table above. We recommend building workflows using TypeScript v2 functions to take advantage of several key improvements over TypeScript v1:</p>
+<ul>
+<li><strong>Serverless execution in a full Node.js runtime:</strong> TypeScript v2 functions run in a Node.js environment, supporting core modules like <code>fs</code>, <code>child_process</code>, and <code>crypto</code>. This enables greater compatibility with NPM libraries that interact with the file system, perform CPU-intensive tasks in parallel, or require other system-level operations.</li>
+<li><strong>First-class OSDK support:</strong> The OSDK can now be used seamlessly in TypeScript v2 functions, making it easy to reuse code, both in and out of the platform. It also provides more efficient APIs for working with large-scale Ontology data.</li>
+<li><strong>Configurable resource requests:</strong> TypeScript v2 functions allow you to request up to 8 vCPUs and 5GB of memory, offering greater control over performance and scalability.</li>
+<li><strong>Staged writes [Beta]:</strong> TypeScript v2 supports <a href="https://www.palantir.com/docs/foundry/functions/typescript-v2-staged-writes/">staged writes</a>, an alternative execution model for Ontology edit functions that provides read-after-write guarantees within the function and allows nested calls to other staged-write functions.</li>
+</ul>
+<h2>Serverless functions</h2>
+<p>If serverless functions are enabled for your enrollment, new repositories will use serverless functions by default. We recommend using serverless functions instead of deployed functions for most use cases. With serverless functions, you can have multiple versions of a single function available on demand, making upgrades safer.</p>
+<p>When using Python or TypeScript v2 functions, there are also <a href="https://www.palantir.com/docs/foundry/functions/functions-deployed/#choose-between-deployed-and-serverless-execution-modes">some cases where deployed functions are preferred</a> or must be used instead of serverless, but these are not common. If available, serverless functions are preferred for several reasons:</p>
+<ul>
+<li>Serverless functions enable different versions of a single function to be executed on demand, making upgrades safer. With deployed functions, you can only run a single function version at a time.</li>
+<li>Serverless functions only incur costs when executed, while deployed functions incur costs as long as the deployment is running.</li>
+<li>Serverless functions require less upfront setup and long-term maintenance, as the infrastructure is managed automatically.</li>
+</ul>
+</body>
+</html>

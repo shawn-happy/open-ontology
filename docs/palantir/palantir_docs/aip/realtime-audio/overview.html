@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Realtime audio</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Realtime audio</h1>
+<p>Audio is a modality for interacting with the rest of the platform through the Ontology. Context is pulled from the Ontology before and during a conversation, and a realtime model can listen, transcribe, and optionally speak back and make tool calls based on that context. The results are written back into the Ontology where functions, pipelines, AIP Logic, Workshop, actions, and other Foundry capabilities are available.</p>
+<p>Use cases include:</p>
+<ul>
+<li><strong>Dictation.</strong> A single speaker dictates decisions, observations, or notes. The system transcribes the audio, extracts entities, and writes them to the Ontology with the speaker's permissions.</li>
+<li><strong>Meetings.</strong> The system transcribes, diarizes, and structures multi-speaker audio into Ontology objects live.</li>
+<li><strong>Live call assistance.</strong> A human is on a call with a customer. A Foundry application listens, transcribes the conversation, surfaces relevant Ontology context to the Foundry user on the call, and writes outcomes back when the call ends.</li>
+<li><strong>Voice-controlled interfaces.</strong> A Foundry user issues commands by voice instead of navigating manually â querying the Ontology, triggering actions, and navigating workflows hands-free.</li>
+</ul>
+<h2>Recording, transcription, and consent</h2>
+<p>:::callout{theme="warning" title="Recording and consent are your responsibility"}
+Applications built with realtime audio capture, transcribe, or otherwise process human speech. Many jurisdictions require notifying participants that they are being recorded or transcribed before the recording starts, and some require explicit consent. This may apply whether the participant is the application user, a third party on the other end of a call, or anyone else whose voice is captured. Compliance with these requirements is the responsibility of your application's developer and the organization deploying it.</p>
+<p>Before deploying a realtime audio workflow:</p>
+<ul>
+<li>Verify the legal and regulatory requirements that apply in every jurisdiction where the application will be used.</li>
+<li>Build appropriate notification and consent flows into the application before audio capture begins.</li>
+<li>Document your consent posture and retention practices alongside the application.</li>
+<li>Follow your organization's internal policies, compliance requirements, and legal obligations.</li>
+</ul>
+<p>It is your responsibility to verify these requirements and obtain the necessary consents before deploying.
+:::</p>
+<h2>Get started</h2>
+<p>To build your first voice-enabled application, follow the tutorial: <a href="https://www.palantir.com/docs/foundry/realtime-audio/build-a-voice-enabled-osdk-application/">Build a voice-enabled OSDK application</a>.</p>
+<h2>Available models</h2>
+<p>For the list of supported realtime speech-to-speech and transcription models, see <a href="https://www.palantir.com/docs/foundry/aip/supported-llms/#available-audio-models">Available audio models</a>.</p>
+</body>
+</html>

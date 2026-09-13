@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Unit testing TypeScript OSDK code</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Unit testing TypeScript OSDK code</h1>
+<p>:::callout{theme="warning" title="Experimental"}
+The <code>@osdk/unit-testing</code> package is experimental. The package is published as <code>@osdk/unit-testing</code> and only exports through the <code>/experimental</code> subpath. The API surface may evolve before promotion to a stable name.
+:::</p>
+<p>The <code>@osdk/unit-testing</code> package allows you to unit test code that takes an OSDK <code>Client</code>, including <a href="https://www.palantir.com/docs/foundry/functions/overview/">Foundry functions</a>, without making a request to Foundry. The package provides:</p>
+<ul>
+<li><strong><code>createMockClient</code>:</strong> A <code>Client</code> you stub with fluent <code>.when</code>, <code>.whenObjectSet</code>, and <code>.whenQuery</code> matchers.</li>
+<li><strong><code>createMockOsdkObject</code>:</strong> Builds fully shaped <code>Osdk.Instance</code> values, including <code>$primaryKey</code>, <code>$title</code>, <code>$rid</code>, <code>$link</code>, and <code>$clone</code>.</li>
+<li><strong><code>createMockObjectSet</code>:</strong> A standalone <code>ObjectSet</code> that you can pass anywhere a real one would go, or use as a many-link target for aggregations.</li>
+<li><strong><code>createMockAttachment</code>:</strong> A placeholder for attachment values.</li>
+</ul>
+<h2>Install</h2>
+<p>Install the package as a development dependency:</p>
+<pre><code class="language-bash">npm install --save-dev @osdk/unit-testing
+</code></pre>
+<p>The package has the following peer dependencies, which should already be installed in your project:</p>
+<ul>
+<li><code>@osdk/api</code></li>
+<li><code>@osdk/client</code></li>
+<li><code>@osdk/functions</code></li>
+</ul>
+<p>The package uses <code>vitest</code> internally for example tests; you can use any test runner in your own code.</p>
+<h2>Import</h2>
+<p>All exports are available from the <code>/experimental</code> subpath:</p>
+<pre><code class="language-typescript">import {
+  createMockAttachment,
+  createMockClient,
+  createMockObjectSet,
+  createMockOsdkObject,
+} from &quot;@osdk/unit-testing/experimental&quot;;
+
+import type {
+  AggregateStubBuilder,
+  FetchOneStubBuilder,
+  FetchPageStubBuilder,
+  QueryStubBuilder,
+  StubBuilderFor,
+} from &quot;@osdk/unit-testing/experimental&quot;;
+</code></pre>
+<h2>Write your first test</h2>
+<p>Consider a Foundry function that reads the first <code>Employee</code> from a page:</p>
+<pre><code class="language-typescript">import type { Osdk } from &quot;@osdk/api&quot;;
+import type { Client } from &quot;@osdk/client&quot;;
+import { Employee } from &quot;your-app-sdk&quot;;
+
+export async function basicFetchPage(
+  client: Client,
+): Promise&lt;Osdk.Instance&lt;Employee&gt;&gt; {
+  const objects = await client(Employee).fetchPage();
+  const object = objects.data[0];
+  if (object == null) throw new Error(&quot;No objects returned&quot;);
+  return object;
+}
+</code></pre>
+<p>A unit test with the mock client is shown below:</p>
+<pre><code class="language-typescript">import {
+  createMockClient,
+  createMockOsdkObject,
+} from &quot;@osdk/unit-testing/experimental&quot;;
+import { describe, expect, it } from &quot;vitest&quot;;
+import { Employee } from &quot;your-app-sdk&quot;;
+import { basicFetchPage } from &quot;./basicFetchPage.js&quot;;
+
+describe(&quot;basicFetchPage&quot;, () =&gt; {
+  it(&quot;returns the first Employee&quot;, async () =&gt; {
+    const mockClient = createMockClient();
+    const mockEmployee = createMockOsdkObject(Employee, {
+      employeeId: 1,
+      fullName: &quot;John&quot;,
+    });
+
+    mockClient
+      .when((stub) =&gt; stub(Employee).fetchPage())
+      .thenReturnObjects([mockEmployee]);
+
+    const actual = await basicFetchPage(mockClient);
+    expect(actual).toEqual(mockEmployee);
+  });
+});
+</code></pre>
+<p>The test does three things:</p>
+<ol>
+<li><strong><code>createMockClient()</code></strong> returns a <code>MockClient</code> that satisfies the <code>Client</code> interface; pass it anywhere your code expects a real client.</li>
+<li><strong><code>createMockOsdkObject(Employee, { ... })</code></strong> builds a real-shaped <code>Osdk.Instance</code>.</li>
+<li><strong><code>mockClient.when(stub =&gt; stub(Employee).fetchPage()).thenReturnObjects([...])</code></strong> records a stub. The <code>stub</code> argument is a <code>Client</code>-like factory; rebuild the same call chain that your code under test will execute.</li>
+</ol>
+<h2>Mock objects and links</h2>
+<p><code>createMockOsdkObject</code> builds a fully shaped <code>Osdk.Instance&lt;T&gt;</code> that you can pass to your code under test or place inside a <code>.thenReturnObjects([...])</code> stub. The following sections cover the object shape, the <code>links</code> option (single, many, errors, and mock object sets), and <code>createMockAttachment</code>.</p>
+<h3>Arguments</h3>
+<p><code>createMockOsdkObject</code> takes three arguments:</p>
+<pre><code class="language-typescript">createMockOsdkObject(objectType, properties, options);
+</code></pre>
+<ol>
+<li><strong><code>objectType</code>:</strong> The generated object type constant from your SDK (for example, <code>Employee</code>). The mock reads its <code>apiName</code> and <code>primaryKeyApiName</code> from this value.</li>
+<li><strong><code>properties</code>:</strong> The property values you want on the mock. Must include the primary key property. Other properties are optional and are only relevant if your code reads them.</li>
+<li><strong><code>options</code>:</strong> Three optional fields:
+   * <strong><code>links</code>:</strong> Mock data for the object's <code>$link</code> accessor. See <a href="#links">Links</a>.
+   * <strong><code>titlePropertyApiName</code>:</strong> The API name of the property that should back <code>$title</code>. See <a href="#set-the-title-property">Set the title property</a>.
+   * <strong><code>$rid</code>:</strong> Override the auto-generated <code>$rid</code>. The default is <code>"ri.mock.main.object.&lt;apiName&gt;.&lt;primaryKey&gt;"</code>.</li>
+</ol>
+<p>The returned mock has the same shape as a real OSDK instance:</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>$apiName</code>, <code>$objectType</code></td>
+<td>The object type's API name.</td>
+</tr>
+<tr>
+<td><code>$primaryKey</code></td>
+<td>The value of the primary key property in <code>properties</code>.</td>
+</tr>
+<tr>
+<td><code>$title</code></td>
+<td>The value of the <code>titlePropertyApiName</code> property; <code>undefined</code> if not set.</td>
+</tr>
+<tr>
+<td><code>$rid</code></td>
+<td><code>options.$rid</code> if provided, otherwise an auto-generated mock RID.</td>
+</tr>
+<tr>
+<td><code>$objectSpecifier</code></td>
+<td><code>"&lt;apiName&gt;:&lt;primaryKey&gt;"</code>.</td>
+</tr>
+<tr>
+<td><code>$link</code></td>
+<td>A proxy backed by <code>options.links</code>.</td>
+</tr>
+<tr>
+<td><code>$clone(updates?)</code></td>
+<td>Returns a fresh mock with merged property values.</td>
+</tr>
+</tbody>
+</table>
+<p>Mocks do not model the <code>$as</code> and <code>$__EXPERIMENTAL__NOT_SUPPORTED_YET__*</code> accessors; accessing them throws an error.</p>
+<h3>Basic usage</h3>
+<pre><code class="language-typescript">import { createMockOsdkObject } from &quot;@osdk/unit-testing/experimental&quot;;
+import { Employee } from &quot;your-app-sdk&quot;;
+
+const emp = createMockOsdkObject(
+  Employee,
+  { employeeId: 1, fullName: &quot;John Doe&quot; },
+  { titlePropertyApiName: &quot;fullName&quot; },
+);
+
+emp.$primaryKey; // 1
+emp.$title; // &quot;John Doe&quot;
+emp.$objectSpecifier; // &quot;Employee:1&quot;
+</code></pre>
+<p>You must include the primary key property. <code>createMockOsdkObject</code> reads <code>objectType.primaryKeyApiName</code> and throws an error if that key is not present in <code>properties</code>.</p>
+<h3>Set the title property</h3>
+<p>In the test environment, the OSDK does not know which property on a given object type is its title. If your code under test reads <code>obj.$title</code>, you must tell the mock which property to surface there by passing <code>titlePropertyApiName</code>:</p>
+<pre><code class="language-typescript">const emp = createMockOsdkObject(
+  Employee,
+  { employeeId: 1, fullName: &quot;John Doe&quot; },
+  { titlePropertyApiName: &quot;fullName&quot; },
+);
+
+emp.$title; // &quot;John Doe&quot;
+</code></pre>
+<p><code>titlePropertyApiName</code> must name a property that you actually included in <code>properties</code>; <code>createMockOsdkObject</code> throws an error if it is missing. If you omit <code>titlePropertyApiName</code> entirely, <code>$title</code> is <code>undefined</code>.</p>
+<h3>Links</h3>
+<p>The <code>links</code> option mirrors the link API names from the object type. Each value can be one of the following:</p>
+<table>
+<thead>
+<tr>
+<th>Link multiplicity</th>
+<th>Allowed values</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Single</td>
+<td>A mock object, or an <code>Error</code> instance.</td>
+</tr>
+<tr>
+<td>Many</td>
+<td>An array of mock objects, or a <code>MockObjectSet</code> (see <a href="#mock-object-sets">Mock object sets</a>).</td>
+</tr>
+</tbody>
+</table>
+<h4>Successful link fetch</h4>
+<pre><code class="language-typescript">const office = createMockOsdkObject(Office, {
+  officeId: &quot;nyc&quot;,
+  name: &quot;New York Office&quot;,
+});
+
+const employee = createMockOsdkObject(
+  Employee,
+  { employeeId: 1, fullName: &quot;John Doe&quot; },
+  { links: { officeLink: office } },
+);
+
+await employee.$link.officeLink.fetchOne();
+// â office
+
+(await employee.$link.officeLink.fetchOneWithErrors()).value;
+// â office
+</code></pre>
+<h4>Failed link fetch</h4>
+<p>Pass an <code>Error</code> instance to exercise the failure branch in the calling code. <code>fetchOne()</code> rejects with the error, and <code>fetchOneWithErrors()</code> resolves to <code>{ error }</code>:</p>
+<pre><code class="language-typescript">const employee = createMockOsdkObject(
+  Employee,
+  { employeeId: 1 },
+  { links: { officeLink: new Error(&quot;link unavailable&quot;) } },
+);
+
+await expect(employee.$link.officeLink.fetchOne()).rejects.toThrow(
+  &quot;link unavailable&quot;,
+);
+
+const result = await employee.$link.officeLink.fetchOneWithErrors();
+result.error; // the Error
+result.value; // undefined
+</code></pre>
+<h4>Missing links</h4>
+<p>If your code accesses <code>$link.someLink</code> and you did not configure it, the accessor still exists. The <code>fetchOne</code> method rejects, and <code>fetchOneWithErrors</code> resolves with <code>{ error }</code>, containing the link name, object type, and primary key:</p>
+<pre><code class="language-typescript">const employee = createMockOsdkObject(Employee, { employeeId: 1 });
+
+await employee.$link.officeLink.fetchOne();
+// rejects
+</code></pre>
+<h4>Many-link with an array</h4>
+<p>Pass an array; the <code>$link</code> accessor exposes the same call shapes that a real many-link does:</p>
+<pre><code class="language-typescript">const peep1 = createMockOsdkObject(Employee, {
+  employeeId: 10,
+  fullName: &quot;Alice&quot;,
+});
+const peep2 = createMockOsdkObject(Employee, {
+  employeeId: 11,
+  fullName: &quot;Bob&quot;,
+});
+
+const employee = createMockOsdkObject(
+  Employee,
+  { employeeId: 1 },
+  { links: { peeps: [peep1, peep2] } },
+);
+
+(await employee.$link.peeps.fetchPage()).data;
+// â [peep1, peep2]
+
+await employee.$link.peeps.fetchOne(11);
+// â peep2 (matched by $primaryKey)
+
+for await (const peep of employee.$link.peeps.asyncIter()) {
+  // peep1, peep2
+}
+</code></pre>
+<p><code>fetchOne(primaryKey)</code> throws an error when no array element has a matching <code>$primaryKey</code>. The <code>aggregate()</code> method is <strong>not</strong> supported on the array form; pass a <a href="#mock-object-sets"><code>MockObjectSet</code></a> instead.</p>
+<h4>Many-link with a <code>MockObjectSet</code></h4>
+<p>A many-link can also be backed by a <code>MockObjectSet</code> instead of an array. Use this approach when your code calls <code>aggregate()</code>, <code>where()</code>, or other object-set methods on the link:</p>
+<pre><code class="language-typescript">const employee = createMockOsdkObject(
+  Employee,
+  { employeeId: 1 },
+  { links: { peeps: peepsSet } },
+);
+</code></pre>
+<p>See <a href="#mock-object-sets">Mock object sets</a> for how to build <code>peepsSet</code> and stub calls on it.</p>
+<h3>Mock object sets</h3>
+<p><code>createMockObjectSet(objectType)</code> returns an <code>ObjectSet&lt;T&gt;</code> that you can pass anywhere a real one would go: directly into a function under test, or as the value of a many-link in <code>createMockOsdkObject</code>. By itself, the mock object set holds no data; you wire up its behavior by registering stubs against it on a <code>MockClient</code>.</p>
+<pre><code class="language-typescript">import {
+  createMockClient,
+  createMockObjectSet,
+  createMockOsdkObject,
+} from &quot;@osdk/unit-testing/experimental&quot;;
+
+const mockClient = createMockClient();
+const peepsSet = createMockObjectSet(Employee);
+
+mockClient
+  .whenObjectSet(
+    peepsSet,
+    (os) =&gt; os.aggregate({ $select: { $count: &quot;unordered&quot; } }),
+  )
+  .thenReturnAggregation({ $count: 7 });
+</code></pre>
+<p>Now <code>peepsSet.aggregate(...)</code> resolves to <code>{ $count: 7 }</code>. You can attach the same set to a parent mock object as a many-link:</p>
+<pre><code class="language-typescript">const employee = createMockOsdkObject(
+  Employee,
+  { employeeId: 1 },
+  { links: { peeps: peepsSet } },
+);
+
+const result = await employee.$link.peeps.aggregate({
+  $select: { $count: &quot;unordered&quot; },
+});
+result.$count; // 7
+</code></pre>
+<p>You can register <code>fetchPage</code>, <code>where</code>, and other call shapes on the same set; see <a href="#stub-calls-on-a-mock-object-set">Stub calls on a mock object set</a> for the full builder reference.</p>
+<h3>Mock attachments</h3>
+<p>For function inputs of type <code>Attachment</code>, <code>createMockAttachment</code> returns a placeholder value with the surface that your code can call against. Use it the same way you would use <code>createMockOsdkObject</code>:</p>
+<pre><code class="language-typescript">import { createMockAttachment } from &quot;@osdk/unit-testing/experimental&quot;;
+
+const blob = new Blob([&quot;hello world!&quot;], { type: &quot;text/plain&quot; });
+const attachment = createMockAttachment(&quot;ri.attachments.main.attachment.abc&quot;, blob);
+</code></pre>
+<h3>Cloning and updates</h3>
+<p><code>$clone</code> is supported and returns a fresh frozen mock with merged properties. Updating the primary key to a different value throws an error.</p>
+<pre><code class="language-typescript">const updated = employee.$clone({ fullName: &quot;Jane Doe&quot; });
+updated.$primaryKey; // unchanged
+updated.fullName; // &quot;Jane Doe&quot;
+</code></pre>
+<h2>Stub client calls</h2>
+<p><code>createMockClient()</code> returns a value that satisfies the OSDK <code>Client</code> interface, plus four additional methods for setting up stubs:</p>
+<ul>
+<li><strong><code>client.when(callback)</code>:</strong> Stub a call rooted at the client. Pass a callback that rebuilds the chain that your code under test will make (for example, <code>stub(Employee).where(...).fetchPage()</code>). Returns a builder whose <code>.thenReturn*</code> matcher depends on the call shape.</li>
+<li><strong><code>client.whenObjectSet(set, callback)</code>:</strong> Stub a call on a specific <code>MockObjectSet</code> (created with <code>createMockObjectSet</code>). Use this approach when your code is handed an object set directly, or for a many-link backed by a mock object set.</li>
+<li><strong><code>client.whenQuery(query, params?)</code>:</strong> Stub a query call (a generated function on the Ontology). Returns a builder with <code>.thenReturn(value)</code> and <code>.thenThrow(error)</code>.</li>
+<li><strong><code>client.clearStubs()</code>:</strong> Removes every stub registered on this client.</li>
+</ul>
+<p>Each registrar is covered in the following sections.</p>
+<h3>Stub calls rooted at the client</h3>
+<p>Use <code>client.when(callback)</code> to rebuild the call chain that your code under test will make. The argument is a <code>Client</code>-like factory; chain <code>where</code>, <code>aggregate</code>, <code>fetchPage</code>, <code>fetchOne</code>, and so on, just as your code would.</p>
+<h4><code>fetchPage</code> with <code>thenReturnObjects</code></h4>
+<pre><code class="language-typescript">const mockClient = createMockClient();
+const emp = createMockOsdkObject(Employee, { employeeId: 1, fullName: &quot;John&quot; });
+
+mockClient
+  .when((stub) =&gt; stub(Employee).fetchPage())
+  .thenReturnObjects([emp]);
+
+const page = await mockClient(Employee).fetchPage();
+page.data; // [emp]
+</code></pre>
+<p><code>thenReturnObjects</code> also wires up <code>asyncIter</code>. If your code iterates instead of paginating, the same stub serves both call shapes.</p>
+<h4><code>fetchOne</code> with <code>thenReturnObject</code></h4>
+<pre><code class="language-typescript">mockClient
+  .when((stub) =&gt; stub(Employee).fetchOne(1))
+  .thenReturnObject(emp);
+</code></pre>
+<h4><code>aggregate</code> with <code>thenReturnAggregation</code></h4>
+<pre><code class="language-typescript">mockClient
+  .when((stub) =&gt;
+    stub(Employee)
+      .where({ employeeId: { $eq: 5 } })
+      .aggregate({ $select: { &quot;employeeLocation:exactDistinct&quot;: &quot;asc&quot; } })
+  )
+  .thenReturnAggregation({ employeeLocation: { exactDistinct: 3 } });
+</code></pre>
+<p>Stub <code>$groupBy</code> aggregations the same way; return an array of group rows:</p>
+<pre><code class="language-typescript">mockClient
+  .when((stub) =&gt;
+    stub(Employee).aggregate({
+      $select: { &quot;employeeId:max&quot;: &quot;unordered&quot; },
+      $groupBy: { employeeId: &quot;exact&quot; },
+    })
+  )
+  .thenReturnAggregation([
+    { $group: { employeeId: 5 }, employeeId: { max: 5 } },
+  ]);
+</code></pre>
+<h4>Multiple stubs on the same client</h4>
+<p>You can register as many stubs as needed. Stubs are matched against the calls your code makes; registration order does not affect matching.</p>
+<h3>Stub calls on a mock object set</h3>
+<p>When code receives an <code>ObjectSet</code> directly (not built from <code>client(Type)</code>), or when you are stubbing aggregate or fetch behavior for a many-link backed by a <code>MockObjectSet</code>, register stubs against the set itself:</p>
+<pre><code class="language-typescript">import { createMockObjectSet } from &quot;@osdk/unit-testing/experimental&quot;;
+
+const empSet = createMockObjectSet(Employee);
+const emp1 = createMockOsdkObject(Employee, {
+  employeeId: 1,
+  fullName: &quot;Alice&quot;,
+});
+const emp2 = createMockOsdkObject(Employee, { employeeId: 2, fullName: &quot;Bob&quot; });
+
+mockClient
+  .whenObjectSet(empSet, (os) =&gt; os.fetchPage())
+  .thenReturnObjects([emp1, emp2]);
+
+mockClient
+  .whenObjectSet(
+    empSet,
+    (os) =&gt; os.aggregate({ $select: { $count: &quot;unordered&quot; } }),
+  )
+  .thenReturnAggregation({ $count: 42 });
+</code></pre>
+<p>The same <code>empSet</code> can then be passed wherever your code expects an <code>ObjectSet&lt;Employee&gt;</code>: into a function under test, or as a many-link target on a parent mock object.</p>
+<h3>Stub Foundry queries</h3>
+<p>Queries (functions on the Ontology) can be stubbed as well:</p>
+<pre><code class="language-typescript">import { addOne } from &quot;your-app-sdk&quot;;
+
+mockClient.whenQuery(addOne, { n: 5 }).thenReturn(6);
+mockClient.whenQuery(addOne, { n: 99 }).thenThrow(new Error(&quot;boom&quot;));
+</code></pre>
+<p><code>thenReturn(value)</code> resolves the query promise to <code>value</code>, and <code>thenThrow(error)</code> rejects it. Different parameter objects can be stubbed independently:</p>
+<pre><code class="language-typescript">mockClient.whenQuery(addOne, { n: 10 }).thenReturn(11);
+mockClient.whenQuery(addOne, { n: 20 }).thenReturn(21);
+</code></pre>
+<p>Queries with array parameters follow the same pattern; match the parameters that your code passes:</p>
+<pre><code class="language-typescript">mockClient
+  .whenQuery(queryTypeReturnsArray, { people: [&quot;Alice&quot;, &quot;Bob&quot;] })
+  .thenReturn([&quot;Alice - processed&quot;, &quot;Bob - processed&quot;]);
+</code></pre>
+<h3>Reset stubs between tests</h3>
+<p><code>mockClient.clearStubs()</code> removes every stub registered on the client. This is useful if you reuse a client across multiple <code>it</code> blocks; otherwise, construct a fresh <code>createMockClient()</code> for each test for isolation.</p>
+<h2>Test Foundry Platform APIs with MSW</h2>
+<p><code>createMockClient</code> only stubs Ontology calls (object types, queries, and object sets). It does not intercept the Foundry Platform APIs in <code>@osdk/foundry.*</code> and <code>@osdk/internal.foundry.*</code>; those calls go through the regular <code>fetch</code> path. To keep them off the network in tests, intercept them with <a href="https://mswjs.io/">MSW â</a>.</p>
+<h3>How it works</h3>
+<p>You stub Platform SDK requests with a network request stubbing library. It uses a placeholder base URL:</p>
+<pre><code>https://mock.invalid/
+</code></pre>
+<p>Every Platform call your code makes will resolve against that origin. Provide MSW handlers for the specific paths that your function calls.</p>
+<h3>Set up MSW</h3>
+<p>Install MSW as a development dependency:</p>
+<pre><code class="language-bash">npm install --save-dev msw
+</code></pre>
+<p>Set up a Node server in your test file. The standard MSW lifecycle hooks reset handlers between tests so each <code>it</code> block is isolated:</p>
+<pre><code class="language-typescript">import { http, HttpResponse } from &quot;msw&quot;;
+import { setupServer } from &quot;msw/node&quot;;
+import { afterAll, afterEach, beforeAll } from &quot;vitest&quot;;
+
+const server = setupServer();
+
+beforeAll(() =&gt; server.listen({ onUnhandledRequest: &quot;error&quot; }));
+afterEach(() =&gt; server.resetHandlers());
+afterAll(() =&gt; server.close());
+</code></pre>
+<p>Set <code>onUnhandledRequest: "error"</code>; it surfaces accidental Platform calls without a handler instead of letting them fall through silently.</p>
+<h3>Stub a Platform call</h3>
+<p>A function that loads the current user and gates on a username suffix:</p>
+<pre><code class="language-typescript">import type { Client } from &quot;@osdk/client&quot;;
+import { Users } from &quot;@osdk/foundry.admin&quot;;
+
+export async function requireAdminUser(client: Client): Promise&lt;string&gt; {
+  const user = await Users.getCurrent(client);
+  if (!user.username.endsWith(&quot;@admin&quot;)) {
+    throw new Error(`User ${user.username} is not an admin`);
+  }
+  return user.username;
+}
+</code></pre>
+<p>The test stubs the Platform endpoint with MSW and uses <code>createMockClient()</code> for the <code>Client</code>:</p>
+<pre><code class="language-typescript">import type { getCurrent } from &quot;@osdk/foundry.admin/User&quot;;
+import { createMockClient } from &quot;@osdk/unit-testing/experimental&quot;;
+import { http, HttpResponse } from &quot;msw&quot;;
+import { setupServer } from &quot;msw/node&quot;;
+import { afterAll, afterEach, beforeAll, describe, expect, it } from &quot;vitest&quot;;
+import { requireAdminUser } from &quot;./requireAdminUser.js&quot;;
+
+type User = Awaited&lt;ReturnType&lt;typeof getCurrent&gt;&gt;;
+
+const server = setupServer();
+beforeAll(() =&gt; server.listen({ onUnhandledRequest: &quot;error&quot; }));
+afterEach(() =&gt; server.resetHandlers());
+afterAll(() =&gt; server.close());
+
+describe(&quot;requireAdminUser&quot;, () =&gt; {
+  it(&quot;resolves when the current user is an admin&quot;, async () =&gt; {
+    server.use(
+      http.get(
+        &quot;https://mock.invalid/api/v2/admin/users/getCurrent&quot;,
+        () =&gt;
+          HttpResponse.json(
+            {
+              id: &quot;user-1&quot;,
+              username: &quot;alice@admin&quot;,
+              givenName: &quot;Alice&quot;,
+              familyName: &quot;Admin&quot;,
+              realm: &quot;default&quot;,
+              status: &quot;ACTIVE&quot;,
+              attributes: {},
+            } satisfies User,
+          ),
+      ),
+    );
+
+    const mockClient = createMockClient();
+    expect(await requireAdminUser(mockClient)).toBe(&quot;alice@admin&quot;);
+  });
+
+  it(&quot;rejects when the user is not an admin&quot;, async () =&gt; {
+    server.use(
+      http.get(
+        &quot;https://mock.invalid/api/v2/admin/users/getCurrent&quot;,
+        () =&gt;
+          HttpResponse.json(
+            {
+              id: &quot;user-2&quot;,
+              username: &quot;bob@example.com&quot;,
+              givenName: &quot;Bob&quot;,
+              familyName: &quot;Example&quot;,
+              realm: &quot;default&quot;,
+              status: &quot;ACTIVE&quot;,
+              attributes: {},
+            } satisfies User,
+          ),
+      ),
+    );
+
+    const mockClient = createMockClient();
+    await expect(requireAdminUser(mockClient)).rejects.toThrow(
+      &quot;User bob@example.com is not an admin&quot;,
+    );
+  });
+});
+</code></pre>
+<p>:::callout{theme="neutral" title="Type your fixtures against the real Platform type"}
+The MSW response body is a JSON literal, so the body can drift from the actual <code>@osdk/foundry.*</code> shape (a renamed field, a new required property, and so on) and only fail at runtime.</p>
+<p>To keep the fixture tied to the real type, derive it from the <code>Platform</code> function itself:</p>
+<pre><code class="language-typescript">import type { somePlatformFn } from &quot;@osdk/foundry.&lt;service&gt;/&lt;Resource&gt;&quot;;
+
+type ResponseShape = Awaited&lt;ReturnType&lt;typeof somePlatformFn&gt;&gt;;
+</code></pre>
+<p>Then assert the response body with <code>satisfies ResponseShape</code>:</p>
+<pre><code class="language-typescript">HttpResponse.json(
+  {/* ...response fields... */} satisfies ResponseShape,
+);
+</code></pre>
+<p><code>Awaited&lt;ReturnType&lt;typeof fn&gt;&gt;</code> unwraps the <code>Promise&lt;T&gt;</code> returned by an <code>async</code> function, giving you <code>T</code> directly, which ensures that the mocked response matches what would be returned from real calls exactly.</p>
+<p>In the example above, the concrete instance of this pattern is <code>type User = Awaited&lt;ReturnType&lt;typeof getCurrent&gt;&gt;</code>; name the alias after whatever the endpoint returns.
+:::</p>
+<h3>Tips</h3>
+<ul>
+<li><strong>Use <code>onUnhandledRequest: "error"</code>.</strong> Spotting a missing handler is simpler than debugging a hung test.</li>
+<li><strong>Reuse one server across handlers.</strong> Call <code>setupServer()</code> once at module scope, then call <code>server.use(...)</code> inside each <code>it</code> block for the per-test handler. Use <code>afterEach(server.resetHandlers)</code> to clear them.</li>
+<li><strong>Combine Ontology stubs with Platform stubs.</strong> A single <code>mockClient</code> handles both kinds of call simultaneously; Ontology calls go through <code>when</code>, <code>whenObjectSet</code>, and <code>whenQuery</code>, while Platform calls go through MSW.</li>
+</ul>
+</body>
+</html>

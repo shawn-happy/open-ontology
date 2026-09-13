@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Error reference</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Error reference</h1>
+<p>:::callout{theme="warning"}
+Object Monitors are superseded by <a href="https://www.palantir.com/docs/foundry/automate/overview/">Automate</a>. Automate is a fully backward-compatible product that offers a single entry point forÂ all business automationÂ in the platform.
+:::</p>
+<p>This page describes some of the common error categories that may be encountered when using the Object Monitors application or the <strong>Monitors</strong> view in Object Explorer.</p>
+<h2>Evaluation errors</h2>
+<p>A monitor may fail to evaluate due to problems with the underlying data. Monitors are automatically retried, but some errors may require manual intervention. For example, if the object type being monitored is deleted, monitors using inputs containing objects of that type will fail to evaluate.</p>
+<h3>Monitor out of sync</h3>
+<p>Object monitors use a reference to a <a href="https://www.palantir.com/docs/foundry/object-explorer/save-explorations/">saved exploration</a> to define the input. This reference is not dynamic, but instead is stored according to the exploration as it exists when the monitor is saved. If the exploration changes, the monitor will continue to evaluate using the exploration's old state unless the monitor is updated. In this case, a warning banner is displayed on the monitor:</p>
+<p><img alt="Warning banner for out of sync monitor" src="../../_resources/foundry/object-monitors/monitor_out_of_sync_banner.png" /></p>
+<h2>Notification effect errors</h2>
+<p>After a successful monitor evaluation, notifications may fail to send. If this occurs, the history event will show a tag indicating that notifications for that event were not sent to subscribers, along with additional details such as an error identifier and error message.</p>
+<h2>Action effect errors</h2>
+<p>After a successful monitor evaluation, Action effects may fail to execute. This failure could happen for a variety of reasons, including changes to the Action logic that make it incompatible with the saved input configuration on the monitor, or because the <a href="https://www.palantir.com/docs/foundry/action-types/submission-criteria/">submission criteria</a> for the Action is not met. If this failure occurs, the history event timeline will show a tag indicating that one or more Actions failed to execute for that event, along with relevant error details.</p>
+<h2>Permissions</h2>
+<p>Monitor evaluation uses the permissions of the individual subscribers. This is to ensure that monitor evaluation and any subsequent Action or notification effects will always reflect data that the user may access at the time the monitor is evaluated. If a user is missing permission to view the input object type(s), saved exploration(s), and/or the object monitor, they may see a permission-related error message instead of successful evaluation. We strongly recommend storing monitors and their inputs in shared <a href="https://www.palantir.com/docs/foundry/security/projects-and-roles/">Projects</a>.</p>
+</body>
+</html>

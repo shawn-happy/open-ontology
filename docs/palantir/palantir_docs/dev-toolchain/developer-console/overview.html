@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Developer Console</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Developer Console</h1>
+<p>Use Developer Console to build and manage <strong>Custom Applications</strong> and their associated authorization clients and SDKs. A custom application allows developers to extend Foundry capabilities with custom logic hosted in or outside of Foundry. Legacy OAuth clients are also managed in Developer Console.</p>
+<p>:::callout{theme="neutral" title="Developer Console or SuperRepo?"}
+Developer Console is the UI-first way to configure a custom application: you assemble it here, and Foundry generates and publishes the SDK for the resources you add. If you would rather define the application in code, review <a href="https://www.palantir.com/docs/foundry/superrepo/overview/">SuperRepo</a>. A SuperRepo is a pro-code monorepo that holds your Ontology definitions, <a href="https://www.palantir.com/docs/foundry/functions/overview/">functions</a>, and frontend together. It generates the SDK locally as you edit, and ships as a <a href="https://www.palantir.com/docs/foundry/marketplace/foundry-products/">Marketplace product</a> that you can deploy to multiple enrollments from your own CI system.
+:::</p>
+<h2>Custom applications</h2>
+<p>The primary components of a custom application are as follows:</p>
+<ol>
+<li>
+<p><strong>Authorization client:</strong> An <a href="https://www.palantir.com/docs/foundry/developer-console/application-restrictions/">OAuth client</a> that allows human and service users programmatic access to Foundry.</p>
+</li>
+<li>
+<p><strong>SDKs:</strong> One or more SDKs generated from resources added to an application. See <a href="https://www.palantir.com/docs/foundry/developer-console/application-restrictions/">Application restrictions</a>.</p>
+</li>
+<li>
+<p><strong>SDK documentation:</strong> Auto-generated API documentation and code snippets tailored to your application's SDK.</p>
+</li>
+<li>
+<p><strong>Permissions:</strong> User and application-level access controls. See <a href="https://www.palantir.com/docs/foundry/developer-console/permissions/">Permissions</a>.</p>
+</li>
+<li>
+<p><strong>Metrics:</strong> Usage and performance insights for your application. See <a href="https://www.palantir.com/docs/foundry/developer-console/application-metrics/">Application metrics</a>.</p>
+</li>
+<li>
+<p><strong>Web hosting (optional):</strong> Host a custom frontend on a Foundry subdomain.</p>
+</li>
+<li>
+<p><strong>Code repository (optional):</strong> A linked code repository resource for application code.</p>
+</li>
+<li>
+<p><strong>Marketplace distribution (optional):</strong> Package and deploy applications across Foundry environments. See <a href="https://www.palantir.com/docs/foundry/developer-console/marketplace-installation/">Install a Developer Console application with Marketplace</a>.</p>
+</li>
+<li>
+<p><strong>MCP server (optional):</strong> Expose ontology resources as Model Context Protocol tools for external AI agents. See <a href="https://www.palantir.com/docs/foundry/ontology-mcp/overview/">Ontology MCP</a>.</p>
+</li>
+</ol>
+<p>To get started building a custom application, see <a href="https://www.palantir.com/docs/foundry/developer-console/create-application/">Create a new Developer Console application</a>.</p>
+<h2>OAuth clients</h2>
+<p>OAuth clients are a legacy primitive similar to custom applications, but contain only an authorization client and none of the other capabilities listed <a href="#custom-applications">above</a>. OAuth clients have typically been used to grant unrestricted access to programmatic users. It is recommended that <a href="https://www.palantir.com/docs/foundry/developer-console/application-restrictions/#unrestricted-applications">unrestricted applications</a> be used instead of an OAuth client.</p>
+<h2>Developer Console landing page</h2>
+<p>The Developer Console landing page lists the custom applications and OAuth clients that you have access to.</p>
+<p>For more information on access requirements, review the <a href="https://www.palantir.com/docs/foundry/developer-console/permissions/#user-permissions">permissions documentation</a>.</p>
+<p><img alt="The Developer Console home page lists all applications and OAuth clients." src="../../_resources/foundry/developer-console/developer-console-landing.png" /></p>
+<h2>Application pages</h2>
+<h3>Application overview</h3>
+<p>From the application overview page, you can:</p>
+<ul>
+<li>View website hosting status and generated SDK versions.</li>
+<li>See the ontology resources included in your application's OSDK.</li>
+<li>Edit the application metadata or delete the application.</li>
+</ul>
+<p><img alt="The application overview page displays resource counts and sharing options." src="../../_resources/foundry/developer-console/app-overview.png" /></p>
+<p>For OAuth clients, see <a href="https://www.palantir.com/docs/foundry/developer-console/oauth-clients/#manage-a-standalone-oauth-client-in-developer-console">Managing an OAuth client in Developer Console</a>.</p>
+<h3>OAuth and restrictions</h3>
+<p>Configure the authentication flow and resource access restrictions for your application. The restrictions ensure tokens only grant access to resources approved for the application. This page is also where you set the application to <strong>Restricted</strong> or <strong>Unrestricted</strong> under <strong>Application restrictions</strong>; that setting is not part of the creation wizard.</p>
+<p>Learn more about <a href="https://www.palantir.com/docs/foundry/developer-console/permissions/">configuring permissions</a> and <a href="https://www.palantir.com/docs/foundry/developer-console/application-restrictions/#configure-application-restrictions">application restrictions</a>.</p>
+<p><img alt="The OAuth and restrictions page displays authentication and resource configuration." src="../../_resources/foundry/developer-console/oauth-scopes-page.png" /></p>
+<h3>SDK documentation</h3>
+<p>Each application includes auto-generated API documentation tailored to its SDK content. You can access it by selecting <strong>API documentation</strong> from the left panel.</p>
+<p>The API documentation includes:</p>
+<ul>
+<li>Installation guides for your application-specific SDK.</li>
+<li>Code examples for loading individual objects and fetching pages of data.</li>
+<li>Reference materials for each ontology object type, action type, and function.</li>
+</ul>
+<p>Use the language dropdown menu to switch between TypeScript, Python, and other supported languages.</p>
+<p><img alt="The application documentation page shows API reference and code examples." src="../../_resources/foundry/developer-console/app-ontology-documentation.png" /></p>
+<h3>Sharing and tokens</h3>
+<p>Share your application with users, groups, and organizations. Generate long-lived scoped tokens for programmatic access.</p>
+<p><img alt="The application permissions page displays sharing settings and token generation." src="../../_resources/foundry/developer-console/app-permissions.png" /></p>
+<h3>Web hosting</h3>
+<p>Host frontend-only applications, such as React SPAs, directly on Foundry, eliminating the need for external hosting infrastructure.</p>
+<p><img alt="The web hosting page displays deployment options and domain configuration." src="../../_resources/foundry/developer-console/hosting.png" /></p>
+<p>For more detail, review the documentation on <a href="https://www.palantir.com/docs/foundry/developer-console/deploy-custom-application-on-foundry/">hosting an OSDK application on Foundry</a>.</p>
+<h3>Metrics</h3>
+<p>Monitor application performance including request volume, success rates, and API latency.</p>
+<p><img alt="The application metrics page shows request volume and performance data." src="../../_resources/foundry/developer-console/metrics.png" /></p>
+<p><a href="https://www.palantir.com/docs/foundry/developer-console/application-metrics/">Learn more about application metrics.</a></p>
+<h3>MCP</h3>
+<p>Configure your application as an MCP server to expose ontology resources to external AI agents. When enabled, AI agents can discover and use your application's object types, action types, and query functions as MCP tools.</p>
+<p>Learn more about <a href="https://www.palantir.com/docs/foundry/ontology-mcp/overview/">Ontology MCP</a>.</p>
+<h2>Limits</h2>
+<p>By default, each Developer Console application is limited to a total of 1000 data resources and resource access restrictions. Reach out to a Palantir administrator if you encounter this limitation.</p>
+</body>
+</html>

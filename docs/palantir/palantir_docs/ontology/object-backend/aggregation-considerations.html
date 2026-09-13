@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Aggregation considerations</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Aggregation considerations</h1>
+<p>In Foundry, depending on the complexity and volume of data you are working with, applications may not display results with full accuracy (also known as "inexact aggregations") due to the nature of aggregations with high cardinality.</p>
+<p>The <code>object-set-service</code> API has the following fields related to aggregation accuracy that you may use to refine the accuracy wherever available:</p>
+<ul>
+<li>API callers can add <code>AggregationExecutionMode</code> in the request and set to <code>PREFER_ACCURACY</code>. Where set, the API response is slower but provides more accurate results without full accuracy guarantee.</li>
+<li>The aggregation response contains an <code>AggregateResultAccuracy</code> field to indicate whether the result is accurate.</li>
+</ul>
+<p>Each product in Foundry has slightly different behaviors that indicate aggregations might be inexact. Review the following section for examples of how inexact aggregations may manifest in Foundry, and the considerations users should have on reaching accuracy.</p>
+<p>For more guidance, contact Palantir Support.</p>
+<h2>Object Explorer and Workshop</h2>
+<p>Consider the following two histogram screenshots, showing data from a dataset with 20 million objects. The first screenshot is of a dataset pulled into Object Explorer, and the second is Workshop Filter List widget from within Workshop.</p>
+<p><img src="../../_resources/external-b75743fdec36.png" alt="Object Explorer histogram." width="500"></p>
+<p><img src="../../_resources/external-29034ea9d539.png" alt="Workshop Filter List widget histogram." width="500"></p>
+<p>The histogram were constructed using two aggregation requests. The first request tries to get the top 100 buckets by count, receiving an approximate response. The second request gets the counts for the same 100 buckets again, but additionally, filters down to just these 100 buckets to ensure accuracy in the count.</p>
+<p>While the displayed counts are accurate, the second histogram is still inaccurate in the sense that the buckets that are displayed are not the actual top 100 buckets in terms of count, as the first aggregation response was not accurate.</p>
+<p>Object Explorer and Workshop requests to OSS do not specify <code>AggregationExecutionMode</code>, and OSS defaults to <code>PREFER_SPEED</code>.</p>
+<h2>Quiver pivot table and Workshop pivot table</h2>
+<p>When sorting descending columns by count in Quiver and Workshop pivot tables, top buckets are not shown in proper order. In this case, inexact aggregations might be characterized by one of the following error messages:</p>
+<ul>
+<li>"Too many values for <code>column</code>, not all are displayed"</li>
+<li>"Showing approximate results due to computational limitations"</li>
+<li>"Only loading first 1,000 values per property. Filter your data for more accurate results."</li>
+</ul>
+<p>In the examples below, the <code>Example Bucket</code> column is not ranked by descending as desired.</p>
+<p><img src="../../_resources/external-7e67bd41e0a3.png" alt="Workshop pivot table." width="250"></p>
+<p><img src="../../_resources/external-9d1cd52cd482.png" alt="Quiver pivot table with error message." width="600"></p>
+<p><img src="../../_resources/external-d0c1832231dc.png" alt="Quiver pivot table with error message 2." width="400"></p>
+<p>These are not the real top buckets by count as Quiver and Workshop do not specify an ordering in the aggregation request that backs the pivot table. The sorting is completed on the frontend using buckets that are returned.</p>
+<h2>Ontology SDK (OSDK)</h2>
+<p>OSDK is set to <code>PREFER_ACCURACY</code> and its limited aggregation complexity means that every query response will be <code>ACCURATE</code>.</p>
+<p><img alt="OSDK Application documentation." src="../../_resources/foundry/object-backend/inexact-osdk.png" /></p>
+<h2>Functions</h2>
+<p>Functions always use <code>PREFER_ACCURACY</code>, so the value for a given bucket will be correct. There is currently no way to <code>groupBy</code> and <code>orderBy</code> at the same time during a function call. The following code snippet demonstrates a current example of <code>groupBy</code> in the backend and order in memory.</p>
+<pre><code>    @Function()
+    public async aggregateOnMoreBucketsThanAuthorized(): Promise&lt;TwoDimensionalAggregation&lt;string, Double&gt;&gt; {
+        // Aggregate and sum
+        const aggregation = await Objects.search()._af20mInstancesObv2()
+                 .groupBy(o =&gt; o.exampleBucket.topValues())
+                 .count()
+
+        aggregation.buckets.sort((b1, b2) =&gt; b2.value - b1.value);
+        return aggregation;
+    }
+</code></pre>
+<p>Example result:</p>
+<pre><code>{
+  &quot;buckets&quot;: [
+    {
+      &quot;key&quot;: {
+        &quot;string&quot;: &quot;10105&quot;,
+        &quot;type&quot;: &quot;string&quot;
+      },
+      &quot;value&quot;: {
+        &quot;double&quot;: 461,
+        &quot;type&quot;: &quot;double&quot;
+      }
+    },
+    {
+      &quot;key&quot;: {
+        &quot;string&quot;: &quot;10163&quot;,
+        &quot;type&quot;: &quot;string&quot;
+      },
+      &quot;value&quot;: {
+        &quot;double&quot;: 454,
+        &quot;type&quot;: &quot;double&quot;
+      }
+    },
+    {
+      &quot;key&quot;: {
+        &quot;string&quot;: &quot;10848&quot;,
+        &quot;type&quot;: &quot;string&quot;
+      },
+      &quot;value&quot;: {
+        &quot;double&quot;: 454,
+        &quot;type&quot;: &quot;double&quot;
+      }
+    },
+    ...
+
+</code></pre>
+</body>
+</html>

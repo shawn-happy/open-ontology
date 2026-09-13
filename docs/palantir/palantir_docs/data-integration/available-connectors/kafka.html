@@ -1,0 +1,760 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kafka</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Kafka</h1>
+<p>Connect Foundry to Kafka to read data from a Kafka queue into a Foundry stream in realtime.</p>
+<h2>Supported capabilities</h2>
+<table>
+<thead>
+<tr>
+<th>Capability</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Exploration</td>
+<td>ð¢ Generally available</td>
+</tr>
+<tr>
+<td>Streaming syncs</td>
+<td>ð¢ Generally available</td>
+</tr>
+<tr>
+<td><a href="https://www.palantir.com/docs/foundry/data-connection/export-overview/#streaming-exports">Streaming exports</a></td>
+<td>ð¢ Generally available</td>
+</tr>
+</tbody>
+</table>
+<h2>Data model</h2>
+<table>
+<thead>
+<tr>
+<th>key (binary)</th>
+<th>value (binary)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>London</td>
+<td>{"firstName": "John", "lastName": "Doe"}</td>
+</tr>
+<tr>
+<td>Paris</td>
+<td>{"firstName": "Jean", "lastName": "DuPont"}</td>
+</tr>
+</tbody>
+</table>
+<p>The Kafka connector does not parse message contents, and data of any type can be synced into Foundry. All content is uploaded, unparsed, under the <code>value</code> column. Use a downstream streaming transform (for example, <code>parse_json</code> in <a href="https://www.palantir.com/docs/foundry/pipeline-builder/transforms-overview/">Pipeline Builder</a>) to parse the data. The <code>key</code> column will display the key that was recorded in Kafka along with the message. If the message does not include a key, the value will be <code>null</code>.</p>
+<h2>Performance and limitations</h2>
+<p>The connector uses one consumer thread by default. You can configure additional threads to increase throughput, where each creates an independent Kafka consumer assigned a subset of the topic's partitions by the broker. Note that configuring more threads than partitions provides no added benefit, as the extra threads will remain idle.</p>
+<p>Streaming syncs are meant to be consistent, long-running jobs. Any interruption to a streaming sync is a potential outage depending on expected outcomes.</p>
+<p>Currently, streaming syncs have the following limitations:</p>
+<ul>
+<li>Jobs on a <a href="https://www.palantir.com/docs/foundry/data-connection/core-concepts/#foundry-worker">Foundry worker</a> restart at least once every 48 hours. Expected downtime is single-digit minutes (assuming resource availability allows jobs to restart immediately).</li>
+<li>For legacy <a href="https://www.palantir.com/docs/foundry/data-connection/core-concepts/#agent-worker">agent worker</a> sources, jobs restart during agent maintenance windows (typically once a week) to pick up upgrades. Expected downtime is less than five minutes. For high availability, connect through two agents with non-overlapping maintenance windows.</li>
+</ul>
+<p>We recommend running streaming syncs on a <a href="https://www.palantir.com/docs/foundry/data-connection/core-concepts/#foundry-worker">Foundry worker</a>. If the Kafka brokers are on a network that Foundry cannot reach directly, use <a href="https://www.palantir.com/docs/foundry/administration/configure-egress/#agent-proxy-egress-policies">agent proxy egress policies</a> rather than a legacy <a href="https://www.palantir.com/docs/foundry/data-connection/core-concepts/#agent-worker">agent worker</a> source.</p>
+<h2>Setup</h2>
+<ol>
+<li>Open the <a href="https://www.palantir.com/docs/foundry/data-connection/overview/">Data Connection</a> application and select <strong>+ New Source</strong> in the upper right corner of the screen.</li>
+<li>Select <strong>Kafka</strong> from the available connector types.</li>
+<li>Choose to use a <a href="https://www.palantir.com/docs/foundry/data-connection/set-up-direct-connection/"><strong>direct connection</strong></a> over the Internet or to connect <a href="https://www.palantir.com/docs/foundry/data-connection/set-up-agent/"><strong>through an intermediary agent</strong></a>.
+   * We recommend connecting through two agents per source to successfully set up your Kafka connector and reduce downtime. Be sure the agents do not have overlapping maintenance windows.</li>
+<li>Follow the additional configuration prompts to continue the set up of your connector using the information in the sections below.</li>
+</ol>
+<p>Learn more about <a href="https://www.palantir.com/docs/foundry/data-connection/set-up-source/">setting up a connector</a> in Foundry.</p>
+<p>:::callout{theme="neutral"}
+If you do not see Kafka on the connector type page, contact Palantir Support to enable access.
+:::</p>
+<h3>Bootstrap servers</h3>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Required?</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Bootstrap servers</td>
+<td>Yes</td>
+<td>No</td>
+<td>Add Kafka broker servers in the format <code>HOST:PORT</code>, one per line.</td>
+</tr>
+</tbody>
+</table>
+<h3>Authentication</h3>
+<p>Select a credential method to authenticate your Kafka connection: SSL, Username/Password, Azure AD, Kerberos, or NONE.</p>
+<p>Configured credentials must allow the following operations:</p>
+<ul>
+<li><code>Topic</code> resource:</li>
+<li><code>Read</code> for streaming syncs and exploration</li>
+<li><code>Write</code> for streaming exports</li>
+</ul>
+<h4>SSL</h4>
+<p>SSL authentication corresponds to the standard Kafka <code>SSL</code> and <code>SASL_SSL</code>protocols.</p>
+<p>To authenticate with SSL, complete the following configuration options:</p>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Required?</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Endpoint identification algorithm</td>
+<td>Yes</td>
+<td><code>HTTPS</code></td>
+<td><code>HTTPS</code>: Verify that the broker host name matches the host name in the broker's certificate. <br/> <code>NONE</code>: Disable endpoint identification.</td>
+</tr>
+<tr>
+<td>Custom client private key password (legacy)</td>
+<td>No</td>
+<td>Disabled</td>
+<td>Applies only to legacy <a href="https://www.palantir.com/docs/foundry/data-connection/core-concepts/#agent-worker">agent worker</a> sources. Enable when your target requires mutual TLS and the password of the private key differs from the keystore password.</td>
+</tr>
+<tr>
+<td>Use SASL</td>
+<td>No</td>
+<td>No</td>
+<td>Enable SASL authentication.</td>
+</tr>
+</tbody>
+</table>
+<p>If your connection requires mutual TLS (two-way SSL) follow the <a href="#mutual-tls-mtls">steps to add your private key</a>. If you require a custom client private key password, complete the following configuration options:</p>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Required?</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>SSL key password</td>
+<td>Yes</td>
+<td>No</td>
+<td>Password required to decrypt private key.</td>
+</tr>
+</tbody>
+</table>
+<p>If enabling SASL authentication, complete additional configuration:</p>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Required?</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>SASL mechanism</td>
+<td>No</td>
+<td>No</td>
+<td>Select the algorithm with which to encrypt credentials.</td>
+</tr>
+<tr>
+<td><code>saslJaasConfigUsername</code></td>
+<td>Yes</td>
+<td>No</td>
+<td>Username</td>
+</tr>
+<tr>
+<td>SASL JAAS config password</td>
+<td>Yes</td>
+<td>No</td>
+<td>Password</td>
+</tr>
+<tr>
+<td>SASL client callback handler class</td>
+<td>Yes</td>
+<td>No</td>
+<td>Shows the default callback handler for SASL clients. See the <a href="https://docs.oracle.com/javase/8/docs/technotes/guides/security/sasl/sasl-refguide.html">Java SASL API documentation â</a> for more information about SASL callback handlers.</td>
+</tr>
+</tbody>
+</table>
+<h4>OAuth 2.0</h4>
+<p>OAuth authentication uses the OAuth 2.0 protocol. Only the Client Credentials Grant flow is currently supported.</p>
+<p>To use the OAuth 2.0 protocol for authentication, complete the following configuration options:</p>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Required?</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Client ID</td>
+<td>Yes</td>
+<td>No</td>
+<td>The ID of your application requesting authentication</td>
+</tr>
+<tr>
+<td>Client Secret</td>
+<td>Yes</td>
+<td>No</td>
+<td>The shared secret between the server and your application</td>
+</tr>
+<tr>
+<td>Token Endpoint URI</td>
+<td>Yes</td>
+<td>No</td>
+<td>The Uniform Resource Identifier (URI) of the server that grants access or ID tokens</td>
+</tr>
+<tr>
+<td>Scopes</td>
+<td>No</td>
+<td>No</td>
+<td>Connecting via OAuth to Kafka, or specific Kafka topics, may require requesting a collection of scopes. Scopes are arbitrary string values configured in the authentication provider. For example, consumers may need to request one of (kafka-topics-read, kafka-topics-list) in their authentication request to determine the level of access to Kafka they receive.</td>
+</tr>
+<tr>
+<td>SASL Extensions</td>
+<td>No</td>
+<td>No</td>
+<td>Some Kafka servers, for example Confluent Cloud, may require <a href="https://cwiki.apache.org/confluence/display/KAFKA/KIP-342%3A+Add+support+for+Custom+SASL+extensions+in+OAuthBearer+authentication">SASL extensions â</a> to be configured, which would be key-value pairs specific to that server platform.</td>
+</tr>
+</tbody>
+</table>
+<h4>Azure AD</h4>
+<p>The Azure AD authentication mode applies to the Kafka interface for Azure Event Hubs. This mode requires an Azure AD service principal. Review the <a href="https://learn.microsoft.com/azure/event-hubs/event-hubs-about">Azure documentation â</a> to learn how to create a service principal and set up access to Event Hubs.</p>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Required?</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Tenant ID</td>
+<td>Yes</td>
+<td>No</td>
+</tr>
+<tr>
+<td>Client ID</td>
+<td>Yes</td>
+<td>No</td>
+</tr>
+<tr>
+<td>Client secret</td>
+<td>Yes</td>
+<td>No</td>
+</tr>
+</tbody>
+</table>
+<p>The Kafka interface for Azure Event Hubs can also be accessed through a <a href="https://learn.microsoft.com/en-us/azure/event-hubs/azure-event-hubs-kafka-overview#shared-access-signature-sas">SAS Token â</a>. To authenticate with a SAS token, select Username/Password authentication, with username <code>$ConnectionString</code> (no quotes) and password your EventHubs connection string.</p>
+<h4>None</h4>
+<p>Corresponds to Kafka's standard <code>PLAINTEXT</code> protocol.</p>
+<p>:::callout{theme="danger"}
+We highly discourage configuring the connector without authentication or SSL as this will pass unencrypted data between the connector and the Kafka broker. Only use this configuration within secure networks.
+:::</p>
+<h3>Networking</h3>
+<p>The connector must have access to the host of the Kafka broker. If using a direct connection, create DNS egress policies for all bootstrap server hosts.</p>
+<h3>Certificates and private keys</h3>
+<p>You may need to configure additional client or server certificates and private keys for SSL and TLS.</p>
+<p>:::callout{theme="neutral"}
+For sources using a <a href="https://www.palantir.com/docs/foundry/data-connection/core-concepts/#foundry-worker">Foundry worker</a>, you can create and manage certificates centrally using <a href="https://www.palantir.com/docs/foundry/administration/configure-egress-certificates/">egress certificates</a> in Control Panel. Configured certificates can then be applied to your Data Connection source.
+:::</p>
+<h3>SSL</h3>
+<p>SSL connections validate servers certificates. Normally, SSL validations occur through a certificate chain; by default, both agent and Foundry workers trust most standard certificate chains. However, if the server to which you are connecting has a self-signed certificate, or if hostname validation intercepts the connection, the connector must trust the certificate. Contact your Kafka administrator for the right certificate to use.</p>
+<p>Learn more about <a href="https://www.palantir.com/docs/foundry/data-connection/set-up-source/#optional-add-certificates">using certificates in Data Connection</a>.</p>
+<h4>Mutual TLS (mTLS)</h4>
+<p>Your Kafka cluster might require that both the server and client authenticate through mTLS. To enable mTLS, you must configure the following:</p>
+<ul>
+<li><a href="https://www.palantir.com/docs/foundry/data-connection/agent-configuration-reference/#certificates">Client certificate</a></li>
+<li><a href="https://www.palantir.com/docs/foundry/data-connection/agent-configuration-reference/#agents-in-tls-inspected-environments">Server certificate</a></li>
+<li>Client private key</li>
+</ul>
+<p>Follow the steps below to configure a client private key based on the connector run type.</p>
+<h5>Configure client private key for agents</h5>
+<p>If connecting via an agent, follow the instructions on how to <a href="https://www.palantir.com/docs/foundry/data-connection/agent-worker/#add-a-private-key">add a private key</a></p>
+<h5>Configure client private key for direct connections</h5>
+<p>If connecting directly, upload your private key in the <strong>Configure client certificates and private key</strong> section of the connector configuration page. Use the alias <code>kafka</code> in the pop-up that appears, then add the private key and client certificate.</p>
+<p><img alt="Interface showing option to configure client certificates and private key" src="../../_resources/foundry/available-connectors/direct-client-private-key-1.png" /></p>
+<p><img alt="Pop-up where users can enter alias, private key, and client certificate" src="../../_resources/foundry/available-connectors/direct-client-private-key-2.png" /></p>
+<h2>Sync data from Kafka</h2>
+<p>:::callout{theme="neutral"}
+For more complex scenarios, use <a href="#use-kafka-sources-in-code">pro-code alternatives</a>.
+:::</p>
+<p>Learn how to set up a sync with Kafka in the <a href="https://www.palantir.com/docs/foundry/data-connection/set-up-streaming-sync/">Set up a streaming sync</a> tutorial.</p>
+<h2>Schema Registry integration</h2>
+<p>The Kafka Schema Registry functions as a centralized storage system, maintaining a versioned history of all schemas. The registry offers compatibility with <code>Avro</code>, <code>Protobuf</code>, and <code>JSON</code> schemas, and uses SerDes (Serializer/Deserializer) to facilitate conversions between schema formats and serialized data.</p>
+<p>To leverage the Kafka Schema Registry effectively, it is necessary to register schemas for the relevant <code>Kafka</code> topics and append the <code>Schema Registry URL</code> to the source configuration. This adjustment enables the connector to transform raw bytes into corresponding data types.</p>
+<p>For instance, a standard extraction would typically ingest raw bytes from Kafka into Foundry, as depicted below:</p>
+<p><img alt="Standard binary Kafka extract." src="../../_resources/foundry/available-connectors/Standard_ingest.png" /></p>
+<p>However, with the Schema Registry configured, the connector can discern the underlying schema of the bytes and transform them into first-class Foundry types, as shown here:</p>
+<p><img alt="Avro Kafka extract." src="../../_resources/foundry/available-connectors/avro_ingest.png" /></p>
+<p>This feature can significantly streamline downstream pipelines by eliminating the need for cumbersome type conversion. Moreover, it elevates data consistency guarantees, given that the Schema Registry offers centralized schema management and compatibility checks as schemas evolve.</p>
+<h2>Export data to Kafka</h2>
+<p>:::callout{theme="neutral"}
+For more complex scenarios, use <a href="#use-kafka-sources-in-code">pro-code alternatives</a>.
+:::</p>
+<p>The connector supports exporting streams to external Kafka clusters via Data Connection.</p>
+<p>To export to Kafka, first <a href="https://www.palantir.com/docs/foundry/data-connection/export-overview/#enable-exports-for-source">enable exports</a> for your Kafka connector. Then, <a href="https://www.palantir.com/docs/foundry/data-connection/export-overview/#create-a-new-export">create a new export</a>.</p>
+<h3>Export configuration options</h3>
+<table>
+<thead>
+<tr>
+<th>Option</th>
+<th>Required?</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Topic</code></td>
+<td>Yes</td>
+<td>N/A</td>
+<td>The Kafka topic to which you want to export.</td>
+</tr>
+<tr>
+<td><code>Linger milliseconds</code></td>
+<td>Yes</td>
+<td>0</td>
+<td>The number of milliseconds to wait before sending records to Kafka. Records that accrue during the waiting time will be batched together when exported. This setting defaults to 0, meaning that records will be sent immediately. However, this default may result in more requests to your Kafka instance.</td>
+</tr>
+<tr>
+<td><code>Key column</code></td>
+<td>No</td>
+<td>Undefined</td>
+<td>The column from the Foundry stream that you wish to use as the <strong>Key</strong> when publishing records to Kafka. Null keys are not supported; ensure the selected column is populated for all records in the stream being exported.</td>
+</tr>
+<tr>
+<td><code>Value column</code></td>
+<td>No</td>
+<td>Undefined</td>
+<td>The column from the Foundry stream that you wish to export. If not specified, all fields from the row will be serialized as bytes and exported to Kafka in the body of the message.</td>
+</tr>
+<tr>
+<td><code>Header column</code></td>
+<td>No</td>
+<td>Undefined</td>
+<td>The column from the Foundry stream that you wish to use as the headers attached to a streaming record. This column must be of type struct, and all fields in your struct will be parsed as a string. If not specified or if the column is null, no headers will be attached.</td>
+</tr>
+<tr>
+<td><code>Enable Base64 Decode</code></td>
+<td>No</td>
+<td>Disabled</td>
+<td>Binary data in Foundry streams is Base64 encoded when stored internally. When enabled, this flag will result in binary data being decoded before exporting. This may only be enabled if both <code>Key column</code> and <code>Value column</code> are specified.</td>
+</tr>
+</tbody>
+</table>
+<h3>Export task configuration (legacy)</h3>
+<p>:::callout{theme="warning"}
+We do not recommend exporting to Kafka through export tasks. If possible, existing export tasks should be migrated to use <a href="https://www.palantir.com/docs/foundry/data-connection/export-overview/">our recommended export capability</a>. The documentation below is intended for historical reference.
+:::</p>
+<p>To begin exporting data using export tasks, navigate to the Project folder that contains the Kafka connector to which you want to export. Right select on the connector name, then select <code>Create Data Connection Task</code>.</p>
+<p>In the left side panel of the Data Connection view:</p>
+<ol>
+<li>Verify the <code>Source</code> name matches the Kafka connector you want to use.</li>
+<li>Add an <code>Input</code> called <code>dataset</code> of type <code>Streaming dataset</code>. The <strong>input dataset</strong> is the Foundry dataset being exported.</li>
+<li>Add an <code>Output</code> called <code>dataset</code> of type <code>Streaming export</code>. The <strong>output dataset</strong> is used to run, schedule, and monitor the task.</li>
+<li>Finally, add a YAML block in the text field to define the task configuration.</li>
+</ol>
+<p>Use the following options when creating the YAML:</p>
+<table>
+<thead>
+<tr>
+<th>Option</th>
+<th>Required?</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>maxParallelism</code></td>
+<td>Yes</td>
+<td>No</td>
+<td>The maximum allowed number of parallel threads used to export data. Actual number of threads is dictated by the number of partitions on the input Foundry stream (if lower than <code>maxParallelism</code>).</td>
+</tr>
+<tr>
+<td><code>topic</code></td>
+<td>Yes</td>
+<td>No</td>
+<td>The name of the topic to which data is pushed.</td>
+</tr>
+<tr>
+<td><code>clientId</code></td>
+<td>Yes</td>
+<td></td>
+<td>The identifier to use for the export task. The identifier maps to the  Kafka <code>client.id</code>. Review the <a href="https://kafka.apache.org/documentation/#producerconfigs_client.id">Kafka documentation â</a> for more information.</td>
+</tr>
+<tr>
+<td><code>batchOptions</code></td>
+<td>Yes</td>
+<td>No</td>
+<td>See <code>batchOptions</code> configuration below.</td>
+</tr>
+<tr>
+<td><code>keyColumn</code></td>
+<td>No</td>
+<td>No</td>
+<td>Name of a column in input streaming dataset.  Values in this column are used as the key in exported messages. Omitting this property will export <code>null</code> values for the key.</td>
+</tr>
+<tr>
+<td><code>valueColumn</code></td>
+<td>No</td>
+<td>No</td>
+<td>Name of a column in input streaming dataset. Values in this column are used as the value in exported messages. Omitting this property will export all columns (as a stringified JSON object) under the <code>value</code> field.</td>
+</tr>
+<tr>
+<td><code>enableIdempotence</code></td>
+<td>No</td>
+<td><code>true</code></td>
+<td>Review the <a href="https://kafka.apache.org/documentation/#producerconfigs_enable.idempotence">Kafka documentation â</a> for more information.</td>
+</tr>
+<tr>
+<td><code>useDirectReaders</code></td>
+<td>Yes</td>
+<td>No</td>
+<td>Always set <code>false</code>. Configure per the example.</td>
+</tr>
+<tr>
+<td><code>transforms</code></td>
+<td>Yes</td>
+<td>No</td>
+<td>See the example configuration below.</td>
+</tr>
+</tbody>
+</table>
+<p>Configure <code>batchOptions</code>using the following options:
+| Option  | Required? | Default | Description |
+|--- |--- |--- |--- |
+| <code>maxMilliseconds</code> | Yes | No |  The maximum duration (in milliseconds) to wait before writing available rows to the output topic. Lower this value to reduce latency, increase to reduce network overhead (number of requests). This value is used unless the batch hits the <code>maxRecords</code> limit first. |
+| <code>maxRecords</code> | Yes | No | The maximum number of messages to buffer before writing to the output topic. Lower this value to reduce latency, increase to reduce network overhead (number of requests). This value is used unless the batch hits the <code>maxMilliseconds</code> limit first. |</p>
+<p>The following shows an example export task configuration:</p>
+<pre><code class="language-yaml">type: streaming-kafka-export-task
+config:
+  maxParallelism: 1
+  topic: test-topic
+  clientId: client-id
+  keyColumn: key
+  valueColumn: value
+  batchOptions:
+    maxMilliseconds: 5000
+    maxRecords: 1000
+transforms:
+  transformType: test
+  userCodeMavenCoords: []
+useDirectReaders: false
+</code></pre>
+<p>After you configure the export task, select <strong>Save</strong> in the upper-right corner.</p>
+<h2>Use Kafka sources in code</h2>
+<p><a href="https://www.palantir.com/docs/foundry/data-connection/core-concepts/#use-in-code">Pro-code alternatives</a> can be used to connect to Kafka sources for more complex scenarios. The examples below demonstrate how to connect to an Apache Kafka source using the <a href="https://kafka-python.readthedocs.io/en/master/">Python client for Apache Kafka â</a>, <code>kafka-python</code> in an <a href="https://www.palantir.com/docs/foundry/data-connection/external-transforms/">external transform</a>.</p>
+<h3>Read from Kafka with an external transform</h3>
+<p>This example reads messages from a given Kafka topic using incremental batch processing. It reads for one minute at a time, or up to 100 messages.</p>
+<pre><code class="language-python">from transforms.api import Output, lightweight, incremental, transform_pandas
+from transforms.external.systems import external_systems, Source, ResolvedSource
+from datetime import timedelta, datetime
+from kafka import KafkaConsumer
+import json
+import pandas as pd
+
+@lightweight
+@incremental()
+@external_systems(
+    kafka_source=Source(&quot;&lt;source_rid&gt;&gt;&quot;)
+)
+@transform_pandas(
+    Output(&quot;&lt;output_dataset_rid&gt;&quot;),
+)
+def compute(kafka_source: ResolvedSource) -&gt; pd.DataFrame:
+
+    # 1. Set up the Kafka consumer
+    USERNAME = kafka_source.get_secret(&quot;username&quot;)
+    PASSWORD = kafka_source.get_secret(&quot;password&quot;)
+    BOOTSTRAP_SERVER = &quot;&lt;server in the form host[:port]&gt; &quot; # Can also be a list of servers
+    TOPIC = &quot;&lt;topic name&gt;&quot;
+    CONSUMER_NAME = &quot;&lt;consumer name&gt;&quot; # Unique name for the consumer for committing offsets
+
+    consumer = KafkaConsumer(
+        TOPIC,
+        bootstrap_servers=BOOTSTRAP_SERVER,
+        security_protocol=&quot;SASL_SSL&quot;,
+        sasl_mechanism=&quot;PLAIN&quot;,
+        sasl_plain_username=USERNAME,
+        sasl_plain_password=PASSWORD,
+        group_id=CONSUMER_NAME,
+        enable_auto_commit=True,  # Enable automatic offset commit
+    )
+
+    # 2. Define time and content limits for message reading
+    MAX_BATCH_SIZE = 100
+    TIMEOUT_MINUTES = 1
+    END_TIME: datetime = datetime.now() + timedelta(minutes=TIMEOUT_MINUTES)
+
+    # 3. Fetch and process messages
+    events_received = []
+    count = 0
+    while datetime.now() &lt; END_TIME and count &lt; MAX_BATCH_SIZE:
+        # Poll for messages (wait up to 1 second for new messages)
+        msg_pack = consumer.poll(timeout_ms=1000)
+        for _, messages in msg_pack.items():
+            for message in messages:
+                events_received.append(json.loads(message.value))
+                count += 1
+    consumer.close()
+
+    # 4. Return the results
+    return pd.DataFrame(events_received)
+</code></pre>
+<h3>Read from Kafka with incremental offset tracking</h3>
+<p>The following example reads all available messages from a Kafka topic and persists offsets in a separate dataset so that subsequent runs resume where the previous run stopped. Unlike the <a href="#read-from-kafka-with-an-external-transform">basic example above</a>, this approach does not rely on Kafka consumer group auto-commit. Instead, it manually assigns partitions, seeks to previously saved offsets, and polls until each partition's end offset is reached.</p>
+<p>The transform produces two outputs:</p>
+<ul>
+<li><code>records_output</code>: The ingested Kafka records</li>
+<li><code>offsets_output</code>: A small dataset that stores the last consumed offset per partition, used on the next incremental run</li>
+</ul>
+<pre><code class="language-python">import logging
+from datetime import datetime, timedelta
+from collections import defaultdict
+
+import polars as pl
+from kafka import KafkaConsumer
+
+from transforms.api import (
+    Output,
+    transform,
+    incremental,
+    LightweightOutput,
+    IncrementalLightweightOutput,
+    IncrementalTransformContext,
+)
+from transforms.external.systems import external_systems, Source, ResolvedSource
+
+logger = logging.getLogger(__name__)
+
+
+def wait_for_partition_assignment(consumer, timeout_seconds=30):
+    &quot;&quot;&quot;Poll until the broker assigns partitions to this consumer.&quot;&quot;&quot;
+    deadline = datetime.now() + timedelta(seconds=timeout_seconds)
+    while not consumer.assignment():
+        consumer.poll(timeout_ms=100)
+        if datetime.now() &gt; deadline:
+            raise TimeoutError(
+                f&quot;Partition assignment did not complete within {timeout_seconds} seconds.&quot;
+            )
+
+
+def read_offsets(offsets_output, ctx):
+    &quot;&quot;&quot;Read the offset map from the previous incremental run.&quot;&quot;&quot;
+    if not ctx.is_incremental:
+        return {}
+    offset_df = offsets_output.polars(mode=&quot;previous&quot;)
+    result = defaultdict(dict)
+    for row in offset_df.iter_rows(named=True):
+        result[row[&quot;topic&quot;]][row[&quot;partition&quot;]] = row[&quot;offset&quot;]
+    return result
+
+
+def write_offsets(offsets, offsets_output):
+    &quot;&quot;&quot;Persist the current offset map for the next incremental run.&quot;&quot;&quot;
+    rows = [
+        {&quot;topic&quot;: topic, &quot;partition&quot;: partition, &quot;offset&quot;: offset}
+        for topic, partitions in offsets.items()
+        for partition, offset in partitions.items()
+    ]
+    df = pl.DataFrame(rows, schema={&quot;topic&quot;: pl.Utf8, &quot;partition&quot;: pl.Int32, &quot;offset&quot;: pl.Int64})
+    offsets_output.set_mode(&quot;replace&quot;)
+    offsets_output.write_table(df)
+
+
+@external_systems(
+    kafka_source=Source(&quot;&lt;source_rid&gt;&quot;)
+)
+@incremental()
+@transform.using(
+    records_output=Output(&quot;&lt;records_dataset_rid&gt;&quot;),
+    offsets_output=Output(&quot;&lt;offsets_dataset_rid&gt;&quot;),
+)
+def compute(
+    kafka_source: ResolvedSource,
+    records_output: LightweightOutput,
+    offsets_output: IncrementalLightweightOutput,
+    ctx: IncrementalTransformContext,
+):
+    # 1. Create consumer with manual offset management
+    consumer = KafkaConsumer(
+        &quot;&lt;topic_name&gt;&quot;,
+        bootstrap_servers=&quot;&lt;bootstrap_server&gt;&quot;,
+        security_protocol=&quot;SASL_SSL&quot;,
+        sasl_mechanism=&quot;PLAIN&quot;,
+        sasl_plain_username=kafka_source.get_secret(&quot;username&quot;),
+        sasl_plain_password=kafka_source.get_secret(&quot;password&quot;),
+        enable_auto_commit=False,
+        auto_offset_reset=&quot;earliest&quot;,
+        group_id=&quot;external-transform-consumer&quot;,
+    )
+
+    # 2. Wait for partition assignment and record end offsets as a stopping point
+    wait_for_partition_assignment(consumer)
+    end_offsets = {tp.partition: consumer.end_offsets([tp])[tp] for tp in consumer.assignment()}
+
+    # 3. On incremental runs, seek each partition to its last saved offset + 1
+    saved_offsets = read_offsets(offsets_output, ctx)
+    topic_offsets = saved_offsets.get(&quot;&lt;topic_name&gt;&quot;, {})
+    for tp in consumer.assignment():
+        last_offset = topic_offsets.get(tp.partition)
+        if last_offset is not None:
+            consumer.seek(tp, last_offset + 1)
+
+    # 4. Poll messages until end offsets are reached
+    current_offsets = {}
+    rows = []
+    MAX_IDLE_POLLS = 5
+    idle_count = 0
+
+    while idle_count &lt;= MAX_IDLE_POLLS:
+        msg_pack = consumer.poll(timeout_ms=1000, max_records=1000)
+        if not msg_pack:
+            idle_count += 1
+            continue
+        idle_count = 0
+
+        for tp, messages in msg_pack.items():
+            for message in messages:
+                rows.append({
+                    &quot;topic&quot;: message.topic,
+                    &quot;partition&quot;: message.partition,
+                    &quot;offset&quot;: message.offset,
+                    &quot;timestamp&quot;: message.timestamp,
+                    &quot;key&quot;: message.key.decode(&quot;utf-8&quot;) if message.key else None,
+                    &quot;value&quot;: message.value.decode(&quot;utf-8&quot;),
+                })
+                current_offsets[tp.partition] = message.offset
+
+        # Stop once every partition has reached its end offset
+        if all(
+            current_offsets.get(p, -1) &gt;= end - 1
+            for p, end in end_offsets.items()
+        ):
+            break
+
+    consumer.close()
+
+    # 5. Write records to the output dataset
+    if rows:
+        records_df = pl.DataFrame(rows)
+        records_output.set_mode(&quot;replace&quot;)
+        records_output.write_table(records_df)
+    else:
+        ctx.abort_job()
+        return
+
+    # 6. Persist offsets for the next run
+    all_offsets = dict(saved_offsets)
+    all_offsets[&quot;&lt;topic_name&gt;&quot;] = current_offsets
+    write_offsets(all_offsets, offsets_output)
+</code></pre>
+<p>Key differences from the basic example:</p>
+<ul>
+<li><strong>No auto-commit:</strong> Offsets are stored in a Foundry dataset rather than committed to Kafka, giving you full control over processing semantics.</li>
+<li><strong>Partition assignment:</strong> The <code>wait_for_partition_assignment()</code> helper ensures the consumer has been assigned partitions before reading end offsets.</li>
+<li><strong>Incremental seeking:</strong> On subsequent runs, the transform reads the previous offsets dataset and seeks past already-consumed messages.</li>
+<li><strong>End-offset stopping:</strong> The polling loop exits once every partition reaches its end offset, ensuring the transform processes all available messages without hanging indefinitely.</li>
+</ul>
+<p>For high-volume topics where holding all rows in memory could cause out-of-memory errors, consider using the <a href="https://www.palantir.com/docs/foundry/data-connection/external-transforms/#write-data-to-parquet-files-with-memory-aware-buffering">memory-aware buffered Parquet writer</a> pattern to flush records to disk incrementally instead of collecting them all before writing.</p>
+<h3>Write to Kafka with an external transform</h3>
+<p>This example writes synthetic sensor data to a given Kafka topic every two seconds, for one minute.</p>
+<pre><code class="language-python">from transforms.api import Output, transform_pandas, lightweight
+from transforms.external.systems import external_systems, Source, ResolvedSource
+from datetime import datetime, timedelta
+import pandas as pd
+from kafka import KafkaProducer
+import time
+import random
+import json
+
+@external_systems(
+    kafka_source=Source(&quot;&lt;source_rid&gt;&gt;&quot;)
+)
+@transform_pandas(
+    Output(&quot;&lt;output_dataset_rid&gt;&quot;),
+)
+def compute(kafka_source: ResolvedSource) -&gt; pd.DataFrame:
+
+    # 1. Set up the Kafka producer
+    USERNAME = kafka_source.get_secret(&quot;username&quot;)
+    PASSWORD = kafka_source.get_secret(&quot;password&quot;)
+    BOOTSTRAP_SERVER = &quot;&lt;server in the form host[:port]&gt; &quot; # Can also be a list of servers
+    TOPIC = &quot;&lt;topic name&gt;&quot;
+
+    producer = KafkaProducer(
+        bootstrap_servers=BOOTSTRAP_SERVER,
+        security_protocol=&quot;SASL_SSL&quot;,
+        sasl_mechanism=&quot;PLAIN&quot;,
+        sasl_plain_username=USERNAME,
+        sasl_plain_password=PASSWORD,
+    )
+
+    # 2. Define parameters for periodic data sending
+    TIMEOUT_MINUTES = 1
+    INTERVAL_SECONDS = 2
+    END_TIME: datetime = datetime.now() + timedelta(minutes=TIMEOUT_MINUTES)
+
+    # 3. Send sensor data
+    events_sent = []
+    while datetime.now() &lt; END_TIME:
+        data = get_random_sensor_data(datetime.now()) # This should be replaced with actual data
+        producer.send(TOPIC, value=json.dumps(data).encode(&quot;utf-8&quot;))
+        events_sent.append(data)
+        time.sleep(INTERVAL_SECONDS)
+    producer.flush()
+    producer.close()
+
+    # 4. Return the results
+    return pd.DataFrame(events_sent, columns=[&quot;timestamp&quot;, &quot;temperature_c&quot;, &quot;humidity_percent&quot;, &quot;pressure_hpa&quot;, &quot;status&quot;])
+
+def get_random_sensor_data(timestamp):
+    &quot;&quot;&quot;Generate random sensor data for a given timestamp. Should be replaced with actual data&quot;&quot;&quot;
+    def random_sensor_status():
+        # 90% OK, 8% WARN, 2% FAIL
+        return random.choices([&quot;OK&quot;, &quot;WARN&quot;, &quot;FAIL&quot;], weights=[90, 8, 2], k=1)[0]
+
+    return {
+        &quot;timestamp&quot;: timestamp.isoformat(),
+        &quot;temperature_c&quot;: round(random.gauss(22, 2), 2),  # mean=22C, std=2
+        &quot;humidity_percent&quot;: round(random.gauss(50, 10), 1),  # mean=50%, std=10
+        &quot;pressure_hpa&quot;: round(random.gauss(1013, 5), 1),  # mean=1013 hPa, std=5
+        &quot;status&quot;: random_sensor_status(),
+    }
+</code></pre>
+</body>
+</html>

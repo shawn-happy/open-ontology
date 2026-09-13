@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Analyze run results</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Analyze run results</h1>
+<p>Run results show how your functions performed against test cases and evaluation criteria. Result views are available in the AIP Evals application or the integrated AIP Evals sidebar in AIP Logic and AIP Chatbot Studio.</p>
+<p>If you have configured <a href="https://www.palantir.com/docs/foundry/aip-evals/create-suite/#add-an-evaluator">pass criteria</a> on your evaluators, AIP Evals will automatically determine a <code>Passed</code> or <code>Failed</code> status for each test case. The results page displays the overall pass percentage across all test cases.</p>
+<h2>Test case debug view</h2>
+<p>In some cases, you may want to investigate a specific test case result further. For these cases, the debug view is available. This view provides execution traces, input/output data, and error messages for individual test cases so you can understand your function outputs and evaluator results.</p>
+<h3>Access the debug view</h3>
+<p>There are multiple ways to open the debug view for a test case. You can do it from AIP Evals, AIP Logic, or AIP Chatbot Studio.</p>
+<h4>In AIP Evals</h4>
+<ol>
+<li>Open the <strong>Results</strong> tab on your evaluation suite page.</li>
+<li>Select a run and switch to <strong>Test cases</strong>.</li>
+<li>Hover over a test case result.</li>
+<li>Select the <strong>Open</strong> option that appears in the right side of the test case row.</li>
+</ol>
+<p><img alt="AIP Evals app result view." src="../../_resources/foundry/aip-evals/aip-evals-app-result-view.png" /></p>
+<h4>In AIP Logic or AIP Chatbot Studio</h4>
+<ol>
+<li>In the run results dialog view, hover over a test case result.</li>
+<li>Select the <strong>Debugger</strong> option that appears in the top-right corner of the test case card.</li>
+<li>The debug view will open, showing detailed execution information.</li>
+</ol>
+<p><img alt="AIP Evals run result view in AIP Logic." src="../../_resources/foundry/aip-evals/aip-evals-sidebar-result-view.png" /></p>
+<h3>Debug view capabilities</h3>
+<p>The debug view provides detailed information about test function execution and evaluator results. It allows you to:</p>
+<ul>
+<li>Inspect test function inputs and outputs for a test case.</li>
+<li><strong>TypeScript/Python functions:</strong> Access syntax-highlighted code preview of executed code.</li>
+<li><strong>AIP Logic functions:</strong> Trace the function execution step-by-step with the native Logic debugger.</li>
+<li><strong>Evaluators:</strong> Check input and output values, expected vs. actual evaluator results, and debug outputs from custom function evaluators and select built-in evaluators.</li>
+</ul>
+<p><img alt="Function output in AIP Evals debug view." src="../../_resources/foundry/aip-evals/aip-evals-debug-view-function-output.png" /></p>
+<p><img alt="Evaluator tab in AIP Evals debug view." src="../../_resources/foundry/aip-evals/aip-evals-debug-view-evaluator-output.png" /></p>
+<p>Some evaluators surface additional context as <strong>Debug outputs</strong> in the evaluator tab. For example, the built-in <a href="https://www.palantir.com/docs/foundry/aip-evals/create-suite/#built-in-evaluators">LLM-as-a-judge evaluator</a> returns the model's reasoning as a debug output, helping you understand why it reached a specific verdict.</p>
+<p>If you write <a href="https://www.palantir.com/docs/foundry/aip-evals/create-suite/#custom-evaluation-functions">custom evaluators</a>, these can also produce debug outputs. Any string values a custom evaluator returns alongside its metric outputs appear as <strong>Debug outputs</strong>, providing additional context such as reasoning, intermediate values, or diagnostic information.</p>
+<p><img alt="Debug outputs from a custom function evaluator." src="../../_resources/foundry/aip-evals/aip-evals-debug-view-debug-outputs.png" /></p>
+<p>If you build a custom function evaluator with AIP Logic, you can additionally access the native Logic debugger. This helps you understand why the evaluation produced a specific result, which is particularly helpful when using an LLM-as-a-judge in your evaluator.</p>
+<p>In the example shown in the screenshot below, the custom function rubric grader evaluator did not pass, because the result of <code>8</code> did not cross the defined minimum threshold of <code>9</code>. Looking into the Logic debugger, we can see that the LLM judge only awarded <code>8</code> points because the response was wrapped in quotation marks. To earn a higher score, we will need to improve our prompt.</p>
+<p><img alt="Example how to use AIP Evals debug view to understand evaluator results." src="../../_resources/foundry/aip-evals/aip-evals-debug-view-evaluator-logic-debugger-example.png" /></p>
+<h2>Compare results across target functions</h2>
+<p>When your evaluation suite has <a href="https://www.palantir.com/docs/foundry/aip-evals/create-suite/#additional-target-functions">multiple target functions</a> configured, you can select and compare results from runs across different targets in AIP Evals. This is useful for analyzing how different function implementations perform on the same test cases.</p>
+<p><img alt="Multi-target results comparison view." src="../../_resources/foundry/aip-evals/aip-evals-multi-target-results-comparison.png" /></p>
+<h2>Analyze results with AI FDE</h2>
+<p>You can use <a href="https://www.palantir.com/docs/foundry/ai-fde/overview/">AI FDE</a> to analyze failing test cases, identify root cause patterns, and receive suggestions to improve your prompts.</p>
+<h3>Analyze from AIP Evals</h3>
+<ol>
+<li>Open the <strong>Results</strong> tab on your evaluation suite page.</li>
+<li>Select a single run that contains failing test cases and select the <strong>Test cases</strong> tab.</li>
+<li>Select <strong>Analyze with AI FDE</strong>.</li>
+</ol>
+<h3>Analyze from AIP Logic</h3>
+<ol>
+<li>Open the run results dialog view from the AIP Evals sidebar.</li>
+<li>Select <strong>Analyze with AI FDE</strong>.</li>
+</ol>
+<p>AI FDE will open in a new tab with the context of your run results. For more information on AI FDE, see the <a href="https://www.palantir.com/docs/foundry/ai-fde/overview/">AI FDE documentation</a>.</p>
+</body>
+</html>

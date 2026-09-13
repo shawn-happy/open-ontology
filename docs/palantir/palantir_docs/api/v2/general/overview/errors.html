@@ -1,0 +1,764 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Errors</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../../../index.html">返回目录</a></div>
+<p>This API can return the errors documented below. Note that all errors returned by this API are compliant and consistent with <a href="https://www.rfc-editor.org/rfc/rfc9110.html#name-status-codes">HTTP status code semantics</a>. Errors are in JSON format and
+include an error name, error code, error instance ID (which can be provided to
+Palantir support), and additional parameters to assist in debugging. They will
+be returned with a <code>4xx</code> or <code>5xx</code> status code. For example, a request for an <code>employee</code> object that does not exist might look like the following.</p>
+<pre><code class="language-json">{
+    &quot;errorCode&quot;:&quot;NOT_FOUND&quot;,
+    &quot;errorName&quot;:&quot;ObjectNotFound&quot;,
+    &quot;errorInstanceId&quot;:&quot;00813215-0844-4716-be7b-a3fe0fce9e42&quot;,
+    &quot;parameters&quot;:{
+        &quot;objectType&quot;: &quot;employee&quot;,
+        &quot;primaryKey&quot;: {
+            &quot;id&quot;: 10000
+        }
+    }
+}
+</code></pre>
+<h2>Ontologies errors</h2>
+<table>
+<thead>
+<tr>
+<th>Error name</th>
+<th>Error code</th>
+<th>Status code</th>
+<th>Description</th>
+<th>Additional parameters</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ActionEditedPropertiesNotFound</code></td>
+<td>INVALID_ARGUMENT</td>
+<td>400</td>
+<td>Actions attempted to edit properties that could not be found on the object type.</td>
+<td><code>parameters</code></td>
+</tr>
+<tr>
+<td><code>ActionParameterObjectTypeNotFound</code></td>
+<td>NOT_FOUND</td>
+<td>400</td>
+<td>The parameter references an object type that could not be found, or the client token does not have access to it.</td>
+<td><code>parameterId</code></td>
+</tr>
+<tr>
+<td><code>ActionParameterObjectNotFound</code></td>
+<td>NOT_FOUND</td>
+<td>400</td>
+<td>The parameter object reference or parameter default value is not found, or the client token does not have access to it.</td>
+<td><code>parameterId</code></td>
+</tr>
+<tr>
+<td><code>ActionTypeNotFound</code></td>
+<td>NOT_FOUND</td>
+<td>404</td>
+<td>The requested action could not be found, or the client token does not have access to it.</td>
+<td><code>actionType</code></td>
+</tr>
+<tr>
+<td><code>ActionValidationFailed</code></td>
+<td>INVALID_ARGUMENT</td>
+<td>400</td>
+<td>The validation failed for the given action parameters. Please use the <code>validateAction</code> endpoint for more details.</td>
+<td><code>actionType</code></td>
+</tr>
+<tr>
+<td><code>AggregationGroupCountExceededLimit</code></td>
+<td>INVALID_ARGUMENT</td>
+<td>400</td>
+<td>The number of groups in the aggregation exceeded the allowed limit. Use <code>maxGroupCount</code>, larger intervals, or a filter to reduce the number of results.</td>
+<td><code>groupsCount</code>, <code>groupsLimit</code></td>
+</tr>
+<tr>
+<td><code>ApplyActionFailed</code></td>
+<td>INVALID_ARGUMENT</td>
+<td>400</td>
+<td>The action could not be applied to the ontology.</td>
+<td></td>
+</tr>
+<tr>
+<td><code>AttachmentNotFound</code></td>
+<td>NOT_FOUND</td>
+<td>404</td>
+<td>The requested attachment could not be found, or the client token does not have access to it.</td>
+<td><code>attachmentRid</code></td>
+</tr>
+<tr>
+<td><code>AttachmentSizeExceededLimit</code></td>
+<td>INVALID_ARGUMENT</td>
+<td>400</td>
+<td>The file is too large to be uploaded as an attachment. The maximum attachment size is 200 MB.</td>
+<td><code>fileSizeBytes</code>, <code>fileLimitBytes</code></td>
+</tr>
+<tr>
+<td><code>CompositePrimaryKeyNotSupported</code></td>
+<td>INVALID_ARGUMENT</td>
+<td>400</td>
+<td>Primary keys consisting of multiple properties are not supported by this API. If you need support for this, please contact Palantir support.</td>
+<td><code>objectType</code>, <code>primaryKey</code></td>
+</tr>
+<tr>
+<td><code>DuplicateOrderBy</code></td>
+<td>INVALID_ARGUMENT</td>
+<td>400</td>
+<td>The requested sort order includes duplicate properties.</td>
+<td><code>properties</code></td>
+</tr>
+<tr>
+<td><code>FunctionEncounteredUserFacingError</code></td>
+<td>INVALID_ARGUMENT</td>
+<td>400</td>
+<td>The function failed to execute due to an error thrown by the function.</td>
+<td><code>functionRid</code>, <code>functionVersion</code>, <code>message</code></td>
+</tr>
+<tr>
+<td><code>FunctionInvalidInput</code></td>
+<td>INVALID_ARGUMENT</td>
+<td>400</td>
+<td>The function executed contains invalid input.</td>
+<td><code>functionRid</code>, <code>functionVersion</code></td>
+</tr>
+<tr>
+<td><code>FunctionExecutionTimedOut</code></td>
+<td>INVALID_ARGUMENT</td>
+<td>400</td>
+<td>The function failed to execute due to a timeout.</td>
+<td><code>functionRid</code>, <code>functionVersion</code></td>
+</tr>
+<tr>
+<td><code>InvalidContentLength</code></td>
+<td>INVALID_ARGUMENT</td>
+<td>400</td>
+<td>A <code>Content-Length</code> header is required for all uploads, but was missing or invalid.</td>
+<td></td>
+</tr>
+<tr>
+<td><code>InvalidContentType</code></td>
+<td>INVALID_ARGUMENT</td>
+<td>400</td>
+<td>The <code>Content-Type</code> cannot be inferred from the request content and <code>filename</code>. Please check your request content and <code>filename</code> to ensure they are compatible.</td>
+<td></td>
+</tr>
+<tr>
+<td><code>InvalidDurationGroupByValue</code></td>
+<td>INVALID_ARGUMENT</td>
+<td>400</td>
+<td>The given duration groupBy value is invalid. Units larger than day must have value <code>1</code> and date properties do not support filtering on units smaller than day.</td>
+<td></td>
+</tr>
+<tr>
+<td><code>InvalidDurationGroupByPropertyType</code></td>
+<td>INVALID_ARGUMENT</td>
+<td>400</td>
+<td>The given property does not support duration group by operations.</td>
+<td><code>property</code>, <code>objectType</code>, <code>propertyBaseType</code></td>
+</tr>
+<tr>
+<td><code>InvalidFields</code></td>
+<td>INVALID_ARGUMENT</td>
+<td>400</td>
+<td>The value of the given fields do not match the expected pattern. For example, an Ontology object property <code>id</code> should be written <code>properties.id</code>.</td>
+<td><code>properties</code></td>
+</tr>
+<tr>
+<td><code>InvalidGroupId</code></td>
+<td>INVALID_ARGUMENT</td>
+<td>400</td>
+<td>The provided value for a group id must be a UUID.</td>
+<td><code>groupId</code></td>
+</tr>
+<tr>
+<td><code>InvalidParameterValue</code></td>
+<td>INVALID_ARGUMENT</td>
+<td>400</td>
+<td>The value of the given parameter is invalid.</td>
+<td><code>parameterId</code>, <code>parameterBaseType</code>, <code>parameterValue</code></td>
+</tr>
+<tr>
+<td><code>InvalidPropertyFiltersCombination</code></td>
+<td>INVALID_ARGUMENT</td>
+<td>400</td>
+<td>The provided filters cannot be used together.</td>
+<td><code>property</code>, <code>propertyFilters</code></td>
+</tr>
+<tr>
+<td><code>InvalidPropertyType</code></td>
+<td>INVALID_ARGUMENT</td>
+<td>400</td>
+<td>The given property type is not of the expected type.</td>
+<td><code>property</code>, <code>propertyBaseType</code></td>
+</tr>
+<tr>
+<td><code>InvalidPropertyValue</code></td>
+<td>INVALID_ARGUMENT</td>
+<td>400</td>
+<td>The value of the given property is invalid.</td>
+<td><code>property</code>, <code>propertyBaseType</code>, <code>propertyValue</code></td>
+</tr>
+<tr>
+<td><code>InvalidSortOrder</code></td>
+<td>INVALID_ARGUMENT</td>
+<td>400</td>
+<td>At least one of sort orders in the order by parameter is invalid. Valid sort orders are 'asc' or 'desc'. Sort order can also be omitted, and defaults to 'asc'.</td>
+<td><code>invalidSortOrder</code></td>
+</tr>
+<tr>
+<td><code>InvalidSortType</code></td>
+<td>INVALID_ARGUMENT</td>
+<td>400</td>
+<td>At least one of sort clauses in the order by parameter has an invalid type. Valid types are 'properties' or 'p'.</td>
+<td><code>invalidSortType</code></td>
+</tr>
+<tr>
+<td><code>InvalidUserId</code></td>
+<td>INVALID_ARGUMENT</td>
+<td>400</td>
+<td>The provided value for a user id must be a UUID.</td>
+<td><code>userId</code></td>
+</tr>
+<tr>
+<td><code>LinkAlreadyExists</code></td>
+<td>CONFLICT</td>
+<td>400</td>
+<td>The link the user is attempting to create already exists.</td>
+<td></td>
+</tr>
+<tr>
+<td><code>LinkedObjectNotFound</code></td>
+<td>NOT_FOUND</td>
+<td>404</td>
+<td>The requested linked object could not be found, or the client token does not have access to it.</td>
+<td><code>linkType</code>, <code>linkedObjectType</code>, <code>linkedObjectPrimaryKey</code></td>
+</tr>
+<tr>
+<td><code>LinkTypeNotFound</code></td>
+<td>NOT_FOUND</td>
+<td>404</td>
+<td>The requested link could not be found, or the client token does not have access to it.</td>
+<td><code>objectType</code>, <code>linkType</code></td>
+</tr>
+<tr>
+<td><code>MalformedPropertyFilters</code></td>
+<td>INVALID_ARGUMENT</td>
+<td>400</td>
+<td>At least one of requested filters is malformed.</td>
+<td><code>malformedPropertyFilter</code></td>
+</tr>
+<tr>
+<td><code>MultiplePropertyValuesNotSupported</code></td>
+<td>INVALID_ARGUMENT</td>
+<td>400</td>
+<td>One of the requested property filters does not support multiple values. Please include only a single value for it.</td>
+<td><code>property</code>, <code>propertyFilters</code></td>
+</tr>
+<tr>
+<td><code>ObjectNotFound</code></td>
+<td>NOT_FOUND</td>
+<td>404</td>
+<td>The requested object could not be found, or the client token does not have access to it.</td>
+<td><code>objectType</code>, <code>primaryKey</code></td>
+</tr>
+<tr>
+<td><code>ObjectsExceededLimit</code></td>
+<td>INVALID_ARGUMENT</td>
+<td>400</td>
+<td>There are more objects, but they cannot be returned by this API. Only 10,000 objects are available for a given request.</td>
+<td></td>
+</tr>
+<tr>
+<td><code>ObjectTypeNotFound</code></td>
+<td>NOT_FOUND</td>
+<td>404</td>
+<td>The requested object type could not be found, or the client token does not have access to it.</td>
+<td><code>objectType</code></td>
+</tr>
+<tr>
+<td><code>ObjectTypeNotSynced</code></td>
+<td>CONFLICT</td>
+<td>409</td>
+<td>The requested object type is not synced to the Ontology. Please re-index the object type in <strong>Ontology manager</strong>.</td>
+<td><code>objectType</code></td>
+</tr>
+<tr>
+<td><code>OntologyEditsExceededLimit</code></td>
+<td>INVALID_ARGUMENT</td>
+<td>400</td>
+<td>The number of edits to the Ontology exceeded the allowed limit. This may happen if your Action is modifying too many objects.</td>
+<td><code>editsCount</code>, <code>editsLimit</code></td>
+</tr>
+<tr>
+<td><code>OntologyNotFound</code></td>
+<td>NOT_FOUND</td>
+<td>404</td>
+<td>The requested ontology could not be found, or the client token does not have access to it.</td>
+<td><code>ontologyRid</code></td>
+</tr>
+<tr>
+<td><code>OntologySyncing</code></td>
+<td>CONFLICT</td>
+<td>409</td>
+<td>The requested object type has been changed in the <strong>Ontology Manager</strong> and changes are currently being applied. Wait a few seconds and try again.</td>
+<td><code>objectType</code></td>
+</tr>
+<tr>
+<td><code>ParametersNotFound</code></td>
+<td>INVALID_ARGUMENT</td>
+<td>400</td>
+<td>Some parameter IDs were not recognized by this action. See the <code>configuredParameterId</code> field for a list of valid parameter IDs.</td>
+<td><code>actionType</code>, <code>unknownParameterIds</code>, <code>configuredParameterIds</code></td>
+</tr>
+<tr>
+<td><code>ParameterTypeNotSupported</code></td>
+<td>INVALID_ARGUMENT</td>
+<td>400</td>
+<td>This type of parameter is not currently supported by this API. If you need support for this, please reach out to Palantir Support.</td>
+<td><code>parameterId</code>, <code>parameterBaseType</code></td>
+</tr>
+<tr>
+<td><code>PropertiesNotFound</code></td>
+<td>NOT_FOUND</td>
+<td>404</td>
+<td>The requested properties could not be found on the object type.</td>
+<td><code>objectType</code>, <code>properties</code></td>
+</tr>
+<tr>
+<td><code>PropertiesNotSearchable</code></td>
+<td>INVALID_ARGUMENT</td>
+<td>400</td>
+<td>Search is not enabled on the specified properties. Please mark the properties as <em>Searchable</em> in <strong>Ontology manager</strong>.</td>
+<td><code>properties</code></td>
+</tr>
+<tr>
+<td><code>PropertiesNotSortable</code></td>
+<td>INVALID_ARGUMENT</td>
+<td>400</td>
+<td>Results could not be ordered by the requested properties. Please mark the properties as <em>Sortable</em> in <strong>Ontology manager</strong>.</td>
+<td><code>properties</code></td>
+</tr>
+<tr>
+<td><code>PropertyApiNameNotFound</code></td>
+<td>INVALID_ARGUMENT</td>
+<td>400</td>
+<td>A property that was required to have an API name, such as a primary key, is missing one. You can set an API name for it using the <strong>Ontology Manager</strong>.</td>
+<td><code>propertyId</code>, <code>propertyBaseType</code></td>
+</tr>
+<tr>
+<td><code>PropertyBaseTypeNotSupported</code></td>
+<td>INVALID_ARGUMENT</td>
+<td>400</td>
+<td>This type of property is not currently supported by this API. If you need support for this, please reach out to Palantir Support.</td>
+<td><code>objectType</code>, <code>property</code>, <code>propertyBaseType</code></td>
+</tr>
+<tr>
+<td><code>PropertyFiltersNotSupported</code></td>
+<td>INVALID_ARGUMENT</td>
+<td>400</td>
+<td>One or more of the requested property filters are not supported.</td>
+<td><code>property</code>, <code>propertyFilters</code></td>
+</tr>
+<tr>
+<td><code>QueryEncounteredUserFacingError</code></td>
+<td>CONFLICT</td>
+<td>409</td>
+<td>The authored <code>Query</code> failed to execute because of a user induced error. The message argument is meant to be displayed to the user.</td>
+<td><code>functionRid</code>, <code>functionVersion</code>, <code>message</code></td>
+</tr>
+<tr>
+<td><code>QueryRuntimeError</code></td>
+<td>INVALID_ARGUMENT</td>
+<td>400</td>
+<td>The authored <code>Query</code> failed to execute because of a runtime error.</td>
+<td><code>functionRid</code>, <code>functionVersion</code>, <code>message</code>, <code>stacktrace</code>, <code>parameters</code></td>
+</tr>
+<tr>
+<td><code>QueryTimeExceededLimit</code></td>
+<td>INVALID_ARGUMENT</td>
+<td>400</td>
+<td>Time limits were exceeded for the <code>Query</code> execution.</td>
+<td><code>functionRid</code>, <code>functionVersion</code></td>
+</tr>
+<tr>
+<td><code>QueryMemoryExceededLimit</code></td>
+<td>TIMEOUT</td>
+<td>400</td>
+<td>Memory limits were exceeded for the <code>Query</code> execution.</td>
+<td><code>functionRid</code>, <code>functionVersion</code></td>
+</tr>
+<tr>
+<td><code>ViewObjectPermissionDenied</code></td>
+<td>PERMISSION_DENIED</td>
+<td>403</td>
+<td>The provided token does not have permission to view any data sources backing this object type. Ensure the object type has backing data sources configured and visible.</td>
+<td><code>objectType</code></td>
+</tr>
+</tbody>
+</table>
+<h2>Datasets errors</h2>
+<table>
+<thead>
+<tr>
+<th>Error name</th>
+<th>Error code</th>
+<th>Status code</th>
+<th>Description</th>
+<th>Additional parameters</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>AbortTransactionPermissionDenied</code></td>
+<td>PERMISSION_DENIED</td>
+<td>403</td>
+<td>The provided token does not have permission to abort the given transaction on the given dataset.</td>
+<td><code>datasetRid</code>, <code>transactionRid</code></td>
+</tr>
+<tr>
+<td><code>BranchAlreadyExists</code></td>
+<td>CONFLICT</td>
+<td>409</td>
+<td>The branch cannot be created because a branch with that name already exists.</td>
+<td><code>datasetRid</code>, <code>branchId</code></td>
+</tr>
+<tr>
+<td><code>BranchNotFound</code></td>
+<td>NOT_FOUND</td>
+<td>404</td>
+<td>The requested branch could not be found, or the client token does not have access to it.</td>
+<td><code>datasetRid</code>, <code>branchId</code></td>
+</tr>
+<tr>
+<td><code>ColumnTypesNotSupported</code></td>
+<td>INVALID_ARGUMENT</td>
+<td>400</td>
+<td>The dataset contains column types that are not supported.</td>
+<td><code>datasetRid</code></td>
+</tr>
+<tr>
+<td><code>CommitTransactionPermissionDenied</code></td>
+<td>PERMISSION_DENIED</td>
+<td>403</td>
+<td>The provided token does not have permission to commit the given transaction on the given dataset.</td>
+<td><code>datasetRid</code>, <code>transactionRid</code></td>
+</tr>
+<tr>
+<td><code>CreateBranchPermissionDenied</code></td>
+<td>PERMISSION_DENIED</td>
+<td>403</td>
+<td>The provided token does not have permission to create a branch of this dataset.</td>
+<td><code>datasetRid</code>, <code>branchId</code></td>
+</tr>
+<tr>
+<td><code>CreateDatasetPermissionDenied</code></td>
+<td>PERMISSION_DENIED</td>
+<td>403</td>
+<td>The provided token does not have permission to create a dataset in this folder.</td>
+<td><code>parentFolderRid</code>, <code>name</code></td>
+</tr>
+<tr>
+<td><code>CreateTransactionPermissionDenied</code></td>
+<td>PERMISSION_DENIED</td>
+<td>403</td>
+<td>The provided token does not have permission to create a transaction on this dataset.</td>
+<td><code>datasetRid</code>, <code>branchId</code></td>
+</tr>
+<tr>
+<td><code>DatasetNotFound</code></td>
+<td>NOT_FOUND</td>
+<td>404</td>
+<td>The requested dataset could not be found, or the client token does not have access to it.</td>
+<td><code>datasetRid</code></td>
+</tr>
+<tr>
+<td><code>DeleteBranchPermissionDenied</code></td>
+<td>PERMISSION_DENIED</td>
+<td>403</td>
+<td>The provided token does not have permission to delete the given branch from this dataset.</td>
+<td><code>datasetRid</code>, <code>branchId</code></td>
+</tr>
+<tr>
+<td><code>FileAlreadyExists</code></td>
+<td>NOT_FOUND</td>
+<td>404</td>
+<td>The given file path already exists in the dataset and transaction.</td>
+<td><code>datasetRid</code>, <code>transactionRid</code>, <code>path</code></td>
+</tr>
+<tr>
+<td><code>FileNotFoundOnBranch</code></td>
+<td>NOT_FOUND</td>
+<td>404</td>
+<td>The requested file could not be found on the given branch, or the client token does not have access to it.</td>
+<td><code>datasetRid</code>, <code>branchId</code>, <code>path</code></td>
+</tr>
+<tr>
+<td><code>FileNotFoundOnTransactionRange</code></td>
+<td>NOT_FOUND</td>
+<td>404</td>
+<td>The requested file could not be found on the given transaction range, or the client token does not have access to it.</td>
+<td><code>datasetRid</code>, <code>endTransactionRid</code>, <code>path</code></td>
+</tr>
+<tr>
+<td><code>InvalidBranchId</code></td>
+<td>INVALID_ARGUMENT</td>
+<td>400</td>
+<td>The requested branch name cannot be used. Branch names cannot be empty and must not look like RIDs or UUIDs.</td>
+<td><code>branchId</code></td>
+</tr>
+<tr>
+<td><code>InvalidTransactionType</code></td>
+<td>INVALID_ARGUMENT</td>
+<td>400</td>
+<td>The given transaction type is not valid. Valid transaction types are <code>SNAPSHOT</code>, <code>UPDATE</code>, <code>APPEND</code>, and <code>DELETE</code>.</td>
+<td><code>datasetRid</code>, <code>transactionRid</code>, <code>transactionType</code></td>
+</tr>
+<tr>
+<td><code>OpenTransactionAlreadyExists</code></td>
+<td>CONFLICT</td>
+<td>409</td>
+<td>A transaction is already open on this dataset and branch. A branch of a dataset can only have one open transaction at a time.</td>
+<td><code>datasetRid</code>, <code>branchId</code></td>
+</tr>
+<tr>
+<td><code>ReadTablePermissionDenied</code></td>
+<td>PERMISSION_DENIED</td>
+<td>403</td>
+<td>The provided token does not have permission to read the given dataset as a table.</td>
+<td><code>datasetRid</code></td>
+</tr>
+<tr>
+<td><code>SchemaNotFound</code></td>
+<td>NOT_FOUND</td>
+<td>404</td>
+<td>A schema could not be found for the given dataset and branch, or the client token does not have access to it.</td>
+<td><code>datasetRid</code>, <code>branchId</code></td>
+</tr>
+<tr>
+<td><code>TransactionNotCommitted</code></td>
+<td>INVALID_ARGUMENT</td>
+<td>400</td>
+<td>The given transaction has not been committed.</td>
+<td><code>datasetRid</code>, <code>transactionRid</code>, <code>transactionStatus</code></td>
+</tr>
+<tr>
+<td><code>TransactionNotFound</code></td>
+<td>NOT_FOUND</td>
+<td>404</td>
+<td>The requested transaction could not be found on the dataset, or the client token does not have access to it.</td>
+<td><code>datasetRid</code>, <code>transactionRid</code></td>
+</tr>
+<tr>
+<td><code>TransactionNotOpen</code></td>
+<td>INVALID_ARGUMENT</td>
+<td>400</td>
+<td>The given transaction is not open.</td>
+<td><code>datasetRid</code>, <code>transactionRid</code>, <code>transactionStatus</code></td>
+</tr>
+<tr>
+<td><code>UploadFilePermissionDenied</code></td>
+<td>PERMISSION_DENIED</td>
+<td>403</td>
+<td>The provided token does not have permission to upload the given file to the given dataset and transaction.</td>
+<td><code>datasetRid</code>, <code>transactionRid</code>, <code>path</code></td>
+</tr>
+</tbody>
+</table>
+<h2>Filesystems errors</h2>
+<table>
+<thead>
+<tr>
+<th>Error name</th>
+<th>Error code</th>
+<th>Status code</th>
+<th>Description</th>
+<th>Additional parameters</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>FolderNotFound</code></td>
+<td>NOT_FOUND</td>
+<td>404</td>
+<td>The requested folder could not be found, or the client token does not have access to it.</td>
+<td><code>folderRid</code></td>
+</tr>
+<tr>
+<td><code>ResourceNameAlreadyExists</code></td>
+<td>CONFLICT</td>
+<td>409</td>
+<td>The provided resource name is already in use by another resource in the same folder.</td>
+<td><code>resourceName</code>, <code>parentFolderRid</code></td>
+</tr>
+</tbody>
+</table>
+<h2>Operation errors</h2>
+<table>
+<thead>
+<tr>
+<th>Error name</th>
+<th>Error code</th>
+<th>Status code</th>
+<th>Description</th>
+<th>Additional parameters</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>OperationNotFound</code></td>
+<td>NOT_FOUND</td>
+<td>404</td>
+<td>The operation is not found, or the user does not have access to it.</td>
+<td><code>id</code></td>
+</tr>
+</tbody>
+</table>
+<h2>General errors</h2>
+<p>In addition to the above endpoint-specific errors, all Foundry APIs can return the following more general errors.</p>
+<table>
+<thead>
+<tr>
+<th>Error name</th>
+<th>Error code</th>
+<th>Status code</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ApiFeaturePreviewUsageOnly</code></td>
+<td>INVALID_ARGUMENT</td>
+<td>400</td>
+<td>The given API endpoint is not for production use and is only supported in preview mode. Please add a <code>preview=true</code> query parameter to call this endpoint.</td>
+</tr>
+<tr>
+<td><code>ApiUsageDenied</code></td>
+<td>PERMISSION_DENIED</td>
+<td>403</td>
+<td>The user/token provided is not authorized for the API endpoint.</td>
+</tr>
+<tr>
+<td><code>Conjure:InvalidArgument</code></td>
+<td>INVALID_ARGUMENT</td>
+<td>400</td>
+<td>One or more of the request's arguments is invalid.</td>
+</tr>
+<tr>
+<td><code>Conjure:UnprocessableEntity</code></td>
+<td>INVALID_ARGUMENT</td>
+<td>422</td>
+<td>One or more of the request's arguments is invalid.</td>
+</tr>
+<tr>
+<td><code>Conjure:UnsupportedMediaType</code></td>
+<td>INVALID_ARGUMENT</td>
+<td>415</td>
+<td>The <code>Content-type</code> header for the request is invalid. Use <code>Content-type: application/json</code>.</td>
+</tr>
+<tr>
+<td><code>Default:Internal</code></td>
+<td>INTERNAL</td>
+<td>500</td>
+<td>An error occurred within the service. Retry your request and <a href="https://www.palantir.com/docs/foundry/getting-started/file-support-ticket">file a support ticket</a> for help if the problem persists.</td>
+</tr>
+<tr>
+<td><code>Default:InvalidArgument</code></td>
+<td>INVALID_ARGUMENT</td>
+<td>400</td>
+<td>One or more of the request's arguments is invalid.</td>
+</tr>
+<tr>
+<td><code>Default:PermissionDenied</code></td>
+<td>PERMISSION_DENIED</td>
+<td>403</td>
+<td>You are missing permission to access information necessary to complete your request.</td>
+</tr>
+<tr>
+<td><code>Default:Unauthorized</code></td>
+<td>UNAUTHORIZED</td>
+<td>401</td>
+<td>The given authorization token header is invalid.</td>
+</tr>
+<tr>
+<td><code>InvalidPageSize</code></td>
+<td>INVALID_ARGUMENT</td>
+<td>400</td>
+<td>The provided page size was zero or negative. Page sizes must be greater than zero.</td>
+</tr>
+<tr>
+<td><code>InvalidPageToken</code></td>
+<td>INVALID_ARGUMENT</td>
+<td>400</td>
+<td>The provided page token could not be used to retrieve the next page of results.</td>
+</tr>
+<tr>
+<td><code>InvalidParameterCombination</code></td>
+<td>INVALID_ARGUMENT</td>
+<td>400</td>
+<td>The given parameters are individually valid but cannot be used in the given combination.</td>
+</tr>
+<tr>
+<td><code>MissingCredentials</code></td>
+<td>UNAUTHORIZED</td>
+<td>401</td>
+<td>The endpoint requires an authorization token to be passed as a header, but none was found.</td>
+</tr>
+</tbody>
+</table>
+<h2>Status codes</h2>
+<p>Some errors do not include an error name or other response body. In that case, check the status code of the error.</p>
+<table>
+<thead>
+<tr>
+<th>Status code</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>404</td>
+<td>The endpoint you are requesting does not exist. Check your request URL.</td>
+</tr>
+<tr>
+<td>414</td>
+<td>Your URL is too long. Remove query parameters or look at the endpoint's documentation for alternatives.</td>
+</tr>
+<tr>
+<td>429</td>
+<td>The service is experiencing too many requests. Retry your request shortly and reduce your request rate.</td>
+</tr>
+<tr>
+<td>431</td>
+<td>Your URL or HTTP headers are too long. Remove headers or query parameters, or look at the endpoint's documentation for alternatives.</td>
+</tr>
+<tr>
+<td>503</td>
+<td>The service is unavailable. Retry your request later.</td>
+</tr>
+</tbody>
+</table>
+<p>:::callout{theme=neutral title=Note}
+In exceptional circumstances, the service may return other, undocumented errors. Note that all errors returned by this API are compliant and consistent with <a href="https://www.rfc-editor.org/rfc/rfc9110.html#name-status-codes">HTTP status code semantics</a>. Please <a href="https://www.palantir.com/docs/foundry/getting-started/file-support-ticket">file a support ticket</a> for help resolving these errors.
+:::</p>
+</body>
+</html>

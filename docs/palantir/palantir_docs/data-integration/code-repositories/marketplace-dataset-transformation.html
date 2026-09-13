@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Add dataset transformation to a Marketplace product</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Add dataset transformation to a Marketplace product</h1>
+<p>Use <a href="https://www.palantir.com/docs/foundry/devops/overview/">Foundry DevOps</a> to include your dataset transformations in <a href="https://www.palantir.com/docs/foundry/devops/core-concepts/#product">Marketplace products</a> for other users to install and reuse. <a href="https://www.palantir.com/docs/foundry/foundry-devops/create-products/">Learn how to create your first product.</a></p>
+<h2>Supported features</h2>
+<p>When packaging a dataset transformation (along with its producing Code Repository), all required dependencies are stored as part of the product; this guarantees that the transformation is self-contained and can run successfully anywhere. Repositories can bring Maven, PyPI, and Conda dependencies.</p>
+<p>Python, Java, and SQL transformations are supported. Transformations must be produced from a repository with a recent template, otherwise packaging errors may occur. To debug, upgrade your repository in the Code Repositories application. If a transformation can be successfully packaged, it will not cause any installation or runtime errors.</p>
+<p>:::callout{theme="warning"}
+<strong>The dataset you provide as an input at the time of installation must have column names and variable types that are identical to the source dataset.</strong></p>
+<p>This is because all dataset columns from the source input datasets (for example, an <code>airplane</code> dataset used as an input to a dataset transformation, which is then included in a Marketplace product) will be required inputs when <a href="https://www.palantir.com/docs/foundry/marketplace/install-product/">installing</a>, whether or not the columns are referenced in the dataset transformation.
+:::</p>
+<p>Supported features include:</p>
+<ul>
+<li>Incremental transforms</li>
+<li>Unmarking workflows</li>
+<li>Spark profiles</li>
+<li>Telemetry</li>
+<li>Libraries</li>
+<li>External transforms</li>
+<li>Schemaless datasets</li>
+</ul>
+<h2>Adding dataset transformations to products</h2>
+<p>To add a dataset transformation to a product, first <a href="https://www.palantir.com/docs/foundry/foundry-devops/create-products/">create a product</a>, then <a href="https://www.palantir.com/docs/foundry/foundry-devops/create-products/#add-outputs">add outputs</a>. Choose the <strong>Add files</strong> option to navigate to the dataset transformation from within the <a href="https://www.palantir.com/docs/foundry/compass/overview/">Compass</a> filesystem and add it to your product.</p>
+<p>In some cases, one transformation may produce multiple output datasets. If this is the case, all produced datasets need to be included in the product.</p>
+<p><img alt="select repo packaging" src="../../_resources/foundry/code-repositories/marketplace-repo-packaging.png" /></p>
+<h3>Repository packaging options</h3>
+<p>There are three ways to package a repository.</p>
+<ul>
+<li><strong>Exclude all source code:</strong> The repository is packaged without any source code. The only purpose of the repository is to hold the dependencies required when running the transformation. This method includes the compiled user code and all transitive dependencies.</li>
+<li><strong>Include latest source code, exclude version history:</strong> The repository contains both the source code and the necessary artifacts; however, the Git history (including tags) is not persisted. This is the recommended way to ship repositories as read-only documentation.</li>
+<li><strong>Include source code and full version history:</strong> The repository is persisted in the product as-is. The entire Git history is saved at packaging time and restored at installation time. This is the only mode which allows you to run checks and rebuild the transformations from within the Code Repositories application after installation.</li>
+</ul>
+</body>
+</html>

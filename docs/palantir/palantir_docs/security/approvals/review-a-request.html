@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Review a request</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Review a request</h1>
+<p>As the reviewer on a <a href="https://www.palantir.com/docs/foundry/approvals/overview/#requests">request</a>, you can determine which <a href="https://www.palantir.com/docs/foundry/approvals/overview/#tasks">tasks</a> in the requests should be approved or rejected. Consider the effect of the entire request when reviewing, even though you can review and approve tasks individually. If you need more information on why someone needs the access they are requesting, use the <a href="#comment">comment</a> functionality on the request.</p>
+<p>To get started reviewing, select the <strong>Requests to review</strong> filter in the Approvals inbox. This will filter down the available requests to a list of requests awaiting your review.</p>
+<p><img alt="requests to review" src="../../_resources/foundry/approvals/requests_to_review2.png" /></p>
+<h2>Eligible reviewers</h2>
+<p>By default, users who have the permission to perform an action themselves are eligible to review the corresponding task. Users may be eligible to review multiple tasks.</p>
+<p><img alt="tasks eligible to review" src="../../_resources/foundry/approvals/tasks_eligible_to_review.png" /></p>
+<p>In the example above, the user is an eligible reviewer of the <strong>Group membership</strong> task but is not an eligible reviewer of the <strong>Marking access request</strong> task. This is because the user has <code>Manage permissions</code> access on the <code>Aircraft delays [Datasource] - Viewer</code> group but not on the <code>PII</code> Marking. Therefore, the user can approve the <strong>Group membership</strong> task. However, to approve the request and invoke changes, they need a user with  <code>Manage permissions</code> access on the <code>PII</code> Marking to approve the <strong>Marking access request</strong> task.</p>
+<h2>Comment</h2>
+<p>You can comment on a request using the comments widget to the right of the request. By default, comments will be shown for the entire request, as indicated by the <strong>All</strong> dropdown.</p>
+<p><img alt="all comments" src="../../_resources/foundry/approvals/all_comments.png" /></p>
+<p>Comment on individual tasks by filtering the dropdown in the comments widget, or select the comment icon to the right of the task. In the example below, the reviewer filtered comments to only view those made on the <strong>Marking access request</strong> task.</p>
+<p><img alt="marking access request comments" src="../../_resources/foundry/approvals/marking_access_request_comment.png" /></p>
+<p>The comment widget also allows you to add links and upload files that may be necessary to support a request. For example, the requester can share links to Foundry or external resources and upload necessary legal documents required for approval.</p>
+<h2>Add reviewer</h2>
+<p>In most cases, users who have permission to approve a task will automatically be assigned as approvers once the request is created. If you would like to explicitly assign a task to a user who was not automatically assigned, invite them by selecting the <strong>Invite reviewers</strong> button. Note, inviting a reviewer does not grant permissions to view a request or approve tasks. Users who are requested to review will receive a notification and see the request in the <strong>Requests to review</strong> section of their Approvals inbox.</p>
+<p><img alt="adding a reviewer" src="../../_resources/foundry/approvals/adding_a_reviewer.png" /></p>
+<h2>Provide review</h2>
+<p>An <a href="#eligible-reviewers">eligible reviewer</a> can either <strong>Approve</strong> or <strong>Reject</strong> the task by selecting the <strong>+ Review</strong> button.</p>
+<p><img alt="approving a task" src="../../_resources/foundry/approvals/approving_a_task.png" /></p>
+<p>Alternatively, use the <strong>Approve all</strong> or <strong>Reject all</strong> button in the <strong>Actions</strong> dropdown to approve or reject all tasks in the request that you are eligible to review.</p>
+<p><img alt="approving all tasks" src="../../_resources/foundry/approvals/approval_all_tasks.png" /></p>
+</body>
+</html>

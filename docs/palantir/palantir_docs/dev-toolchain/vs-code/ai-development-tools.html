@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AI development tools</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>AI development tools</h1>
+<p>AI development tools can be used in VS Code workspaces to assist with code generation, testing, debugging, and optimization.</p>
+<h2>Continue</h2>
+<p><a href="https://docs.continue.dev/">Continue â</a> is an open source extension for VS Code. Continue provides features for AI code generation, including <a href="https://docs.continue.dev/features/chat">chat â</a>, <a href="https://docs.continue.dev/features/edit">inline edits â</a>, <a href="https://docs.continue.dev/features/codebase-context">codebase indexing â</a>, <a href="https://docs.continue.dev/features/codebase-context">custom context selection â</a>, and more.</p>
+<p>In the Palantir platform, Continue is preconfigured to work with Palantir-provided language models, and has added knowledge about relevant Palantir SDKs and your Python transforms or OSDK repository. This contextual understanding of your data structures, Ontology, and organization allows Continue to generate more accurate and relevant code.</p>
+<h3>Get started</h3>
+<p>Below are some commands and actions you can use to get started with Continue:</p>
+<ul>
+<li>Open the Continue extension from the VS Code sidebar, and use the model picker to select a Palantir-provided model.</li>
+<li>Select a code snippet in the editor and use the command <code>cmd/ctrl + L</code> to add context to a new chat.</li>
+<li>Select a code snippet in the editor and use the command <code>cmd/ctrl + I</code> to edit the selected code.</li>
+<li>Enter <code>@filename</code>, <code>@folder</code> or <code>@codebase</code> to reference parts of your codebase.</li>
+<li>Enter <code>@problems</code> to include linting errors in open files.</li>
+</ul>
+<p><img alt="The continue extension in VS Code Workspaces" src="../../_resources/foundry/vs-code/continue-in-vscode-workspaces.png" /></p>
+<h3>Python transforms</h3>
+<p>In <a href="https://www.palantir.com/docs/foundry/transforms-python/overview/">Python transforms</a> repositories, Continue is preconfigured to understand how to write Python transforms. This includes knowledge of the following topics:</p>
+<ul>
+<li>The Python transforms SDK and related Palantir APIs.</li>
+<li>Dataset schemas: Include a dataset RID in your message, or in added context to automatically include dataset schemas and metadata.</li>
+<li>Foundry-specific conventions and best practices.</li>
+</ul>
+<p>Ask <code>How do I write a transform?</code> to get started.</p>
+<p><img alt="Creating a new Python transform using the Continue extension in VS Code workspaces." src="../../_resources/foundry/vs-code/continue-python-transforms-generation.gif" /></p>
+<h3>OSDK</h3>
+<p>In <a href="https://www.palantir.com/docs/foundry/ontology-sdk-react-applications/overview/">TypeScript OSDK</a> repositories, Continue is preconfigured to understand the OSDK included in your repository. This includes the following:</p>
+<ul>
+<li>The TypeScript OSDK and its associated libraries.</li>
+<li>Ontology objects and their metadata, links, Actions and imported functions.</li>
+</ul>
+<p>Ask <code>Tell me about my OSDK</code> in your repository to get started.</p>
+<p><img alt="Editing an OSDK app using the Continue extension in VS Code workspaces." src="../../_resources/foundry/vs-code/continue-osdk-generation.gif" /></p>
+<h3>Palantir MCP integration</h3>
+<p>Palantir MCP is integrated into VS Code workspaces by default. The MCP provides context from your code, library, and Foundry context to the LLM agent. It also offers agent tools to take actions within your repository and Foundry.</p>
+<p>The following tools are provided by Palantir MCP in a VS Code workspace:</p>
+<ul>
+<li>Context tools for OSDK, Python, and TypeScript function repositories.</li>
+<li>Preview tools for Python transforms, allowing the agent to run a transform and fix errors if they occur.</li>
+<li>Ontology management tools for you to explore and modify the ontology.</li>
+<li>Developer Console tools for the agent to update and regenerate the OSDK without leaving your IDE.</li>
+<li>Foundry navigation tools to investigate Foundry project contents, view individual dataset schemas, and run SQL queries.</li>
+</ul>
+<p><img alt="Example of provided MCP tools in a VS Code workspace." src="../../_resources/foundry/vs-code/palantir-mcp-tools.png" /></p>
+<p>For more information, review our <a href="https://www.palantir.com/docs/foundry/palantir-mcp/overview/">Palantir MCP documentation</a>.</p>
+<h3>Pricing</h3>
+<p>Continue is included with VS Code workspaces at no additional charge. Usage of Palantir-provided models will incur compute costs according to <a href="https://www.palantir.com/docs/foundry/aip/aip-compute-usage/#usage-based-pricing-compute-translation-for-aip">Palantir's AIP compute pricing model</a>.</p>
+<h3>Security</h3>
+<p>Continue in VS Code workspaces is preconfigured to use the Palantir-provided models available on your enrollment. To maintain the same level of security offered across the platform, we do not recommend adding additional models directly in the Continue extension. To add additional models use <a href="https://www.palantir.com/docs/foundry/aip/enable-aip-features/#enable-llms">Control Panel</a>.</p>
+<h3>Availability</h3>
+<p>Continue is automatically available in VS Code workspaces if <a href="https://www.palantir.com/docs/foundry/aip/enable-aip-features/">AIP is enabled</a> on your enrollment. No additional installation or configuration is required. Contact your Palantir administrator to enable AIP for your enrollment.</p>
+<hr />
+<p>Note: AIP feature availability is subject to change and may differ between customers.</p>
+<p>VS Code workspaces and the Palantir extension for Visual Studio Code are not affiliated with or endorsed by Microsoft.</p>
+<p>The Continue extension is a product of Continue Dev, Inc. No affiliation or endorsement is implied.</p>
+</body>
+</html>

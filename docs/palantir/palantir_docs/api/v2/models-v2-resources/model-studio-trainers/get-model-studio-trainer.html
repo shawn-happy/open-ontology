@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Get Model Studio Trainer</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../../../index.html">返回目录</a></div>
+<p><code>GET /api/v2/models/modelStudioTrainers/{modelStudioTrainerTrainerId}</code></p>
+<p>:::callout{theme=warning title=Warning}
+  This endpoint is in preview and may be modified or removed at any time.
+  To use this endpoint, add <code>preview=true</code> to the request query parameters.
+:::</p>
+<p>Gets details about a specific trainer by its ID and optional version.</p>
+<p>Third-party applications using this endpoint via OAuth2 must request the following operation scope: <code>api:models-read</code>.</p>
+<p><strong>OAuth2 scopes</strong>: <code>api:models-read</code></p>
+<h2>Path parameters</h2>
+<table>
+<thead>
+<tr>
+<th>参数</th>
+<th>类型</th>
+<th>必填</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>modelStudioTrainerTrainerId</code></td>
+<td>string</td>
+<td>是</td>
+<td>The Resource Identifier (RID) of a trainer.<br>示例: <code>ri.models..trainer.autogluon_tabular_regression</code></td>
+</tr>
+</tbody>
+</table>
+<h2>Query parameters</h2>
+<table>
+<thead>
+<tr>
+<th>参数</th>
+<th>类型</th>
+<th>必填</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>version</code></td>
+<td>string</td>
+<td>否</td>
+<td>Specific version of the trainer to retrieve. If not specified, returns the latest version.<br>示例: <code>0.388.0</code></td>
+</tr>
+<tr>
+<td><code>preview</code></td>
+<td>boolean</td>
+<td>否</td>
+<td>Enables the use of preview functionality.<br>示例: <code>true</code></td>
+</tr>
+</tbody>
+</table>
+<h2>Response</h2>
+<p><strong>ModelStudioTrainer</strong></p>
+<table>
+<thead>
+<tr>
+<th>参数</th>
+<th>类型</th>
+<th>必填</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ModelStudioTrainer</code></td>
+<td>object</td>
+<td>是</td>
+<td>示例: <code>{"outputs":{"model":{"name":"Output model","optional":false,"type":{"type":"model","model":{"modelApiAliases":[{"alias":"input_df","description":"Input dataset"},{"alias":"output_df","description":"Output dataset"}]}}}},"customConfigSchema":{"$schema":"https://json-schema.org/draft/2020-12/schema","title":"AutoGluonTabularRegressionConfig","type":"object","additionalProperties":false,"properties":{"eval_metric":{"title":"Evaluation metric","default":"mean_squared_error","$ref":"#/$defs/RegressionMetricType"},"presets":{"title":"Training presets","default":"medium_quality","$ref":"#/$defs/PresetsType"},"refit_full":{"title":"Refit on full data","description":"After evaluation, refit the best model on the combined training and test data.","type":"boolean","default":false}},"$defs":{"PresetsType":{"title":"PresetsType","description":"Pre-built training presets","oneOf":[{"type":"string","const":"best_quality","description":"Best predictive accuracy, at the cost of training and inference speed."},{"type":"string","const":"medium_quality","description":"Medium predictive accuracy with very fast inference and very fast training time."}]},"RegressionMetricType":{"title":"RegressionMetricType","description":"The metric to optimize for when selecting the best model.","oneOf":[{"type":"string","const":"root_mean_squared_error","description":"Measures the square root of the average squared differences between predicted and actual values."},{"type":"string","const":"mean_squared_error","description":"The average of the squared differences between predicted and actual values."}]}}},"inputs":{"input_df":{"name":"Training dataset","description":"Input dataset for training. If no testing dataset is provided, 20% of this dataset will be held out as a test dataset for evaluation.","optional":false,"type":{"type":"dataset","dataset":{"role":"TRAINING","columnsTypeSpecs":{"target_column":{"name":"Target column","isTarget":true,"allowMultiple":false,"optional":false,"supportedTypes":[{"type":"grouped","grouped":"NUMERIC"}]}}}}},"test_df":{"name":"Test dataset","description":"Input dataset for testing. Used for evaluating the best model only.","optional":true,"type":{"type":"dataset","dataset":{"role":"TEST","columnsTypeSpecs":{}}}}},"name":"AutoGluon Tabular Regression Trainer","description":"Regression with AutoGluon TabularPredictor","experimental":false,"type":"GENERIC","version":"0.388.0","trainerId":"ri.models..trainer.autogluon_tabular_regression"}</code></td>
+</tr>
+<tr>
+<td><code>ModelStudioTrainer.trainerId</code></td>
+<td>string</td>
+<td>是</td>
+<td>The Resource Identifier (RID) of a trainer.<br>示例: <code>ri.models..trainer.autogluon_tabular_regression</code></td>
+</tr>
+<tr>
+<td><code>ModelStudioTrainer.version</code></td>
+<td>string</td>
+<td>是</td>
+<td>The version of this trainer.<br>示例: <code>0.388.0</code></td>
+</tr>
+<tr>
+<td><code>ModelStudioTrainer.name</code></td>
+<td>string</td>
+<td>是</td>
+<td>Human-readable name of the trainer.<br>示例: <code>AutoGluon Tabular Regression Trainer</code></td>
+</tr>
+<tr>
+<td><code>ModelStudioTrainer.type</code></td>
+<td>enum</td>
+<td>是</td>
+<td>The category of machine learning task this trainer is designed to solve.<br>示例: <code>GENERIC</code></td>
+</tr>
+<tr>
+<td><code>ModelStudioTrainer.description</code></td>
+<td>string</td>
+<td>是</td>
+<td>Description of what this trainer does and its capabilities.<br>示例: <code>Regression with AutoGluon TabularPredictor</code></td>
+</tr>
+<tr>
+<td><code>ModelStudioTrainer.customConfigSchema</code></td>
+<td>any</td>
+<td>是</td>
+<td>JSON schema defining the custom configuration parameters for this trainer.<br>示例: <code>{"$schema":"https://json-schema.org/draft/2020-12/schema","title":"AutoGluonTabularRegressionConfig","type":"object","additionalProperties":false,"properties":{"eval_metric":{"title":"Evaluation metric","default":"mean_squared_error","$ref":"#/$defs/RegressionMetricType"},"presets":{"title":"Training presets","default":"medium_quality","$ref":"#/$defs/PresetsType"},"refit_full":{"title":"Refit on full data","description":"After evaluation, refit the best model on the combined training and test data.","type":"boolean","default":false}},"$defs":{"PresetsType":{"title":"PresetsType","description":"Pre-built training presets","oneOf":[{"type":"string","const":"best_quality","description":"Best predictive accuracy, at the cost of training and inference speed."},{"type":"string","const":"medium_quality","description":"Medium predictive accuracy with very fast inference and very fast training time."}]},"RegressionMetricType":{"title":"RegressionMetricType","description":"The metric to optimize for when selecting the best model.","oneOf":[{"type":"string","const":"root_mean_squared_error","description":"Measures the square root of the average squared differences between predicted and actual values."},{"type":"string","const":"mean_squared_error","description":"The average of the squared differences between predicted and actual values."}]}}}</code></td>
+</tr>
+<tr>
+<td><code>ModelStudioTrainer.inputs</code></td>
+<td>any</td>
+<td>是</td>
+<td>Input specifications for this trainer.<br>示例: <code>{"input_df":{"name":"Training dataset","description":"Input dataset for training. If no testing dataset is provided, 20% of this dataset will be held out as a test dataset for evaluation.","optional":false,"type":{"type":"dataset","dataset":{"role":"TRAINING","columnsTypeSpecs":{"target_column":{"name":"Target column","isTarget":true,"allowMultiple":false,"optional":false,"supportedTypes":[{"type":"grouped","grouped":"NUMERIC"}]}}}}},"test_df":{"name":"Test dataset","description":"Input dataset for testing. Used for evaluating the best model only.","optional":true,"type":{"type":"dataset","dataset":{"role":"TEST","columnsTypeSpecs":{}}}}}</code></td>
+</tr>
+<tr>
+<td><code>ModelStudioTrainer.outputs</code></td>
+<td>any</td>
+<td>是</td>
+<td>Output specifications for this trainer.<br>示例: <code>{"model":{"name":"Output model","optional":false,"type":{"type":"model","model":{"modelApiAliases":[{"alias":"input_df","description":"Input dataset"},{"alias":"output_df","description":"Output dataset"}]}}}}</code></td>
+</tr>
+<tr>
+<td><code>ModelStudioTrainer.experimental</code></td>
+<td>boolean</td>
+<td>是</td>
+<td>Whether this trainer is experimental and may have breaking changes.<br>示例: <code>false</code></td>
+</tr>
+</tbody>
+</table>
+<pre><code class="language-json">{
+  &quot;outputs&quot;: {
+    &quot;model&quot;: {
+      &quot;name&quot;: &quot;Output model&quot;,
+      &quot;optional&quot;: false,
+      &quot;type&quot;: {
+        &quot;type&quot;: &quot;model&quot;,
+        &quot;model&quot;: {
+          &quot;modelApiAliases&quot;: [
+            {
+              &quot;alias&quot;: &quot;input_df&quot;,
+              &quot;description&quot;: &quot;Input dataset&quot;
+            },
+            {
+              &quot;alias&quot;: &quot;output_df&quot;,
+              &quot;description&quot;: &quot;Output dataset&quot;
+            }
+          ]
+        }
+      }
+    }
+  },
+  &quot;customConfigSchema&quot;: {
+    &quot;$schema&quot;: &quot;https://json-schema.org/draft/2020-12/schema&quot;,
+    &quot;title&quot;: &quot;AutoGluonTabularRegressionConfig&quot;,
+    &quot;type&quot;: &quot;object&quot;,
+    &quot;additionalProperties&quot;: false,
+    &quot;properties&quot;: {
+      &quot;eval_metric&quot;: {
+        &quot;title&quot;: &quot;Evaluation metric&quot;,
+        &quot;default&quot;: &quot;mean_squared_error&quot;,
+        &quot;$ref&quot;: &quot;#/$defs/RegressionMetricType&quot;
+      },
+      &quot;presets&quot;: {
+        &quot;title&quot;: &quot;Training presets&quot;,
+        &quot;default&quot;: &quot;medium_quality&quot;,
+        &quot;$ref&quot;: &quot;#/$defs/PresetsType&quot;
+      },
+      &quot;refit_full&quot;: {
+        &quot;title&quot;: &quot;Refit on full data&quot;,
+        &quot;description&quot;: &quot;After evaluation, refit the best model on the combined training and test data.&quot;,
+        &quot;type&quot;: &quot;boolean&quot;,
+        &quot;default&quot;: false
+      }
+    },
+    &quot;$defs&quot;: {
+      &quot;PresetsType&quot;: {
+        &quot;title&quot;: &quot;PresetsType&quot;,
+        &quot;description&quot;: &quot;Pre-built training presets&quot;,
+        &quot;oneOf&quot;: [
+          {
+            &quot;type&quot;: &quot;string&quot;,
+            &quot;const&quot;: &quot;best_quality&quot;,
+            &quot;description&quot;: &quot;Best predictive accuracy, at the cost of training and inference speed.&quot;
+          },
+          {
+            &quot;type&quot;: &quot;string&quot;,
+            &quot;const&quot;: &quot;medium_quality&quot;,
+            &quot;description&quot;: &quot;Medium predictive accuracy with very fast inference and very fast training time.&quot;
+          }
+        ]
+      },
+      &quot;RegressionMetricType&quot;: {
+        &quot;title&quot;: &quot;RegressionMetricType&quot;,
+        &quot;description&quot;: &quot;The metric to optimize for when selecting the best model.&quot;,
+        &quot;oneOf&quot;: [
+          {
+            &quot;type&quot;: &quot;string&quot;,
+            &quot;const&quot;: &quot;root_mean_squared_error&quot;,
+            &quot;description&quot;: &quot;Measures the square root of the average squared differences between predicted and actual values.&quot;
+          },
+          {
+            &quot;type&quot;: &quot;string&quot;,
+            &quot;const&quot;: &quot;mean_squared_error&quot;,
+            &quot;description&quot;: &quot;The average of the squared differences between predicted and actual values.&quot;
+          }
+        ]
+      }
+    }
+  },
+  &quot;inputs&quot;: {
+    &quot;input_df&quot;: {
+      &quot;name&quot;: &quot;Training dataset&quot;,
+      &quot;description&quot;: &quot;Input dataset for training. If no testing dataset is provided, 20% of this dataset will be held out as a test dataset for evaluation.&quot;,
+      &quot;optional&quot;: false,
+      &quot;type&quot;: {
+        &quot;type&quot;: &quot;dataset&quot;,
+        &quot;dataset&quot;: {
+          &quot;role&quot;: &quot;TRAINING&quot;,
+          &quot;columnsTypeSpecs&quot;: {
+            &quot;target_column&quot;: {
+              &quot;name&quot;: &quot;Target column&quot;,
+              &quot;isTarget&quot;: true,
+              &quot;allowMultiple&quot;: false,
+              &quot;optional&quot;: false,
+              &quot;supportedTypes&quot;: [
+                {
+                  &quot;type&quot;: &quot;grouped&quot;,
+                  &quot;grouped&quot;: &quot;NUMERIC&quot;
+                }
+              ]
+            }
+          }
+        }
+      }
+    },
+    &quot;test_df&quot;: {
+      &quot;name&quot;: &quot;Test dataset&quot;,
+      &quot;description&quot;: &quot;Input dataset for testing. Used for evaluating the best model only.&quot;,
+      &quot;optional&quot;: true,
+      &quot;type&quot;: {
+        &quot;type&quot;: &quot;dataset&quot;,
+        &quot;dataset&quot;: {
+          &quot;role&quot;: &quot;TEST&quot;,
+          &quot;columnsTypeSpecs&quot;: {}
+        }
+      }
+    }
+  },
+  &quot;name&quot;: &quot;AutoGluon Tabular Regression Trainer&quot;,
+  &quot;description&quot;: &quot;Regression with AutoGluon TabularPredictor&quot;,
+  &quot;experimental&quot;: false,
+  &quot;type&quot;: &quot;GENERIC&quot;,
+  &quot;version&quot;: &quot;0.388.0&quot;,
+  &quot;trainerId&quot;: &quot;ri.models..trainer.autogluon_tabular_regression&quot;
+}
+</code></pre>
+<h2>Error responses</h2>
+<table>
+<thead>
+<tr>
+<th>错误码</th>
+<th>错误名称</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>NOT_FOUND</td>
+<td><code>TrainerNotFound</code></td>
+<td>The specified trainer does not exist.</td>
+</tr>
+<tr>
+<td>NOT_FOUND</td>
+<td><code>ModelStudioTrainerNotFound</code></td>
+<td>The given ModelStudioTrainer could not be found.</td>
+</tr>
+</tbody>
+</table>
+</body>
+</html>

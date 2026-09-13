@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Regex replace</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Regex replace</h1>
+<blockquote>
+<p>Supported in: Batch, Faster, Streaming</p>
+</blockquote>
+<p>Replace a string using a regex pattern.</p>
+<p><strong>Expression categories:</strong> Regex, String</p>
+<h2>Declared arguments</h2>
+<ul>
+<li><strong>Expression:</strong> Input string to replace.<br><em>Expression\<String></em></li>
+<li><strong>Pattern:</strong> The regex pattern to match.<br><em>Expression\<String></em></li>
+<li><strong>Replace:</strong> Replacement string.<br><em>Expression\<String></em></li>
+</ul>
+<p><strong>Output type:</strong> <em>String</em></p>
+<h2>Examples</h2>
+<h3>Example 1: Base case</h3>
+<p><strong>Argument values:</strong></p>
+<ul>
+<li><strong>Expression:</strong> <code>tail_number</code></li>
+<li><strong>Pattern:</strong> (\w\w)(-)</li>
+<li><strong>Replace:</strong> **-</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>tail_number</th>
+<th><strong>Output</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>MT-123</td>
+<td>**-123</td>
+</tr>
+<tr>
+<td>XB-434</td>
+<td>**-434</td>
+</tr>
+<tr>
+<td>MT-123, XB-434</td>
+<td>**-123, **-434</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3>Example 2: Base case</h3>
+<p><strong>Argument values:</strong></p>
+<ul>
+<li><strong>Expression:</strong> <code>tail_number</code></li>
+<li><strong>Pattern:</strong> \</li>
+<li><strong>Replace:</strong> \\</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>tail_number</th>
+<th><strong>Output</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>this is a backslash \ etc</td>
+<td>this is a backslash \ etc</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3>Example 3: Base case</h3>
+<p><strong>Argument values:</strong></p>
+<ul>
+<li><strong>Expression:</strong> <code>path</code></li>
+<li><strong>Pattern:</strong> \</li>
+<li><strong>Replace:</strong> /</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>path</th>
+<th><strong>Output</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>path\to\file</td>
+<td>path/to/file</td>
+</tr>
+<tr>
+<td>C:\Users\John</td>
+<td>C:/Users/John</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3>Example 4: Base case</h3>
+<p><strong>Argument values:</strong></p>
+<ul>
+<li><strong>Expression:</strong> <code>price</code></li>
+<li><strong>Pattern:</strong> $</li>
+<li><strong>Replace:</strong> USD</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>price</th>
+<th><strong>Output</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Price is $50</td>
+<td>Price is USD 50</td>
+</tr>
+<tr>
+<td>$100 and $200</td>
+<td>USD 100 and USD 200</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3>Example 5: Base case</h3>
+<p><strong>Argument values:</strong></p>
+<ul>
+<li><strong>Expression:</strong> <code>price</code></li>
+<li><strong>Pattern:</strong> $(\d+)</li>
+<li><strong>Replace:</strong> $1 dollars</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>price</th>
+<th><strong>Output</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>I have $100</td>
+<td>I have 100 dollars</td>
+</tr>
+<tr>
+<td>$50 and $75</td>
+<td>50 dollars and 75 dollars</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3>Example 6: Base case</h3>
+<p><strong>Argument values:</strong></p>
+<ul>
+<li><strong>Expression:</strong> <code>tail_number</code></li>
+<li><strong>Pattern:</strong> (\w\w)(-)</li>
+<li><strong>Replace:</strong> \</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>tail_number</th>
+<th><strong>Output</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>MT-123</td>
+<td>\123</td>
+</tr>
+<tr>
+<td>XB-434</td>
+<td>\434</td>
+</tr>
+<tr>
+<td>MT-123, XB-434</td>
+<td>\123, \434</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3>Example 7: Base case</h3>
+<p><strong>Argument values:</strong></p>
+<ul>
+<li><strong>Expression:</strong> <code>text</code></li>
+<li><strong>Pattern:</strong> foo</li>
+<li><strong>Replace:</strong> \$</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>text</th>
+<th><strong>Output</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>foo</td>
+<td>$</td>
+</tr>
+<tr>
+<td>foo bar foo</td>
+<td>$ bar $</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3>Example 8: Base case</h3>
+<p><strong>Argument values:</strong></p>
+<ul>
+<li><strong>Expression:</strong> <code>tail_number</code></li>
+<li><strong>Pattern:</strong> (\w\w)(-)</li>
+<li><strong>Replace:</strong> $</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>tail_number</th>
+<th><strong>Output</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>MT-123</td>
+<td>$123</td>
+</tr>
+<tr>
+<td>XB-434</td>
+<td>$434</td>
+</tr>
+<tr>
+<td>MT-123, XB-434</td>
+<td>$123, $434</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3>Example 9: Base case</h3>
+<p><strong>Argument values:</strong></p>
+<ul>
+<li><strong>Expression:</strong> <code>tail_number</code></li>
+<li><strong>Pattern:</strong> (\w\w)(-)</li>
+<li><strong>Replace:</strong> $1</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>tail_number</th>
+<th><strong>Output</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>MT-123</td>
+<td>MT123</td>
+</tr>
+<tr>
+<td>XB-434</td>
+<td>XB434</td>
+</tr>
+<tr>
+<td>MT-123, XB-434</td>
+<td>MT123, XB434</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3>Example 10: Null case</h3>
+<p><strong>Argument values:</strong></p>
+<ul>
+<li><strong>Expression:</strong> <code>tail_number</code></li>
+<li><strong>Pattern:</strong> <code>regex</code></li>
+<li><strong>Replace:</strong> foo</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>tail_number</th>
+<th>regex</th>
+<th><strong>Output</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>MT-123</td>
+<td>(</td>
+<td><em>null</em></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3>Example 11: Null case</h3>
+<p><strong>Description:</strong> Null inputs give null outputs.</p>
+<p><strong>Argument values:</strong></p>
+<ul>
+<li><strong>Expression:</strong> <em>null</em></li>
+<li><strong>Pattern:</strong> (\w\w)(-)</li>
+<li><strong>Replace:</strong> **</li>
+</ul>
+<p><strong>Output:</strong> <em>null</em></p>
+<hr />
+<h3>Example 12: Null case</h3>
+<p><strong>Description:</strong> Null inputs give null outputs.</p>
+<p><strong>Argument values:</strong></p>
+<ul>
+<li><strong>Expression:</strong> foo</li>
+<li><strong>Pattern:</strong> bar</li>
+<li><strong>Replace:</strong> <em>null</em></li>
+</ul>
+<p><strong>Output:</strong> <em>null</em></p>
+<hr />
+</body>
+</html>

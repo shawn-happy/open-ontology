@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Connectors</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../index.html">返回目录</a></div>
+<h1>Connectors</h1>
+<p>The <a href="https://www.palantir.com/docs/foundry/data-connection/overview/">Data Connection</a> application is intended to provide connectivity between Foundry and your systems. This page provides an overview of the available connectors.</p>
+<h2>Filesystems and blob stores</h2>
+<p>Including:</p>
+<ul>
+<li><a href="https://www.palantir.com/docs/foundry/available-connectors/amazon-s3/">Amazon S3</a></li>
+<li><a href="https://www.palantir.com/docs/foundry/available-connectors/onelake-and-azure-blob-filesystem/">OneLake and Azure Blob Filesystem (ABFS)</a></li>
+<li><a href="https://www.palantir.com/docs/foundry/available-connectors/filesystem/">Directory (Agent-level filesystem)</a></li>
+<li><a href="https://www.palantir.com/docs/foundry/available-connectors/ftps/">FTP/FTPS</a></li>
+<li><a href="https://www.palantir.com/docs/foundry/available-connectors/google-cloud-storage/">Google Cloud Storage</a></li>
+<li><a href="https://www.palantir.com/docs/foundry/available-connectors/hdfs/">HDFS</a></li>
+<li><a href="https://www.palantir.com/docs/foundry/available-connectors/smb/">Server Message Block (SMB)</a></li>
+<li><a href="https://www.palantir.com/docs/foundry/available-connectors/sftp/">SFTP</a></li>
+<li><a href="https://www.palantir.com/docs/foundry/available-connectors/sharepoint-online/">SharePoint Online</a></li>
+</ul>
+<h2><a href="https://www.palantir.com/docs/foundry/available-connectors/custom-jdbc-sources/">JDBC sources</a></h2>
+<h3>Databases</h3>
+<p>Including:</p>
+<ul>
+<li>Amazon Athena</li>
+<li>Hive</li>
+<li>IBM Db2</li>
+<li>Informix</li>
+<li>MariaDB</li>
+<li><a href="https://www.palantir.com/docs/foundry/available-connectors/microsoft-sql-server/">Microsoft SQL Server</a></li>
+<li>MySQL</li>
+<li><a href="https://www.palantir.com/docs/foundry/available-connectors/oracle/">Oracle Database</a></li>
+<li><a href="https://www.palantir.com/docs/foundry/available-connectors/postgresql/">PostgreSQL</a></li>
+<li>SQLite</li>
+<li>Sybase</li>
+<li>Vertica</li>
+</ul>
+<h3>Data warehouses</h3>
+<p>Including:</p>
+<ul>
+<li><a href="https://www.palantir.com/docs/foundry/available-connectors/aws-redshift/">AWS Redshift</a></li>
+<li>Azure Synapse</li>
+<li><a href="https://www.palantir.com/docs/foundry/available-connectors/bigquery/">BigQuery</a></li>
+<li><a href="https://www.palantir.com/docs/foundry/available-connectors/databricks/">Databricks</a></li>
+<li>Netezza</li>
+<li><a href="https://www.palantir.com/docs/foundry/available-connectors/snowflake/">Snowflake</a></li>
+<li>Teradata</li>
+</ul>
+<h3>ERP and CRM</h3>
+<p>Including:</p>
+<ul>
+<li><a href="https://www.palantir.com/docs/foundry/sap/install-sap/">SAP</a></li>
+<li><a href="https://www.palantir.com/docs/foundry/available-connectors/salesforce/">Salesforce</a></li>
+<li><a href="https://www.palantir.com/docs/foundry/available-connectors/netsuite-overview/">Oracle NetSuite</a></li>
+<li><a href="https://www.palantir.com/docs/foundry/available-connectors/hubspot/">HubSpot</a></li>
+</ul>
+<h2><a href="https://www.palantir.com/docs/foundry/data-integration/streaming-guide/">Streaming sources</a></h2>
+<p>Including:</p>
+<ul>
+<li><a href="https://www.palantir.com/docs/foundry/available-connectors/kafka/">Apache Kafka</a></li>
+<li>ActiveMQ</li>
+<li><a href="https://www.palantir.com/docs/foundry/available-connectors/amazon-kinesis/">Amazon Kinesis</a></li>
+<li>Amazon SNS</li>
+<li>Amazon SQS</li>
+<li>Google Pub/Sub</li>
+<li>MQTT</li>
+<li>RabbitMQ</li>
+<li>Solace</li>
+</ul>
+<h2><a href="https://www.palantir.com/docs/foundry/available-connectors/nosql-stores/">NoSQL stores</a></h2>
+<p>Including:</p>
+<ul>
+<li>Amazon DynamoDB</li>
+<li>Apache HBase</li>
+<li>Azure Cosmos DB</li>
+<li>Cassandra</li>
+<li>Cockroach DB</li>
+<li>CouchDB</li>
+<li>Elasticsearch</li>
+<li>InfluxDB</li>
+<li>MarkLogic</li>
+<li>MongoDB</li>
+<li>Neo4j</li>
+<li>OrientDB</li>
+<li>Redis</li>
+</ul>
+<h2><a href="https://www.palantir.com/docs/foundry/available-connectors/rest-apis/">REST APIs</a></h2>
+<h2><a href="https://www.palantir.com/docs/foundry/available-connectors/other-source-types/">Other source types</a></h2>
+<h3>IOT / IIOT</h3>
+<p>Including:</p>
+<ul>
+<li>Amazon IoT Core</li>
+<li>Azure Event Hub</li>
+<li>Google IoT Core</li>
+<li>OPC-UA</li>
+<li>OSI PI</li>
+</ul>
+<h3>Geospatial systems</h3>
+<p>Including:</p>
+<ul>
+<li>ESRI / ArcGIS</li>
+<li>PostGIS</li>
+<li>Oracle Spatial DBs</li>
+<li><a href="https://www.palantir.com/docs/foundry/available-connectors/wfs/">WFS</a></li>
+</ul>
+<h3>Productivity tools</h3>
+<p>Including:</p>
+<ul>
+<li>Artifactory</li>
+<li><a href="https://www.palantir.com/docs/foundry/available-connectors/asana/">Asana</a></li>
+<li>GitHub</li>
+<li>JIRA</li>
+<li>PagerDuty</li>
+<li>ServiceNOW</li>
+<li><a href="https://www.palantir.com/docs/foundry/available-connectors/slack/">Slack</a></li>
+</ul>
+</body>
+</html>

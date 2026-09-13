@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Deploy extraction strategies to Python transforms</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Deploy extraction strategies to Python transforms</h1>
+<p>After validating your extraction strategy in AIP Document Intelligence, you can deploy it as a Python transform to run batch extraction across all pages of all documents in a media set. The deployed template produces the same results as the corresponding configuration in AIP Document Intelligence.</p>
+<h2>Using the deployed template</h2>
+<p>Once the template is created in Code Repositories:</p>
+<ol>
+<li>Specify your output dataset in the <code>@transform.using</code> decorator in the <code>src/myproject/document_extraction/my_extraction.py</code> file.</li>
+<li>Trigger the build.</li>
+</ol>
+<p>The template uses lightweight transforms for optimal performance. Legacy versions used Spark-based transforms, which are much slower due to Spark overhead. We recommend migrating to lightweight transforms if you have not already.</p>
+<p>:::callout{theme="warning"}
+Preview mode is not yet supported in this template. Errors are expected when using preview, but the actual build will work correctly.
+:::</p>
+<h3>Incremental processing</h3>
+<p>By default, the document extraction transform is non-incremental, meaning that all documents are processed on every run. You can configure the transform to run incrementally by uncommenting the <code>@incremental(...)</code> decorator line. For an incremental transform, when new documents are added to the input media set, re-running the transform will only process the new documents and append results to the output dataset.</p>
+<h3>Customizing the prompt</h3>
+<p>For generative AI configurations, the template inherits the prompt you specified in AIP Document Intelligence. You can view the prompts in <code>src/myproject/document_extraction/prompts.py</code>.</p>
+<p>We do not recommend editing prompts directly in the template, as this causes discrepancies between Document Intelligence results and batch job results. Instead, make prompt adjustments in Document Intelligence, verify the results there, then redeploy to create a new template.</p>
+<table>
+<thead>
+<tr>
+<th>Transform input type</th>
+<th>Customizable prompt</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>VisionLLMDocumentsExtractorInput</code></td>
+<td>User prompt only (system prompt is fixed)</td>
+</tr>
+<tr>
+<td><code>VisionLLMLayoutDocumentsExtractorInput</code> (layout-aware extraction)</td>
+<td>System prompt only (user prompt is fixed)</td>
+</tr>
+</tbody>
+</table>
+<p>For layout-aware extraction configurations, the user prompt must remain fixed because it contains a special JSON schema that preserves layout structure information. Modifying this prompt will significantly reduce extraction success rates.</p>
+<h3>Custom image preprocessing</h3>
+<p>For documents that require image transformations before extraction, such as rotated text content, you should:</p>
+<ol>
+<li>Create a separate transform pipeline to apply the image transformations.</li>
+<li>Save the processed results to a new media set.</li>
+<li>Use Document Intelligence on the processed media set for extraction.</li>
+</ol>
+<h3>Run on a subset of media items</h3>
+<p>For layout-aware generative AI configurations, the vision LLM must generate valid JSON adhering to a specific schema. If the response is invalid JSON or does not follow the schema, the extraction fails with an <code>ERROR_RESPONSE_JSON_PARSING</code> error.</p>
+<p>In practice, approximately 5% of extractions may fail with top-tier models. For failed rows, you still get valid <code>layoutInfo</code> with extraction results from the layout model only.</p>
+<p>To re-run extraction on failed rows:</p>
+<ol>
+<li>Use the <code>filter_on_media_items</code> argument with a list of media item IDs to process only specific items.</li>
+<li>Remove the <code>@incremental</code> decorator so these rows are re-processed instead of being detected as finished.</li>
+</ol>
+<h3>Improve runtime performance</h3>
+<p>The <code>THREAD_NUMBER</code> parameter controls concurrent threads, where each thread extracts data from one document page at a time. Higher values result in faster job completion.</p>
+<table>
+<thead>
+<tr>
+<th>Setting</th>
+<th>Value</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Default</td>
+<td>20</td>
+<td>Conservative setting suitable for most environments</td>
+</tr>
+<tr>
+<td>Maximum tested</td>
+<td>300</td>
+<td>Achievable in development environments with abundant Vision LLM capacity</td>
+</tr>
+</tbody>
+</table>
+<p>:::callout{theme="warning"}
+Setting the <code>THREAD_NUMBER</code> value too high in capacity-restricted environments will cause rate limit errors. The retry loop then consumes significant capacity, affecting other jobs using the same model. You should monitor usage when adjusting this parameter.
+:::</p>
+<h3>Find logs</h3>
+<p>To view build logs, select <strong>Telemetry</strong> on the build details page. To filter for document extraction logs, filter the message column for values starting with <code>aip_workflows</code>.</p>
+<h3>Row-level vs. document-level chunking</h3>
+<p>The extraction output contains one row per page. By default, <code>DocumentChunker.create_chunks_per_document</code> combines all pages from the same document into a single Markdown string before chunking.</p>
+<p>To chunk each row independently without combining pages, use <code>DocumentChunker.create_chunks_per_row</code> instead:</p>
+<pre><code class="language-python">chunking_result = chunker.create_chunks_per_row(
+    extraction_df,
+    chunk_mode=&quot;markdown&quot;,       # &quot;recursive&quot; for plain text, &quot;markdown&quot; for markdown text
+    content_column=&quot;extractionResult&quot;,
+    id_column=&quot;media_item_rid&quot;,  # used as prefix for chunk_id
+    chunk_size=8192,
+    chunk_overlap=0,
+    thread_number=20,
+    strip_markdown=False,        # set True to remove ```markdown and ``` wrappers before chunking
+)
+</code></pre>
+<h3>Create embeddings without chunking</h3>
+<p>Chunking is recommended before creating embeddings because embedding models have context limits. To skip chunking while preserving the pipeline structure, set <code>chunk_size</code> to a very large value in <code>create_chunks_per_row</code>, such as <code>sys.maxsize</code>.</p>
+<h2>Template examples</h2>
+<p>The following examples show the transform code generated for each extraction configuration. These are for reference only. You should create the transform using the deploy tool in Document Intelligence instead of manually writing transform code for document extraction.</p>
+<h3>Traditional extraction: Raw text</h3>
+<p>Extracts text by reading document metadata. Only available for electronically generated PDFs.</p>
+<pre><code class="language-python">import polars as pl
+from concurrent.futures import ThreadPoolExecutor
+from transforms.api import Output, incremental, transform
+from transforms.mediasets import MediaSetInput
+from transforms.mediasets.utils._constants import MEDIA_ITEM_RID, MEDIA_REFERENCE, PATH
+
+
+THREAD_NUMBER = 20
+
+
+# @incremental(v2_semantics=True)  # uncomment this line if incremental is needed
+@transform.using(
+    output=Output(&quot;ri.foundry.main.dataset.abc&quot;),
+    media_input=MediaSetInput(&quot;ri.mio.main.media-set.abc&quot;),
+)
+def extract(media_input, output):
+    &quot;&quot;&quot;
+    Extracts content from pdf documents with raw text extraction
+    &quot;&quot;&quot;
+    media_refs = pl.from_pandas(
+        media_input.list_media_items_by_path_with_media_reference().pandas(),
+        schema_overrides={MEDIA_ITEM_RID: pl.String, MEDIA_REFERENCE: pl.String, PATH: pl.String},
+    )
+
+    def process_batch(batch_df: pl.DataFrame) -&gt; pl.DataFrame:
+        def create_page_tasks(row):
+            media_item_rid = row[MEDIA_ITEM_RID]
+            metadata = media_input.get_media_item_metadata(media_item_rid).document
+            if metadata is None:
+                raise ValueError(f&quot;Media item {media_item_rid} is not a document&quot;)
+            if metadata.pages is None:
+                raise ValueError(f&quot;Media item {media_item_rid} has no page count&quot;)
+            return [(row, page_num) for page_num in range(metadata.pages)]
+
+        def process_single_page(task):
+            row, page_num = task
+            media_item_rid = row[MEDIA_ITEM_RID]
+            media_reference = row[MEDIA_REFERENCE]
+            extraction_result = media_input.transform_document_to_text_raw(
+                media_item_rid, page_num
+            ).read().decode(&quot;utf-8&quot;)
+            return {
+                &quot;media_item_rid&quot;: media_item_rid,
+                &quot;media_reference&quot;: media_reference,
+                &quot;page_num&quot;: page_num,
+                &quot;extraction_result&quot;: extraction_result
+            }
+
+        all_tasks = []
+        for row in batch_df.iter_rows(named=True):
+            all_tasks.extend(create_page_tasks(row))
+
+        with ThreadPoolExecutor(max_workers=THREAD_NUMBER) as executor:
+            results = list(executor.map(process_single_page, all_tasks))
+
+        return pl.DataFrame(results)
+
+    extracted_data = media_refs.lazy().map_batches(
+        process_batch,
+        schema={
+            &quot;media_item_rid&quot;: pl.String,
+            &quot;media_reference&quot;: pl.String,
+            &quot;page_num&quot;: pl.Int64,
+            &quot;extraction_result&quot;: pl.String,
+        },
+        streamable=True,
+    )
+
+    output.write_dataframe(extracted_data)
+</code></pre>
+<h3>Traditional extraction: OCR</h3>
+<p>Uses traditional Optical Character Recognition (OCR) to extract text without preserving layout information.</p>
+<pre><code class="language-python">import polars as pl
+from concurrent.futures import ThreadPoolExecutor
+from transforms.api import Output, incremental, transform
+from transforms.mediasets import MediaSetInput
+from transforms.mediasets.utils._constants import MEDIA_ITEM_RID, MEDIA_REFERENCE, PATH
+
+
+THREAD_NUMBER = 20
+
+
+# @incremental(v2_semantics=True)  # uncomment this line if incremental is needed
+@transform.using(
+    output=Output(&quot;ri.foundry.main.dataset.abc&quot;),
+    media_input=MediaSetInput(&quot;ri.mio.main.media-set.abc&quot;),
+)
+def extract(media_input, output):
+    &quot;&quot;&quot;
+    Extracts content from pdf documents with OCR text extraction
+    &quot;&quot;&quot;
+    media_refs = pl.from_pandas(
+        media_input.list_media_items_by_path_with_media_reference().pandas(),
+        schema_overrides={MEDIA_ITEM_RID: pl.String, MEDIA_REFERENCE: pl.String, PATH: pl.String},
+    )
+
+    def process_batch(batch_df: pl.DataFrame) -&gt; pl.DataFrame:
+        def create_page_tasks(row):
+            media_item_rid = row[MEDIA_ITEM_RID]
+            metadata = media_input.get_media_item_metadata(media_item_rid).document
+            if metadata is None:
+                raise ValueError(f&quot;Media item {media_item_rid} is not a document&quot;)
+            if metadata.pages is None:
+                raise ValueError(f&quot;Media item {media_item_rid} has no page count&quot;)
+            return [(row, page_num) for page_num in range(metadata.pages)]
+
+        def process_single_page(task):
+            row, page_num = task
+            media_item_rid = row[MEDIA_ITEM_RID]
+            media_reference = row[MEDIA_REFERENCE]
+            extraction_result = media_input.transform_document_to_text_ocr_output_text(
+                media_item_rid, page_num
+            ).read().decode(&quot;utf-8&quot;)
+            return {
+                &quot;media_item_rid&quot;: media_item_rid,
+                &quot;media_reference&quot;: media_reference,
+                &quot;page_num&quot;: page_num,
+                &quot;extraction_result&quot;: extraction_result
+            }
+
+        all_tasks = []
+        for row in batch_df.iter_rows(named=True):
+            all_tasks.extend(create_page_tasks(row))
+
+        with ThreadPoolExecutor(max_workers=THREAD_NUMBER) as executor:
+            results = list(executor.map(process_single_page, all_tasks))
+
+        return pl.DataFrame(results)
+
+    extracted_data = media_refs.lazy().map_batches(
+        process_batch,
+        schema={
+            &quot;media_item_rid&quot;: pl.String,
+            &quot;media_reference&quot;: pl.String,
+            &quot;page_num&quot;: pl.Int64,
+            &quot;extraction_result&quot;: pl.String,
+        },
+        streamable=True,
+    )
+
+    output.write_dataframe(extracted_data)
+</code></pre>
+<h3>Traditional extraction: Layout-aware OCR</h3>
+<p>Uses advanced OCR with bounding boxes to preserve document layout and structure.</p>
+<pre><code class="language-python">import polars as pl
+from concurrent.futures import ThreadPoolExecutor
+from transforms.api import Output, incremental, transform
+from transforms.mediasets import MediaSetInput
+from transforms.mediasets.utils._constants import MEDIA_ITEM_RID, MEDIA_REFERENCE, PATH
+
+
+THREAD_NUMBER = 20
+
+
+# @incremental(v2_semantics=True)  # uncomment this line if incremental is needed
+@transform.using(
+    output=Output(&quot;ri.foundry.main.dataset.abc&quot;),
+    media_input=MediaSetInput(&quot;ri.mio.main.media-set.abc&quot;),
+)
+def extract(media_input, output):
+    &quot;&quot;&quot;
+    Extracts content from pdf documents with layout-aware OCR extraction
+    &quot;&quot;&quot;
+    media_refs = pl.from_pandas(
+        media_input.list_media_items_by_path_with_media_reference().pandas(),
+        schema_overrides={MEDIA_ITEM_RID: pl.String, MEDIA_REFERENCE: pl.String, PATH: pl.String},
+    )
+
+    def process_batch(batch_df: pl.DataFrame) -&gt; pl.DataFrame:
+        def create_page_tasks(row):
+            media_item_rid = row[MEDIA_ITEM_RID]
+            metadata = media_input.get_media_item_metadata(media_item_rid).document
+            if metadata is None:
+                raise ValueError(f&quot;Media item {media_item_rid} is not a document&quot;)
+            if metadata.pages is None:
+                raise ValueError(f&quot;Media item {media_item_rid} has no page count&quot;)
+            return [(row, page_num) for page_num in range(metadata.pages)]
+
+        def process_single_page(task):
+            row, page_num = task
+            media_item_rid = row[MEDIA_ITEM_RID]
+            media_reference = row[MEDIA_REFERENCE]
+            extraction_result = media_input.transform_media_item(media_item_rid, str(page_num), {
+                &quot;type&quot;: &quot;documentToText&quot;,
+                &quot;documentToText&quot;: {
+                    &quot;operation&quot;: {
+                        &quot;type&quot;: &quot;extractLayoutAwareContent&quot;,
+                        &quot;extractLayoutAwareContent&quot;: {
+                            &quot;parameters&quot;: {
+                                &quot;languages&quot;: [&quot;ENG&quot;]
+                            }
+                        }
+                    }
+                }
+            })
+            extraction_result = str(extraction_result.json())
+            return {
+                &quot;media_item_rid&quot;: media_item_rid,
+                &quot;media_reference&quot;: media_reference,
+                &quot;page_num&quot;: page_num,
+                &quot;extraction_result&quot;: extraction_result
+            }
+
+        all_tasks = []
+        for row in batch_df.iter_rows(named=True):
+            all_tasks.extend(create_page_tasks(row))
+
+        with ThreadPoolExecutor(max_workers=THREAD_NUMBER) as executor:
+            results = list(executor.map(process_single_page, all_tasks))
+
+        return pl.DataFrame(results)
+
+    extracted_data = media_refs.lazy().map_batches(
+        process_batch,
+        schema={
+            &quot;media_item_rid&quot;: pl.String,
+            &quot;media_reference&quot;: pl.String,
+            &quot;page_num&quot;: pl.Int64,
+            &quot;extraction_result&quot;: pl.String,
+        },
+        streamable=True,
+    )
+
+    output.write_dataframe(extracted_data)
+</code></pre>
+<h3>Generative AI extraction: Basic</h3>
+<p>Uses a vision language model to extract content as Markdown without preprocessing.</p>
+<pre><code class="language-python">from transforms.api import Output, incremental, transform
+from transforms.mediasets import MediaSetInput
+from aip_workflows.document_intelligence.transforms import VisionLLMDocumentsExtractorInput
+from .prompts import USER_PROMPT
+
+
+THREAD_NUMBER = 20
+
+
+# @incremental(v2_semantics=True, snapshot_inputs=[&quot;extractor&quot;])  # uncomment this line if incremental is needed
+@transform.using(
+    output=Output(&quot;ri.foundry.main.dataset.abc&quot;),
+    media_input=MediaSetInput(&quot;ri.mio.main.media-set.abc&quot;),
+    extractor=VisionLLMDocumentsExtractorInput(
+        &quot;ri.language-model-service..language-model.anthropic-claude-xxx-sonnet&quot;
+    ),
+)
+def extract(media_input, output, extractor):
+    &quot;&quot;&quot;
+    Extracts content from pdf documents as markdown.
+    &quot;&quot;&quot;
+    extracted_data = extractor.create_extraction(
+        media_input, with_ocr=False, prompt=USER_PROMPT, thread_number=THREAD_NUMBER
+    )
+    output.write_dataframe(extracted_data)
+</code></pre>
+<h3>Generative AI extraction: With OCR preprocessing</h3>
+<p>Uses a vision language model with OCR preprocessing for improved extraction on complex documents.</p>
+<pre><code class="language-python">from transforms.api import Output, incremental, transform
+from transforms.mediasets import MediaSetInput
+from aip_workflows.document_intelligence.transforms import VisionLLMDocumentsExtractorInput
+from .prompts import USER_PROMPT
+
+
+THREAD_NUMBER = 20
+
+
+# @incremental(v2_semantics=True, snapshot_inputs=[&quot;extractor&quot;])  # uncomment this line if incremental is needed
+@transform.using(
+    output=Output(&quot;ri.foundry.main.dataset.abc&quot;),
+    media_input=MediaSetInput(&quot;ri.mio.main.media-set.abc&quot;),
+    extractor=VisionLLMDocumentsExtractorInput(
+        &quot;ri.language-model-service..language-model.anthropic-claude-xxx-sonnet&quot;
+    ),
+)
+def extract(media_input, output, extractor):
+    &quot;&quot;&quot;
+    Extracts content from pdf documents as markdown.
+    &quot;&quot;&quot;
+    extracted_data = extractor.create_extraction(
+        media_input, with_ocr=True, prompt=USER_PROMPT, thread_number=THREAD_NUMBER
+    )
+    output.write_dataframe(extracted_data)
+</code></pre>
+<h3>Generative AI extraction: Layout-aware</h3>
+<p>Uses a vision language model with layout-aware OCR preprocessing, returning layout information alongside extracted content.</p>
+<pre><code class="language-python">from transforms.api import Output, incremental, transform
+from transforms.mediasets import MediaSetInput
+from aip_workflows.document_intelligence.transforms import VisionLLMLayoutDocumentsExtractorInput
+from .prompts import SYSTEM_PROMPT
+
+
+THREAD_NUMBER = 20
+
+
+# @incremental(v2_semantics=True, snapshot_inputs=[&quot;extractor&quot;])  # uncomment this line if incremental is needed
+@transform.using(
+    output=Output(&quot;ri.foundry.main.dataset.abc&quot;),
+    media_input=MediaSetInput(&quot;ri.mio.main.media-set.abc&quot;),
+    extractor=VisionLLMLayoutDocumentsExtractorInput(
+        &quot;ri.language-model-service..language-model.anthropic-claude-xxx-sonnet&quot;
+    ),
+)
+def extract(media_input, output, extractor):
+    &quot;&quot;&quot;
+    Extracts content from pdf documents as markdown.
+    &quot;&quot;&quot;
+    extracted_data = extractor.create_extraction(
+        media_input,
+        include_layout_info=&quot;no_overlay&quot;,
+        system_prompt=SYSTEM_PROMPT,
+        thread_number=THREAD_NUMBER
+    )
+    output.write_dataframe(extracted_data)
+</code></pre>
+<h3>Generative AI extraction: Layout-aware with table cropping</h3>
+<p>Uses a vision language model with layout-aware OCR preprocessing and table cropping for improved table extraction accuracy.</p>
+<pre><code class="language-python">from transforms.api import Output, incremental, transform
+from transforms.mediasets import MediaSetInput
+from aip_workflows.document_intelligence.transforms import VisionLLMLayoutDocumentsExtractorInput
+from .prompts import SYSTEM_PROMPT
+
+
+THREAD_NUMBER = 20
+
+
+# @incremental(v2_semantics=True, snapshot_inputs=[&quot;extractor&quot;])  # uncomment this line if incremental is needed
+@transform.using(
+    output=Output(&quot;ri.foundry.main.dataset.abc&quot;),
+    media_input=MediaSetInput(&quot;ri.mio.main.media-set.abc&quot;),
+    extractor=VisionLLMLayoutDocumentsExtractorInput(
+        &quot;ri.language-model-service..language-model.anthropic-claude-xxx-sonnet&quot;
+    ),
+)
+def extract(media_input, output, extractor):
+    &quot;&quot;&quot;
+    Extracts content from pdf documents as markdown.
+    &quot;&quot;&quot;
+    extracted_data = extractor.create_extraction(
+        media_input,
+        include_layout_info=&quot;crop_tables&quot;,
+        system_prompt=SYSTEM_PROMPT,
+        thread_number=THREAD_NUMBER
+    )
+    output.write_dataframe(extracted_data)
+</code></pre>
+<h3>Chunk extracted text and generate embeddings</h3>
+<p>If embedding is not needed, remove the <code>embedder</code> from the transform decorator and the <code>embedding_result</code> line.</p>
+<pre><code class="language-python">from transforms.api import Input, Output, incremental, transform
+from aip_workflows.document_intelligence.transforms import DocumentChunker, DocumentEmbedderInput
+
+THREAD_NUMBER = 20
+
+
+# @incremental(v2_semantics=True, snapshot_inputs=[&quot;embedder&quot;])  # uncomment this line if incremental is needed
+@transform.using(
+    extraction_input=Input(&quot;ri.foundry.main.dataset.abc&quot;),  # typically the output dataset from the extraction transform
+    output=Output(&quot;ri.foundry.main.dataset.xyz&quot;),
+    embedder=DocumentEmbedderInput(&quot;ri.language-model-service..language-model.text-embedding-3-large&quot;),
+)
+def chunk_and_embed(extraction_input, output, embedder):
+    extraction_df = extraction_input.polars(lazy=True)
+    chunker = DocumentChunker()
+    chunking_result = chunker.create_chunks_per_document(
+        extraction_df,
+        chunk_mode=&quot;markdown&quot;,  # &quot;recursive&quot; for raw text, &quot;markdown&quot; for markdown text
+        content_column=&quot;extractionResult&quot;,  # content column name
+        id_column=&quot;media_item_rid&quot;,  # id of the document, used to combine content (e.g. from different pages) of the single document
+        page_column=&quot;page_num&quot;,  # page number column name
+        chunk_size=8192,
+        chunk_overlap=0,
+        thread_number=THREAD_NUMBER,
+        strip_markdown=True,  # when True, removes ```markdown prefix and ``` suffix from the content before chunking
+    )
+    embedding_result = embedder.create_embeddings(
+        chunking_result,
+        content_column=&quot;chunk_content&quot;,
+        thread_number=THREAD_NUMBER,
+    )
+    output.write_dataframe(embedding_result)
+</code></pre>
+</body>
+</html>

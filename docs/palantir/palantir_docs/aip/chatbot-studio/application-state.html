@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Application state</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Application state</h1>
+<p>:::callout{theme="neutral"}
+The application state of an AIP Chatbot was previously called <em>parameters</em>.
+:::</p>
+<p>You can configure multiple string or object set application variables on an AIP Chatbot to configure the <strong>application state</strong>. When an AIP Chatbot with application variables is embedded in the <a href="https://www.palantir.com/docs/foundry/workshop/widgets-aip-chatbot/">AIP Chatbot widget</a> in Workshop, the list of variables will appear. You can then map each application variable to a <a href="https://www.palantir.com/docs/foundry/workshop/concepts-variables/">Workshop variable</a> of the corresponding type to show outputs in other widgets.</p>
+<h2>Configure application state in AIP Chatbot Studio</h2>
+<p>When setting up the application state of an AIP Chatbot, configure the following:</p>
+<ul>
+<li><strong>Identify application variables:</strong> Identify which object set or string variables the LLM should interact with. These can be new variables that the LLM writes results to, or they might already exist in your workflow, such as a variable representing the userâs current selection.</li>
+<li><strong>Name and describe the variable:</strong> For each variable, write a description that explains its role. This description will be injected into the chatbot's prompt, providing the LLM with context on when to use a given variable.</li>
+<li><strong>Set value visibility:</strong> You can choose whether chatbots can see values by setting value visibility. We recommend only allowing the LLM to read values when necessary to decrease confusion. For example, if you use an object set variable as an input for <a href="https://www.palantir.com/docs/foundry/chatbot-studio/retrieval-context/#ontology-context">Ontology context</a>, the variable does not need to be visible to the LLM; the relevant contents of the object set value will be in the system prompt in each loop. However, if you have a string variable that contains a dynamic part of your system prompt, the variable <em>must</em> be set to visible so the LLM can read the contents of the variable.</li>
+<li><strong>Add variables as inputs:</strong> You can choose to configure variables as inputs for Ontology retrieval context, allowing a deterministic input for a semantic search or a full object set given to the LLM. Additionally, function-backed context can receive a number of input variables to allow for stateful information to be included when running the function. The <a href="https://www.palantir.com/docs/foundry/chatbot-studio/tools/#types-of-tools"><strong>Object query</strong> tool</a> can also take in an initial object set variable per object type to provide a starting point for the LLM to apply additional filters or aggregations.</li>
+</ul>
+<p><img alt="An example of what the application state configuration panel might look like." src="../../_resources/foundry/chatbot-studio/application-variable-example-agent-studio.png" /></p>
+<p>Application state can also be referenced in the user-defined <strong>System prompt</strong> by using the slash command <code>/</code> on your keyboard.</p>
+<p><img alt="An example of an application variable referenced in a prompt." src="../../_resources/foundry/chatbot-studio/application-variable-in-prompt.png" /></p>
+<p>Application state can be tested using the <strong>Debug application state</strong> section. You can manually override the values of each variable, and the debug section will provide visual feedback when the chatbot updates a variable value.</p>
+<p><img alt="An example of what the debug application state section might look like." src="../../_resources/foundry/chatbot-studio/application-variable-debugging-section.png" /></p>
+<h2>Update application variables with chatbots</h2>
+<p>The application variables you configure can be modified through chatbot <a href="https://www.palantir.com/docs/foundry/chatbot-studio/tools/">tools</a> or the <a href="https://www.palantir.com/docs/foundry/chatbot-studio/retrieval-context/">retrieval context</a> added to the application state configuration. Variables can either be updated deterministically from the output of a tool or context or non-deterministically through the <strong>Update application variable</strong> tool.</p>
+<h3>Automatic variable updates</h3>
+<p>Variables can be configured to deterministically update with values output from the <strong>Object query</strong> tool, function-backed context, or Ontology context. After each execution of the context or tool, Chatbot Studio will record the latest output and update the mapped application variable to the output value when the LLM finishes streaming. We recommend applying deterministic updates rather than non-deterministic updates to avoid LLM confusion. In some cases, you may want to completely hide the variable value from the LLM.</p>
+<p><img alt="Configure an AIP Chatbot's output variable for the object query tool." src="../../_resources/foundry/chatbot-studio/object-query-output-variable-example.png" /></p>
+<h3>Deterministic tool inputs</h3>
+<p>The <strong>Action</strong> and <strong>Function</strong> <a href="https://www.palantir.com/docs/foundry/chatbot-studio/tools/">tools</a> can be configured to use inputs from application variables instead of generating inputs dynamically through the LLM. This feature allows you to pass predetermined values directly to tools, improving consistency and reducing token usage.</p>
+<p>Note that this feature only supports string and object set input types. The values passed are pinned to the initial value of the variables at the start of the reasoning loop, meaning that updates from previous tool calls in the same query will not be reflected in the values passed as deterministic inputs.</p>
+<p><img alt="Configure deterministic tool inputs." src="../../_resources/foundry/chatbot-studio/deterministic-inputs-example.png" /></p>
+<h3>Update variables with an LLM</h3>
+<p>If you want an LLM to configure a new variable to update, or conditionally apply an update based on the current user query, add the <strong>Update application variable</strong> tool. This tool supports a list of variables that the LLM can update.</p>
+<p><img alt="Configure an AIP Chatbot's Update application variable tool." src="../../_resources/foundry/chatbot-studio/update-application-variable-example.png" /></p>
+<h3>Variables as citations</h3>
+<p>You can also configure an object set variable to update when a citation is selected by the user. The configured object set variable will update with a static object set containing the cited object.</p>
+<p><img alt="Configure an AIP Chatbot's ontology context citation output variable." src="../../_resources/foundry/chatbot-studio/ontology-context-citation-variable-example.png" /></p>
+<h2>Configuration in Workshop</h2>
+<p>If an AIP Chatbot has been configured with an application state, you can configure the chatbot's application variables in Workshop. Review the <a href="https://www.palantir.com/docs/foundry/workshop/widgets-aip-chatbot/#configure-the-aip-chatbot">AIP Chatbot widget</a> documentation for more information.</p>
+<p><img alt="Configure an AIP Chatbot's application variables to Workshop variables in the chatbot's application state section." src="../../_resources/foundry/chatbot-studio/application-variable-in-chatbot-workshop-widget.png" /></p>
+</body>
+</html>

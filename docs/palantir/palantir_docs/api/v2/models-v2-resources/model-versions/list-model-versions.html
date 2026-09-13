@@ -1,0 +1,1033 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>List Model Versions</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../../../index.html">返回目录</a></div>
+<p><code>GET /api/v2/models/{modelRid}/versions</code></p>
+<p>:::callout{theme=warning title=Warning}
+  This endpoint is in preview and may be modified or removed at any time.
+  To use this endpoint, add <code>preview=true</code> to the request query parameters.
+:::</p>
+<p>Lists all Model Versions for a given Model.</p>
+<p>Third-party applications using this endpoint via OAuth2 must request the following operation scope: <code>api:models-read</code>.</p>
+<p><strong>OAuth2 scopes</strong>: <code>api:models-read</code></p>
+<h2>Path parameters</h2>
+<table>
+<thead>
+<tr>
+<th>参数</th>
+<th>类型</th>
+<th>必填</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>modelRid</code></td>
+<td>string</td>
+<td>是</td>
+<td>The Resource Identifier (RID) of a Model.<br>示例: <code>ri.models.main.model.f351c142-0e4c-4b12-adc2-6e1539737ae9</code></td>
+</tr>
+</tbody>
+</table>
+<h2>Query parameters</h2>
+<table>
+<thead>
+<tr>
+<th>参数</th>
+<th>类型</th>
+<th>必填</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>branch</code></td>
+<td>string</td>
+<td>否</td>
+<td>The branch to list versions from. Defaults to master on most enrollments.<br>示例: <code>master</code></td>
+</tr>
+<tr>
+<td><code>pageSize</code></td>
+<td>integer</td>
+<td>否</td>
+<td>The page size to use for the endpoint.</td>
+</tr>
+<tr>
+<td><code>pageToken</code></td>
+<td>string</td>
+<td>否</td>
+<td>The page token indicates where to start paging. This should be omitted from the first page's request.<br>To fetch the next page, clients should take the value from the <code>nextPageToken</code> field of the previous response<br>and use it to populate the <code>pageToken</code> field of the next request.</td>
+</tr>
+<tr>
+<td><code>preview</code></td>
+<td>boolean</td>
+<td>否</td>
+<td>Enables the use of preview functionality.<br>示例: <code>true</code></td>
+</tr>
+</tbody>
+</table>
+<h2>Response</h2>
+<p><strong>ListModelVersionsResponse</strong></p>
+<table>
+<thead>
+<tr>
+<th>参数</th>
+<th>类型</th>
+<th>必填</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ListModelVersionsResponse</code></td>
+<td>object</td>
+<td>是</td>
+<td>示例: <code>{"data":[{"backingRepositories":["ri.stemma.main.repository.a1b2c3d4-e5f6-7890-abcd-ef1234567890"],"condaRequirements":["numpy==1.24.0","pandas==2.0.0"],"linkedExperiment":"ri.models.main.experiment.abc123","modelApi":{"inputs":[{"name":"input_df","required":true,"type":"tabular","columns":[{"name":"feature_1","required":true,"dataType":{"type":"double"}},{"name":"feature_2","required":true,"dataType":{"type":"integer"}}],"format":"PANDAS"}],"outputs":[{"name":"output_df","required":true,"type":"tabular","columns":[{"name":"prediction","required":true,"dataType":{"type":"double"}}],"format":"SPARK"}]},"createdTime":"2003-05-06T12:34:56.789Z","rid":"ri.models.main.model-version.adf94926-c3ac-41ea-beb2-4946699d08ee"}],"nextPageToken":"v1.QnVpbGQgdGhlIEZ1dHVyZTogaHR0cHM6Ly93d3cucGFsYW50aXIuY29tL2NhcmVlcnMvP2xldmVyLXNvdXJjZSU1YiU1ZD1BUElEb2NzI29wZW4tcG9zaXRpb25z"}</code></td>
+</tr>
+<tr>
+<td><code>ListModelVersionsResponse.data</code></td>
+<td>list<ModelVersion></td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListModelVersionsResponse.data.ModelVersion</code></td>
+<td>object</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListModelVersionsResponse.data.ModelVersion.rid</code></td>
+<td>string</td>
+<td>是</td>
+<td>The Resource Identifier (RID) of a Model Version.<br>示例: <code>ri.models.main.model-version.adf94926-c3ac-41ea-beb2-4946699d08ee</code></td>
+</tr>
+<tr>
+<td><code>ListModelVersionsResponse.data.ModelVersion.modelApi</code></td>
+<td>object</td>
+<td>是</td>
+<td>The Model API is a specification that describes the inputs and outputs of a machine learning model. It is used to define the interface for the model, including the types of data that can be passed to it and the types of data that it will return.<br>示例: <code>{"inputs":[{"name":"input_df","required":true,"type":"tabular","columns":[{"name":"feature_1","required":true,"dataType":{"type":"double"}},{"name":"feature_2","required":true,"dataType":{"type":"integer"}}],"format":"PANDAS"}],"outputs":[{"name":"output_df","required":true,"type":"tabular","columns":[{"name":"prediction","required":true,"dataType":{"type":"double"}}],"format":"SPARK"}]}</code></td>
+</tr>
+<tr>
+<td><code>ListModelVersionsResponse.data.ModelVersion.modelApi.inputs</code></td>
+<td>list<ModelApiInput></td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListModelVersionsResponse.data.ModelVersion.modelApi.inputs.ModelApiInput</code></td>
+<td>union</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListModelVersionsResponse.data.ModelVersion.modelApi.inputs.ModelApiInput.unsupported</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListModelVersionsResponse.data.ModelVersion.modelApi.inputs.ModelApiInput.unsupported.unsupportedType</code></td>
+<td>string</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListModelVersionsResponse.data.ModelVersion.modelApi.inputs.ModelApiInput.unsupported.params</code></td>
+<td>map</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListModelVersionsResponse.data.ModelVersion.modelApi.inputs.ModelApiInput.unsupported.params.UnsupportedTypeParamKey</code></td>
+<td>string</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListModelVersionsResponse.data.ModelVersion.modelApi.inputs.ModelApiInput.unsupported.params.UnsupportedTypeParamValue</code></td>
+<td>string</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListModelVersionsResponse.data.ModelVersion.modelApi.inputs.ModelApiInput.parameter</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListModelVersionsResponse.data.ModelVersion.modelApi.inputs.ModelApiInput.parameter.name</code></td>
+<td>string</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListModelVersionsResponse.data.ModelVersion.modelApi.inputs.ModelApiInput.parameter.required</code></td>
+<td>boolean</td>
+<td>否</td>
+<td>true by default; false if the input or output can be null or omitted</td>
+</tr>
+<tr>
+<td><code>ListModelVersionsResponse.data.ModelVersion.modelApi.inputs.ModelApiInput.parameter.dataType</code></td>
+<td>union</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListModelVersionsResponse.data.ModelVersion.modelApi.inputs.ModelApiInput.parameter.dataType.date</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListModelVersionsResponse.data.ModelVersion.modelApi.inputs.ModelApiInput.parameter.dataType.boolean</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListModelVersionsResponse.data.ModelVersion.modelApi.inputs.ModelApiInput.parameter.dataType.unsupported</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListModelVersionsResponse.data.ModelVersion.modelApi.inputs.ModelApiInput.parameter.dataType.unsupported.unsupportedType</code></td>
+<td>string</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListModelVersionsResponse.data.ModelVersion.modelApi.inputs.ModelApiInput.parameter.dataType.unsupported.params</code></td>
+<td>map</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListModelVersionsResponse.data.ModelVersion.modelApi.inputs.ModelApiInput.parameter.dataType.unsupported.params.UnsupportedTypeParamKey</code></td>
+<td>string</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListModelVersionsResponse.data.ModelVersion.modelApi.inputs.ModelApiInput.parameter.dataType.unsupported.params.UnsupportedTypeParamValue</code></td>
+<td>string</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListModelVersionsResponse.data.ModelVersion.modelApi.inputs.ModelApiInput.parameter.dataType.string</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListModelVersionsResponse.data.ModelVersion.modelApi.inputs.ModelApiInput.parameter.dataType.array</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListModelVersionsResponse.data.ModelVersion.modelApi.inputs.ModelApiInput.parameter.dataType.array.itemType</code></td>
+<td>union</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListModelVersionsResponse.data.ModelVersion.modelApi.inputs.ModelApiInput.parameter.dataType.double</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListModelVersionsResponse.data.ModelVersion.modelApi.inputs.ModelApiInput.parameter.dataType.integer</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListModelVersionsResponse.data.ModelVersion.modelApi.inputs.ModelApiInput.parameter.dataType.float</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListModelVersionsResponse.data.ModelVersion.modelApi.inputs.ModelApiInput.parameter.dataType.any</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListModelVersionsResponse.data.ModelVersion.modelApi.inputs.ModelApiInput.parameter.dataType.map</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListModelVersionsResponse.data.ModelVersion.modelApi.inputs.ModelApiInput.parameter.dataType.map.keyType</code></td>
+<td>union</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListModelVersionsResponse.data.ModelVersion.modelApi.inputs.ModelApiInput.parameter.dataType.map.valueType</code></td>
+<td>union</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListModelVersionsResponse.data.ModelVersion.modelApi.inputs.ModelApiInput.parameter.dataType.long</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListModelVersionsResponse.data.ModelVersion.modelApi.inputs.ModelApiInput.parameter.dataType.timestamp</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListModelVersionsResponse.data.ModelVersion.modelApi.inputs.ModelApiInput.tabular</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListModelVersionsResponse.data.ModelVersion.modelApi.inputs.ModelApiInput.tabular.name</code></td>
+<td>string</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListModelVersionsResponse.data.ModelVersion.modelApi.inputs.ModelApiInput.tabular.required</code></td>
+<td>boolean</td>
+<td>否</td>
+<td>true by default; false if the input or output can be null or omitted</td>
+</tr>
+<tr>
+<td><code>ListModelVersionsResponse.data.ModelVersion.modelApi.inputs.ModelApiInput.tabular.columns</code></td>
+<td>list<ModelApiColumn></td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListModelVersionsResponse.data.ModelVersion.modelApi.inputs.ModelApiInput.tabular.columns.ModelApiColumn</code></td>
+<td>object</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListModelVersionsResponse.data.ModelVersion.modelApi.inputs.ModelApiInput.tabular.columns.ModelApiColumn.name</code></td>
+<td>string</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListModelVersionsResponse.data.ModelVersion.modelApi.inputs.ModelApiInput.tabular.columns.ModelApiColumn.required</code></td>
+<td>boolean</td>
+<td>否</td>
+<td>true by default; false if the column can be null or omitted</td>
+</tr>
+<tr>
+<td><code>ListModelVersionsResponse.data.ModelVersion.modelApi.inputs.ModelApiInput.tabular.columns.ModelApiColumn.dataType</code></td>
+<td>union</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListModelVersionsResponse.data.ModelVersion.modelApi.inputs.ModelApiInput.tabular.columns.ModelApiColumn.dataType.date</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListModelVersionsResponse.data.ModelVersion.modelApi.inputs.ModelApiInput.tabular.columns.ModelApiColumn.dataType.boolean</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListModelVersionsResponse.data.ModelVersion.modelApi.inputs.ModelApiInput.tabular.columns.ModelApiColumn.dataType.unsupported</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListModelVersionsResponse.data.ModelVersion.modelApi.inputs.ModelApiInput.tabular.columns.ModelApiColumn.dataType.unsupported.unsupportedType</code></td>
+<td>string</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListModelVersionsResponse.data.ModelVersion.modelApi.inputs.ModelApiInput.tabular.columns.ModelApiColumn.dataType.unsupported.params</code></td>
+<td>map</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListModelVersionsResponse.data.ModelVersion.modelApi.inputs.ModelApiInput.tabular.columns.ModelApiColumn.dataType.unsupported.params.UnsupportedTypeParamKey</code></td>
+<td>string</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListModelVersionsResponse.data.ModelVersion.modelApi.inputs.ModelApiInput.tabular.columns.ModelApiColumn.dataType.unsupported.params.UnsupportedTypeParamValue</code></td>
+<td>string</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListModelVersionsResponse.data.ModelVersion.modelApi.inputs.ModelApiInput.tabular.columns.ModelApiColumn.dataType.string</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListModelVersionsResponse.data.ModelVersion.modelApi.inputs.ModelApiInput.tabular.columns.ModelApiColumn.dataType.array</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListModelVersionsResponse.data.ModelVersion.modelApi.inputs.ModelApiInput.tabular.columns.ModelApiColumn.dataType.array.itemType</code></td>
+<td>union</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListModelVersionsResponse.data.ModelVersion.modelApi.inputs.ModelApiInput.tabular.columns.ModelApiColumn.dataType.double</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListModelVersionsResponse.data.ModelVersion.modelApi.inputs.ModelApiInput.tabular.columns.ModelApiColumn.dataType.integer</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListModelVersionsResponse.data.ModelVersion.modelApi.inputs.ModelApiInput.tabular.columns.ModelApiColumn.dataType.float</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListModelVersionsResponse.data.ModelVersion.modelApi.inputs.ModelApiInput.tabular.columns.ModelApiColumn.dataType.any</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListModelVersionsResponse.data.ModelVersion.modelApi.inputs.ModelApiInput.tabular.columns.ModelApiColumn.dataType.map</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListModelVersionsResponse.data.ModelVersion.modelApi.inputs.ModelApiInput.tabular.columns.ModelApiColumn.dataType.map.keyType</code></td>
+<td>union</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListModelVersionsResponse.data.ModelVersion.modelApi.inputs.ModelApiInput.tabular.columns.ModelApiColumn.dataType.map.valueType</code></td>
+<td>union</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListModelVersionsResponse.data.ModelVersion.modelApi.inputs.ModelApiInput.tabular.columns.ModelApiColumn.dataType.long</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListModelVersionsResponse.data.ModelVersion.modelApi.inputs.ModelApiInput.tabular.columns.ModelApiColumn.dataType.timestamp</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListModelVersionsResponse.data.ModelVersion.modelApi.inputs.ModelApiInput.tabular.format</code></td>
+<td>enum</td>
+<td>否</td>
+<td>Dataframe format the model will receive or is expected to return for this input or output. PANDAS is the default.<br>示例: <code>PANDAS</code></td>
+</tr>
+<tr>
+<td><code>ListModelVersionsResponse.data.ModelVersion.modelApi.outputs</code></td>
+<td>list<ModelApiOutput></td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListModelVersionsResponse.data.ModelVersion.modelApi.outputs.ModelApiOutput</code></td>
+<td>union</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListModelVersionsResponse.data.ModelVersion.modelApi.outputs.ModelApiOutput.unsupported</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListModelVersionsResponse.data.ModelVersion.modelApi.outputs.ModelApiOutput.unsupported.unsupportedType</code></td>
+<td>string</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListModelVersionsResponse.data.ModelVersion.modelApi.outputs.ModelApiOutput.unsupported.params</code></td>
+<td>map</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListModelVersionsResponse.data.ModelVersion.modelApi.outputs.ModelApiOutput.unsupported.params.UnsupportedTypeParamKey</code></td>
+<td>string</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListModelVersionsResponse.data.ModelVersion.modelApi.outputs.ModelApiOutput.unsupported.params.UnsupportedTypeParamValue</code></td>
+<td>string</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListModelVersionsResponse.data.ModelVersion.modelApi.outputs.ModelApiOutput.parameter</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListModelVersionsResponse.data.ModelVersion.modelApi.outputs.ModelApiOutput.parameter.name</code></td>
+<td>string</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListModelVersionsResponse.data.ModelVersion.modelApi.outputs.ModelApiOutput.parameter.required</code></td>
+<td>boolean</td>
+<td>否</td>
+<td>true by default; false if the input or output can be null or omitted</td>
+</tr>
+<tr>
+<td><code>ListModelVersionsResponse.data.ModelVersion.modelApi.outputs.ModelApiOutput.parameter.dataType</code></td>
+<td>union</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListModelVersionsResponse.data.ModelVersion.modelApi.outputs.ModelApiOutput.parameter.dataType.date</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListModelVersionsResponse.data.ModelVersion.modelApi.outputs.ModelApiOutput.parameter.dataType.boolean</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListModelVersionsResponse.data.ModelVersion.modelApi.outputs.ModelApiOutput.parameter.dataType.unsupported</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListModelVersionsResponse.data.ModelVersion.modelApi.outputs.ModelApiOutput.parameter.dataType.unsupported.unsupportedType</code></td>
+<td>string</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListModelVersionsResponse.data.ModelVersion.modelApi.outputs.ModelApiOutput.parameter.dataType.unsupported.params</code></td>
+<td>map</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListModelVersionsResponse.data.ModelVersion.modelApi.outputs.ModelApiOutput.parameter.dataType.unsupported.params.UnsupportedTypeParamKey</code></td>
+<td>string</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListModelVersionsResponse.data.ModelVersion.modelApi.outputs.ModelApiOutput.parameter.dataType.unsupported.params.UnsupportedTypeParamValue</code></td>
+<td>string</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListModelVersionsResponse.data.ModelVersion.modelApi.outputs.ModelApiOutput.parameter.dataType.string</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListModelVersionsResponse.data.ModelVersion.modelApi.outputs.ModelApiOutput.parameter.dataType.array</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListModelVersionsResponse.data.ModelVersion.modelApi.outputs.ModelApiOutput.parameter.dataType.array.itemType</code></td>
+<td>union</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListModelVersionsResponse.data.ModelVersion.modelApi.outputs.ModelApiOutput.parameter.dataType.double</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListModelVersionsResponse.data.ModelVersion.modelApi.outputs.ModelApiOutput.parameter.dataType.integer</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListModelVersionsResponse.data.ModelVersion.modelApi.outputs.ModelApiOutput.parameter.dataType.float</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListModelVersionsResponse.data.ModelVersion.modelApi.outputs.ModelApiOutput.parameter.dataType.any</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListModelVersionsResponse.data.ModelVersion.modelApi.outputs.ModelApiOutput.parameter.dataType.map</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListModelVersionsResponse.data.ModelVersion.modelApi.outputs.ModelApiOutput.parameter.dataType.map.keyType</code></td>
+<td>union</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListModelVersionsResponse.data.ModelVersion.modelApi.outputs.ModelApiOutput.parameter.dataType.map.valueType</code></td>
+<td>union</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListModelVersionsResponse.data.ModelVersion.modelApi.outputs.ModelApiOutput.parameter.dataType.long</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListModelVersionsResponse.data.ModelVersion.modelApi.outputs.ModelApiOutput.parameter.dataType.timestamp</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListModelVersionsResponse.data.ModelVersion.modelApi.outputs.ModelApiOutput.tabular</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListModelVersionsResponse.data.ModelVersion.modelApi.outputs.ModelApiOutput.tabular.name</code></td>
+<td>string</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListModelVersionsResponse.data.ModelVersion.modelApi.outputs.ModelApiOutput.tabular.required</code></td>
+<td>boolean</td>
+<td>否</td>
+<td>true by default; false if the input or output can be null or omitted</td>
+</tr>
+<tr>
+<td><code>ListModelVersionsResponse.data.ModelVersion.modelApi.outputs.ModelApiOutput.tabular.columns</code></td>
+<td>list<ModelApiColumn></td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListModelVersionsResponse.data.ModelVersion.modelApi.outputs.ModelApiOutput.tabular.columns.ModelApiColumn</code></td>
+<td>object</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListModelVersionsResponse.data.ModelVersion.modelApi.outputs.ModelApiOutput.tabular.columns.ModelApiColumn.name</code></td>
+<td>string</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListModelVersionsResponse.data.ModelVersion.modelApi.outputs.ModelApiOutput.tabular.columns.ModelApiColumn.required</code></td>
+<td>boolean</td>
+<td>否</td>
+<td>true by default; false if the column can be null or omitted</td>
+</tr>
+<tr>
+<td><code>ListModelVersionsResponse.data.ModelVersion.modelApi.outputs.ModelApiOutput.tabular.columns.ModelApiColumn.dataType</code></td>
+<td>union</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListModelVersionsResponse.data.ModelVersion.modelApi.outputs.ModelApiOutput.tabular.columns.ModelApiColumn.dataType.date</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListModelVersionsResponse.data.ModelVersion.modelApi.outputs.ModelApiOutput.tabular.columns.ModelApiColumn.dataType.boolean</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListModelVersionsResponse.data.ModelVersion.modelApi.outputs.ModelApiOutput.tabular.columns.ModelApiColumn.dataType.unsupported</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListModelVersionsResponse.data.ModelVersion.modelApi.outputs.ModelApiOutput.tabular.columns.ModelApiColumn.dataType.unsupported.unsupportedType</code></td>
+<td>string</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListModelVersionsResponse.data.ModelVersion.modelApi.outputs.ModelApiOutput.tabular.columns.ModelApiColumn.dataType.unsupported.params</code></td>
+<td>map</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListModelVersionsResponse.data.ModelVersion.modelApi.outputs.ModelApiOutput.tabular.columns.ModelApiColumn.dataType.unsupported.params.UnsupportedTypeParamKey</code></td>
+<td>string</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListModelVersionsResponse.data.ModelVersion.modelApi.outputs.ModelApiOutput.tabular.columns.ModelApiColumn.dataType.unsupported.params.UnsupportedTypeParamValue</code></td>
+<td>string</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListModelVersionsResponse.data.ModelVersion.modelApi.outputs.ModelApiOutput.tabular.columns.ModelApiColumn.dataType.string</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListModelVersionsResponse.data.ModelVersion.modelApi.outputs.ModelApiOutput.tabular.columns.ModelApiColumn.dataType.array</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListModelVersionsResponse.data.ModelVersion.modelApi.outputs.ModelApiOutput.tabular.columns.ModelApiColumn.dataType.array.itemType</code></td>
+<td>union</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListModelVersionsResponse.data.ModelVersion.modelApi.outputs.ModelApiOutput.tabular.columns.ModelApiColumn.dataType.double</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListModelVersionsResponse.data.ModelVersion.modelApi.outputs.ModelApiOutput.tabular.columns.ModelApiColumn.dataType.integer</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListModelVersionsResponse.data.ModelVersion.modelApi.outputs.ModelApiOutput.tabular.columns.ModelApiColumn.dataType.float</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListModelVersionsResponse.data.ModelVersion.modelApi.outputs.ModelApiOutput.tabular.columns.ModelApiColumn.dataType.any</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListModelVersionsResponse.data.ModelVersion.modelApi.outputs.ModelApiOutput.tabular.columns.ModelApiColumn.dataType.map</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListModelVersionsResponse.data.ModelVersion.modelApi.outputs.ModelApiOutput.tabular.columns.ModelApiColumn.dataType.map.keyType</code></td>
+<td>union</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListModelVersionsResponse.data.ModelVersion.modelApi.outputs.ModelApiOutput.tabular.columns.ModelApiColumn.dataType.map.valueType</code></td>
+<td>union</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListModelVersionsResponse.data.ModelVersion.modelApi.outputs.ModelApiOutput.tabular.columns.ModelApiColumn.dataType.long</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListModelVersionsResponse.data.ModelVersion.modelApi.outputs.ModelApiOutput.tabular.columns.ModelApiColumn.dataType.timestamp</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListModelVersionsResponse.data.ModelVersion.modelApi.outputs.ModelApiOutput.tabular.format</code></td>
+<td>enum</td>
+<td>否</td>
+<td>Dataframe format the model will receive or is expected to return for this input or output. PANDAS is the default.<br>示例: <code>PANDAS</code></td>
+</tr>
+<tr>
+<td><code>ListModelVersionsResponse.data.ModelVersion.condaRequirements</code></td>
+<td>list<string></td>
+<td>否</td>
+<td>示例: <code>["numpy==1.24.0","pandas==2.0.0"]</code></td>
+</tr>
+<tr>
+<td><code>ListModelVersionsResponse.data.ModelVersion.backingRepositories</code></td>
+<td>list<rid></td>
+<td>否</td>
+<td>示例: <code>["ri.stemma.main.repository.a1b2c3d4-e5f6-7890-abcd-ef1234567890"]</code></td>
+</tr>
+<tr>
+<td><code>ListModelVersionsResponse.data.ModelVersion.createdTime</code></td>
+<td>string</td>
+<td>是</td>
+<td>The time at which the resource was created.<br>示例: <code>2003-05-06T12:34:56.789Z</code></td>
+</tr>
+<tr>
+<td><code>ListModelVersionsResponse.data.ModelVersion.source</code></td>
+<td>union</td>
+<td>否</td>
+<td>The source from which this model version was created.</td>
+</tr>
+<tr>
+<td><code>ListModelVersionsResponse.data.ModelVersion.source.importedContainerizedModel</code></td>
+<td>object</td>
+<td>否</td>
+<td>Model version imported from a containerized model.</td>
+</tr>
+<tr>
+<td><code>ListModelVersionsResponse.data.ModelVersion.source.external</code></td>
+<td>object</td>
+<td>否</td>
+<td>Model version backed by an external model.</td>
+</tr>
+<tr>
+<td><code>ListModelVersionsResponse.data.ModelVersion.source.codeWorkspace</code></td>
+<td>object</td>
+<td>否</td>
+<td>Model version created from a code workspace.</td>
+</tr>
+<tr>
+<td><code>ListModelVersionsResponse.data.ModelVersion.source.codeWorkspace.codeWorkspaceRid</code></td>
+<td>string</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListModelVersionsResponse.data.ModelVersion.source.codeWorkspace.branch</code></td>
+<td>string</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListModelVersionsResponse.data.ModelVersion.source.modelStudio</code></td>
+<td>object</td>
+<td>否</td>
+<td>Model version created from Model Studio.</td>
+</tr>
+<tr>
+<td><code>ListModelVersionsResponse.data.ModelVersion.source.modelStudio.modelStudioRid</code></td>
+<td>string</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListModelVersionsResponse.data.ModelVersion.source.codeRepository</code></td>
+<td>object</td>
+<td>否</td>
+<td>Model version created from a code repository.</td>
+</tr>
+<tr>
+<td><code>ListModelVersionsResponse.data.ModelVersion.source.codeRepository.repositoryRid</code></td>
+<td>string</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListModelVersionsResponse.data.ModelVersion.source.codeRepository.branch</code></td>
+<td>string</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListModelVersionsResponse.data.ModelVersion.source.sdk</code></td>
+<td>object</td>
+<td>否</td>
+<td>Model version created via the SDK.</td>
+</tr>
+<tr>
+<td><code>ListModelVersionsResponse.data.ModelVersion.source.promoted</code></td>
+<td>object</td>
+<td>否</td>
+<td>Model version promoted from another model version.</td>
+</tr>
+<tr>
+<td><code>ListModelVersionsResponse.data.ModelVersion.source.promoted.previousModelRid</code></td>
+<td>string</td>
+<td>是</td>
+<td>The Resource Identifier (RID) of a Model.<br>示例: <code>ri.models.main.model.f351c142-0e4c-4b12-adc2-6e1539737ae9</code></td>
+</tr>
+<tr>
+<td><code>ListModelVersionsResponse.data.ModelVersion.source.promoted.previousModelVersionRid</code></td>
+<td>string</td>
+<td>是</td>
+<td>The Resource Identifier (RID) of a Model Version.<br>示例: <code>ri.models.main.model-version.adf94926-c3ac-41ea-beb2-4946699d08ee</code></td>
+</tr>
+<tr>
+<td><code>ListModelVersionsResponse.data.ModelVersion.linkedExperiment</code></td>
+<td>string</td>
+<td>否</td>
+<td>The Experiment linked to this Model Version, if one exists.<br>示例: <code>ri.models.main.experiment.abc123</code></td>
+</tr>
+<tr>
+<td><code>ListModelVersionsResponse.nextPageToken</code></td>
+<td>string</td>
+<td>否</td>
+<td>The page token indicates where to start paging. This should be omitted from the first page's request.<br>To fetch the next page, clients should take the value from the <code>nextPageToken</code> field of the previous response<br>and use it to populate the <code>pageToken</code> field of the next request.</td>
+</tr>
+</tbody>
+</table>
+<pre><code class="language-json">{
+  &quot;data&quot;: [
+    {
+      &quot;backingRepositories&quot;: [
+        &quot;ri.stemma.main.repository.a1b2c3d4-e5f6-7890-abcd-ef1234567890&quot;
+      ],
+      &quot;condaRequirements&quot;: [
+        &quot;numpy==1.24.0&quot;,
+        &quot;pandas==2.0.0&quot;
+      ],
+      &quot;linkedExperiment&quot;: &quot;ri.models.main.experiment.abc123&quot;,
+      &quot;modelApi&quot;: {
+        &quot;inputs&quot;: [
+          {
+            &quot;name&quot;: &quot;input_df&quot;,
+            &quot;required&quot;: true,
+            &quot;type&quot;: &quot;tabular&quot;,
+            &quot;columns&quot;: [
+              {
+                &quot;name&quot;: &quot;feature_1&quot;,
+                &quot;required&quot;: true,
+                &quot;dataType&quot;: {
+                  &quot;type&quot;: &quot;double&quot;
+                }
+              },
+              {
+                &quot;name&quot;: &quot;feature_2&quot;,
+                &quot;required&quot;: true,
+                &quot;dataType&quot;: {
+                  &quot;type&quot;: &quot;integer&quot;
+                }
+              }
+            ],
+            &quot;format&quot;: &quot;PANDAS&quot;
+          }
+        ],
+        &quot;outputs&quot;: [
+          {
+            &quot;name&quot;: &quot;output_df&quot;,
+            &quot;required&quot;: true,
+            &quot;type&quot;: &quot;tabular&quot;,
+            &quot;columns&quot;: [
+              {
+                &quot;name&quot;: &quot;prediction&quot;,
+                &quot;required&quot;: true,
+                &quot;dataType&quot;: {
+                  &quot;type&quot;: &quot;double&quot;
+                }
+              }
+            ],
+            &quot;format&quot;: &quot;SPARK&quot;
+          }
+        ]
+      },
+      &quot;createdTime&quot;: &quot;2003-05-06T12:34:56.789Z&quot;,
+      &quot;rid&quot;: &quot;ri.models.main.model-version.adf94926-c3ac-41ea-beb2-4946699d08ee&quot;
+    }
+  ],
+  &quot;nextPageToken&quot;: &quot;v1.QnVpbGQgdGhlIEZ1dHVyZTogaHR0cHM6Ly93d3cucGFsYW50aXIuY29tL2NhcmVlcnMvP2xldmVyLXNvdXJjZSU1YiU1ZD1BUElEb2NzI29wZW4tcG9zaXRpb25z&quot;
+}
+</code></pre>
+<h2>Error responses</h2>
+<table>
+<thead>
+<tr>
+<th>错误码</th>
+<th>错误名称</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>INVALID_ARGUMENT</td>
+<td><code>UnsupportedModelSource</code></td>
+<td>The Model Version has a source type that is not supported by the API. This can occur when the model was created through a legacy or internal workflow that is not exposed through the public API.</td>
+</tr>
+<tr>
+<td>NOT_FOUND</td>
+<td><code>ModelNotFound</code></td>
+<td>The given Model could not be found.</td>
+</tr>
+</tbody>
+</table>
+</body>
+</html>

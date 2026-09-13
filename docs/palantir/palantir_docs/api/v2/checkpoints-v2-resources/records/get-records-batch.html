@@ -1,0 +1,871 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Get Records Batch</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../../../index.html">返回目录</a></div>
+<p><code>POST /api/v2/checkpoints/records/getBatch</code></p>
+<p>:::callout{theme=warning title=Warning}
+  This endpoint is in preview and may be modified or removed at any time.
+  To use this endpoint, add <code>preview=true</code> to the request query parameters.
+:::</p>
+<p>Fetch multiple checkpoint records in a single request. Records not found
+or inaccessible to the user will be omitted from the response.</p>
+<p>The maximum batch size for this endpoint is 100.</p>
+<p>Third-party applications using this endpoint via OAuth2 must request the following operation scope: <code>api:checkpoints-read</code>.</p>
+<p><strong>OAuth2 scopes</strong>: <code>api:checkpoints-read</code></p>
+<h2>Query parameters</h2>
+<table>
+<thead>
+<tr>
+<th>参数</th>
+<th>类型</th>
+<th>必填</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>preview</code></td>
+<td>boolean</td>
+<td>否</td>
+<td>Enables the use of preview functionality.<br>示例: <code>true</code></td>
+</tr>
+</tbody>
+</table>
+<h2>Request body</h2>
+<pre><code class="language-json">[
+  {
+    &quot;recordRid&quot;: &quot;ri.checkpoints.main.checkpoint.a1b2c3d4-e5f6-7890-abcd-ef1234567890&quot;
+  }
+]
+</code></pre>
+<h2>Response</h2>
+<p><strong>GetRecordsBatchResponse</strong></p>
+<table>
+<thead>
+<tr>
+<th>参数</th>
+<th>类型</th>
+<th>必填</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>GetRecordsBatchResponse</code></td>
+<td>object</td>
+<td>是</td>
+<td>示例: <code>{"data":{"ri.checkpoints.main.checkpoint.a1b2c3d4-e5f6-7890-abcd-ef1234567890":{"projectRid":"ri.compass.main.folder.d4e5f6a7-b8c9-0123-defa-234567890123","delegateUserId":"0d1fe74e-2b70-4a93-9b1a-80070637788b","configRid":"ri.checkpoints.main.config.b2c3d4e5-f6a7-8901-bcde-f12345678901","organizationRid":"ri.multipass..organization.e5f6a7b8-c9d0-1234-efab-345678901234","checkpointedItems":[{"type":"checkpointedResource","rid":"ri.foundry.main.dataset.c26f11c8-cdb3-4f44-9f5d-9816ea1c82da","resourceType":"DATASET","compassPath":{"value":"/My Project/My Dataset"},"orgMarkings":[]}],"rid":"ri.checkpoints.main.checkpoint.a1b2c3d4-e5f6-7890-abcd-ef1234567890","type":"CONTOUR_EXPORT","actingUser":{"userId":"f05f8da4-b84c-4fca-9c77-8af0b13d11de","username":{"value":"admin"}},"createdAt":"2023-11-14T09:30:00.000Z","approvalsMetadata":{"approvalsTaskId":"e3f4a5b6-c7d8-9012-efab-123456789012","approvalsSubtaskIds":["f4a5b6c7-d8e9-0123-fabc-234567890123"]},"scope":"USER_SCOPED","interactionRid":"ri.checkpoints.main.checkpointable-interaction.c3d4e5f6-a7b8-9012-cdef-123456789012","namespaceRid":"ri.compass.main.folder.f6a7b8c9-d0e1-2345-fabc-456789012345","justification":{"type":"acknowledgementJustification","prompt":"I acknowledge this action","title":"Export Confirmation"}}}}</code></td>
+</tr>
+<tr>
+<td><code>GetRecordsBatchResponse.data</code></td>
+<td>map</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>GetRecordsBatchResponse.data.RecordRid</code></td>
+<td>string</td>
+<td>是</td>
+<td>Identifier of a checkpoint record.</td>
+</tr>
+<tr>
+<td><code>GetRecordsBatchResponse.data.Record</code></td>
+<td>object</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>GetRecordsBatchResponse.data.Record.rid</code></td>
+<td>string</td>
+<td>是</td>
+<td>Identifier of a checkpoint record.<br>示例: <code>ri.checkpoints.main.checkpoint.a1b2c3d4-e5f6-7890-abcd-ef1234567890</code></td>
+</tr>
+<tr>
+<td><code>GetRecordsBatchResponse.data.Record.configRid</code></td>
+<td>string</td>
+<td>否</td>
+<td>Identifier of the checkpoint configuration that produced a record.<br>示例: <code>ri.checkpoints.main.config.b2c3d4e5-f6a7-8901-bcde-f12345678901</code></td>
+</tr>
+<tr>
+<td><code>GetRecordsBatchResponse.data.Record.type</code></td>
+<td>enum</td>
+<td>是</td>
+<td>Checkpoint type identifier. See the <a href="https://www.palantir.com/docs/foundry/checkpoints/overview">Checkpoints documentation</a><br>for more details.<br>示例: <code>CONTOUR_EXPORT</code></td>
+</tr>
+<tr>
+<td><code>GetRecordsBatchResponse.data.Record.scope</code></td>
+<td>enum</td>
+<td>是</td>
+<td>Indicates whether the checkpoint was scoped to a user or resource.<br>示例: <code>USER_SCOPED</code></td>
+</tr>
+<tr>
+<td><code>GetRecordsBatchResponse.data.Record.actingUser</code></td>
+<td>object</td>
+<td>是</td>
+<td>User that performed the checkpoint action.<br>示例: <code>{"userId":"f05f8da4-b84c-4fca-9c77-8af0b13d11de","username":{"value":"admin"}}</code></td>
+</tr>
+<tr>
+<td><code>GetRecordsBatchResponse.data.Record.actingUser.userId</code></td>
+<td>string</td>
+<td>是</td>
+<td>A Foundry User ID.<br>示例: <code>dd05feb8-662a-445d-8f4c-ce92d46bedeb</code></td>
+</tr>
+<tr>
+<td><code>GetRecordsBatchResponse.data.Record.actingUser.username</code></td>
+<td>object</td>
+<td>是</td>
+<td>A string value that may be redacted for privacy reasons.<br>示例: <code>{"value":"My Dataset"}</code></td>
+</tr>
+<tr>
+<td><code>GetRecordsBatchResponse.data.Record.actingUser.username.value</code></td>
+<td>string</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>GetRecordsBatchResponse.data.Record.actingUser.username.redactionType</code></td>
+<td>enum</td>
+<td>否</td>
+<td>Indicates why a string value was redacted.<br>示例: <code>USER_REDACTED</code></td>
+</tr>
+<tr>
+<td><code>GetRecordsBatchResponse.data.Record.actingUser.organizationRid</code></td>
+<td>string</td>
+<td>否</td>
+<td>Identifier of the organization associated with a checkpoint.<br>示例: <code>ri.multipass..organization.e5f6a7b8-c9d0-1234-efab-345678901234</code></td>
+</tr>
+<tr>
+<td><code>GetRecordsBatchResponse.data.Record.delegateUserId</code></td>
+<td>string</td>
+<td>否</td>
+<td>A Foundry User ID.<br>示例: <code>dd05feb8-662a-445d-8f4c-ce92d46bedeb</code></td>
+</tr>
+<tr>
+<td><code>GetRecordsBatchResponse.data.Record.createdAt</code></td>
+<td>string</td>
+<td>是</td>
+<td>The time at which the checkpoint record was created.<br>示例: <code>2023-11-14T09:30:00.000Z</code></td>
+</tr>
+<tr>
+<td><code>GetRecordsBatchResponse.data.Record.checkpointedItems</code></td>
+<td>list<CheckpointedItem></td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>GetRecordsBatchResponse.data.Record.checkpointedItems.CheckpointedItem</code></td>
+<td>union</td>
+<td>是</td>
+<td>Snapshot of the entity that was captured in a checkpoint.</td>
+</tr>
+<tr>
+<td><code>GetRecordsBatchResponse.data.Record.checkpointedItems.CheckpointedItem.checkpointedIssue</code></td>
+<td>object</td>
+<td>否</td>
+<td>An issue that was captured as part of a checkpoint.</td>
+</tr>
+<tr>
+<td><code>GetRecordsBatchResponse.data.Record.checkpointedItems.CheckpointedItem.checkpointedIssue.issueRid</code></td>
+<td>string</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>GetRecordsBatchResponse.data.Record.checkpointedItems.CheckpointedItem.checkpointedJob</code></td>
+<td>object</td>
+<td>否</td>
+<td>A build job that was captured as part of a checkpoint.</td>
+</tr>
+<tr>
+<td><code>GetRecordsBatchResponse.data.Record.checkpointedItems.CheckpointedItem.checkpointedJob.jobRid</code></td>
+<td>string</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>GetRecordsBatchResponse.data.Record.checkpointedItems.CheckpointedItem.checkpointedSchedule</code></td>
+<td>object</td>
+<td>否</td>
+<td>A schedule that was captured as part of a checkpoint.</td>
+</tr>
+<tr>
+<td><code>GetRecordsBatchResponse.data.Record.checkpointedItems.CheckpointedItem.checkpointedSchedule.scheduleRid</code></td>
+<td>string</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>GetRecordsBatchResponse.data.Record.checkpointedItems.CheckpointedItem.checkpointedResource</code></td>
+<td>object</td>
+<td>否</td>
+<td>A Foundry resource that was captured as part of a checkpoint.</td>
+</tr>
+<tr>
+<td><code>GetRecordsBatchResponse.data.Record.checkpointedItems.CheckpointedItem.checkpointedResource.rid</code></td>
+<td>string</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>GetRecordsBatchResponse.data.Record.checkpointedItems.CheckpointedItem.checkpointedResource.resourceType</code></td>
+<td>enum</td>
+<td>是</td>
+<td>Type of resource that was captured.<br>示例: <code>DATASET</code></td>
+</tr>
+<tr>
+<td><code>GetRecordsBatchResponse.data.Record.checkpointedItems.CheckpointedItem.checkpointedResource.name</code></td>
+<td>object</td>
+<td>否</td>
+<td>A string value that may be redacted for privacy reasons.<br>示例: <code>{"value":"My Dataset"}</code></td>
+</tr>
+<tr>
+<td><code>GetRecordsBatchResponse.data.Record.checkpointedItems.CheckpointedItem.checkpointedResource.name.value</code></td>
+<td>string</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>GetRecordsBatchResponse.data.Record.checkpointedItems.CheckpointedItem.checkpointedResource.name.redactionType</code></td>
+<td>enum</td>
+<td>否</td>
+<td>Indicates why a string value was redacted.<br>示例: <code>USER_REDACTED</code></td>
+</tr>
+<tr>
+<td><code>GetRecordsBatchResponse.data.Record.checkpointedItems.CheckpointedItem.checkpointedResource.projectRid</code></td>
+<td>string</td>
+<td>否</td>
+<td>Identifier of the project that scoped a checkpoint.<br>示例: <code>ri.compass.main.folder.d4e5f6a7-b8c9-0123-defa-234567890123</code></td>
+</tr>
+<tr>
+<td><code>GetRecordsBatchResponse.data.Record.checkpointedItems.CheckpointedItem.checkpointedResource.namespaceRid</code></td>
+<td>string</td>
+<td>否</td>
+<td>Identifier of the namespace associated with a checkpoint.<br>示例: <code>ri.compass.main.folder.f6a7b8c9-d0e1-2345-fabc-456789012345</code></td>
+</tr>
+<tr>
+<td><code>GetRecordsBatchResponse.data.Record.checkpointedItems.CheckpointedItem.checkpointedResource.compassPath</code></td>
+<td>object</td>
+<td>是</td>
+<td>A string value that may be redacted for privacy reasons.<br>示例: <code>{"value":"My Dataset"}</code></td>
+</tr>
+<tr>
+<td><code>GetRecordsBatchResponse.data.Record.checkpointedItems.CheckpointedItem.checkpointedResource.compassPath.value</code></td>
+<td>string</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>GetRecordsBatchResponse.data.Record.checkpointedItems.CheckpointedItem.checkpointedResource.compassPath.redactionType</code></td>
+<td>enum</td>
+<td>否</td>
+<td>Indicates why a string value was redacted.<br>示例: <code>USER_REDACTED</code></td>
+</tr>
+<tr>
+<td><code>GetRecordsBatchResponse.data.Record.checkpointedItems.CheckpointedItem.checkpointedResource.orgMarkings</code></td>
+<td>list<string></td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>GetRecordsBatchResponse.data.Record.checkpointedItems.CheckpointedItem.checkpointedJobSpecification</code></td>
+<td>object</td>
+<td>否</td>
+<td>A job specification that was captured as part of a checkpoint.</td>
+</tr>
+<tr>
+<td><code>GetRecordsBatchResponse.data.Record.checkpointedItems.CheckpointedItem.checkpointedJobSpecification.jobSpecRid</code></td>
+<td>string</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>GetRecordsBatchResponse.data.Record.checkpointedItems.CheckpointedItem.checkpointedLanguageModel</code></td>
+<td>object</td>
+<td>否</td>
+<td>A language model that was captured as part of a checkpoint.</td>
+</tr>
+<tr>
+<td><code>GetRecordsBatchResponse.data.Record.checkpointedItems.CheckpointedItem.checkpointedLanguageModel.modelRid</code></td>
+<td>string</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>GetRecordsBatchResponse.data.Record.checkpointedItems.CheckpointedItem.checkpointedGroup</code></td>
+<td>object</td>
+<td>否</td>
+<td>A group that was captured as part of a checkpoint.</td>
+</tr>
+<tr>
+<td><code>GetRecordsBatchResponse.data.Record.checkpointedItems.CheckpointedItem.checkpointedGroup.groupId</code></td>
+<td>string</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>GetRecordsBatchResponse.data.Record.checkpointedItems.CheckpointedItem.checkpointedUserIntakeSubmission</code></td>
+<td>object</td>
+<td>否</td>
+<td>A user intake form submission that was captured as part of a checkpoint.</td>
+</tr>
+<tr>
+<td><code>GetRecordsBatchResponse.data.Record.checkpointedItems.CheckpointedItem.checkpointedUserIntakeSubmission.submissionRid</code></td>
+<td>string</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>GetRecordsBatchResponse.data.Record.checkpointedItems.CheckpointedItem.checkpointedObjectSet</code></td>
+<td>object</td>
+<td>否</td>
+<td>Represents the object set that was checkpointed.</td>
+</tr>
+<tr>
+<td><code>GetRecordsBatchResponse.data.Record.checkpointedItems.CheckpointedItem.checkpointedObjectSet.versioned</code></td>
+<td>object</td>
+<td>否</td>
+<td>A versioned object set that was captured as part of a checkpoint.<br>示例: <code>{"versionedObjectSetRid":"ri.object-set.main.versioned-object-set.d2e3f4a5-b6c7-8901-defa-012345678901","objectSetVersion":"e3f4a5b6-c7d8-9012-efab-123456789012","objectTypes":[]}</code></td>
+</tr>
+<tr>
+<td><code>GetRecordsBatchResponse.data.Record.checkpointedItems.CheckpointedItem.checkpointedObjectSet.versioned.versionedObjectSetRid</code></td>
+<td>string</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>GetRecordsBatchResponse.data.Record.checkpointedItems.CheckpointedItem.checkpointedObjectSet.versioned.objectSetVersion</code></td>
+<td>string</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>GetRecordsBatchResponse.data.Record.checkpointedItems.CheckpointedItem.checkpointedObjectSet.versioned.objectTypes</code></td>
+<td>list<CheckpointedOntologyWithObjectTypes></td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>GetRecordsBatchResponse.data.Record.checkpointedItems.CheckpointedItem.checkpointedObjectSet.versioned.objectTypes.CheckpointedOntologyWithObjectTypes</code></td>
+<td>object</td>
+<td>是</td>
+<td>An ontology with its associated object types that was captured as part of a checkpoint.</td>
+</tr>
+<tr>
+<td><code>GetRecordsBatchResponse.data.Record.checkpointedItems.CheckpointedItem.checkpointedObjectSet.versioned.objectTypes.CheckpointedOntologyWithObjectTypes.ontology</code></td>
+<td>object</td>
+<td>是</td>
+<td>An ontology snapshot that was captured as part of a checkpoint.<br>示例: <code>{"ontologyRid":"ri.ontology.main.ontology.b0c1d2e3-f4a5-6789-bcde-890123456789","ontologyVersion":"c1d2e3f4-a5b6-7890-cdef-901234567890"}</code></td>
+</tr>
+<tr>
+<td><code>GetRecordsBatchResponse.data.Record.checkpointedItems.CheckpointedItem.checkpointedObjectSet.versioned.objectTypes.CheckpointedOntologyWithObjectTypes.ontology.ontologyRid</code></td>
+<td>string</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>GetRecordsBatchResponse.data.Record.checkpointedItems.CheckpointedItem.checkpointedObjectSet.versioned.objectTypes.CheckpointedOntologyWithObjectTypes.ontology.ontologyVersion</code></td>
+<td>string</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>GetRecordsBatchResponse.data.Record.checkpointedItems.CheckpointedItem.checkpointedObjectSet.versioned.objectTypes.CheckpointedOntologyWithObjectTypes.ontology.namespaceRid</code></td>
+<td>string</td>
+<td>否</td>
+<td>Identifier of the namespace associated with a checkpoint.<br>示例: <code>ri.compass.main.folder.f6a7b8c9-d0e1-2345-fabc-456789012345</code></td>
+</tr>
+<tr>
+<td><code>GetRecordsBatchResponse.data.Record.checkpointedItems.CheckpointedItem.checkpointedObjectSet.versioned.objectTypes.CheckpointedOntologyWithObjectTypes.objectTypeRids</code></td>
+<td>list<rid></td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>GetRecordsBatchResponse.data.Record.checkpointedItems.CheckpointedItem.checkpointedObjectSet.typesProxy</code></td>
+<td>object</td>
+<td>否</td>
+<td>A types proxy object set that was captured as part of a checkpoint.<br>示例: <code>{"objectTypes":[]}</code></td>
+</tr>
+<tr>
+<td><code>GetRecordsBatchResponse.data.Record.checkpointedItems.CheckpointedItem.checkpointedObjectSet.typesProxy.objectTypes</code></td>
+<td>list<CheckpointedOntologyWithObjectTypes></td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>GetRecordsBatchResponse.data.Record.checkpointedItems.CheckpointedItem.checkpointedObjectSet.typesProxy.objectTypes.CheckpointedOntologyWithObjectTypes</code></td>
+<td>object</td>
+<td>是</td>
+<td>An ontology with its associated object types that was captured as part of a checkpoint.</td>
+</tr>
+<tr>
+<td><code>GetRecordsBatchResponse.data.Record.checkpointedItems.CheckpointedItem.checkpointedObjectSet.typesProxy.objectTypes.CheckpointedOntologyWithObjectTypes.ontology</code></td>
+<td>object</td>
+<td>是</td>
+<td>An ontology snapshot that was captured as part of a checkpoint.<br>示例: <code>{"ontologyRid":"ri.ontology.main.ontology.b0c1d2e3-f4a5-6789-bcde-890123456789","ontologyVersion":"c1d2e3f4-a5b6-7890-cdef-901234567890"}</code></td>
+</tr>
+<tr>
+<td><code>GetRecordsBatchResponse.data.Record.checkpointedItems.CheckpointedItem.checkpointedObjectSet.typesProxy.objectTypes.CheckpointedOntologyWithObjectTypes.ontology.ontologyRid</code></td>
+<td>string</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>GetRecordsBatchResponse.data.Record.checkpointedItems.CheckpointedItem.checkpointedObjectSet.typesProxy.objectTypes.CheckpointedOntologyWithObjectTypes.ontology.ontologyVersion</code></td>
+<td>string</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>GetRecordsBatchResponse.data.Record.checkpointedItems.CheckpointedItem.checkpointedObjectSet.typesProxy.objectTypes.CheckpointedOntologyWithObjectTypes.ontology.namespaceRid</code></td>
+<td>string</td>
+<td>否</td>
+<td>Identifier of the namespace associated with a checkpoint.<br>示例: <code>ri.compass.main.folder.f6a7b8c9-d0e1-2345-fabc-456789012345</code></td>
+</tr>
+<tr>
+<td><code>GetRecordsBatchResponse.data.Record.checkpointedItems.CheckpointedItem.checkpointedObjectSet.typesProxy.objectTypes.CheckpointedOntologyWithObjectTypes.objectTypeRids</code></td>
+<td>list<rid></td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>GetRecordsBatchResponse.data.Record.checkpointedItems.CheckpointedItem.checkpointedMarking</code></td>
+<td>object</td>
+<td>否</td>
+<td>A marking that was captured as part of a checkpoint.</td>
+</tr>
+<tr>
+<td><code>GetRecordsBatchResponse.data.Record.checkpointedItems.CheckpointedItem.checkpointedMarking.markingId</code></td>
+<td>string</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>GetRecordsBatchResponse.data.Record.checkpointedItems.CheckpointedItem.checkpointedMarketplaceProduct</code></td>
+<td>object</td>
+<td>否</td>
+<td>A Marketplace product that was captured as part of a checkpoint.</td>
+</tr>
+<tr>
+<td><code>GetRecordsBatchResponse.data.Record.checkpointedItems.CheckpointedItem.checkpointedMarketplaceProduct.productId</code></td>
+<td>string</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>GetRecordsBatchResponse.data.Record.checkpointedItems.CheckpointedItem.checkpointedPeeringJob</code></td>
+<td>object</td>
+<td>否</td>
+<td>A peering job that was captured as part of a checkpoint.</td>
+</tr>
+<tr>
+<td><code>GetRecordsBatchResponse.data.Record.checkpointedItems.CheckpointedItem.checkpointedPeeringJob.jobId</code></td>
+<td>string</td>
+<td>是</td>
+<td>Identifier of the peering job.</td>
+</tr>
+<tr>
+<td><code>GetRecordsBatchResponse.data.Record.checkpointedItems.CheckpointedItem.checkpointedPeeringJob.relationshipRid</code></td>
+<td>string</td>
+<td>是</td>
+<td>Resource identifier of the peering relationship.</td>
+</tr>
+<tr>
+<td><code>GetRecordsBatchResponse.data.Record.checkpointedItems.CheckpointedItem.checkpointedRole</code></td>
+<td>object</td>
+<td>否</td>
+<td>A role that was captured as part of a checkpoint.</td>
+</tr>
+<tr>
+<td><code>GetRecordsBatchResponse.data.Record.checkpointedItems.CheckpointedItem.checkpointedRole.roleId</code></td>
+<td>string</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>GetRecordsBatchResponse.data.Record.checkpointedItems.CheckpointedItem.checkpointedIntervention</code></td>
+<td>object</td>
+<td>否</td>
+<td>An intervention that was captured as part of a checkpoint.</td>
+</tr>
+<tr>
+<td><code>GetRecordsBatchResponse.data.Record.checkpointedItems.CheckpointedItem.checkpointedIntervention.interventionRid</code></td>
+<td>string</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>GetRecordsBatchResponse.data.Record.checkpointedItems.CheckpointedItem.checkpointedLanguageModelSession</code></td>
+<td>object</td>
+<td>否</td>
+<td>A language model session that was captured as part of a checkpoint.</td>
+</tr>
+<tr>
+<td><code>GetRecordsBatchResponse.data.Record.checkpointedItems.CheckpointedItem.checkpointedLanguageModelSession.sessionRid</code></td>
+<td>string</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>GetRecordsBatchResponse.data.Record.checkpointedItems.CheckpointedItem.checkpointedToken</code></td>
+<td>object</td>
+<td>否</td>
+<td>An authentication token that was captured as part of a checkpoint.</td>
+</tr>
+<tr>
+<td><code>GetRecordsBatchResponse.data.Record.checkpointedItems.CheckpointedItem.checkpointedToken.tokenId</code></td>
+<td>string</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>GetRecordsBatchResponse.data.Record.checkpointedItems.CheckpointedItem.checkpointedToken.tokenType</code></td>
+<td>enum</td>
+<td>是</td>
+<td>The type of token that was captured as part of a checkpoint.<br>示例: <code>USER_TOKEN</code></td>
+</tr>
+<tr>
+<td><code>GetRecordsBatchResponse.data.Record.checkpointedItems.CheckpointedItem.checkpointedUserIntakeFormInput</code></td>
+<td>object</td>
+<td>否</td>
+<td>A user intake form input that was captured as part of a checkpoint.</td>
+</tr>
+<tr>
+<td><code>GetRecordsBatchResponse.data.Record.checkpointedItems.CheckpointedItem.checkpointedUserIntakeFormInput.inputId</code></td>
+<td>string</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>GetRecordsBatchResponse.data.Record.checkpointedItems.CheckpointedItem.checkpointedPrincipal</code></td>
+<td>object</td>
+<td>否</td>
+<td>A user or group principal that was captured as part of a checkpoint.</td>
+</tr>
+<tr>
+<td><code>GetRecordsBatchResponse.data.Record.checkpointedItems.CheckpointedItem.checkpointedPrincipal.id</code></td>
+<td>string</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>GetRecordsBatchResponse.data.Record.checkpointedItems.CheckpointedItem.checkpointedPrincipal.username</code></td>
+<td>object</td>
+<td>是</td>
+<td>A string value that may be redacted for privacy reasons.<br>示例: <code>{"value":"My Dataset"}</code></td>
+</tr>
+<tr>
+<td><code>GetRecordsBatchResponse.data.Record.checkpointedItems.CheckpointedItem.checkpointedPrincipal.username.value</code></td>
+<td>string</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>GetRecordsBatchResponse.data.Record.checkpointedItems.CheckpointedItem.checkpointedPrincipal.username.redactionType</code></td>
+<td>enum</td>
+<td>否</td>
+<td>Indicates why a string value was redacted.<br>示例: <code>USER_REDACTED</code></td>
+</tr>
+<tr>
+<td><code>GetRecordsBatchResponse.data.Record.checkpointedItems.CheckpointedItem.checkpointedPrincipal.organizationRid</code></td>
+<td>string</td>
+<td>否</td>
+<td>Identifier of the organization associated with a checkpoint.<br>示例: <code>ri.multipass..organization.e5f6a7b8-c9d0-1234-efab-345678901234</code></td>
+</tr>
+<tr>
+<td><code>GetRecordsBatchResponse.data.Record.checkpointedItems.CheckpointedItem.checkpointedPrincipal.role</code></td>
+<td>enum</td>
+<td>是</td>
+<td>Role the principal had relative to the checkpointed entity.<br>示例: <code>GROUP_MEMBER</code></td>
+</tr>
+<tr>
+<td><code>GetRecordsBatchResponse.data.Record.checkpointedItems.CheckpointedItem.checkpointedActionType</code></td>
+<td>object</td>
+<td>否</td>
+<td>An ontology action type that was captured as part of a checkpoint.</td>
+</tr>
+<tr>
+<td><code>GetRecordsBatchResponse.data.Record.checkpointedItems.CheckpointedItem.checkpointedActionType.actionTypeRid</code></td>
+<td>string</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>GetRecordsBatchResponse.data.Record.checkpointedItems.CheckpointedItem.checkpointedActionType.ontology</code></td>
+<td>object</td>
+<td>是</td>
+<td>An ontology snapshot that was captured as part of a checkpoint.<br>示例: <code>{"ontologyRid":"ri.ontology.main.ontology.b0c1d2e3-f4a5-6789-bcde-890123456789","ontologyVersion":"c1d2e3f4-a5b6-7890-cdef-901234567890"}</code></td>
+</tr>
+<tr>
+<td><code>GetRecordsBatchResponse.data.Record.checkpointedItems.CheckpointedItem.checkpointedActionType.ontology.ontologyRid</code></td>
+<td>string</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>GetRecordsBatchResponse.data.Record.checkpointedItems.CheckpointedItem.checkpointedActionType.ontology.ontologyVersion</code></td>
+<td>string</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>GetRecordsBatchResponse.data.Record.checkpointedItems.CheckpointedItem.checkpointedActionType.ontology.namespaceRid</code></td>
+<td>string</td>
+<td>否</td>
+<td>Identifier of the namespace associated with a checkpoint.<br>示例: <code>ri.compass.main.folder.f6a7b8c9-d0e1-2345-fabc-456789012345</code></td>
+</tr>
+<tr>
+<td><code>GetRecordsBatchResponse.data.Record.justification</code></td>
+<td>union</td>
+<td>是</td>
+<td>Justification submitted by the user to pass a checkpoint.<br>示例: <code>{"type":"acknowledgementJustification","prompt":"I acknowledge this action","title":"Export Confirmation"}</code></td>
+</tr>
+<tr>
+<td><code>GetRecordsBatchResponse.data.Record.justification.responseJustification</code></td>
+<td>object</td>
+<td>否</td>
+<td>Checkpoint justification that requires the user to input a free-text response.</td>
+</tr>
+<tr>
+<td><code>GetRecordsBatchResponse.data.Record.justification.responseJustification.response</code></td>
+<td>string</td>
+<td>是</td>
+<td>User-submitted free-text justification.</td>
+</tr>
+<tr>
+<td><code>GetRecordsBatchResponse.data.Record.justification.responseJustification.prompt</code></td>
+<td>string</td>
+<td>是</td>
+<td>Prompt to which the user responds.</td>
+</tr>
+<tr>
+<td><code>GetRecordsBatchResponse.data.Record.justification.responseJustification.description</code></td>
+<td>string</td>
+<td>否</td>
+<td>Supplemental information that helps users understand the prompt.</td>
+</tr>
+<tr>
+<td><code>GetRecordsBatchResponse.data.Record.justification.responseJustification.title</code></td>
+<td>string</td>
+<td>是</td>
+<td>Title of the checkpoint to which the user is responding.</td>
+</tr>
+<tr>
+<td><code>GetRecordsBatchResponse.data.Record.justification.dropdownJustification</code></td>
+<td>object</td>
+<td>否</td>
+<td>Checkpoint justification where the user selects one or more options from a dropdown.</td>
+</tr>
+<tr>
+<td><code>GetRecordsBatchResponse.data.Record.justification.dropdownJustification.selectedOptions</code></td>
+<td>list<DropdownSelection></td>
+<td>否</td>
+<td>Options the user selected in the dropdown.</td>
+</tr>
+<tr>
+<td><code>GetRecordsBatchResponse.data.Record.justification.dropdownJustification.selectedOptions.DropdownSelection</code></td>
+<td>object</td>
+<td>是</td>
+<td>A selection made within a multi-select dropdown justification.</td>
+</tr>
+<tr>
+<td><code>GetRecordsBatchResponse.data.Record.justification.dropdownJustification.selectedOptions.DropdownSelection.selectedOption</code></td>
+<td>string</td>
+<td>是</td>
+<td>Dropdown option the user selected.</td>
+</tr>
+<tr>
+<td><code>GetRecordsBatchResponse.data.Record.justification.dropdownJustification.selectedOptions.DropdownSelection.additionalResponse</code></td>
+<td>string</td>
+<td>否</td>
+<td>Extra free-text response submitted alongside the dropdown selection.</td>
+</tr>
+<tr>
+<td><code>GetRecordsBatchResponse.data.Record.justification.dropdownJustification.prompt</code></td>
+<td>string</td>
+<td>是</td>
+<td>Prompt to which the user-selected options respond.</td>
+</tr>
+<tr>
+<td><code>GetRecordsBatchResponse.data.Record.justification.dropdownJustification.description</code></td>
+<td>string</td>
+<td>否</td>
+<td>Supplemental information that helps users understand the prompt.</td>
+</tr>
+<tr>
+<td><code>GetRecordsBatchResponse.data.Record.justification.dropdownJustification.title</code></td>
+<td>string</td>
+<td>是</td>
+<td>Title of the checkpoint to which the user is responding.</td>
+</tr>
+<tr>
+<td><code>GetRecordsBatchResponse.data.Record.justification.reauthenticationJustification</code></td>
+<td>object</td>
+<td>否</td>
+<td>Checkpoint justification that requires the user to reauthenticate with the platform.</td>
+</tr>
+<tr>
+<td><code>GetRecordsBatchResponse.data.Record.justification.reauthenticationJustification.reauthenticationId</code></td>
+<td>string</td>
+<td>是</td>
+<td>Identifier for the reauthentication instance.</td>
+</tr>
+<tr>
+<td><code>GetRecordsBatchResponse.data.Record.justification.reauthenticationJustification.prompt</code></td>
+<td>string</td>
+<td>是</td>
+<td>Prompt shown to the user during reauthentication.</td>
+</tr>
+<tr>
+<td><code>GetRecordsBatchResponse.data.Record.justification.reauthenticationJustification.description</code></td>
+<td>string</td>
+<td>否</td>
+<td>Supplemental information that helps users understand the prompt.</td>
+</tr>
+<tr>
+<td><code>GetRecordsBatchResponse.data.Record.justification.reauthenticationJustification.title</code></td>
+<td>string</td>
+<td>是</td>
+<td>Title of the checkpoint that the user is acknowledging.</td>
+</tr>
+<tr>
+<td><code>GetRecordsBatchResponse.data.Record.justification.acknowledgementJustification</code></td>
+<td>object</td>
+<td>否</td>
+<td>Checkpoint justification that requires the user to mark a checkbox.</td>
+</tr>
+<tr>
+<td><code>GetRecordsBatchResponse.data.Record.justification.acknowledgementJustification.prompt</code></td>
+<td>string</td>
+<td>是</td>
+<td>Prompt acknowledged by the user.</td>
+</tr>
+<tr>
+<td><code>GetRecordsBatchResponse.data.Record.justification.acknowledgementJustification.description</code></td>
+<td>string</td>
+<td>否</td>
+<td>Supplemental information that helps users understand the prompt.</td>
+</tr>
+<tr>
+<td><code>GetRecordsBatchResponse.data.Record.justification.acknowledgementJustification.title</code></td>
+<td>string</td>
+<td>是</td>
+<td>Title of the checkpoint the user is acknowledging.</td>
+</tr>
+<tr>
+<td><code>GetRecordsBatchResponse.data.Record.projectRid</code></td>
+<td>string</td>
+<td>否</td>
+<td>Identifier of the project that scoped a checkpoint.<br>示例: <code>ri.compass.main.folder.d4e5f6a7-b8c9-0123-defa-234567890123</code></td>
+</tr>
+<tr>
+<td><code>GetRecordsBatchResponse.data.Record.organizationRid</code></td>
+<td>string</td>
+<td>否</td>
+<td>Identifier of the organization associated with a checkpoint.<br>示例: <code>ri.multipass..organization.e5f6a7b8-c9d0-1234-efab-345678901234</code></td>
+</tr>
+<tr>
+<td><code>GetRecordsBatchResponse.data.Record.namespaceRid</code></td>
+<td>string</td>
+<td>否</td>
+<td>Identifier of the namespace associated with a checkpoint.<br>示例: <code>ri.compass.main.folder.f6a7b8c9-d0e1-2345-fabc-456789012345</code></td>
+</tr>
+<tr>
+<td><code>GetRecordsBatchResponse.data.Record.interactionRid</code></td>
+<td>string</td>
+<td>否</td>
+<td>Identifier of the interaction associated with a record.<br>示例: <code>ri.checkpoints.main.checkpointable-interaction.c3d4e5f6-a7b8-9012-cdef-123456789012</code></td>
+</tr>
+<tr>
+<td><code>GetRecordsBatchResponse.data.Record.approvalsMetadata</code></td>
+<td>object</td>
+<td>否</td>
+<td>Metadata linking a checkpoint record to an Approvals workflow.<br>示例: <code>{"approvalsTaskId":"e3f4a5b6-c7d8-9012-efab-123456789012","approvalsSubtaskIds":["f4a5b6c7-d8e9-0123-fabc-234567890123"]}</code></td>
+</tr>
+<tr>
+<td><code>GetRecordsBatchResponse.data.Record.approvalsMetadata.approvalsTaskId</code></td>
+<td>string</td>
+<td>是</td>
+<td>Identifier of an Approvals task tied to the checkpoint.<br>示例: <code>e3f4a5b6-c7d8-9012-efab-123456789012</code></td>
+</tr>
+<tr>
+<td><code>GetRecordsBatchResponse.data.Record.approvalsMetadata.approvalsSubtaskIds</code></td>
+<td>list<ApprovalsSubtaskId></td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>GetRecordsBatchResponse.data.Record.approvalsMetadata.approvalsSubtaskIds.ApprovalsSubtaskId</code></td>
+<td>string</td>
+<td>是</td>
+<td>Identifier of an Approvals subtask tied to the checkpoint.</td>
+</tr>
+</tbody>
+</table>
+<pre><code class="language-json">{
+  &quot;data&quot;: {
+    &quot;ri.checkpoints.main.checkpoint.a1b2c3d4-e5f6-7890-abcd-ef1234567890&quot;: {
+      &quot;projectRid&quot;: &quot;ri.compass.main.folder.d4e5f6a7-b8c9-0123-defa-234567890123&quot;,
+      &quot;delegateUserId&quot;: &quot;0d1fe74e-2b70-4a93-9b1a-80070637788b&quot;,
+      &quot;configRid&quot;: &quot;ri.checkpoints.main.config.b2c3d4e5-f6a7-8901-bcde-f12345678901&quot;,
+      &quot;organizationRid&quot;: &quot;ri.multipass..organization.e5f6a7b8-c9d0-1234-efab-345678901234&quot;,
+      &quot;checkpointedItems&quot;: [
+        {
+          &quot;type&quot;: &quot;checkpointedResource&quot;,
+          &quot;rid&quot;: &quot;ri.foundry.main.dataset.c26f11c8-cdb3-4f44-9f5d-9816ea1c82da&quot;,
+          &quot;resourceType&quot;: &quot;DATASET&quot;,
+          &quot;compassPath&quot;: {
+            &quot;value&quot;: &quot;/My Project/My Dataset&quot;
+          },
+          &quot;orgMarkings&quot;: []
+        }
+      ],
+      &quot;rid&quot;: &quot;ri.checkpoints.main.checkpoint.a1b2c3d4-e5f6-7890-abcd-ef1234567890&quot;,
+      &quot;type&quot;: &quot;CONTOUR_EXPORT&quot;,
+      &quot;actingUser&quot;: {
+        &quot;userId&quot;: &quot;f05f8da4-b84c-4fca-9c77-8af0b13d11de&quot;,
+        &quot;username&quot;: {
+          &quot;value&quot;: &quot;admin&quot;
+        }
+      },
+      &quot;createdAt&quot;: &quot;2023-11-14T09:30:00.000Z&quot;,
+      &quot;approvalsMetadata&quot;: {
+        &quot;approvalsTaskId&quot;: &quot;e3f4a5b6-c7d8-9012-efab-123456789012&quot;,
+        &quot;approvalsSubtaskIds&quot;: [
+          &quot;f4a5b6c7-d8e9-0123-fabc-234567890123&quot;
+        ]
+      },
+      &quot;scope&quot;: &quot;USER_SCOPED&quot;,
+      &quot;interactionRid&quot;: &quot;ri.checkpoints.main.checkpointable-interaction.c3d4e5f6-a7b8-9012-cdef-123456789012&quot;,
+      &quot;namespaceRid&quot;: &quot;ri.compass.main.folder.f6a7b8c9-d0e1-2345-fabc-456789012345&quot;,
+      &quot;justification&quot;: {
+        &quot;type&quot;: &quot;acknowledgementJustification&quot;,
+        &quot;prompt&quot;: &quot;I acknowledge this action&quot;,
+        &quot;title&quot;: &quot;Export Confirmation&quot;
+      }
+    }
+  }
+}
+</code></pre>
+</body>
+</html>

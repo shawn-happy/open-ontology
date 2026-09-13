@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Execute Query</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../../../index.html">返回目录</a></div>
+<p><code>POST /api/v2/ontologies/{ontology}/queries/{queryApiName}/execute</code></p>
+<p>Executes a Query using the given parameters. By default, the latest version of the Query is executed. 
+The latest version is the one that was most recently published, which may be a pre-release version.</p>
+<p>Optional parameters do not need to be supplied.</p>
+<p>Third-party applications using this endpoint via OAuth2 must request the following operation scope: <code>api:ontologies-read</code>.</p>
+<p><strong>OAuth2 scopes</strong>: <code>api:ontologies-read</code></p>
+<h2>Path parameters</h2>
+<table>
+<thead>
+<tr>
+<th>参数</th>
+<th>类型</th>
+<th>必填</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ontology</code></td>
+<td>string</td>
+<td>是</td>
+<td>The API name or RID of the Ontology. To find the API name or RID, use the <strong>List Ontologies</strong> endpoint or<br>check the <strong>Ontology Manager</strong>.<br>示例: <code>palantir</code></td>
+</tr>
+<tr>
+<td><code>queryApiName</code></td>
+<td>string</td>
+<td>是</td>
+<td>The API name of the Query to execute.<br>示例: <code>getEmployeesInCity</code></td>
+</tr>
+</tbody>
+</table>
+<h2>Query parameters</h2>
+<table>
+<thead>
+<tr>
+<th>参数</th>
+<th>类型</th>
+<th>必填</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>version</code></td>
+<td>string</td>
+<td>否</td>
+<td>The semantic version range of the Query to execute. Function execution selects a satisfying version from<br>this range. If not specified, the version most recently published is used.</td>
+</tr>
+<tr>
+<td><code>branch</code></td>
+<td>string</td>
+<td>否</td>
+<td>The Foundry branch to execute the query from. If not specified, the default branch is used.<br>Branches are an experimental feature and not all workflows are supported.<br>When provided without <code>version</code>, the latest version on this branch is used, including pre-release versions.<br>When provided with <code>version</code>, the specified version must exist on the branch.<br>示例: <code>ri.branch..branch.d827184f-ee0e-4351-8b70-efbe51e07252</code></td>
+</tr>
+<tr>
+<td><code>sdkPackageRid</code></td>
+<td>string</td>
+<td>否</td>
+<td>The package rid of the generated SDK.</td>
+</tr>
+<tr>
+<td><code>sdkVersion</code></td>
+<td>string</td>
+<td>否</td>
+<td>The version of the generated SDK.</td>
+</tr>
+<tr>
+<td><code>transactionId</code></td>
+<td>string</td>
+<td>否</td>
+<td>The ID of an Ontology transaction to read from.<br>Transactions are an experimental feature and all workflows may not be supported.</td>
+</tr>
+<tr>
+<td><code>scenarioRid</code></td>
+<td>string</td>
+<td>否</td>
+<td>The resource identifier of an ontology scenario to execute the query on.<br>示例: <code>ri.actions..scenario.a1b2c3d4-e5f6-7890-abcd-ef1234567890</code></td>
+</tr>
+</tbody>
+</table>
+<h2>Request body</h2>
+<pre><code class="language-json">{
+  &quot;parameters&quot;: {
+    &quot;city&quot;: &quot;New York&quot;
+  }
+}
+</code></pre>
+<h2>Response</h2>
+<p><strong>ExecuteQueryResponse</strong></p>
+<p>Success response.</p>
+<table>
+<thead>
+<tr>
+<th>参数</th>
+<th>类型</th>
+<th>必填</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ExecuteQueryResponse</code></td>
+<td>object</td>
+<td>是</td>
+<td>Success response.<br>示例: <code>{"value":["EMP546","EMP609","EMP989"]}</code></td>
+</tr>
+<tr>
+<td><code>ExecuteQueryResponse.value</code></td>
+<td>any</td>
+<td>是</td>
+<td>Represents the value of data in the following format. Note that these values can be nested, for example an array of structs.<br>| Type                                | JSON encoding                                         | Example                                                                                                                                                       |<br>|-------------------------------------|-------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------|<br>| Array                               | array                                                 | <code>["alpha", "bravo", "charlie"]</code>                                                                                                                               |<br>| Attachment                          | string                                                | <code>"ri.attachments.main.attachment.2f944bae-5851-4204-8615-920c969a9f2e"</code>                                                                                       |<br>| Boolean                             | boolean                                               | <code>true</code>                                                                                                                                                        |<br>| Byte                                | number                                                | <code>31</code>                                                                                                                                                          |<br>| CipherText                          | string                                                | <code>"CIPHER::ri.bellaso.main.cipher-channel.e414ab9e-b606-499a-a0e1-844fa296ba7e::unzjs3VifsTxuIpf1fH1CJ7OaPBr2bzMMdozPaZJtCii8vVG60yXIEmzoOJaEl9mfFFe::CIPHER"</code> |<br>| Date                                | ISO 8601 extended local date string                   | <code>"2021-05-01"</code>                                                                                                                                                |<br>| Decimal                             | string                                                | <code>"2.718281828"</code>                                                                                                                                               |<br>| Double                              | number                                                | <code>3.14159265</code>                                                                                                                                                  |<br>| EntrySet                            | array of JSON objects                                 | <code>[{"key": "EMP1234", "value": "true"}, {"key": "EMP4444", "value": "false"}]</code>                                                                                 |<br>| Float                               | number                                                | <code>3.14159265</code>                                                                                                                                                  |<br>| Integer                             | number                                                | <code>238940</code>                                                                                                                                                      |<br>| Long                                | string                                                | <code>"58319870951433"</code>                                                                                                                                            |<br>| Marking                             | string                                                | <code>"MU"</code>                                                                                                                                                        |<br>| Null                                | null                                                  | <code>null</code>                                                                                                                                                        |<br>| Object Set                          | string OR the object set definition                   | <code>ri.object-set.main.versioned-object-set.h13274m8-23f5-431c-8aee-a4554157c57z</code>                                                                                |<br>| Ontology Object Reference           | JSON encoding of the object's primary key             | <code>10033123</code> or <code>"EMP1234"</code>                                                                                                                                     |<br>| Ontology Interface Object Reference | JSON encoding of the object's API name and primary key| <code>{"objectTypeApiName":"Employee", "primaryKeyValue":"EMP1234"}</code>                                                                                               |<br>| Ontology Object Type Reference      | string of the object type's api name                  | <code>"Employee"</code>                                                                                                                                                  |<br>| Scenario Reference                  | string of the scenario RID                            | <code>"ri.actions..scenario.cf2a8a49-8b56-446d-ab04-a6bc7fadef48"</code>                                                                                                 |<br>| Set                                 | array                                                 | <code>["alpha", "bravo", "charlie"]</code>                                                                                                                               |<br>| Short                               | number                                                | <code>8739</code>                                                                                                                                                        |<br>| String                              | string                                                | <code>"Call me Ishmael"</code>                                                                                                                                           |<br>| Struct                              | JSON object                                           | <code>{"name": "John Doe", "age": 42}</code>                                                                                                                             |<br>| TwoDimensionalAggregation           | JSON object                                           | <code>{"groups": [{"key": "alpha", "value": 100}, {"key": "beta", "value": 101}]}</code>                                                                                 |<br>| ThreeDimensionalAggregation         | JSON object                                           | <code>{"groups": [{"key": "NYC", "groups": [{"key": "Engineer", "value" : 100}]}]}</code>                                                                                |<br>| Timestamp                           | ISO 8601 extended offset date-time string in UTC zone | <code>"2021-01-04T05:00:00Z"</code>                                                                                                                                      |</td>
+</tr>
+</tbody>
+</table>
+<pre><code class="language-json">{
+  &quot;value&quot;: [
+    &quot;EMP546&quot;,
+    &quot;EMP609&quot;,
+    &quot;EMP989&quot;
+  ]
+}
+</code></pre>
+</body>
+</html>

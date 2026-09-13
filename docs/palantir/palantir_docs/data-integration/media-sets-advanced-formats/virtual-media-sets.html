@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Virtual media sets</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Virtual media sets</h1>
+<p>A virtual media set is a special type of media set that reads directly from an external source system without copying files into Foundry's backing store. This allows you to work with media files stored in external systems while maintaining the media set interface and functionality in Foundry.</p>
+<h2>Supported source types</h2>
+<p>Virtual media sets are currently supported for specific source types:</p>
+<ul>
+<li><a href="https://www.palantir.com/docs/foundry/available-connectors/amazon-s3/">Amazon S3</a></li>
+<li>Only the "Access key and secret" credential type is supported.</li>
+<li>Connections with STS roles are not supported.</li>
+<li><a href="https://www.palantir.com/docs/foundry/available-connectors/onelake-and-azure-blob-filesystem/">OneLake and Azure Blob Filesystem (ABFS)</a></li>
+</ul>
+<p>Virtual media set syncs cannot be created using agent connections.</p>
+<h2>Limitations</h2>
+<p>While virtual media sets enable you to work with media files stored outside of Foundry without needing to incur storage costs from copying them to Foundry, virtual media sets have some limitations as described below:</p>
+<ul>
+<li>Virtual media sets are not aware of updates and deletions in the source system. For example, if some media files in the source system are registered into a virtual media set and later deleted from the source system, the virtual media set will still contain items corresponding to the deleted files, but the items will no longer be accessible.</li>
+<li>When applying transformations to media items in virtual media sets, the transformed media items are persisted in Foundry's backing store and will incur storage costs.</li>
+<li>Virtual media sets cannot be configured with additional input formats.</li>
+</ul>
+<h2>Creating a virtual media set</h2>
+<p>To set up a virtual media set sync, follow the instructions in the <a href="https://www.palantir.com/docs/foundry/data-connection/media-set-sync/">media set sync documentation</a> but select <strong>Virtual media set sync</strong> instead of <strong>Media set sync</strong>.</p>
+<p><img alt="Virtual media set sync section" src="../../_resources/foundry/media-sets-advanced-formats/virtual-media-set-sync-section.png" /></p>
+<h2>Using transforms to register media items into virtual media sets</h2>
+<p>After creating a virtual media set in Data Connection, you can also register media items using Python transforms instead of using the virtual media set sync. This offers more control on the sync process:</p>
+<ul>
+<li>You have more control over the resource usage and parallelism, which allows you to optimize performance based on your specific requirements.</li>
+<li>You can implement more sophisticated logic to determine which files to sync, which is useful when the default filtering options offered by virtual media set sync are not sufficient for your use case.</li>
+</ul>
+<h3>Example: Using a Python transform to register media items into a virtual media set</h3>
+<pre><code class="language-python"># from the transforms-external-systems library
+from transforms.external.systems import external_systems, Source, ResolvedSource
+# from the transforms-media library
+from transforms.mediasets import MediaSetOutput
+from transforms.api import transform
+
+
+@external_systems(
+    # the rid of the source created in Data Connection
+    source=Source(&quot;ri.magritte..source.abc123&quot;)
+)
+@transform(
+    # the rid of the virtual media set
+    mediaSetOutput=MediaSetOutput(&quot;ri.mio.main.media-set.abc123&quot;)
+)
+def compute(output, source: ResolvedSource):
+    # Specify the physical path from the source and the media item path (name) of the media item to register.
+    # The physical path is relative to the &quot;subfolder&quot; configured in the source.
+    output.register_media_item(&quot;physical path&quot;, &quot;media item path&quot;)
+</code></pre>
+</body>
+</html>

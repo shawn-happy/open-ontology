@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Is valid IPv4</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Is valid IPv4</h1>
+<blockquote>
+<p>Supported in: Batch</p>
+</blockquote>
+<p>Returns true if the input is a valid IPv4 address.</p>
+<p><strong>Expression categories:</strong> Cyber</p>
+<h2>Declared arguments</h2>
+<ul>
+<li><strong>Expression:</strong> IP address to check.<br><em>Expression\<String></em></li>
+</ul>
+<p><strong>Output type:</strong> <em>Boolean</em></p>
+<h2>Examples</h2>
+<h3>Example 1: Base case</h3>
+<p><strong>Argument values:</strong></p>
+<ul>
+<li><strong>Expression:</strong> <code>ip</code></li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>ip</th>
+<th><strong>Output</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>192.168.1.1</td>
+<td>true</td>
+</tr>
+<tr>
+<td>10.0.0.1</td>
+<td>true</td>
+</tr>
+<tr>
+<td>172.16.0.1</td>
+<td>true</td>
+</tr>
+<tr>
+<td>255.255.255.255</td>
+<td>true</td>
+</tr>
+<tr>
+<td>0.0.0.0</td>
+<td>true</td>
+</tr>
+<tr>
+<td>127.0.0.1</td>
+<td>true</td>
+</tr>
+<tr>
+<td>1.2.3.4</td>
+<td>true</td>
+</tr>
+<tr>
+<td>256.1.1.1</td>
+<td>false</td>
+</tr>
+<tr>
+<td>192.168.1.256</td>
+<td>false</td>
+</tr>
+<tr>
+<td>192.168.1</td>
+<td>false</td>
+</tr>
+<tr>
+<td>192.168.1.1.1</td>
+<td>false</td>
+</tr>
+<tr>
+<td>abc.def.ghi.jkl</td>
+<td>false</td>
+</tr>
+<tr>
+<td>192.168.1.a</td>
+<td>false</td>
+</tr>
+<tr>
+<td>-1.2.3.4</td>
+<td>false</td>
+</tr>
+<tr>
+<td><em>empty string</em></td>
+<td>false</td>
+</tr>
+<tr>
+<td></td>
+<td>false</td>
+</tr>
+<tr>
+<td>192.168.1.0/24</td>
+<td>false</td>
+</tr>
+<tr>
+<td>10.0.0.0/8</td>
+<td>false</td>
+</tr>
+<tr>
+<td>192</td>
+<td>false</td>
+</tr>
+<tr>
+<td>a.b.c.d/255.0.0.0</td>
+<td>false</td>
+</tr>
+<tr>
+<td>::1</td>
+<td>false</td>
+</tr>
+<tr>
+<td>2001\:db8::1</td>
+<td>false</td>
+</tr>
+<tr>
+<td><em>null</em></td>
+<td>false</td>
+</tr>
+</tbody>
+</table>
+<hr />
+</body>
+</html>

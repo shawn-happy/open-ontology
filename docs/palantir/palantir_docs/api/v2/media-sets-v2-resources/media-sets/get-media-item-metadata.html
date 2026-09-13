@@ -1,0 +1,939 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Get Media Item Metadata</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../../../index.html">返回目录</a></div>
+<p><code>GET /api/v2/mediasets/{mediaSetRid}/items/{mediaItemRid}/metadata</code></p>
+<p>Gets detailed metadata about the media item, including type-specific information
+such as dimensions for images, duration for audio/video, page count for documents, etc.</p>
+<p>Third-party applications using this endpoint via OAuth2 must request the following operation scope: <code>api:mediasets-read</code>.</p>
+<p><strong>OAuth2 scopes</strong>: <code>api:mediasets-read</code></p>
+<h2>Path parameters</h2>
+<table>
+<thead>
+<tr>
+<th>参数</th>
+<th>类型</th>
+<th>必填</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>mediaSetRid</code></td>
+<td>string</td>
+<td>是</td>
+<td>The RID of the media set.</td>
+</tr>
+<tr>
+<td><code>mediaItemRid</code></td>
+<td>string</td>
+<td>是</td>
+<td>The RID of the media item.</td>
+</tr>
+</tbody>
+</table>
+<h2>Response</h2>
+<p><strong>MediaItemMetadata</strong></p>
+<p>Detailed metadata about a media item, including type-specific information such as dimensions for images,<br>duration for audio/video, page count for documents, etc.</p>
+<table>
+<thead>
+<tr>
+<th>参数</th>
+<th>类型</th>
+<th>必填</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>MediaItemMetadata</code></td>
+<td>union</td>
+<td>是</td>
+<td>Detailed metadata about a media item, including type-specific information such as dimensions for images,<br>duration for audio/video, page count for documents, etc.<br>示例: <code>{"type":"imagery","format":"PNG","dimensions":{"width":1920,"height":1080},"sizeBytes":2048576}</code></td>
+</tr>
+<tr>
+<td><code>MediaItemMetadata.cad</code></td>
+<td>object</td>
+<td>否</td>
+<td>Metadata for CAD media items.</td>
+</tr>
+<tr>
+<td><code>MediaItemMetadata.cad.format</code></td>
+<td>enum</td>
+<td>是</td>
+<td>The format of a CAD media item.</td>
+</tr>
+<tr>
+<td><code>MediaItemMetadata.cad.sizeBytes</code></td>
+<td>integer</td>
+<td>是</td>
+<td>The size of the media item in bytes.</td>
+</tr>
+<tr>
+<td><code>MediaItemMetadata.cad.units</code></td>
+<td>object</td>
+<td>否</td>
+<td>Units declared in a CAD file.</td>
+</tr>
+<tr>
+<td><code>MediaItemMetadata.cad.units.lengthUnit</code></td>
+<td>string</td>
+<td>否</td>
+<td>Raw declared length unit name, for example MILLIMETRE, METRE, INCH, or FOOT. Consumers should match<br>case-insensitively and tolerate unknown values.</td>
+</tr>
+<tr>
+<td><code>MediaItemMetadata.document</code></td>
+<td>object</td>
+<td>否</td>
+<td>Metadata for document media items.</td>
+</tr>
+<tr>
+<td><code>MediaItemMetadata.document.format</code></td>
+<td>enum</td>
+<td>是</td>
+<td>The format of a document media item.</td>
+</tr>
+<tr>
+<td><code>MediaItemMetadata.document.pages</code></td>
+<td>integer</td>
+<td>否</td>
+<td>The number of pages in the document.</td>
+</tr>
+<tr>
+<td><code>MediaItemMetadata.document.sizeBytes</code></td>
+<td>integer</td>
+<td>是</td>
+<td>The size of the media item in bytes.</td>
+</tr>
+<tr>
+<td><code>MediaItemMetadata.document.title</code></td>
+<td>string</td>
+<td>否</td>
+<td>The title of the document, if available.</td>
+</tr>
+<tr>
+<td><code>MediaItemMetadata.document.author</code></td>
+<td>string</td>
+<td>否</td>
+<td>The author of the document, if available.</td>
+</tr>
+<tr>
+<td><code>MediaItemMetadata.imagery</code></td>
+<td>object</td>
+<td>否</td>
+<td>Metadata for imagery (image) media items.</td>
+</tr>
+<tr>
+<td><code>MediaItemMetadata.imagery.format</code></td>
+<td>enum</td>
+<td>是</td>
+<td>The format of an imagery media item.</td>
+</tr>
+<tr>
+<td><code>MediaItemMetadata.imagery.dimensions</code></td>
+<td>object</td>
+<td>否</td>
+<td>The dimensions of an image.</td>
+</tr>
+<tr>
+<td><code>MediaItemMetadata.imagery.dimensions.width</code></td>
+<td>integer</td>
+<td>是</td>
+<td>The width of the image in pixels.</td>
+</tr>
+<tr>
+<td><code>MediaItemMetadata.imagery.dimensions.height</code></td>
+<td>integer</td>
+<td>是</td>
+<td>The height of the image in pixels.</td>
+</tr>
+<tr>
+<td><code>MediaItemMetadata.imagery.bands</code></td>
+<td>list<BandInfo></td>
+<td>否</td>
+<td>Information about the bands of the image, if available.</td>
+</tr>
+<tr>
+<td><code>MediaItemMetadata.imagery.bands.BandInfo</code></td>
+<td>object</td>
+<td>是</td>
+<td>Information about a band in an image.</td>
+</tr>
+<tr>
+<td><code>MediaItemMetadata.imagery.bands.BandInfo.dataType</code></td>
+<td>enum</td>
+<td>否</td>
+<td>The data type of a band.</td>
+</tr>
+<tr>
+<td><code>MediaItemMetadata.imagery.bands.BandInfo.colorInterpretation</code></td>
+<td>enum</td>
+<td>否</td>
+<td>The color interpretation of a band.</td>
+</tr>
+<tr>
+<td><code>MediaItemMetadata.imagery.bands.BandInfo.paletteInterpretation</code></td>
+<td>enum</td>
+<td>否</td>
+<td>The palette interpretation of a band.</td>
+</tr>
+<tr>
+<td><code>MediaItemMetadata.imagery.bands.BandInfo.unitInterpretation</code></td>
+<td>object</td>
+<td>否</td>
+<td>The unit interpretation for a band.</td>
+</tr>
+<tr>
+<td><code>MediaItemMetadata.imagery.bands.BandInfo.unitInterpretation.unit</code></td>
+<td>string</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>MediaItemMetadata.imagery.bands.BandInfo.unitInterpretation.scale</code></td>
+<td>number</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>MediaItemMetadata.imagery.bands.BandInfo.unitInterpretation.offset</code></td>
+<td>number</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>MediaItemMetadata.imagery.attributes</code></td>
+<td>map</td>
+<td>否</td>
+<td>The metadata attributes described in the image header in the form of a map <domain, \<key, value>>.<br>For the default domain, or when the domain is not specified, the domain key will be the empty string ("").</td>
+</tr>
+<tr>
+<td><code>MediaItemMetadata.imagery.attributes.ImageAttributeDomain</code></td>
+<td>string</td>
+<td>是</td>
+<td>The domain of an image attribute.</td>
+</tr>
+<tr>
+<td><code>MediaItemMetadata.imagery.attributes.map</code></td>
+<td>map</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>MediaItemMetadata.imagery.attributes.map.ImageAttributeKey</code></td>
+<td>string</td>
+<td>是</td>
+<td>The key of an image attribute within a domain.</td>
+</tr>
+<tr>
+<td><code>MediaItemMetadata.imagery.iccProfile</code></td>
+<td>string</td>
+<td>否</td>
+<td>The base64-encoded ICC profile for the image, if available.</td>
+</tr>
+<tr>
+<td><code>MediaItemMetadata.imagery.geo</code></td>
+<td>object</td>
+<td>否</td>
+<td>Embedded geo-referencing data for an image.</td>
+</tr>
+<tr>
+<td><code>MediaItemMetadata.imagery.geo.crs</code></td>
+<td>object</td>
+<td>否</td>
+<td>The coordinate reference system for geo-referenced imagery.</td>
+</tr>
+<tr>
+<td><code>MediaItemMetadata.imagery.geo.crs.wkt</code></td>
+<td>string</td>
+<td>否</td>
+<td>The Well-Known Text representation of the CRS.</td>
+</tr>
+<tr>
+<td><code>MediaItemMetadata.imagery.geo.geotransform</code></td>
+<td>object</td>
+<td>否</td>
+<td>An affine transformation for geo-referencing.</td>
+</tr>
+<tr>
+<td><code>MediaItemMetadata.imagery.geo.geotransform.xTranslate</code></td>
+<td>number</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>MediaItemMetadata.imagery.geo.geotransform.xScale</code></td>
+<td>number</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>MediaItemMetadata.imagery.geo.geotransform.xShear</code></td>
+<td>number</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>MediaItemMetadata.imagery.geo.geotransform.yTranslate</code></td>
+<td>number</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>MediaItemMetadata.imagery.geo.geotransform.yShear</code></td>
+<td>number</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>MediaItemMetadata.imagery.geo.geotransform.yScale</code></td>
+<td>number</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>MediaItemMetadata.imagery.geo.gcpInfo</code></td>
+<td>object</td>
+<td>否</td>
+<td>A list of ground control points for geo-referencing.</td>
+</tr>
+<tr>
+<td><code>MediaItemMetadata.imagery.geo.gcpInfo.gcps</code></td>
+<td>list<GroundControlPoint></td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>MediaItemMetadata.imagery.geo.gcpInfo.gcps.GroundControlPoint</code></td>
+<td>object</td>
+<td>是</td>
+<td>A ground control point for geo-referencing.</td>
+</tr>
+<tr>
+<td><code>MediaItemMetadata.imagery.geo.gcpInfo.gcps.GroundControlPoint.pixX</code></td>
+<td>number</td>
+<td>否</td>
+<td>The pixel X coordinate.</td>
+</tr>
+<tr>
+<td><code>MediaItemMetadata.imagery.geo.gcpInfo.gcps.GroundControlPoint.pixY</code></td>
+<td>number</td>
+<td>否</td>
+<td>The pixel Y coordinate.</td>
+</tr>
+<tr>
+<td><code>MediaItemMetadata.imagery.geo.gcpInfo.gcps.GroundControlPoint.projX</code></td>
+<td>number</td>
+<td>否</td>
+<td>The projected X coordinate.</td>
+</tr>
+<tr>
+<td><code>MediaItemMetadata.imagery.geo.gcpInfo.gcps.GroundControlPoint.projY</code></td>
+<td>number</td>
+<td>否</td>
+<td>The projected Y coordinate.</td>
+</tr>
+<tr>
+<td><code>MediaItemMetadata.imagery.geo.gcpInfo.gcps.GroundControlPoint.projZ</code></td>
+<td>number</td>
+<td>否</td>
+<td>The projected Z coordinate.</td>
+</tr>
+<tr>
+<td><code>MediaItemMetadata.imagery.geo.gpsData</code></td>
+<td>object</td>
+<td>否</td>
+<td>GPS location metadata extracted from EXIF data embedded in the image.</td>
+</tr>
+<tr>
+<td><code>MediaItemMetadata.imagery.geo.gpsData.latitude</code></td>
+<td>number</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>MediaItemMetadata.imagery.geo.gpsData.longitude</code></td>
+<td>number</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>MediaItemMetadata.imagery.geo.gpsData.altitude</code></td>
+<td>number</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>MediaItemMetadata.imagery.pages</code></td>
+<td>integer</td>
+<td>否</td>
+<td>The number of pages associated with this image. Usually 1, but may be more for some formats<br>(multi-page TIFFs, for example).</td>
+</tr>
+<tr>
+<td><code>MediaItemMetadata.imagery.orientation</code></td>
+<td>object</td>
+<td>否</td>
+<td>The orientation information as encoded in EXIF metadata.</td>
+</tr>
+<tr>
+<td><code>MediaItemMetadata.imagery.orientation.rotationAngle</code></td>
+<td>enum</td>
+<td>否</td>
+<td>The rotation angle from EXIF orientation.</td>
+</tr>
+<tr>
+<td><code>MediaItemMetadata.imagery.orientation.flipAxis</code></td>
+<td>enum</td>
+<td>否</td>
+<td>The flip axis from EXIF orientation.</td>
+</tr>
+<tr>
+<td><code>MediaItemMetadata.imagery.sizeBytes</code></td>
+<td>integer</td>
+<td>是</td>
+<td>The size of the media item in bytes.</td>
+</tr>
+<tr>
+<td><code>MediaItemMetadata.spreadsheet</code></td>
+<td>object</td>
+<td>否</td>
+<td>Metadata for spreadsheet media items.</td>
+</tr>
+<tr>
+<td><code>MediaItemMetadata.spreadsheet.format</code></td>
+<td>enum</td>
+<td>是</td>
+<td>The format of a spreadsheet media item.</td>
+</tr>
+<tr>
+<td><code>MediaItemMetadata.spreadsheet.sheetNames</code></td>
+<td>list<string></td>
+<td>否</td>
+<td>The names of the sheets in the spreadsheet.</td>
+</tr>
+<tr>
+<td><code>MediaItemMetadata.spreadsheet.sizeBytes</code></td>
+<td>integer</td>
+<td>是</td>
+<td>The size of the media item in bytes.</td>
+</tr>
+<tr>
+<td><code>MediaItemMetadata.spreadsheet.title</code></td>
+<td>string</td>
+<td>否</td>
+<td>The title of the spreadsheet, if available.</td>
+</tr>
+<tr>
+<td><code>MediaItemMetadata.spreadsheet.author</code></td>
+<td>string</td>
+<td>否</td>
+<td>The author of the spreadsheet, if available.</td>
+</tr>
+<tr>
+<td><code>MediaItemMetadata.untyped</code></td>
+<td>object</td>
+<td>否</td>
+<td>Metadata for untyped media items (media items without a recognized type).</td>
+</tr>
+<tr>
+<td><code>MediaItemMetadata.untyped.sizeBytes</code></td>
+<td>integer</td>
+<td>是</td>
+<td>The size of the media item in bytes.</td>
+</tr>
+<tr>
+<td><code>MediaItemMetadata.audio</code></td>
+<td>object</td>
+<td>否</td>
+<td>Metadata for audio media items.</td>
+</tr>
+<tr>
+<td><code>MediaItemMetadata.audio.format</code></td>
+<td>enum</td>
+<td>是</td>
+<td>The format of an audio media item.</td>
+</tr>
+<tr>
+<td><code>MediaItemMetadata.audio.specification</code></td>
+<td>object</td>
+<td>是</td>
+<td>Technical specifications for audio media items.</td>
+</tr>
+<tr>
+<td><code>MediaItemMetadata.audio.specification.bitRate</code></td>
+<td>integer</td>
+<td>是</td>
+<td>Approximate (average) bits per second of the audio, rounded up in case of a fractional average bits per second.</td>
+</tr>
+<tr>
+<td><code>MediaItemMetadata.audio.specification.durationSeconds</code></td>
+<td>number</td>
+<td>是</td>
+<td>Approximate duration of the audio, in seconds with up to two decimal digits (rounded up).</td>
+</tr>
+<tr>
+<td><code>MediaItemMetadata.audio.specification.numberOfChannels</code></td>
+<td>integer</td>
+<td>否</td>
+<td>Number of audio channels in the audio stream.</td>
+</tr>
+<tr>
+<td><code>MediaItemMetadata.audio.sizeBytes</code></td>
+<td>integer</td>
+<td>是</td>
+<td>The size of the media item in bytes.</td>
+</tr>
+<tr>
+<td><code>MediaItemMetadata.model3d</code></td>
+<td>object</td>
+<td>否</td>
+<td>Metadata for 3D model media items.</td>
+</tr>
+<tr>
+<td><code>MediaItemMetadata.model3d.format</code></td>
+<td>enum</td>
+<td>是</td>
+<td>The format of a 3D model media item.</td>
+</tr>
+<tr>
+<td><code>MediaItemMetadata.model3d.modelType</code></td>
+<td>enum</td>
+<td>是</td>
+<td>The type of 3D model representation.</td>
+</tr>
+<tr>
+<td><code>MediaItemMetadata.model3d.sizeBytes</code></td>
+<td>integer</td>
+<td>是</td>
+<td>The size of the media item in bytes.</td>
+</tr>
+<tr>
+<td><code>MediaItemMetadata.video</code></td>
+<td>object</td>
+<td>否</td>
+<td>Metadata for video media items.</td>
+</tr>
+<tr>
+<td><code>MediaItemMetadata.video.format</code></td>
+<td>enum</td>
+<td>是</td>
+<td>The format of a video media item.</td>
+</tr>
+<tr>
+<td><code>MediaItemMetadata.video.specification</code></td>
+<td>object</td>
+<td>是</td>
+<td>Technical specifications for video media items.</td>
+</tr>
+<tr>
+<td><code>MediaItemMetadata.video.specification.bitRate</code></td>
+<td>integer</td>
+<td>是</td>
+<td>Approximate (average) bits per second of the video, rounded up in case of a fractional average bits per second.</td>
+</tr>
+<tr>
+<td><code>MediaItemMetadata.video.specification.durationSeconds</code></td>
+<td>number</td>
+<td>是</td>
+<td>Approximate duration of the video, in seconds with up to two decimal digits (rounded up).</td>
+</tr>
+<tr>
+<td><code>MediaItemMetadata.video.sizeBytes</code></td>
+<td>integer</td>
+<td>是</td>
+<td>The size of the media item in bytes.</td>
+</tr>
+<tr>
+<td><code>MediaItemMetadata.dicom</code></td>
+<td>object</td>
+<td>否</td>
+<td>Metadata for DICOM (Digital Imaging and Communications in Medicine) media items.</td>
+</tr>
+<tr>
+<td><code>MediaItemMetadata.dicom.metaInformation</code></td>
+<td>union</td>
+<td>是</td>
+<td>DICOM meta information.</td>
+</tr>
+<tr>
+<td><code>MediaItemMetadata.dicom.metaInformation.v1</code></td>
+<td>object</td>
+<td>否</td>
+<td>DICOM meta information version 1.</td>
+</tr>
+<tr>
+<td><code>MediaItemMetadata.dicom.metaInformation.v1.mediaStorageSop</code></td>
+<td>string</td>
+<td>是</td>
+<td>The Media Storage SOP (Service-Object Pair) Class UID, which identifies<br>the type of DICOM object stored (e.g., CT Image, MR Image).</td>
+</tr>
+<tr>
+<td><code>MediaItemMetadata.dicom.metaInformation.v1.mediaStorageSopInstance</code></td>
+<td>string</td>
+<td>是</td>
+<td>The Media Storage SOP Instance UID.</td>
+</tr>
+<tr>
+<td><code>MediaItemMetadata.dicom.metaInformation.v1.transferSyntax</code></td>
+<td>string</td>
+<td>是</td>
+<td>The Transfer Syntax UID, which specifies how the DICOM data is encoded<br>(e.g., compression method, byte ordering).</td>
+</tr>
+<tr>
+<td><code>MediaItemMetadata.dicom.mediaType</code></td>
+<td>enum</td>
+<td>是</td>
+<td>The type of DICOM media.</td>
+</tr>
+<tr>
+<td><code>MediaItemMetadata.dicom.commonDataElements</code></td>
+<td>object</td>
+<td>是</td>
+<td>Common DICOM data elements.</td>
+</tr>
+<tr>
+<td><code>MediaItemMetadata.dicom.commonDataElements.numberFrames</code></td>
+<td>integer</td>
+<td>否</td>
+<td>The number of frames in the DICOM file.</td>
+</tr>
+<tr>
+<td><code>MediaItemMetadata.dicom.commonDataElements.modality</code></td>
+<td>enum</td>
+<td>否</td>
+<td>DICOM modality code. A list of modalities and their meanings can be found in the DICOM specification.<br>https://dicom.nema.org/medical/dicom/current/output/chtml/part03/sect_C.7.3.html#sect_C.7.3.1.1.1</td>
+</tr>
+<tr>
+<td><code>MediaItemMetadata.dicom.commonDataElements.patientId</code></td>
+<td>string</td>
+<td>否</td>
+<td>The patient ID.</td>
+</tr>
+<tr>
+<td><code>MediaItemMetadata.dicom.commonDataElements.studyId</code></td>
+<td>string</td>
+<td>否</td>
+<td>The study ID.</td>
+</tr>
+<tr>
+<td><code>MediaItemMetadata.dicom.commonDataElements.studyUid</code></td>
+<td>string</td>
+<td>否</td>
+<td>The study UID.</td>
+</tr>
+<tr>
+<td><code>MediaItemMetadata.dicom.commonDataElements.seriesUid</code></td>
+<td>string</td>
+<td>否</td>
+<td>The series UID.</td>
+</tr>
+<tr>
+<td><code>MediaItemMetadata.dicom.commonDataElements.studyTime</code></td>
+<td>string</td>
+<td>否</td>
+<td>The study time.</td>
+</tr>
+<tr>
+<td><code>MediaItemMetadata.dicom.commonDataElements.seriesTime</code></td>
+<td>string</td>
+<td>否</td>
+<td>The series time.</td>
+</tr>
+<tr>
+<td><code>MediaItemMetadata.dicom.otherDataElements</code></td>
+<td>map</td>
+<td>否</td>
+<td>The data elements for a particular DICOM file outside of the media contained within it and the<br>data elements within the commonDataElements field.</td>
+</tr>
+<tr>
+<td><code>MediaItemMetadata.dicom.otherDataElements.DicomDataElementKey</code></td>
+<td>string</td>
+<td>是</td>
+<td>The key of a DICOM data element.</td>
+</tr>
+<tr>
+<td><code>MediaItemMetadata.dicom.sizeBytes</code></td>
+<td>integer</td>
+<td>是</td>
+<td>The size of the media item in bytes.</td>
+</tr>
+<tr>
+<td><code>MediaItemMetadata.email</code></td>
+<td>object</td>
+<td>否</td>
+<td>Metadata for email media items.</td>
+</tr>
+<tr>
+<td><code>MediaItemMetadata.email.format</code></td>
+<td>enum</td>
+<td>是</td>
+<td>The format of an email media item.</td>
+</tr>
+<tr>
+<td><code>MediaItemMetadata.email.sizeBytes</code></td>
+<td>integer</td>
+<td>是</td>
+<td>The size of the media item in bytes.</td>
+</tr>
+<tr>
+<td><code>MediaItemMetadata.email.sender</code></td>
+<td>list<Mailbox></td>
+<td>否</td>
+<td>The sender(s) of the email.</td>
+</tr>
+<tr>
+<td><code>MediaItemMetadata.email.sender.Mailbox</code></td>
+<td>object</td>
+<td>是</td>
+<td>An email mailbox with an optional display name and email address.</td>
+</tr>
+<tr>
+<td><code>MediaItemMetadata.email.sender.Mailbox.displayName</code></td>
+<td>string</td>
+<td>否</td>
+<td>The display name of the mailbox.</td>
+</tr>
+<tr>
+<td><code>MediaItemMetadata.email.sender.Mailbox.emailAddress</code></td>
+<td>string</td>
+<td>是</td>
+<td>The email address of the mailbox.</td>
+</tr>
+<tr>
+<td><code>MediaItemMetadata.email.date</code></td>
+<td>string</td>
+<td>是</td>
+<td>The date the email was sent.</td>
+</tr>
+<tr>
+<td><code>MediaItemMetadata.email.attachmentCount</code></td>
+<td>integer</td>
+<td>是</td>
+<td>The number of attachments in the email.</td>
+</tr>
+<tr>
+<td><code>MediaItemMetadata.email.to</code></td>
+<td>list<MailboxOrGroup></td>
+<td>否</td>
+<td>The recipient(s) of the email.</td>
+</tr>
+<tr>
+<td><code>MediaItemMetadata.email.to.MailboxOrGroup</code></td>
+<td>union</td>
+<td>是</td>
+<td>Either a mailbox or a group of mailboxes.</td>
+</tr>
+<tr>
+<td><code>MediaItemMetadata.email.to.MailboxOrGroup.mailbox</code></td>
+<td>object</td>
+<td>否</td>
+<td>A wrapper for a mailbox in the MailboxOrGroup union.</td>
+</tr>
+<tr>
+<td><code>MediaItemMetadata.email.to.MailboxOrGroup.mailbox.mailbox</code></td>
+<td>object</td>
+<td>是</td>
+<td>An email mailbox with an optional display name and email address.</td>
+</tr>
+<tr>
+<td><code>MediaItemMetadata.email.to.MailboxOrGroup.mailbox.mailbox.displayName</code></td>
+<td>string</td>
+<td>否</td>
+<td>The display name of the mailbox.</td>
+</tr>
+<tr>
+<td><code>MediaItemMetadata.email.to.MailboxOrGroup.mailbox.mailbox.emailAddress</code></td>
+<td>string</td>
+<td>是</td>
+<td>The email address of the mailbox.</td>
+</tr>
+<tr>
+<td><code>MediaItemMetadata.email.to.MailboxOrGroup.group</code></td>
+<td>object</td>
+<td>否</td>
+<td>A wrapper for a group in the MailboxOrGroup union.</td>
+</tr>
+<tr>
+<td><code>MediaItemMetadata.email.to.MailboxOrGroup.group.group</code></td>
+<td>object</td>
+<td>是</td>
+<td>A named group of mailboxes.</td>
+</tr>
+<tr>
+<td><code>MediaItemMetadata.email.to.MailboxOrGroup.group.group.groupName</code></td>
+<td>string</td>
+<td>是</td>
+<td>The name of the group.</td>
+</tr>
+<tr>
+<td><code>MediaItemMetadata.email.to.MailboxOrGroup.group.group.mailboxes</code></td>
+<td>list<Mailbox></td>
+<td>否</td>
+<td>The mailboxes in the group.</td>
+</tr>
+<tr>
+<td><code>MediaItemMetadata.email.to.MailboxOrGroup.group.group.mailboxes.Mailbox</code></td>
+<td>object</td>
+<td>是</td>
+<td>An email mailbox with an optional display name and email address.</td>
+</tr>
+<tr>
+<td><code>MediaItemMetadata.email.to.MailboxOrGroup.group.group.mailboxes.Mailbox.displayName</code></td>
+<td>string</td>
+<td>否</td>
+<td>The display name of the mailbox.</td>
+</tr>
+<tr>
+<td><code>MediaItemMetadata.email.to.MailboxOrGroup.group.group.mailboxes.Mailbox.emailAddress</code></td>
+<td>string</td>
+<td>是</td>
+<td>The email address of the mailbox.</td>
+</tr>
+<tr>
+<td><code>MediaItemMetadata.email.cc</code></td>
+<td>list<MailboxOrGroup></td>
+<td>否</td>
+<td>The CC recipient(s) of the email.</td>
+</tr>
+<tr>
+<td><code>MediaItemMetadata.email.cc.MailboxOrGroup</code></td>
+<td>union</td>
+<td>是</td>
+<td>Either a mailbox or a group of mailboxes.</td>
+</tr>
+<tr>
+<td><code>MediaItemMetadata.email.cc.MailboxOrGroup.mailbox</code></td>
+<td>object</td>
+<td>否</td>
+<td>A wrapper for a mailbox in the MailboxOrGroup union.</td>
+</tr>
+<tr>
+<td><code>MediaItemMetadata.email.cc.MailboxOrGroup.mailbox.mailbox</code></td>
+<td>object</td>
+<td>是</td>
+<td>An email mailbox with an optional display name and email address.</td>
+</tr>
+<tr>
+<td><code>MediaItemMetadata.email.cc.MailboxOrGroup.mailbox.mailbox.displayName</code></td>
+<td>string</td>
+<td>否</td>
+<td>The display name of the mailbox.</td>
+</tr>
+<tr>
+<td><code>MediaItemMetadata.email.cc.MailboxOrGroup.mailbox.mailbox.emailAddress</code></td>
+<td>string</td>
+<td>是</td>
+<td>The email address of the mailbox.</td>
+</tr>
+<tr>
+<td><code>MediaItemMetadata.email.cc.MailboxOrGroup.group</code></td>
+<td>object</td>
+<td>否</td>
+<td>A wrapper for a group in the MailboxOrGroup union.</td>
+</tr>
+<tr>
+<td><code>MediaItemMetadata.email.cc.MailboxOrGroup.group.group</code></td>
+<td>object</td>
+<td>是</td>
+<td>A named group of mailboxes.</td>
+</tr>
+<tr>
+<td><code>MediaItemMetadata.email.cc.MailboxOrGroup.group.group.groupName</code></td>
+<td>string</td>
+<td>是</td>
+<td>The name of the group.</td>
+</tr>
+<tr>
+<td><code>MediaItemMetadata.email.cc.MailboxOrGroup.group.group.mailboxes</code></td>
+<td>list<Mailbox></td>
+<td>否</td>
+<td>The mailboxes in the group.</td>
+</tr>
+<tr>
+<td><code>MediaItemMetadata.email.cc.MailboxOrGroup.group.group.mailboxes.Mailbox</code></td>
+<td>object</td>
+<td>是</td>
+<td>An email mailbox with an optional display name and email address.</td>
+</tr>
+<tr>
+<td><code>MediaItemMetadata.email.cc.MailboxOrGroup.group.group.mailboxes.Mailbox.displayName</code></td>
+<td>string</td>
+<td>否</td>
+<td>The display name of the mailbox.</td>
+</tr>
+<tr>
+<td><code>MediaItemMetadata.email.cc.MailboxOrGroup.group.group.mailboxes.Mailbox.emailAddress</code></td>
+<td>string</td>
+<td>是</td>
+<td>The email address of the mailbox.</td>
+</tr>
+<tr>
+<td><code>MediaItemMetadata.email.subject</code></td>
+<td>string</td>
+<td>否</td>
+<td>The subject of the email.</td>
+</tr>
+<tr>
+<td><code>MediaItemMetadata.email.attachments</code></td>
+<td>list<EmailAttachment></td>
+<td>否</td>
+<td>The attachments of the email.</td>
+</tr>
+<tr>
+<td><code>MediaItemMetadata.email.attachments.EmailAttachment</code></td>
+<td>object</td>
+<td>是</td>
+<td>Metadata about an email attachment.</td>
+</tr>
+<tr>
+<td><code>MediaItemMetadata.email.attachments.EmailAttachment.attachmentIndex</code></td>
+<td>integer</td>
+<td>是</td>
+<td>The index of the attachment in the email.</td>
+</tr>
+<tr>
+<td><code>MediaItemMetadata.email.attachments.EmailAttachment.fileName</code></td>
+<td>string</td>
+<td>否</td>
+<td>The file name of the attachment, if available.</td>
+</tr>
+<tr>
+<td><code>MediaItemMetadata.email.attachments.EmailAttachment.mimeType</code></td>
+<td>string</td>
+<td>是</td>
+<td>The verified MIME type of the attachment.</td>
+</tr>
+</tbody>
+</table>
+<pre><code class="language-json">{
+  &quot;type&quot;: &quot;imagery&quot;,
+  &quot;format&quot;: &quot;PNG&quot;,
+  &quot;dimensions&quot;: {
+    &quot;width&quot;: 1920,
+    &quot;height&quot;: 1080
+  },
+  &quot;sizeBytes&quot;: 2048576
+}
+</code></pre>
+</body>
+</html>

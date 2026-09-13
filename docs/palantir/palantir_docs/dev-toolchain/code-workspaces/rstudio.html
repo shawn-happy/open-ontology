@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>RStudioÂ® Workbench</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>RStudioÂ® Workbench</h1>
+<p>:::callout{theme="neutral"}
+To use RStudioÂ® Workbench, your platform administrator must first <a href="https://www.palantir.com/docs/foundry/administration/configure-rstudio-license/">configure its operational license in Control Panel</a>. If you are a platform administrator and are unable to configure licenses in Control Panel, contact Palantir Support.
+:::</p>
+<p>Code Workspaces enables you to use <a href="https://docs.posit.co/">RStudioÂ® Workbench â</a> in Foundry. RStudioÂ® Workbench in Code Workspaces supports:</p>
+<ul>
+<li>Reading and writing tabular datasets using the <a href="https://github.com/palantir/palantir-r-sdk">Palantir R SDK â</a>.</li>
+<li>Downloading or uploading files from non-structured datasets.</li>
+<li>Importing R libraries from CRAN, Positâ¢ library Manager, and Bioconductor.</li>
+<li>Publishing ShinyÂ® applications.</li>
+<li>Publishing R transforms.</li>
+</ul>
+<p>Code Workspaces currently supports <a href="https://shiny.rstudio.com/">ShinyÂ® â</a> for R applications. Users can create applications directly in Code Workspaces with Foundryâs <a href="https://www.palantir.com/docs/foundry/data-integration/branching/">version control</a>, <a href="https://www.palantir.com/docs/foundry/data-integration/branching/">branching</a>, and <a href="https://www.palantir.com/docs/foundry/security/data-protection-and-governance/">data governance</a> features built-in.</p>
+<p>:::callout{theme="neutral"}
+Code Workspace applications support branching. If you <a href="https://www.palantir.com/docs/foundry/code-workspaces/getting-started/#branch-your-code-workspace">create a new Workspace branch</a>, publishing a new application or synchronizing the changes will publish a new version of the application on that branch. This allows you to preview your application before exposing it to your users. To publish on the master branch, simply merge your branch into master.
+:::</p>
+<h2>ShinyÂ®</h2>
+<p>With Code Workspaces, you can create a ShinyÂ® application and preview it directly from the RStudioÂ® UI.</p>
+<p>:::callout{theme="warning"}
+By default, RStudioÂ® generates ShinyÂ® applications in the home folder (<code>/home/user</code>) but Foundry requires applications to be in the git repository <code>/home/user/repo</code> for them to be persisted across sessions and published.
+:::</p>
+<p>In Code Workspaces, select <strong>Publish application</strong>, select a location in your <strong>Files and Projects</strong> for your new application, and enter the name of the directory in which a new ShinyÂ® <code>app.R</code> file should be automatically created, relative to the repository root <code>/home/user/repo</code>. This field can be left blank to create the application at the root of the repository. By default, the application settings will match the RStudioÂ® workspace settings, and configuring advanced settings is optional.</p>
+<p>:::callout{theme="warning"}
+Published Shiny applications are subject to a 30-second timeout, meaning that the Shiny server must start up within 30 seconds of executing your Shiny application file. Otherwise, your Shiny application will fail to start up.
+:::</p>
+<p>Select <strong>Publish and sync</strong> to register your new ShinyÂ® application and sync the code to the backing code repository. After CI checks and publishing are complete, you can select the link in the Applications panel to view the published application.</p>
+<p>To develop locally against a ShinyÂ® application:</p>
+<ol>
+<li>Open <code>app.R</code> in RStudioÂ®.</li>
+<li>Select <strong>Run App</strong>. A preview of your application will appear in a new window.</li>
+</ol>
+<h3>Configure ShinyÂ® applications to automatically reconnect</h3>
+<p>By default, Shiny greys out if the websocket connection is closed, for instance if there is a network outage for over 15 seconds. To ensure your application can recover when the network connection is restored, we recommend updating the <code>server</code> function to set <code>session$allowReconnect("force")</code>:</p>
+<pre><code class="language-r">server &lt;- function(input, output, session) {
+  # Handle input changes
+  session$allowReconnect(&quot;force&quot;)
+}
+</code></pre>
+<p>This will cause the frontend to trigger a new websocket when the network is available again, and to send the last input information that was set in the UI.</p>
+<h2>R Transform</h2>
+<p>:::callout{theme="warning"}
+R transforms currently do not support making API calls to external services, even if the network policy was added in the RStudio Code Workspace.
+:::</p>
+<p>R scripts written in Code Workspaces can be registered as transforms for output datasets in Code Workspaces.</p>
+<p>Follow the steps below to register a transform for an output dataset:</p>
+<ol>
+<li>Select the blue <strong>Build</strong> icon next to the dataset in the <strong>Data</strong> panel.</li>
+</ol>
+<p><img src="../../_resources/external-9505fbb948b8.png" alt="The blue build button to the right of the dataset name." width="500"></p>
+<ol start="2">
+<li>Follow the interface to configure your transform. Code Workspaces infers the R script used along with the inputs added to produce the output dataset.</li>
+</ol>
+<p><img src="../../_resources/external-e6d6bb71e112.png" alt="The Edit Transform pane,l with options to modify the script file, inputs, and outputs and adjust the CPU and Memory." width="300"></p>
+<ol start="3">
+<li>Select <strong>Sync and run</strong> to save the transform configuration and trigger CI checks for publishing the transform and JobSpecs on the output dataset(s).</li>
+</ol>
+<p>Once CI checks are completed, your transform is ready for build. You can then use other Foundry <a href="https://www.palantir.com/docs/foundry/data-integration/overview/">data integration</a> tools to manage your transform and the <a href="https://www.palantir.com/docs/foundry/data-integration/data-pipeline/">data pipeline</a> to which it belongs.</p>
+<p>:::callout{theme="neutral"}
+The transform does not automatically use the environment of the Code Workspace. You should install all the libraries needed at runtime at the top of the script file. The code snippet to install a library can be found in the <strong>libraries</strong> panel.
+For example, to use <code>dplyr</code> and <code>tidyr</code> in your transform, add this code snippet to the top of the file:</p>
+<pre><code class="language-r">renv::install(c(&quot;dplyr&quot;, &quot;tidyr&quot;))
+</code></pre>
+<p>:::</p>
+<p><a href="https://www.palantir.com/docs/foundry/transforms-r/overview/">Learn more about R transforms.</a></p>
+<hr />
+<p><em>RStudioÂ® and ShinyÂ® are trademarks of Positâ¢.</em></p>
+<p>All third-party trademarks (including logos and icons) referenced remain the property of their respective owners. No affiliation or endorsement is implied.</p>
+<h2>Markdown Reports</h2>
+<p>R Markdown or Quarto files written in RStudioÂ® workspaces can be shared with other Palantir platform users as reports. A report is a dataset built from a Markdown file using a transform that contains HTML produced by rendering the Markdown file with <a href="https://quarto.org/">Quarto â</a>.</p>
+<p>Reports are built using transforms, so they can be configured to automatically update based on the latest changes to the Markdown file using a <a href="https://www.palantir.com/docs/foundry/data-integration/schedules/">schedule</a>. This ensures that your analyses and visualizations are up to date and built with a reproducible, customizable workflow that integrates with the rest of the Palantir platform.</p>
+<p><img alt="The Reports side panel in Code Workspaces." src="../../_resources/foundry/code-workspaces/rstudio-reports.png" /></p>
+<h3>Publish reports from an RStudioÂ® workspace</h3>
+<p>A Markdown report can be published from an RStudioÂ® workspace using the following steps:</p>
+<ol>
+<li>Create the Markdown file (<code>.Rmd</code> or <code>.qmd</code>) you wish to use to create a report. This Markdown file can read from Foundry datasets that have been added to your workspace using the <a href="https://www.palantir.com/docs/foundry/code-workspaces/data/#read-data">data side panel</a>.</li>
+<li>Open the <strong>Applications</strong> side panel and select the <strong>Reports</strong> tab.</li>
+<li>Select <strong>Add</strong> to open the report configuration dialog.</li>
+<li>Provide a name and location; this determines where the dataset containing the report will be saved.</li>
+<li>Select the Markdown file to build your report from. If your Markdown reads from Foundry datasets, add these datasets as report inputs. Select <strong>Auto-configure inputs and outputs</strong> to automatically parse your Markdown file and populate the form with any detected datasets.</li>
+<li>Select <strong>Create</strong>. This will create a dataset at the specified location. The transform that builds the report will then run. Note that this can take several minutes to complete.</li>
+<li>Once the report has been built, select the report name in the <strong>Applications</strong> side panel to open the report in a new tab. This link can be shared with other users.</li>
+</ol>
+<p>To edit or delete an existing report, select <strong>...</strong> on the right of the report card. This will open a menu with options to edit or delete the report, and an option to copy the link to the report.</p>
+<h3>View previous report versions</h3>
+<p>Reports support full version history. To view a previous version of a report, expand the report card in the <strong>Applications</strong> side panel or use the version selector in the page header when viewing a report in a new tab.</p>
+<p>Selecting a report version will update the link used to share the report, enabling you to share a specific historical version of a report that will not be updated if the underlying Markdown is modified.</p>
+<p><img alt="Previewing a Markdown report in a new tab." src="../../_resources/foundry/code-workspaces/rstudio-reports-preview.png" /></p>
+<p>The latest version of a report will be selected by default, so readers of your report automatically receive the latest changes.</p>
+<h2>Managed conda environments in RStudioÂ®</h2>
+<p>RStudioÂ® conda environments can be consistently restored across RStudioÂ® workspaces, Shiny applications, transforms, and model outputs using <strong>managed environments</strong>. Managed environments are consistent across Code Workspace workflows, eliminating the need to re-run the same <code>renv::install</code> command every time you restart your workspace, start a Shiny application, or run an RStudioÂ® transform.</p>
+<p>:::callout{theme="neutral"}
+This feature now includes CRAN library management through Maestro, a Foundry library management tool that seamlessly integrates with conda and CRAN to efficiently handle library installations and maintain managed environments. Newly-installed CRAN libraries will be tracked in your environment files and consistently restored across RStudioÂ® workspaces, Shiny applications, transforms, and model outputs, improving the reproducibility of your environments. See the <a href="#get-started">get started</a> section below to enable this feature.
+:::</p>
+<p>To convert library install commands to Maestro, refer to the instructions below for either <a href="#manage-conda-libraries-with-maestro-recommended">conda</a> or <a href="#manage-cran-libraries-with-maestro">CRAN</a>. With a managed environment, installed libraries in your working environment are tracked through the following files, allowing the environment to be restored to its original state across workflows:</p>
+<ol>
+<li><code>/home/user/repo/.envs/maestro/meta.yaml</code>: Known as the environment <a href="https://www.palantir.com/docs/foundry/code-workspaces/jupyterlab/#example-metayaml-file"><strong>manifest</strong></a>, it contains the set of <strong>requested</strong> libraries and versions for your environment.</li>
+<li><code>/home/user/repo/.envs/maestro/hawk.lock</code>: Known as the environment <a href="https://www.palantir.com/docs/foundry/code-workspaces/jupyterlab/#example-hawklock-file"><strong>lock file</strong></a>, it contains the set of <strong>resolved</strong> libraries and versions for your environment, solved from the constraints specified in the manifest. The <code>hawk.lock</code> file replaces <code>conda.lock</code>, which has been deprecated.</li>
+</ol>
+<p>When you sync any new code in your conda environments, the files above will be synced as well. When you start your next session, the restored code will include the <code>maestro</code> files and your environment will be recreated.</p>
+<p>:::callout{theme="warning"}
+We do not recommend modifying the <code>hawk.lock</code> lock file. Instead, rely on installation commands to update the files on your behalf. Unless there is a git conflict, you do not need to modify the <code>meta.yaml</code> file either; it will automatically update when libraries are interactively installed. If you do modify these files, you risk restoring an outdated conda environment or failing the environment build.
+:::</p>
+<p>Your managed environment is installed in your <code>/home/user/envs/default</code> folder. This environment will be restored before any of the following events:</p>
+<ul>
+<li>Startup of your RStudioÂ® workspace</li>
+<li>Startup of Shiny applications produced from your workspace</li>
+<li>Runs of RStudioÂ® transforms produced from your workspace</li>
+<li>Renderings of <a href="#markdown-reports">Markdown reports</a></li>
+</ul>
+<h3>Get started</h3>
+<h4>1. Enable managed environments</h4>
+<p>To enable managed environments in RStudioÂ® workspaces, navigate to your workspace settings from the left sidebar, then toggle on <strong>Managed Conda environments</strong> under <strong>Advanced features</strong>. It may already be turned on by default.</p>
+<p>Then, restart the workspace:</p>
+<p><img src="../../_resources/external-c8489552f3c9.png" alt="Dialogue for the managed conda environments advanced feature" width="500"></p>
+<p>To enable CRAN library management by Maestro in RStudioÂ® workspaces, navigate to your workspace settings using the left sidebar, then toggle on <strong>Managed CRAN environments</strong> under <strong>Experimental features</strong>. This option may already be enabled by default.</p>
+<p>Then, restart the workspace.</p>
+<h4>2. Update your managed environment</h4>
+<p>Follow the steps below to update your managed environment and manage new libraries:</p>
+<h5>Manage conda libraries with Maestro (recommended)</h5>
+<p>:::callout{theme="default"}
+Install R libraries with conda instead of CRAN to significantly reduce workspace startup time.
+:::</p>
+<ul>
+<li><strong>Install using the Libraries panel:</strong></li>
+<li>For standard libraries: Search for the library name with an <code>r-</code> prefix (for example, <code>r-ggplot2</code> not <code>ggplot2</code>) and install.</li>
+<li>
+<p>For Bioconductor libraries: Search for the lowercase library name with a bioconductor- prefix (for example, <code>bioconductor-genomeinfodb</code>) and install.</p>
+</li>
+<li>
+<p><strong>Install using the terminal:</strong> To install the latest version of a library, run the following command in the terminal:</p>
+</li>
+</ul>
+<p><code>bash
+  maestro env conda install &lt;library_name&gt;</code></p>
+<p>To install a specific version, run the following command:</p>
+<p><code>bash
+  maestro env conda install &lt;library_name&gt;==&lt;library_version&gt;</code></p>
+<ul>
+<li><strong>Uninstall using the terminal:</strong> To uninstall a library, run the following command in the terminal:</li>
+</ul>
+<p><code>bash
+  maestro env uninstall --conda-dependencies &lt;library_names&gt;</code></p>
+<h5>Manage CRAN libraries with Maestro</h5>
+<ul>
+<li><strong>Install using the Libraries panel:</strong></li>
+<li>For standard libraries: Search for the library name (for example, <code>ggplot2</code>) and install.</li>
+<li>
+<p>For Bioconductor libraries: Search for the library name with initial capitalization format (for example, <code>GenomeInfoDb</code>) and install.</p>
+</li>
+<li>
+<p><strong>Install using the terminal:</strong> To install the latest version of a library, run the following command in the terminal:</p>
+</li>
+</ul>
+<p><code>bash
+  maestro env cran install &lt;library_name&gt;</code></p>
+<p>To install a specific version, run the following command:</p>
+<p><code>bash
+  maestro env cran install &lt;library_name&gt;@&lt;library_version&gt;</code></p>
+<ul>
+<li><strong>Uninstall using the terminal:</strong> To uninstall a library, run the following command in the terminal:</li>
+</ul>
+<p><code>bash
+  maestro env uninstall --cran-dependencies &lt;library_names&gt;</code></p>
+<p>:::callout{theme="warning"}
+When installing a library through the <strong>Libraries</strong> tab, the install command is executed directly in the RStudioÂ® console rather than executed within your script or application code. Every time an install command is run, the <code>meta.yaml</code> manifest will be updated with your requested library, and the <code>hawk.lock</code> file will reflect the libraries installed in the current environment.
+:::</p>
+<h4>3. View currently installed libraries in your managed environment</h4>
+<p>Your installed conda libraries are visible in the <strong>Libraries</strong> tab in the left sidebar:</p>
+<p><img src="../../_resources/external-5121f4651464.png" alt="List of installed libraries displayed in the Libraries tab" width="500"></p>
+<p>You can also choose to view the <code>meta.yaml</code> and <code>hawk.lock</code> files in the RStudioÂ® interface.</p>
+<h4>4. Synchronize your managed environment with changes to the <code>hawk.lock</code> file</h4>
+<p>After checking out a new branch or pulling new git changes, the contents of your <code>hawk.lock</code> file may change.</p>
+<p>To synchronize your managed environment, execute the following command in your workspace terminal:</p>
+<pre><code class="language-bash">maestro env install
+</code></pre>
+<p>:::callout{theme="neutral"}
+<code>maestro</code> is the command line interface that updates managed environments. The above command re-resolves the lock file from the manifest and installs the environment into the <code>/home/user/envs/default</code> folder.
+:::</p>
+<h4>5. Resolve git conflicts to your environment files</h4>
+<p>To resolve git conflicts in your managed environment, first delete the <code>hawk.lock</code> file. Navigate to the <code>meta.yaml</code> file to resolve any conflicts, then merge your branch.</p>
+<p>After merging, run the <code>maestro env install</code> command in your terminal to regenerate the <code>hawk.lock</code> file and reinstall your managed environment.</p>
+<h4>6. Upgrade your managed environment</h4>
+<p>To upgrade your managed environment to a more recent version, first remove the <code>hawk.lock</code> file. Then, delete your <code>/home/user/envs/default</code> folder (<code>rm -rf /home/user/envs/default</code>). Finally, run the <code>maestro env install</code> command in your terminal to regenerate your <code>hawk.lock</code> file. Your environment will be re-installed with upgraded library versions.</p>
+<hr />
+<p><em>RStudioÂ® and ShinyÂ® are trademarks of Positâ¢.</em></p>
+<p>All third-party trademarks (including logos and icons) referenced remain the property of their respective owners. No affiliation or endorsement is implied.</p>
+</body>
+</html>

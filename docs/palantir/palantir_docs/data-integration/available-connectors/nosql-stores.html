@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>NoSQL Stores</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>NoSQL Stores</h1>
+<p>Data Connection can be configured to sync data from a wide variety of NoSQL databases. Some examples of NoSQL stores that have previously been integrated include:</p>
+<ul>
+<li><strong>Amazon DynamoDB</strong></li>
+<li><strong>Apache HBase</strong></li>
+<li><strong>Azure Cosmos DB</strong></li>
+<li><strong>Cassandra</strong></li>
+<li><strong>Cockroach DB</strong></li>
+<li><strong>CouchDB</strong></li>
+<li><strong>Elasticsearch</strong></li>
+<li><strong>InfluxDB</strong></li>
+<li><strong>MarkLogic</strong></li>
+<li><strong>MongoDB</strong></li>
+<li><strong>Neo4j</strong></li>
+<li><strong>OrientDB</strong></li>
+<li><strong>Redis</strong></li>
+</ul>
+<p>:::callout{theme="neutral"}
+The recommended configuration approach may differ depending on the NoSQL database:</p>
+<ul>
+<li>Some systems have dedicated connectors that may be selected directly on the new source page. When there is a dedicated connector, we recommend selecting it directly.</li>
+<li>Some systems have a REST API that can be used using the <a href="https://www.palantir.com/docs/foundry/available-connectors/rest-apis/">REST API source</a>.</li>
+<li>Some systems provide a JDBC driver that can be used with the generic <a href="https://www.palantir.com/docs/foundry/available-connectors/custom-jdbc-sources/">JDBC connector</a>.</li>
+<li>For systems that do not fall into one of the above categories, contact Palantir support.
+:::</li>
+</ul>
+</body>
+</html>

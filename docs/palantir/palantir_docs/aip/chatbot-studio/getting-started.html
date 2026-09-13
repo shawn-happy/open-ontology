@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Getting started</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Getting started</h1>
+<p>This guide demonstrates how to access AIP Chatbot Studio, introduces the AIP Chatbot Studio interface, describes how to set up a basic AIP Chatbot equipped with the information and tools that you choose, and how to deploy and monitor the AIP Chatbot in production.</p>
+<h2>Access AIP Chatbot Studio</h2>
+<p>AIP Chatbot Studio can be accessed from the platformâs workspace navigation bar or by using the quick search shortcuts <code>CMD + J</code> (macOS) or <code>CTRL + J</code> (Windows). Alternatively, you can create a new AIP Chatbot from your <strong>Files</strong> by selecting <strong>+ New</strong> and then selecting <strong>AIP Chatbot</strong>, as shown below.</p>
+<p><img src="../../_resources/external-ccd0985c9b1b.png" alt="Create new AIP Chatbot window." width="450"></p>
+<p>After opening AIP Chatbot Studio, you can create a new AIP Chatbot file.</p>
+<h2>Create an AIP Chatbot</h2>
+<p>AIP Chatbots are Palantir filesystem resources that have granular access control and can be created like any other filesystem resource, as shown in the image above, in the previous section.</p>
+<p>You may also select the <strong>New AIP Chatbot</strong> option from within AIP Chatbot Studio.</p>
+<p><img alt="AIP Chatbot Studio landing page with New AIP Chatbot option." src="../../_resources/foundry/chatbot-studio/aip-chatbot-studio-home.png" /></p>
+<p>Alternatively, <a href="https://www.palantir.com/docs/foundry/threads/getting-started/#upgrade-a-thread-configuration-to-an-aip-chatbot">create an AIP Chatbot from within AIP Threads.</a></p>
+<h2>Set up an AIP Chatbot</h2>
+<p><img alt="AIP Chatbot Studio creation page, showing chatbot name, description and file location choices." src="../../_resources/foundry/chatbot-studio/new-aip-chatbot-creation.png" /></p>
+<p>Add the name, description, and a photo as an avatar for your AIP Chatbot. This enables you to white-label your chatbot to fit the context of your application. If an avatar is not provided, a gray robot icon will be used as the default.</p>
+<p>Next, you will need to configure the enterprise-specific information and tools that will be equipped to your AIP Chatbot, as detailed in the following sections.</p>
+<h3>Types of information and tools</h3>
+<ul>
+<li><strong><a href="https://www.palantir.com/docs/foundry/chatbot-studio/retrieval-context/">Retrieval context</a>:</strong> Simple and fast, recommended for most use cases.</li>
+<li><strong><a href="https://www.palantir.com/docs/foundry/chatbot-studio/application-state/">Application state</a>:</strong> To contextualize chatbots in <a href="https://www.palantir.com/docs/foundry/workshop/overview/">Workshop</a>.</li>
+<li><strong><a href="https://www.palantir.com/docs/foundry/chatbot-studio/tools/">Tools</a>:</strong> Used in complex and action-taking chatbots.</li>
+</ul>
+<p>These configurations are what enable the LLM to be useful to your enterprise, your workflow, and your task.</p>
+<h3>Choose a large language model (LLM)</h3>
+<p>The models available to you are a subset of those <a href="https://www.palantir.com/docs/foundry/aip/supported-llms/#llm-availability-prerequisites">enabled on your enrollment</a>.</p>
+<p><img alt="AIP Chatbot Studio edit view, highlighting option to change the model." src="../../_resources/foundry/chatbot-studio/model-selection.png" /></p>
+<h3>Modify the system prompt</h3>
+<p>The <a href="https://www.palantir.com/docs/foundry/chatbot-studio/core-concepts/#instructions-and-descriptions">system prompt</a> should outline the AIP Chatbot's function within the context of the current application. By pressing <code>/</code> on your keyboard, you can refer to the configured <a href="https://www.palantir.com/docs/foundry/chatbot-studio/tools/">tools</a> and <a href="https://www.palantir.com/docs/foundry/chatbot-studio/application-state/">application state</a> and guide the AIP Chatbot on how to coordinate their usage. Make sure to describe the underlying business logic and the appropriate situations for using the right tools in context.</p>
+<p><img alt="AIP Chatbot Studio edit view, highlighting option to change the system prompt." src="../../_resources/foundry/chatbot-studio/system-prompt.png" /></p>
+<h3>Set the temperature</h3>
+<p>Users can modify the model temperature to determine the balance between focused, deterministic output (default value <code>0</code>) and random output (maximum value <code>1</code>).</p>
+<p><img alt="AIP Chatbot Studio edit view, highlighting option to set the model's temperature." src="../../_resources/foundry/chatbot-studio/temperature.png" /></p>
+<h3>Add conversation starters</h3>
+<p>You can also set up an input placeholder and suggested prompts to customize the chatbot for your intended workflow.</p>
+<p><img alt="AIP Chatbot Studio edit view, highlighting option to change the input placeholder and suggested prompts." src="../../_resources/foundry/chatbot-studio/conversation-starters.png" /></p>
+<h3>Save, view, and publish an AIP Chatbot</h3>
+<p>Once you have configured your AIP Chatbot, you can save your progress by using <strong>Save</strong> at the top right of the interface. You can add a description to your saved version by using the down arrow icon next to the <strong>Save</strong> option.</p>
+<p>To view your AIP Chatbot in action in the perspective of an end-user interaction, use <strong>View</strong> and select the desired version.</p>
+<p>When you are ready to deploy your AIP Chatbot, select <strong>Publish</strong> to make your chatbot available for use in production environments. You can also publish your <a href="https://www.palantir.com/docs/foundry/chatbot-studio/chatbots-as-functions/">chatbot as a function</a> by selecting the configuration icon next to the <strong>Publish</strong> option. This allows you to run your chatbot via <a href="https://www.palantir.com/docs/foundry/automate/getting-started/">AIP Automate</a> and AIP Evals.</p>
+<p><img alt="AIP Chatbot Studio save, view, and publish options." src="../../_resources/foundry/chatbot-studio/save-view-publish.png" /></p>
+<h3>Track AIP Chatbot feedback and usage</h3>
+<p>You can monitor the performance and usage of your chatbot through the <strong>Monitoring</strong> and <strong>Usage</strong> tabs, where you can see metrics and feedback from users. Feedback data is received from users giving thumbs-up or thumbs-down signs to the chatbot from a conversation.</p>
+<p>Use in <a href="https://www.palantir.com/docs/foundry/threads/getting-started/#aip-chatbot-mode">AIP Threads</a>, <a href="https://www.palantir.com/docs/foundry/workshop/widgets-aip-chatbot/#configure-the-aip-chatbot">Workshop</a>, <a href="#save-view-and-publish-an-aip-chatbot">view mode</a>, or <a href="https://www.palantir.com/docs/foundry/ontology-sdk/overview/">OSDK</a> with <a href="https://www.palantir.com/docs/foundry/developer-console/create-application/">Developer Console</a> and <a href="https://www.palantir.com/docs/foundry/api/aip-agents-v2-resources/agents/agent-basics/">platform APIs</a>.</p>
+<p><img alt="AIP Chatbot Studio edit mode usage tab." src="../../_resources/foundry/chatbot-studio/usage-tab.png" /></p>
+</body>
+</html>

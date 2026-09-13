@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Security and governance</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Security and governance</h1>
+<p>Security and governance are built into AI FDE, since it operates entirely under your identity and permissions. AI FDE is not a separate service account or bot; it acts on your behalf using your existing Foundry session. Every action it takes is subject to the same permission checks, governance controls, and audit logging as any manual action you perform in Foundry.</p>
+<h2>Scoped to your permissions</h2>
+<p>When you use AI FDE, all operations are executed using your authenticated Foundry session. There is no separate credential, service account, or escalated privilege involved.</p>
+<p>AI FDE operates under the same permission constraints as your user account:</p>
+<ul>
+<li>If you do not have permission to create a repository, neither does AI FDE.</li>
+<li>If you cannot edit an object type or execute an action, neither can AI FDE.</li>
+<li>Permission errors are identical to what you would see if you performed the same operation manually.</li>
+</ul>
+<p>This applies to all capabilities, including OSDK application creation, ontology edits, dataset builds, and code repository operations.</p>
+<h2>User approval for sensitive actions</h2>
+<p>Beyond server-side permission enforcement, AI FDE implements a tool approval system that requires explicit user confirmation before executing mutating operations. Defaults are maximally conservative; nothing that could impact production workflows is auto-approved. You can also approve specific tools for the duration of a session, scoped to a branch or project where relevant.</p>
+<table>
+<thead>
+<tr>
+<th>Category</th>
+<th>Examples</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Requires approval every time</td>
+<td>Executing ontology actions, creating applications or widgets, publishing, or creating tags.</td>
+</tr>
+<tr>
+<td>Branch-aware approval</td>
+<td>File edits and dataset builds auto-approve on feature branches, but require approval on protected branches.</td>
+</tr>
+<tr>
+<td>Auto-approved</td>
+<td>Read-only operations such as searching and reading definitions.</td>
+</tr>
+</tbody>
+</table>
+<p>You remain in control of what the agent does. AI FDE cannot perform write operations without your consent, whether consent is given per-action or granted upfront for the session.</p>
+<h2>Session access and security</h2>
+<p>Each AI FDE session is only accessible to the user who created it. Sessions cannot be shared with or accessed by other users.</p>
+<p>When a new session is created, the markings you have access to are applied to that session. If you lose access to a marking that was applied to a session, access to the session will be lost. Regaining access to the marking will restore access to the session.</p>
+<h2>Audit logging and attribution</h2>
+<p>All activity is fully auditable through standard Foundry audit logs. Because every API call carries your identity, Foundry's platform-level audit logging captures all operations attributed to you, exactly as it would for manual actions. This includes repository operations, ontology changes, dataset builds, and all other platform interactions.</p>
+<p>LLM usage is also attributed to your individual user identity, ensuring that usage tracking and rate limiting apply per user.</p>
+<h2>Key takeaways</h2>
+<table>
+<thead>
+<tr>
+<th>Control</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Identity</td>
+<td>All actions are performed on your behalf using your credentials. There is no service account or separate identity.</td>
+</tr>
+<tr>
+<td>Permissions</td>
+<td>Standard Foundry permissions are enforced server-side on every operation.</td>
+</tr>
+<tr>
+<td>User approval</td>
+<td>Mutating actions require user consent, either confirmed per-action or through session-level pre-approval scoped to a branch or project.</td>
+</tr>
+<tr>
+<td>Session access</td>
+<td>Sessions are only accessible to user who created it and secured by the user's markings.</td>
+</tr>
+<tr>
+<td>Audit trail</td>
+<td>Logging through both AI FDE session logs and standard Foundry audit logs are fully in effect.</td>
+</tr>
+<tr>
+<td>LLM attribution</td>
+<td>Model usage is tracked to your individual account.</td>
+</tr>
+<tr>
+<td>Governance</td>
+<td>Existing Foundry governance including permissions, branching controls, and audits apply without exception.</td>
+</tr>
+</tbody>
+</table>
+<p>AI FDE is a productivity tool within your existing Foundry session and <strong>cannot</strong> exceed your permissions. All actions are logged under your identity, and the standard governance model applies in full effect.</p>
+</body>
+</html>

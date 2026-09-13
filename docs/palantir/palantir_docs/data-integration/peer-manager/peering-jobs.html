@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Peering jobs</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Peering jobs</h1>
+<p>Peer Manager sends data between <a href="https://www.palantir.com/docs/foundry/security/orgs-and-spaces/#spaces">spaces</a> using peering jobs. This page explains how to read the peering jobs table on a connection's <strong>Overview</strong> page, the difference between concurrent and sequential jobs, what each job status means, and how to filter the table to focus on the jobs you care about.</p>
+<h2>How a peering job works</h2>
+<p>Each peering job corresponds to a specific type of data sent in a single direction. Peer Manager enumerates all jobs for a connection in the connection's <strong>Overview</strong> page, where each row shows the job's type, status, producer, and the time it ran.</p>
+<p>Peer Manager uses two properties to describe a job's type:</p>
+<ul>
+<li><strong>Payload type:</strong> Denotes the kind of content the job carries. <strong>Data</strong> jobs transfer object, link, and file content, while <strong>ACK</strong> jobs carry the acknowledgments that confirm the remote system received previously sent data, along with metadata that synchronizes each system's view of their shared state, such as object type mapping configurations.</li>
+<li><strong>Direction:</strong> Denotes whether the job sends data from your enrollment (<strong>Export</strong>) or receives data from the remote enrollment (<strong>Import</strong>).</li>
+</ul>
+<p>Export jobs also display a sequencing value beneath the job type that indicates whether the job is <em>concurrent</em> or <em>sequential</em>, <a href="#job-types">as described below</a>. Import jobs display the sequencing of their corresponding export, but in practice all import jobs run concurrently.</p>
+<h2>Job types</h2>
+<p>Export jobs run in one of two sequencing modes: <em>concurrent</em> or <em>sequential</em>. Understanding the difference helps you interpret the health of a connection.</p>
+<h3>Concurrent</h3>
+<p>Concurrent jobs are real-time, on-demand exports. They fire whenever data is created or updated, and they run in parallel: a producer can run any number of concurrent jobs at the same time. Concurrent jobs are the fast path that keeps a connection up to date during steady-state peering.</p>
+<p>Concurrent jobs carry both <strong>Data</strong> payloads, which are real-time object, link, and file changes, and <strong>Acknowledgement</strong>, or <strong>Ack</strong>, payloads, which are the acknowledgments a system sends back immediately after importing data, confirming receipt so the sender stops resending. A concurrent <strong>Ack</strong> job is the fast path for confirming a transfer, just as a concurrent <strong>Data</strong> job is the fast path for sending one. You can identify these immediate acknowledgments in the <strong>Jobs</strong> table by their <strong>Ack</strong> payload type combined with <strong>Concurrent</strong> sequencing.</p>
+<p><img alt="The Jobs table in Peer Manager displays concurrent Acks." src="../../_resources/foundry/peer-manager/peering-job-acks.png" /></p>
+<h3>Sequential</h3>
+<p>Sequential jobs are periodic, catch-up batch jobs that run one at a time for a given relationship: a producer runs only one sequential job at a time per relationship. They exist to backfill anything the real-time path missed, such as a concurrent export that failed or a backlog that built up while the connection was unavailable. Because sequential jobs for a relationship run one after another, a large sequential job blocks the next sequential job for that relationship until it completes.</p>
+<h2>Job statuses</h2>
+<p>Each job displays a status that reflects where it is in its lifecycle. The following table describes the statuses displayed in the jobs table.</p>
+<table>
+<thead>
+<tr>
+<th>Status</th>
+<th>What it means</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Collecting data</strong></td>
+<td>The producer is gathering all data that the remote system has not yet acknowledged and packaging it for transfer. See <a href="#time-spent-collecting-data">Time spent collecting data</a> below.</td>
+</tr>
+<tr>
+<td><strong>Exporting</strong></td>
+<td>The export is being generated on your enrollment and prepared for transfer.</td>
+</tr>
+<tr>
+<td><strong>Saving</strong></td>
+<td>The export payload is being written to storage before it is transferred.</td>
+</tr>
+<tr>
+<td><strong>Ready to download</strong></td>
+<td>The export has been generated and is ready to be manually downloaded. This status applies to <a href="https://www.palantir.com/docs/foundry/peer-manager/establish-data-relay-connection/">data relay connections</a>, where an export is downloaded and transferred over a cross-domain solution rather than pulled directly by the remote system.</td>
+</tr>
+<tr>
+<td><strong>Awaiting pull</strong></td>
+<td>The export is saved and waiting for the remote system to pull it. The transfer begins once the remote system finishes any in-progress transfers and initiates a pull.</td>
+</tr>
+<tr>
+<td><strong>Empty</strong></td>
+<td>The job ran but transferred no data and no acknowledgments. See <a href="#empty-jobs">Empty jobs</a> below.</td>
+</tr>
+<tr>
+<td><strong>Failed</strong></td>
+<td>The job did not complete. Peer Manager displays a detailed error message for the stage at which the job failed, along with a <strong>Copy error instance ID</strong> option that you can share with Palantir Support to assist in troubleshooting.</td>
+</tr>
+</tbody>
+</table>
+<p>Import jobs progress through equivalent receiving stages as data arrives from the remote system and is handed off to your enrollment.</p>
+<h3>Time spent collecting data</h3>
+<p>Sequential jobs may remain in the <strong>Collecting data</strong> status longer than other downstream statuses. This may occur because the peer producer carries the backlog of all data the remote system has not yet acknowledged. When a sequential job runs, it gathers everything that accumulated since the last successful transfer, such as the initial data sent during the first synchronization, or everything that built up while real-time peering was failing or the connection was unavailable.</p>
+<p>A common cause of a long collecting phase is a data backlog. For example, when you enable peering for new object types across a connection, Peer Manager sends their history through sequential jobs, which require a longer duration to complete.</p>
+<p>:::callout{theme="neutral" title="Note"}
+Occasional large <strong>Collecting data</strong> phases are expected during initial synchronization or after downtime. However, if sequential jobs consistently remain in that phase to collect large amounts of data, this indicates that real-time peering is falling behind or more data is being generated than the current configuration can keep up with. Review the connection for repeated export failures.
+:::</p>
+<h2>Empty jobs</h2>
+<p>Empty jobs transfer zero data and no acknowledgments, and they occur when a scheduled sequential job runs and finds nothing to transfer.</p>
+<p>Empty jobs are harmless and expected. Their presence is a healthy sign, because it means concurrent, real-time peering is keeping up and is not encountering failures that require retries. You do not need to take any action on empty jobs, and Peer Manager hides them by default from the <strong>Jobs</strong> table.</p>
+<h2>Filter the jobs table</h2>
+<p>Use the available <strong>Filters</strong> to limit the jobs displayed in the <strong>Jobs</strong> table:</p>
+<ul>
+<li><strong>Search by:</strong> Find a specific job by its job ID.</li>
+<li><strong>Direction:</strong> Show only <strong>Export</strong> or <strong>Import</strong> jobs.</li>
+<li><strong>Payload type:</strong> Show only <strong>Data</strong> or <strong>Ack</strong> jobs.</li>
+<li><strong>Sequencing:</strong> Show only <strong>Concurrent</strong> or <strong>Sequential</strong> jobs.</li>
+<li><strong>Producer:</strong> Show only jobs from a specific producer.</li>
+<li><strong>Status:</strong> Show only jobs with the selected statuses. <strong>Empty</strong> jobs are hidden by default; use this filter to show them or to focus only on jobs that transferred data.</li>
+<li><strong>Time:</strong> Show only jobs that ran during a selected time range. A job matches if it ran at some point during the range.</li>
+</ul>
+<p>Select <strong>Reset all filters</strong> to clear every filter and return to the full list of jobs.</p>
+<h2>Interpret connection health</h2>
+<p>Peer Manager computes the health shown for a connection from its most recent non-empty jobs, so empty jobs do not affect the health indicator.</p>
+<p>Follow the heuristics below to assess your connection's health:</p>
+<ul>
+<li><strong>Concurrent jobs are the steady-state path.</strong> When real-time peering is keeping up, most transfers happen through concurrent as opposed to sequential jobs. This indicates there is not a significant backlog for multiple long-running sequential jobs to transfer.</li>
+<li><strong>Sequential jobs reveal backlog.</strong> Small, short, or empty sequential jobs indicate a healthy connection. Sequential jobs that consistently collect large amounts of data indicate that real-time peering is falling behind, or that more data is being generated than the current configuration can keep up with.</li>
+<li><strong>Failed jobs need attention.</strong> Investigate any <strong>Failed</strong> jobs using the error message and the error instance ID that Peer Manager provides.</li>
+</ul>
+</body>
+</html>

@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Navigation</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Navigation</h1>
+<p>To make the best use of the Data Lineage application, you will need to know how to navigate the graphs, use tools, and configure branch and graph properties. The following numbered sections correspond to the numbers on the screenshot below:</p>
+<ol>
+<li><a href="#lineage-graph">Lineage graph</a></li>
+<li><a href="#branch-settings">Branch settings</a></li>
+<li><a href="#side-panel">Side panel</a>
+   * <a href="#search-and-browse">Search &amp; Browse</a>
+   * <a href="#properties-and-histogram">Properties and Histogram</a>
+   * <a href="#manage-builds">Manage Builds</a>
+   * <a href="#manage-schedules">Manage Schedules</a>
+   * <a href="#related-artifacts">Related Artifacts</a></li>
+<li><a href="#node-details">Node details panel</a></li>
+<li><a href="#graph-tools">Graph tools</a></li>
+<li><a href="#save-graph">Save graph</a></li>
+</ol>
+<p><img alt="Data Lineage" src="../../_resources/foundry/data-lineage/data-lineage-ui-reference.png" /></p>
+<h2>Lineage graph</h2>
+<p>The graph is your workspace for arranging and manipulating nodes as you explore your data pipeline.</p>
+<p>After adding nodes to the graph, you can add their related resources by clicking on the arrows on either side of the node or by using the <strong>Expand</strong> option in the <a href="#graph-tools">graph tools</a>.</p>
+<p>Nodes are arranged with auto-layout by default, but you can rearrange nodes manually by clicking and dragging them. To re-enable auto-layout, choose <strong>Layout all nodes</strong> under the <strong>Layout</strong> option in the <a href="#graph-tools">graph tools</a>.</p>
+<p>Click and drag to pan around the graph when in the default <strong>Panning mode</strong>. To use the cursor to select multiple nodes, switch to <strong>Drag select</strong> mode in the <a href="#graph-tools">graph tools</a> or hold <code>Shift</code> while clicking and dragging. You can select a node by clicking it, or select multiple nodes with <code>Ctrl/Cmd</code> + click.</p>
+<h2>Branch settings</h2>
+<p>Select a branch from the list to explore data pipelines in that branch. The graph and any of the other helpers would show information based on the selected branch. If the branch does not exist for a resource, the listed fallback branches would be used instead (in the order they appear on the list).</p>
+<p>To learn more about branching, see the <a href="https://www.palantir.com/docs/foundry/data-integration/branching/">branching documentation.</a></p>
+<h2>Side panel</h2>
+<h3>Search and browse</h3>
+<p>Use the search helper to find Foundry resources and add them to the graph. Use the free-text search or browse the tree to find resources. Add a resource by clicking on it or use the buttons at the bottom of the view to add all search results (including or excluding the content of sub-folders). Use the <strong>Advanced</strong> tab to add filters to your search and sort your results.</p>
+<p>:::callout{theme="warning" title="Warning"}
+When viewing a folder with subfolders, you can recursively add <em>all</em> tables in all subfolders to the graph. Adding too many nodes at once may effect the graph's performance.
+:::</p>
+<h3>Properties and histogram</h3>
+<p>When you select a single node on the graph, the properties helper shows you the details of the resource. Depending on the type of resource you select, the properties helper shows available Foundry apps under the <strong>Actions</strong> menu and other links and actions (reporting issues, adding descriptions, etc.).</p>
+<p>When you select multiple nodes on the graph, you will see the histogram helper. The helper displays common properties and their values alongside the number of appearances of each value on the graph. By clicking on the values, the matching nodes are highlighted. If you want to drill down to just those resources, click on <strong>Update selection.</strong></p>
+<p><img src="../../_resources/external-a55503a8a4ba.png" alt="View histogram" width="400" /></p>
+<p>:::callout{theme="success"}
+Use the <strong>Copy names</strong> button in the histogram to copy the names of all currently selected resources. The full names (including path) are copied to the clipboard as a comma-separated list.
+:::</p>
+<h3>Manage builds</h3>
+<p>The builds helper offers you three build strategies:</p>
+<ul>
+<li>Build only selected datasets</li>
+<li>Build all datasets between the selected datasets</li>
+<li>Build the selected datasets and all of their ancestors</li>
+</ul>
+<p><a href="https://www.palantir.com/docs/foundry/data-lineage/build-datasets/">Learn more about managing builds.</a></p>
+<h3>Manage schedules</h3>
+<p>The schedules helper allows you to set and edit build schedules for selected resources on the graph.
+<a href="https://www.palantir.com/docs/foundry/building-pipelines/scheduling-overview/">Learn more about build schedules.</a>.</p>
+<p>:::callout
+When viewing and creating schedules in Data Lineage, the schedules apply to the branches (including fallback branches) configured in the graph.
+:::</p>
+<h3>Related artifacts</h3>
+<p>The related artifacts helper displays artifacts directly linked to the nodes selected on the graph. Deleted and automatically saved files are excluded from the list unless chosen otherwise. You can also get to the same list of related artifacts by hovering over the right arrow of each node on the graph.</p>
+<h2>Node details</h2>
+<p>Click on a node to see more details:</p>
+<ul>
+<li><strong>Preview:</strong> A sample of the data in the selected dataset.</li>
+<li><strong>History:</strong> An overview of dataset change history. The overview includes tabs for logs, files, metadata, schema and job specifications.</li>
+<li><strong>Code:</strong> If code was used to generate the dataset, it will display here</li>
+<li><strong>Data Health:</strong> All the <a href="https://www.palantir.com/docs/foundry/health-checks/overview/">health checks</a> set on the selected datasets.</li>
+<li><strong>Build timelines:</strong> A Gantt chart of actual build time for the selected datasets.</li>
+</ul>
+<h2>Graph tools</h2>
+<p>The graph tools provide a set of graph exploration, navigation, and customization capabilities:</p>
+<ul>
+<li><a href="#node-coloring">Node coloring</a></li>
+<li><a href="#layout">Layout</a></li>
+<li><a href="#expand">Expand</a></li>
+<li><a href="#find">Find</a></li>
+<li><a href="#selection">Selection</a></li>
+</ul>
+<h3>Node coloring</h3>
+<p>You can color the nodes on your lineage graph by several properties and metrics. Node coloring is commonly used to communicate lineage structure, troubleshoot issues, monitor pipelines health, and manage builds. You can also create your own custom coloring and arrange the graph based on the colors you assigned.</p>
+<p><a href="https://www.palantir.com/docs/foundry/data-lineage/node-coloring/">Read more about node coloring options.</a></p>
+<p>:::callout{theme="success"}
+You can arrange your nodes on the graph by color group under <strong>Layouts</strong>.
+:::</p>
+<h3>Layout</h3>
+<p>The layout button provide various arrangement option for the nodes on the graph.
+<strong>Layout all nodes</strong> applies automatic layout for all the nodes on the graphs. When you select multiple nodes on the graph, you can apply other layouts (vertical, hierarchical, by level, etc.).</p>
+<p>:::callout{theme="success"}
+You can use various useful keyboard shortcuts in the lineage graph. View the full list under the <strong>Keyboard shortcuts</strong> button at the top right corner of the app.
+:::</p>
+<h3>Expand</h3>
+<p>Use the <strong>Expand</strong> tool to expose ancestors and descendants of nodes in the graph. <a href="https://www.palantir.com/docs/foundry/data-lineage/explore-lineage/">Learn more about exploring data lineage.</a>.</p>
+<h3>Find</h3>
+<p>Use <strong>Find</strong> to search for nodes on the graph. You can either search for the name of the node or column names in datasets.</p>
+<h3>Selection</h3>
+<p>The <strong>Selection</strong> tool allows you to easily select nodes on the graph:</p>
+<ul>
+<li><strong>Select All:</strong> Selects all the nodes currently on the graph.</li>
+<li><strong>Invert selection:</strong> De-selects all currently selected nodes and selects the rest of the nodes on the graph.</li>
+<li><strong>Select children:</strong> Adds all the direct children of the currently selected nodes to your selection</li>
+<li><strong>Select parents:</strong> Adds all the direct parents of the currently selected nodes to your selection.</li>
+</ul>
+<h2>Save graph</h2>
+<p>You can save and share your lineage graph with other Foundry users in the following ways:</p>
+<ul>
+<li><strong>Save / Open:</strong> Save your Data Lineage graph and re-open it by clicking on <strong>Open graph</strong>.</li>
+<li><strong>Get quick share link:</strong> Generates a shareable link that provides read-only access to your graph.</li>
+<li><strong>Export graph to SVG:</strong> Generates a static image of your lineage graph.</li>
+</ul>
+<p>:::callout
+Your branch choice is saved with your saved graph. If you load a graph with a different branch configuration than you currently have, you will be asked if you would like to switch branches to the saved branch configuration.
+:::</p>
+</body>
+</html>

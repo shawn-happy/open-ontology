@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Inline edits</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Inline edits</h1>
+<p>Action-backed inline edits are validated and submitted differently than standard <a href="https://www.palantir.com/docs/foundry/action-types/getting-started/">actions</a>. For standard actions, multiple parameters need to be set in order for the action to be valid. However, for action-backed inline edits, every parameter is optional and defaults to the existing value of the object, so a user can make individual changes to properties one at a time.</p>
+<p>This documentation discusses how to avoid unexpected results when using inline edits. Inline edits are available in both Workshop and Object Explorer. The configuration of the inline edit action depends on where the action is used.</p>
+<h2>Object Explorer inline edits</h2>
+<p>Inline edits allow users to quickly edit values of an object in the <a href="https://www.palantir.com/docs/foundry/object-explorer/view-results/">Object Explorer results view</a> or native Object View widgets, like the property or metric cards widget.</p>
+<h3>Configuration</h3>
+<p><img alt="Inline edit action configuration" src="../../_resources/foundry/action-types/inline-action-configuration.png" /></p>
+<p>To set up an inline edit action, navigate to the <strong>Properties</strong> tab of your object type and then to the <strong>Interaction</strong> tab in Ontology Manager. Select a property and navigate to <strong>Inline edit</strong> in the sidebar. In the dropdown menu, select one of the available action types or create a new one. Creating a new one will trigger the action type creation workflow. Each property can have only one inline edit action type.</p>
+<p>You can use the same action type as an inline edit for multiple properties, or you can have separate action types for different properties.</p>
+<h4>Action type requirements for inline edits</h4>
+<p>Not all action types can be used as inline edit action types. To be accepted, the action type must meet the following requirements:</p>
+<ul>
+<li>May only modify a single object of a single object type.</li>
+<li>Default values must be enabled.</li>
+<li>Default values must come from the object reference parameter on which the inline action is defined. As a result, properties that are being changed in the action cannot be mapped to static values or special values like "Current User" or "Current Time".</li>
+<li>Visibility status and overrides can be set; however, they will be ignored if the inline edit is used in Object Explorer and Object Views.</li>
+<li><a href="https://www.palantir.com/docs/foundry/action-types/webhooks/#webhooks-writeback-vs-side-effect">Side effect webhooks</a> or <a href="https://www.palantir.com/docs/foundry/action-types/notifications/">side effect notifications</a> cannot be enabled.</li>
+</ul>
+<h2>Workshop inline edits</h2>
+<p>No additional configuration is required to use an action type as an inline edit in Workshop, but not all actions are suitable for cell-level editing. For information on how to configure inline edits, see the <a href="https://www.palantir.com/docs/foundry/workshop/widgets-object-table/#inline-edits-cell-level-writeback">Workshop documentation</a>.</p>
+<h3>Background</h3>
+<p>When running a single action, edits are validated and submitted one at a time (sequentially). Inline edits differ in that they are validated and submitted in bulk. Because of this, not all actions are suitable for inline edits. Actions that may fail or have unexpected results due to inline edits include:</p>
+<ul>
+<li>Any action that attempts to read data to which another action could have written, or</li>
+<li>Two actions that try to write to the same object.</li>
+</ul>
+<p>:::callout{theme="neutral"}
+When inline edits are applied to a <a href="https://www.palantir.com/docs/foundry/workshop/scenarios-overview/">Scenario</a>, the submitted actions are applied sequentially (in a non-deterministic order) rather than simultaneously (as is normally the case with inline edits). As a result, inline edit actions that ordinarily fail due to multiple actions trying to write to the same object may succeed when applied to a scenario, though we do not recommend building applications that depend upon this difference in behavior.
+:::</p>
+<h3>Valid inline Actions</h3>
+<p>Actions must submit non-conflicting edits to be effective as Action-backed inline edits. In practice, this means multiple Actions configured in the same table edit widget must not:</p>
+<ul>
+<li>Write to the same object,</li>
+<li>Create the same link, or</li>
+<li>Attempt to keep aggregate values consistent.</li>
+</ul>
+<h3>Invalid inline Actions</h3>
+<p><strong>Actions will return an error if an inline edit attempts to edit the same object twice.</strong> Also, adding or deleting join table links is not supported by inline edits and will result in a user-facing error message.</p>
+<p>As users apply inline edits, <a href="https://www.palantir.com/docs/foundry/action-types/submission-criteria/">submission criteria</a> will be applied to each edit, but the edits will be submitted in bulk. Both parameter and global submission criteria will be evaluated for each edited object, but submission criteria that reference shared or linked objects are not compatible with inline edits. This is because when applying inline edits, cumulative submission criteria compare the edited value to the unedited values for the column. At final submission, the edits will be submitted all at once and will succeed if they all pass parameter and global submission criteria for the corresponding object.</p>
+<p>Submission criteria on objects shared between multiple Action types or linked objects are therefore evaluated once per edit, before any edits are made.</p>
+<p>:::callout{theme="warning"}
+Submission criteria that reference shared Action types or linked objects are not compatible with inline edits, and bulk updating objects could violate submission criteria rules that work as expected when applied sequentially (one at a time).
+:::</p>
+<h4>Example: Invalid inline Actions</h4>
+<p>Imagine a <code>Delay Flight</code> Action that can delay a single flight by a maximum of 20 minutes at an airport that can delay all flights by a maximum of 50 minutes.</p>
+<ul>
+<li>Both submission criteria â the 20 minute requirement and the 50 minute total â  will be evaluated each time a cell is updated.</li>
+<li>Because no edits are yet submitted, the 50 minute total will compare the new delays to the sum of unedited delays in the column (the delays from before inline editing began).</li>
+<li>The second submission criteria (that all the delays at the airport sum to less than 50 minutes) relies on an aggregated value and is shared by all the objects in the column.</li>
+<li>Since inline edits are submitted in bulk, this second submission criteria will not be effective in limiting the total duration of flight delays at a given airport; the resulting edits could sum to greater than the 50 allowed by the second submission criteria.</li>
+<li>This Action would not be suitable for table editing as it would cause inconsistent results compared to running the Action individually for each cell.</li>
+</ul>
+</body>
+</html>

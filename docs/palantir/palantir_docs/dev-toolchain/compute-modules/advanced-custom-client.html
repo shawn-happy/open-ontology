@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Create a custom compute module client (Advanced)</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Create a custom compute module client (Advanced)</h1>
+<h2>Why do I need a client?</h2>
+<p>If you are writing a compute module in a supported language (Python, Java, or TypeScript) and <a href="https://www.palantir.com/docs/foundry/compute-modules/get-started/#build-a-compute-module-backed-function">use our available SDK</a>, you do not need to manually create client logic.</p>
+<p>However, if you are not using the SDK or need to build a compute module using a language that is not currently supported, you must create a compute module client yourself using the process explained below.</p>
+<h2>Custom client responsibilities</h2>
+<p>A compute module client manages the execution of the logic within a compute module and handles three primary responsibilities:</p>
+<h3>Post the function schema of your compute module (optional)</h3>
+<p>Before starting the main execution cycle of the client, we recommend publishing the schema of your compute module function(s). This exposes the schema of your compute module to the rest of Foundry. Alternatively, you can define this function schema manually in the <strong>Functions</strong> tab of your compute module.</p>
+<p>For more information review our documentation on <a href="https://www.palantir.com/docs/foundry/compute-modules/functions/#automatic-function-schema-inference">automatic function schema inference</a>.</p>
+<h3>Poll for new jobs</h3>
+<p>The client polls the internal compute module service continuously for new jobs that must be processed. If a job is present, the client will find the function corresponding to that job and call that function with the associated payload.</p>
+<h3>Post the result (output) of the compute module</h3>
+<p>Once a function completes and returns the result to the client, the client is responsible for reporting that output back to the compute module service.</p>
+<p>Below is a simple visual representation of a compute module client execution lifecycle:</p>
+<p><img alt="The execution cycle for a compute module client." src="../../_resources/foundry/compute-modules/cm-arch-diagram.png" /></p>
+<h2>API reference</h2>
+<p>:::callout{theme="warning"}
+You may see 'connection refused' errors when first attempting to send HTTP requests to the internal compute module service. This is expected behavior during startup and can be fixed with a retry after a short sleep period.
+:::</p>
+<h2><code>GET</code> job</h2>
+<h3>Variables</h3>
+<p><strong>MODULE_AUTH_TOKEN</strong> <code>string</code></p>
+<ul>
+<li>Review our <a href="https://www.palantir.com/docs/foundry/compute-modules/containers/#environment-variables">environment variables</a> documentation for more information.</li>
+</ul>
+<p><strong>DEFAULT_CA_PATH</strong> <code>string</code></p>
+<ul>
+<li>Review our <a href="https://www.palantir.com/docs/foundry/compute-modules/containers/#environment-variables">environment variables</a> documentation for more information.</li>
+</ul>
+<p><strong>GET_JOB_URI</strong> <code>string</code></p>
+<ul>
+<li>Review our <a href="https://www.palantir.com/docs/foundry/compute-modules/containers/#environment-variables">environment variables</a> documentation for more information.</li>
+</ul>
+<h4>Expected status codes</h4>
+<ul>
+<li><strong>200:</strong> A new job to be processed exists.</li>
+<li><strong>204:</strong> No new jobs to be processed exist.</li>
+</ul>
+<pre><code>curl --header &quot;Module-Auth-Token: $MODULE_AUTH_TOKEN&quot; \
+    --cacert $DEFAULT_CA_PATH \
+    --request GET \
+    $GET_JOB_URI
+</code></pre>
+<h4>Response parameters</h4>
+<p><strong>jobId</strong> <code>string</code></p>
+<ul>
+<li>The unique identifier for the given job to be processed.</li>
+</ul>
+<p><strong>queryType</strong> <code>string</code></p>
+<ul>
+<li>The name of the function to be invoked.</li>
+</ul>
+<p><strong>query JSON</strong> <code>object</code></p>
+<ul>
+<li>The payload to be passed to the function.</li>
+</ul>
+<p><strong>temporaryCredentialsAuthToken</strong> <code>string</code></p>
+<ul>
+<li>A temporary token that is used with the Foundry data sidecar.</li>
+</ul>
+<p><strong>authHeader</strong> <code>string</code></p>
+<ul>
+<li>The Foundry authorization token that can be used to call other services within Foundry.</li>
+<li>Only available in certain modes.</li>
+</ul>
+<pre><code class="language-json">{
+    &quot;computeModuleJobV1&quot;: {
+        &quot;jobId&quot;: &quot;9a2a1e94-41d3-47d7-807f-db2f4c547b9c&quot;,
+        &quot;queryType&quot;: &quot;multiply&quot;,
+        &quot;query&quot;: {
+            &quot;n&quot;: 4.0
+        },
+        &quot;temporaryCredentialsAuthToken&quot;: &quot;token-data&quot;,
+        &quot;authHeader&quot;: &quot;auth-header&quot;
+    }
+}
+</code></pre>
+<h2><code>POST</code> result</h2>
+<h3>Variables</h3>
+<p><strong>result_data</strong> <code>octet-stream</code></p>
+<ul>
+<li>The result returned from your compute module function.</li>
+</ul>
+<p><strong>jobId</strong> <code>string</code></p>
+<ul>
+<li>The <code>jobId</code> provided from the corresponding <code>GET</code> job request.</li>
+</ul>
+<p><strong>MODULE_AUTH_TOKEN</strong> <code>string</code></p>
+<ul>
+<li>Review our <a href="https://www.palantir.com/docs/foundry/compute-modules/containers/#environment-variables">environment variables</a> documentation for more information.</li>
+</ul>
+<p><strong>DEFAULT_CA_PATH</strong> <code>string</code></p>
+<ul>
+<li>Review our <a href="https://www.palantir.com/docs/foundry/compute-modules/containers/#environment-variables">environment variables</a> documentation for more information.</li>
+</ul>
+<p><strong>POST_RESULT_URI</strong> <code>string</code></p>
+<ul>
+<li>Review our <a href="https://www.palantir.com/docs/foundry/compute-modules/containers/#environment-variables">environment variables</a> documentation for more information.</li>
+</ul>
+<h4>Expected status codes</h4>
+<ul>
+<li><strong>204:</strong> The request was accepted.</li>
+</ul>
+<h4>Response parameters</h4>
+<p>None</p>
+<pre><code>curl --header &quot;Content-Type: application/octet-stream&quot; \
+    --header &quot;Module-Auth-Token: $MODULE_AUTH_TOKEN&quot; \
+    --cacert $DEFAULT_CA_PATH \
+    --request POST \
+    --data $result_data \
+    $POST_RESULT_URI/$jobId
+</code></pre>
+<h2><code>POST</code> function schema</h2>
+<h3>Variables</h3>
+<p><strong>schema_data</strong> <code>JSON array</code></p>
+<ul>
+<li>The schema of your compute module function(s) in JSON format.</li>
+</ul>
+<p><strong>MODULE_AUTH_TOKEN</strong> <code>string</code></p>
+<ul>
+<li>Review our <a href="https://www.palantir.com/docs/foundry/compute-modules/containers/#environment-variables">environment variables</a> documentation for more information.</li>
+</ul>
+<p><strong>DEFAULT_CA_PATH</strong> <code>string</code></p>
+<ul>
+<li>Review our <a href="https://www.palantir.com/docs/foundry/compute-modules/containers/#environment-variables">environment variables</a> documentation for more information.</li>
+</ul>
+<p><strong>POST_SCHEMA_URI</strong> <code>string</code></p>
+<ul>
+<li>Review our <a href="https://www.palantir.com/docs/foundry/compute-modules/containers/#environment-variables">environment variables</a> documentation for more information.</li>
+</ul>
+<h3>Expected status codes</h3>
+<p><strong>204:</strong> The request was accepted.</p>
+<h3>Response parameters</h3>
+<p>None</p>
+<pre><code>curl --header &quot;Content-Type: application/json&quot; \
+    --header &quot;Module-Auth-Token: $MODULE_AUTH_TOKEN&quot; \
+    --cacert $DEFAULT_CA_PATH \
+    --request POST \
+    --data $schema_data \
+    $POST_SCHEMA_URI
+</code></pre>
+<h2>Python example</h2>
+<p>app.py</p>
+<pre><code class="language-python">import json
+import logging as log
+import os
+import socket
+import time
+
+import requests
+
+log.basicConfig(level=log.INFO)
+
+certPath = os.environ[&quot;DEFAULT_CA_PATH&quot;]
+
+with open(os.environ[&quot;MODULE_AUTH_TOKEN&quot;], &quot;r&quot;) as f:
+    moduleAuthToken = f.read()
+
+ip = socket.gethostbyname(socket.gethostname())
+
+getJobUri = f&quot;https://{ip}:8945/interactive-module/api/internal-query/job&quot;
+postResultUri = f&quot;https://{ip}:8945/interactive-module/api/internal-query/results&quot;
+postSchemaUri = f&quot;https://{ip}:8945/interactive-module/api/internal-query/schemas&quot;
+
+SCHEMAS = [
+    {
+        &quot;functionName&quot;: &quot;multiply&quot;,
+        &quot;inputs&quot;: [
+            {
+                &quot;name&quot;: &quot;n&quot;,
+                &quot;dataType&quot;: {&quot;float&quot;: {}, &quot;type&quot;: &quot;float&quot;},
+                &quot;required&quot;: True,
+                &quot;constraints&quot;: [],
+            },
+        ],
+        &quot;output&quot;: {
+            &quot;single&quot;: {
+                &quot;dataType&quot;: {
+                    &quot;float&quot;: {},
+                    &quot;type&quot;: &quot;float&quot;,
+                }
+            },
+            &quot;type&quot;: &quot;single&quot;,
+        },
+    },
+    {
+        &quot;functionName&quot;: &quot;divide&quot;,
+        &quot;inputs&quot;: [
+            {
+                &quot;name&quot;: &quot;n&quot;,
+                &quot;dataType&quot;: {&quot;float&quot;: {}, &quot;type&quot;: &quot;float&quot;},
+                &quot;required&quot;: True,
+                &quot;constraints&quot;: [],
+            },
+        ],
+        &quot;output&quot;: {
+            &quot;single&quot;: {
+                &quot;dataType&quot;: {
+                    &quot;float&quot;: {},
+                    &quot;type&quot;: &quot;float&quot;,
+                }
+            },
+            &quot;type&quot;: &quot;single&quot;,
+        },
+    },
+]
+
+
+# Gets a job from the compute module service. Jobs are only present when
+# the status code is 200. If status code 204 is returned, try again.
+# This endpoint has long-polling enabled, and may be called without delay.
+def getJobBlocking():
+    while True:
+        response = requests.get(getJobUri, headers={&quot;Module-Auth-Token&quot;: moduleAuthToken}, verify=certPath)
+        if response.status_code == 200:
+            return response.json()
+        elif response.status_code == 204:
+            log.info(&quot;No job found, trying again!&quot;)
+
+
+# Process the query based on type
+def get_result(query_type, query):
+    if query_type == &quot;multiply&quot;:
+        return float(query[&quot;n&quot;]) * 2
+    elif query_type == &quot;divide&quot;:
+        return float(query[&quot;n&quot;]) / 2
+    else:
+        log.info(f&quot;Unknown query type: {query_type}&quot;)
+
+
+# Posts job results to the compute module service. All jobs received must have a result posted,
+# otherwise new jobs may not be routed to this worker.
+def postResult(jobId, result):
+    response = requests.post(
+        f&quot;{postResultUri}/{jobId}&quot;,
+        data=json.dumps(result).encode(&quot;utf-8&quot;),
+        headers={&quot;Module-Auth-Token&quot;: moduleAuthToken, &quot;Content-Type&quot;: &quot;application/octet-stream&quot;},
+        verify=certPath,
+    )
+    if response.status_code != 204:
+        log.info(f&quot;Failed to post result: {response.status_code}&quot;)
+
+
+# Posts the schema of this compute module's function(s) to the compute module service.
+# This only needs to be called 1 time, thus we call it before entering the main loop.
+def postSchema():
+    num_tries = 0
+    success = False
+    while not success and num_tries &lt; 5:
+        try:
+            response = requests.post(
+                postSchemaUri,
+                json=SCHEMAS,
+                headers={&quot;Module-Auth-Token&quot;: moduleAuthToken, &quot;Content-Type&quot;: &quot;application/json&quot;},
+                verify=certPath,
+            )
+            success = True
+            log.info(f&quot;POST schema status: {response.status_code}&quot;)
+            log.info(f&quot;POST schema text: {response.text} reason: {response.reason}&quot;)
+        except Exception as e:
+            log.error(f&quot;Exception occurred posting schema: {e}&quot;)
+            time.sleep(2**num_tries)
+            num_tries += 1
+
+
+postSchema()
+
+# Try forever
+while True:
+    try:
+        job = getJobBlocking()
+        v1 = job[&quot;computeModuleJobV1&quot;]
+        job_id = v1[&quot;jobId&quot;]
+        query_type = v1[&quot;queryType&quot;]
+        query = v1[&quot;query&quot;]
+        result = get_result(query_type, query)
+        postResult(job_id, result)
+    except Exception as e:
+        log.info(f&quot;Something failed {str(e)}&quot;)
+        time.sleep(1)
+</code></pre>
+</body>
+</html>

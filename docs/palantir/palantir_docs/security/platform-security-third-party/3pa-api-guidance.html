@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Foundry third-party application & API guidance</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Foundry third-party application &amp; API guidance</h1>
+<p>Foundryâs third-party application authentication and authorization features enable non-Foundry applications and scripts to interact securely with Foundryâs APIs. The core of these features is OAuth2 support for external applications.
+This document provides guidance of how Palantir recommends these features to be used, as well as examples of potentially inappropriate uses.</p>
+<p>:::callout{theme="warning"}
+By authorizing third-party applications and APIs, users agree to follow the appropriate use terms as mutually agreed to in writing between Palantir and the customer. Contact your Palantir representative if you have any questions regarding your intended use or if you are unsure whether your plans are appropriate, safe, or secure.
+:::</p>
+<h2>Appropriate uses</h2>
+<ul>
+<li><strong>Replacing service user accounts</strong></li>
+<li>The OAuth2 Authorization Code Flow allows external applications to act on behalf of an individual Foundry user. This ensures that permissions are correct and that there is a clear audit path. Using the OAuth2 flow also ensures that the user has explicitly granted the application access to take actions on their behalf, again providing a clear audit path.</li>
+<li>We strongly recommend that existing applications that use a service account to perform actions in Foundry move to the OAuth2 Authorization flow where possible.</li>
+<li><strong>Interfacing with external systems</strong></li>
+<li><em>Example: An application that watches for changes in an internal customer system and performs actions in the Foundry Ontology.</em></li>
+<li><strong>Custom applications for specific user workflows</strong></li>
+<li><em>Example: A mobile phone application that interacts with Foundryâs Ontology and Actions APIs to provide a streamlined UX for a critical workflow.</em></li>
+<li><strong>Monitoring or control of Foundry pipelines or workflows</strong></li>
+<li><em>Example: An application which connects to Foundryâs monitoring and data health APIs to assess the state of critical pipelines and allows its users to trigger builds where needed.</em></li>
+</ul>
+<h2>Inappropriate uses</h2>
+<p>The integration of third-party applications and the use of Foundry APIs presents risks to data security and should only be undertaken with a clear understanding of the technical and contractual considerations. When scoping a development project that accesses data or undertakes actions on behalf of a user, contact your system administrator to determine if your plans are appropriate, safe, and secure and in compliance with the Foundry appropriate use terms.</p>
+<p>The examples below outline representative scenarios where the inappropriate usage of APIs to access data or perform actions can compromise the integrity or security of data managed in Foundry.</p>
+<ul>
+<li><strong>Circumventing data controls</strong></li>
+<li><em>Example: Reading data with one userâs token and writing back with another.</em></li>
+<li>Foundry has advanced and fine-grained user authorization features. Sharing data between user accounts in your application could circumvent these controls.</li>
+<li>It is important you keep the use of individual Foundry accounts fully isolated. You must not access data with one user's tokens and allow another user to read, discover, write, or in any way interact with that data. If you wish to allow users to share data, this should be done in Foundry, not in the third-party application.</li>
+<li><strong>Performing actions without user understanding and consent.</strong></li>
+<li>Your application must not deceive your users. Your application must clearly and accurately describe what actions it is performing when using a Foundry userâs account.</li>
+<li>Your application must request the minimum set of roles and permissions it needs to perform its function, and no more. It must also make it clear to your users when actions will be performed in Foundry, and what those actions will do.</li>
+<li>Any unclear, unexpected, malicious or damaging application behavior is forbidden.</li>
+<li><strong>Retrieving or storing of data outside of Foundry without consideration for access control.</strong></li>
+<li>Foundryâs customers rely on Foundry to safely store critical data; your application must respect the sensitivity and value of this data and retrieve the minimum set of data that it needs to perform its function.</li>
+<li>Your application should also avoid storing or caching data retrieved from Foundry if possible. One potential exception to this could be offline caching, but care should be taken and clear user consent received.</li>
+<li>If Foundry data is moved into another data storage system, acknowledge that it will no longer be access controlled or audited in accordance to your organization's configurations for data protection within Foundry.</li>
+</ul>
+</body>
+</html>

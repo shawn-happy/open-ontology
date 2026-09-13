@@ -1,0 +1,1702 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Types reference</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Types reference</h1>
+<p>In order to be published to the registry, a TypeScript function must have explicit type annotations on all input parameters and specify an explicit return type. Below is the full list of currently supported function registry types and their corresponding language types.</p>
+<p>:::callout{theme="neutral"}
+Using a Python function as a user-defined function (UDF) in Pipeline Builder? The scalar types below (such as <code>str</code> or <code>int</code>) are the values a UDF returns because the function runs once per row and its return value becomes a new column. You do not return a DataFrame. Review <a href="https://www.palantir.com/docs/foundry/functions/python-functions-builder/#how-python-functions-process-data">how Python functions process data in Pipeline Builder</a> for details.
+:::</p>
+<table>
+<thead>
+<tr>
+<th>Function registry type</th>
+<th>TypeScript v1 type</th>
+<th>TypeScript v2 type</th>
+<th>Python type</th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Attachment</td>
+<td><code>Attachment</code></td>
+<td><code>Attachment</code></td>
+<td><code>Attachment</code></td>
+<td><a href="#attachment">Example</a></td>
+</tr>
+<tr>
+<td>Boolean</td>
+<td><code>boolean</code></td>
+<td><code>boolean</code></td>
+<td><code>bool</code></td>
+<td><a href="#boolean">Example</a></td>
+</tr>
+<tr>
+<td>Binary</td>
+<td>Not supported</td>
+<td>Not supported</td>
+<td><code>bytes</code></td>
+<td><a href="#binary">Example</a></td>
+</tr>
+<tr>
+<td>Byte</td>
+<td>Not supported</td>
+<td>Not supported</td>
+<td><code>int*</code></td>
+<td><a href="#byte">Example</a></td>
+</tr>
+<tr>
+<td>Classification marking</td>
+<td><code>ClassificationMarking</code></td>
+<td><code>ClassificationMarking</code></td>
+<td><code>ClassificationMarking</code></td>
+<td><a href="#classification-marking">Example</a></td>
+</tr>
+<tr>
+<td>Date</td>
+<td><code>LocalDate</code></td>
+<td><code>DateISOString</code></td>
+<td><code>datetime.date</code></td>
+<td><a href="#date">Example</a></td>
+</tr>
+<tr>
+<td>Decimal</td>
+<td>Not supported</td>
+<td>Not supported</td>
+<td><code>decimal.Decimal</code></td>
+<td><a href="#decimal">Example</a></td>
+</tr>
+<tr>
+<td>Double</td>
+<td><code>Double</code></td>
+<td><code>Double</code></td>
+<td><code>float*</code></td>
+<td><a href="#double">Example</a></td>
+</tr>
+<tr>
+<td>Float</td>
+<td><code>Float</code></td>
+<td><code>Float</code></td>
+<td><code>float</code></td>
+<td><a href="#float">Example</a></td>
+</tr>
+<tr>
+<td>GeoPoint</td>
+<td><code>GeoPoint</code></td>
+<td><code>Point</code></td>
+<td><code>GeoPoint</code></td>
+<td><a href="#geopoint">Example</a></td>
+</tr>
+<tr>
+<td>GeoShape</td>
+<td><code>GeoShape</code></td>
+<td><code>Geometry</code></td>
+<td><code>GeoShape</code></td>
+<td><a href="#geoshape">Example</a></td>
+</tr>
+<tr>
+<td>Group</td>
+<td><code>Group</code></td>
+<td><code>GroupId</code></td>
+<td><code>GroupId</code></td>
+<td><a href="#group">Example</a></td>
+</tr>
+<tr>
+<td>Integer</td>
+<td><code>Integer</code></td>
+<td><code>Integer</code></td>
+<td><code>int</code></td>
+<td><a href="#integer">Example</a></td>
+</tr>
+<tr>
+<td>Interface</td>
+<td>Not supported</td>
+<td><code>Osdk.Instance&lt;MyInterface&gt;</code></td>
+<td>Not supported</td>
+<td><a href="#interface">Example</a></td>
+</tr>
+<tr>
+<td>Interface object set</td>
+<td>Not supported</td>
+<td><code>ObjectSet&lt;MyInterface&gt;</code></td>
+<td>Not supported</td>
+<td><a href="#interface-object-set">Example</a></td>
+</tr>
+<tr>
+<td>List</td>
+<td><code>T[]</code> or <code>Array&lt;T&gt;</code></td>
+<td><code>T[]</code> or <code>Array&lt;T&gt;</code></td>
+<td><code>list[T]</code></td>
+<td><a href="#list">Example</a></td>
+</tr>
+<tr>
+<td>Long</td>
+<td><code>Long</code></td>
+<td><code>Long</code></td>
+<td><code>int*</code></td>
+<td><a href="#long">Example</a></td>
+</tr>
+<tr>
+<td>Mandatory marking</td>
+<td><code>MandatoryMarking</code></td>
+<td><code>MandatoryMarking</code></td>
+<td><code>MandatoryMarking</code></td>
+<td><a href="#mandatory-marking">Example</a></td>
+</tr>
+<tr>
+<td>Map</td>
+<td><code>FunctionsMap&lt;K, V&gt;</code></td>
+<td><code>Record&lt;K, V&gt;</code></td>
+<td><code>dict[K, V]</code></td>
+<td><a href="#map">Example</a></td>
+</tr>
+<tr>
+<td>Media reference</td>
+<td><code>MediaItem</code></td>
+<td><code>Media</code></td>
+<td><code>Media</code></td>
+<td><a href="#media">Example</a></td>
+</tr>
+<tr>
+<td>Notification</td>
+<td><code>Notification</code></td>
+<td><code>Notification</code></td>
+<td><code>Notification</code></td>
+<td><a href="#notification">Example</a></td>
+</tr>
+<tr>
+<td>Object</td>
+<td><code>MyObjectType</code></td>
+<td><code>Osdk.Instance&lt;MyObjectType&gt;</code></td>
+<td><code>MyObjectType</code></td>
+<td><a href="#object">Example</a></td>
+</tr>
+<tr>
+<td>Object set</td>
+<td><code>ObjectSet&lt;MyObjectType&gt;</code></td>
+<td><code>ObjectSet&lt;MyObjectType&gt;</code></td>
+<td><code>MyObjectTypeObjectSet</code></td>
+<td><a href="#object-set">Example</a></td>
+</tr>
+<tr>
+<td>Ontology edit</td>
+<td><code>void</code></td>
+<td><code>Edits</code></td>
+<td><code>OntologyEdit</code></td>
+<td><a href="#ontology-edit">Example</a></td>
+</tr>
+<tr>
+<td>Optional</td>
+<td><code>T \| undefined</code></td>
+<td><code>T \| undefined</code></td>
+<td><code>typing.Optional</code> or <code>T \| None</code></td>
+<td><a href="#optional">Example</a></td>
+</tr>
+<tr>
+<td>Principal</td>
+<td><code>Principal</code></td>
+<td><code>Principal</code></td>
+<td><code>Principal</code></td>
+<td><a href="#principal">Example</a></td>
+</tr>
+<tr>
+<td>Range</td>
+<td><code>IRange&lt;T&gt;</code></td>
+<td><code>Range&lt;T&gt;</code></td>
+<td><code>Range[T]</code></td>
+<td><a href="#range">Example</a></td>
+</tr>
+<tr>
+<td>Set</td>
+<td><code>Set&lt;T&gt;</code></td>
+<td>Not supported</td>
+<td><code>set[T]</code></td>
+<td><a href="#set">Example</a></td>
+</tr>
+<tr>
+<td>Short</td>
+<td>Not supported</td>
+<td>Not supported</td>
+<td><code>int*</code></td>
+<td><a href="#short">Example</a></td>
+</tr>
+<tr>
+<td>String</td>
+<td><code>string</code></td>
+<td><code>string</code></td>
+<td><code>str</code></td>
+<td><a href="#string">Example</a></td>
+</tr>
+<tr>
+<td>Struct/custom type</td>
+<td><code>interface</code></td>
+<td><code>interface</code></td>
+<td><code>dataclasses.dataclass</code></td>
+<td><a href="#structcustom-type">Example</a></td>
+</tr>
+<tr>
+<td>Timestamp</td>
+<td><code>Timestamp</code></td>
+<td><code>TimestampISOString</code></td>
+<td><code>datetime.datetime</code></td>
+<td><a href="#timestamp">Example</a></td>
+</tr>
+<tr>
+<td>Two-dimensional aggregation</td>
+<td><code>TwoDimensionalAggregation&lt;K, V&gt;</code></td>
+<td><code>TwoDimensionalAggregation&lt;K, V&gt;</code></td>
+<td><code>TwoDimensionalAggregation[K, V]</code></td>
+<td><a href="#two-dimensional-aggregation">Example</a></td>
+</tr>
+<tr>
+<td>Three-dimensional aggregation</td>
+<td><code>ThreeDimensionalAggregation&lt;K, S, V&gt;</code></td>
+<td><code>ThreeDimensionalAggregation&lt;K, S, V&gt;</code></td>
+<td><code>ThreeDimensionalAggregation[K, S, V]</code></td>
+<td><a href="#three-dimensional-aggregation">Example</a></td>
+</tr>
+<tr>
+<td>User</td>
+<td><code>User</code></td>
+<td><code>UserId</code></td>
+<td><code>UserId</code></td>
+<td><a href="#user">Example</a></td>
+</tr>
+</tbody>
+</table>
+<p>:::callout{theme="neutral"}
+Although both <code>Integer</code> and <code>Long</code> correspond to the Python type <code>int</code>, any fields marked as <code>int</code> directly in your function signature will be registered with type <code>Integer</code>. Therefore, we instead recommend using either the <code>Integer</code> or <code>Long</code> types from the API to register numerical data types. Similar guidelines apply to <code>Float</code> and <code>Double</code>; if the Python type <code>float</code> is directly in your function signature, it will be registered as <code>Float</code> by default.
+:::</p>
+<h2>Scalar types</h2>
+<p>Scalar types represent a single value and are commonly used to hold textual, numeric, or temporal data.</p>
+<p>In JavaScript and TypeScript, there is one <code>number</code> type that is commonly used to represent both integer and floating-point values. In order to provide further type validation and structure, we only support the numeric aliases exported from the <code>@foundry/functions-api</code> package for TypeScript v1 functions and the <code>@osdk/functions</code> package for TypeScript v2 functions. Similarly, when working with numeric types in Python functions we recommend using the type aliases exported from the <code>functions.api</code> module.</p>
+<h3>Boolean</h3>
+<p>```typescript tab="TypeScript v1"
+import { Function, Integer } from "@foundry/functions-api";</p>
+<p>export class MyFunctions {
+    @Function()
+    public isEven(num: Integer): boolean {
+        return num % 2 === 0;
+    }
+}</p>
+<pre><code>
+```typescript tab=&quot;TypeScript v2&quot;
+import { Integer } from &quot;@osdk/functions&quot;;
+
+function isEven(num: Integer): boolean {
+    return num % 2 === 0;
+}
+
+export default isEven;
+</code></pre>
+<p>```python tab="Python"
+from functions.api import function, Integer</p>
+<p>@function
+def is_even(num: Integer) -&gt; bool:
+    return n % 2 == 0</p>
+<pre><code>
+### String
+
+```typescript tab=&quot;TypeScript v1&quot;
+import { Function } from &quot;@foundry/functions-api&quot;;
+
+export class MyFunctions {
+    @Function()
+    public greet(name: string): string {
+        return `Hello, ${name}!`;
+    }
+}
+</code></pre>
+<p><code>``typescript tab="TypeScript v2"
+function greet(name: string): string {
+    return</code>Hello, ${name}!`;
+}</p>
+<p>export default greet;</p>
+<pre><code>
+```python tab=&quot;Python&quot;
+from functions.api import function
+
+@function
+def greet(name: str) -&gt; str:
+    return f&quot;Hello, {name}!&quot;
+</code></pre>
+<h3>Short</h3>
+<p>Represents integer values from -32,768 to 32,767.</p>
+<p>In Python functions, the <code>Short</code> type is an alias for the built-in <code>int</code> type.</p>
+<p>```python tab="Python"
+from functions.api import function, Short</p>
+<p>@function
+def increment(num: Short) -&gt; Short:
+    return num + 1</p>
+<pre><code>
+### Integer
+
+Represents integer values from (-2&lt;sup&gt;31&lt;/sup&gt;) to (2&lt;sup&gt;31&lt;/sup&gt; - 1).
+
+* In both TypeScript v1 and v2 functions, the `Integer` type is an alias for the built-in `number` type.
+* In Python functions, the `Integer` type is an alias for the built-in `int` type.
+
+```typescript tab=&quot;TypeScript v1&quot;
+import { Function, Integer } from &quot;@foundry/functions-api&quot;;
+
+export class MyFunctions {
+    @Function()
+    public sum(a: Integer, b: Integer): Integer {
+        return a + b;
+    }
+}
+</code></pre>
+<p>```typescript tab="TypeScript v2"
+import { Integer } from "@osdk/functions";</p>
+<p>function sum(a: Integer, b: Integer): Integer {
+    return a + b;
+}</p>
+<p>export default sum;</p>
+<pre><code>
+```python tab=&quot;Python&quot;
+from functions.api import function, Integer
+
+@function
+def sum(a: Integer, b: Integer) -&gt; Integer:
+    return a + b
+</code></pre>
+<h3>Long</h3>
+<p>Represents integer values from -(2<sup>53</sup> - 1) to (2<sup>53</sup> - 1). These bounds are equivalent to <code>Number.MIN_SAFE_INTEGER</code> and <code>Number.MAX_SAFE_INTEGER</code> in JavaScript to prevent precision loss when functions are called from browser contexts.</p>
+<ul>
+<li>In TypeScript v1 functions, the <code>Long</code> type is an alias for the built-in <code>number</code> type. In TypeScript v2 functions, the <code>Long</code> type is an alias for the built-in <code>string</code> type.</li>
+<li>In Python functions, the <code>Long</code> type is an alias for the built-in <code>int</code> type.</li>
+</ul>
+<p>```typescript tab="TypeScript v1"
+import { Function, Long } from "@foundry/functions-api";</p>
+<p>export class MyFunctions {
+    @Function()
+    public subtract(a: Long, b: Long): string {
+        return (BigInt(a) - BigInt(b)).toString();
+    }
+}</p>
+<pre><code>
+```typescript tab=&quot;TypeScript v2&quot;
+import { Long } from &quot;@osdk/functions&quot;;
+
+function subtract(a: Long, b: Long): string {
+    return (BigInt(a) - BigInt(b)).toString();
+}
+
+export default subtract;
+</code></pre>
+<p>```python tab="Python"
+from functions.api import function, Long</p>
+<p>@function
+def subtract(a: Long, b: Long) -&gt; str:
+    return str(a - b)</p>
+<pre><code>
+### Float
+
+Represents a 32-bit floating-point number.
+
+* In both TypeScript v1 and v2 functions, the `Float` type is an alias for the built-in `number` type.
+* In Python functions, the `Float` type is an alias for the built-in `float` type.
+
+```typescript tab=&quot;TypeScript v1&quot;
+import { Float, Function } from &quot;@foundry/functions-api&quot;;
+
+export class MyFunctions {
+    @Function()
+    public multiply(a: Float, b: Float): Float {
+        return a * b;
+    }
+}
+</code></pre>
+<p>```typescript tab="TypeScript v2"
+import { Float } from "@osdk/functions";</p>
+<p>function multiply(a: Float, b: Float): Float {
+    return a * b;
+}</p>
+<p>export default multiply;</p>
+<pre><code>
+```python tab=&quot;Python&quot;
+from functions.api import function, Float
+
+@function
+def multiply(a: Float, b: Float) -&gt; Float:
+    return a * b
+</code></pre>
+<h3>Double</h3>
+<p>Represents a 64-bit floating-point number.</p>
+<ul>
+<li>In both TypeScript v1 and v2 functions, the <code>Double</code> type is an alias for the built-in <code>number</code> type.</li>
+<li>In Python functions, the <code>Double</code> type is an alias for the built-in <code>float</code> type.</li>
+</ul>
+<p>```typescript tab="TypeScript v1"
+import { Double, Function } from "@foundry/functions-api";</p>
+<p>export class MyFunctions {
+    @Function()
+    public divide(a: Double, b: Double): Double {
+        return a / b;
+    }
+}</p>
+<pre><code>
+```typescript tab=&quot;TypeScript v2&quot;
+import { Double } from &quot;@osdk/functions&quot;;
+
+function divide(a: Double, b: Double): Double {
+    return a / b;
+}
+
+export default divide;
+</code></pre>
+<p>```python tab="Python"
+from functions.api import function, Double</p>
+<p>@function
+def divide(a: Double, b: Double) -&gt; Double:
+    return a / b</p>
+<pre><code>
+### Decimal
+
+```python tab=&quot;Python&quot;
+from decimal import Decimal
+from functions.api import function
+
+@function
+def return_pi() -&gt; Decimal:
+    return Decimal('3.1415926535')
+</code></pre>
+<h3>Date</h3>
+<p>Represents a calendar date.</p>
+<p>```typescript tab="TypeScript v1"
+import { Function, LocalDate } from "@foundry/functions-api";</p>
+<p>export class MyFunctions {
+    @Function()
+    public returnDate(): LocalDate {
+        return LocalDate.fromISOString("1999-10-17");
+    }
+}</p>
+<pre><code>
+```typescript tab=&quot;TypeScript v2&quot;
+import { DateISOString } from &quot;@osdk/functions&quot;;
+
+function returnDate(): DateISOString {
+    return &quot;1999-10-17&quot;;
+}
+
+export default returnDate;
+</code></pre>
+<p>```python tab="Python"
+from datetime import date
+from functions.api import function, Date</p>
+<p>@function
+def return_date() -&gt; Date:
+    return date.fromisoformat('1999-10-17')</p>
+<pre><code>
+### Timestamp
+
+Represents an instant in time.
+
+```typescript tab=&quot;TypeScript v1&quot;
+import { Function, Timestamp } from &quot;@foundry/functions-api&quot;;
+
+export class MyFunctions {
+    @Function()
+    public getCurrentTimestamp(): Timestamp {
+        return Timestamp.now();
+    }
+}
+</code></pre>
+<p>```typescript tab="TypeScript v2"
+import { TimestampISOString } from "@osdk/functions";</p>
+<p>function getCurrentTimestamp(): TimestampISOString {
+    const now = new Date();
+    return now.toISOString();
+}</p>
+<p>export default getCurrentTimestamp;</p>
+<pre><code>
+```python tab=&quot;Python&quot;
+from datetime import datetime
+from functions.api import function, Timestamp
+
+@function
+def get_current_timestamp() -&gt; Timestamp:
+    return datetime.now()
+</code></pre>
+<h3>Binary</h3>
+<p>In Python functions, the <code>Binary</code> type is an alias for the built-in <code>bytes</code> type.</p>
+<p>```python tab="Python"
+from functions.api import function</p>
+<p>@function
+def encode_utf8(param: str) -&gt; bytes:
+    return param.encode('utf-8')</p>
+<pre><code>
+### Byte
+
+In Python functions, the `Byte` type is an alias for the built-in `int` type.
+
+```python tab=&quot;Python&quot;
+from functions.api import function, Byte
+
+@function
+def get_first_byte(param: str) -&gt; Byte:
+    if len(param) == 0:
+        raise Exception(&quot;String length cannot be zero.&quot;)
+    return param.encode('utf-8')[0]
+</code></pre>
+<h3>Mandatory marking</h3>
+<p>Markings are mandatory controls that restrict access by requiring a user to have a particular marking in order to access data.</p>
+<p>```typescript tab="TypeScript v1"
+import { OntologyEditFunction, MandatoryMarking } from "@foundry/functions-api";
+import { Employee, Objects } from "@foundry/ontology-api";</p>
+<p>export class MyFunctions {
+    @Edits(Employee)
+    @OntologyEditFunction()
+    public async editMandatoryMarkings(markings: MandatoryMarking[]): Promise<void> {
+        const employeeOne = Objects.search().employee().filter(e =&gt; e.id.exactMatch(1)).all()[0];
+        employeeOne.markingsProperty = markings;
+    }
+}</p>
+<pre><code>
+```typescript tab=&quot;TypeScript v2&quot;
+import { Client } from &quot;@osdk/client&quot;;
+import { Employee } from &quot;@ontology/sdk&quot;;
+import { Edits, createEditBatch, MandatoryMarking } from &quot;@osdk/functions&quot;;
+
+type OntologyEdit = Edits.Object&lt;Employee&gt;;
+
+function editMandatoryMarkings(markings: MandatoryMarking[]): OntologyEdit[] {
+    const batch = createEditBatch&lt;OntologyEdit&gt;(client);
+
+    const employeeOne = await client(Employee).fetchOne(1);
+    batch.update(employeeOne, { markingsProperty: markings });
+
+    return batch.getEdits();
+}
+
+export default editMandatoryMarkings;
+</code></pre>
+<p>```python tab="Python"
+from foundry_sdk_runtime import Marking
+from functions.api import function, MandatoryMarking, OntologyEdit
+from ontology_sdk import FoundryClient
+from ontology_sdk.ontology.objects import Employee</p>
+<p>@function
+def edit_mandatory_markings(markings: list[MandatoryMarking]) -&gt; list[OntologyEdit]:
+    ontology_edits = FoundryClient().ontology.edits()
+    employee: Optional[Employee] = client.ontology.objects.Employee.get("primary_key")
+    if employee is None:
+        return []
+    editable_employee = ontology_edits.objects.Employee.edit(employee)</p>
+<pre><code>editable_employee.markings_property = [Marking(m) for m in markings]
+# Assigning type "list[MandatoryMarking]" also works, but gives an LSP warning:
+# editable_employee.markings_property = markings
+
+return ontology_edits.get_edits()
+</code></pre>
+<pre><code>
+### Classification marking
+
+Classification-based access controls (CBAC) are mandatory controls used to protect sensitive government information. They restrict access by requiring a user to have a particular classification marking in order to access information.
+
+```typescript tab=&quot;TypeScript v1&quot;
+import { OntologyEditFunction, ClassificationMarking } from &quot;@foundry/functions-api&quot;;
+import { Employee, Objects } from &quot;@foundry/ontology-api&quot;;
+
+export class MyFunctions {
+    @Edits(Employee)
+    @OntologyEditFunction()
+    public async editClassificationMarkings(markings: ClassificationMarking[]): Promise&lt;void&gt; {
+        const employeeOne = Objects.search().employee().filter(e =&gt; e.id.exactMatch(1)).all()[0];
+        employeeOne.markingsProperty = markings;
+    }
+}
+</code></pre>
+<p>```typescript tab="TypeScript v2"
+import { Client } from "@osdk/client";
+import { Employee } from "@ontology/sdk";
+import { Edits, createEditBatch, ClassificationMarking } from "@osdk/functions";</p>
+<p>type OntologyEdit = Edits.Object<Employee>;</p>
+<p>function editClassificationMarkings(markings: ClassificationMarking[]): OntologyEdit[] {
+    const batch = createEditBatch<OntologyEdit>(client);</p>
+<pre><code>const employeeOne = await client(Employee).fetchOne(1);
+batch.update(employeeOne, { markingsProperty: markings });
+
+return batch.getEdits();
+</code></pre>
+<p>}</p>
+<p>export default editClassificationMarkings;</p>
+<pre><code>
+```python tab=&quot;Python&quot;
+from foundry_sdk_runtime import Marking
+from functions.api import ClassificationMarking, function, OntologyEdit
+from ontology_sdk import FoundryClient
+from ontology_sdk.ontology.objects import Employee
+
+@function
+def edit_classification_markings(markings: list[ClassificationMarking]) -&gt; list[OntologyEdit]:
+    ontology_edits = FoundryClient().ontology.edits()
+    employee: Optional[Employee] = client.ontology.objects.Employee.get(&quot;primary_key&quot;)
+    if employee is None:
+        return []
+    editable_employee = ontology_edits.objects.Employee.edit(employee)
+
+    editable_employee.markings_property = [Marking(m) for m in markings]
+    # Assigning type &quot;list[ClassificationMarking]&quot; also works, but gives an LSP warning:
+    # editable_employee.markings_property = markings
+
+    return ontology_edits.get_edits()
+</code></pre>
+<h2>Collection types</h2>
+<p>Collection types are parameterized by other types. For example, Array[String] is a list of strings and Map[String, Integer] is a dictionary with string keys and integer values. The parameterized types must be specified, and the type must be another supported type. Map keys can only be scalar types or an Ontology object type.</p>
+<h3>List</h3>
+<p>```typescript tab="TypeScript v1"
+import { Function, Integer } from "@foundry/functions-api";</p>
+<p>export class MyFunctions {
+    @Function()
+    public filterForEvenIntegers(nums: Integer[]): Integer[] {
+        return nums.filter(num =&gt; num % 2 === 0);
+    }
+}</p>
+<pre><code>
+```typescript tab=&quot;TypeScript v2&quot;
+import { Integer } from &quot;@osdk/functions&quot;;
+
+function filterForEvenIntegers(nums: Integer[]): Integer[] {
+    return nums.filter(num =&gt; num % 2 === 0);
+}
+
+export default filterForEvenIntegers;
+</code></pre>
+<p>```python tab="Python"
+from functions.api import function, Integer</p>
+<p>@function
+def filter_for_even_integers(nums: list[Integer]) -&gt; list[Integer]:
+    return [n for n in nums if n % 2 == 0]</p>
+<pre><code>
+### Map
+
+Maps are commonly used to key by a scalar type and access an associated value that can be of any other function registry type.
+
+```typescript tab=&quot;TypeScript v1&quot;
+import { Function, FunctionsMap } from &quot;@foundry/functions-api&quot;;
+
+export class MyFunctions {
+    @Function()
+    public getMap(): FunctionsMap&lt;string, string&gt; {
+        const myMap = new FunctionsMap&lt;string, string&gt;();
+
+        myMap.set(&quot;Name&quot;, &quot;Phil&quot;);
+        myMap.set(&quot;Favorite Color&quot;, &quot;Blue&quot;);
+
+        return myMap;
+    }
+}
+</code></pre>
+<p>```typescript tab="TypeScript v2"
+function getMap(): Record<string, string> {
+    const myMap: Record<string, string> = {};</p>
+<pre><code>myMap["Name"] = "Phil";
+myMap["Favorite Color"] = "Blue";
+
+return myMap;
+</code></pre>
+<p>}</p>
+<p>export default getMap;</p>
+<pre><code>
+```python tab=&quot;Python&quot;
+from functions.api import function
+
+@function
+def get_map() -&gt; dict[str, str]:
+    my_map = {}
+
+    my_map[&quot;Name&quot;] = &quot;Phil&quot;
+    my_map[&quot;Favorite Color&quot;] = &quot;Blue&quot;
+
+    return my_map
+</code></pre>
+<p>Additionally, maps support Ontology objects as keys.</p>
+<p>```typescript tab="TypeScript v1"
+import { Function, FunctionsMap } from "@foundry/functions-api";
+import { Airplane } from "@foundry/ontology-api";</p>
+<p>export class MyFunctions {
+    @Function()
+    public getObjectMap(aircraft: Airplane[]): FunctionsMap<Airplane, Integer | undefined> {
+        const myMap = new FunctionsMap<Airplane, Integer | undefined>();</p>
+<pre><code>    aircraft.forEach(obj =&gt; {
+        myMap.set(obj, obj.capacity);
+    });
+
+    return myMap;
+}
+</code></pre>
+<p>}</p>
+<pre><code>
+```typescript tab=&quot;TypeScript v2&quot;
+import { ObjectSpecifier, Osdk } from &quot;@osdk/client&quot;;
+import { Integer } from &quot;@osdk/functions&quot;;
+import { Airplane } from &quot;@ontology/sdk&quot;;
+
+function getObjectMap(aircraft: Osdk.Instance&lt;Airplane&gt;[]): Record&lt;ObjectSpecifier&lt;Airplane&gt;, Integer | undefined&gt; {
+    const myMap: Record&lt;ObjectSpecifier&lt;Airplane&gt;, Integer | undefined&gt; = {};
+
+    aircraft.forEach(obj =&gt; {
+        myMap[obj.$objectSpecifier] = obj.capacity;
+    });
+
+    return myMap;
+}
+
+export default getObjectMap;
+</code></pre>
+<p>```python tab="Python"
+from functions.api import function, Integer
+from ontology_sdk.ontology.objects import Airplane</p>
+<p>@function
+def get_object_map(aircraft: list[Airplane]) -&gt; dict[Airplane, Integer | None]:
+    my_map = {}</p>
+<pre><code>for a in aircraft:
+    my_map[a] = a.capacity
+
+return my_map
+</code></pre>
+<pre><code>
+### Set
+
+```typescript tab=&quot;TypeScript v1&quot;
+import { Function, Integer } from &quot;@foundry/functions-api&quot;;
+
+export class MyFunctions {
+    @Function()
+    public getSizeOfSet(mySet: Set&lt;Integer&gt;): Integer {
+        return mySet.size;
+    }
+}
+</code></pre>
+<p>```python tab="Python"
+from functions.api import function, Integer</p>
+<p>@function
+def get_size_of_set(my_set: set[Integer]) -&gt; Integer:
+    return len(my_set)</p>
+<pre><code>
+### Optional
+
+* In TypeScript functions, optional parameters are declared as `varName?: T` or `varName: T | undefined`. For example, a function that has an optional integer parameter named `value` could be declared as either `value?: Integer` or `value: Integer | undefined`. TypeScript functions can also declare an optional return type by specifying a type of `T | undefined`. For example, a function that may return either an `Integer` or no value would have a return type of `Integer | undefined`.
+* In Python functions, optional parameters and return values can be declared using `typing.Optional[T]` or `T | None`. The `T | None` syntax requires Python 3.10 or greater.
+* In both TypeScript and Python functions, the parameterized type `T` must be specified, and it must be another supported type.
+
+```typescript tab=&quot;TypeScript v1&quot;
+import { Function } from &quot;@foundry/functions-api&quot;;
+
+export class MyFunction {
+    @Function()
+    public greet(name?: string): string | undefined {
+        if (name === undefined) {
+            return undefined;
+        }
+        return `Hello, ${name}!`;
+    }
+}
+</code></pre>
+<p><code>``typescript tab="TypeScript v2"
+function greet(name?: string): string | undefined {
+    if (name === undefined) {
+        return undefined;
+    }
+    return</code>Hello, ${name}!`;
+}</p>
+<p>export default greet;</p>
+<pre><code>
+```python tab=&quot;Python&quot;
+from functions.api import function
+
+@function
+def greet(name: str | None) -&gt; str | None:
+    if name is None:
+        return None
+    return f&quot;Hello, {name}!&quot;
+</code></pre>
+<p>Functions also support default values in the function signature.</p>
+<p>```typescript tab="TypeScript v1"
+import { Double, Function } from "@foundry/functions-api";
+import { Customer } from "@foundry/ontology-api";</p>
+<p>export class MyFunctions {
+    @Function()
+    public computeRiskFactor(customer: Customer, weight: Double = 0.75): Double {
+        // ...
+    }
+}</p>
+<pre><code>
+```typescript tab=&quot;TypeScript v2&quot;
+import { Double } from &quot;@osdk/functions&quot;;
+import { Osdk } from &quot;@osdk/client&quot;;
+import { Customer } from &quot;@ontology/sdk&quot;;
+
+function computeRiskFactor(customer: Osdk.Instance&lt;Customer&gt;, weight: Double = 0.75): Double {
+    // ...
+}
+
+export default computeRiskFactor;
+</code></pre>
+<p>```python tab="Python"
+from functions.api import function, Double
+from ontology_sdk.ontology.objects import Customer</p>
+<p>@function
+def compute_risk_factor(customer: Customer, weight: Double = 0.75) -&gt; Double:
+    # ...</p>
+<pre><code>
+### Struct/custom type
+
+Custom types are composed of other supported types (including other custom types) and can be used in function signatures.
+
+:::callout{theme=&quot;neutral&quot;}
+Custom types used in function signatures are different from the generated classes used for Ontology struct properties. To edit an Ontology struct property in a Python function, use the generated struct property class as described in [Edit struct properties](https://www.palantir.com/docs/foundry/functions/python-ontology-edits/#edit-struct-properties).
+:::
+
+* In TypeScript functions, custom types are user-defined TypeScript interfaces using the `interface` keyword.
+  * Optional fields are supported through either the `?` optional token or a union with `undefined`.
+
+* In Python functions, custom types are user-defined Python classes.
+  * To be a valid custom type, the class must adhere to the following:
+    * The class must have type annotations on all of its fields.
+    * The field types must be supported types; either the primitive API types or native Python types (as defined in the table above) may be used.
+    * The `__init__` method must accept only named arguments with the same names and type annotations as the fields.
+  * The [`dataclasses.dataclass` â](https://docs.python.org/3/library/dataclasses.html) decorator can be used to automatically generate an `__init__` method that conforms with these requirements.
+
+```typescript tab=&quot;TypeScript v1&quot;
+import { Function, Integer } from &quot;@foundry/functions-api&quot;;
+import { Passenger } from &quot;@foundry/ontology-api&quot;;
+
+interface PassengerInfo {
+    name?: string;
+    age?: Integer;
+}
+
+export class MyFunctions {
+    @Function()
+    public getPassengerInfo(passenger: Passenger): PassengerInfo {
+        return {
+            name: passenger.name,
+            age: passenger.age,
+        };
+    }
+}
+</code></pre>
+<p>```typescript tab="TypeScript v2"
+import { Osdk } from "@osdk/client";
+import { Integer } from "@osdk/functions";
+import { Passenger } from "@ontology/sdk";</p>
+<p>interface PassengerInfo {
+    name?: string;
+    age?: Integer;
+}</p>
+<p>function getPassengerInfo(passenger: Osdk.Instance<Passenger>): PassengerInfo {
+    return {
+        name: passenger.name,
+        age: passenger.age,
+    };
+}</p>
+<p>export default getPassengerInfo;</p>
+<pre><code>
+```python tab=&quot;Python&quot;
+from dataclasses import dataclass
+from functions.api import function, Integer
+from ontology_sdk.ontology.objects import Passenger
+
+@dataclass
+class PassengerInfo:
+    name: str | None
+    age: Integer | None
+
+@function
+def get_passenger_info(passenger) -&gt; PassengerInfo:
+    return PassengerInfo(
+        name=passenger.name,
+        age=passenger.age
+    )
+</code></pre>
+<h2>Aggregation types</h2>
+<p>Aggregation types can be returned from functions for use in other parts of the platform, such as Charts in <a href="https://www.palantir.com/docs/foundry/workshop/overview/">Workshop</a>.</p>
+<p>There are two supported aggregation types:</p>
+<ul>
+<li>A <a href="#two-dimensional-aggregation">two-dimensional aggregation</a> maps from a single bucket key to a numeric value. For example, this could be used to represent an aggregation such as a count of employees with a specific job title.</li>
+<li>A <a href="#three-dimensional-aggregation">three-dimensional aggregation</a> maps from two bucket keys to a numeric value. This could be used to represent an aggregation such as a count of employees by each employee's job title and home office.</li>
+</ul>
+<p>Aggregations can be keyed by several types:</p>
+<ul>
+<li><a href="#boolean">Boolean</a> buckets represent values that are either <code>true</code> or <code>false</code>.</li>
+<li><a href="#string">String</a> buckets can be used to represent categorical values.</li>
+<li><a href="#range">Range</a> buckets represent aggregations where the bucket key is a range of values. These can be used to represent a histogram or date axis in a chart.</li>
+<li>Numeric ranges, including <a href="#integer">Integer</a> and <a href="#double">Double</a>, represent bucketed aggregations on numeric values.</li>
+<li>Date and time ranges, including on <a href="#date">Date</a> and <a href="#timestamp">Timestamp</a>, represent bucketed aggregations on date ranges.</li>
+</ul>
+<h3>Range</h3>
+<p>```typescript tab="TypeScript v1"
+import { Function, Integer, IRange } from "@foundry/functions-api";</p>
+<p>export class MyFunctions {
+    @Function()
+    public getRange(min: Integer, max: Integer): IRange<Integer> {
+        return {
+            min,
+            max,
+        };
+    }
+}</p>
+<pre><code>
+```typescript tab=&quot;TypeScript v2&quot;
+import { Integer, Range } from &quot;@osdk/functions&quot;;
+
+function getRange(min: Integer, max: Integer): Range&lt;Integer&gt; {
+    return {
+        min,
+        max,
+    };
+}
+
+export default getRange;
+</code></pre>
+<p>```python tab="Python"
+from functions.api import function, Integer, Range</p>
+<p>@function
+def get_range(min: Integer, max: Integer) -&gt; Range[Integer]:
+    return Range(
+        min=min,
+        max=max
+    )</p>
+<pre><code>
+### Two-dimensional aggregation
+
+```typescript tab=&quot;TypeScript v1&quot;
+import { Double, Function, TwoDimensionalAggregation } from &quot;@foundry/functions-api&quot;;
+
+export class MyFunctions {
+    @Function()
+    public myTwoDimensionalAggregation(): TwoDimensionalAggregation&lt;string, Double&gt; {
+        return {
+            buckets: [
+                { key: &quot;bucket1&quot;, value: 5.0 },
+                { key: &quot;bucket2&quot;, value: 6.0 },
+            ],
+        };
+    }
+}
+</code></pre>
+<p>```typescript tab="TypeScript v2"
+import { Double, TwoDimensionalAggregation } from "@osdk/functions";</p>
+<p>function myTwoDimensionalAggregationFunction(): TwoDimensionalAggregation<string, Double> {
+    return [
+        { key: "bucket1", value: 5.0 },
+        { key: "bucket2", value: 6.0 },
+    ];
+}</p>
+<p>export default myTwoDimensionalAggregationFunction;</p>
+<pre><code>
+```python tab=&quot;Python&quot;
+from functions.api import (
+    function,
+    Double,
+    TwoDimensionalAggregation,
+    SingleBucket
+)
+
+@function
+def my_two_dimensional_aggregation_function() -&gt; TwoDimensionalAggregation[str, Double]:
+    return TwoDimensionalAggregation(
+        buckets=[
+            SingleBucket(key=&quot;bucket1&quot;, value=Double(5.0)),
+            SingleBucket(key=&quot;bucket2&quot;, value=Double(6.0)),
+        ]
+    )
+</code></pre>
+<h3>Three-dimensional aggregation</h3>
+<p>```typescript tab="TypeScript v1"
+import { Double, Function, ThreeDimensionalAggregation } from "@foundry/functions-api";</p>
+<p>export class MyFunctions {
+    @Function()
+    public myThreeDimensionalAggregation(): ThreeDimensionalAggregation<string, string, Double> {
+        return {
+            buckets: [
+                {
+                    key: "group-by-1",
+                    value: [
+                        { key: "partition-by-1", value: 5.0 },
+                        { key: "partition-by-2", value: 6.0 },
+                    ],
+                },
+                {
+                    key: "group-by-2",
+                    value: [
+                        { key: "partition-by-1", value: 7.0 },
+                        { key: "partition-by-2", value: 8.0 },
+                    ],
+                },
+            ]
+        };
+    }
+}</p>
+<pre><code>
+```typescript tab=&quot;TypeScript v2&quot;
+import { Double, ThreeDimensionalAggregation } from &quot;@osdk/functions&quot;;
+
+function myThreeDimensionalAggregation(): ThreeDimensionalAggregation&lt;string, string, Double&gt; {
+    return [
+        {
+            key: &quot;group-by-1&quot;,
+            value: [
+                { key: &quot;partition-by-1&quot;, value: 5.0 },
+                { key: &quot;partition-by-2&quot;, value: 6.0 },
+            ],
+        },
+        {
+            key: &quot;group-by-2&quot;,
+            value: [
+                { key: &quot;partition-by-1&quot;, value: 7.0 },
+                { key: &quot;partition-by-2&quot;, value: 8.0 },
+            ],
+        },
+    ];
+}
+
+export default myThreeDimensionalAggregation;
+</code></pre>
+<p>```python tab="Python"
+from functions.api import (
+    function,
+    Double,
+    ThreeDimensionalAggregation,
+    SingleBucket,
+    NestedBucket,
+)</p>
+<p>@function
+def my_three_dimensional_aggregation_function() -&gt; (
+    ThreeDimensionalAggregation[str, str, Double]
+):
+    return ThreeDimensionalAggregation(
+        buckets=[
+            NestedBucket(key="group-by-1", buckets=[
+                SingleBucket(key="partition-by-1", value=Double(5.0)),
+                SingleBucket(key="partition-by-2", value=Double(6.0)),
+            ]),
+            NestedBucket(key="group-by-2", buckets=[
+                SingleBucket(key="partition-by-1", value=Double(7.0)),
+                SingleBucket(key="partition-by-2", value=Double(8.0)),
+            ])
+        ]
+    )</p>
+<pre><code>
+## Ontology types
+
+:::callout{title=&quot;Ontology imports&quot;}
+Object types must be imported into your repository to use them in function signatures. [Learn more about Ontology imports.](https://www.palantir.com/docs/foundry/functions/ontology-imports/)
+:::
+
+### Object
+
+Object types from your ontology can be used as both inputs and outputs in your function signature. To either accept or return a single instance of an object type, import the object type from your Ontology SDK and use that type to annotate your function.
+
+```typescript tab=&quot;TypeScript v1&quot;
+import { Function, Integer } from &quot;@foundry/functions-api&quot;;
+import { Airplane } from &quot;@foundry/ontology-api&quot;;
+
+export class MyFunctions {
+    @Function()
+    public getCapacity(airplane: Airplane): Integer {
+        return airplane.capacity;
+    }
+}
+</code></pre>
+<p>```typescript tab="TypeScript v2"
+import { Osdk } from "@osdk/client";
+import { Integer } from "@osdk/functions";
+import { Airplane } from "@ontology/sdk";</p>
+<p>function getCapacity(airplane: Osdk.Instance<Airplane>): Integer {
+    return airplane.capacity;
+}</p>
+<p>export default getCapacity;</p>
+<pre><code>
+```python tab=&quot;Python&quot;
+from functions.api import function, Integer
+from ontology_sdk.ontology.objects import Airplane
+
+@function
+def get_capacity(airplane: Airplane) -&gt; Integer:
+    return airplane.capacity
+</code></pre>
+<p>In TypeScript v2, references to object types are supported as <a href="#structcustom-type">struct</a> parameter fields. To accept a struct or struct list with object type instances, create a custom type input with an object type field from your Ontology SDK. This can be paired with <a href="#ontology-edit">Ontology Edits</a> to support workflows such as creating multiple instances of an object type derived from other object types.</p>
+<p>```typescript tab="TypeScript v2"
+import { Osdk } from "@osdk/client";
+import { Integer } from "@osdk/functions";
+import { Airplane, Passenger, Ticket } from "@ontology/sdk";</p>
+<p>type TicketEdit = Edits.Object<Ticket></p>
+<p>interface TicketInfo {
+    airplane?: Osdk.Instance<Airplane>;
+    passenger?: Osdk.Instance<Passenger>;
+    seat?: String;
+}</p>
+<p>function createTickets(ticketInfo: TicketInfo[]): TicketEdit[] {
+    const batch = createEditBatch<TicketEdit>(client);</p>
+<pre><code>ticketInfo.forEach(i =&gt; batch.create(TicketEdit, {
+    flightNumber: i.airplane.flightNumber,
+    passengerName: i.passenger.name,
+    seat: i.seat}))
+
+return batch.getEdits();
+</code></pre>
+<p>}</p>
+<p>export default createTickets;</p>
+<pre><code>
+### Object set
+
+There are two ways to pass a collection of objects into and out of a function: concrete collections of objects (such as arrays), or object sets.
+
+Passing an array of objects to a function enables executing logic over a concrete list of objects at the expense of loading the objects into the function execution environment up front. An object set, however, allows you to perform filtering, search-around, and aggregation operations and only load the final result when you request it.
+
+:::callout{theme=&quot;success&quot;}
+We recommend using an object set instead of an array because an object set often achieves better performance and allows more than 10,000 objects to be passed into the function.
+:::
+
+The below example shows how to filter an object set without loading the objects into memory, allowing you to return the filtered object set to a different part of the application.
+
+```typescript tab=&quot;TypeScript v1&quot;
+import { Function } from &quot;@foundry/functions-api&quot;;
+import { Airplane, ObjectSet } from &quot;@foundry/ontology-api&quot;;
+
+export class MyFunctions {
+    @Function()
+    public filterAircraft(aircraft: ObjectSet&lt;Airplane&gt;): ObjectSet&lt;Airplane&gt; {
+        return aircraft.filter(a =&gt; a.capacity.range().gt(200));
+    }
+}
+</code></pre>
+<p>```typescript tab="TypeScript v2"
+import { ObjectSet } from "@osdk/client";
+import { Airplane } from "@ontology/sdk";</p>
+<p>function filterAircraft(aircraft: ObjectSet<Airplane>): ObjectSet<Airplane> {
+    return aircraft
+        .where({
+            capacity: {
+                $gt: 200,
+            }
+        });
+}</p>
+<p>export default filterAircraft;</p>
+<pre><code>
+```python tab=&quot;Python&quot;
+from functions.api import function
+from ontology_sdk.ontology.objects import Airplane
+from ontology_sdk.ontology.object_sets import AirplaneObjectSet
+
+@function
+def filter_aircraft(aircraft: AirplaneObjectSet) -&gt; AirplaneObjectSet:
+    return aircraft.where(Airplane.object_type.capacity &gt; 200)
+</code></pre>
+<h3>Interface</h3>
+<p>Interface types from your Ontology can be used as both inputs and outputs in TypeScript v2 function signatures. They are not supported in TypeScript v1 or Python.</p>
+<p>```typescript tab="TypeScript v2"
+import { Osdk } from "@osdk/client";
+import { Integer } from "@osdk/functions";
+import { Person } from "@ontology/sdk";</p>
+<p>function getAge(person: Osdk.Instance<Person>): Integer {
+    return person.age;
+}</p>
+<p>export default getAge;</p>
+<pre><code>
+### Interface object set
+
+Interface object sets can be both inputs and outputs in TypeScript v2 function signatures.
+
+```typescript tab=&quot;TypeScript v2&quot;
+import { ObjectSet } from &quot;@osdk/client&quot;;
+import { Person } from &quot;@ontology/sdk&quot;;
+
+function filterPeople(people: ObjectSet&lt;Person&gt;): ObjectSet&lt;Person&gt; {
+    return people
+        .where({
+            age: {
+                $gt: 200,
+            }
+        });
+}
+
+export default filterPeople;
+</code></pre>
+<h3>Ontology edit</h3>
+<p>In addition to writing functions that read data from the Ontology, you can also write functions that create objects and edit the properties and links between objects. For more details about how edit functions work, refer to the <a href="https://www.palantir.com/docs/foundry/functions/edits-overview/">overview page</a>.</p>
+<p>To be registered as edit functions, TypeScript v1 functions require a <code>void</code> return type in the signature. TypeScript v2 and Python functions, however, require explicitly returning a list of Ontology edits.</p>
+<p>```typescript tab="TypeScript v1"
+import { Edits, OntologyEditFunction } from "@foundry/functions-api";
+import { Employee, LaptopRequest, Objects } from "@foundry/ontology-api";</p>
+<p>export class MyFunctions {</p>
+<pre><code>@Edits(Employee, LaptopRequest)
+@OntologyEditFunction()
+public assignEmployee(newEmployee: Employee, leadEmployee: Employee): void {
+
+    const newLaptopRequest = Objects.create().laptopRequest(Date.now().toString());
+    newLaptopRequest.employeeName = newEmployee.name;
+
+    newEmployee.lead.set(leadEmployee);
+}
+</code></pre>
+<p>}</p>
+<pre><code>
+```typescript tab=&quot;TypeScript v2&quot;
+import { Client } from &quot;@osdk/client&quot;;
+import { createEditBatch, Edits } from &quot;@osdk/functions&quot;;
+import { Employee, LaptopRequest } from &quot;@ontology/sdk&quot;;
+
+type EmployeeEdit =
+    | Edits.Object&lt;Employee&gt;
+    | Edits.Object&lt;LaptopRequest&gt;
+    | Edits.Link&lt;Employee, &quot;lead&quot;&gt;;
+
+function assignEmployee(
+    client: Client,
+    newEmployee: Osdk.Instance&lt;Employee&gt;,
+    leadEmployee: Osdk.Instance&lt;Employee&gt;
+): EmployeeEdit[] {
+
+    const batch = createEditBatch&lt;EmployeeEdit&gt;(client);
+
+    batch.create(LaptopRequest, {
+        id: Date.now().toString(),
+        employeeName: newEmployee.name,
+    });
+    batch.link(newEmployee, &quot;lead&quot;, leadEmployee);
+
+    return batch.getEdits();
+}
+
+export default assignEmployee;
+</code></pre>
+<p>```python tab="Python"
+from functions.api import function, OntologyEdit
+from ontology_sdk import FoundryClient
+from ontology_sdk.ontology.objects import Employee, LaptopRequest
+from time import time</p>
+<p>@function
+def assign_employee(new_employee: Employee, lead_employee: Employee) -&gt; list[OntologyEdit]:</p>
+<pre><code>ontology_edits = FoundryClient().ontology.edits()
+
+new_laptop_request = ontology_edits.objects.LaptopRequest.create(str(int(time() * 1000)))
+new_laptop_request.employee_name = new_employee.name
+
+new_employee.lead.set(lead_employee)
+
+return ontology_edits.get_edits()
+</code></pre>
+<pre><code>
+### Attachment
+
+```typescript tab=&quot;TypeScript v1&quot;
+import { Attachment, Function } from &quot;@foundry/functions-api&quot;;
+
+export class MyFunctions {
+    @Function()
+    public loadAttachmentContents(attachment: Attachment): Promise&lt;string&gt; {
+        return attachment.readAsync().then(blob =&gt; blob.text());
+    }
+}
+</code></pre>
+<p>```typescript tab="TypeScript v2"
+import { Attachment } from "@osdk/functions";</p>
+<p>function loadAttachmentContents(attachment: Attachment): Promise<string> {
+    return attachment.fetchContents().then(response =&gt; response.text());
+}</p>
+<p>export default loadAttachmentContents;</p>
+<pre><code>
+```python tab=&quot;Python&quot;
+from functions.api import function, Attachment
+
+@function
+def load_attachment_contents(attachment: Attachment) -&gt; str:
+    return attachment.read().getvalue().decode('utf-8')
+</code></pre>
+<h3>Notification</h3>
+<p>Notification types can be returned from a function to flexibly configure notifications that should be sent in the platform. For example, you can author a function that takes in parameters such as a <code>User</code> and an object type and returns a Notification with a configured message.</p>
+<ul>
+<li>A <code>Notification</code> consists of two fields: a <code>ShortNotification</code> and <code>EmailNotificationContent</code>.</li>
+<li>A <code>ShortNotification</code> represents a summarized version of the notification, which will be shown within the Foundry platform. It includes a short <code>heading</code>, <code>content</code>, and a collection of <code>Link</code>s.</li>
+<li><code>EmailNotificationContent</code> represents a rich version of the notification which can be sent externally via email. It includes a <code>subject</code>, a <code>body</code> consisting of headless HTML, and a collection of <code>Link</code>s.</li>
+<li>A <code>Link</code> has a user-facing <code>label</code> and a <code>linkTarget</code>. The <code>LinkTarget</code> can be a URL, an <code>OntologyObject</code>, or a <code>rid</code> of any resource within Foundry.</li>
+</ul>
+<p>For an example of how to use the Notifications API, review <a href="https://www.palantir.com/docs/foundry/functions/configure-notifications/">our guide</a>.</p>
+<p>```typescript tab="TypeScript v1"
+import {
+    EmailNotificationContent,
+    Function,
+    Notification,
+    ShortNotification,
+} from "@foundry/functions-api";</p>
+<p>export class MyFunctions {
+    @Function()
+    public buildNotification(): Notification {
+        return Notification.builder()
+            .shortNotification(ShortNotification.builder()
+                .heading("Issue reminder")
+                .content("Investigate this issue.")
+                .build())
+            .emailNotificationContent(EmailNotificationContent.builder()
+                .subject("New issue")
+                .body("hello")
+                .build())
+            .build();
+    }
+}</p>
+<pre><code>
+```typescript tab=&quot;TypeScript v2&quot;
+import {
+    Notification
+} from &quot;@osdk/functions&quot;;
+
+export default function buildNotification(): Notification {
+    return {
+        platformNotification: {
+            heading: &quot;Issue reminder&quot;,
+            content: &quot;Investigate this issue.&quot;,
+            links: []
+        },
+        emailNotification: {
+            subject: &quot;New issue&quot;,
+            body: &quot;hello&quot;,
+            links: []
+        }
+    };
+}
+</code></pre>
+<p>```python tab="Python"
+from functions.api import function, Notification, PlatformNotification, EmailNotification</p>
+<p>@function()
+def buildNotification() -&gt; Notification:
+    return Notification(
+        platform_notification=PlatformNotification(
+            heading="Issue reminder",
+            content="Investigate this issue.",
+            links=[]
+        ),
+        email_notification=EmailNotification(
+            subject="New issue",
+            body="hello",
+            links=[]
+        ),
+    )</p>
+<pre><code>
+## Media types
+
+### Media
+
+Functions can accept and return media items. In TypeScript v1, use the `MediaItem` type. In TypeScript v2 and Python, use `Media` as both the input and output type. Callers can pass an existing `MediaReference`, for example, a media property on an object, into the function. Downstream consumers can use the returned value to fetch contents, fetch metadata, or attach it to another object. For more information, review the guide on [media](https://www.palantir.com/docs/foundry/functions/media/).
+
+```typescript tab=&quot;TypeScript v1&quot;
+import { Function, MediaItem } from &quot;@foundry/functions-api&quot;;
+
+export class MyFunctions {
+    @Function()
+    public async echoMedia(media: MediaItem): Promise&lt;string | undefined&gt; {
+        const mimeType: string = media.mimeType;
+        // Fetch type-specific metadata (page count, dimensions, duration, and so on)
+        const metadata = await media.getMetadataAsync();
+        // Read the binary contents as a Blob
+        const contents: Blob = await media.readAsync();
+        // Narrow to a specialized subtype to call type-specific methods
+        if (MediaItem.isDocument(media)) {
+            const text = await media.extractTextAsync({ startPage: 0, endPage: 1 });
+        } else if (MediaItem.isAudio(media)) {
+            const transcript = await media.transcribeAsync();
+        }
+        return undefined;
+    }
+}
+</code></pre>
+<p>```typescript tab="TypeScript v2"
+import type { Media } from "@osdk/client";</p>
+<p>export default async function echoMedia(media: Media): Promise<Media> {
+    // Get the underlying MediaReference
+    const mediaReference = media.getMediaReference();
+    // Fetch slim metadata: path, sizeBytes, mediaType
+    const metadata = await media.fetchMetadata();
+    // Fetch contents as a Response; call .blob() or .arrayBuffer() for bytes
+    const response = await media.fetchContents();
+    const contents = await response.blob();
+    return media;
+}</p>
+<pre><code>
+```python tab=&quot;Python&quot;
+from foundry_sdk.v2.core.models import MediaReference
+from functions.api import function, Media
+
+@function
+def echo_media(media: Media) -&gt; Media:
+    # Get the underlying MediaReference
+    media_reference: MediaReference = media.get_media_reference()
+    # Fetch slim metadata: path, size_bytes, media_type
+    metadata = media.get_media_metadata()
+    # Fetch type-specific metadata (page count, dimensions, duration, and more by type)
+    full_metadata = media.get_media_full_metadata()
+    # Fetch the binary contents as a BytesIO stream
+    contents = media.get_media_content()
+    return media
+</code></pre>
+<h2>Users, groups, and principals</h2>
+<p>A Principal represents either a Foundry user account or group. These types can be passed into a function to allow accessing information associated with a user or group, such as a group's name or a user's first and last name or email address. All Principal types are exported from the <code>@foundry/functions-api</code> package.</p>
+<ul>
+<li>A <code>User</code> always has a username, and may have a <code>firstName</code>, <code>lastName</code>, or <code>email</code>. It also includes all fields associated with a <code>Principal</code>.</li>
+<li>A <code>Group</code> has a name. It also includes all fields associated with a <code>Principal</code>.</li>
+<li>A <code>Principal</code> can be either a <code>User</code> or a <code>Group</code>. You can inspect the <code>type</code> field to determine whether a given <code>Principal</code> is a <code>User</code> or a <code>Group</code>. In addition to <code>User</code> and <code>Group</code>-specific fields, a <code>Principal</code> has an <code>id</code>, <code>realm</code>, and dictionary of <code>attributes</code>.</li>
+</ul>
+<h3>User</h3>
+<p>```typescript tab="TypeScript v1"
+import { Function, User } from "@foundry/functions-api";</p>
+<p>export class MyFunctions {
+    @Function()
+    public getUserEmail(user: User): string {
+        return user.email;
+    }
+}</p>
+<pre><code>
+```typescript tab=&quot;TypeScript v2&quot;
+import { UserId } from &quot;@osdk/functions&quot;;
+import { Users } from &quot;@osdk/foundry.admin&quot;;
+import { Client } from &quot;@osdk/client&quot;;
+
+export default function getUserEmail(client:Client, userId: UserId): string {
+    const user = Users.get(client, userId)
+    return user.email;
+}
+</code></pre>
+<p>```python tab="Python"
+from functions.api import function, UserId
+from foundry_sdk import FoundryClient
+import foundry_sdk</p>
+<p>@function()
+def getUserEmail(user_id: UserId) -&gt; string:
+    client = FoundryClient(auth=foundry_sdk.UserTokenAuth(...), hostname="example.palantirfoundry.com")
+    user = client.admin.User.get(user_id)
+    return user.email</p>
+<pre><code>
+### Group
+
+```typescript tab=&quot;TypeScript v1&quot;
+import { Function, Group } from &quot;@foundry/functions-api&quot;;
+
+export class MyFunctions {
+    @Function()
+    public getGroupName(group: Group): string {
+        return group.name;
+    }
+}
+</code></pre>
+<p>```typescript tab="TypeScript v2"
+import { GroupId } from "@osdk/functions";
+import { Groups } from "@osdk/foundry.admin";
+import { Client } from "@osdk/client";</p>
+<p>export default function getGroupName(client: Client, groupId: GroupId): string {
+    const group = Groups.get(client, groupId)
+    return group.name;
+}</p>
+<pre><code>
+```python tab=&quot;Python&quot;
+from functions.api import function, GroupId
+from foundry_sdk import FoundryClient
+import foundry_sdk
+
+@function()
+def getGroupName(group_id: GroupId) -&gt; string:
+    client = FoundryClient(auth=foundry_sdk.UserTokenAuth(...), hostname=&quot;example.palantirfoundry.com&quot;)
+    group = client.admin.Group.get(group_id)
+    return group.name
+</code></pre>
+<h3>Principal</h3>
+<p>```typescript tab="TypeScript v1"
+import { Function, Principal } from "@foundry/functions-api";</p>
+<p>export class MyFunctions {
+    @Function()
+    public getPrincipalType(principal: Principal): string {</p>
+<pre><code>    switch (principal.type) {
+        case "user":
+            return "User";
+        case "group":
+            return "Group";
+        default:
+            return "Unknown";
+    }
+}
+</code></pre>
+<p>}</p>
+<pre><code>
+```typescript tab=&quot;TypeScript v2&quot;
+import { GroupId, Principal, UserId } from &quot;@osdk/functions&quot;;
+
+export default async function getPrincipals(client: Client, userId: UserId, groupId: GroupId): Principal[] {
+    return [{type: &quot;user&quot;, id: userId}, {type: &quot;group&quot;, id: groupId}];
+}
+</code></pre>
+<p>```python tab="Python"
+from functions.api import Array, function, GroupId, Principal, UserId</p>
+<p>@function()
+def getPrincipals(user_id: UserId, group_id: GroupId) -&gt; Array[Principal]:
+    return [Principal.user(user_id), Principal.group(group_id)]</p>
+<pre><code>
+## Geometry types
+
+Geometry types represent spatial data and geographic shapes in your functions. Two geometry types are supported:
+
+* **GeoPoint** represents a single geographic point with latitude and longitude coordinates.
+* **GeoShape** represents any valid GeoJSON geometry, including Points, Polygons, LineStrings, and other shapes.
+
+These types follow the [GeoJSON specification â](https://geojson.org/) and can be used for spatial operations, mapping, and geographic analysis. Note that positional arguments follow longitude, latitude order as per the GeoJSON spec.
+
+### GeoPoint
+
+The following example shows how to create and return a GeoPoint.
+
+```typescript tab=&quot;TypeScript v1&quot;
+import { Function, GeoPoint } from &quot;@foundry/functions-api&quot;;
+
+export class MyFunctions {
+    @Function()
+    public createPoint(): GeoPoint {
+        return GeoPoint.fromCoordinates({
+            latitude: 37.7749,
+            longitude: -22.4194
+        });
+    }
+}
+</code></pre>
+<p>```typescript tab="TypeScript v2"
+import { Point } from "@osdk/functions";</p>
+<p>function createPoint(): Point {
+    return {
+        type: "Point",
+        coordinates: [-22.4194, 37.7749]
+    };
+}</p>
+<p>export default createPoint;</p>
+<pre><code>
+```python tab=&quot;Python&quot;
+from functions.api import function, GeoPoint
+
+@function
+def create_point() -&gt; GeoPoint:
+    return GeoPoint(type=&quot;Point&quot;, coordinates=[-22.4194, 37.7749])
+</code></pre>
+<h3>GeoShape</h3>
+<p>The following example shows how to create and return a Polygon.</p>
+<p>```typescript tab="TypeScript v1"
+import { Function, Polygon, GeoPoint } from "@foundry/functions-api";</p>
+<p>export class MyFunctions {
+    @Function()
+    public createPolygon(): Polygon {
+        const ring: GeoPoint[] = [
+            GeoPoint.fromCoordinates({ latitude: 37.8, longitude: -22.4 }),
+            GeoPoint.fromCoordinates({ latitude: 37.8, longitude: -22.5 }),
+            GeoPoint.fromCoordinates({ latitude: 37.7, longitude: -22.5 }),
+            GeoPoint.fromCoordinates({ latitude: 37.7, longitude: -22.4 }),
+            GeoPoint.fromCoordinates({ latitude: 37.8, longitude: -22.4 })
+        ];
+        return Polygon.fromLinearRings([ring]);
+    }
+}</p>
+<pre><code>
+```typescript tab=&quot;TypeScript v2&quot;
+import { Geometry } from &quot;@osdk/functions&quot;;
+
+function createPolygon(): Geometry {
+    return {
+        type: &quot;Polygon&quot;,
+        coordinates: [[
+            [-22.4, 37.8],
+            [-22.5, 37.8],
+            [-22.5, 37.7],
+            [-22.4, 37.7],
+            [-22.4, 37.8]
+        ]]
+    };
+}
+
+export default createPolygon;
+</code></pre>
+<p>```python tab="Python"
+from functions.api import function, Polygon</p>
+<p>@function
+def create_polygon() -&gt; Polygon:
+    return Polygon(
+        type="Polygon",
+        coordinates=[[
+            [-22.4, 37.8],
+            [-22.5, 37.8],
+            [-22.5, 37.7],
+            [-22.4, 37.7],
+            [-22.4, 37.8]
+        ]])</p>
+<pre><code>
+An [Ontology edit function](https://www.palantir.com/docs/foundry/functions/edits-overview/) can set a `geoshape` property from a GeoJSON string, but the conversion step differs by language:
+
+* **TypeScript v1:** `GeoShape.fromGeoJson()` accepts a parsed GeoJSON geometry or geometry collection, so parse the string before passing it in.
+* **TypeScript v2:** `Geometry` is a plain GeoJSON object, so no conversion function is needed; assign the parsed value directly.
+* **Python:** Each concrete geometry class, such as `Polygon` or `LineString`, provides a `from_geo_json()` method that accepts the JSON string itself. The `GeoShape` type does not provide this method, so use the class that matches the geometry you expect.
+
+The following example sets the `geoshape` property of a `Region` object from a JSON string.
+
+```typescript tab=&quot;TypeScript v1&quot;
+import { OntologyEditFunction, Edits, GeoShape } from &quot;@foundry/functions-api&quot;;
+import { Region } from &quot;@foundry/ontology-api&quot;;
+
+export class MyFunctions {
+    @Edits(Region)
+    @OntologyEditFunction()
+    public updateBoundary(region: Region, boundary: string): void {
+        region.boundary = GeoShape.fromGeoJson(JSON.parse(boundary));
+    }
+}
+</code></pre>
+<p>```typescript tab="TypeScript v2"
+import { Region } from "@ontology/sdk";
+import { Client, Osdk } from "@osdk/client";
+import { createEditBatch, Edits, Geometry } from "@osdk/functions";</p>
+<p>type RegionEdit = Edits.Object<Region>;</p>
+<p>function updateBoundary(
+    client: Client,
+    region: Osdk.Instance<Region>,
+    boundary: string
+): RegionEdit[] {
+    const batch = createEditBatch<RegionEdit>(client);</p>
+<pre><code>batch.update(region, { boundary: JSON.parse(boundary) as Geometry });
+
+return batch.getEdits();
+</code></pre>
+<p>}</p>
+<p>export default updateBoundary;</p>
+<pre><code>
+```python tab=&quot;Python&quot;
+from functions.api import function, OntologyEdit, Polygon
+from ontology_sdk import FoundryClient
+from ontology_sdk.ontology.objects import Region
+
+@function(edits=[Region])
+def update_boundary(region: Region, boundary: str) -&gt; list[OntologyEdit]:
+    ontology_edits = FoundryClient().ontology.edits()
+
+    editable_region = ontology_edits.objects.Region.edit(region)
+    editable_region.boundary = Polygon.from_geo_json(boundary)
+
+    return ontology_edits.get_edits()
+</code></pre>
+</body>
+</html>

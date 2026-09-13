@@ -1,0 +1,821 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Geo intersection left anti join</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Geo intersection left anti join</h1>
+<blockquote>
+<p>Supported in: Streaming</p>
+</blockquote>
+<p>Anti joins input datasets based on whether input geometries overlap. Returns only rows from the left dataset where the geometry does not intersect with any geometry in the right dataset. Rows with null or invalid join keys are considered non-intersecting.</p>
+<p><strong>Transform categories</strong>: Geospatial, Join</p>
+<h2>Declared arguments</h2>
+<ul>
+<li><strong>Condition for columns to select on the left:</strong> All columns in the left input schema will be tested to see if they match this condition. If they match, the column will be selected in the output.<br><em>ColumnPredicate</em></li>
+<li><strong>Condition for columns to select on the right:</strong> All columns in the right input schema will be tested to see if they match this condition. If they match, the column will be selected in the output.<br><em>ColumnPredicate</em></li>
+<li><strong>Join key:</strong> GeoJSON columns from the left and right inputs on which to join.<br><em>Tuple\<Column\\<Geometry>, Column\\<Geometry>></em></li>
+<li><strong>Left dataset:</strong> Left dataset to use in join.<br><em>Table</em></li>
+<li><strong>Right dataset:</strong> Right dataset to use in join.<br><em>Table</em></li>
+<li><em>optional</em> <strong>Prefix for columns from right:</strong> Prefix to add to all columns on the right hand side.<br><em>Literal\<String></em></li>
+</ul>
+<h2>Examples</h2>
+<h3>Example 1: Base case</h3>
+<p><strong>Argument values:</strong></p>
+<ul>
+<li><strong>Condition for columns to select on the left:</strong> <br>allColumns(<br><br>)</li>
+<li><strong>Condition for columns to select on the right:</strong> <br>allColumns(<br><br>)</li>
+<li><strong>Join key:</strong> (<code>geometryColLhs</code>, <code>geometryColRhs</code>)</li>
+<li><strong>Left dataset:</strong> ri.foundry.main.dataset.left</li>
+<li><strong>Right dataset:</strong> ri.foundry.main.dataset.right</li>
+<li><strong>Prefix for columns from right:</strong> <em>null</em></li>
+</ul>
+<p><strong>Inputs:</strong></p>
+<p>ri.foundry.main.dataset.left</p>
+<table>
+<thead>
+<tr>
+<th>geometryColLhs</th>
+<th>col1Lhs</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>{"type":"Polygon","coordinates":[[[0.0,0.0],[0.0,10.0],[10.0,10.0],[10.0,0.0],[0.0,0.0]]]}</td>
+<td>42.0</td>
+</tr>
+<tr>
+<td>{"coordinates": [55.0, 5.0], "type":"Point"}</td>
+<td>43.0</td>
+</tr>
+</tbody>
+</table>
+<p>ri.foundry.main.dataset.right</p>
+<table>
+<thead>
+<tr>
+<th>geometryColRhs</th>
+<th>col1Rhs</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>{"coordinates": [[[2.0, 2.0], [7.0, 2.0], [7.0, 7.0], [2.0, 7.0], [2.0, 2.0]]], "type": "Polygon"}</td>
+<td>rhsVal1</td>
+</tr>
+<tr>
+<td>{"coordinates": [[[12.0, 12.0], [17.0, 12.0], [17.0, 17.0], [12.0, 17.0], [12.0, 12.0]]], "type": "Polygon"}</td>
+<td>rhsVal2</td>
+</tr>
+<tr>
+<td>{"coordinates": [0.0, 0.0], "type":"Point"}</td>
+<td>rhsVal3</td>
+</tr>
+<tr>
+<td>{"coordinates": [15.0, 15.0], "type":"Point"}</td>
+<td>rhsVal4</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Output:</strong></p>
+<table>
+<thead>
+<tr>
+<th>geometryColLhs</th>
+<th>col1Lhs</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>{"coordinates": [55.0, 5.0], "type":"Point"}</td>
+<td>43.0</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3>Example 2: Base case</h3>
+<p><strong>Argument values:</strong></p>
+<ul>
+<li><strong>Condition for columns to select on the left:</strong> <br>allColumns(<br><br>)</li>
+<li><strong>Condition for columns to select on the right:</strong> <br>allColumns(<br><br>)</li>
+<li><strong>Join key:</strong> (<code>geometryColLhs</code>, <code>geometryColRhs</code>)</li>
+<li><strong>Left dataset:</strong> ri.foundry.main.dataset.left</li>
+<li><strong>Right dataset:</strong> ri.foundry.main.dataset.right</li>
+<li><strong>Prefix for columns from right:</strong> <em>null</em></li>
+</ul>
+<p><strong>Inputs:</strong></p>
+<p>ri.foundry.main.dataset.left</p>
+<table>
+<thead>
+<tr>
+<th>geometryColLhs</th>
+<th>lhs1</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>{}</td>
+<td>42.0</td>
+</tr>
+<tr>
+<td>{"type":"Polygon","coordinates":[[[0.0,0.0],[0.0,10.0],[10.0,10.0],[10.0,0.0],[0.0,0.0]]]}</td>
+<td>43.0</td>
+</tr>
+</tbody>
+</table>
+<p>ri.foundry.main.dataset.right</p>
+<table>
+<thead>
+<tr>
+<th>geometryColRhs</th>
+<th>rhs1</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>{"coordinates": [[[2.0, 2.0], [7.0, 2.0], [7.0, 7.0], [2.0, 7.0], [2.0, 2.0]]], "type": "Polygon"}</td>
+<td>rhsVal1</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Output:</strong></p>
+<table>
+<thead>
+<tr>
+<th>geometryColLhs</th>
+<th>lhs1</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>{}</td>
+<td>42.0</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3>Example 3: Base case</h3>
+<p><strong>Argument values:</strong></p>
+<ul>
+<li><strong>Condition for columns to select on the left:</strong> <br>columnNameIsIn(<br>âcolumnNames: [lhs1],<br>)</li>
+<li><strong>Condition for columns to select on the right:</strong> <br>allColumns(<br><br>)</li>
+<li><strong>Join key:</strong> (<code>geometryColLhs</code>, <code>geometryColRhs</code>)</li>
+<li><strong>Left dataset:</strong> ri.foundry.main.dataset.left</li>
+<li><strong>Right dataset:</strong> ri.foundry.main.dataset.right</li>
+<li><strong>Prefix for columns from right:</strong> <em>null</em></li>
+</ul>
+<p><strong>Inputs:</strong></p>
+<p>ri.foundry.main.dataset.left</p>
+<table>
+<thead>
+<tr>
+<th>geometryColLhs</th>
+<th>lhs1</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>{"type":"Polygon","coordinates":[[[0.0,0.0],[0.0,10.0],[10.0,10.0],[10.0,0.0],[0.0,0.0]]]}</td>
+<td>42.0</td>
+</tr>
+<tr>
+<td>{"coordinates": [55.0, 5.0], "type":"Point"}</td>
+<td>43.0</td>
+</tr>
+</tbody>
+</table>
+<p>ri.foundry.main.dataset.right</p>
+<table>
+<thead>
+<tr>
+<th>geometryColRhs</th>
+<th>rhs1</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>{"coordinates": [[[2.0, 2.0], [7.0, 2.0], [7.0, 7.0], [2.0, 7.0], [2.0, 2.0]]], "type": "Polygon"}</td>
+<td>rhsVal1</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Output:</strong></p>
+<table>
+<thead>
+<tr>
+<th>lhs1</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>43.0</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3>Example 4: Base case</h3>
+<p><strong>Argument values:</strong></p>
+<ul>
+<li><strong>Condition for columns to select on the left:</strong> <br>allColumns(<br><br>)</li>
+<li><strong>Condition for columns to select on the right:</strong> <br>allColumns(<br><br>)</li>
+<li><strong>Join key:</strong> (<code>geometryColLhs</code>, <code>geometryColRhs</code>)</li>
+<li><strong>Left dataset:</strong> ri.foundry.main.dataset.left</li>
+<li><strong>Right dataset:</strong> ri.foundry.main.dataset.right</li>
+<li><strong>Prefix for columns from right:</strong> <em>null</em></li>
+</ul>
+<p><strong>Inputs:</strong></p>
+<p>ri.foundry.main.dataset.left</p>
+<table>
+<thead>
+<tr>
+<th>geometryColLhs</th>
+<th>col1Lhs</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>{"type":"Polygon","coordinates":[[[0.0,0.0],[0.0,10.0],[10.0,10.0],[10.0,0.0],[0.0,0.0]]]}</td>
+<td>1.0</td>
+</tr>
+<tr>
+<td>{"type":"Polygon","coordinates":[[[0.0,0.0],[0.0,10.0],[10.0,10.0],[10.0,0.0],[0.0,0.0]]]}</td>
+<td>2.0</td>
+</tr>
+</tbody>
+</table>
+<p>ri.foundry.main.dataset.right</p>
+<table>
+<thead>
+<tr>
+<th>geometryColRhs</th>
+<th>col1Rhs</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>{"coordinates": [[[2.0, 2.0], [7.0, 2.0], [7.0, 7.0], [2.0, 7.0], [2.0, 2.0]]], "type": "Polygon"}</td>
+<td>rhsVal1</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Output:</strong></p>
+<table>
+<thead>
+<tr>
+<th>geometryColLhs</th>
+<th>col1Lhs</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3>Example 5: Base case</h3>
+<p><strong>Argument values:</strong></p>
+<ul>
+<li><strong>Condition for columns to select on the left:</strong> <br>allColumns(<br><br>)</li>
+<li><strong>Condition for columns to select on the right:</strong> <br>allColumns(<br><br>)</li>
+<li><strong>Join key:</strong> (<code>geometryColLhs</code>, <code>geometryColRhs</code>)</li>
+<li><strong>Left dataset:</strong> ri.foundry.main.dataset.left</li>
+<li><strong>Right dataset:</strong> ri.foundry.main.dataset.right</li>
+<li><strong>Prefix for columns from right:</strong> <em>null</em></li>
+</ul>
+<p><strong>Inputs:</strong></p>
+<p>ri.foundry.main.dataset.left</p>
+<table>
+<thead>
+<tr>
+<th>geometryColLhs</th>
+<th>col1Lhs</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>{"coordinates": [55.0, 5.0], "type":"Point"}</td>
+<td>1.0</td>
+</tr>
+<tr>
+<td>{"coordinates": [[[21.0, 21.0], [27.0, 21.0], [27.0, 27.0], [21.0, 27.0], [21.0, 21.0]]], "type": "Polygon"}</td>
+<td>2.0</td>
+</tr>
+<tr>
+<td>{"coordinates": [15.0, 15.0], "type":"Point"}</td>
+<td>3.0</td>
+</tr>
+</tbody>
+</table>
+<p>ri.foundry.main.dataset.right</p>
+<table>
+<thead>
+<tr>
+<th>geometryColRhs</th>
+<th>col1Rhs</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>{"coordinates": [[[2.0, 2.0], [7.0, 2.0], [7.0, 7.0], [2.0, 7.0], [2.0, 2.0]]], "type": "Polygon"}</td>
+<td>rhsVal1</td>
+</tr>
+<tr>
+<td>{"coordinates": [0.0, 0.0], "type":"Point"}</td>
+<td>rhsVal2</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Output:</strong></p>
+<table>
+<thead>
+<tr>
+<th>geometryColLhs</th>
+<th>col1Lhs</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>{"coordinates": [55.0, 5.0], "type":"Point"}</td>
+<td>1.0</td>
+</tr>
+<tr>
+<td>{"coordinates": [[[21.0, 21.0], [27.0, 21.0], [27.0, 27.0], [21.0, 27.0], [21.0, 21.0]]], "type": "Polygon"}</td>
+<td>2.0</td>
+</tr>
+<tr>
+<td>{"coordinates": [15.0, 15.0], "type":"Point"}</td>
+<td>3.0</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3>Example 6: Base case</h3>
+<p><strong>Argument values:</strong></p>
+<ul>
+<li><strong>Condition for columns to select on the left:</strong> <br>allColumns(<br><br>)</li>
+<li><strong>Condition for columns to select on the right:</strong> <br>allColumns(<br><br>)</li>
+<li><strong>Join key:</strong> (<code>geometryColLhs</code>, <code>geometryColRhs</code>)</li>
+<li><strong>Left dataset:</strong> ri.foundry.main.dataset.left</li>
+<li><strong>Right dataset:</strong> ri.foundry.main.dataset.right</li>
+<li><strong>Prefix for columns from right:</strong> <em>null</em></li>
+</ul>
+<p><strong>Inputs:</strong></p>
+<p>ri.foundry.main.dataset.left</p>
+<table>
+<thead>
+<tr>
+<th>geometryColLhs</th>
+<th>col1Lhs</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>{"type":"Polygon","coordinates":[[[0.0,0.0],[0.0,10.0],[10.0,10.0],[10.0,0.0],[0.0,0.0]]]}</td>
+<td>1.0</td>
+</tr>
+<tr>
+<td>{"coordinates": [55.0, 5.0], "type":"Point"}</td>
+<td>2.0</td>
+</tr>
+<tr>
+<td>{"coordinates": [15.0, 5.0], "type":"Point"}</td>
+<td>3.0</td>
+</tr>
+<tr>
+<td>{"coordinates": [[[20.0, 10.0], [27.0, 10.0], [27.0, 17.0], [20.0, 17.0], [20.0, 10.0]]], "type": "Polygon"}</td>
+<td>4.0</td>
+</tr>
+<tr>
+<td>{"coordinates": [[[21.0, 21.0], [27.0, 21.0], [27.0, 27.0], [21.0, 27.0], [21.0, 21.0]]], "type": "Polygon"}</td>
+<td>5.0</td>
+</tr>
+</tbody>
+</table>
+<p>ri.foundry.main.dataset.right</p>
+<table>
+<thead>
+<tr>
+<th>geometryColRhs</th>
+<th>col1Rhs</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>{"coordinates": [[[2.0, 2.0], [7.0, 2.0], [7.0, 7.0], [2.0, 7.0], [2.0, 2.0]]], "type": "Polygon"}</td>
+<td>rhsVal1</td>
+</tr>
+<tr>
+<td>{"coordinates": [0.0, 0.0], "type":"Point"}</td>
+<td>rhsVal2</td>
+</tr>
+<tr>
+<td>{"coordinates": [[-1.0, -1.0], [5.0, 5.0]], "type":"LineString"}</td>
+<td>rhsVal3</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Output:</strong></p>
+<table>
+<thead>
+<tr>
+<th>geometryColLhs</th>
+<th>col1Lhs</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>{"coordinates": [55.0, 5.0], "type":"Point"}</td>
+<td>2.0</td>
+</tr>
+<tr>
+<td>{"coordinates": [15.0, 5.0], "type":"Point"}</td>
+<td>3.0</td>
+</tr>
+<tr>
+<td>{"coordinates": [[[20.0, 10.0], [27.0, 10.0], [27.0, 17.0], [20.0, 17.0], [20.0, 10.0]]], "type": "Polygon"}</td>
+<td>4.0</td>
+</tr>
+<tr>
+<td>{"coordinates": [[[21.0, 21.0], [27.0, 21.0], [27.0, 27.0], [21.0, 27.0], [21.0, 21.0]]], "type": "Polygon"}</td>
+<td>5.0</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3>Example 7: Base case</h3>
+<p><strong>Argument values:</strong></p>
+<ul>
+<li><strong>Condition for columns to select on the left:</strong> <br>allColumns(<br><br>)</li>
+<li><strong>Condition for columns to select on the right:</strong> <br>allColumns(<br><br>)</li>
+<li><strong>Join key:</strong> (<code>geometryColLhs</code>, <code>geometryColRhs</code>)</li>
+<li><strong>Left dataset:</strong> ri.foundry.main.dataset.left</li>
+<li><strong>Right dataset:</strong> ri.foundry.main.dataset.right</li>
+<li><strong>Prefix for columns from right:</strong> <em>null</em></li>
+</ul>
+<p><strong>Inputs:</strong></p>
+<p>ri.foundry.main.dataset.left</p>
+<table>
+<thead>
+<tr>
+<th>geometryColLhs</th>
+<th>col1Lhs</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>{"type":"Polygon","coordinates":[[[0.0,0.0],[0.0,10.0],[10.0,10.0],[10.0,0.0],[0.0,0.0]]]}</td>
+<td>1.0</td>
+</tr>
+<tr>
+<td>{"coordinates": [55.0, 5.0], "type":"Point"}</td>
+<td>2.0</td>
+</tr>
+</tbody>
+</table>
+<p>ri.foundry.main.dataset.right</p>
+<table>
+<thead>
+<tr>
+<th>geometryColRhs</th>
+<th>col1Rhs</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>{"coordinates": [[[2.0, 2.0], [7.0, 2.0], [7.0, 7.0], [2.0, 7.0], [2.0, 2.0]]], "type": "Polygon"}</td>
+<td>rhsVal1</td>
+</tr>
+<tr>
+<td>{"coordinates": [[[12.0, 12.0], [17.0, 12.0], [17.0, 17.0], [12.0, 17.0], [12.0, 12.0]]], "type": "Polygon"}</td>
+<td>rhsVal2</td>
+</tr>
+<tr>
+<td>{"coordinates": [0.0, 0.0], "type":"Point"}</td>
+<td>rhsVal3</td>
+</tr>
+<tr>
+<td>{"coordinates": [15.0, 15.0], "type":"Point"}</td>
+<td>rhsVal4</td>
+</tr>
+<tr>
+<td>{"coordinates": [[-1.0, -1.0], [5.0, 5.0]], "type":"LineString"}</td>
+<td>rhsVal5</td>
+</tr>
+<tr>
+<td>{"coordinates": [[20.0, 20.0], [21.0, 23.0]], "type":"LineString"}</td>
+<td>rhsVal6</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Output:</strong></p>
+<table>
+<thead>
+<tr>
+<th>geometryColLhs</th>
+<th>col1Lhs</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>{"coordinates": [55.0, 5.0], "type":"Point"}</td>
+<td>2.0</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3>Example 8: Base case</h3>
+<p><strong>Argument values:</strong></p>
+<ul>
+<li><strong>Condition for columns to select on the left:</strong> <br>allColumns(<br><br>)</li>
+<li><strong>Condition for columns to select on the right:</strong> <br>allColumns(<br><br>)</li>
+<li><strong>Join key:</strong> (<code>geometry</code>, <code>geometry</code>)</li>
+<li><strong>Left dataset:</strong> ri.foundry.main.dataset.left</li>
+<li><strong>Right dataset:</strong> ri.foundry.main.dataset.right</li>
+<li><strong>Prefix for columns from right:</strong> rhs_</li>
+</ul>
+<p><strong>Inputs:</strong></p>
+<p>ri.foundry.main.dataset.left</p>
+<table>
+<thead>
+<tr>
+<th>geometry</th>
+<th>value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>{"type":"Polygon","coordinates":[[[0.0,0.0],[0.0,10.0],[10.0,10.0],[10.0,0.0],[0.0,0.0]]]}</td>
+<td>42.0</td>
+</tr>
+<tr>
+<td>{"coordinates": [55.0, 5.0], "type":"Point"}</td>
+<td>43.0</td>
+</tr>
+</tbody>
+</table>
+<p>ri.foundry.main.dataset.right</p>
+<table>
+<thead>
+<tr>
+<th>geometry</th>
+<th>value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>{"coordinates": [[[2.0, 2.0], [7.0, 2.0], [7.0, 7.0], [2.0, 7.0], [2.0, 2.0]]], "type": "Polygon"}</td>
+<td>rhsVal1</td>
+</tr>
+<tr>
+<td>{"coordinates": [[[12.0, 12.0], [17.0, 12.0], [17.0, 17.0], [12.0, 17.0], [12.0, 12.0]]], "type": "Polygon"}</td>
+<td>rhsVal2</td>
+</tr>
+<tr>
+<td>{"coordinates": [0.0, 0.0], "type":"Point"}</td>
+<td>rhsVal3</td>
+</tr>
+<tr>
+<td>{"coordinates": [15.0, 15.0], "type":"Point"}</td>
+<td>rhsVal4</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Output:</strong></p>
+<table>
+<thead>
+<tr>
+<th>geometry</th>
+<th>value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>{"coordinates": [55.0, 5.0], "type":"Point"}</td>
+<td>43.0</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3>Example 9: Base case</h3>
+<p><strong>Argument values:</strong></p>
+<ul>
+<li><strong>Condition for columns to select on the left:</strong> <br>columnNameIsIn(<br>âcolumnNames: [geometryColLhs],<br>)</li>
+<li><strong>Condition for columns to select on the right:</strong> <br>allColumns(<br><br>)</li>
+<li><strong>Join key:</strong> (<code>geometryColLhs</code>, <code>geometryColRhs</code>)</li>
+<li><strong>Left dataset:</strong> ri.foundry.main.dataset.left</li>
+<li><strong>Right dataset:</strong> ri.foundry.main.dataset.right</li>
+<li><strong>Prefix for columns from right:</strong> <em>null</em></li>
+</ul>
+<p><strong>Inputs:</strong></p>
+<p>ri.foundry.main.dataset.left</p>
+<table>
+<thead>
+<tr>
+<th>geometryColLhs</th>
+<th>col1Lhs</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>{"type":"Polygon","coordinates":[[[0.0,0.0],[0.0,10.0],[10.0,10.0],[10.0,0.0],[0.0,0.0]]]}</td>
+<td>42.0</td>
+</tr>
+<tr>
+<td>{"coordinates": [55.0, 5.0], "type":"Point"}</td>
+<td>43.0</td>
+</tr>
+</tbody>
+</table>
+<p>ri.foundry.main.dataset.right</p>
+<table>
+<thead>
+<tr>
+<th>geometryColRhs</th>
+<th>col1Rhs</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>{"coordinates": [[[2.0, 2.0], [7.0, 2.0], [7.0, 7.0], [2.0, 7.0], [2.0, 2.0]]], "type": "Polygon"}</td>
+<td>rhsVal1</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Output:</strong></p>
+<table>
+<thead>
+<tr>
+<th>geometryColLhs</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>{"coordinates": [55.0, 5.0], "type":"Point"}</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3>Example 10: Null case</h3>
+<p><strong>Argument values:</strong></p>
+<ul>
+<li><strong>Condition for columns to select on the left:</strong> <br>allColumns(<br><br>)</li>
+<li><strong>Condition for columns to select on the right:</strong> <br>allColumns(<br><br>)</li>
+<li><strong>Join key:</strong> (<code>geometryColLhs</code>, <code>geometryColRhs</code>)</li>
+<li><strong>Left dataset:</strong> ri.foundry.main.dataset.left</li>
+<li><strong>Right dataset:</strong> ri.foundry.main.dataset.right</li>
+<li><strong>Prefix for columns from right:</strong> <em>null</em></li>
+</ul>
+<p><strong>Inputs:</strong></p>
+<p>ri.foundry.main.dataset.left</p>
+<table>
+<thead>
+<tr>
+<th>geometryColLhs</th>
+<th>lhs1</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>{"type":"Polygon","coordinates":[[[0.0,0.0],[0.0,10.0],[10.0,10.0],[10.0,0.0],[0.0,0.0]]]}</td>
+<td>1.0</td>
+</tr>
+<tr>
+<td><em>null</em></td>
+<td>2.0</td>
+</tr>
+<tr>
+<td>{}</td>
+<td>3.0</td>
+</tr>
+<tr>
+<td>{"coordinates": [55.0, 5.0], "type":"Point"}</td>
+<td>4.0</td>
+</tr>
+</tbody>
+</table>
+<p>ri.foundry.main.dataset.right</p>
+<table>
+<thead>
+<tr>
+<th>geometryColRhs</th>
+<th>rhs1</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>{"coordinates": [[[2.0, 2.0], [7.0, 2.0], [7.0, 7.0], [2.0, 7.0], [2.0, 2.0]]], "type": "Polygon"}</td>
+<td>rhsVal1</td>
+</tr>
+<tr>
+<td><em>null</em></td>
+<td>rhsVal2</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Output:</strong></p>
+<table>
+<thead>
+<tr>
+<th>geometryColLhs</th>
+<th>lhs1</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><em>null</em></td>
+<td>2.0</td>
+</tr>
+<tr>
+<td>{}</td>
+<td>3.0</td>
+</tr>
+<tr>
+<td>{"coordinates": [55.0, 5.0], "type":"Point"}</td>
+<td>4.0</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3>Example 11: Null case</h3>
+<p><strong>Argument values:</strong></p>
+<ul>
+<li><strong>Condition for columns to select on the left:</strong> <br>allColumns(<br><br>)</li>
+<li><strong>Condition for columns to select on the right:</strong> <br>allColumns(<br><br>)</li>
+<li><strong>Join key:</strong> (<code>geometryColLhs</code>, <code>geometryColRhs</code>)</li>
+<li><strong>Left dataset:</strong> ri.foundry.main.dataset.left</li>
+<li><strong>Right dataset:</strong> ri.foundry.main.dataset.right</li>
+<li><strong>Prefix for columns from right:</strong> <em>null</em></li>
+</ul>
+<p><strong>Inputs:</strong></p>
+<p>ri.foundry.main.dataset.left</p>
+<table>
+<thead>
+<tr>
+<th>geometryColLhs</th>
+<th>lhs1</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><em>null</em></td>
+<td>42.0</td>
+</tr>
+<tr>
+<td>{"type":"Polygon","coordinates":[[[0.0,0.0],[0.0,10.0],[10.0,10.0],[10.0,0.0],[0.0,0.0]]]}</td>
+<td>43.0</td>
+</tr>
+</tbody>
+</table>
+<p>ri.foundry.main.dataset.right</p>
+<table>
+<thead>
+<tr>
+<th>geometryColRhs</th>
+<th>rhs1</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>{"coordinates": [[[2.0, 2.0], [7.0, 2.0], [7.0, 7.0], [2.0, 7.0], [2.0, 2.0]]], "type": "Polygon"}</td>
+<td>rhsVal1</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Output:</strong></p>
+<table>
+<thead>
+<tr>
+<th>geometryColLhs</th>
+<th>lhs1</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><em>null</em></td>
+<td>42.0</td>
+</tr>
+</tbody>
+</table>
+<hr />
+</body>
+</html>

@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Staged writes in AIP Logic</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Staged writes in AIP Logic</h1>
+<p>:::callout{theme="neutral" title="Beta"}
+Staged writes are in the <a href="https://www.palantir.com/docs/foundry/platform-overview/development-life-cycle/">beta</a> phase of development and may not be available on your enrollment. Functionality may change during active development. Contact Palantir Support to request access.
+:::</p>
+<p>Staged writes provide an improved execution model for AIP Logic functions that edit objects in the Ontology. Staged writes will soon be enabled by default for newly created Logic functions.</p>
+<p>Compared to legacy Ontology edit behavior, staged-write Logic functions:</p>
+<ul>
+<li><strong>Support Ontology edits in nested function and action calls.</strong> A staged-write Logic function can call other staged-write functions or other functions that make Ontology edits directly, or apply actions backed by other functions that make Ontology edits. This was previously not supported.</li>
+<li><strong>Support all object set filters.</strong> All object set filters are now supported, including <strong>contain keywords</strong> and <strong>relative time range</strong>, which are not supported in legacy mode.</li>
+</ul>
+<p>For a full description of staged-write semantics, refer to the <a href="https://www.palantir.com/docs/foundry/functions/typescript-v2-staged-writes/">staged writes documentation</a>.</p>
+<h2>Key differences from legacy behavior</h2>
+<p>There are several notable differences between staged-write Logic functions and legacy Ontology edit behavior.</p>
+<h3>Ontology edits in nested function and action calls</h3>
+<p>With staged writes enabled, your Logic function can call other staged-write functions (such as other Logic functions or <a href="https://www.palantir.com/docs/foundry/functions/typescript-v2-staged-writes/">TypeScript v2 functions</a>) or other functions that make Ontology edits directly, or apply actions backed by other functions that perform Ontology edits. Previously, calling an action backed by another Logic function that also makes Ontology edits from within a Logic function was not supported.</p>
+<p>Edits made by nested calls are visible to subsequent reads within the same Logic execution. All edits are staged to temporary storage and applied to the Ontology when the execution completes.</p>
+<p>For example, a Logic function that processes a support email can create a <code>Support Ticket</code> object, then apply a triage action backed by a separate Logic function. That triage function can assign the ticket and edit related objects. All edits are staged together, and a later block in your Logic function can query the results of both.</p>
+<h3>Support for all object set filter boards</h3>
+<p>In legacy mode, once your Logic function has made an edit, certain object set filter boards are no longer supported for the remainder of the execution:</p>
+<ul>
+<li>Contain keywords</li>
+<li>Contain keywords (in order)</li>
+<li>Relative time range</li>
+</ul>
+<p>With staged writes enabled, all object set filters are now supported throughout the AIP Logic execution.</p>
+<h3>Function output is no longer a list of Ontology edits</h3>
+<p>Legacy Logic functions that edit the Ontology return a list of Ontology edits as their output. Staged-write Logic functions instead stage their edits to temporary storage and apply them to the Ontology when the execution completes. As a result, the function no longer returns Ontology edits and can return other types of values.</p>
+<p>:::callout{theme="warning"}
+Because staged-write Logic functions do not return Ontology edits, they cannot be selected in the Logic effect in <a href="https://www.palantir.com/docs/foundry/automate/overview/">Automate</a>. To call a staged-write Logic function from Automate, wrap it with an action type and use an action effect. See <a href="#using-staged-write-logic-functions-in-automate">Automate staged-write Logic functions</a> below.
+:::</p>
+<h2>Enable or disable staged writes</h2>
+<p>Staged writes will soon be enabled by default for new Logic functions. You can turn staged writes on or off for a Logic function using the <strong>Enable staged write mode</strong> toggle under <strong>Execution mode settings</strong> in AIP Logic.</p>
+<p><img src="../../_resources/external-90c56469c641.png" alt="Staged writes toggle in AIP Logic." width="550" /></p>
+<p>Disabling staged writes reverts the function to the legacy behavior, where the function returns a list of Ontology edits as its output. You may want to disable staged writes if your workflow depends on calling the Logic function directly from the Logic effect in Automate.</p>
+<p>:::callout{theme="success"}
+We recommend keeping staged writes enabled and calling your function through an action type. Legacy behavior does not support Ontology edits in nested action calls, does not support keyword and relative time range filters after the function has made an edit, and will be deprecated in the future.
+:::</p>
+<h3>Versioning when switching modes</h3>
+<p>The versioning impact of toggling staged writes depends on the function's output type:</p>
+<ul>
+<li><strong>Output type is a list of Ontology edits:</strong> Enabling or disabling staged writes publishes a new <strong>major version</strong> of the function, because the output type will change to a different type depending on the Logic configuration. Version ranges configured in actions or in Automate do not cross major version boundaries, so existing consumers will continue to run against the previously published version and will not automatically upgrade. See <a href="#migrate-existing-automations">Migrate existing automations</a> below.</li>
+<li><strong>Output type is not a list of Ontology edits:</strong> Toggling staged writes does not change the output type, so no major version bump occurs. Existing consumers will automatically pick up the new version if they are configured to auto upgrade.</li>
+</ul>
+<h2>Using staged-write Logic functions in Automate</h2>
+<p>Staged-write Logic functions must be called through an <a href="https://www.palantir.com/docs/foundry/action-types/overview/">action type</a> to be used in Automate. The action provides the execution context in which edits are staged and applied.</p>
+<h3>Create an action type from your Logic function</h3>
+<p>AIP Logic provides a <strong>Create action</strong> button for staged-write Logic functions that generates an action type calling your function:</p>
+<ol>
+<li>In your AIP Logic file, navigate to the <strong>Usage</strong> tab and select <strong>Create action</strong>.</li>
+<li>Review the generated action type. The action's parameters are mapped from your Logic function's inputs.</li>
+<li>Save the action type.</li>
+</ol>
+<p><img src="../../_resources/external-bc4ddd8b3367.png" alt="The Create action button in AIP Logic." width="550" /></p>
+<p>You can then use this action in an <a href="https://www.palantir.com/docs/foundry/automate/effect-actions/">action effect</a> in Automate, or apply it anywhere else actions are supported, such as Workshop.</p>
+<p>:::callout{theme="neutral"}
+Creating an action type does not enable or disable staged writes on the function; the execution mode is controlled only by the <strong>Enable staged write mode</strong> toggle.
+:::</p>
+<p>Alternatively, you can configure an existing action type to be backed by your Logic function in <a href="https://www.palantir.com/docs/foundry/ontology-manager/overview/">Ontology Manager</a>. Creating a new action type with <strong>Create action</strong> is usually the simpler path.</p>
+<h3>Create an automation</h3>
+<p>For staged-write Logic functions, once you have created the action type, navigate to Automate and create an <a href="https://www.palantir.com/docs/foundry/automate/effect-actions/">action effect</a>.</p>
+<p>In Automate, configure the action parameters from the objects or values that trigger the automation, as with any other action effect. All Automate capabilities available to action effects â including staging actions as <a href="https://www.palantir.com/docs/foundry/logic/aip-logic-integration-automate/">proposals for human review</a>, retry strategies, and fallback effects â work with actions that call staged-write Logic functions.</p>
+<h2>Migrate existing automations</h2>
+<p>If you enable staged writes on a Logic function that is already used directly in an automation through the Logic effect:</p>
+<ul>
+<li>The automation <strong>continues to run</strong> against the previously published legacy major version of the function. Enabling staged writes does not break existing automations.</li>
+<li>If you attempt to update the automation to the staged-write major version of the function, you will be <strong>blocked from saving</strong>, because the Logic effect only supports legacy Logic functions.</li>
+<li>The <strong>Auto upgrade to compatible versions</strong> setting in Automate will not move an automation onto the staged-write version, because auto upgrade never crosses a major version boundary.</li>
+</ul>
+<p>To migrate an existing automation to staged writes:</p>
+<ol>
+<li>Enable staged writes on your Logic function and publish. If the function's output type is a list of Ontology edits, this creates a new major version.</li>
+<li>In AIP Logic, select <strong>Create action</strong> in the <strong>Usage</strong> tab to generate an action type from the function.</li>
+<li>In your automation, replace the Logic effect with an action effect that submits the generated action.</li>
+<li>Save the automation.</li>
+</ol>
+</body>
+</html>

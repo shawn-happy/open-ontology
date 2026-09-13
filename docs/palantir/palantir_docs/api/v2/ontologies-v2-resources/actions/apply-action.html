@@ -1,0 +1,998 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Apply Action</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../../../index.html">返回目录</a></div>
+<p><code>POST /api/v2/ontologies/{ontology}/actions/{action}/apply</code></p>
+<p>Applies an action using the given parameters. </p>
+<p>Changes to objects or links stored in Object Storage V1 are eventually consistent and may take some time to be visible.
+Edits to objects or links in Object Storage V2 will be visible immediately after the action completes.</p>
+<p>Note that a 200 HTTP status code only indicates that the request was received and processed by the server. 
+See the validation result in the response body to determine if the action was applied successfully.</p>
+<p>Note that <a href="https://www.palantir.com/docs/foundry/action-types/parameters-default-value/">parameter default values</a> are not currently supported by
+this endpoint.</p>
+<p>Third-party applications using this endpoint via OAuth2 must request the following operation scopes: <code>api:ontologies-read api:ontologies-write</code>.</p>
+<p><strong>OAuth2 scopes</strong>: <code>api:ontologies-read</code> <code>api:ontologies-write</code></p>
+<h2>Path parameters</h2>
+<table>
+<thead>
+<tr>
+<th>参数</th>
+<th>类型</th>
+<th>必填</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ontology</code></td>
+<td>string</td>
+<td>是</td>
+<td>The API name or RID of the Ontology. To find the API name or RID, use the <strong>List Ontologies</strong> endpoint or<br>check the <strong>Ontology Manager</strong>.<br>示例: <code>palantir</code></td>
+</tr>
+<tr>
+<td><code>action</code></td>
+<td>string</td>
+<td>是</td>
+<td>The API name of the action to apply. To find the API name for your action, use the <strong>List action types</strong><br>endpoint or check the <strong>Ontology Manager</strong>.<br>示例: <code>rename-employee</code></td>
+</tr>
+</tbody>
+</table>
+<h2>Query parameters</h2>
+<table>
+<thead>
+<tr>
+<th>参数</th>
+<th>类型</th>
+<th>必填</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>sdkPackageRid</code></td>
+<td>string</td>
+<td>否</td>
+<td>The package rid of the generated SDK.</td>
+</tr>
+<tr>
+<td><code>sdkVersion</code></td>
+<td>string</td>
+<td>否</td>
+<td>The version of the generated SDK.</td>
+</tr>
+<tr>
+<td><code>transactionId</code></td>
+<td>string</td>
+<td>否</td>
+<td>The ID of an Ontology transaction to apply the action against.<br>Transactions are an experimental feature and all workflows may not be supported.</td>
+</tr>
+<tr>
+<td><code>scenarioRid</code></td>
+<td>string</td>
+<td>否</td>
+<td>The resource identifier of an ontology scenario to apply the action against.<br>示例: <code>ri.actions..scenario.a1b2c3d4-e5f6-7890-abcd-ef1234567890</code></td>
+</tr>
+<tr>
+<td><code>branch</code></td>
+<td>string</td>
+<td>否</td>
+<td>The Foundry branch to apply the action against. If not specified, the default branch is used.<br>Branches are an experimental feature and not all workflows are supported.<br>示例: <code>ri.branch..branch.d827184f-ee0e-4351-8b70-efbe51e07252</code></td>
+</tr>
+</tbody>
+</table>
+<h2>Request body</h2>
+<pre><code class="language-json">{
+  &quot;parameters&quot;: {
+    &quot;id&quot;: 80060,
+    &quot;newName&quot;: &quot;Anna Smith-Doe&quot;
+  }
+}
+</code></pre>
+<h2>Response</h2>
+<p><strong>SyncApplyActionResponseV2</strong></p>
+<p>Success response.</p>
+<table>
+<thead>
+<tr>
+<th>参数</th>
+<th>类型</th>
+<th>必填</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>SyncApplyActionResponseV2</code></td>
+<td>object</td>
+<td>是</td>
+<td>Success response.<br>示例: <code>{"operationId":"ri.actions.main.action.c61d9ab5-2919-4127-a0a1-ac64c0ce6367","validation":{"result":"VALID"},"parameters":{"id":{"evaluatedConstraints":[],"result":"VALID","required":true},"newName":{"evaluatedConstraints":[],"result":"VALID","required":true}}}</code></td>
+</tr>
+<tr>
+<td><code>SyncApplyActionResponseV2.operationId</code></td>
+<td>string</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>SyncApplyActionResponseV2.validation</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>SyncApplyActionResponseV2.validation.result</code></td>
+<td>enum</td>
+<td>是</td>
+<td>Represents the state of a validation.</td>
+</tr>
+<tr>
+<td><code>SyncApplyActionResponseV2.validation.submissionCriteria</code></td>
+<td>list<SubmissionCriteriaEvaluation></td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>SyncApplyActionResponseV2.validation.submissionCriteria.SubmissionCriteriaEvaluation</code></td>
+<td>object</td>
+<td>是</td>
+<td>Contains the status of the <strong>submission criteria</strong>.<br><strong>Submission criteria</strong> are the prerequisites that need to be satisfied before an Action can be applied.<br>These are configured in the <strong>Ontology Manager</strong>.</td>
+</tr>
+<tr>
+<td><code>SyncApplyActionResponseV2.validation.submissionCriteria.SubmissionCriteriaEvaluation.configuredFailureMessage</code></td>
+<td>string</td>
+<td>否</td>
+<td>The message indicating one of the <strong>submission criteria</strong> was not satisfied.<br>This is configured per <strong>submission criteria</strong> in the <strong>Ontology Manager</strong>.</td>
+</tr>
+<tr>
+<td><code>SyncApplyActionResponseV2.validation.submissionCriteria.SubmissionCriteriaEvaluation.result</code></td>
+<td>enum</td>
+<td>是</td>
+<td>Represents the state of a validation.</td>
+</tr>
+<tr>
+<td><code>SyncApplyActionResponseV2.validation.parameters</code></td>
+<td>map</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>SyncApplyActionResponseV2.validation.parameters.ParameterId</code></td>
+<td>string</td>
+<td>是</td>
+<td>The unique identifier of the parameter. Parameters are used as inputs when an action or query is applied.<br>Parameters can be viewed and managed in the <strong>Ontology Manager</strong>.</td>
+</tr>
+<tr>
+<td><code>SyncApplyActionResponseV2.validation.parameters.ParameterEvaluationResult</code></td>
+<td>object</td>
+<td>是</td>
+<td>Represents the validity of a parameter against the configured constraints.</td>
+</tr>
+<tr>
+<td><code>SyncApplyActionResponseV2.validation.parameters.ParameterEvaluationResult.result</code></td>
+<td>enum</td>
+<td>是</td>
+<td>Represents the state of a validation.</td>
+</tr>
+<tr>
+<td><code>SyncApplyActionResponseV2.validation.parameters.ParameterEvaluationResult.evaluatedConstraints</code></td>
+<td>list<ParameterEvaluatedConstraint></td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>SyncApplyActionResponseV2.validation.parameters.ParameterEvaluationResult.evaluatedConstraints.ParameterEvaluatedConstraint</code></td>
+<td>union</td>
+<td>是</td>
+<td>A constraint that an action parameter value must satisfy in order to be considered valid.<br>Constraints can be configured on action parameters in the <strong>Ontology Manager</strong>.<br>Applicable constraints are determined dynamically based on parameter inputs.<br>Parameter values are evaluated against the final set of constraints.<br>The type of the constraint.<br>| Type                  | Description                                                                                                                                                                                                                     |<br>|-----------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|<br>| <code>arraySize</code>           | The parameter expects an array of values and the size of the array must fall within the defined range.                                                                                                                          |<br>| <code>groupMember</code>         | The parameter value must be the user id of a member belonging to at least one of the groups defined by the constraint.                                                                                                          |<br>| <code>objectPropertyValue</code> | The parameter value must be a property value of an object found within an object set.                                                                                                                                           |<br>| <code>objectQueryResult</code>   | The parameter value must be the primary key of an object found within an object set.                                                                                                                                            |<br>| <code>oneOf</code>               | The parameter has a manually predefined set of options.                                                                                                                                                                         |<br>| <code>range</code>               | The parameter value must be within the defined range.                                                                                                                                                                           |<br>| <code>stringLength</code>        | The parameter value must have a length within the defined range.                                                                                                                                                                |<br>| <code>stringRegexMatch</code>    | The parameter value must match a predefined regular expression.                                                                                                                                                                 |<br>| <code>unevaluable</code>         | The parameter cannot be evaluated because it depends on another parameter or object set that can't be evaluated. This can happen when a parameter's allowed values are defined by another parameter that is missing or invalid. |</td>
+</tr>
+<tr>
+<td><code>SyncApplyActionResponseV2.validation.parameters.ParameterEvaluationResult.evaluatedConstraints.ParameterEvaluatedConstraint.struct</code></td>
+<td>object</td>
+<td>否</td>
+<td>Represents the validity of a singleton struct parameter.</td>
+</tr>
+<tr>
+<td><code>SyncApplyActionResponseV2.validation.parameters.ParameterEvaluationResult.evaluatedConstraints.ParameterEvaluatedConstraint.struct.structFields</code></td>
+<td>map</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>SyncApplyActionResponseV2.validation.parameters.ParameterEvaluationResult.evaluatedConstraints.ParameterEvaluatedConstraint.struct.structFields.StructParameterFieldApiName</code></td>
+<td>string</td>
+<td>是</td>
+<td>The unique identifier of the struct parameter field.</td>
+</tr>
+<tr>
+<td><code>SyncApplyActionResponseV2.validation.parameters.ParameterEvaluationResult.evaluatedConstraints.ParameterEvaluatedConstraint.struct.structFields.StructFieldEvaluationResult</code></td>
+<td>object</td>
+<td>是</td>
+<td>Represents the validity of a struct parameter's fields against the configured constraints.</td>
+</tr>
+<tr>
+<td><code>SyncApplyActionResponseV2.validation.parameters.ParameterEvaluationResult.evaluatedConstraints.ParameterEvaluatedConstraint.struct.structFields.StructFieldEvaluationResult.result</code></td>
+<td>enum</td>
+<td>是</td>
+<td>Represents the state of a validation.</td>
+</tr>
+<tr>
+<td><code>SyncApplyActionResponseV2.validation.parameters.ParameterEvaluationResult.evaluatedConstraints.ParameterEvaluatedConstraint.struct.structFields.StructFieldEvaluationResult.evaluatedConstraints</code></td>
+<td>list<StructFieldEvaluatedConstraint></td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>SyncApplyActionResponseV2.validation.parameters.ParameterEvaluationResult.evaluatedConstraints.ParameterEvaluatedConstraint.struct.structFields.StructFieldEvaluationResult.evaluatedConstraints.StructFieldEvaluatedConstraint</code></td>
+<td>union</td>
+<td>是</td>
+<td>A constraint that an action struct parameter field value must satisfy in order to be considered valid.<br>Constraints can be configured on fields of struct parameters in the <strong>Ontology Manager</strong>.<br>Applicable constraints are determined dynamically based on parameter inputs.<br>Parameter values are evaluated against the final set of constraints.<br>The type of the constraint.<br>| Type                  | Description                                                                                                                                                                                                                     |<br>|-----------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|<br>| <code>oneOf</code>               | The struct parameter field has a manually predefined set of options.                                                                                                                                                            |<br>| <code>range</code>               | The struct parameter field value must be within the defined range.                                                                                                                                                              |<br>| <code>stringLength</code>        | The struct parameter field value must have a length within the defined range.                                                                                                                                                   |<br>| <code>stringRegexMatch</code>    | The struct parameter field value must match a predefined regular expression.                                                                                                                                                    |<br>| <code>objectQueryResult</code>   | The struct parameter field value must be the primary key of an object found within an object set.                                                                                                                               |</td>
+</tr>
+<tr>
+<td><code>SyncApplyActionResponseV2.validation.parameters.ParameterEvaluationResult.evaluatedConstraints.ParameterEvaluatedConstraint.struct.structFields.StructFieldEvaluationResult.evaluatedConstraints.StructFieldEvaluatedConstraint.oneOf</code></td>
+<td>object</td>
+<td>否</td>
+<td>The parameter has a manually predefined set of options.</td>
+</tr>
+<tr>
+<td><code>SyncApplyActionResponseV2.validation.parameters.ParameterEvaluationResult.evaluatedConstraints.ParameterEvaluatedConstraint.struct.structFields.StructFieldEvaluationResult.evaluatedConstraints.StructFieldEvaluatedConstraint.oneOf.options</code></td>
+<td>list<ParameterOption></td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>SyncApplyActionResponseV2.validation.parameters.ParameterEvaluationResult.evaluatedConstraints.ParameterEvaluatedConstraint.struct.structFields.StructFieldEvaluationResult.evaluatedConstraints.StructFieldEvaluatedConstraint.oneOf.options.ParameterOption</code></td>
+<td>object</td>
+<td>是</td>
+<td>A possible value for the parameter. This is defined in the <strong>Ontology Manager</strong> by Actions admins.</td>
+</tr>
+<tr>
+<td><code>SyncApplyActionResponseV2.validation.parameters.ParameterEvaluationResult.evaluatedConstraints.ParameterEvaluatedConstraint.struct.structFields.StructFieldEvaluationResult.evaluatedConstraints.StructFieldEvaluatedConstraint.oneOf.options.ParameterOption.displayName</code></td>
+<td>string</td>
+<td>否</td>
+<td>The display name of the entity.</td>
+</tr>
+<tr>
+<td><code>SyncApplyActionResponseV2.validation.parameters.ParameterEvaluationResult.evaluatedConstraints.ParameterEvaluatedConstraint.struct.structFields.StructFieldEvaluationResult.evaluatedConstraints.StructFieldEvaluatedConstraint.oneOf.options.ParameterOption.value</code></td>
+<td>any</td>
+<td>否</td>
+<td>An allowed configured value for a parameter within an action.</td>
+</tr>
+<tr>
+<td><code>SyncApplyActionResponseV2.validation.parameters.ParameterEvaluationResult.evaluatedConstraints.ParameterEvaluatedConstraint.struct.structFields.StructFieldEvaluationResult.evaluatedConstraints.StructFieldEvaluatedConstraint.oneOf.otherValuesAllowed</code></td>
+<td>boolean</td>
+<td>是</td>
+<td>A flag denoting whether custom, user provided values will be considered valid. This is configured via the <strong>Allowed "Other" value</strong> toggle in the <strong>Ontology Manager</strong>.</td>
+</tr>
+<tr>
+<td><code>SyncApplyActionResponseV2.validation.parameters.ParameterEvaluationResult.evaluatedConstraints.ParameterEvaluatedConstraint.struct.structFields.StructFieldEvaluationResult.evaluatedConstraints.StructFieldEvaluatedConstraint.range</code></td>
+<td>object</td>
+<td>否</td>
+<td>The parameter value must be within the defined range.</td>
+</tr>
+<tr>
+<td><code>SyncApplyActionResponseV2.validation.parameters.ParameterEvaluationResult.evaluatedConstraints.ParameterEvaluatedConstraint.struct.structFields.StructFieldEvaluationResult.evaluatedConstraints.StructFieldEvaluatedConstraint.range.lt</code></td>
+<td>any</td>
+<td>否</td>
+<td>Less than</td>
+</tr>
+<tr>
+<td><code>SyncApplyActionResponseV2.validation.parameters.ParameterEvaluationResult.evaluatedConstraints.ParameterEvaluatedConstraint.struct.structFields.StructFieldEvaluationResult.evaluatedConstraints.StructFieldEvaluatedConstraint.range.lte</code></td>
+<td>any</td>
+<td>否</td>
+<td>Less than or equal</td>
+</tr>
+<tr>
+<td><code>SyncApplyActionResponseV2.validation.parameters.ParameterEvaluationResult.evaluatedConstraints.ParameterEvaluatedConstraint.struct.structFields.StructFieldEvaluationResult.evaluatedConstraints.StructFieldEvaluatedConstraint.range.gt</code></td>
+<td>any</td>
+<td>否</td>
+<td>Greater than</td>
+</tr>
+<tr>
+<td><code>SyncApplyActionResponseV2.validation.parameters.ParameterEvaluationResult.evaluatedConstraints.ParameterEvaluatedConstraint.struct.structFields.StructFieldEvaluationResult.evaluatedConstraints.StructFieldEvaluatedConstraint.range.gte</code></td>
+<td>any</td>
+<td>否</td>
+<td>Greater than or equal</td>
+</tr>
+<tr>
+<td><code>SyncApplyActionResponseV2.validation.parameters.ParameterEvaluationResult.evaluatedConstraints.ParameterEvaluatedConstraint.struct.structFields.StructFieldEvaluationResult.evaluatedConstraints.StructFieldEvaluatedConstraint.objectQueryResult</code></td>
+<td>object</td>
+<td>否</td>
+<td>The parameter value must be the primary key of an object found within an object set.</td>
+</tr>
+<tr>
+<td><code>SyncApplyActionResponseV2.validation.parameters.ParameterEvaluationResult.evaluatedConstraints.ParameterEvaluatedConstraint.struct.structFields.StructFieldEvaluationResult.evaluatedConstraints.StructFieldEvaluatedConstraint.stringLength</code></td>
+<td>object</td>
+<td>否</td>
+<td>The parameter value must have a length within the defined range.<br><em>This range is always inclusive.</em></td>
+</tr>
+<tr>
+<td><code>SyncApplyActionResponseV2.validation.parameters.ParameterEvaluationResult.evaluatedConstraints.ParameterEvaluatedConstraint.struct.structFields.StructFieldEvaluationResult.evaluatedConstraints.StructFieldEvaluatedConstraint.stringLength.lt</code></td>
+<td>any</td>
+<td>否</td>
+<td>Less than</td>
+</tr>
+<tr>
+<td><code>SyncApplyActionResponseV2.validation.parameters.ParameterEvaluationResult.evaluatedConstraints.ParameterEvaluatedConstraint.struct.structFields.StructFieldEvaluationResult.evaluatedConstraints.StructFieldEvaluatedConstraint.stringLength.lte</code></td>
+<td>any</td>
+<td>否</td>
+<td>Less than or equal</td>
+</tr>
+<tr>
+<td><code>SyncApplyActionResponseV2.validation.parameters.ParameterEvaluationResult.evaluatedConstraints.ParameterEvaluatedConstraint.struct.structFields.StructFieldEvaluationResult.evaluatedConstraints.StructFieldEvaluatedConstraint.stringLength.gt</code></td>
+<td>any</td>
+<td>否</td>
+<td>Greater than</td>
+</tr>
+<tr>
+<td><code>SyncApplyActionResponseV2.validation.parameters.ParameterEvaluationResult.evaluatedConstraints.ParameterEvaluatedConstraint.struct.structFields.StructFieldEvaluationResult.evaluatedConstraints.StructFieldEvaluatedConstraint.stringLength.gte</code></td>
+<td>any</td>
+<td>否</td>
+<td>Greater than or equal</td>
+</tr>
+<tr>
+<td><code>SyncApplyActionResponseV2.validation.parameters.ParameterEvaluationResult.evaluatedConstraints.ParameterEvaluatedConstraint.struct.structFields.StructFieldEvaluationResult.evaluatedConstraints.StructFieldEvaluatedConstraint.stringRegexMatch</code></td>
+<td>object</td>
+<td>否</td>
+<td>The parameter value must match a predefined regular expression.</td>
+</tr>
+<tr>
+<td><code>SyncApplyActionResponseV2.validation.parameters.ParameterEvaluationResult.evaluatedConstraints.ParameterEvaluatedConstraint.struct.structFields.StructFieldEvaluationResult.evaluatedConstraints.StructFieldEvaluatedConstraint.stringRegexMatch.regex</code></td>
+<td>string</td>
+<td>是</td>
+<td>The regular expression configured in the <strong>Ontology Manager</strong>.</td>
+</tr>
+<tr>
+<td><code>SyncApplyActionResponseV2.validation.parameters.ParameterEvaluationResult.evaluatedConstraints.ParameterEvaluatedConstraint.struct.structFields.StructFieldEvaluationResult.evaluatedConstraints.StructFieldEvaluatedConstraint.stringRegexMatch.configuredFailureMessage</code></td>
+<td>string</td>
+<td>否</td>
+<td>The message indicating that the regular expression was not matched.<br>This is configured per parameter in the <strong>Ontology Manager</strong>.</td>
+</tr>
+<tr>
+<td><code>SyncApplyActionResponseV2.validation.parameters.ParameterEvaluationResult.evaluatedConstraints.ParameterEvaluatedConstraint.struct.structFields.StructFieldEvaluationResult.required</code></td>
+<td>boolean</td>
+<td>是</td>
+<td>Represents whether the parameter is a required input to the action.</td>
+</tr>
+<tr>
+<td><code>SyncApplyActionResponseV2.validation.parameters.ParameterEvaluationResult.evaluatedConstraints.ParameterEvaluatedConstraint.oneOf</code></td>
+<td>object</td>
+<td>否</td>
+<td>The parameter has a manually predefined set of options.</td>
+</tr>
+<tr>
+<td><code>SyncApplyActionResponseV2.validation.parameters.ParameterEvaluationResult.evaluatedConstraints.ParameterEvaluatedConstraint.oneOf.options</code></td>
+<td>list<ParameterOption></td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>SyncApplyActionResponseV2.validation.parameters.ParameterEvaluationResult.evaluatedConstraints.ParameterEvaluatedConstraint.oneOf.options.ParameterOption</code></td>
+<td>object</td>
+<td>是</td>
+<td>A possible value for the parameter. This is defined in the <strong>Ontology Manager</strong> by Actions admins.</td>
+</tr>
+<tr>
+<td><code>SyncApplyActionResponseV2.validation.parameters.ParameterEvaluationResult.evaluatedConstraints.ParameterEvaluatedConstraint.oneOf.options.ParameterOption.displayName</code></td>
+<td>string</td>
+<td>否</td>
+<td>The display name of the entity.</td>
+</tr>
+<tr>
+<td><code>SyncApplyActionResponseV2.validation.parameters.ParameterEvaluationResult.evaluatedConstraints.ParameterEvaluatedConstraint.oneOf.options.ParameterOption.value</code></td>
+<td>any</td>
+<td>否</td>
+<td>An allowed configured value for a parameter within an action.</td>
+</tr>
+<tr>
+<td><code>SyncApplyActionResponseV2.validation.parameters.ParameterEvaluationResult.evaluatedConstraints.ParameterEvaluatedConstraint.oneOf.otherValuesAllowed</code></td>
+<td>boolean</td>
+<td>是</td>
+<td>A flag denoting whether custom, user provided values will be considered valid. This is configured via the <strong>Allowed "Other" value</strong> toggle in the <strong>Ontology Manager</strong>.</td>
+</tr>
+<tr>
+<td><code>SyncApplyActionResponseV2.validation.parameters.ParameterEvaluationResult.evaluatedConstraints.ParameterEvaluatedConstraint.array</code></td>
+<td>object</td>
+<td>否</td>
+<td>Evaluated constraints of array parameters that support per-entry constraint evaluations.</td>
+</tr>
+<tr>
+<td><code>SyncApplyActionResponseV2.validation.parameters.ParameterEvaluationResult.evaluatedConstraints.ParameterEvaluatedConstraint.array.entries</code></td>
+<td>list<ArrayEntryEvaluatedConstraint></td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>SyncApplyActionResponseV2.validation.parameters.ParameterEvaluationResult.evaluatedConstraints.ParameterEvaluatedConstraint.array.entries.ArrayEntryEvaluatedConstraint</code></td>
+<td>union</td>
+<td>是</td>
+<td>Evaluated constraints for entries of array parameters for which per-entry evaluation is supported.</td>
+</tr>
+<tr>
+<td><code>SyncApplyActionResponseV2.validation.parameters.ParameterEvaluationResult.evaluatedConstraints.ParameterEvaluatedConstraint.array.entries.ArrayEntryEvaluatedConstraint.struct</code></td>
+<td>object</td>
+<td>否</td>
+<td>Represents the validity of a singleton struct parameter.</td>
+</tr>
+<tr>
+<td><code>SyncApplyActionResponseV2.validation.parameters.ParameterEvaluationResult.evaluatedConstraints.ParameterEvaluatedConstraint.array.entries.ArrayEntryEvaluatedConstraint.struct.structFields</code></td>
+<td>map</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>SyncApplyActionResponseV2.validation.parameters.ParameterEvaluationResult.evaluatedConstraints.ParameterEvaluatedConstraint.array.entries.ArrayEntryEvaluatedConstraint.struct.structFields.StructParameterFieldApiName</code></td>
+<td>string</td>
+<td>是</td>
+<td>The unique identifier of the struct parameter field.</td>
+</tr>
+<tr>
+<td><code>SyncApplyActionResponseV2.validation.parameters.ParameterEvaluationResult.evaluatedConstraints.ParameterEvaluatedConstraint.array.entries.ArrayEntryEvaluatedConstraint.struct.structFields.StructFieldEvaluationResult</code></td>
+<td>object</td>
+<td>是</td>
+<td>Represents the validity of a struct parameter's fields against the configured constraints.</td>
+</tr>
+<tr>
+<td><code>SyncApplyActionResponseV2.validation.parameters.ParameterEvaluationResult.evaluatedConstraints.ParameterEvaluatedConstraint.array.entries.ArrayEntryEvaluatedConstraint.struct.structFields.StructFieldEvaluationResult.result</code></td>
+<td>enum</td>
+<td>是</td>
+<td>Represents the state of a validation.</td>
+</tr>
+<tr>
+<td><code>SyncApplyActionResponseV2.validation.parameters.ParameterEvaluationResult.evaluatedConstraints.ParameterEvaluatedConstraint.array.entries.ArrayEntryEvaluatedConstraint.struct.structFields.StructFieldEvaluationResult.evaluatedConstraints</code></td>
+<td>list<StructFieldEvaluatedConstraint></td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>SyncApplyActionResponseV2.validation.parameters.ParameterEvaluationResult.evaluatedConstraints.ParameterEvaluatedConstraint.array.entries.ArrayEntryEvaluatedConstraint.struct.structFields.StructFieldEvaluationResult.evaluatedConstraints.StructFieldEvaluatedConstraint</code></td>
+<td>union</td>
+<td>是</td>
+<td>A constraint that an action struct parameter field value must satisfy in order to be considered valid.<br>Constraints can be configured on fields of struct parameters in the <strong>Ontology Manager</strong>.<br>Applicable constraints are determined dynamically based on parameter inputs.<br>Parameter values are evaluated against the final set of constraints.<br>The type of the constraint.<br>| Type                  | Description                                                                                                                                                                                                                     |<br>|-----------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|<br>| <code>oneOf</code>               | The struct parameter field has a manually predefined set of options.                                                                                                                                                            |<br>| <code>range</code>               | The struct parameter field value must be within the defined range.                                                                                                                                                              |<br>| <code>stringLength</code>        | The struct parameter field value must have a length within the defined range.                                                                                                                                                   |<br>| <code>stringRegexMatch</code>    | The struct parameter field value must match a predefined regular expression.                                                                                                                                                    |<br>| <code>objectQueryResult</code>   | The struct parameter field value must be the primary key of an object found within an object set.                                                                                                                               |</td>
+</tr>
+<tr>
+<td><code>SyncApplyActionResponseV2.validation.parameters.ParameterEvaluationResult.evaluatedConstraints.ParameterEvaluatedConstraint.array.entries.ArrayEntryEvaluatedConstraint.struct.structFields.StructFieldEvaluationResult.evaluatedConstraints.StructFieldEvaluatedConstraint.oneOf</code></td>
+<td>object</td>
+<td>否</td>
+<td>The parameter has a manually predefined set of options.</td>
+</tr>
+<tr>
+<td><code>SyncApplyActionResponseV2.validation.parameters.ParameterEvaluationResult.evaluatedConstraints.ParameterEvaluatedConstraint.array.entries.ArrayEntryEvaluatedConstraint.struct.structFields.StructFieldEvaluationResult.evaluatedConstraints.StructFieldEvaluatedConstraint.oneOf.options</code></td>
+<td>list<ParameterOption></td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>SyncApplyActionResponseV2.validation.parameters.ParameterEvaluationResult.evaluatedConstraints.ParameterEvaluatedConstraint.array.entries.ArrayEntryEvaluatedConstraint.struct.structFields.StructFieldEvaluationResult.evaluatedConstraints.StructFieldEvaluatedConstraint.oneOf.options.ParameterOption</code></td>
+<td>object</td>
+<td>是</td>
+<td>A possible value for the parameter. This is defined in the <strong>Ontology Manager</strong> by Actions admins.</td>
+</tr>
+<tr>
+<td><code>SyncApplyActionResponseV2.validation.parameters.ParameterEvaluationResult.evaluatedConstraints.ParameterEvaluatedConstraint.array.entries.ArrayEntryEvaluatedConstraint.struct.structFields.StructFieldEvaluationResult.evaluatedConstraints.StructFieldEvaluatedConstraint.oneOf.options.ParameterOption.displayName</code></td>
+<td>string</td>
+<td>否</td>
+<td>The display name of the entity.</td>
+</tr>
+<tr>
+<td><code>SyncApplyActionResponseV2.validation.parameters.ParameterEvaluationResult.evaluatedConstraints.ParameterEvaluatedConstraint.array.entries.ArrayEntryEvaluatedConstraint.struct.structFields.StructFieldEvaluationResult.evaluatedConstraints.StructFieldEvaluatedConstraint.oneOf.options.ParameterOption.value</code></td>
+<td>any</td>
+<td>否</td>
+<td>An allowed configured value for a parameter within an action.</td>
+</tr>
+<tr>
+<td><code>SyncApplyActionResponseV2.validation.parameters.ParameterEvaluationResult.evaluatedConstraints.ParameterEvaluatedConstraint.array.entries.ArrayEntryEvaluatedConstraint.struct.structFields.StructFieldEvaluationResult.evaluatedConstraints.StructFieldEvaluatedConstraint.oneOf.otherValuesAllowed</code></td>
+<td>boolean</td>
+<td>是</td>
+<td>A flag denoting whether custom, user provided values will be considered valid. This is configured via the <strong>Allowed "Other" value</strong> toggle in the <strong>Ontology Manager</strong>.</td>
+</tr>
+<tr>
+<td><code>SyncApplyActionResponseV2.validation.parameters.ParameterEvaluationResult.evaluatedConstraints.ParameterEvaluatedConstraint.array.entries.ArrayEntryEvaluatedConstraint.struct.structFields.StructFieldEvaluationResult.evaluatedConstraints.StructFieldEvaluatedConstraint.range</code></td>
+<td>object</td>
+<td>否</td>
+<td>The parameter value must be within the defined range.</td>
+</tr>
+<tr>
+<td><code>SyncApplyActionResponseV2.validation.parameters.ParameterEvaluationResult.evaluatedConstraints.ParameterEvaluatedConstraint.array.entries.ArrayEntryEvaluatedConstraint.struct.structFields.StructFieldEvaluationResult.evaluatedConstraints.StructFieldEvaluatedConstraint.range.lt</code></td>
+<td>any</td>
+<td>否</td>
+<td>Less than</td>
+</tr>
+<tr>
+<td><code>SyncApplyActionResponseV2.validation.parameters.ParameterEvaluationResult.evaluatedConstraints.ParameterEvaluatedConstraint.array.entries.ArrayEntryEvaluatedConstraint.struct.structFields.StructFieldEvaluationResult.evaluatedConstraints.StructFieldEvaluatedConstraint.range.lte</code></td>
+<td>any</td>
+<td>否</td>
+<td>Less than or equal</td>
+</tr>
+<tr>
+<td><code>SyncApplyActionResponseV2.validation.parameters.ParameterEvaluationResult.evaluatedConstraints.ParameterEvaluatedConstraint.array.entries.ArrayEntryEvaluatedConstraint.struct.structFields.StructFieldEvaluationResult.evaluatedConstraints.StructFieldEvaluatedConstraint.range.gt</code></td>
+<td>any</td>
+<td>否</td>
+<td>Greater than</td>
+</tr>
+<tr>
+<td><code>SyncApplyActionResponseV2.validation.parameters.ParameterEvaluationResult.evaluatedConstraints.ParameterEvaluatedConstraint.array.entries.ArrayEntryEvaluatedConstraint.struct.structFields.StructFieldEvaluationResult.evaluatedConstraints.StructFieldEvaluatedConstraint.range.gte</code></td>
+<td>any</td>
+<td>否</td>
+<td>Greater than or equal</td>
+</tr>
+<tr>
+<td><code>SyncApplyActionResponseV2.validation.parameters.ParameterEvaluationResult.evaluatedConstraints.ParameterEvaluatedConstraint.array.entries.ArrayEntryEvaluatedConstraint.struct.structFields.StructFieldEvaluationResult.evaluatedConstraints.StructFieldEvaluatedConstraint.objectQueryResult</code></td>
+<td>object</td>
+<td>否</td>
+<td>The parameter value must be the primary key of an object found within an object set.</td>
+</tr>
+<tr>
+<td><code>SyncApplyActionResponseV2.validation.parameters.ParameterEvaluationResult.evaluatedConstraints.ParameterEvaluatedConstraint.array.entries.ArrayEntryEvaluatedConstraint.struct.structFields.StructFieldEvaluationResult.evaluatedConstraints.StructFieldEvaluatedConstraint.stringLength</code></td>
+<td>object</td>
+<td>否</td>
+<td>The parameter value must have a length within the defined range.<br><em>This range is always inclusive.</em></td>
+</tr>
+<tr>
+<td><code>SyncApplyActionResponseV2.validation.parameters.ParameterEvaluationResult.evaluatedConstraints.ParameterEvaluatedConstraint.array.entries.ArrayEntryEvaluatedConstraint.struct.structFields.StructFieldEvaluationResult.evaluatedConstraints.StructFieldEvaluatedConstraint.stringLength.lt</code></td>
+<td>any</td>
+<td>否</td>
+<td>Less than</td>
+</tr>
+<tr>
+<td><code>SyncApplyActionResponseV2.validation.parameters.ParameterEvaluationResult.evaluatedConstraints.ParameterEvaluatedConstraint.array.entries.ArrayEntryEvaluatedConstraint.struct.structFields.StructFieldEvaluationResult.evaluatedConstraints.StructFieldEvaluatedConstraint.stringLength.lte</code></td>
+<td>any</td>
+<td>否</td>
+<td>Less than or equal</td>
+</tr>
+<tr>
+<td><code>SyncApplyActionResponseV2.validation.parameters.ParameterEvaluationResult.evaluatedConstraints.ParameterEvaluatedConstraint.array.entries.ArrayEntryEvaluatedConstraint.struct.structFields.StructFieldEvaluationResult.evaluatedConstraints.StructFieldEvaluatedConstraint.stringLength.gt</code></td>
+<td>any</td>
+<td>否</td>
+<td>Greater than</td>
+</tr>
+<tr>
+<td><code>SyncApplyActionResponseV2.validation.parameters.ParameterEvaluationResult.evaluatedConstraints.ParameterEvaluatedConstraint.array.entries.ArrayEntryEvaluatedConstraint.struct.structFields.StructFieldEvaluationResult.evaluatedConstraints.StructFieldEvaluatedConstraint.stringLength.gte</code></td>
+<td>any</td>
+<td>否</td>
+<td>Greater than or equal</td>
+</tr>
+<tr>
+<td><code>SyncApplyActionResponseV2.validation.parameters.ParameterEvaluationResult.evaluatedConstraints.ParameterEvaluatedConstraint.array.entries.ArrayEntryEvaluatedConstraint.struct.structFields.StructFieldEvaluationResult.evaluatedConstraints.StructFieldEvaluatedConstraint.stringRegexMatch</code></td>
+<td>object</td>
+<td>否</td>
+<td>The parameter value must match a predefined regular expression.</td>
+</tr>
+<tr>
+<td><code>SyncApplyActionResponseV2.validation.parameters.ParameterEvaluationResult.evaluatedConstraints.ParameterEvaluatedConstraint.array.entries.ArrayEntryEvaluatedConstraint.struct.structFields.StructFieldEvaluationResult.evaluatedConstraints.StructFieldEvaluatedConstraint.stringRegexMatch.regex</code></td>
+<td>string</td>
+<td>是</td>
+<td>The regular expression configured in the <strong>Ontology Manager</strong>.</td>
+</tr>
+<tr>
+<td><code>SyncApplyActionResponseV2.validation.parameters.ParameterEvaluationResult.evaluatedConstraints.ParameterEvaluatedConstraint.array.entries.ArrayEntryEvaluatedConstraint.struct.structFields.StructFieldEvaluationResult.evaluatedConstraints.StructFieldEvaluatedConstraint.stringRegexMatch.configuredFailureMessage</code></td>
+<td>string</td>
+<td>否</td>
+<td>The message indicating that the regular expression was not matched.<br>This is configured per parameter in the <strong>Ontology Manager</strong>.</td>
+</tr>
+<tr>
+<td><code>SyncApplyActionResponseV2.validation.parameters.ParameterEvaluationResult.evaluatedConstraints.ParameterEvaluatedConstraint.array.entries.ArrayEntryEvaluatedConstraint.struct.structFields.StructFieldEvaluationResult.required</code></td>
+<td>boolean</td>
+<td>是</td>
+<td>Represents whether the parameter is a required input to the action.</td>
+</tr>
+<tr>
+<td><code>SyncApplyActionResponseV2.validation.parameters.ParameterEvaluationResult.evaluatedConstraints.ParameterEvaluatedConstraint.groupMember</code></td>
+<td>object</td>
+<td>否</td>
+<td>The parameter value must be the user id of a member belonging to at least one of the groups defined by the constraint.</td>
+</tr>
+<tr>
+<td><code>SyncApplyActionResponseV2.validation.parameters.ParameterEvaluationResult.evaluatedConstraints.ParameterEvaluatedConstraint.objectPropertyValue</code></td>
+<td>object</td>
+<td>否</td>
+<td>The parameter value must be a property value of an object found within an object set.</td>
+</tr>
+<tr>
+<td><code>SyncApplyActionResponseV2.validation.parameters.ParameterEvaluationResult.evaluatedConstraints.ParameterEvaluatedConstraint.range</code></td>
+<td>object</td>
+<td>否</td>
+<td>The parameter value must be within the defined range.</td>
+</tr>
+<tr>
+<td><code>SyncApplyActionResponseV2.validation.parameters.ParameterEvaluationResult.evaluatedConstraints.ParameterEvaluatedConstraint.range.lt</code></td>
+<td>any</td>
+<td>否</td>
+<td>Less than</td>
+</tr>
+<tr>
+<td><code>SyncApplyActionResponseV2.validation.parameters.ParameterEvaluationResult.evaluatedConstraints.ParameterEvaluatedConstraint.range.lte</code></td>
+<td>any</td>
+<td>否</td>
+<td>Less than or equal</td>
+</tr>
+<tr>
+<td><code>SyncApplyActionResponseV2.validation.parameters.ParameterEvaluationResult.evaluatedConstraints.ParameterEvaluatedConstraint.range.gt</code></td>
+<td>any</td>
+<td>否</td>
+<td>Greater than</td>
+</tr>
+<tr>
+<td><code>SyncApplyActionResponseV2.validation.parameters.ParameterEvaluationResult.evaluatedConstraints.ParameterEvaluatedConstraint.range.gte</code></td>
+<td>any</td>
+<td>否</td>
+<td>Greater than or equal</td>
+</tr>
+<tr>
+<td><code>SyncApplyActionResponseV2.validation.parameters.ParameterEvaluationResult.evaluatedConstraints.ParameterEvaluatedConstraint.arraySize</code></td>
+<td>object</td>
+<td>否</td>
+<td>The parameter expects an array of values and the size of the array must fall within the defined range.</td>
+</tr>
+<tr>
+<td><code>SyncApplyActionResponseV2.validation.parameters.ParameterEvaluationResult.evaluatedConstraints.ParameterEvaluatedConstraint.arraySize.lt</code></td>
+<td>any</td>
+<td>否</td>
+<td>Less than</td>
+</tr>
+<tr>
+<td><code>SyncApplyActionResponseV2.validation.parameters.ParameterEvaluationResult.evaluatedConstraints.ParameterEvaluatedConstraint.arraySize.lte</code></td>
+<td>any</td>
+<td>否</td>
+<td>Less than or equal</td>
+</tr>
+<tr>
+<td><code>SyncApplyActionResponseV2.validation.parameters.ParameterEvaluationResult.evaluatedConstraints.ParameterEvaluatedConstraint.arraySize.gt</code></td>
+<td>any</td>
+<td>否</td>
+<td>Greater than</td>
+</tr>
+<tr>
+<td><code>SyncApplyActionResponseV2.validation.parameters.ParameterEvaluationResult.evaluatedConstraints.ParameterEvaluatedConstraint.arraySize.gte</code></td>
+<td>any</td>
+<td>否</td>
+<td>Greater than or equal</td>
+</tr>
+<tr>
+<td><code>SyncApplyActionResponseV2.validation.parameters.ParameterEvaluationResult.evaluatedConstraints.ParameterEvaluatedConstraint.objectQueryResult</code></td>
+<td>object</td>
+<td>否</td>
+<td>The parameter value must be the primary key of an object found within an object set.</td>
+</tr>
+<tr>
+<td><code>SyncApplyActionResponseV2.validation.parameters.ParameterEvaluationResult.evaluatedConstraints.ParameterEvaluatedConstraint.stringLength</code></td>
+<td>object</td>
+<td>否</td>
+<td>The parameter value must have a length within the defined range.<br><em>This range is always inclusive.</em></td>
+</tr>
+<tr>
+<td><code>SyncApplyActionResponseV2.validation.parameters.ParameterEvaluationResult.evaluatedConstraints.ParameterEvaluatedConstraint.stringLength.lt</code></td>
+<td>any</td>
+<td>否</td>
+<td>Less than</td>
+</tr>
+<tr>
+<td><code>SyncApplyActionResponseV2.validation.parameters.ParameterEvaluationResult.evaluatedConstraints.ParameterEvaluatedConstraint.stringLength.lte</code></td>
+<td>any</td>
+<td>否</td>
+<td>Less than or equal</td>
+</tr>
+<tr>
+<td><code>SyncApplyActionResponseV2.validation.parameters.ParameterEvaluationResult.evaluatedConstraints.ParameterEvaluatedConstraint.stringLength.gt</code></td>
+<td>any</td>
+<td>否</td>
+<td>Greater than</td>
+</tr>
+<tr>
+<td><code>SyncApplyActionResponseV2.validation.parameters.ParameterEvaluationResult.evaluatedConstraints.ParameterEvaluatedConstraint.stringLength.gte</code></td>
+<td>any</td>
+<td>否</td>
+<td>Greater than or equal</td>
+</tr>
+<tr>
+<td><code>SyncApplyActionResponseV2.validation.parameters.ParameterEvaluationResult.evaluatedConstraints.ParameterEvaluatedConstraint.stringRegexMatch</code></td>
+<td>object</td>
+<td>否</td>
+<td>The parameter value must match a predefined regular expression.</td>
+</tr>
+<tr>
+<td><code>SyncApplyActionResponseV2.validation.parameters.ParameterEvaluationResult.evaluatedConstraints.ParameterEvaluatedConstraint.stringRegexMatch.regex</code></td>
+<td>string</td>
+<td>是</td>
+<td>The regular expression configured in the <strong>Ontology Manager</strong>.</td>
+</tr>
+<tr>
+<td><code>SyncApplyActionResponseV2.validation.parameters.ParameterEvaluationResult.evaluatedConstraints.ParameterEvaluatedConstraint.stringRegexMatch.configuredFailureMessage</code></td>
+<td>string</td>
+<td>否</td>
+<td>The message indicating that the regular expression was not matched.<br>This is configured per parameter in the <strong>Ontology Manager</strong>.</td>
+</tr>
+<tr>
+<td><code>SyncApplyActionResponseV2.validation.parameters.ParameterEvaluationResult.evaluatedConstraints.ParameterEvaluatedConstraint.unevaluable</code></td>
+<td>object</td>
+<td>否</td>
+<td>The parameter cannot be evaluated because it depends on another parameter or object set that can't be evaluated.<br>This can happen when a parameter's allowed values are defined by another parameter that is missing or invalid.</td>
+</tr>
+<tr>
+<td><code>SyncApplyActionResponseV2.validation.parameters.ParameterEvaluationResult.required</code></td>
+<td>boolean</td>
+<td>是</td>
+<td>Represents whether the parameter is a required input to the action.</td>
+</tr>
+<tr>
+<td><code>SyncApplyActionResponseV2.validation.parameters.ParameterEvaluationResult.defaultValue</code></td>
+<td>any</td>
+<td>否</td>
+<td>Represents the value of data in the following format. Note that these values can be nested, for example an array of structs.<br>| Type                                | JSON encoding                                         | Example                                                                                                                                                       |<br>|-------------------------------------|-------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------|<br>| Array                               | array                                                 | <code>["alpha", "bravo", "charlie"]</code>                                                                                                                               |<br>| Attachment                          | string                                                | <code>"ri.attachments.main.attachment.2f944bae-5851-4204-8615-920c969a9f2e"</code>                                                                                       |<br>| Boolean                             | boolean                                               | <code>true</code>                                                                                                                                                        |<br>| Byte                                | number                                                | <code>31</code>                                                                                                                                                          |<br>| CipherText                          | string                                                | <code>"CIPHER::ri.bellaso.main.cipher-channel.e414ab9e-b606-499a-a0e1-844fa296ba7e::unzjs3VifsTxuIpf1fH1CJ7OaPBr2bzMMdozPaZJtCii8vVG60yXIEmzoOJaEl9mfFFe::CIPHER"</code> |<br>| Date                                | ISO 8601 extended local date string                   | <code>"2021-05-01"</code>                                                                                                                                                |<br>| Decimal                             | string                                                | <code>"2.718281828"</code>                                                                                                                                               |<br>| Double                              | number                                                | <code>3.14159265</code>                                                                                                                                                  |<br>| EntrySet                            | array of JSON objects                                 | <code>[{"key": "EMP1234", "value": "true"}, {"key": "EMP4444", "value": "false"}]</code>                                                                                 |<br>| Float                               | number                                                | <code>3.14159265</code>                                                                                                                                                  |<br>| Integer                             | number                                                | <code>238940</code>                                                                                                                                                      |<br>| Long                                | string                                                | <code>"58319870951433"</code>                                                                                                                                            |<br>| Marking                             | string                                                | <code>"MU"</code>                                                                                                                                                        |<br>| Null                                | null                                                  | <code>null</code>                                                                                                                                                        |<br>| Object Set                          | string OR the object set definition                   | <code>ri.object-set.main.versioned-object-set.h13274m8-23f5-431c-8aee-a4554157c57z</code>                                                                                |<br>| Ontology Object Reference           | JSON encoding of the object's primary key             | <code>10033123</code> or <code>"EMP1234"</code>                                                                                                                                     |<br>| Ontology Interface Object Reference | JSON encoding of the object's API name and primary key| <code>{"objectTypeApiName":"Employee", "primaryKeyValue":"EMP1234"}</code>                                                                                               |<br>| Ontology Object Type Reference      | string of the object type's api name                  | <code>"Employee"</code>                                                                                                                                                  |<br>| Scenario Reference                  | string of the scenario RID                            | <code>"ri.actions..scenario.cf2a8a49-8b56-446d-ab04-a6bc7fadef48"</code>                                                                                                 |<br>| Set                                 | array                                                 | <code>["alpha", "bravo", "charlie"]</code>                                                                                                                               |<br>| Short                               | number                                                | <code>8739</code>                                                                                                                                                        |<br>| String                              | string                                                | <code>"Call me Ishmael"</code>                                                                                                                                           |<br>| Struct                              | JSON object                                           | <code>{"name": "John Doe", "age": 42}</code>                                                                                                                             |<br>| TwoDimensionalAggregation           | JSON object                                           | <code>{"groups": [{"key": "alpha", "value": 100}, {"key": "beta", "value": 101}]}</code>                                                                                 |<br>| ThreeDimensionalAggregation         | JSON object                                           | <code>{"groups": [{"key": "NYC", "groups": [{"key": "Engineer", "value" : 100}]}]}</code>                                                                                |<br>| Timestamp                           | ISO 8601 extended offset date-time string in UTC zone | <code>"2021-01-04T05:00:00Z"</code>                                                                                                                                      |</td>
+</tr>
+<tr>
+<td><code>SyncApplyActionResponseV2.edits</code></td>
+<td>union</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>SyncApplyActionResponseV2.edits.edits</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>SyncApplyActionResponseV2.edits.edits.edits</code></td>
+<td>list<ObjectEdit></td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>SyncApplyActionResponseV2.edits.edits.edits.ObjectEdit</code></td>
+<td>union</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>SyncApplyActionResponseV2.edits.edits.edits.ObjectEdit.modifyObject</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>SyncApplyActionResponseV2.edits.edits.edits.ObjectEdit.modifyObject.primaryKey</code></td>
+<td>any</td>
+<td>是</td>
+<td>Represents the value of a property in the following format.<br>| Type                                                                                                                      | JSON encoding                                               | Example                                                                                            |<br>|---------------------------------------------------------------------------------------------------------------------------|-------------------------------------------------------------|----------------------------------------------------------------------------------------------------|<br>| Array                                                                                                                     | array                                                       | <code>["alpha", "bravo", "charlie"]</code>                                                                    |<br>| <a href="../attachment-properties/attachment-property-basics.html">Attachment</a>              | JSON encoded <code>AttachmentProperty</code> object                    | <code>{"rid":"ri.blobster.main.attachment.2f944bae-5851-4204-8615-920c969a9f2e"}</code>                       |<br>| Boolean                                                                                                                   | boolean                                                     | <code>true</code>                                                                                             |<br>| Byte                                                                                                                      | number                                                      | <code>31</code>                                                                                               |<br>| CipherText                                                                                                                | string                                                      | <code>"CIPHER::ri.bellaso.main.cipher-channel.e414ab9e-b606-499a-a0e1-844fa296ba7e::unzjs3VifsTxuIpf1fH1CJ7OaPBr2bzMMdozPaZJtCii8vVG60yXIEmzoOJaEl9mfFFe::CIPHER"</code>                                                                                                                                                                                        |<br>| Date                                                                                                                      | ISO 8601 extended local date string                         | <code>"2021-05-01"</code>                                                                                     |<br>| Decimal                                                                                                                   | string                                                      | <code>"2.718281828"</code>                                                                                    |<br>| Double                                                                                                                    | number                                                      | <code>3.14159265</code>                                                                                       |<br>| Float                                                                                                                     | number                                                      | <code>3.14159265</code>                                                                                       |<br>| GeoPoint                                                                                                                  | geojson                                                     | <code>{"type":"Point","coordinates":[102.0,0.5]}</code>                                                       |<br>| GeoShape                                                                                                                  | geojson                                                     | <code>{"type":"LineString","coordinates":[[102.0,0.0],[103.0,1.0],[104.0,0.0],[105.0,1.0]]}</code>            |<br>| Integer                                                                                                                   | number                                                      | <code>238940</code>                                                                                           |<br>| Long                                                                                                                      | string                                                      | <code>"58319870951433"</code>                                                                                 |<br>| <a href="../media-reference-properties/media-reference-property-basics.html">MediaReference</a>| JSON encoded <code>MediaReference</code> object                        | <code>{"mimeType":"application/pdf","reference":{"type":"mediaSetViewItem","mediaSetViewItem":{"mediaSetRid":"ri.mio.main.media-set.4153d42f-ca4b-4e42-8ca5-8e6aa7edb642","mediaSetViewRid":"ri.mio.main.view.82a798ad-d637-4595-acc6-987bcf16629b","mediaItemRid":"ri.mio.main.media-item.001ec98b-1620-4814-9e17-8e9c4e536225"}}}</code>                       |<br>| Secured Property Value                                                                                                    | JSON encoded <code>SecuredPropertyValue</code> object                  | <code>{"value": 10, "propertySecurityIndex" : 5}</code>                                                       |<br>| Short                                                                                                                     | number                                                      | <code>8739</code>                                                                                             |<br>| String                                                                                                                    | string                                                      | <code>"Call me Ishmael"</code>                                                                                |<br>| Struct                                                                                                                    | JSON object of struct field API name -&gt; value               | {"firstName": "Alex", "lastName": "Karp"}                                                          |<br>| Timestamp                                                                                                                 | ISO 8601 extended offset date-time string in UTC zone       | <code>"2021-01-04T05:00:00Z"</code>                                                                           |<br>| <a href="../time-series-properties/time-series-property-basics.html">Timeseries</a>            | JSON encoded <code>TimeseriesProperty</code> object or seriesId string | <code>{"seriesId": "wellPressureSeriesId", "syncRid": ri.time-series-catalog.main.sync.04f5ac1f-91bf-44f9-a51f-4f34e06e42df"}</code> or <code>{"templateRid": "ri.codex-emu.main.template.367cac64-e53b-4653-b111-f61856a63df9", "templateVersion": "0.0.0"}</code> or <code>"wellPressureSeriesId"</code>|                                                                           |<br>| Vector                                                                                                                    | array                                                       | <code>[0.1, 0.3, 0.02, 0.05 , 0.8, 0.4]</code>                                                                |<br>Note that for backwards compatibility, the Boolean, Byte, Double, Float, Integer, and Short types can also be encoded as JSON strings.</td>
+</tr>
+<tr>
+<td><code>SyncApplyActionResponseV2.edits.edits.edits.ObjectEdit.modifyObject.objectType</code></td>
+<td>string</td>
+<td>是</td>
+<td>The name of the object type in the API in camelCase format. To find the API name for your Object Type, use the<br><code>List object types</code> endpoint or check the <strong>Ontology Manager</strong>.</td>
+</tr>
+<tr>
+<td><code>SyncApplyActionResponseV2.edits.edits.edits.ObjectEdit.deleteObject</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>SyncApplyActionResponseV2.edits.edits.edits.ObjectEdit.deleteObject.primaryKey</code></td>
+<td>any</td>
+<td>是</td>
+<td>Represents the value of a property in the following format.<br>| Type                                                                                                                      | JSON encoding                                               | Example                                                                                            |<br>|---------------------------------------------------------------------------------------------------------------------------|-------------------------------------------------------------|----------------------------------------------------------------------------------------------------|<br>| Array                                                                                                                     | array                                                       | <code>["alpha", "bravo", "charlie"]</code>                                                                    |<br>| <a href="../attachment-properties/attachment-property-basics.html">Attachment</a>              | JSON encoded <code>AttachmentProperty</code> object                    | <code>{"rid":"ri.blobster.main.attachment.2f944bae-5851-4204-8615-920c969a9f2e"}</code>                       |<br>| Boolean                                                                                                                   | boolean                                                     | <code>true</code>                                                                                             |<br>| Byte                                                                                                                      | number                                                      | <code>31</code>                                                                                               |<br>| CipherText                                                                                                                | string                                                      | <code>"CIPHER::ri.bellaso.main.cipher-channel.e414ab9e-b606-499a-a0e1-844fa296ba7e::unzjs3VifsTxuIpf1fH1CJ7OaPBr2bzMMdozPaZJtCii8vVG60yXIEmzoOJaEl9mfFFe::CIPHER"</code>                                                                                                                                                                                        |<br>| Date                                                                                                                      | ISO 8601 extended local date string                         | <code>"2021-05-01"</code>                                                                                     |<br>| Decimal                                                                                                                   | string                                                      | <code>"2.718281828"</code>                                                                                    |<br>| Double                                                                                                                    | number                                                      | <code>3.14159265</code>                                                                                       |<br>| Float                                                                                                                     | number                                                      | <code>3.14159265</code>                                                                                       |<br>| GeoPoint                                                                                                                  | geojson                                                     | <code>{"type":"Point","coordinates":[102.0,0.5]}</code>                                                       |<br>| GeoShape                                                                                                                  | geojson                                                     | <code>{"type":"LineString","coordinates":[[102.0,0.0],[103.0,1.0],[104.0,0.0],[105.0,1.0]]}</code>            |<br>| Integer                                                                                                                   | number                                                      | <code>238940</code>                                                                                           |<br>| Long                                                                                                                      | string                                                      | <code>"58319870951433"</code>                                                                                 |<br>| <a href="../media-reference-properties/media-reference-property-basics.html">MediaReference</a>| JSON encoded <code>MediaReference</code> object                        | <code>{"mimeType":"application/pdf","reference":{"type":"mediaSetViewItem","mediaSetViewItem":{"mediaSetRid":"ri.mio.main.media-set.4153d42f-ca4b-4e42-8ca5-8e6aa7edb642","mediaSetViewRid":"ri.mio.main.view.82a798ad-d637-4595-acc6-987bcf16629b","mediaItemRid":"ri.mio.main.media-item.001ec98b-1620-4814-9e17-8e9c4e536225"}}}</code>                       |<br>| Secured Property Value                                                                                                    | JSON encoded <code>SecuredPropertyValue</code> object                  | <code>{"value": 10, "propertySecurityIndex" : 5}</code>                                                       |<br>| Short                                                                                                                     | number                                                      | <code>8739</code>                                                                                             |<br>| String                                                                                                                    | string                                                      | <code>"Call me Ishmael"</code>                                                                                |<br>| Struct                                                                                                                    | JSON object of struct field API name -&gt; value               | {"firstName": "Alex", "lastName": "Karp"}                                                          |<br>| Timestamp                                                                                                                 | ISO 8601 extended offset date-time string in UTC zone       | <code>"2021-01-04T05:00:00Z"</code>                                                                           |<br>| <a href="../time-series-properties/time-series-property-basics.html">Timeseries</a>            | JSON encoded <code>TimeseriesProperty</code> object or seriesId string | <code>{"seriesId": "wellPressureSeriesId", "syncRid": ri.time-series-catalog.main.sync.04f5ac1f-91bf-44f9-a51f-4f34e06e42df"}</code> or <code>{"templateRid": "ri.codex-emu.main.template.367cac64-e53b-4653-b111-f61856a63df9", "templateVersion": "0.0.0"}</code> or <code>"wellPressureSeriesId"</code>|                                                                           |<br>| Vector                                                                                                                    | array                                                       | <code>[0.1, 0.3, 0.02, 0.05 , 0.8, 0.4]</code>                                                                |<br>Note that for backwards compatibility, the Boolean, Byte, Double, Float, Integer, and Short types can also be encoded as JSON strings.</td>
+</tr>
+<tr>
+<td><code>SyncApplyActionResponseV2.edits.edits.edits.ObjectEdit.deleteObject.objectType</code></td>
+<td>string</td>
+<td>是</td>
+<td>The name of the object type in the API in camelCase format. To find the API name for your Object Type, use the<br><code>List object types</code> endpoint or check the <strong>Ontology Manager</strong>.</td>
+</tr>
+<tr>
+<td><code>SyncApplyActionResponseV2.edits.edits.edits.ObjectEdit.addObject</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>SyncApplyActionResponseV2.edits.edits.edits.ObjectEdit.addObject.primaryKey</code></td>
+<td>any</td>
+<td>是</td>
+<td>Represents the value of a property in the following format.<br>| Type                                                                                                                      | JSON encoding                                               | Example                                                                                            |<br>|---------------------------------------------------------------------------------------------------------------------------|-------------------------------------------------------------|----------------------------------------------------------------------------------------------------|<br>| Array                                                                                                                     | array                                                       | <code>["alpha", "bravo", "charlie"]</code>                                                                    |<br>| <a href="../attachment-properties/attachment-property-basics.html">Attachment</a>              | JSON encoded <code>AttachmentProperty</code> object                    | <code>{"rid":"ri.blobster.main.attachment.2f944bae-5851-4204-8615-920c969a9f2e"}</code>                       |<br>| Boolean                                                                                                                   | boolean                                                     | <code>true</code>                                                                                             |<br>| Byte                                                                                                                      | number                                                      | <code>31</code>                                                                                               |<br>| CipherText                                                                                                                | string                                                      | <code>"CIPHER::ri.bellaso.main.cipher-channel.e414ab9e-b606-499a-a0e1-844fa296ba7e::unzjs3VifsTxuIpf1fH1CJ7OaPBr2bzMMdozPaZJtCii8vVG60yXIEmzoOJaEl9mfFFe::CIPHER"</code>                                                                                                                                                                                        |<br>| Date                                                                                                                      | ISO 8601 extended local date string                         | <code>"2021-05-01"</code>                                                                                     |<br>| Decimal                                                                                                                   | string                                                      | <code>"2.718281828"</code>                                                                                    |<br>| Double                                                                                                                    | number                                                      | <code>3.14159265</code>                                                                                       |<br>| Float                                                                                                                     | number                                                      | <code>3.14159265</code>                                                                                       |<br>| GeoPoint                                                                                                                  | geojson                                                     | <code>{"type":"Point","coordinates":[102.0,0.5]}</code>                                                       |<br>| GeoShape                                                                                                                  | geojson                                                     | <code>{"type":"LineString","coordinates":[[102.0,0.0],[103.0,1.0],[104.0,0.0],[105.0,1.0]]}</code>            |<br>| Integer                                                                                                                   | number                                                      | <code>238940</code>                                                                                           |<br>| Long                                                                                                                      | string                                                      | <code>"58319870951433"</code>                                                                                 |<br>| <a href="../media-reference-properties/media-reference-property-basics.html">MediaReference</a>| JSON encoded <code>MediaReference</code> object                        | <code>{"mimeType":"application/pdf","reference":{"type":"mediaSetViewItem","mediaSetViewItem":{"mediaSetRid":"ri.mio.main.media-set.4153d42f-ca4b-4e42-8ca5-8e6aa7edb642","mediaSetViewRid":"ri.mio.main.view.82a798ad-d637-4595-acc6-987bcf16629b","mediaItemRid":"ri.mio.main.media-item.001ec98b-1620-4814-9e17-8e9c4e536225"}}}</code>                       |<br>| Secured Property Value                                                                                                    | JSON encoded <code>SecuredPropertyValue</code> object                  | <code>{"value": 10, "propertySecurityIndex" : 5}</code>                                                       |<br>| Short                                                                                                                     | number                                                      | <code>8739</code>                                                                                             |<br>| String                                                                                                                    | string                                                      | <code>"Call me Ishmael"</code>                                                                                |<br>| Struct                                                                                                                    | JSON object of struct field API name -&gt; value               | {"firstName": "Alex", "lastName": "Karp"}                                                          |<br>| Timestamp                                                                                                                 | ISO 8601 extended offset date-time string in UTC zone       | <code>"2021-01-04T05:00:00Z"</code>                                                                           |<br>| <a href="../time-series-properties/time-series-property-basics.html">Timeseries</a>            | JSON encoded <code>TimeseriesProperty</code> object or seriesId string | <code>{"seriesId": "wellPressureSeriesId", "syncRid": ri.time-series-catalog.main.sync.04f5ac1f-91bf-44f9-a51f-4f34e06e42df"}</code> or <code>{"templateRid": "ri.codex-emu.main.template.367cac64-e53b-4653-b111-f61856a63df9", "templateVersion": "0.0.0"}</code> or <code>"wellPressureSeriesId"</code>|                                                                           |<br>| Vector                                                                                                                    | array                                                       | <code>[0.1, 0.3, 0.02, 0.05 , 0.8, 0.4]</code>                                                                |<br>Note that for backwards compatibility, the Boolean, Byte, Double, Float, Integer, and Short types can also be encoded as JSON strings.</td>
+</tr>
+<tr>
+<td><code>SyncApplyActionResponseV2.edits.edits.edits.ObjectEdit.addObject.objectType</code></td>
+<td>string</td>
+<td>是</td>
+<td>The name of the object type in the API in camelCase format. To find the API name for your Object Type, use the<br><code>List object types</code> endpoint or check the <strong>Ontology Manager</strong>.</td>
+</tr>
+<tr>
+<td><code>SyncApplyActionResponseV2.edits.edits.edits.ObjectEdit.deleteLink</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>SyncApplyActionResponseV2.edits.edits.edits.ObjectEdit.deleteLink.linkTypeApiNameAtoB</code></td>
+<td>string</td>
+<td>是</td>
+<td>The name of the link type in the API. To find the API name for your Link Type, check the <strong>Ontology Manager</strong><br>application.</td>
+</tr>
+<tr>
+<td><code>SyncApplyActionResponseV2.edits.edits.edits.ObjectEdit.deleteLink.linkTypeApiNameBtoA</code></td>
+<td>string</td>
+<td>是</td>
+<td>The name of the link type in the API. To find the API name for your Link Type, check the <strong>Ontology Manager</strong><br>application.</td>
+</tr>
+<tr>
+<td><code>SyncApplyActionResponseV2.edits.edits.edits.ObjectEdit.deleteLink.aSideObject</code></td>
+<td>object</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>SyncApplyActionResponseV2.edits.edits.edits.ObjectEdit.deleteLink.aSideObject.primaryKey</code></td>
+<td>any</td>
+<td>是</td>
+<td>Represents the value of a property in the following format.<br>| Type                                                                                                                      | JSON encoding                                               | Example                                                                                            |<br>|---------------------------------------------------------------------------------------------------------------------------|-------------------------------------------------------------|----------------------------------------------------------------------------------------------------|<br>| Array                                                                                                                     | array                                                       | <code>["alpha", "bravo", "charlie"]</code>                                                                    |<br>| <a href="../attachment-properties/attachment-property-basics.html">Attachment</a>              | JSON encoded <code>AttachmentProperty</code> object                    | <code>{"rid":"ri.blobster.main.attachment.2f944bae-5851-4204-8615-920c969a9f2e"}</code>                       |<br>| Boolean                                                                                                                   | boolean                                                     | <code>true</code>                                                                                             |<br>| Byte                                                                                                                      | number                                                      | <code>31</code>                                                                                               |<br>| CipherText                                                                                                                | string                                                      | <code>"CIPHER::ri.bellaso.main.cipher-channel.e414ab9e-b606-499a-a0e1-844fa296ba7e::unzjs3VifsTxuIpf1fH1CJ7OaPBr2bzMMdozPaZJtCii8vVG60yXIEmzoOJaEl9mfFFe::CIPHER"</code>                                                                                                                                                                                        |<br>| Date                                                                                                                      | ISO 8601 extended local date string                         | <code>"2021-05-01"</code>                                                                                     |<br>| Decimal                                                                                                                   | string                                                      | <code>"2.718281828"</code>                                                                                    |<br>| Double                                                                                                                    | number                                                      | <code>3.14159265</code>                                                                                       |<br>| Float                                                                                                                     | number                                                      | <code>3.14159265</code>                                                                                       |<br>| GeoPoint                                                                                                                  | geojson                                                     | <code>{"type":"Point","coordinates":[102.0,0.5]}</code>                                                       |<br>| GeoShape                                                                                                                  | geojson                                                     | <code>{"type":"LineString","coordinates":[[102.0,0.0],[103.0,1.0],[104.0,0.0],[105.0,1.0]]}</code>            |<br>| Integer                                                                                                                   | number                                                      | <code>238940</code>                                                                                           |<br>| Long                                                                                                                      | string                                                      | <code>"58319870951433"</code>                                                                                 |<br>| <a href="../media-reference-properties/media-reference-property-basics.html">MediaReference</a>| JSON encoded <code>MediaReference</code> object                        | <code>{"mimeType":"application/pdf","reference":{"type":"mediaSetViewItem","mediaSetViewItem":{"mediaSetRid":"ri.mio.main.media-set.4153d42f-ca4b-4e42-8ca5-8e6aa7edb642","mediaSetViewRid":"ri.mio.main.view.82a798ad-d637-4595-acc6-987bcf16629b","mediaItemRid":"ri.mio.main.media-item.001ec98b-1620-4814-9e17-8e9c4e536225"}}}</code>                       |<br>| Secured Property Value                                                                                                    | JSON encoded <code>SecuredPropertyValue</code> object                  | <code>{"value": 10, "propertySecurityIndex" : 5}</code>                                                       |<br>| Short                                                                                                                     | number                                                      | <code>8739</code>                                                                                             |<br>| String                                                                                                                    | string                                                      | <code>"Call me Ishmael"</code>                                                                                |<br>| Struct                                                                                                                    | JSON object of struct field API name -&gt; value               | {"firstName": "Alex", "lastName": "Karp"}                                                          |<br>| Timestamp                                                                                                                 | ISO 8601 extended offset date-time string in UTC zone       | <code>"2021-01-04T05:00:00Z"</code>                                                                           |<br>| <a href="../time-series-properties/time-series-property-basics.html">Timeseries</a>            | JSON encoded <code>TimeseriesProperty</code> object or seriesId string | <code>{"seriesId": "wellPressureSeriesId", "syncRid": ri.time-series-catalog.main.sync.04f5ac1f-91bf-44f9-a51f-4f34e06e42df"}</code> or <code>{"templateRid": "ri.codex-emu.main.template.367cac64-e53b-4653-b111-f61856a63df9", "templateVersion": "0.0.0"}</code> or <code>"wellPressureSeriesId"</code>|                                                                           |<br>| Vector                                                                                                                    | array                                                       | <code>[0.1, 0.3, 0.02, 0.05 , 0.8, 0.4]</code>                                                                |<br>Note that for backwards compatibility, the Boolean, Byte, Double, Float, Integer, and Short types can also be encoded as JSON strings.</td>
+</tr>
+<tr>
+<td><code>SyncApplyActionResponseV2.edits.edits.edits.ObjectEdit.deleteLink.aSideObject.objectType</code></td>
+<td>string</td>
+<td>是</td>
+<td>The name of the object type in the API in camelCase format. To find the API name for your Object Type, use the<br><code>List object types</code> endpoint or check the <strong>Ontology Manager</strong>.</td>
+</tr>
+<tr>
+<td><code>SyncApplyActionResponseV2.edits.edits.edits.ObjectEdit.deleteLink.bSideObject</code></td>
+<td>object</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>SyncApplyActionResponseV2.edits.edits.edits.ObjectEdit.deleteLink.bSideObject.primaryKey</code></td>
+<td>any</td>
+<td>是</td>
+<td>Represents the value of a property in the following format.<br>| Type                                                                                                                      | JSON encoding                                               | Example                                                                                            |<br>|---------------------------------------------------------------------------------------------------------------------------|-------------------------------------------------------------|----------------------------------------------------------------------------------------------------|<br>| Array                                                                                                                     | array                                                       | <code>["alpha", "bravo", "charlie"]</code>                                                                    |<br>| <a href="../attachment-properties/attachment-property-basics.html">Attachment</a>              | JSON encoded <code>AttachmentProperty</code> object                    | <code>{"rid":"ri.blobster.main.attachment.2f944bae-5851-4204-8615-920c969a9f2e"}</code>                       |<br>| Boolean                                                                                                                   | boolean                                                     | <code>true</code>                                                                                             |<br>| Byte                                                                                                                      | number                                                      | <code>31</code>                                                                                               |<br>| CipherText                                                                                                                | string                                                      | <code>"CIPHER::ri.bellaso.main.cipher-channel.e414ab9e-b606-499a-a0e1-844fa296ba7e::unzjs3VifsTxuIpf1fH1CJ7OaPBr2bzMMdozPaZJtCii8vVG60yXIEmzoOJaEl9mfFFe::CIPHER"</code>                                                                                                                                                                                        |<br>| Date                                                                                                                      | ISO 8601 extended local date string                         | <code>"2021-05-01"</code>                                                                                     |<br>| Decimal                                                                                                                   | string                                                      | <code>"2.718281828"</code>                                                                                    |<br>| Double                                                                                                                    | number                                                      | <code>3.14159265</code>                                                                                       |<br>| Float                                                                                                                     | number                                                      | <code>3.14159265</code>                                                                                       |<br>| GeoPoint                                                                                                                  | geojson                                                     | <code>{"type":"Point","coordinates":[102.0,0.5]}</code>                                                       |<br>| GeoShape                                                                                                                  | geojson                                                     | <code>{"type":"LineString","coordinates":[[102.0,0.0],[103.0,1.0],[104.0,0.0],[105.0,1.0]]}</code>            |<br>| Integer                                                                                                                   | number                                                      | <code>238940</code>                                                                                           |<br>| Long                                                                                                                      | string                                                      | <code>"58319870951433"</code>                                                                                 |<br>| <a href="../media-reference-properties/media-reference-property-basics.html">MediaReference</a>| JSON encoded <code>MediaReference</code> object                        | <code>{"mimeType":"application/pdf","reference":{"type":"mediaSetViewItem","mediaSetViewItem":{"mediaSetRid":"ri.mio.main.media-set.4153d42f-ca4b-4e42-8ca5-8e6aa7edb642","mediaSetViewRid":"ri.mio.main.view.82a798ad-d637-4595-acc6-987bcf16629b","mediaItemRid":"ri.mio.main.media-item.001ec98b-1620-4814-9e17-8e9c4e536225"}}}</code>                       |<br>| Secured Property Value                                                                                                    | JSON encoded <code>SecuredPropertyValue</code> object                  | <code>{"value": 10, "propertySecurityIndex" : 5}</code>                                                       |<br>| Short                                                                                                                     | number                                                      | <code>8739</code>                                                                                             |<br>| String                                                                                                                    | string                                                      | <code>"Call me Ishmael"</code>                                                                                |<br>| Struct                                                                                                                    | JSON object of struct field API name -&gt; value               | {"firstName": "Alex", "lastName": "Karp"}                                                          |<br>| Timestamp                                                                                                                 | ISO 8601 extended offset date-time string in UTC zone       | <code>"2021-01-04T05:00:00Z"</code>                                                                           |<br>| <a href="../time-series-properties/time-series-property-basics.html">Timeseries</a>            | JSON encoded <code>TimeseriesProperty</code> object or seriesId string | <code>{"seriesId": "wellPressureSeriesId", "syncRid": ri.time-series-catalog.main.sync.04f5ac1f-91bf-44f9-a51f-4f34e06e42df"}</code> or <code>{"templateRid": "ri.codex-emu.main.template.367cac64-e53b-4653-b111-f61856a63df9", "templateVersion": "0.0.0"}</code> or <code>"wellPressureSeriesId"</code>|                                                                           |<br>| Vector                                                                                                                    | array                                                       | <code>[0.1, 0.3, 0.02, 0.05 , 0.8, 0.4]</code>                                                                |<br>Note that for backwards compatibility, the Boolean, Byte, Double, Float, Integer, and Short types can also be encoded as JSON strings.</td>
+</tr>
+<tr>
+<td><code>SyncApplyActionResponseV2.edits.edits.edits.ObjectEdit.deleteLink.bSideObject.objectType</code></td>
+<td>string</td>
+<td>是</td>
+<td>The name of the object type in the API in camelCase format. To find the API name for your Object Type, use the<br><code>List object types</code> endpoint or check the <strong>Ontology Manager</strong>.</td>
+</tr>
+<tr>
+<td><code>SyncApplyActionResponseV2.edits.edits.edits.ObjectEdit.addLink</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>SyncApplyActionResponseV2.edits.edits.edits.ObjectEdit.addLink.linkTypeApiNameAtoB</code></td>
+<td>string</td>
+<td>是</td>
+<td>The name of the link type in the API. To find the API name for your Link Type, check the <strong>Ontology Manager</strong><br>application.</td>
+</tr>
+<tr>
+<td><code>SyncApplyActionResponseV2.edits.edits.edits.ObjectEdit.addLink.linkTypeApiNameBtoA</code></td>
+<td>string</td>
+<td>是</td>
+<td>The name of the link type in the API. To find the API name for your Link Type, check the <strong>Ontology Manager</strong><br>application.</td>
+</tr>
+<tr>
+<td><code>SyncApplyActionResponseV2.edits.edits.edits.ObjectEdit.addLink.aSideObject</code></td>
+<td>object</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>SyncApplyActionResponseV2.edits.edits.edits.ObjectEdit.addLink.aSideObject.primaryKey</code></td>
+<td>any</td>
+<td>是</td>
+<td>Represents the value of a property in the following format.<br>| Type                                                                                                                      | JSON encoding                                               | Example                                                                                            |<br>|---------------------------------------------------------------------------------------------------------------------------|-------------------------------------------------------------|----------------------------------------------------------------------------------------------------|<br>| Array                                                                                                                     | array                                                       | <code>["alpha", "bravo", "charlie"]</code>                                                                    |<br>| <a href="../attachment-properties/attachment-property-basics.html">Attachment</a>              | JSON encoded <code>AttachmentProperty</code> object                    | <code>{"rid":"ri.blobster.main.attachment.2f944bae-5851-4204-8615-920c969a9f2e"}</code>                       |<br>| Boolean                                                                                                                   | boolean                                                     | <code>true</code>                                                                                             |<br>| Byte                                                                                                                      | number                                                      | <code>31</code>                                                                                               |<br>| CipherText                                                                                                                | string                                                      | <code>"CIPHER::ri.bellaso.main.cipher-channel.e414ab9e-b606-499a-a0e1-844fa296ba7e::unzjs3VifsTxuIpf1fH1CJ7OaPBr2bzMMdozPaZJtCii8vVG60yXIEmzoOJaEl9mfFFe::CIPHER"</code>                                                                                                                                                                                        |<br>| Date                                                                                                                      | ISO 8601 extended local date string                         | <code>"2021-05-01"</code>                                                                                     |<br>| Decimal                                                                                                                   | string                                                      | <code>"2.718281828"</code>                                                                                    |<br>| Double                                                                                                                    | number                                                      | <code>3.14159265</code>                                                                                       |<br>| Float                                                                                                                     | number                                                      | <code>3.14159265</code>                                                                                       |<br>| GeoPoint                                                                                                                  | geojson                                                     | <code>{"type":"Point","coordinates":[102.0,0.5]}</code>                                                       |<br>| GeoShape                                                                                                                  | geojson                                                     | <code>{"type":"LineString","coordinates":[[102.0,0.0],[103.0,1.0],[104.0,0.0],[105.0,1.0]]}</code>            |<br>| Integer                                                                                                                   | number                                                      | <code>238940</code>                                                                                           |<br>| Long                                                                                                                      | string                                                      | <code>"58319870951433"</code>                                                                                 |<br>| <a href="../media-reference-properties/media-reference-property-basics.html">MediaReference</a>| JSON encoded <code>MediaReference</code> object                        | <code>{"mimeType":"application/pdf","reference":{"type":"mediaSetViewItem","mediaSetViewItem":{"mediaSetRid":"ri.mio.main.media-set.4153d42f-ca4b-4e42-8ca5-8e6aa7edb642","mediaSetViewRid":"ri.mio.main.view.82a798ad-d637-4595-acc6-987bcf16629b","mediaItemRid":"ri.mio.main.media-item.001ec98b-1620-4814-9e17-8e9c4e536225"}}}</code>                       |<br>| Secured Property Value                                                                                                    | JSON encoded <code>SecuredPropertyValue</code> object                  | <code>{"value": 10, "propertySecurityIndex" : 5}</code>                                                       |<br>| Short                                                                                                                     | number                                                      | <code>8739</code>                                                                                             |<br>| String                                                                                                                    | string                                                      | <code>"Call me Ishmael"</code>                                                                                |<br>| Struct                                                                                                                    | JSON object of struct field API name -&gt; value               | {"firstName": "Alex", "lastName": "Karp"}                                                          |<br>| Timestamp                                                                                                                 | ISO 8601 extended offset date-time string in UTC zone       | <code>"2021-01-04T05:00:00Z"</code>                                                                           |<br>| <a href="../time-series-properties/time-series-property-basics.html">Timeseries</a>            | JSON encoded <code>TimeseriesProperty</code> object or seriesId string | <code>{"seriesId": "wellPressureSeriesId", "syncRid": ri.time-series-catalog.main.sync.04f5ac1f-91bf-44f9-a51f-4f34e06e42df"}</code> or <code>{"templateRid": "ri.codex-emu.main.template.367cac64-e53b-4653-b111-f61856a63df9", "templateVersion": "0.0.0"}</code> or <code>"wellPressureSeriesId"</code>|                                                                           |<br>| Vector                                                                                                                    | array                                                       | <code>[0.1, 0.3, 0.02, 0.05 , 0.8, 0.4]</code>                                                                |<br>Note that for backwards compatibility, the Boolean, Byte, Double, Float, Integer, and Short types can also be encoded as JSON strings.</td>
+</tr>
+<tr>
+<td><code>SyncApplyActionResponseV2.edits.edits.edits.ObjectEdit.addLink.aSideObject.objectType</code></td>
+<td>string</td>
+<td>是</td>
+<td>The name of the object type in the API in camelCase format. To find the API name for your Object Type, use the<br><code>List object types</code> endpoint or check the <strong>Ontology Manager</strong>.</td>
+</tr>
+<tr>
+<td><code>SyncApplyActionResponseV2.edits.edits.edits.ObjectEdit.addLink.bSideObject</code></td>
+<td>object</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>SyncApplyActionResponseV2.edits.edits.edits.ObjectEdit.addLink.bSideObject.primaryKey</code></td>
+<td>any</td>
+<td>是</td>
+<td>Represents the value of a property in the following format.<br>| Type                                                                                                                      | JSON encoding                                               | Example                                                                                            |<br>|---------------------------------------------------------------------------------------------------------------------------|-------------------------------------------------------------|----------------------------------------------------------------------------------------------------|<br>| Array                                                                                                                     | array                                                       | <code>["alpha", "bravo", "charlie"]</code>                                                                    |<br>| <a href="../attachment-properties/attachment-property-basics.html">Attachment</a>              | JSON encoded <code>AttachmentProperty</code> object                    | <code>{"rid":"ri.blobster.main.attachment.2f944bae-5851-4204-8615-920c969a9f2e"}</code>                       |<br>| Boolean                                                                                                                   | boolean                                                     | <code>true</code>                                                                                             |<br>| Byte                                                                                                                      | number                                                      | <code>31</code>                                                                                               |<br>| CipherText                                                                                                                | string                                                      | <code>"CIPHER::ri.bellaso.main.cipher-channel.e414ab9e-b606-499a-a0e1-844fa296ba7e::unzjs3VifsTxuIpf1fH1CJ7OaPBr2bzMMdozPaZJtCii8vVG60yXIEmzoOJaEl9mfFFe::CIPHER"</code>                                                                                                                                                                                        |<br>| Date                                                                                                                      | ISO 8601 extended local date string                         | <code>"2021-05-01"</code>                                                                                     |<br>| Decimal                                                                                                                   | string                                                      | <code>"2.718281828"</code>                                                                                    |<br>| Double                                                                                                                    | number                                                      | <code>3.14159265</code>                                                                                       |<br>| Float                                                                                                                     | number                                                      | <code>3.14159265</code>                                                                                       |<br>| GeoPoint                                                                                                                  | geojson                                                     | <code>{"type":"Point","coordinates":[102.0,0.5]}</code>                                                       |<br>| GeoShape                                                                                                                  | geojson                                                     | <code>{"type":"LineString","coordinates":[[102.0,0.0],[103.0,1.0],[104.0,0.0],[105.0,1.0]]}</code>            |<br>| Integer                                                                                                                   | number                                                      | <code>238940</code>                                                                                           |<br>| Long                                                                                                                      | string                                                      | <code>"58319870951433"</code>                                                                                 |<br>| <a href="../media-reference-properties/media-reference-property-basics.html">MediaReference</a>| JSON encoded <code>MediaReference</code> object                        | <code>{"mimeType":"application/pdf","reference":{"type":"mediaSetViewItem","mediaSetViewItem":{"mediaSetRid":"ri.mio.main.media-set.4153d42f-ca4b-4e42-8ca5-8e6aa7edb642","mediaSetViewRid":"ri.mio.main.view.82a798ad-d637-4595-acc6-987bcf16629b","mediaItemRid":"ri.mio.main.media-item.001ec98b-1620-4814-9e17-8e9c4e536225"}}}</code>                       |<br>| Secured Property Value                                                                                                    | JSON encoded <code>SecuredPropertyValue</code> object                  | <code>{"value": 10, "propertySecurityIndex" : 5}</code>                                                       |<br>| Short                                                                                                                     | number                                                      | <code>8739</code>                                                                                             |<br>| String                                                                                                                    | string                                                      | <code>"Call me Ishmael"</code>                                                                                |<br>| Struct                                                                                                                    | JSON object of struct field API name -&gt; value               | {"firstName": "Alex", "lastName": "Karp"}                                                          |<br>| Timestamp                                                                                                                 | ISO 8601 extended offset date-time string in UTC zone       | <code>"2021-01-04T05:00:00Z"</code>                                                                           |<br>| <a href="../time-series-properties/time-series-property-basics.html">Timeseries</a>            | JSON encoded <code>TimeseriesProperty</code> object or seriesId string | <code>{"seriesId": "wellPressureSeriesId", "syncRid": ri.time-series-catalog.main.sync.04f5ac1f-91bf-44f9-a51f-4f34e06e42df"}</code> or <code>{"templateRid": "ri.codex-emu.main.template.367cac64-e53b-4653-b111-f61856a63df9", "templateVersion": "0.0.0"}</code> or <code>"wellPressureSeriesId"</code>|                                                                           |<br>| Vector                                                                                                                    | array                                                       | <code>[0.1, 0.3, 0.02, 0.05 , 0.8, 0.4]</code>                                                                |<br>Note that for backwards compatibility, the Boolean, Byte, Double, Float, Integer, and Short types can also be encoded as JSON strings.</td>
+</tr>
+<tr>
+<td><code>SyncApplyActionResponseV2.edits.edits.edits.ObjectEdit.addLink.bSideObject.objectType</code></td>
+<td>string</td>
+<td>是</td>
+<td>The name of the object type in the API in camelCase format. To find the API name for your Object Type, use the<br><code>List object types</code> endpoint or check the <strong>Ontology Manager</strong>.</td>
+</tr>
+<tr>
+<td><code>SyncApplyActionResponseV2.edits.edits.addedObjectCount</code></td>
+<td>integer</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>SyncApplyActionResponseV2.edits.edits.modifiedObjectsCount</code></td>
+<td>integer</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>SyncApplyActionResponseV2.edits.edits.deletedObjectsCount</code></td>
+<td>integer</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>SyncApplyActionResponseV2.edits.edits.addedLinksCount</code></td>
+<td>integer</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>SyncApplyActionResponseV2.edits.edits.deletedLinksCount</code></td>
+<td>integer</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>SyncApplyActionResponseV2.edits.largeScaleEdits</code></td>
+<td>object</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>SyncApplyActionResponseV2.edits.largeScaleEdits.editedObjectTypes</code></td>
+<td>list<ObjectTypeApiName></td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>SyncApplyActionResponseV2.edits.largeScaleEdits.editedObjectTypes.ObjectTypeApiName</code></td>
+<td>string</td>
+<td>是</td>
+<td>The name of the object type in the API in camelCase format. To find the API name for your Object Type, use the<br><code>List object types</code> endpoint or check the <strong>Ontology Manager</strong>.</td>
+</tr>
+</tbody>
+</table>
+<pre><code class="language-json">{
+  &quot;operationId&quot;: &quot;ri.actions.main.action.c61d9ab5-2919-4127-a0a1-ac64c0ce6367&quot;,
+  &quot;validation&quot;: {
+    &quot;result&quot;: &quot;VALID&quot;
+  },
+  &quot;parameters&quot;: {
+    &quot;id&quot;: {
+      &quot;evaluatedConstraints&quot;: [],
+      &quot;result&quot;: &quot;VALID&quot;,
+      &quot;required&quot;: true
+    },
+    &quot;newName&quot;: {
+      &quot;evaluatedConstraints&quot;: [],
+      &quot;result&quot;: &quot;VALID&quot;,
+      &quot;required&quot;: true
+    }
+  }
+}
+</code></pre>
+</body>
+</html>

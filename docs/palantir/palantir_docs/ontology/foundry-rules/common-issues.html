@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Troubleshooting reference</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Troubleshooting reference</h1>
+<p>This page describes several common issues with Foundry Rules and steps to debug.</p>
+<h2>Error messages</h2>
+<h3><code>ReadonlyObjectError</code></h3>
+<p>Make sure that each object you created has a writeback dataset associated. Review the build writeback datasets step of <a href="https://www.palantir.com/docs/foundry/foundry-rules/author-and-run-a-rule/">authoring and running a rule</a> for more information.</p>
+<h3>400: <code>Actions:InvalidParametersForApply</code></h3>
+<p>Some required parameters were not provided in the Action request. Verify that the Actions are configured properly.</p>
+<h2>Proposal diff not displayed correctly for custom property</h2>
+<p>To get the proposal widget to display diffs correctly, follow these steps:</p>
+<ol>
+<li>
+<p>In the Workshop app, add the <code>new_&lt;PROPERTY&gt;</code> property to the <strong>Properties grouped by section</strong> in the Proposal Reviewer widget configuration. It is not necessary to select the "current" value here.</p>
+</li>
+<li>
+<p>If desired, edit the property name to remove the ânewâ prefix.</p>
+<p><img src="../../_resources/external-3e2a1f632986.png" alt="Alert Recipient property added to the proposal reviewer configuration sidebar with the 'New' prefix highlighted to indicate it can be removed" width="300" /></p>
+</li>
+<li>
+<p>Add the <code>foundry-rules.property-diff-for:ID_OF_NEW_PROPERTY</code> type class to the <strong>current</strong> property of the <strong>proposal object</strong>. Note that type classes are characterized by a <em>kind</em> and a <em>name</em>, written out as <code>kind.name</code>. In the case of <code>foundry-rules.property-diff-for:new_&lt;PROPERTY&gt;</code>, the kind is <code>foundry-rules</code> and the name is <code>property-diff-for:new_&lt;PROPERTY&gt;</code>.</p>
+<p><img src="../../_resources/external-dc3dd46907bd.png" alt="Example type class name and kind added to a property in ontology app" width="300" /></p>
+</li>
+</ol>
+<h2>Older errors</h2>
+<p>Prior to July 2022, Foundry Rules (previously known as Taurus) required additional configuration and used slightly different concepts. The following errors are associated with that process. If you deployed Foundry Rules after July 2022 and you encounter one of the issues below, try navigating to the <a href="https://www.palantir.com/docs/foundry/foundry-rules/foundry-rules-workflow-configuration/">Workflow Configuration Editor</a> to see if there are any errors in the workflow.</p>
+<h3><code>Taurus:MissingOntologyInformation</code></h3>
+<p>This error indicates that the requested Ontology information, as identified in the error message, either does not exist or the transform does not have permissions to access it. Check the following steps to remediate the error:</p>
+<ol>
+<li>Verify that the RID or ID in the message exists in the <a href="https://www.palantir.com/docs/foundry/ontology-manager/overview/">Ontology Manager</a>.</li>
+<li>Verify that all object types <em>and</em> relations used in the Foundry Rules Workshop application are imported into the Project using the <strong>Ontology Imports</strong> helper within the <strong>Settings</strong> tab of the Code Repository.</li>
+<li>Verify that the RIDs of all object types <em>and</em> relations used in the Foundry Rules Workshop application are listed in the <code>@AdditionalInputs</code> section at the top of the transform code. Learn more about <a href="https://www.palantir.com/docs/foundry/foundry-rules/configure-transforms-pipeline/#using-additionalinputs-to-add-ontology-inputs">using <code>@AdditionalInputs</code></a>.</li>
+<li>Make sure all the backing datasets for the object types and many-to-many relations used in the Foundry Rules Workshop application are <a href="https://www.palantir.com/docs/foundry/compass/move-and-share-resources/">imported</a> into the Project using the <strong>Project References</strong> section of the Project view. This includes any objects or relations backed by Restricted Views.</li>
+</ol>
+<h3><code>TransformsGradlePlugin:StaticTaurusDependencyDisallowed</code></h3>
+<p>This error indicates that declaring a static version number dependency on <code>tau-execution-core</code> is no longer allowed. To remediate this error, change the declared version to be the version range <code>[0,1[</code> instead of the static version number:</p>
+<ol>
+<li>First, navigate to the <a href="https://www.palantir.com/docs/foundry/code-repositories/overview/"><strong>Code Repository</strong></a> that contains the Foundry Rules transform.</li>
+<li>Turn on <strong>Show hidden files and folders</strong>.</li>
+<li>Within the Project level <code>build.gradle</code> file, change the line
+   <code>compile "com.palantir.tau-execution:tau-execution-core:0.x.x"</code>
+   to <code>compile "com.palantir.tau-execution:tau-execution-core:[0,1["</code>.
+   * If there is another line, <code>compile "com.palantir.tau-grammar:tau-grammar-api-objects:0.x.x"</code>, then <em>delete this line</em>.</li>
+<li>Commit the result and the checks should pass.</li>
+</ol>
+<h3>The Rule Editor preview does not match the output from the Foundry Rules transform</h3>
+<ol>
+<li>Verify that the input datasets of the Foundry Rules transform correspond to the ones used to back your objects in the Rule Editor preview.</li>
+<li>Verify that the flag <code>.shouldMatchContourExecutionBehavior(true)</code> is set to <code>true</code> in the Foundry Rules transform (example below). This flag ensures that the execution of the logic performed by the Foundry Rules transform is the same as in the Rule Editor preview.</li>
+</ol>
+<pre><code class="language-java">    // Configuring the Foundry Rules Rule Runner
+    Args ruleRunnerArgs = new TaurusRuleRunner.Args.Builder()
+            .rules(new Rules.Builder()
+                    .logicColumnName(&quot;RuleLogic&quot;)
+                    .ruleIdColumnName(&quot;RuleId&quot;)
+                    .dataset(rulesDataset)
+                    .build())
+            .putSources(SourceReference.objectTypeId(&quot;employee&quot;), source)
+            // set to true to ensure the rule execution output matches the rule editor widget's preview
+            .shouldMatchContourExecutionBehavior(true)
+            .context(transformContext)
+            .build();
+</code></pre>
+<h3><code>Taurus:UnknownMeasureName</code></h3>
+<p>This error can occur when a sensor object is either missing or the transform does not have the correct permissions. Check the following to remediate the error:</p>
+<ul>
+<li>Check that the RID of the link between the root object and the sensor object is imported into the Project using the Ontology Imports helper within the <strong>Settings</strong> tab of the Code Repository.</li>
+<li>Check that the RID of the link between the root and sensor object is listed in the <code>@AdditionalInputs</code> section at the top of the transform code.</li>
+<li>Check that the backing dataset of the sensor object is listed in the <code>@AdditionalInputs</code> section at the top of the transform code.</li>
+<li>Check that the backing dataset of the sensor object is <a href="https://www.palantir.com/docs/foundry/compass/move-and-share-resources/">imported</a> into the Project using the <strong>Project References</strong> section of the Project view.</li>
+</ul>
+<p>Verify that you have followed all the steps in <a href="https://www.palantir.com/docs/foundry/foundry-rules/configure-transforms-pipeline/">the deployment guide</a>.</p>
+</body>
+</html>

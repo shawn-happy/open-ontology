@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Quicksearch</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Quicksearch</h1>
+<p>Quicksearch is a tool for fast and easy search, navigation, and discovery in the Palantir platform. Access Quicksearch from the <strong>Search</strong> icon in the left sidebar, or use <code>Cmd+J</code> (macOS) or <code>Ctrl+J</code> (Windows). Quicksearch consists of two view modes:</p>
+<ol>
+<li><strong>Jump-to mode:</strong> Provides a short list of personalized results to directly navigate users to the main types of available content: platform applications, custom applications, objects, datasets, and other resources.</li>
+<li><strong>Full results view:</strong> Designed to help users find content and discover what exists in the platform. Users can search for Palantir apps, objects, datasets, and other files using advanced filters and find the most relevant results along with rich metadata.</li>
+</ol>
+<h2>Jump-to mode</h2>
+<ul>
+<li><strong>Easy to access:</strong> To open Quicksearch, select <strong>Search...</strong> in the navigation sidebar, or shortcuts <code>Cmd+J</code>(macOS) or <code>Ctrl+J</code> (Windows).</li>
+<li><strong>Navigation-focused:</strong> The initial dialog and dropdown are navigation-oriented. Start typing to receive suggestions. Use the keyboard to jump to any page in the platform.</li>
+<li><strong>Search only on titles:</strong> Jump-to mode only searches on titles of apps, resources, and objects. To search additional fields and metadata, use the full results mode.</li>
+<li><strong>Single click to full results:</strong> From the dialog and dropdown, press <code>Enter/Return</code> or filter by <strong>Apps</strong>, <strong>Objects</strong>, <strong>Datasets</strong>, or <strong>Files</strong> to move to advanced search mode.</li>
+<li><strong>Personalized results:</strong> Results in Quicksearch are personalized by your recently accessed or favorited resources, and more.</li>
+</ul>
+<p><img alt="Quicksearch Recent Searches" src="../../_resources/foundry/compass/quicksearch-recents.png" /></p>
+<p><img alt="Quicksearch Dropdown" src="../../_resources/foundry/compass/quicksearch-dropdown.png" /></p>
+<h2>Full results view</h2>
+<ul>
+<li><strong>Discovery-focused:</strong> Designed for searching and discovering, users can compare multiple search results to find the resources most useful to them.</li>
+<li><strong>Search on various fields:</strong> Search for descriptions, column names, file paths, and more. Additionally, filter by creator, tags, Projects, folders, and more.</li>
+<li><strong>Tabs:</strong> The interface includes a top results tab and four tabs by which to filter: <strong>Apps</strong>, <strong>Objects</strong>, <strong>Datasets</strong>, or <strong>Files</strong>.</li>
+<li><strong>Metadata:</strong> Users can view information on each result to evaluate whether the resource is relevant to them. Search by keyword highlights, file path, view count, last updated time, key security metadata, and more.</li>
+<li><strong>Ranking:</strong> Results are ranked based on an algorithm that contains text matching and other boost parameters.</li>
+<li><strong>Filters:</strong> Filters are provided for advanced searches. Additionally, by selecting the filter tabs from the initial search dropdown, users can perform complex filter searches (for example, âall reports under project X that were created by meâ).</li>
+<li><strong>Permissions:</strong> Quicksearch respects all existing permissions in the platform. Content with <code>Discover</code> permissions would open a <code>Request access</code> message. Users will not see content to which they do not have access.</li>
+</ul>
+<p><img alt="Quicksearch Top Tab" src="../../_resources/foundry/compass/quicksearch-top-tab.png" /></p>
+<p><img alt="Quicksearch Results" src="../../_resources/foundry/compass/quicksearch-results.png" /></p>
+<p>:::callout{theme="warning"}
+Quicksearch <strong>does not</strong> search across all object instances in the platform. Quicksearch is limited to search for instances on 250 object types, prioritized by <code>Active</code> object types with <code>Prominent</code>, then <code>Normal</code>, and then <code>Experimental</code> status (deprecated and hidden object types are not searched on). If a user cannot find what they are looking for, they are prompted to try searching in <a href="https://www.palantir.com/docs/foundry/object-explorer/search-objects/">Object Explorer</a>, where they can adjust their search to only specific groups of object types, or even specific object types.
+:::</p>
+<h3>Filters</h3>
+<p>You can quickly find the resources and data you need in the platform with filters in Quicksearch. Filter your search results by choosing from the <strong>Apps</strong>, <strong>Objects</strong>, <strong>Datasets</strong>, or <strong>Files</strong> result types. You can filter even further by searching within file paths, tags, or projects. Once you apply a filter, the search result view will show only the result type you chose.</p>
+<p>As an example, we want to search for "automotive" resources in our enrollment.</p>
+<h4>Apps</h4>
+<p>To search for modules, workspaces, or other applications made from Palantir application-building interfaces, you can filter by <strong>Apps</strong>.</p>
+<p>In our "automotive" search example, we can see three Workshop modules, one Carbon workspace, and one Slate document that are correctly recognized as applications built in Palantir.</p>
+<p><img alt="Searching for &quot;automotive&quot; results filtered by apps." src="../../_resources/foundry/compass/quicksearch-apps.png" /></p>
+<h4>Objects</h4>
+<p>To only view results that are based on Ontology object types, filter by <strong>Objects</strong>. In this search result view, you can select from object types that match your search terms, choose to edit or view the lineage of object types, and drill down further to individual objects.</p>
+<p>When searching for "automotive", we see several object types and object results, with the ability to filter even further into selected object types like <code>Award</code> or <code>Auto Parts</code>.</p>
+<p><img alt="Searching for &quot;automotive&quot; results filtered by objects." src="../../_resources/foundry/compass/quicksearch-objects.png" /></p>
+<h4>Datasets</h4>
+<p>When filtering by <strong>Datasets</strong>, the results view will show a list of available datasets in the platform that match the search term in a dataset name or in a column name.</p>
+<p>Using the same "automotive" example, we can see a list of 38 datasets with matching terms in dataset and column names.</p>
+<p><img alt="Searching for &quot;automotive&quot; results filtered by datasets." src="../../_resources/foundry/compass/quicksearch-datasets.png" /></p>
+<h4>Files</h4>
+<p>Use the <strong>Files</strong> tab in Quicksearch to quickly find individual resource files that were added to or created in the platform. Use the filters in the left panel to search specifically for certain file or resource types.</p>
+<p>When we search for "automotive", we receive several file results, including folders, graphs, images, and Modeling Objectives.</p>
+<p><img alt="Searching for &quot;automotive&quot; results filtered by files." src="../../_resources/foundry/compass/quicksearch-files.png" /></p>
+</body>
+</html>

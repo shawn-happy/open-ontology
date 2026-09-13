@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Core concepts</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Core concepts</h1>
+<h2>Endpoint definitions</h2>
+<p>An endpoint definition defines an API endpoint that consumes header, query, path, and body parameters to call Foundry <a href="https://www.palantir.com/docs/foundry/functions/overview/">functions</a> or <a href="https://www.palantir.com/docs/foundry/action-types/overview/">actions</a> with those parameters. Endpoint definitions belong to a single endpoint set.</p>
+<h2>Endpoint sets</h2>
+<p>An endpoint set is a Compass resource for grouping related endpoints. This resource manages permissions for developers to view, edit, publish, and deploy endpoint definitions. You can interact with an endpoint set's endpoint definitions in the <strong>Configuration</strong> tab.</p>
+<h2>Subdomains</h2>
+<p>A subdomain must be registered and approved through Control Panel before endpoints can be served. Subdomains provide custom domains for accessing deployed endpoint releases.</p>
+<p>When you create a new endpoint set, you will be prompted to <a href="https://www.palantir.com/docs/foundry/custom-endpoints/create-endpoint-set/#register-a-subdomain-to-host-your-endpoints">register a subdomain</a>. You must register a subdomain for each endpoint set in order to link that subdomain to your endpoint definitions. Standalone subdomains created manually through Control Panel are not supported by Custom Endpoints.</p>
+<h2>Endpoint set publishing and releases</h2>
+<p>You must first publish an endpoint set to create a versioned snapshot of it. Publishing an endpoint set creates an immutable release tied to a semantic version, and is similar to using Git. Publishing captures the current state much like <code>git commit</code>, and assigns it a semantic version tag similarly to <code>git tag</code>. Each endpoint set release is immutable, but can be deleted.</p>
+<h2>Deploy endpoint set releases</h2>
+<p>Endpoints become accessible only after deploying an endpoint set release to a subdomain. Multiple releases can be deployed simultaneously. Requests use the version specified in the <code>endpoint-api-version</code> header, defaulting to the latest deployed version when unspecified.</p>
+</body>
+</html>

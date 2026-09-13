@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Resource protection and project approval policies</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Resource protection and project approval policies</h1>
+<p>Protecting resources through branching and approval policies ensures that all contributions are made safely and in a controlled manner. When resources are protected, changes must be submitted via branches and can only be merged after receiving approval according to the project's defined policies.</p>
+<h2>Resource protection</h2>
+<p>To safeguard critical workflows or maintain development best practices, you can choose to <em>protect</em> the main branch of your resources. Protected resources cannot be changed directly; instead, changes must be made on a branch and then approved before merging into the main branch.</p>
+<p>A branch may include both protected and unprotected resources; however, only protected resources require changes to be made on a branch in accordance with the projectâs approval policy. Changes to unprotected resources will still require approval from a user with edit-level permissions unless specified otherwise.</p>
+<p>Protected resources can be identified by the <img alt="Protected resource lock." src="../../_resources/external-5e93113e74d0.png" width="30px"> icon (branch lock) in the Compass file system.</p>
+<p>Any user with owner permissions on a resource can choose to protect or unprotect that resource. Resources can be protected from your file system, individually or in bulk (by multi-selection). To protect a resource, right-click on a resource and choose <strong>Protect</strong> or <strong>Unprotect</strong> (depending on the current status). Workshop resources can also be protected from within the Workshop application by navigating to <strong>Settings</strong> and choosing the <strong>Branch protection</strong> tab.</p>
+<p><img alt="Protecting a single resource." src="../../_resources/foundry/global-branching/protecting-single-module.png" /></p>
+<h2>Branch protection tab</h2>
+<p>The branch protection tab in a project serves two purposes:</p>
+<ul>
+<li><strong>Defining branch approval policy:</strong> Owners of projects can define a <a href="#project-approval-policies">project approval policies</a> in the branch protection tab.</li>
+<li><strong>Automatically protecting new files:</strong> When toggled on, this setting will automatically protect all new files created in the project.</li>
+</ul>
+<h2>Project approval policies</h2>
+<p>Once a resource is protected, any change to that resource will have to be made on a branch and go through an approval process. The approval policy is set at the project level, and defines the approval required to merge changes to protected resources.</p>
+<h3>Default approval policies</h3>
+<p>Choosing the default approval policy option for a project means each resource in the project is protected only by its respective default policies. For each resource, the application that owns the resource defines these policies â for example, the ontology defines default policies for object types.</p>
+<p>These policies are typically simple: contributors and approvers must have <strong>edit</strong> access on the resource itself. Some cases are more complex. To see the exact policies for a given resource, see <strong>Viewing a resource's approval policies</strong> below.</p>
+<p>Default policies are satisfied in one of two ways:</p>
+<ul>
+<li><strong>Automatically</strong>, when the contributor's own permissions cover the policy.</li>
+<li><strong>Through review</strong>, when a separate user with the required permission approves the change.</li>
+</ul>
+<p>For example, suppose <code>SomeResource</code> has two default policies:</p>
+<ul>
+<li><strong>Policy 1</strong> requires permission <code>X</code></li>
+<li><strong>Policy 2</strong> requires permission <code>Y</code></li>
+</ul>
+<p>In this case:</p>
+<ol>
+<li>User A has permission <code>X</code>. They modify the resource on a branch, which automatically satisfies <strong>Policy 1</strong>.</li>
+<li>User B has permission <code>Y</code>. They review and approve the change, which satisfies <strong>Policy 2</strong>.</li>
+<li>Both default policies are now satisfied, and the change can proceed.</li>
+</ol>
+<p>A single user can also satisfy both policies on their own. User C has both permission <code>X</code> and permission <code>Y</code>, so they can modify the resource and merge the change without a separate approver â their permissions cover both policies.</p>
+<p><em>Example project with default approval policy:</em></p>
+<p><img alt="Project with default approval policy." src="../../_resources/foundry/global-branching/project-with-default-approval-policy.png" /></p>
+<h3>Custom approval policy</h3>
+<p>Approval policies have three customizable parameters:</p>
+<ul>
+<li><strong>Eligible reviewers:</strong> Users or groups allowed to review and approve changes to the main branch of a protected resource.</li>
+<li><strong>Number of approvals required:</strong> The minimum number of approvals needed.</li>
+<li><strong>Contributor approval:</strong> Specify whether contributors to the resource are allowed to approve changes to that resource. A contributor is any user who has made a change to that resource on the branch.</li>
+</ul>
+<p>Once a policy has been created on a project, it will apply immediately to <em>all protected resources</em> in that project when you create a branch and then a proposal. Additionally, if you update the policy to be more or less restrictive, proposals linked to that policy will be refreshed and have their status reevaluated against the new policy requirements. Only users that are owners on the project can update its custom policy.</p>
+<p><em>Example project with custom approval policy:</em></p>
+<p><img alt="Project with custom approval policy." src="../../_resources/foundry/global-branching/project-with-custom-approval-policy.png" /></p>
+<h2>Moving a resource to a new project</h2>
+<p>A resource's protection status is preserved when moving resources between projects. For example:</p>
+<ul>
+<li><strong>Moving a protected resource to a new project:</strong> The resource will remain protected in the new project.</li>
+<li><strong>Moving an unprotected resource to a new project:</strong> The resource will remain unprotected in the new project.</li>
+</ul>
+<p>When a protected resource moves to a new project, any change to that protected resource must be made on a branch and will be governed by the approval policy of the new project.</p>
+<p>:::callout{theme="neutral" title="Moving a resource with an open proposal"}
+If a resource with an open proposal is moved to a new project, the existing proposal may take up to 1 day before the resource's policy displays the new project policy. Updating the module on the branch or attempting to merge the proposal will also trigger a refresh of the resource's policy to match the new project policy.
+:::</p>
+<h2>Using project policies alongside local branch protection</h2>
+<p><a href="https://www.palantir.com/docs/foundry/code-repositories/branch-settings/#protected-branches">Code repositories</a> and <a href="https://www.palantir.com/docs/foundry/pipeline-builder/branches-protected-branches/">Pipeline Builder</a> both have local branch protection mechanisms and approval policies. These will remain in place.</p>
+<p>In the future, users will have the option to opt into the project approval policy for their code repositories and builder pipelines.</p>
+<h2>Viewing a resource's approval policies</h2>
+<p>You can view the approval policies that apply to a resource by selecting the ð¤ button in the reviewers column on the proposal page or in the branch taskbar. This will open a popover with two tabs, <strong>Manage reviewers</strong> and <strong>Approval policies</strong>.</p>
+<p>The <strong>Approval policies</strong> tab will show both custom policies (set at the project or the resource level) and default policies that apply to a given resource. For each policy, you will also be able to see additional information including the eligible reviewers, the number of approvals required, and whether contributor approval is allowed.</p>
+<p><img alt="Approval policies on the Proposal page." src="../../_resources/foundry/global-branching/proposal-page-approval-policies.png" /></p>
+<p>The <strong>Manage reviewers</strong> tab shows who you have requested review from and the status of the review. You can also use the edit button to add or remove reviewers.</p>
+<p><img alt="Manage reviewers on the Proposal page." src="../../_resources/foundry/global-branching/proposal-page-manage-reviewers.png" /></p>
+</body>
+</html>

@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Extract imagery metadata</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Extract imagery metadata</h1>
+<blockquote>
+<p>Supported in: Batch, Streaming</p>
+</blockquote>
+<p>Extracts metadata fields from an image.</p>
+<p><strong>Expression categories:</strong> Media</p>
+<h2>Declared arguments</h2>
+<ul>
+<li><strong>Media reference:</strong> The column containing media references to imagery in the media set.<br><em>Expression\<Media reference></em></li>
+<li><strong>Metadata to include:</strong> Select the metadata columns to include in the output.
+  For metadata columns that do not apply for the given image, the value will be null. For example, geo metadata should only be relevant for images with geospatial context such as satellite imagery with world coordinates. If this does not apply to the image, this field will return null.<br><em>Set\<Enum\\<Attributes, Bands, Bytes, Dimensions, EXIF Image Location, Format, Geographic Metadata, ICC Profile>></em></li>
+</ul>
+<p><strong>Output type:</strong> <em>Struct</em></p>
+<h2>Examples</h2>
+<h3>Example 1: Base case</h3>
+<p><strong>Argument values:</strong></p>
+<ul>
+<li><strong>Media reference:</strong> <code>Media Reference</code></li>
+<li><strong>Metadata to include:</strong> [<code>Attributes</code>, <code>Bands</code>, <code>Bytes</code>, <code>Dimensions</code>, <code>Format</code>, <code>Geographic Metadata</code>, <code>ICC Profile</code>, <code>EXIF Image Location</code>]</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>Media Reference</th>
+<th><strong>Output</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>{"mimeType":"image/tiff","reference":{"type":"mediaSetItem","mediaSetItem":{"mediaSetRid":"ri.mio.test.media-set.1","mediaItemRid":"ri.mio.test.media-item.1"}}}</td>
+<td>{<br>â<strong>attributes</strong>: {<br>âouter_key1 -&gt; {<br>âinner_key1 -&gt; inner_value1,<br>},<br>...</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3>Example 2: Base case</h3>
+<p><strong>Argument values:</strong></p>
+<ul>
+<li><strong>Media reference:</strong> <code>Media Reference</code></li>
+<li><strong>Metadata to include:</strong> [<code>Bands</code>, <code>Dimensions</code>, <code>Geographic Metadata</code>]</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>Media Reference</th>
+<th><strong>Output</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>{"mimeType":"image/tiff","reference":{"type":"mediaSetItem","mediaSetItem":{"mediaSetRid":"ri.mio.test.media-set.1","mediaItemRid":"ri.mio.test.media-item.1"}}}</td>
+<td>{<br>â<strong>bands</strong>: [ {<br>â<strong>color_interpretation</strong>: RED,<br>â<strong>type</strong>: BYTE,<br>}, {\&lt;b...</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3>Example 3: Base case</h3>
+<p><strong>Argument values:</strong></p>
+<ul>
+<li><strong>Media reference:</strong> <code>Media Reference</code></li>
+<li><strong>Metadata to include:</strong> [<code>ICC Profile</code>]</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>Media Reference</th>
+<th><strong>Output</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>{"mimeType":"image/tiff","reference":{"type":"mediaSetItem","mediaSetItem":{"mediaSetRid":"ri.mio.test.media-set.1","mediaItemRid":"ri.mio.test.media-item.1"}}}</td>
+<td>{<br>â<strong>icc_profile</strong>: some-icc-profile,<br>}</td>
+</tr>
+</tbody>
+</table>
+<hr />
+</body>
+</html>

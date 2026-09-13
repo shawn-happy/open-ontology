@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Getting started</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Getting started</h1>
+<p>:::callout{theme="success" title="Tip"}
+The instructions below step through a simple Java data transformation. If you are just getting started with data transformation, consider going through the batch pipeline tutorial for <a href="https://www.palantir.com/docs/foundry/building-pipelines/create-batch-pipeline-pb/">Pipeline Builder</a> or <a href="https://www.palantir.com/docs/foundry/building-pipelines/create-batch-pipeline-cr/">Code Repositories</a> first.
+:::</p>
+<p>Follow the steps here to get started writing your first Java transformation:</p>
+<ol>
+<li>
+<p>Create a new Transforms Java repository. Navigate to a Project, select <strong>+ New</strong> &gt; <strong>Repository</strong>, and select <strong>Java</strong> under <strong>Language template</strong>.</p>
+</li>
+<li>
+<p>Download this sample dataset: <a href="/docs/resources/foundry/transforms-java/titanic.zip"><code>Download titanic.zip</code></a>. Import this dataset into Foundry.</p>
+</li>
+<li>
+<p>Navigate to your repository. Your data transformation code goes in <code>myproject/datasets/HighLevelAutoTransform.java</code>. The sample code in this file is commented out, so make sure to un-comment it before moving on.</p>
+</li>
+<li>
+<p>Update the input dataset by replacing <code>/path/to/input/dataset</code> with the full path to your <code>titanic</code> dataset.</p>
+</li>
+<li>
+<p>Update the output dataset by replacing <code>/path/to/output/dataset</code> with the full path to your desired output dataset location.</p>
+</li>
+<li>
+<p>Modify the default transformation code to filter the <code>titanic</code> dataset based on gender to get all female passengers. Update your data transformation code in <code>my_compute_function</code>:</p>
+</li>
+</ol>
+<p><code>java
+   @Compute
+   // Replace this with the full path to your output dataset.
+   @Output("/path/to/output/dataset")
+   // Replace this with the full path to your "titanic" dataset.
+   public Dataset&lt;Row&gt; myComputeFunction(@Input("/path/to/input/dataset") Dataset&lt;Row&gt; myInput) {
+       return myInput.filter(myInput.col("Sex").equalTo("female"));
+   }</code></p>
+<ol start="7">
+<li>After you successfully commit your changes to your branch, you can open and build your output dataset!</li>
+</ol>
+<p>This example defines a high-level Transform that uses automatic registration. For more information about the different types of data transformations supported in Transforms Java as well as an explanation of the template project structure and included files, refer to <a href="https://www.palantir.com/docs/foundry/transforms-java/transforms-pipelines/">this documentation</a>.</p>
+</body>
+</html>

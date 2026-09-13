@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Evaluation functions and Ontology edits</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Evaluation functions and Ontology edits</h1>
+<p>When an evaluation suite is run, the Logic function for each test case is executed. For functions that involve Ontology edits (such as creating, editing, or deleting objects), each test case is executed in an Ontology simulation. This ensures that the actual Ontology remains unchanged during testing and evaluation.</p>
+<h2>Custom evaluation functions for Ontology edits</h2>
+<p>For AIP Logic functions that result in Ontology edits, users must configure custom evaluation functions in TypeScript or use <a href="https://www.palantir.com/docs/foundry/aip-evals/intermediate-parameters/">intermediate parameters</a>. Custom evaluation functions must return either Boolean or numeric types. One evaluation function may also return multiple metrics by returning a <code>struct</code> consisting of Boolean or numeric types.</p>
+<p>When adding evaluation functions in the Evaluations application, you will be prompted to either author a function in Code Repositories or select an existing published function. With the guide provided below, explore various kinds of Ontology edits and learn how to effectively use TypeScript functions for their evaluation.</p>
+<h3>Created objects</h3>
+<p>In the case of Ontology edits that involve creating objects, the created object only exists in the simulated Ontology. As such, these created objects cannot be configured as a test case parameter for passing in directly. Instead, search for it using an identifiable property and check its properties.</p>
+<pre><code class="language-typescript">@Function()
+public async checkTicketWasCreated(
+    expectedRequester: string,
+    expectedDate: LocalDate,
+    expectedClassification: string,
+): Promise&lt;boolean&gt; {
+    const matches = Objects.search().supportTicket()
+        .filter(ticket =&gt; ticket.ticketRequester.exactMatch(expectedRequester))
+        .filter(ticket =&gt; ticket.ticketCreationDate.exactMatch(expectedDate))
+        .all();
+
+    if (matches.length !== 1) {
+        return false;
+    }
+
+    return matches[0].classification === expectedClassification;
+}
+</code></pre>
+<h3>Edited objects</h3>
+<p>For object edit output types, the edited object already exists in the real Ontology. In the simulated Ontology, you can pass it directly into the function and check its properties, as illustrated below:</p>
+<pre><code class="language-typescript">@Function()
+public checkTicketClassification(
+    ticket: SupportTicket,
+    expectedClassification: string,
+): boolean {
+    return ticket.classification === expectedClassification;
+}
+</code></pre>
+<h3>Deleted objects</h3>
+<p>In the case of Ontology edits that involve deleting objects, the object is expected to be deleted in the simulated Ontology, so it cannot be passed into the evaluation function. To verify that the object was actually deleted, pass an identifiable property of the object and search for it to ensure that there are no results.</p>
+<pre><code class="language-typescript">@Function()
+public async checkTicketWasDeleted(ticketId: string): Promise&lt;boolean&gt; {
+    const count = await Objects.search().supportTicket()
+        .filter(ticket =&gt; ticket.ticketId.exactMatch(ticketId))
+        .count();
+    return count === 0;
+}
+</code></pre>
+</body>
+</html>

@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Advanced workflows</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Advanced workflows</h1>
+<p>:::callout{theme="neutral" title="Beta"}
+SuperRepo is in the <a href="https://www.palantir.com/docs/foundry/platform-overview/development-life-cycle/">beta</a> phase of development and may not be available on your enrollment. Functionality may change during active development.
+:::</p>
+<p>For a repository to be a SuperRepo, it must have a <code>foundry.yml</code> file at its root declaring the project structure: each component's type and path. This file also allows you to declare the output artifacts (a <a href="https://www.palantir.com/docs/foundry/marketplace/foundry-products/">Marketplace product</a>) or even multiple outputs.</p>
+<h2>Add multiple products</h2>
+<p>The <code>foundry.yml</code> configuration file can either hold a top-level <code>components</code> list or a top-level <code>products</code> list with a <code>components</code> key within each product. In a multi-product configuration, declare a <code>bundle</code> key within each product to define its output artifact. Review the following example:</p>
+<pre><code class="language-yaml">products:
+  - components:
+      - type: ONTOLOGY
+        path: ./ontology
+      - type: APP
+        path: ./app
+    osdkOutput: ontology/osdk-output
+    apiNamespace: com.palantir.ontology
+    bundle:
+      name: &quot;operations-console&quot;
+      description: &quot;example description&quot;
+      mavenCoordinate: &quot;com.example:operations-console&quot;
+      installMode: SINGLETON
+
+  - components:
+      - type: ONTOLOGY
+        path: ./analytics/ontology
+      - type: APP
+        path: ./analytics/app
+    osdkOutput: analytics/ontology/osdk-output
+    apiNamespace: com.palantir.analytics
+    bundle:
+      name: &quot;analytics-console&quot;
+      description: &quot;example description&quot;
+      mavenCoordinate: &quot;com.example:analytics-console&quot;
+      installMode: SINGLETON
+</code></pre>
+<p>When using a multi-product configuration, pass the <code>--product &lt;bundle name&gt;</code> option to every <a href="https://www.palantir.com/docs/foundry/superrepo/foundry-cli/">Foundry CLI</a> command to indicate which product to run against.</p>
+<p>To exclude a product from the packaged output without removing it from the file, set <code>includeInBundle: false</code> on that product. The option defaults to <code>true</code> when omitted.</p>
+<h3>Bundle a multi-product SuperRepo</h3>
+<p>A single-product SuperRepo is packaged with one command, <code>foundry bundle --project-version &lt;VERSION&gt;</code>. That command does not accept a multi-product configuration: if <code>foundry.yml</code> declares more than one product, it fails and directs you to the two subcommands below instead.</p>
+<p>Bundle a multi-product SuperRepo in two stages:</p>
+<ol>
+<li>Run <code>foundry bundle product --product &lt;bundle name&gt; --project-version &lt;VERSION&gt;</code> once for each product. Each invocation writes that product's packaged output to <code>build/&lt;bundle name&gt;/blockset.zip</code>. Because <code>--project-version</code> is supplied per invocation, products in the same repository can be versioned independently.</li>
+<li>Run <code>foundry bundle store</code> to assemble those outputs into <code>build/store.zip</code>. This command takes no version argument; pass <code>--output</code> to write the store elsewhere. If a product has not been bundled yet, the command fails with the expected path and the <code>foundry bundle product</code> invocation needed to produce it.</li>
+</ol>
+<p>Neither stage is implied by <code>foundry deploy</code>, which expects the store to exist already and fails if it does not. Bundle before you deploy.</p>
+<h2>Restructure a SuperRepo</h2>
+<p>The components within a product can be freely moved around. For instance, moving <code>./ontology</code> to <code>./platform/ontology</code> touches three manifest keys:</p>
+<pre><code class="language-diff"> components:
+   - type: ONTOLOGY
+-    path: ./ontology
++    path: ./platform/ontology
+
+ imports:
+-  - ontology: ontology/external-imports/ontology-full-metadata.json
++  - ontology: platform/ontology/external-imports/ontology-full-metadata.json
+
+-osdkOutput: ontology/osdk-output
++osdkOutput: platform/ontology/osdk-output
+</code></pre>
+<h2>Define seed data</h2>
+<p>During preview, <code>foundry</code> spawns a local <a href="https://www.palantir.com/docs/foundry/superrepo/core-concepts/#preview">embedded Ontology</a> server. This server is aware of the types defined or imported inside your SuperRepo's ontology component. However, it is not connected to your enrollment's Ontology. The instances of your object types therefore do not come from your enrollment; they exist and are valid only locally. You can either create objects manually by invoking a create action associated with an object, or leverage the automated seeding infrastructure of SuperRepos.</p>
+<p>Seed data is a directory of TypeScript files inside the <code>ONTOLOGY</code> component. It is discovered by the local preview server through command-line arguments specified by the project's orchestration framework of choice, such as Nx.</p>
+<p>Only top-level <code>.mts</code> files are compiled, in sorted filename order, which is why the demo template numbers them <code>001-</code>, <code>002-</code>, and <code>003-</code>. Each file default-exports a <code>createSeed</code> call. The first argument to <code>seed.add</code> is the generated SDK constant for the object type, and every non-nullable property is required, including the primary key. Primary keys must be unique within an object type across the whole directory. The <code>seed.link</code> function takes the references returned by <code>seed.add</code>, and both ends must be registered in the same call.</p>
+<pre><code class="language-typescript">import { seller, superproduct } from &quot;@ontology/sdk&quot;;
+import { createSeed } from &quot;@osdk/seed-helpers&quot;;
+
+export default createSeed((seed) =&gt; {
+  const charger = seed.add(superproduct, {
+    pk: &quot;prod-004&quot;,
+    title: &quot;USB-C 100W GaN Charger&quot;,
+    price: 5900,
+    newPrice: 4720,
+    description: &quot;Compact 100W USB-C GaN wall charger&quot;,
+  });
+  const halcyon = seed.add(seller, {
+    pk: &quot;seller-003&quot;,
+    name: &quot;Halcyon Desk Co.&quot;,
+  });
+  seed.link(&quot;charger-seller-link&quot;, charger, &quot;sellers&quot;, halcyon, &quot;superproducts&quot;);
+});
+</code></pre>
+<p>Each run uses a fresh local database, so seed files are re-applied on every start, and objects edited through the local server are discarded when you restart.</p>
+<h2>Change the orchestration framework</h2>
+<p>The <code>foundry create</code> command wires up Nx, but the CLI reads neither the <code>nx.json</code> nor the <code>project.json</code> file. SuperRepo and the Foundry CLI are therefore independent of the orchestration framework you choose. The default template uses Nx because it is widely used; to migrate away from Nx, port the Foundry CLI invocations from the <code>project.json</code> files into another system.</p>
+<p>:::callout{theme="neutral"}
+During migration, you must wrap every Node install with <code>foundry run-with-auth</code>. It injects <code>FOUNDRY_HOSTNAME</code> and <code>FOUNDRY_TOKEN</code> so that the <code>.npmrc</code> files can rely on these environment variables.
+:::</p>
+<h2>Content security policy</h2>
+<p>When your application consumes resources from other origins, you must allow those origins in the Content Security Policy (CSP) of the website that Foundry manages for your product. Otherwise, the browser blocks the request. Declare the additions with the <code>contentSecurityPolicyAdditions</code> key:</p>
+<pre><code class="language-yaml">contentSecurityPolicyAdditions:
+  img-src:
+    - tile.openstreetmap.org
+</code></pre>
+<p>Each key is a standard CSP directive name and each value is a list of allowed sources, such as <code>https://api.example.com</code> or <code>'self'</code>. The following directive names are valid: <code>connect-src</code>, <code>frame-src</code>, <code>img-src</code>, <code>media-src</code>, <code>script-src</code>, <code>style-src</code>, <code>font-src</code>, and <code>frame-ancestors</code>.</p>
+<p><code>contentSecurityPolicyAdditions</code> is a per-product key, declared alongside <code>components</code> and <code>bundle</code>, and it only applies when the product has an <code>APP</code> component. In a single-product <code>foundry.yml</code> the key therefore appears at the top level of the file, as shown above. In a multi-product configuration, declare it within each product that needs it, as described in the <a href="#add-multiple-products">Add multiple products</a> section.</p>
+<h2>Platform API proxy</h2>
+<p>Applications commonly reach out to <a href="https://www.palantir.com/docs/foundry/functions/platform-sdk/">Foundry platform APIs through the Ontology SDK</a>. The SuperRepo local preview server implements some of these platform APIs, but not all. For instance, to use the <a href="https://www.palantir.com/docs/foundry/api/v2/llm-apis/models/openai-chat-completions-proxy/">LLM provider proxies</a> of the platform API, you must reach out to your Foundry enrollment.</p>
+<p>SuperRepo preview supports proxying API calls to a remote Foundry instance by defining the top-level <code>platformApiProxy</code> key inside the <code>foundry.yml</code> file, as shown in the following example:</p>
+<pre><code class="language-yaml">platformApiProxy:
+  passthrough:
+    - path: /api/v2/admin/users/getCurrent
+      methods: [GET]
+    - path: /api/v2/llm/proxy/openai/v1/responses
+      methods: [POST]
+</code></pre>
+<p>After you declare these paths, the preview server answers requests from the Ontology SDK client for the paths and methods listed above. These requests are proxied to your Foundry enrollment using the credentials stored by <code>foundry login</code>, not the token you exported when you installed the <a href="https://www.palantir.com/docs/foundry/superrepo/foundry-cli/">Foundry CLI</a>. If proxied requests start failing with an authorization error, your stored token has likely expired; run <code>foundry login refresh</code> to re-authorize.</p>
+<p>The <code>platformApiProxy</code> configuration does not affect the deployed products and is only effective during preview.</p>
+</body>
+</html>

@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Add Primary Key</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../../../index.html">返回目录</a></div>
+<p><code>POST /api/v2/datasets/views/{viewDatasetRid}/addPrimaryKey</code></p>
+<p>Adds a primary key to a View that does not already have one. Primary keys are treated as 
+guarantees provided by the creator of the dataset.</p>
+<p>Third-party applications using this endpoint via OAuth2 must request the following operation scope: <code>api:datasets-write</code>.</p>
+<p><strong>OAuth2 scopes</strong>: <code>api:datasets-write</code></p>
+<h2>Path parameters</h2>
+<table>
+<thead>
+<tr>
+<th>参数</th>
+<th>类型</th>
+<th>必填</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>viewDatasetRid</code></td>
+<td>string</td>
+<td>是</td>
+<td>The rid of the View.<br>示例: <code>ri.foundry.main.dataset.c26f11c8-cdb3-4f44-9f5d-9816ea1c82da</code></td>
+</tr>
+</tbody>
+</table>
+<h2>Request body</h2>
+<pre><code class="language-json">{
+  &quot;branch&quot;: &quot;master&quot;,
+  &quot;primaryKey&quot;: {
+    &quot;columns&quot;: [
+      &quot;colA&quot;
+    ],
+    &quot;resolution&quot;: {
+      &quot;type&quot;: &quot;duplicate&quot;,
+      &quot;deletionColumn&quot;: &quot;deletionCol&quot;,
+      &quot;resolutionStrategy&quot;: {
+        &quot;type&quot;: &quot;latestWins&quot;,
+        &quot;columns&quot;: [
+          &quot;colB&quot;,
+          &quot;colC&quot;
+        ]
+      }
+    }
+  }
+}
+</code></pre>
+<h2>Response</h2>
+<p><strong>View</strong></p>
+<table>
+<thead>
+<tr>
+<th>参数</th>
+<th>类型</th>
+<th>必填</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>View</code></td>
+<td>object</td>
+<td>是</td>
+<td>示例: <code>{"datasetRid":"ri.foundry.main.dataset.c26f11c8-cdb3-4f44-9f5d-9816ea1c82da","parentFolderRid":"ri.compass.main.folder.c410f510-2937-420e-8ea3-8c9bcb3c1791","viewName":"My Dataset","backingDatasets":[{"datasetRid":"ri.foundry.main.dataset.c26f11c8-cdb3-4f44-9f5d-9816ea1c82da","stopPropagatingMarkingIds":["18212f9a-0e63-4b79-96a0-aae04df23336"],"branch":"master"}],"branch":"master","primaryKey":{"columns":["order_id"]}}</code></td>
+</tr>
+<tr>
+<td><code>View.viewName</code></td>
+<td>string</td>
+<td>是</td>
+<td>示例: <code>My Dataset</code></td>
+</tr>
+<tr>
+<td><code>View.datasetRid</code></td>
+<td>string</td>
+<td>是</td>
+<td>The rid of the View.<br>示例: <code>ri.foundry.main.dataset.c26f11c8-cdb3-4f44-9f5d-9816ea1c82da</code></td>
+</tr>
+<tr>
+<td><code>View.parentFolderRid</code></td>
+<td>string</td>
+<td>是</td>
+<td>The unique resource identifier (RID) of a Folder.<br>示例: <code>ri.compass.main.folder.c410f510-2937-420e-8ea3-8c9bcb3c1791</code></td>
+</tr>
+<tr>
+<td><code>View.branch</code></td>
+<td>string</td>
+<td>否</td>
+<td>The branch name of the View. If not specified, defaults to <code>master</code> for most enrollments.<br>示例: <code>master</code></td>
+</tr>
+<tr>
+<td><code>View.backingDatasets</code></td>
+<td>list<ViewBackingDataset></td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>View.backingDatasets.ViewBackingDataset</code></td>
+<td>object</td>
+<td>是</td>
+<td>One of the Datasets backing a View.</td>
+</tr>
+<tr>
+<td><code>View.backingDatasets.ViewBackingDataset.branch</code></td>
+<td>string</td>
+<td>否</td>
+<td>The branch of the backing dataset. If not specified, defaults to the branch of the View.<br>示例: <code>master</code></td>
+</tr>
+<tr>
+<td><code>View.backingDatasets.ViewBackingDataset.datasetRid</code></td>
+<td>string</td>
+<td>是</td>
+<td>The Resource Identifier (RID) of a Dataset.<br>示例: <code>ri.foundry.main.dataset.c26f11c8-cdb3-4f44-9f5d-9816ea1c82da</code></td>
+</tr>
+<tr>
+<td><code>View.backingDatasets.ViewBackingDataset.stopPropagatingMarkingIds</code></td>
+<td>list<MarkingId></td>
+<td>否</td>
+<td>Markings listed here will not be inherited from this backing dataset. The caller must have the DECLASSIFY<br>permission on each marking listed here. If multiple backing datasets have the same marking applied,<br>the marking must be listed for each backing dataset or it will still be inherited.</td>
+</tr>
+<tr>
+<td><code>View.backingDatasets.ViewBackingDataset.stopPropagatingMarkingIds.MarkingId</code></td>
+<td>string</td>
+<td>是</td>
+<td>The ID of a security marking.</td>
+</tr>
+<tr>
+<td><code>View.primaryKey</code></td>
+<td>object</td>
+<td>否</td>
+<td>The primary key of the dataset. Primary keys are treated as guarantees provided by the creator of the<br>dataset.<br>示例: <code>{"columns":["order_id"]}</code></td>
+</tr>
+<tr>
+<td><code>View.primaryKey.columns</code></td>
+<td>list<string></td>
+<td>否</td>
+<td>The columns that constitute the primary key. These columns must satisfy the following constraints:<br>- The list of columns must be non-empty.<br>- The list must not contain duplicate columns after applying column normalization.<br>- Each referenced column must exist in the schema.<br>- The type of each referenced column must be one of the following: <code>BYTE</code>, <code>SHORT</code>, <code>DECIMAL</code>, <code>INTEGER</code>,<br><code>LONG</code>, <code>STRING</code>, <code>BOOLEAN</code>, <code>TIMESTAMP</code> or <code>DATE</code>.<br>示例: <code>["order_id"]</code></td>
+</tr>
+<tr>
+<td><code>View.primaryKey.resolution</code></td>
+<td>union</td>
+<td>是</td>
+<td>The semantics of the primary key within the dataset. For example, the unique resolution means that every<br>row in the dataset has a distinct primary key. The value of this field represents a contract for writers<br>of the dataset. Writers are responsible for maintaining any related invariants, and readers may make<br>optimizations based on this. Violating the assumptions of the resolution can cause undefined behavior,<br>for example, having duplicate primary keys with the unique resolution.</td>
+</tr>
+<tr>
+<td><code>View.primaryKey.resolution.unique</code></td>
+<td>object</td>
+<td>否</td>
+<td>Primary key values are unique within the dataset â no conflicts.</td>
+</tr>
+<tr>
+<td><code>View.primaryKey.resolution.duplicate</code></td>
+<td>object</td>
+<td>否</td>
+<td>Duplicate primary key values may exist within the dataset â resolution required.</td>
+</tr>
+<tr>
+<td><code>View.primaryKey.resolution.duplicate.deletionColumn</code></td>
+<td>string</td>
+<td>否</td>
+<td>The name of the boolean column that indicates whether a row should be considered deleted. Based on the<br><code>resolutionStrategy</code>, if the final row selected for a given primary key has <code>true</code> in this column, that<br>row will be excluded from the results. Otherwise, it will be included.<br>示例: <code>my_column</code></td>
+</tr>
+<tr>
+<td><code>View.primaryKey.resolution.duplicate.resolutionStrategy</code></td>
+<td>union</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>View.primaryKey.resolution.duplicate.resolutionStrategy.latestWins</code></td>
+<td>object</td>
+<td>否</td>
+<td>Picks the row with the highest value of a list of columns, compared in order.</td>
+</tr>
+<tr>
+<td><code>View.primaryKey.resolution.duplicate.resolutionStrategy.latestWins.columns</code></td>
+<td>list<string></td>
+<td>否</td>
+<td>示例: <code>["colB","colC"]</code></td>
+</tr>
+</tbody>
+</table>
+<pre><code class="language-json">{
+  &quot;datasetRid&quot;: &quot;ri.foundry.main.dataset.c26f11c8-cdb3-4f44-9f5d-9816ea1c82da&quot;,
+  &quot;parentFolderRid&quot;: &quot;ri.compass.main.folder.c410f510-2937-420e-8ea3-8c9bcb3c1791&quot;,
+  &quot;viewName&quot;: &quot;My Dataset&quot;,
+  &quot;backingDatasets&quot;: [
+    {
+      &quot;datasetRid&quot;: &quot;ri.foundry.main.dataset.c26f11c8-cdb3-4f44-9f5d-9816ea1c82da&quot;,
+      &quot;stopPropagatingMarkingIds&quot;: [
+        &quot;18212f9a-0e63-4b79-96a0-aae04df23336&quot;
+      ],
+      &quot;branch&quot;: &quot;master&quot;
+    }
+  ],
+  &quot;branch&quot;: &quot;master&quot;,
+  &quot;primaryKey&quot;: {
+    &quot;columns&quot;: [
+      &quot;order_id&quot;
+    ]
+  }
+}
+</code></pre>
+<h2>Error responses</h2>
+<table>
+<thead>
+<tr>
+<th>错误码</th>
+<th>错误名称</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>CONFLICT</td>
+<td><code>ViewPrimaryKeyCannotBeModified</code></td>
+<td>A primary key already exits.</td>
+</tr>
+<tr>
+<td>NOT_FOUND</td>
+<td><code>ViewNotFound</code></td>
+<td>The requested View could not be found. Either the view does not exist, the branch is not valid or the<br>client token does not have access to it.</td>
+</tr>
+<tr>
+<td>INVALID_ARGUMENT</td>
+<td><code>ViewPrimaryKeyMustContainAtLeastOneColumn</code></td>
+<td>No columns were provided as part of the primary key</td>
+</tr>
+<tr>
+<td>INVALID_ARGUMENT</td>
+<td><code>ViewPrimaryKeyRequiresBackingDatasets</code></td>
+<td>Cannot add a primary key to a View that does not have any backing datasets.</td>
+</tr>
+<tr>
+<td>INVALID_ARGUMENT</td>
+<td><code>InvalidViewPrimaryKeyColumnType</code></td>
+<td>The type of each referenced column in the primary key must be one of the following: BYTE, SHORT, DECIMAL,<br>INTEGER, LONG, STRING, BOOLEAN, TIMESTAMP or DATE.</td>
+</tr>
+<tr>
+<td>INVALID_ARGUMENT</td>
+<td><code>NotAllColumnsInPrimaryKeyArePresent</code></td>
+<td>Not all columns in the View's primary key are present in the dataset(s).</td>
+</tr>
+<tr>
+<td>INVALID_ARGUMENT</td>
+<td><code>ViewPrimaryKeyDeletionColumnNotInDatasetSchema</code></td>
+<td>The deletion column is not present in the dataset.</td>
+</tr>
+<tr>
+<td>INVALID_ARGUMENT</td>
+<td><code>InvalidViewPrimaryKeyDeletionColumn</code></td>
+<td>The deletion column must be a boolean.</td>
+</tr>
+<tr>
+<td>PERMISSION_DENIED</td>
+<td><code>AddPrimaryKeyPermissionDenied</code></td>
+<td>Could not addPrimaryKey the View.</td>
+</tr>
+</tbody>
+</table>
+</body>
+</html>

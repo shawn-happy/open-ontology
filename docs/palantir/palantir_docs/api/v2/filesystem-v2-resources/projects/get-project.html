@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Get Project</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../../../index.html">返回目录</a></div>
+<p><code>GET /api/v2/filesystem/projects/{projectRid}</code></p>
+<p>Get the Project with the specified rid.</p>
+<p>Third-party applications using this endpoint via OAuth2 must request the following operation scope: <code>api:filesystem-read</code>.</p>
+<p><strong>OAuth2 scopes</strong>: <code>api:filesystem-read</code></p>
+<h2>Path parameters</h2>
+<table>
+<thead>
+<tr>
+<th>参数</th>
+<th>类型</th>
+<th>必填</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>projectRid</code></td>
+<td>string</td>
+<td>是</td>
+<td>The unique resource identifier (RID) of a Project.<br>示例: <code>ri.compass.main.folder.01a79a9d-e293-48db-a585-9ffe221536e8</code></td>
+</tr>
+</tbody>
+</table>
+<h2>Response</h2>
+<p><strong>Project</strong></p>
+<table>
+<thead>
+<tr>
+<th>参数</th>
+<th>类型</th>
+<th>必填</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Project</code></td>
+<td>object</td>
+<td>是</td>
+<td>示例: <code>{"path":"/Empyrean Airlines/My Important Project","updatedTime":"2024-09-25T17:29:35.974Z","updatedBy":"f05f8da4-b84c-4fca-9c77-8af0b13d11de","createdBy":"f05f8da4-b84c-4fca-9c77-8af0b13d11de","displayName":"My Important Project","documentation":"project documentation","resourceLevelRoleGrantsAllowed":true,"description":"project description","createdTime":"2024-09-25T17:29:35.974Z","rid":"ri.compass.main.folder.01a79a9d-e293-48db-a585-9ffe221536e8","spaceRid":"ri.compass.main.folder.a86ad5f5-3db5-48e4-9fdd-00aa3e5731ca","trashStatus":"NOT_TRASHED"}</code></td>
+</tr>
+<tr>
+<td><code>Project.rid</code></td>
+<td>string</td>
+<td>是</td>
+<td>The unique resource identifier (RID) of a Project.<br>示例: <code>ri.compass.main.folder.01a79a9d-e293-48db-a585-9ffe221536e8</code></td>
+</tr>
+<tr>
+<td><code>Project.displayName</code></td>
+<td>string</td>
+<td>是</td>
+<td>The display name of the Project. Must be unique and cannot contain a /<br>示例: <code>My Important Project</code></td>
+</tr>
+<tr>
+<td><code>Project.description</code></td>
+<td>string</td>
+<td>否</td>
+<td>The description associated with the Project.<br>示例: <code>project description</code></td>
+</tr>
+<tr>
+<td><code>Project.documentation</code></td>
+<td>string</td>
+<td>否</td>
+<td>The documentation associated with the Project.<br>示例: <code>project documentation</code></td>
+</tr>
+<tr>
+<td><code>Project.path</code></td>
+<td>string</td>
+<td>是</td>
+<td>The full path to the resource, including the resource name itself<br>示例: <code>/Empyrean Airlines/My Important Project</code></td>
+</tr>
+<tr>
+<td><code>Project.createdBy</code></td>
+<td>string</td>
+<td>是</td>
+<td>The Foundry user who created this resource<br>示例: <code>f05f8da4-b84c-4fca-9c77-8af0b13d11de</code></td>
+</tr>
+<tr>
+<td><code>Project.updatedBy</code></td>
+<td>string</td>
+<td>是</td>
+<td>The Foundry user who last updated this resource<br>示例: <code>f05f8da4-b84c-4fca-9c77-8af0b13d11de</code></td>
+</tr>
+<tr>
+<td><code>Project.createdTime</code></td>
+<td>string</td>
+<td>是</td>
+<td>The time at which the resource was created.<br>示例: <code>2024-09-25T17:29:35.974Z</code></td>
+</tr>
+<tr>
+<td><code>Project.updatedTime</code></td>
+<td>string</td>
+<td>是</td>
+<td>The time at which the resource was most recently updated.<br>示例: <code>2024-09-25T17:29:35.974Z</code></td>
+</tr>
+<tr>
+<td><code>Project.trashStatus</code></td>
+<td>enum</td>
+<td>是</td>
+<td>The trash status of the Project.<br>示例: <code>NOT_TRASHED</code></td>
+</tr>
+<tr>
+<td><code>Project.spaceRid</code></td>
+<td>string</td>
+<td>是</td>
+<td>The Space Resource Identifier (RID) that the Project lives in.<br>示例: <code>ri.compass.main.folder.a86ad5f5-3db5-48e4-9fdd-00aa3e5731ca</code></td>
+</tr>
+<tr>
+<td><code>Project.resourceLevelRoleGrantsAllowed</code></td>
+<td>boolean</td>
+<td>是</td>
+<td>Whether role grants are allowed on individual resources within the Project.<br>示例: <code>true</code></td>
+</tr>
+</tbody>
+</table>
+<pre><code class="language-json">{
+  &quot;path&quot;: &quot;/Empyrean Airlines/My Important Project&quot;,
+  &quot;updatedTime&quot;: &quot;2024-09-25T17:29:35.974Z&quot;,
+  &quot;updatedBy&quot;: &quot;f05f8da4-b84c-4fca-9c77-8af0b13d11de&quot;,
+  &quot;createdBy&quot;: &quot;f05f8da4-b84c-4fca-9c77-8af0b13d11de&quot;,
+  &quot;displayName&quot;: &quot;My Important Project&quot;,
+  &quot;documentation&quot;: &quot;project documentation&quot;,
+  &quot;resourceLevelRoleGrantsAllowed&quot;: true,
+  &quot;description&quot;: &quot;project description&quot;,
+  &quot;createdTime&quot;: &quot;2024-09-25T17:29:35.974Z&quot;,
+  &quot;rid&quot;: &quot;ri.compass.main.folder.01a79a9d-e293-48db-a585-9ffe221536e8&quot;,
+  &quot;spaceRid&quot;: &quot;ri.compass.main.folder.a86ad5f5-3db5-48e4-9fdd-00aa3e5731ca&quot;,
+  &quot;trashStatus&quot;: &quot;NOT_TRASHED&quot;
+}
+</code></pre>
+<h2>Error responses</h2>
+<table>
+<thead>
+<tr>
+<th>错误码</th>
+<th>错误名称</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>NOT_FOUND</td>
+<td><code>ProjectNotFound</code></td>
+<td>The given Project could not be found.</td>
+</tr>
+</tbody>
+</table>
+</body>
+</html>

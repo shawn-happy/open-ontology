@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Media sets</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Media sets</h1>
+<p><a href="https://www.palantir.com/docs/foundry/data-integration/media-sets/">Media sets</a> enable you to store, transform, and work with your media files. Media sets can be utilized across the platform to power your workflows.</p>
+<p>For more information on how to integrate media into your workflows, follow the relevant documentation:</p>
+<ul>
+<li><a href="https://www.palantir.com/docs/foundry/media-sets-advanced-formats/importing-media/">Importing media into Foundry</a></li>
+<li><a href="https://www.palantir.com/docs/foundry/media-sets-advanced-formats/transforming-media/">Transforming media via Code Repositories or Pipeline Builder</a></li>
+<li><a href="https://www.palantir.com/docs/foundry/media-sets-advanced-formats/media-in-ontology/">Using media in the Ontology</a></li>
+<li><a href="https://www.palantir.com/docs/foundry/media-sets-advanced-formats/media-in-workshop/">Using media in Workshop</a></li>
+<li><a href="https://www.palantir.com/docs/foundry/functions/media/">Uploading and using media in Functions</a></li>
+<li><a href="https://www.palantir.com/docs/foundry/geospatial/raster-data/">Use raster data with media sets</a></li>
+</ul>
+<p>For walkthroughs on building an end-to-end workflow with media, see <a href="https://www.palantir.com/docs/foundry/media-sets-advanced-formats/media-workflows-overview/">example workflows</a>.</p>
+<h2>Supported media set schemas</h2>
+<p>A media set has a schema type, which defines the type of files that can be stored in the media set, such as documents, images, or audio. Every media set also has a primary format, which specifies the file format that all files in the media set must be.</p>
+<p>The file formats supported in media sets are as follows:</p>
+<ul>
+<li>Audio</li>
+<li>WAV (<code>.wav</code>)</li>
+<li>FLAC (<code>.flac</code>)</li>
+<li>MP3 (<code>.mp3</code>)</li>
+<li>MP4 (<code>.mp4</code>)</li>
+<li>NIST SPHERE (<code>.sph</code>)</li>
+<li>WEBM (<code>.webm</code>)</li>
+<li>DICOM</li>
+<li>DICOM (<code>.dcm</code>)</li>
+<li>Document</li>
+<li>PDF (<code>.pdf</code>)</li>
+<li>DOCX (<code>.docx</code>) (as <a href="#additional-input-formats">additional input format</a>)</li>
+<li>PPTX (<code>.pptx</code>) (as <a href="#additional-input-formats">additional input format</a>)</li>
+<li>TXT (<code>.txt</code>) (as <a href="#additional-input-formats">additional input format</a>)</li>
+<li>Email</li>
+<li>EML (<code>.eml</code>)</li>
+<li>Image</li>
+<li>PNG (<code>.png</code>)</li>
+<li>JPEG (<code>.jpg</code>, <code>.jpeg</code>)</li>
+<li>JP2K (<code>.jp2</code>)</li>
+<li>BMP (<code>.bmp</code>)</li>
+<li>TIFF (<code>.tiff</code>, <code>.tif</code>)</li>
+<li>NITF (<code>.nitf</code>)</li>
+<li>Spreadsheet</li>
+<li>XLSX (<code>.xlsx</code>)</li>
+<li>Video</li>
+<li>MP4 (<code>.mp4</code>)</li>
+<li>MOV (<code>.mov</code>)</li>
+<li>TS (<code>.ts</code>)</li>
+<li>MKV (<code>.mkv</code>)</li>
+</ul>
+<p>:::callout{theme="warning" title="PDF support"}
+PDF files that require proprietary features to view or are protected by passwords, digital signatures, or encryption are not supported.
+:::</p>
+<p>:::callout{theme="warning" title="XLSX Limitations"}
+Certain advanced XLSX features (such as complex formulas), and embedded files including images are not supported.
+:::</p>
+<h3>Additional input formats</h3>
+<p>Media sets may also have additional input formats, which allow for other file formats to be accepted into the media set. Upon upload, these files will automatically be converted to the primary format. Only specified additional input formats will be accepted on upload.</p>
+<p>Additional input formats can be configured during the creation of a media set, as well as under the media set details tab.</p>
+<p>Additional input formats cannot be specified for <a href="https://www.palantir.com/docs/foundry/media-sets-advanced-formats/virtual-media-sets/">virtual media sets</a>.</p>
+<p><img alt="Configure additional input formats during creation" src="../../_resources/foundry/media-sets-advanced-formats/media-set-additional-input-formats-creation.png" /></p>
+<p><img alt="Configure additional input formats post-creation" src="../../_resources/foundry/media-sets-advanced-formats/media-set-additional-input-formats-configuration.png" /></p>
+<p>Some file types can only be processed as additional input formats. For example, DOCX (<code>.docx</code>), PPTX (<code>.pptx</code>), and TXT (<code>.txt</code>) files can be uploaded to PDF (<code>.pdf</code>) media sets as additional input file formats, even though they are not supported as primary file formats.</p>
+<p>Note that not all primary formats support additional input formats.</p>
+<h3>Multimodal media sets</h3>
+<p>A media set can also be configured to be a multimodal media set, which allows for any file format to be uploaded. This is useful for workflows that require files of multiple media schema types.</p>
+<p>Multimodal media sets have a few limitations. In-platform preview is only available for media items using <a href="#supported-media-set-schemas">supported schema types</a>. Preview is also not supported for <a href="#additional-input-formats">additional input formats</a> when using virtual multimodal media sets. <a href="https://www.palantir.com/docs/foundry/media-sets-advanced-formats/transforming-media/#access-patterns">Access patterns</a> work with media items that use supported schema types, but you will need to validate or filter their schemas first. Media items with unsupported schema types cannot be used with access patterns.</p>
+<h2>Media references</h2>
+<p>Items in media sets can be referenced using <strong>media references</strong>. Media references enable you to use a media item in Foundry without having to make copies of the media item itself.</p>
+<p>You can use media references to reference media set items in datasets. This is useful for associating media items with metadata or other information in a tabular format. For example, you can associate the original PDF with its file name, page count, and extracted text as additional columns.</p>
+<p>You can also use media references as inputs to <a href="https://www.palantir.com/docs/foundry/integrate-models/model-adapter-overview/">model adapters</a> for batch inference pipelines.</p>
+<p>To produce a list of media references for your media set, use the <strong>Convert media set to table rows</strong> transform in Pipeline Builder. You can also produce media references in Python Transforms by importing the <code>transforms-media</code> library and calling the <code>list_media_items_by_path_with_media_reference</code> method.</p>
+<p>Even if a <em>path</em> has been overwritten by a newer upload, a saved media reference to the "overwritten" media item will continue to render and reference the original item.</p>
+<h3>Media reference types</h3>
+<p>A media reference can point to one of two locations:</p>
+<ul>
+<li>A <strong>media item</strong> within a media set. This is the reference type produced by the <strong>Convert media set to table rows</strong> transform and the <code>list_media_items_by_path_with_media_reference</code> method described above. Media items support the full range of <a href="https://www.palantir.com/docs/foundry/pipeline-builder/transforms-transform-media/">media transforms and expressions in Pipeline Builder</a>, such as PDF text extraction and OCR.</li>
+<li>A <strong>file</strong> within a regular Foundry dataset (backed by the platform's catalog service), rather than a media set. This reference type is produced by the <strong>Get media references (datasets)</strong> transform in Pipeline Builder, which reads a dataset of files and generates a media reference and basic metadata for each file. These references are useful for associating file metadata in a tabular dataset, but they are not accepted as inputs to media transforms and expressions in Pipeline Builder, which require an actual media set item.</li>
+</ul>
+<p>If you need to use files from a dataset with Pipeline Builder media transforms, first load the files into a media set (for example, with a <a href="https://www.palantir.com/docs/foundry/transforms-python/media-sets/">Python transform</a> using <code>MediaSetOutput</code>), then produce media references from that media set instead of from the source dataset.</p>
+<pre><code class="language-python">from pyspark.sql import functions as F
+from transforms.api import transform, Input, Output
+from transforms.mediasets import MediaSetInput
+
+
+@transform(
+    metadata_out=Output(&quot;{YOUR_OUTPUT_METADATA_DATASET}&quot;),
+    mediaset_in=MediaSetInput(&quot;{YOUR_MEDIA_SET_RID}&quot;)
+)
+def compute(ctx, mediaset_in, metadata_out):
+    media_references = mediaset_in.list_media_items_by_path_with_media_reference(ctx)
+    column_typeclasses = {'mediaReference': [{'kind': 'reference', 'name': 'media_reference'}]} # Enables in-line thumbnails in dataset
+    metadata_out.write_dataframe(media_references, column_typeclasses=column_typeclasses)
+</code></pre>
+<h2>Delete media items from media sets</h2>
+<p>:::callout{theme="warning" title="Soft deletion"}
+When a media item is deleted in the platform, it will no longer be visible, but the raw data is not permanently deleted. The media item can still be accessed if it is directly linked.
+:::</p>
+<p>You can delete media items from a media set by selecting the media item that you want to delete, and selecting the <strong>Delete</strong> action. To prevent accidental deletion, this action will require you to select <strong>Delete</strong> in the pop-up again to confirm your intention of deleting a media item.</p>
+<p><img alt="Delete media item" src="../../_resources/foundry/media-sets-advanced-formats/delete-media-item.png" /></p>
+<p>Once you have successfully deleted the item, the media set will refresh with a success message. You can now view the media set without the deleted media item.</p>
+<p><img alt="Successful deletion" src="../../_resources/foundry/media-sets-advanced-formats/delete-media-item-success.png" /></p>
+<p>:::callout{theme="warning" title="Deletion limitations"}
+Media item deletion is not supported for media sets that are updated through a build pipeline.
+:::</p>
+<h2>Further reading on media sets</h2>
+<p>For further information on media sets, visit:</p>
+<ul>
+<li><a href="https://www.palantir.com/docs/foundry/media-sets-advanced-formats/media-set-settings/">Advanced media set settings</a></li>
+<li><a href="https://www.palantir.com/docs/foundry/media-sets-advanced-formats/media-usage-limits/">Media usage costs and limits</a></li>
+</ul>
+</body>
+</html>

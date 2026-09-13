@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Approvals</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Approvals</h1>
+<p>A user may not have permission to make a particular change in Foundry and needs to make a request for that change. This request gets routed to administrators for approval. The request is invoked when the necessary approvals are obtained, meaning that the requested changes are applied.</p>
+<p>This workflow of requesting, approving, and invoking a change in Foundry is managed by the <strong>Approvals</strong> application. This application can be accessed directly in Foundry, or in <a href="https://www.palantir.com/docs/foundry/administration/control-panel-approvals/">Control Panel</a> for certain administrative workflows. Approvals consolidates compliance, governance, and peer-review workflows, making them easy to manage in Foundry. Some example workflows that use approvals are <a href="https://www.palantir.com/docs/foundry/security/projects-and-roles/#request-access-to-a-project">Project access requests</a> and <a href="https://www.palantir.com/docs/foundry/ontologies/review-ontology-proposals/">Review ontology proposals</a>.</p>
+<h2>Core concepts</h2>
+<p><a href="#requests">Requests</a> are made up of one or many <a href="#tasks">tasks</a>. All requests are listed in the <a href="#approvals-inbox">Approvals inbox</a>.</p>
+<h3>Approvals inbox</h3>
+<p>The Approvals inbox allows users to search for relevant requests for efficient processing. Here, users can filter requests by attributes like type, creator or status.</p>
+<p>Filters are located in the left sidebar. To view requests awaiting your review, select the <strong>Your inbox</strong> filter. To view requests created by you, select the <strong>Created by you</strong> filter.</p>
+<p><img alt="approval inbox" src="../../_resources/foundry/approvals/approvals_inbox.png" /></p>
+<p>Requests are persisted even if they have been completed, so you can reference them as an audit log of past decisions.</p>
+<h3>Requests</h3>
+<p><img alt="request example" src="../../_resources/foundry/approvals/request_example.png" /></p>
+<p>A request includes a set of tasks that must <em>all</em> be approved for the tasks to be invoked, which applies the requested changes. In the Approvals application, the inbox is a list of requests.</p>
+<p>Requests can be in any of the following states:</p>
+<ul>
+<li><strong>Pending approval:</strong> An open request with tasks that require approval for the request to be invoked.</li>
+<li><strong>Closed:</strong> A request that has been closed without being invoked. A closed request cannot be reopened. Eligible users can close a request if it is no longer relevant.</li>
+<li><strong>Rejected and Closed:</strong>  A request that has been rejected by a reviewer and closed without being invoked. The request cannot be reopened.</li>
+<li><strong>Changes requested:</strong> A request that a reviewer has requested changes to. The request stays open and eligible users can edit it or provide further justification to comply with the necessary changes.</li>
+<li><strong>Action required:</strong> A request with approval for all tasks that cannot be invoked without some user action. For example, if a request is approved, but required <a href="#required-checkpoints">checkpoints</a> are incomplete, the request cannot be invoked until the checkpoints are submitted.</li>
+<li><strong>Completed:</strong> A request that has been invoked because all of its tasks have been approved.</li>
+</ul>
+<h4>Request actions</h4>
+<p>Requests can be edited or closed by the requesting user or by any eligible reviewers. Only eligible reviewers can <code>approve</code>, <code>reject</code> or <code>reject and close</code> a request.</p>
+<p>If a request has multiple tasks with different eligible reviewers, actions by a reviewer are only applied to the tasks they are eligible to review. Actions can only be taken on a request level and are applied to tasks accordingly.</p>
+<p><img alt="request actions" src="../../_resources/foundry/approvals/request_actions.png" /></p>
+<h3>Tasks</h3>
+<p><img alt="reviewer with 2 tasks" src="../../_resources/foundry/approvals/reviewer_tasks2.png" /></p>
+<p>A task is an individual change in Foundry. <em>All</em> tasks associated with a request must be approved for the request to be invoked and requested changes to be applied. Some examples of tasks include:</p>
+<ul>
+<li><strong>Group membership:</strong> Add a user as a member of a <a href="https://www.palantir.com/docs/foundry/security/users-and-groups/#groups">group</a>. Administrators with <code>Manage permissions</code> and/or <code>Manage membership</code> permissions on the group can approve this task.</li>
+<li><strong>Project access request:</strong> Directly grant a user a <a href="https://www.palantir.com/docs/foundry/security/projects-and-roles/">role on a Project</a>. Users who have the Owner role on the Project can approve this task.</li>
+<li><strong>Marking access request:</strong> Add a user as a member of a <a href="https://www.palantir.com/docs/foundry/security/markings/">Marking</a>. Administrators who have <code>Manage permissions</code> on this Marking can approve this task.</li>
+<li><strong>Add reference request:</strong> Add a <a href="https://www.palantir.com/docs/foundry/security/projects-and-roles/#references">reference to a Project</a>. Users who have the Editor or Owner role on the Project can approve this task.</li>
+<li><strong>Ontology proposal:</strong> Make changes to the <a href="https://www.palantir.com/docs/foundry/ontology/overview/">Ontology</a>. This task will redirect to the <a href="https://www.palantir.com/docs/foundry/ontology-manager/overview/">Ontology Manager</a> for further details of the proposed change. Administrators who have the Owner role on the Ontology can approve this task.</li>
+</ul>
+<p>Tasks move through a lifecycle of different states:</p>
+<ul>
+<li><strong>Review:</strong> The requirements for the task have not been met, and the task is waiting for eligible reviewer(s). This is the default state for tasks in a newly created request.</li>
+<li><strong>Approved:</strong> All requirements for the task have been met, and required approval has been received.</li>
+<li><strong>Rejected:</strong> The task was rejected by an eligible reviewer. This happens when a reviewer takes the <code>Reject and close</code> or the <code>Changes requested</code> action. If the request has not been closed, an eligible reviewer can return to this task and override the initial rejection with an approval.</li>
+</ul>
+<p>Within the same request, tasks may have different eligible reviewers, so different tasks in the same request can be in different states, as shown below. All tasks need to be approved for the request to be invoked.</p>
+<p><img alt="partially approved request" src="../../_resources/foundry/approvals/partially_approved_request.png" /></p>
+<h2>Required checkpoints</h2>
+<p>If <a href="https://www.palantir.com/docs/foundry/checkpoints/overview/">checkpoints</a> have been configured for certain actions (for example, adding a user to a group), then justifications will also be required for associated requests.</p>
+<p>The corresponding tasks will display whether checkpoints have been completed or not. The requesting user is usually required to complete checkpoints when the request is made. If that does not happen, eligible reviewers can complete checkpoints on behalf of the requesting user.</p>
+<p><img alt="Required &amp; completed checkpoints" src="../../_resources/foundry/approvals/task_checkpoints.png" /></p>
+<h2>Notifications</h2>
+<p>Requesters and reviewers are notified by email or in Foundry at different points in the request lifecycle. Configure platform notification settings in <strong>Account &gt; Settings &gt; Notifications</strong>. The following Approvals notifications are available for configuration:</p>
+<ul>
+<li><strong>Added as reviewer:</strong> You were added as a reviewer on a request. Notifications occur when a request is first created. If you are added as a reviewer on a request because of your membership in a <a href="https://www.palantir.com/docs/foundry/security/users-and-groups/#groups">group</a>, you will only be notified if there are fewer than 50 users with membership to that group. This is done to avoid sending notifications to large groups. Notifications also occur when a user <a href="https://www.palantir.com/docs/foundry/approvals/review-a-request/#add-reviewer">manually adds you as a reviewer</a>.</li>
+<li><strong>Invocation succeeded:</strong> A request you reviewed was successfully invoked.</li>
+<li><strong>Request closed:</strong> A request that you created or that you were a reviewer on was closed.</li>
+<li><strong>Request created:</strong> You created a request.</li>
+<li><strong>Reviewer nudge:</strong> You were nudged for a request that still needs your review.</li>
+</ul>
+<p><img alt="notifications" src="../../_resources/foundry/approvals/notifications.png" /></p>
+</body>
+</html>

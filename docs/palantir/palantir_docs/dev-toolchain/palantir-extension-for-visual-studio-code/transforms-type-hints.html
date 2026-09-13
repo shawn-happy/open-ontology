@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Transforms type hints</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Transforms type hints</h1>
+<p>The Palantir extension for Visual Studio Code includes a linter to ensure the correct usage of transform parameter types in your Python code. This linter suggests code actions to add or update transform parameter type hints, ensuring that the Python language server provides accurate code completions.</p>
+<h2>Usage</h2>
+<p>The linter displays warnings for missing or incorrect type hints:</p>
+<p><img alt="The information box for the linting error." src="../../_resources/foundry/palantir-extension-for-visual-studio-code/type_hint_hover.png" /></p>
+<p>You can fix the warnings by selecting <strong>Quick Fix</strong> and choosing one of the suggested code actions:</p>
+<p><img alt="The code actions to resolve the linting error." src="../../_resources/foundry/palantir-extension-for-visual-studio-code/type_hint_code_actions.png" /></p>
+<p>The linter automatically inserts the required import statements and adds the correct type hints to the function parameters.</p>
+<h2>Disable type hints</h2>
+<p>You can disable type hint suggestions globally in the settings, or use inline comments to instruct the linter to skip specific lines or files.</p>
+<h3>Disable type hints in settings</h3>
+<p>To disable type hints, go to <strong>Settings &gt; Extensions &gt; Palantir &gt; Transforms &gt; Language Server &gt; Diagnostics</strong>, and uncheck the box. This is equivalent to adding <code>"palantir.transforms.languageServer.diagnostics.enabled": false</code> to your <code>settings.json</code> file.</p>
+<p><img alt="Disabling transform type hints in the settings." src="../../_resources/foundry/palantir-extension-for-visual-studio-code/type_hints_settings.png" /></p>
+<h3>Disable type hints with inline comments</h3>
+<p>You can disable type hint suggestions inline by using special comments. The linter supports the following comments:</p>
+<table>
+<thead>
+<tr>
+<th>Comment</th>
+<th>Behavior</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code># palantir: ignore</code></td>
+<td>Ignores all type hints if placed at the beginning of the file; ignores type hints for the specific line if placed elsewhere</td>
+</tr>
+<tr>
+<td><code># palantir: ignore-next-line</code></td>
+<td>Ignores type hints in the next line</td>
+</tr>
+<tr>
+<td><code># type: ignore</code></td>
+<td>Ignores all type hints if placed at the beginning of the file; ignores type hints for the specific line if placed elsewhere</td>
+</tr>
+<tr>
+<td><code># noqa</code></td>
+<td>Ignores type hints in the same line</td>
+</tr>
+</tbody>
+</table>
+</body>
+</html>

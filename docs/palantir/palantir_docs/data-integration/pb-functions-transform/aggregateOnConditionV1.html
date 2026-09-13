@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Aggregate on condition</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Aggregate on condition</h1>
+<blockquote>
+<p>Supported in: Batch, Faster</p>
+</blockquote>
+<p>Aggregate expressions based on a condition statement.</p>
+<p><strong>Transform categories</strong>: Aggregate, Popular</p>
+<h2>Declared arguments</h2>
+<ul>
+<li><strong>Condition for columns to aggregate on:</strong> All columns in the input schema will be tested to see if they match this condition. If they match, the given expressions will be applied to them.<br><em>ColumnPredicate</em></li>
+<li><strong>Dataset:</strong> Dataset to apply operations to.<br><em>Table</em></li>
+<li><strong>Expressions to aggregate:</strong> The aggregate expression to apply once per each column that matches condition.<br><em>List\<Expression\\<AnyType>></em></li>
+<li><em>optional</em> <strong>Group by columns:</strong> List of columns to group the dataset by when aggregating. If empty, no group by is applied.<br><em>List\<Column\\<AnyType>></em></li>
+</ul>
+<h2>Examples</h2>
+<h3>Example 1: Edge case</h3>
+<p><strong>Description:</strong> Count non null rows for all columns.</p>
+<p><strong>Argument values:</strong></p>
+<ul>
+<li><strong>Condition for columns to aggregate on:</strong> <br>allColumns(<br><br>)</li>
+<li><strong>Dataset:</strong> ri.foundry.main.dataset.a</li>
+<li><strong>Expressions to aggregate:</strong> [<br>dynamicAlias(<br>âexpression: <br>rowCount(<br>âexpression: <code>column</code>,<br>),<br>âtransformer: <br>columnNameConcat(<br>âinputs: [<code>column</code>, <code>_non_null</code>],<br>),<br>)]</li>
+<li><strong>Group by columns:</strong> <em>null</em></li>
+</ul>
+<p><strong>Input:</strong></p>
+<table>
+<thead>
+<tr>
+<th>id</th>
+<th>value</th>
+<th>distance</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>100</td>
+<td>2000</td>
+</tr>
+<tr>
+<td>2</td>
+<td><em>null</em></td>
+<td>100</td>
+</tr>
+<tr>
+<td>3</td>
+<td>500</td>
+<td>300</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Output:</strong></p>
+<table>
+<thead>
+<tr>
+<th>id_non_null</th>
+<th>value_non_null</th>
+<th>distance_non_null</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>3</td>
+<td>2</td>
+<td>3</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3>Example 2: Edge case</h3>
+<p><strong>Description:</strong> Count non null and mean of integer columns.</p>
+<p><strong>Argument values:</strong></p>
+<ul>
+<li><strong>Condition for columns to aggregate on:</strong> <br>columnHasType(<br>âtype: Integer,<br>)</li>
+<li><strong>Dataset:</strong> ri.foundry.main.dataset.a</li>
+<li><strong>Expressions to aggregate:</strong> [<br>dynamicAlias(<br>âexpression: <br>rowCount(<br>âexpression: <code>column</code>,<br>),<br>âtransformer: <br>columnNameConcat(<br>âinputs: [<code>column</code>, <code>_non_null</code>],<br>),<br>), <br>dynamicAlias(<br>âexpression: <br>mean(<br>âexpression: <code>column</code>,<br>),<br>âtransformer: <br>columnNameConcat(<br>âinputs: [<code>column</code>, <code>_mean</code>],<br>),<br>)]</li>
+<li><strong>Group by columns:</strong> <em>null</em></li>
+</ul>
+<p><strong>Input:</strong></p>
+<table>
+<thead>
+<tr>
+<th>id</th>
+<th>value</th>
+<th>distance</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>100</td>
+<td>2000</td>
+</tr>
+<tr>
+<td>2</td>
+<td><em>null</em></td>
+<td>100</td>
+</tr>
+<tr>
+<td>3</td>
+<td>500</td>
+<td>300</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Output:</strong></p>
+<table>
+<thead>
+<tr>
+<th>id_non_null</th>
+<th>id_mean</th>
+<th>value_non_null</th>
+<th>value_mean</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>3</td>
+<td>2.0</td>
+<td>2</td>
+<td>300.0</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3>Example 3: Edge case</h3>
+<p><strong>Argument values:</strong></p>
+<ul>
+<li><strong>Condition for columns to aggregate on:</strong> <br>columnHasType(<br>âtype: Integer,<br>)</li>
+<li><strong>Dataset:</strong> ri.foundry.main.dataset.a</li>
+<li><strong>Expressions to aggregate:</strong> [<br>dynamicAlias(<br>âexpression: <br>mean(<br>âexpression: <code>column</code>,<br>),<br>âtransformer: <br>columnNameConcat(<br>âinputs: [<code>column</code>, <code>_mean</code>],<br>),<br>)]</li>
+<li><strong>Group by columns:</strong> [<code>id</code>]</li>
+</ul>
+<p><strong>Input:</strong></p>
+<table>
+<thead>
+<tr>
+<th>id</th>
+<th>value</th>
+<th>distance</th>
+<th>airline</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>100</td>
+<td>2000</td>
+<td>new air</td>
+</tr>
+<tr>
+<td>1</td>
+<td>200</td>
+<td>3000</td>
+<td>new air</td>
+</tr>
+<tr>
+<td>2</td>
+<td>500</td>
+<td>3000</td>
+<td>foundry air</td>
+</tr>
+<tr>
+<td>2</td>
+<td>400</td>
+<td>1000</td>
+<td>foundry air</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Output:</strong></p>
+<table>
+<thead>
+<tr>
+<th>id</th>
+<th>id_mean</th>
+<th>value_mean</th>
+<th>distance_mean</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>1.0</td>
+<td>150.0</td>
+<td>2500.0</td>
+</tr>
+<tr>
+<td>2</td>
+<td>2.0</td>
+<td>450.0</td>
+<td>2000.0</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3>Example 4: Edge case</h3>
+<p><strong>Description:</strong> Mean of all integer columns.</p>
+<p><strong>Argument values:</strong></p>
+<ul>
+<li><strong>Condition for columns to aggregate on:</strong> <br>columnHasType(<br>âtype: Integer,<br>)</li>
+<li><strong>Dataset:</strong> ri.foundry.main.dataset.a</li>
+<li><strong>Expressions to aggregate:</strong> [<br>dynamicAlias(<br>âexpression: <br>mean(<br>âexpression: <code>column</code>,<br>),<br>âtransformer: <br>columnNameConcat(<br>âinputs: [<code>column</code>, <code>_mean</code>],<br>),<br>)]</li>
+<li><strong>Group by columns:</strong> <em>null</em></li>
+</ul>
+<p><strong>Input:</strong></p>
+<table>
+<thead>
+<tr>
+<th>id</th>
+<th>value</th>
+<th>distance</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>100</td>
+<td>2000</td>
+</tr>
+<tr>
+<td>3</td>
+<td>500</td>
+<td>300</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Output:</strong></p>
+<table>
+<thead>
+<tr>
+<th>id_mean</th>
+<th>value_mean</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>2.0</td>
+<td>300.0</td>
+</tr>
+</tbody>
+</table>
+<hr />
+</body>
+</html>

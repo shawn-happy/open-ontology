@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Validation rules</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Validation rules</h1>
+<p>Constraints are an inherent part of any scheduling workflow. From simple time restrictions to frequently changing rule matrices, rules can range in complexity. Validation rules allow you to codify these constraints, enabling end users to build and modify schedules with an understanding of the limitations and restrictions that define your organizationâs operations.</p>
+<p>Each validation rule is backed by a TypeScript function that evaluates whether the current state of a schedule object meets a certain condition as defined in the function logic.</p>
+<p>Users are presented with the results of validation rules on the front-end of the Scheduling Gantt Chart widget in Workshop. Upon initial load, all rules are evaluated based on the current state of the Ontology. With each modification to the schedule, the rules are re-evaluated. This process empowers users with the knowledge of how their decisions comply with specific constraints and restrictions.</p>
+<p>Below is an example of scheduling constraints within a Scheduling Gantt Chart widget. In the first image, the rule <strong>No Operator Overlaps</strong> is applied, as indicated with the toggle. This option ensures that only results abiding by this rule will be presented. The following image demonstrates the output. In this example, there is a conflict between the two rows, where the operators, Brad Evans and Ashley Brown, are overlapping.</p>
+<p><img src="../../_resources/external-546b6f301c88.png" alt="Example validation rules interface." width="900" ></p>
+<p><img src="../../_resources/external-1e975d69eb55.png" alt="Example of non-compliant validation rule." width="600" ></p>
+<h2>Orchestration</h2>
+<p>In the Scheduling Gantt Chart widget in Workshop, the validation rules will be called each time a change is performed to validate the schedules.</p>
+<pre><code>1. Action &quot;saveHandler&quot; called on scenario
+2. Validation rules called on updated scenario
+3. Action &quot;saveHandler&quot; called on scenario
+4. Validation rules called on updated scenario
+etc ...
+n. The user selects &quot;Submit changes&quot;, and all Actions that have been applied to the scenario are applied to the Ontology
+</code></pre>
+<p><img src="../../_resources/external-8007dbc9f145.png" alt="Example of compliant validation rule." width="300" ></p>
+<h2>Implement validation rules</h2>
+<p>Rules are configured directly in the Scheduling Gantt Chart widget, allowing you to apply rules on a per use case basis. To add a rule to your Scheduling Gantt Chart widget:</p>
+<ol>
+<li>Navigate to the schedule data layer for the relevant object type.</li>
+<li>Scroll down to the <strong>Rules</strong> section and select <strong>Add new item</strong>.</li>
+<li>In the <strong>Rule Name</strong> text box, provide a description of the rule that will be shown to end-users in the Scheduling Gantt Chart.</li>
+<li>Select a <strong>Constraint Type</strong> from the drop down menu. âHARDâ will be represented by a red circle with an exclamation point. âSOFTâ will be represented by an orange triangle with an exclamation point.</li>
+<li>Select the <strong>Rule Function</strong> from the drop down menu.</li>
+<li>Your Function should have a <code>scheduleObjectPrimaryKeys</code> input argument. You can leave this argument empty as it will be autofilled by the widget at runtime.</li>
+</ol>
+<p><img src="../../_resources/external-b828921b656e.png" alt="Example of rule configuration panel in Scheduling Gantt Chart widget." width="300" ></p>
+<h3>Functions interface</h3>
+<p>The types below represent the necessary information to write a validation rule, which includes the status of the rule for each object.</p>
+<pre><code class="language-typescript">type IFoORule = (scheduleObjectPrimaryKeys: string[]) =&gt; Array&lt;IRuleResult&gt;
+
+/*
+   Rule result is interpreted as follows:
+   true - Rule validated as passing
+   false - Rule validated as not passing
+   undefined - Rule is not relevant to the given schedule object
+*/
+
+interface IRuleResult {
+    result: boolean | undefined;
+    scheduleObjectPrimaryKey: string;
+    details?: Array&lt;IRuleResultDetails&gt;;
+}
+
+/*
+   By default the text on the pop-over card will display the rule name
+   as configured in the rule object
+
+   Optionally, you can explicitly define custom text based on the results
+   of rule evaluation
+
+   Additionally, you can provide a set of related puckIds to point users
+   towards why a rule is passing or failing
+*/
+
+interface IRuleResultDetails {
+    description: string;
+    relatedPuckIds: string[];
+}
+</code></pre>
+<h3>Example Functions</h3>
+<p>The following is a basic example of a Function without the core logic of the validation:</p>
+<pre><code class="language-typescript">import { Function, Integer } from &quot;@foundry/functions-api&quot;;
+import { Objects, TaskOrSchedule, ObjectSet} from &quot;@foundry/ontology-api&quot;;
+
+// For type definitions, review our public documentation
+
+interface IRuleResultDetails {
+    description: string;
+    relatedPuckIds: string[];
+}
+interface IRuleResult {
+    result: boolean | undefined;
+    scheduleObjectPrimaryKey: string;
+    details?: Array&lt;IRuleResultDetails&gt;;
+}
+type IFoORule = (scheduleObjectPrimaryKeys: string[]) =&gt; Array&lt;IRuleResult&gt;
+
+
+export class MyFunctions {
+
+    // NOTE: it is important that the input argument to a constraint function is named EXACTLY `scheduleObjectPrimaryKeys`.
+    // This is how the widget knows to send over the correct set of keys to this Function.
+    @Function()
+    public async evaluateIfTaskOrScheduleIsValid(scheduleObjectPrimaryKeys: string[]): Promise&lt;Array&lt;IRuleResult&gt;&gt; {
+        // Fetch all schedule Ontology Objects
+        const taskOrSchedules = await Objects.search().taskOrSchedule()
+            .filter(taskOrSchedule =&gt; taskOrSchedule.primaryKey.exactMatch(...scheduleObjectPrimaryKeys))
+            .allAsync();
+
+        // Iterate through every input key and generate a result entry for it
+        const ruleResults: Array&lt;IRuleResult&gt; = scheduleObjectPrimaryKeys.map(pk =&gt; {
+            const currentTaskOrSchedule = taskOrSchedules.find(taskOrSchedule =&gt; taskOrSchedule.primaryKey === pk);
+            // Do something with the object and validate something, ...
+
+            // Build the validation result
+            const currentValidationDetails: Array&lt;IRuleResultDetails&gt; = [];
+            currentValidationDetails.push(
+                {
+                    description: &quot;This is the description of the validation that passes or not&quot;,
+                    relatedPuckIds: []
+                });
+
+            const currentResult: IRuleResult= {
+                result: true,
+                scheduleObjectPrimaryKey: pk,
+                details: currentValidationDetails,
+            };
+            return currentResult;
+        });
+
+        return ruleResults;
+    }
+}
+
+</code></pre>
+<p>More complex validation rules can be created. For example, rules can check the following:</p>
+<ul>
+<li>If schedules are in sequence (no gap)</li>
+<li>If the schedules overlap</li>
+<li>If the person attributed to a schedule has the matching skills or certifications</li>
+</ul>
+</body>
+</html>

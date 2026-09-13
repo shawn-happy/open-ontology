@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Compute usage with AIP Logic</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Compute usage with AIP Logic</h1>
+<p>AIP Logic is a Palantir tool that allows you to quickly and maintainably build LLM-driven processes while interacting with your organization's data through the Ontology and computational functionality. AIP Logic is built around the concept of "blocks" of LLM instructions that can be combined linearly to create chain-of-thought workflows that can query data, execute actions and functions, and generate net new information for your use case. In AIP Logic, a "block" is the atomic unit of usage measurement, though each block can trigger other systems within Foundry that may also use compute-seconds to return information to the AIP Logic block.</p>
+<p>:::callout{theme="neutral"}
+If you have an enterprise contract with Palantir, contact your Palantir representative before proceeding with compute usage calculations.
+:::</p>
+<h2>Core concepts: Resource, blocks, and tools</h2>
+<p>An AIP Logic <em>resource</em> is comprised of one or more AIP Logic <em>blocks</em>. Running a resource will run the blocks required to achieve a desired output. Blocks can use <em>tools</em> such as Ontology queries, functions, and actions to produce an output.</p>
+<h2>Measuring Foundry compute with AIP Logic</h2>
+<h3>AIP LLM tokens</h3>
+<p>LLM tokens in AIP are measured in the manner of the underlying model (such as <a href="https://platform.openai.com/tokenizer">OpenAI â</a>), and depend on the size of prompts and responses as well as on the number of prompts that are made. For more information, consult the <a href="https://www.palantir.com/docs/foundry/aip/aip-compute-usage/#usage-based-pricing-compute-translation-for-aip">table of usage for each model type</a>.</p>
+<h3>LLM block execution</h3>
+<p>When an AIP Logic block executes or chooses to use a tool, there is a minimum compute-second usage.</p>
+<ul>
+<li>Basic LLM block execution: <code>4</code> compute-seconds</li>
+<li>LLM block tool execution: <code>8</code> compute-seconds</li>
+</ul>
+<h3>Additional Foundry compute usage</h3>
+<p>When an AIP Logic block federates computation out to external tools (such as Ontology queries or functions), additional compute may be used during the execution of these applications.</p>
+<h2>Managing AIP Logic usage of Foundry compute</h2>
+<p>Some operations in AIP Logic can significantly affect compute usage. Below, we provide guidance on controlling compute usage by being careful about <a href="#token-usage">token usage</a>, the <a href="#total-number-of-logic-block-executions">total number of logic block executions</a>, and usage of <a href="#foundry-compute">Foundry compute</a>.</p>
+<h3>Token usage</h3>
+<ul>
+<li>Processing large amounts of text can significantly increase overall compute usage. Be aware of the size of the input prompts that are being used with LLMs. This is especially relevant when pulling in large text blocks from the Ontology.</li>
+<li>To moderate token usage, you should work to pare down the amount of text that is injected into prompts and ensure that only relevant text is included in the prompts themselves. This is especially important when working with large documents.</li>
+</ul>
+<h3>Total number of logic block executions</h3>
+<ul>
+<li>Running many logic blocks can use large amounts of compute, especially if the blocks are triggered programmatically via a function (that is, not triggered by human action).</li>
+<li>To moderate logic block executions, consider combining multiple blocks into single prompts (where appropriate), and only using additional blocks when necessary. Action, function, and data transformation blocks do not incur compute usage on their own.</li>
+</ul>
+<h3>Foundry compute</h3>
+<ul>
+<li>Running many calls to Foundry applications (such as Ontology queries, functions, or actions) can use large amounts of compute. This may occur if a logic resource requires many retries, or calls many functions or actions on each execution.</li>
+<li>To moderate compute usage from other applications, ensure that you understand the number of calls to other tools that are made in your chain of logic blocks. The potential tools that can call out to other parts of Foundry are:</li>
+<li>Ontology Query</li>
+<li>Action Execution</li>
+<li>Function Execution</li>
+<li>Data Transformation</li>
+</ul>
+<h2>Example of AIP Logic compute usage</h2>
+<p>Assume a user has an AIP Logic resource that has two LLM blocks. One of the LLM blocks has an action configured and will call it on execution. The logic resource is run end-to-end twice.</p>
+<pre><code>Number of LLM blocks: 2
+Number of LLM blocks that call actions: 1
+Number of runs: 2
+
+1 run compute-seconds = 2 LLM blocks * 4 compute-seconds + 1 action block * 8 compute-seconds
+1 run compute-seconds = (2 * 4) + (1 * 8)
+1 run compute-seconds = 16 compute-seconds
+
+2 runs = 2 * 16 compute-seconds = 32 compute-seconds
+
+Total = 32 compute-seconds
+</code></pre>
+</body>
+</html>

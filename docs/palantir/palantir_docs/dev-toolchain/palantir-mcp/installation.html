@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Installation</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Installation</h1>
+<p>:::callout{theme="neutral"}
+The Palantir model context protocol (MCP) enables external AI systems to read data and metadata from Foundry and interact via AI-friendly API endpoints using the configured user token permissions. Once data is accessed by an external system through Palantir MCP, the governance of its use shifts from Palantir to the external system. Data security will then depend on your relationship with that external system. Using the Palantir MCP does not imply that a Palantir AI model will be used; the AI model provider is determined by the external system you connect to, such as Microsoft for GitHub Copilot, or Cursor.
+:::</p>
+<p>The instructions below explain how to set up Palantir MCP with a supported IDE. Alternatively, use the <a href="https://www.palantir.com/docs/foundry/vs-code/ai-development-tools/">AI development tools</a> available in a VS Code workspace to access Palantir MCP.</p>
+<h2>1. Enable Palantir MCP in Control Panel</h2>
+<p>Platform administrators must first enable Palantir MCP for use through Control Panel. Access can be configured for a specific subset of users or groups. Palantir MCP is in Control Panel under <strong>Code Repositories</strong>.</p>
+<p><img alt="The Palantir MCP in Control Panel" src="../../_resources/foundry/palantir-mcp/palantir-mcp-in-control-panel.png" /></p>
+<h2>2. Configure your IDE to use Palantir MCP</h2>
+<p>See instructions for:</p>
+<ul>
+<li><a href="#claude-code">Claude Code</a></li>
+<li><a href="#cline">Cline</a></li>
+<li><a href="#continue">Continue</a></li>
+<li><a href="#cursor">Cursor</a></li>
+<li><a href="#github-copilot-in-vs-code">VS Code Copilot</a></li>
+<li><a href="#windsurf">Windsurf</a></li>
+</ul>
+<h3>Claude Code</h3>
+<ol>
+<li><a href="https://www.palantir.com/docs/foundry/platform-security-third-party/user-generated-tokens/">Generate a user token</a> from Palantir, then add this in place of <code>&lt;token&gt;</code> in the code below.</li>
+<li>Replace <code>&lt;your-foundry-hostname&gt;</code> with your Foundry hostname (for example, <code>mycompany.palantirfoundry.com</code>). Do not prefix with "https://".</li>
+<li>Review the <a href="https://code.claude.com/docs/en/mcp">Claude Code documentation â</a> to install Palantir MCP in your Claude Code CLI, particularly the documentation around scoping where MCP should be installed. We recommend installing the MCP at the <a href="https://code.claude.com/docs/en/mcp#project-scope">project scope â</a> level so that the MCP server configuration is scoped to the current project.</li>
+<li>Run the following commands in your terminal:</li>
+</ol>
+<pre><code class="language-bash">export FOUNDRY_HOST=&quot;&lt;your-foundry-hostname&gt;&quot;
+export FOUNDRY_TOKEN=&lt;token&gt;
+claude mcp add palantir-mcp \
+    --scope project \
+    -e FOUNDRY_TOKEN='${FOUNDRY_TOKEN}' \
+    -- npx &quot;-y&quot; &quot;palantir-mcp&quot; &quot;--foundry-api-url&quot; &quot;https://$FOUNDRY_HOST&quot;
+</code></pre>
+<h3>Cline</h3>
+<ol>
+<li><a href="https://www.palantir.com/docs/foundry/platform-security-third-party/user-generated-tokens/">Generate a user token</a> from Palantir, then add this in place of <code>&lt;token&gt;</code> in the code below.</li>
+<li>Replace <code>&lt;your-foundry-hostname&gt;</code> with your Foundry hostname (for example, <code>mycompany.palantirfoundry.com</code>).</li>
+<li>Review the <a href="https://docs.cline.bot/mcp/configuring-mcp-servers">Cline documentation â</a> to install Palantir MCP into your Cline extension with the configuration below.</li>
+</ol>
+<p>```json tab="json"
+{
+    "mcpServers": {
+        "palantir-mcp": {
+            "command": "npx",
+            "args": [
+                "-y",
+                "palantir-mcp",
+                "--foundry-api-url",
+                "https://<your-foundry-hostname>"
+            ],
+            "env": {
+                "FOUNDRY_TOKEN": "<token>"
+            },
+            "disabled": false
+        }
+    }
+}</p>
+<pre><code>
+### Continue
+
+1. [Generate a user token](https://www.palantir.com/docs/foundry/platform-security-third-party/user-generated-tokens/) from Palantir, then add this in place of `&lt;token&gt;` in the code below.
+2. Replace `&lt;your-foundry-hostname&gt;` with your Foundry hostname (for example, `mycompany.palantirfoundry.com`).
+3. Review the [Continue documentation â](https://docs.continue.dev/customize/deep-dives/mcp) to install Palantir MCP into your Continue extension with the configuration below.
+
+```yaml tab=&quot;yaml&quot;
+mcpServers:
+  - name: palantir-mcp
+    command: npx
+    args:
+      - &quot;-y&quot;
+      - &quot;palantir-mcp&quot;
+      - &quot;--foundry-api-url&quot;
+      - &quot;https://&lt;your-foundry-hostname&gt;&quot;
+    env:
+        FOUNDRY_TOKEN: &quot;&lt;token&gt;&quot;
+</code></pre>
+<h3>Cursor</h3>
+<ol>
+<li><a href="https://www.palantir.com/docs/foundry/platform-security-third-party/user-generated-tokens/">Generate a user token</a> from Palantir, then add this in place of <code>&lt;token&gt;</code> in the code below.</li>
+<li>Replace <code>&lt;your-foundry-hostname&gt;</code> with your Foundry hostname (for example, <code>mycompany.palantirfoundry.com</code>).</li>
+<li>Review the <a href="https://docs.cursor.com/context/model-context-protocol">Cursor documentation â</a> to install Palantir MCP into your Cursor IDE with the configuration below.</li>
+</ol>
+<p>For macOS:</p>
+<p>```json tab="json"
+{
+    "mcpServers": {
+        "palantir-mcp": {
+            "type": "stdio",
+            "command": "npx",
+            "args": [
+                "-y",
+                "palantir-mcp",
+                "--foundry-api-url",
+                "https://<your-foundry-hostname>"
+            ],
+            "env": {
+                "FOUNDRY_TOKEN": "<token>"
+            }
+        }
+    }
+}</p>
+<pre><code>
+For Windows:
+
+```json tab=&quot;json&quot;
+{
+    &quot;mcpServers&quot;: {
+        &quot;palantir-mcp&quot;: {
+            &quot;type&quot;: &quot;stdio&quot;,
+            &quot;command&quot;: &quot;cmd /k npx&quot;,
+            &quot;args&quot;: [
+                &quot;-y&quot;,
+                &quot;palantir-mcp&quot;,
+                &quot;--foundry-api-url&quot;,
+                &quot;https://&lt;your-foundry-hostname&gt;&quot;
+            ],
+            &quot;env&quot;: {
+                &quot;FOUNDRY_TOKEN&quot;: &quot;&lt;token&gt;&quot;
+            }
+        }
+    }
+}
+</code></pre>
+<h3>GitHub Copilot in VS Code</h3>
+<ol>
+<li><a href="https://www.palantir.com/docs/foundry/platform-security-third-party/user-generated-tokens/">Generate a user token</a> from Palantir. The configuration below has no <code>&lt;token&gt;</code> placeholder to replace: <code>FOUNDRY_TOKEN</code> takes its value from the <code>foundry-token</code> input declared in the <code>inputs</code> array.</li>
+<li>Replace <code>&lt;your-foundry-hostname&gt;</code> with your Foundry hostname (for example, <code>mycompany.palantirfoundry.com</code>).</li>
+<li>Review the <a href="https://code.visualstudio.com/docs/copilot/chat/mcp-servers">VS Code documentation â</a> to install Palantir MCP into your VS Code IDE with the configuration below.</li>
+</ol>
+<p>```json tab="json"
+"mcp": {
+    "inputs": [
+        {
+            "type": "promptString",
+            "id": "foundry-token",
+            "description": "Foundry user token",
+            "password": true
+        }
+    ],
+    "servers": {
+        "palantir-mcp": {
+            "type": "stdio",
+            "command": "npx",
+            "args": [
+                "-y",
+                "palantir-mcp",
+                "--foundry-api-url",
+                "https://<your-foundry-hostname>"
+            ],
+            "env": {
+                "FOUNDRY_TOKEN": "${input:foundry-token}"
+            }
+        }
+    }
+}</p>
+<pre><code>
+### Windsurf
+
+1. [Generate a user token](https://www.palantir.com/docs/foundry/platform-security-third-party/user-generated-tokens/) from Palantir, then add this in place of `&lt;token&gt;` in the code below.
+2. Replace `&lt;your-foundry-hostname&gt;` with your Foundry hostname (for example, `mycompany.palantirfoundry.com`).
+3. Review the [Windsurf documentation â](https://docs.windsurf.com/windsurf/cascade/mcp) to install Palantir MCP into your Windsurf IDE with the configuration below.
+
+```json tab=&quot;json&quot;
+{
+    &quot;mcpServers&quot;: {
+        &quot;palantir-mcp&quot;: {
+            &quot;command&quot;: &quot;npx&quot;,
+            &quot;args&quot;: [
+                &quot;-y&quot;,
+                &quot;palantir-mcp&quot;,
+                &quot;--foundry-api-url&quot;,
+                &quot;https://&lt;your-foundry-hostname&gt;&quot;
+            ],
+            &quot;env&quot;: {
+                &quot;FOUNDRY_TOKEN&quot;: &quot;&lt;token&gt;&quot;
+            }
+        }
+    }
+}
+</code></pre>
+</body>
+</html>

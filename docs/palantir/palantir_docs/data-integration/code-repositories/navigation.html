@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Navigation</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Navigation</h1>
+<p>You can select the following tabs at the top of the Code Repositories interface:</p>
+<ol>
+<li><a href="#code-tab">Code tab</a></li>
+<li><a href="#branches-tab">Branches tab</a></li>
+<li><a href="#tags-tab">Tags tab</a></li>
+<li><a href="#pull-requests-tab">Pull requests tab</a></li>
+<li><a href="#checks-tab">Checks tab</a></li>
+<li><a href="#settings-tab">Settings tab</a></li>
+</ol>
+<h2>Code tab</h2>
+<p><img alt="code-view" src="../../_resources/foundry/code-repositories/code-view.png" /></p>
+<ol>
+<li><a href="#in-app-help">In-App Help</a></li>
+<li><a href="#branch-options">Branch Options</a></li>
+<li><a href="#code-editor-options">Code Editor Options</a></li>
+<li><a href="#file-editor">File Editor</a></li>
+<li><a href="#helper-panels">Helper Panels</a></li>
+<li><a href="#status-bar">Status bar</a></li>
+</ol>
+<h3>In-App help</h3>
+<p>In the <strong>Code</strong> tab, you can click the <img src="../../_resources/external-1ea91d42e037.png" alt="help" height="25" width="25"> button to start a step-by-step walkthrough that guides you through the core functionalities available in your Code Repository. The in-app help is currently only available in the <strong>Code</strong> view.</p>
+<p>To expose keyboard shortcuts via the command palette, use the F1 key in Windows or Fn+F1 on macOS:</p>
+<p><img src="../../_resources/external-7d080bd02640.png" alt="command"></p>
+<h3>Branch options</h3>
+<p>Use the dropdown branch menu to select one of your existing sandbox branches to work in. Alternatively, click the <img src="../../_resources/external-ba93c7fa0e8b.png" alt ="new-branch" height="35" width="35"> icon to create a new sandbox branch which contains a copy of the code on an existing branch. To edit code in your repository, you must work in a sandbox branch â protected branches cannot be directly edited.</p>
+<p>You can choose between a <strong>Code Repositories branch</strong> and, for supported repository types, a <strong>Global branch</strong>. Global branches are supported in <strong>Python Transforms</strong> and <strong>TypeScript v1</strong> repositories, and can contain changes across multiple Palantir applications. <a href="https://www.palantir.com/docs/foundry/global-branching/overview/">Learn more about global branches</a>.</p>
+<p>Global branches must be based on the main branch of the repository, while Code Repositories branches can be based on any branch.</p>
+<p><img src="../../_resources/external-fb65453db2cc.png" alt="Branch creation dialog in Code Repositories showing a choice between Global and Code Repositories branches." width="500"></p>
+<h3>Code editor options</h3>
+<p>As you write and edit code in your repository, you can do the following:</p>
+<ul>
+<li>Click the <img src="../../_resources/external-4d8b70c68dac.png" alt ="preview" width="106"> button to run the Transform on a sample of the input datasets. This is a quick way to preview your code changes on real data.</li>
+<li>Click the <img src="../../_resources/external-786abc7f9df1.png" alt ="test" width="80"> button to run all unit tests defined in the current file. See <a href="https://www.palantir.com/docs/foundry/transforms-python/unit-tests/">Python Tests</a> or <a href="https://www.palantir.com/docs/foundry/transforms-java/unit-tests/">Java Tests</a> for information about how to add unit tests to your repository.</li>
+<li>Click the <img src="../../_resources/external-48fc96609e88.png" alt ="commit" width="103"> button to commit any changes in your sandbox branch. Once you commit changes, automatic checks run on your code.</li>
+<li>If you select a dataset source file (a file that defines a transformation, see e.g. <a href="https://www.palantir.com/docs/foundry/transforms-python/transforms/">Python Transforms</a>), you can click the <img src="../../_resources/external-85e64d4ed112.png" alt ="build" width="86"> button to build a new version of your output dataset after running automatic checks on your code. Clicking the button will trigger a build on <em>all output datasets of the current file</em>; if the current file does not generate any datasets, no build is triggered.</li>
+<li>Click the <img src="../../_resources/external-b4dbb4fe0e9a.png" alt ="propose-changes" width=166> button to create a new <em>Pull request</em> containing your changes. This allows others to review and comment on your code before merging it into the main code.</li>
+<li>Click on the <strong>...</strong> button to access several additional actions:</li>
+<li><strong>Merge:</strong> Merge another branch into your current branch.</li>
+<li><strong>Reset:</strong> Reset the contents of all files to match the latest commit on your remote branch. This will clear any changes that have not yet been committed on your branch.</li>
+<li><strong>Upgrade:</strong> Upgrade your branch to the latest language versions.</li>
+</ul>
+<h3>File editor</h3>
+<p>Click the <img src="../../_resources/external-282074e10c72.png" alt ="new-file-button" height="28" width="28"> icon to create a new file, folder, or sub-project. Select the âNew sub-projectâ option if you want to add another language-specific sub-project to your Code Repository.</p>
+<h3>Helper panels</h3>
+<p><strong>Foundry Explorer Helper</strong></p>
+<p>The <strong>Foundry Explorer</strong> helper is a file navigation interface that lets you quickly browse all files and folders. Once you select a specific dataset, you can click âOpenâ to view the full dataset.</p>
+<p><strong>Problems Helper</strong></p>
+<p>The <strong>Problems</strong> helper tells you about any issues detected in your code. Click on a specific issue listed here to open up the problematic code.</p>
+<p><strong>Debugger Helper</strong></p>
+<p>The <strong>Debugger</strong> allows you to examine your transform behavior while it runs (see <a href="https://www.palantir.com/docs/foundry/code-repositories/debug-transforms/">Debug Transforms</a>).</p>
+<p><strong>Preview Helper</strong></p>
+<p>The <strong>Preview</strong> helper lets you run your code on a limited sample of the input datasets to quickly preview the code without committing your changes (see <a href="https://www.palantir.com/docs/foundry/code-repositories/preview-transforms/">Preview Transforms</a>).</p>
+<p><strong>Tests Helper</strong></p>
+<p>When your repository contains unit tests (see <a href="https://www.palantir.com/docs/foundry/transforms-python/unit-tests/">Python Tests</a> and <a href="https://www.palantir.com/docs/foundry/transforms-java/unit-tests/">Java Tests</a>), the <strong>Tests Helper</strong> lets you run those tests and displays their results.</p>
+<p><strong>File Changes Helper</strong></p>
+<p>The <strong>File Changes</strong> helper can be used to view any uncommitted changes to the current file, as well as compare previous versions of the file.</p>
+<p><strong>Build Helper</strong></p>
+<p>The <strong>Build</strong> helper lets you trigger dataset builds and view the progress for your builds. Once you select a dataset source file, you can click the build button to build a new version of your output dataset as well as run automatic checks on your code. You can then view the progress of the running tasks in the <strong>Build</strong> helper.</p>
+<p>:::callout{theme="neutral"}
+Clicking the <strong>Build</strong> button at the top right corner of the Code Repositories interface is equivalent to triggering a build from the <strong>Build</strong> helper.
+:::</p>
+<p><strong>Docs Helper</strong></p>
+<p>The <strong>Docs</strong> helper contains references for the available languages that you can write code in. For more detailed language-specific documentation that is not available in the in-product documentation, refer to the <a href="https://www.palantir.com/docs/foundry/building-pipelines/supported-languages/">supported languages</a>.</p>
+<p><strong>SQL Scratchpad</strong></p>
+<p>The <strong>SQL</strong> helper lets you quickly test out SQL queries. Write a SQL query and click <img src="../../_resources/external-82e4165c2bc9.png" alt ="sql-run-file" width="60"> to preview the results of your query. You can also test out an existing query you have written in your repository by selecting the appropriate <code>.sql</code> file and clicking <img src="../../_resources/external-183312f9e6fc.png" alt ="sql-preview-file" width="110">.</p>
+<p>To view queries marked as favorites, go to the <img src="../../_resources/external-b083da79dcd0.png" alt ="sql-tab2" width="25"> tab. To view a history of queries ran in the <strong>SQL</strong> helper, go to the <img src="../../_resources/external-5ea808ed67f9.png" alt ="sql-tab3" width="25"> tab.</p>
+<p>:::callout{theme="neutral"}
+To access a specific branch of an input dataset in SQL Scratchpad, you prepend the name of the branch to the query: e.g. <code>SELECT * FROM `branch_A`.`/path/to/dataset`</code>. If no branch is specified it will default to <code>master</code>.
+:::</p>
+<h3>Status bar</h3>
+<p>The status bar provides information on the state of the environment and checks results. Information you can find in the status bar includes:</p>
+<ul>
+<li><strong>Code Assist state</strong> - Code Assist is essential for detecting problems in your code and running previews. You can write code without Code Assist, but will need it to be up and running to complete your work. Hover over the Code Assist status you can get details on the initialization progress. If Code Assist fails to initialize, raise a support request.</li>
+<li><strong>Problems</strong> - When problems are detected in your code, an indication appears on the left side of the status bar. Click on the indication to open the Problems helper.</li>
+<li><strong>Checks status</strong> - The checks status is displayed on the right side of the status bar. More details of checks are in the <a href="#checks-tab">Checks tab</a>.</li>
+<li><strong>File saving</strong> - After any change, the file saving status displays when the automatic save progress.</li>
+</ul>
+<h2>Branches tab</h2>
+<p>:::callout{theme="neutral"}
+This section summarizes how to create new branches and create new Pull requests in the <strong>Branches</strong> tab. These functionalities are also available in the <a href="#code-tab">Code tab</a>.
+:::</p>
+<p>In the <strong>Branches</strong> tab, you can see a list of branches existing in your Code Repository â this includes your own branches as well as other usersâ branches. Click the <img src="../../_resources/external-1223a069bdc5.png" alt ="new-branch2" width="100"> button to create a new sandbox branch which contains a copy of the code on a specific branch.</p>
+<p><img alt="branch-view" src="../../_resources/foundry/code-repositories/branch-view.png" /></p>
+<p>Each listed branch contains a summary with the following available functionalities:</p>
+<ul>
+<li>The âChecksâ column indicates whether or not the automatic code checks have passed for a branch.</li>
+<li>The âPull requestâ column tells you about any existing <em>Pull requests</em> in a branch and lets you create new <em>Pull requests</em>.
+  To create a new <em>Pull request</em> that contains the changes on a branch, click the âPropose changesâ button. This will create a new <em>Pull request</em> for merging your changes into the <em>master</em> branch by default. If you want to merge your changes into a branch other than <em>master</em>, select a different branch from the dropdown menu.
+  If you do not see the button to create a new <em>Pull request</em>, it means that a <em>Pull request</em> already exists for a branch. Click on the âOpenâ / âClosedâ / âMergedâ button to open the full <em>Pull request</em>.</li>
+<li>Click âView codeâ next to a branch name to view the code on that branch.</li>
+<li>To delete a branch, click the <img src="../../_resources/external-adac0ef6eec6.png" alt ="trash" width="25"> icon. <strong>You should not delete any branches that you did not create. This can result in lost work for others.</strong></li>
+</ul>
+<h2>Tags tab</h2>
+<p>In the <strong>Tags</strong> tab, you can access a list of <strong>tags</strong>, which are like immutable branches. A tag can be used to mark a significant version of the code for future reference by giving it a version number or name. To create a new tag, select <strong>New tag</strong>. A tag can be created from the current version of a branch, or from any arbitrary commit.</p>
+<p><img alt="create-tag-dialog" src="../../_resources/foundry/code-repositories/create-tag-dialog.png" /></p>
+<p>:::callout{theme="neutral"}
+To enforce that all tag names follow a specific naming convention, you can add a <code>tagNameValidation</code> configuration block to a file called <code>repoSettings.json</code> at the root of the repository, e.g.: "tagNameValidation": { "regex": "^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(-rc\\d+)?$", "errorMessage": "Tag name must have the format x.x.x or x.x.x-rcx." }
+:::</p>
+<p>For more information about the recommended git development workflow, refer to the <a href="https://www.palantir.com/docs/foundry/building-pipelines/development-best-practices/">Developer Best Practices</a>.</p>
+<h2>Pull requests tab</h2>
+<p>:::callout{theme="neutral"}
+This section summarizes how to create new Pull requests in the <strong>Pull requests</strong> tab. This functionality is also available in the <a href="#code-tab">Code tab</a>.
+:::</p>
+<p>In the <strong>Pull requests</strong> tab, you can find information about <em>Pull requests</em> in your Code Repository. A <em>Pull request</em> lets users view a history of the changes on your branch and review your code on a line-by-line basis before merging your changes. Any time you want to merge the changes on your branch into the main code, you should create a new <em>Pull request</em>.</p>
+<p>Click the <img src="../../_resources/external-aac5cb4e2f54.png" alt ="new-pull-request" width="100">  button to create a new <em>Pull request</em>. By default, the new <em>Pull request</em> created will merge your changes into the main branch of your repository (this is usually the <em>master</em> branch). Select which branch you want to base your new <em>Pull request</em> off of.</p>
+<h3>Filtering pull requests</h3>
+<p>You can switch between a list of open and closed <em>Pull requests</em> by clicking the "Open" / "Closed" button at the top of the pull requests list, and use the search bar to further filter the list based on title or author.</p>
+<p><img alt="pull-requests-list" src="../../_resources/foundry/code-repositories/pull-requests-list.png" /></p>
+<h3>Reviewing pull requests</h3>
+<p>Click on one of the <em>Pull requests</em> to review the proposed code changes line-by-line and add comments. Depending on the repository settings, each <em>Pull request</em> may require at least one approving review before they can be merged.</p>
+<p>When reviewing changes to Transforms code, you can also check <a href="https://www.palantir.com/docs/foundry/code-repositories/analyze-impact/">how these changes affect your datasets</a>.</p>
+<h2>Checks tab</h2>
+<p>In the <strong>Checks</strong> tab, you can view a summary of running and completed checks on each branch. Use the dropdown branch menu to select a different branch. Click on a specific check to view more detailed information.</p>
+<p><img alt="checks-view" src="../../_resources/foundry/code-repositories/checks-view.png" /></p>
+<p>The Checks tab will also include the output of any unit tests that have been defined for your repo. You can define unit tests for <a href="https://www.palantir.com/docs/foundry/transforms-python/unit-tests/">Python</a> and <a href="https://www.palantir.com/docs/foundry/transforms-java/unit-tests/">Java</a>.</p>
+<p>:::callout{theme="neutral"}
+If AIP is enabled on your stack, the <a href="https://www.palantir.com/docs/foundry/code-repositories/aip-features/#ai-error-enhancer">error enhancer widget</a> complements the detail view of a failed check to help you better understand and resolve issues that arise.
+:::</p>
+<p><img alt="Animated screenshot showing error enhancer in action in Code Repositories" src="../../_resources/foundry/code-repositories/error-enhancer-in-authoring.gif" /></p>
+<h2>Settings tab</h2>
+<p>In the Settings tab, code authors can configure their personal editor preferences and repository administrators can control the repository's behavior and policies. To learn more about the Settings tab, see <a href="https://www.palantir.com/docs/foundry/code-repositories/admin-overview/">Administering Code Repositories</a>.</p>
+<p>:::callout{theme="neutral"}
+Most options in the <strong>Settings</strong> tab are aimed for administrators and will be available only to users with the appropriate permissions (by default, repository owners).
+:::</p>
+</body>
+</html>

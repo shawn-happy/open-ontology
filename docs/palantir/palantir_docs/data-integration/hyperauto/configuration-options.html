@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>HyperAuto V2 configuration options</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>HyperAuto V2 configuration options</h1>
+<p>This page describes configuration options for HyperAuto V2. The following steps comprise the HyperAuto V2 configuration process:</p>
+<ul>
+<li><a href="#name-and-location">Name and location</a></li>
+<li><a href="#source-configuration">Source configuration</a></li>
+<li><a href="#input-configuration">Input configuration</a></li>
+<li><a href="#pipeline-configuration">Pipeline configuration</a></li>
+</ul>
+<p>:::callout{theme="neutral"}
+For HyperAuto V1 Configuration Reference, refer to the <a href="https://www.palantir.com/docs/foundry/hyperauto/v1-configuration-reference/">legacy documentation</a>.
+:::</p>
+<h2>Name and location</h2>
+<p>The first step in the HyperAuto V2 configuration wizard is to specify the name of the new pipeline and the desired folder location within the Foundry file system. The HyperAuto pipeline resource and associated output datasets will be created within this folder.</p>
+<h2>Source configuration</h2>
+<p>The HyperAuto V2 source configuration page helps you choose the source system and the ingestion method.</p>
+<p><img alt="HyperAuto V2 source configuration from within wizard" src="../../_resources/foundry/hyperauto/hyperauto-v2-wizard-2-source-config.png" /></p>
+<h3>Source system</h3>
+<p>This selection is available for sources that have sub-systems users must choose between (for example <a href="#sap-source-systems">"contexts" within SAP</a>). A sub-system is defined as a configuration within a source that results in its own set of available tables and metadata. As a result, switching between sub-systems will completely change other available configurations, such as the supported <a href="#pipeline-modes">pipeline mode</a> (batch vs. streaming) and the tables and existing syncs available for selection on the <a href="#input-configuration"><strong>Input configuration</strong></a> page.</p>
+<h4>SAP source systems</h4>
+<p>There are three main <a href="https://www.palantir.com/docs/foundry/sap/architecture/">architectural patterns</a> for connecting Foundry to an SAP system:</p>
+<ul>
+<li><strong>Direct:</strong> The Connector is installed on the application server of the ERP system itself, providing direct access to tables.</li>
+<li><strong>SLT:</strong> The Connector is installed on an SAP SLT Replication Server, which connects to the underlying ERP system(s). SLT is required to use the streaming <a href="#pipeline-modes">pipeline mode</a>.</li>
+<li><strong>Remote:</strong> The Connector is installed on a "gateway" application server that connects to the underlying ERP system(s). Often used when SAP sources do not otherwise satisfy the connector <a href="https://www.palantir.com/docs/foundry/sap/overview/#prerequisites">prerequisites</a>.
+  In the case of an SLT or remote connection, a user must choose a context used to identify which SAP sub-system to connect to.</li>
+</ul>
+<h3>Pipeline modes</h3>
+<p>HyperAuto supports two modes of sync and data transformation. You can choose from streaming or batch mode on the initial HyperAuto pipeline setup on the <strong>Source configuration</strong> page.</p>
+<ul>
+<li><strong>Batch:</strong> Each run of the pipeline reprocesses all inputs and overwrites all existing outputs. This is the default mode and allows for the biggest range of functionality, including aggregations and deduplication. This mode is recommended for most use cases.</li>
+<li><strong>Streaming:</strong> The source system is constantly polled for data that has not been processed before. Once available on the source system, data is processed immediately, reducing the sync-to-Ontology latency to near real-time. This is particularly valuable to power real-time applications that rely on the Ontology to deduplicate streamed data.</li>
+</ul>
+<p>:::callout{theme="warning"}
+Streaming requires always-on computation to process data in real-time and therefore will likely increase load on the source system and within Foundry.
+:::</p>
+<h2>Input configuration</h2>
+<p>The Input configuration page is where a user chooses the specific inputs to be processed by a particular HyperAuto pipeline.</p>
+<p><img alt="Input configuration wizard" src="../../_resources/foundry/hyperauto/hyperauto-v2-wizard-3-add-add-to-cart.png" /></p>
+<p>For ease of use, the input selection UI supports several methods of browsing and discovering the source tables that are relevant. For SAP, the methods are:</p>
+<ul>
+<li><strong>Modules:</strong> An opinionated categorization of tables within a source, providing a hierarchical view from which users can explore and bulk-add. Tables may exist in multiple modules if relevant, but cannot be selected more than once.</li>
+<li><strong>Workflows:</strong> Another form of table categorization, focusing on specific common use-cases for the source (such as Supply Chain management for SAP sources). Similarly, users can use the workflows to explore and bulk-add as required, and can switch between these and modules without losing their progress or duplicating selections accidentally.</li>
+</ul>
+<p>Sync creation is also available from the Input configuration page, allowing users to create a new sync for any input that does not already have one. This allows a user to start from a fresh source to a fully configured HyperAuto pipeline in just a few clicks, without needing to work out how each sync should be configured.</p>
+<p>:::callout{theme="neutral" title="Beta"}
+Sync creation is in the <a href="https://www.palantir.com/docs/foundry/platform-overview/development-life-cycle/">beta</a> phase of development and may not be available on your enrollment. Functionality may change during active development. Contact Palantir Support to request access to sync creation.
+:::</p>
+<p>Your Foundry enrollment may have AIP features enabled on the <strong>Suggest</strong> tab; more information can be found in the <a href="https://www.palantir.com/docs/foundry/hyperauto/aip/">AIP documentation</a>.</p>
+<h2>Pipeline configuration</h2>
+<p>The pipeline configuration page enables you to set up a pipeline that meets your needs, with options including:</p>
+<ul>
+<li><a href="#language-selection">Language selection</a></li>
+<li><a href="#configuration-options">Configuration options</a></li>
+<li><a href="#automatic-joins">Automatic joins</a></li>
+<li><a href="#human-readable-column-names">Human-readable column names</a></li>
+<li><a href="#human-readable-output-dataset-names">Human-readable output dataset names</a></li>
+<li><a href="#generate-primary-keys">Generate primary keys</a></li>
+<li><a href="#generate-foreign-keys">Generate foreign keys</a></li>
+<li><a href="#deduplicate-rows">Deduplicate rows</a></li>
+<li><a href="#data-cleaning">Data cleaning</a></li>
+<li><a href="#incremental">Incremental</a></li>
+<li><a href="#batch-compute-settings">Batch compute settings</a></li>
+</ul>
+<p><img alt="Pipeline configuration wizard" src="../../_resources/foundry/hyperauto/hyperauto-v2-wizard-4-pipeline-config.png" /></p>
+<h3>Language selection</h3>
+<p>For sources that contain tables with data in multiple languages, HyperAuto provides a language filtering step to avoid populating multiple rows per possible language in the outputs. The language selected here will be applied as a filter against the relevant tables, before additional transformations are applied (such as joins to other tables).</p>
+<h3>Configuration options</h3>
+<p>You can decide how much processing a user wants automatically applied across all of their source inputs from pipeline configuration options. All configuration options are enabled by default, but can be disabled as required (for example, to balance between functionality and pipeline performance).</p>
+<h4>Automatic joins</h4>
+<p><img src="../../_resources/external-8c0327bed7ed.png" alt="Example of an automatic join" width="400" /></p>
+<p>HyperAuto receives table classifications via the source's metadata, splitting them into either object or enrichment tables. In this definition, enrichment tables are those that are not intrinsically valuable on their own but instead act as extensions or lookup tables to associated object tables (for example, a text description table).</p>
+<p>In this way, HyperAuto is able to query the <code>object</code> &lt;-&gt; <code>enrichment</code> table relationships from the source and produce corresponding left-joins from the enrichment tables onto the object tables. This results in a rich, comprehensive de-normalized dataset for each object without the need of joining against other tables to enable an extensive review.</p>
+<p>This is particularly useful in building a Foundry Ontology where the standard approach is the use of a semantically-oriented, de-normalized data model.</p>
+<h5>Automatic joins in SAP</h5>
+<p>In the case of SAP, "TEXT" tables are classified as <code>Enrichment</code> tables within HyperAuto's processing. For example, <code>MAKT</code> (material descriptions) could be joined onto <code>MARA</code> (general material data).</p>
+<h5>Streaming</h5>
+<p>Tables classified as <code>Enrichment</code> will be consumed as batch inputs rather than streams. This allows the pipeline to create "lookup" left-joins onto the core streams from these tables, enhancing the stream data without trying to join together two live streams at once.</p>
+<p>Existing syncs for <code>Enrichment</code> tables in streaming mode will only be offered when configuring the relevant input if the schema is compliant with Foundry streaming and the underlying Avro file format that is used.</p>
+<p>:::callout{theme="neutral"}
+Tip: For SAP syncs, the config option <code>cleanFieldNamesForAvro</code> set to <code>true</code> ensures the schema is Avro (Streaming) compliant. HyperAuto created syncs will enable this option by default.
+:::</p>
+<h4>Human-readable column names</h4>
+<p><img src="../../_resources/external-035128b91b31.png" alt="Human-readable column names" width="400" /></p>
+<p>HyperAuto can use the column metadata provided by the source to rename the source-defined column names into names that are self-explanatory and easy to use by users unfamiliar with the source's schema.</p>
+<p>This occurs by concatenating the column's human-readable name onto the original column name in the form <code>Human readable_|_original</code>, providing access to both forms when interacting with the data for maximum usability.</p>
+<h4>Human-readable output dataset names</h4>
+<p>When enabled, HyperAuto generates descriptive names for newly created output datasets based on the source table metadata. This makes it easier to identify and navigate pipeline outputs without needing to reference the original source table names. Existing output datasets are not renamed when this option is toggled on for an existing pipeline.</p>
+<h4>Generate primary keys</h4>
+<p><img src="../../_resources/external-d4fcf2ccdc02.png" alt="Generate primary keys" width="400" /></p>
+<p>If sources do not have single-column primary keys, HyperAuto can dynamically generate primary keys. The source's metadata contains information stating which columns in the table together comprise a primary key, which HyperAuto uses to build concatenation logic to create a <code>primary_key</code> column.</p>
+<p>The values are concatenated with a <code>_|_</code> separator.</p>
+<p>Having a single column for a primary key is necessary to use the output as a backing dataset for an Ontology object.</p>
+<h4>Generate foreign keys</h4>
+<p><img src="../../_resources/external-45be167aec8a.png" alt="Generate foreign keys" width="400" /></p>
+<p>HyperAuto also has access to object-to-object relationships as defined in the source's data model metadata. Using the metadata, logic can be created in the pipeline to generate a foreign-key column per relationship (by concatenating the relevant columns, similar to the <a href="#generate-primary-keys">Primary key logic</a>, which can be used to join against or build Ontology links from.</p>
+<p>The foreign keys are named in the form <code>column1_column2_|_foreign_key_tableA</code>, such that:</p>
+<ul>
+<li>Column values are built by concatenating <code>column1</code> and <code>column2</code> together with the separator <code>_|_</code>, and</li>
+<li>A foreign relation exists such that a user can join this table via this column against <code>tableA</code> via its <code>primary_key</code>.</li>
+</ul>
+<p>Foreign keys are necessary to produce Ontology relationships between objects.</p>
+<p>Foreign keys are not created for object-to-enrichment table relationships when the <a href="#automatic-joins">automatic joins</a> configuration option is enabled.</p>
+<h4>Deduplicate rows</h4>
+<p><img src="../../_resources/external-b587c9a640d4.png" alt="Deduplicate Rows" width="400" /></p>
+<p>HyperAuto provides logic to automatically deduplicate tables that contain duplicate rows. This can be useful in cases such as change data capture (CDC) systems that append new rows each time a change occurs. HyperAuto will deduplicate, selecting the latest up-to-date row for each primary key.</p>
+<h5>Streaming</h5>
+<p>Deduplication is handled differently in streaming mode. Two streaming outputs will be created. The main output will now resolve into a deduplicated dataset when read by a batch or incremental pipeline. The changelog output will provide a non-deduplicated dataset when read by a batch or incremental pipeline if required. Both outputs can be consumed by another stream as normal.</p>
+<p>If columns that comprise the primary key of the table are not one of the below types they will be cast to string to ensure deduplication can work:</p>
+<ul>
+<li>String</li>
+<li>Timestamp</li>
+<li>Boolean</li>
+<li>Binary</li>
+<li>Integer</li>
+<li>Byte</li>
+<li>Short</li>
+<li>Float</li>
+<li>Long</li>
+<li>Double</li>
+</ul>
+<h4>Data cleaning</h4>
+<p><img src="../../_resources/external-7cf782ca33f9.png" alt="Data Cleaning" width="400" /></p>
+<p>The data cleaning configuration option removes common data cleanliness issues from all tables. More information on the types of issues addressed can be found below.</p>
+<ul>
+<li><strong>Empty string handling:</strong> <code>""</code> strings are converted to <code>null</code> (standard practice for data in Foundry).</li>
+<li><strong>DECIMAL casting:</strong> <code>DECIMAL</code> data types are cast to be <code>DOUBLE</code>, which has benefits across the platform (including enabling support for Ontology properties).</li>
+</ul>
+<h4>Incremental</h4>
+<p>:::callout{theme="warning" title="Experimental"}
+Incremental processing for HyperAuto pipelines is in the <a href="https://www.palantir.com/docs/foundry/platform-overview/development-life-cycle/">experimental</a> phase of development and may not be available for use on your enrollment. Functionality may change during active development.
+:::</p>
+<p>For batch SAP pipelines, you can enable incremental processing. When enabled, the pipeline only processes new data that has been appended to the input datasets since the last build, rather than reprocessing all inputs on every run. This can reduce compute resource usage and build times for pipelines with large, frequently updating input datasets.</p>
+<p>Incremental processing is only available for batch pipelines with direct SAP connections. For more information on incremental computation, refer to <a href="https://www.palantir.com/docs/foundry/pipeline-builder/datasets-computation-modes-for-batch/">computation modes for batch input datasets</a>.</p>
+<h3>Batch compute settings</h3>
+<p>:::callout{theme="neutral" title="Beta"}
+Batch compute settings for HyperAuto pipelines are in the <a href="https://www.palantir.com/docs/foundry/platform-overview/development-life-cycle/">beta</a> phase of development. Functionality may change during active development.
+:::</p>
+<p>For batch pipelines, you can select a compute backend in the <strong>Batch Compute Settings</strong> section of the <strong>Pipeline Configuration</strong> page. This setting determines the compute method used to process your pipeline.</p>
+<p>The following compute backend options are available:</p>
+<ul>
+<li><strong>Standard:</strong> The default backend powered by <a href="https://spark.apache.org/">Spark â</a>. This option supports the full range of expressions and transforms available in Pipeline Builder.</li>
+<li><strong>Faster:</strong> An alternative backend powered by <a href="https://datafusion.apache.org/">DataFusion â</a>, an open-source query engine written in Rust. Faster pipelines are specifically engineered to optimize build times and execute low-latency operations efficiently. In particular, pipelines that run in under 15 minutes will benefit most from faster pipeline configuration.</li>
+</ul>
+<p>You can select the faster backend when creating a new HyperAuto pipeline, or switch the backend of an existing pipeline by editing the pipeline configuration.</p>
+</body>
+</html>

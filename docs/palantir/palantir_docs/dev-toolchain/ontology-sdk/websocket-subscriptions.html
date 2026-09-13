@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Subscribe to changes in object sets via WebSocket</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Subscribe to changes in object sets via WebSocket</h1>
+<p>The TypeScript OSDK's <a href="https://www.palantir.com/docs/foundry/ontology-sdk/typescript-subscriptions/"><code>.subscribe</code></a> method uses the WebSocket protocol to stream object updates to the client. You can also directly establish a connection to our Object Set Watcher endpoint (located at <code>/api/v2/ontologySubscriptions/ontologies/{ontology}/streamSubscriptions</code>) to subscribe to an object set.</p>
+<h2>Endpoint</h2>
+<pre><code>wss://{foundryUrl}/api/v2/ontologySubscriptions/ontologies/{ontology}/streamSubscriptions
+</code></pre>
+<p>Replace <code>{foundryUrl}</code> with your Foundry instance's URL (without the <code>https://</code> prefix) and <code>{ontology}</code> with your ontology's API name.</p>
+<h2>Authentication</h2>
+<p>Connections are authenticated by passing <code>"Bearer-{token}"</code> as a sub-protocol on the WebSocket. Note that the WebSocket version of our bearer token authentication uses a <code>-</code> before the token instead of the space that our REST APIs use.</p>
+<h2>Message format</h2>
+<p>Communication occurs through JSON-serialized messages. The client sends subscription requests. The server responds with subscription confirmations or errors, as well as object updates for subscribed object sets.</p>
+<h2>Subscribing to an object set</h2>
+<p>Send a message to establish subscriptions:</p>
+<pre><code class="language-json">{
+  &quot;id&quot;: &quot;550e8400-e29b-41d4-a716-446655440000&quot;,
+  &quot;requests&quot;: [
+    {
+      &quot;objectSet&quot;: {
+        &quot;type&quot;: &quot;base&quot;,
+        &quot;objectType&quot;: &quot;Country&quot;
+      },
+      &quot;propertySet&quot;: [&quot;population&quot;, &quot;countryName&quot;],
+      &quot;referenceSet&quot;: []
+    }
+  ]
+}
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Required</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>id</code></td>
+<td>UUID</td>
+<td>Yes</td>
+<td>A unique request ID to correlate with the response</td>
+</tr>
+<tr>
+<td><code>requests</code></td>
+<td>array</td>
+<td>Yes</td>
+<td>List of object sets to subscribe to</td>
+</tr>
+<tr>
+<td><code>requests[].objectSet</code></td>
+<td>object</td>
+<td>Yes</td>
+<td>The object set definition</td>
+</tr>
+<tr>
+<td><code>requests[].propertySet</code></td>
+<td>string[]</td>
+<td>No</td>
+<td>Property API names to include in updates. If omitted, all properties are returned.</td>
+</tr>
+<tr>
+<td><code>requests[].referenceSet</code></td>
+<td>string[]</td>
+<td>No</td>
+<td>Reference property API names to subscribe to (for example, geotemporal series)</td>
+</tr>
+<tr>
+<td><code>requests[].objectLoadingResponseOptions</code></td>
+<td>object</td>
+<td>No</td>
+<td>Optional response configuration</td>
+</tr>
+<tr>
+<td><code>requests[].objectLoadingResponseOptions.shouldLoadObjectRids</code></td>
+<td>boolean</td>
+<td>No</td>
+<td>Whether to include object RIDs in responses (default: false). Including RIDs adds latency, so only enable this if necessary.</td>
+</tr>
+</tbody>
+</table>
+<p>You can filter the object set using <a href="https://www.palantir.com/docs/foundry/api/v2/ontologies-v2-resources/ontology-object-sets/load-object-set">standard</a> object set syntax:</p>
+<pre><code class="language-json">{
+  &quot;id&quot;: &quot;550e8400-e29b-41d4-a716-446655440001&quot;,
+  &quot;requests&quot;:[
+    {
+      &quot;objectSet&quot;: {
+        &quot;type&quot;: &quot;filter&quot;,
+        &quot;objectSet&quot;: {
+          &quot;type&quot;: &quot;base&quot;,
+          &quot;objectType&quot;: &quot;Country&quot;
+        },
+        &quot;where&quot;: {
+          &quot;type&quot;: &quot;gte&quot;,
+          &quot;field&quot;: &quot;population&quot;,
+          &quot;value&quot;: 1000000
+        }
+      },
+      &quot;propertySet&quot;: [&quot;population&quot;]
+    }
+  ]
+}
+</code></pre>
+<h2>Managing subscriptions</h2>
+<p>Sending a new subscription message updates your active subscriptions. The server compares your new request list against existing subscriptions. Matching subscriptions remain open, missing subscriptions are closed, and new subscriptions are opened.</p>
+<p>To unsubscribe from all object sets, send an empty requests array:</p>
+<pre><code class="language-json">{
+  &quot;id&quot;: &quot;550e8400-e29b-41d4-a716-446655440002&quot;,
+  &quot;requests&quot;: []
+}
+</code></pre>
+<h2>Object set updates</h2>
+<p>The client will receive different message types throughout the subscription lifecycle.</p>
+<h4><code>subscribeResponses</code></h4>
+<p>Sent after receiving a subscribe request, containing a response for each requested subscription:</p>
+<pre><code class="language-json">{
+  &quot;type&quot;: &quot;subscribeResponses&quot;,
+  &quot;id&quot;: &quot;550e8400-e29b-41d4-a716-446655440000&quot;,
+  &quot;responses&quot;: [
+    {
+      &quot;type&quot;: &quot;success&quot;,
+      &quot;id&quot;: &quot;a1b2c3d4-e5f6-7890-abcd-ef1234567890&quot;
+    }
+  ]
+}
+</code></pre>
+<p>A successful response includes a subscription ID that identifies updates for that subscription. Error responses include diagnostic information:</p>
+<pre><code class="language-json">{
+  &quot;type&quot;: &quot;subscribeResponses&quot;,
+  &quot;id&quot;: &quot;550e8400-e29b-41d4-a716-446655440000&quot;,
+  &quot;responses&quot;: [
+    {
+      &quot;type&quot;: &quot;error&quot;,
+      &quot;errors&quot;: [
+        {
+          &quot;error&quot;: &quot;INVALID_OBJECT_TYPE&quot;,
+          &quot;args&quot;: [{ &quot;name&quot;: &quot;objectType&quot;, &quot;value&quot;: &quot;InvalidType&quot; }]
+        }
+      ]
+    }
+  ]
+}
+</code></pre>
+<p>If you receive a subscription response with a <code>type</code> of <code>"qos"</code>, the server is under heavy load. We recommend using exponential backoff with jitter to retry requests.</p>
+<h4><code>objectSetChanged</code></h4>
+<p>Sent when objects in your subscribed object set are added, updated, or removed:</p>
+<pre><code class="language-json">{
+  &quot;type&quot;: &quot;objectSetChanged&quot;,
+  &quot;id&quot;: &quot;a1b2c3d4-e5f6-7890-abcd-ef1234567890&quot;,
+  &quot;updates&quot;: [
+    {
+      &quot;type&quot;: &quot;object&quot;,
+      &quot;object&quot;: {
+        &quot;__apiName&quot;: &quot;Country&quot;,
+        &quot;__primaryKey&quot;: &quot;US&quot;,
+        &quot;countryName&quot;: &quot;United States&quot;,
+        &quot;population&quot;: 331000000
+      },
+      &quot;state&quot;: &quot;ADDED_OR_UPDATED&quot;
+    }
+  ]
+}
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>object</code></td>
+<td>The updated object with requested properties</td>
+</tr>
+<tr>
+<td><code>object.__apiName</code></td>
+<td>The object type API name</td>
+</tr>
+<tr>
+<td><code>object.__primaryKey</code></td>
+<td>The object's primary key value</td>
+</tr>
+<tr>
+<td><code>state</code></td>
+<td>Either <code>"ADDED_OR_UPDATED"</code> or <code>"REMOVED"</code></td>
+</tr>
+</tbody>
+</table>
+<p>When <code>state</code> is <code>"REMOVED"</code>, the object was either deleted or no longer matches the object set filter.</p>
+<p>For subscriptions with reference properties (like geotemporal series), you may receive reference updates:</p>
+<pre><code class="language-json">{
+  &quot;type&quot;: &quot;objectSetChanged&quot;,
+  &quot;id&quot;: &quot;a1b2c3d4-e5f6-7890-abcd-ef1234567890&quot;,
+  &quot;updates&quot;: [
+    {
+      &quot;type&quot;: &quot;reference&quot;,
+      &quot;objectType&quot;: &quot;Aircraft&quot;,
+      &quot;primaryKey&quot;: { &quot;aircraftId&quot;: &quot;AC-123&quot; },
+      &quot;property&quot;: &quot;currentLocation&quot;,
+      &quot;value&quot;: {
+        &quot;type&quot;: &quot;geotimeSeriesValue&quot;,
+        &quot;position&quot;: { &quot;type&quot;: &quot;Point&quot;, &quot;coordinates&quot;: [-122.4194, 37.7749] },
+        &quot;timestamp&quot;: &quot;2024-01-15T10:30:00Z&quot;
+      }
+    }
+  ]
+}
+</code></pre>
+<h4><code>refreshObjectSet</code></h4>
+<p>Indicates that the server cannot provide incremental updates. You should reload the object set with a normal HTTP request to the standard <a href="https://www.palantir.com/docs/foundry/api/v2/ontologies-v2-resources/ontology-object-sets/load-object-set">load object set</a> endpoint:</p>
+<pre><code class="language-json">{
+  &quot;type&quot;: &quot;refreshObjectSet&quot;,
+  &quot;id&quot;: &quot;a1b2c3d4-e5f6-7890-abcd-ef1234567890&quot;,
+  &quot;objectType&quot;: &quot;Country&quot;
+}
+</code></pre>
+<h4><code>subscriptionClosed</code></h4>
+<p>Indicates that a subscription has been closed. This can occur for several reasons, such as errors:</p>
+<pre><code class="language-json">{
+  &quot;type&quot;: &quot;subscriptionClosed&quot;,
+  &quot;id&quot;: &quot;a1b2c3d4-e5f6-7890-abcd-ef1234567890&quot;,
+  &quot;cause&quot;: {
+    &quot;type&quot;: &quot;error&quot;,
+    &quot;error&quot;: &quot;SUBSCRIPTION_MEMORY_LIMIT_EXCEEDED&quot;,
+    &quot;args&quot;: []
+  }
+}
+</code></pre>
+<p>Subscriptions are also closed when you remove a subscription from your request list:</p>
+<pre><code class="language-json">{
+  &quot;type&quot;: &quot;subscriptionClosed&quot;,
+  &quot;id&quot;: &quot;a1b2c3d4-e5f6-7890-abcd-ef1234567890&quot;,
+  &quot;cause&quot;: {
+    &quot;type&quot;: &quot;reason&quot;,
+    &quot;reason&quot;: &quot;USER_CLOSED&quot;
+  }
+}
+</code></pre>
+<h2>Limitations</h2>
+<ul>
+<li>Object sets constructed using joins are not fully supported. The server watches the selected portion and sends notifications when it changes, but cannot guarantee completeness.</li>
+<li>Subscriptions do not persist across server restarts. Implement reconnection logic in your client.</li>
+<li>Memory limits apply per subscription. Subscriptions tracking large numbers of objects may be closed if limits are exceeded.</li>
+<li>Some advanced full-text search filters are not supported for subscription filtering.</li>
+<li>When subscribing to an interface object set, object updates are returned as their underlying object types. You must remap object properties to interface properties when processing updates.</li>
+</ul>
+<h2>Interfaces</h2>
+<p>To handle interface object set subscriptions, you need to fetch mappings from object property types to their corresponding interface property types. This can be done via the <a href="https://www.palantir.com/docs/foundry/api/v2/ontologies-v2-resources/object-types/get-object-type-full-metadata">Load Object Type Full Metadata</a> endpoint. This beta endpoint returns the full metadata for the requested object type, including interface property mappings for all implemented interfaces.</p>
+<p>The object type API name is accessible via the updated object's <code>"__apiName"</code> key. For an interface with API name <code>interfaceType</code> and a <a href="https://www.palantir.com/docs/foundry/api/v2/ontologies-v2-resources/object-types/get-object-type-full-metadata/">Load Object Type Full Metadata</a> response <code>response</code>, the returned interface mappings can be accessed via <code>response["implementsInterfaces2"][interfaceType]["properties"]</code>. This mapping is from object property type API name to the corresponding interface property type API name.</p>
+<p>We recommend caching these property mappings for the lifetime of the subscription.</p>
+<h2>Python Example</h2>
+<p>Below is a sample Python script showing how to subscribe to a filtered object set and process updates. This example does not show how to remap interface properties.</p>
+<pre><code class="language-python"># /// script
+# requires-python = &quot;&gt;=3.10&quot;
+# dependencies = [
+#     &quot;websockets&quot;,
+# ]
+# ///
+import asyncio
+import json
+import os
+import uuid
+
+from websockets.asyncio.client import connect
+
+TOKEN = ...
+FOUNDRY_URL = ...
+ONTOLOGY_RID = ...
+
+
+async def main() -&gt; None:
+    filtered_object_set = {
+        &quot;type&quot;: &quot;filter&quot;,
+        &quot;objectSet&quot;: {
+            &quot;type&quot;: &quot;base&quot;,
+            &quot;objectType&quot;: &quot;Country&quot;,
+        },
+        &quot;where&quot;: {
+            &quot;type&quot;: &quot;gte&quot;,
+            &quot;field&quot;: &quot;population&quot;,
+            &quot;value&quot;: 10000000,
+        },
+    }
+    subscribe_msg = {
+        &quot;id&quot;: str(uuid.uuid4()),
+        &quot;requests&quot;: [
+            {
+                &quot;objectSet&quot;: filtered_object_set,
+                &quot;propertySet&quot;: [&quot;timeUntilNextFlight&quot;, &quot;aircraftRegistration&quot;],
+            },
+        ],
+    }
+
+    open_subscriptions: set[str] = set()
+
+    async with connect(
+        f&quot;wss://{FOUNDRY_URL}/api/v2/ontologySubscriptions/ontologies/{ONTOLOGY_RID}/streamSubscriptions&quot;,
+        subprotocols=[f&quot;Bearer-{TOKEN}&quot;],  # Bearer token authentication
+    ) as websocket:
+        await websocket.send(json.dumps(subscribe_msg))
+
+        async for message in websocket:
+            match json.loads(message):
+                case {&quot;type&quot;: &quot;subscribeResponses&quot;, &quot;responses&quot;: [*responses]}:
+                    for response in responses:
+                        match response:
+                            case {&quot;type&quot;: &quot;success&quot;, &quot;id&quot;: identifier}:
+                                print(f&quot;Subscribed: ID {identifier}&quot;)
+                                open_subscriptions.add(identifier)
+                            case {&quot;type&quot;: &quot;error&quot;, &quot;errors&quot;: [*errors]}:
+                                print(f&quot;Subscription errors: {errors}&quot;)
+                    if not any(response[&quot;type&quot;] == &quot;success&quot; for response in responses):
+                        print(&quot;All subscriptions failed. Exiting.&quot;)
+                        return
+
+                case {&quot;type&quot;: &quot;objectSetChanged&quot;, &quot;updates&quot;: [*updates]}:
+                    for update in updates:
+                        match update:
+                            case {&quot;type&quot;: &quot;object&quot;, &quot;state&quot;: state, &quot;object&quot;: {**obj}}:
+                                print(f&quot;{state}: {obj}&quot;)
+                            case {
+                                &quot;type&quot;: &quot;reference&quot;,
+                                &quot;property&quot;: prop,
+                                &quot;primaryKey&quot;: primary_key,
+                            }:
+                                print(f&quot;Reference update: {primary_key} &lt;- {prop}&quot;)
+
+                case {&quot;type&quot;: &quot;refreshObjectSet&quot;, &quot;objectType&quot;: object_type}:
+                    print(f&quot;Refresh required for object type: {object_type}&quot;)
+
+                case {
+                    &quot;type&quot;: &quot;subscriptionClosed&quot;,
+                    &quot;id&quot;: identifier,
+                    &quot;cause&quot;: {**cause},
+                }:
+                    print(f&quot;Subscription {identifier} was closed: {cause}&quot;)
+                    open_subscriptions.remove(identifier)
+                    if not open_subscriptions:
+                        print(&quot;All subscriptions closed. Exiting.&quot;)
+                        return
+
+
+if __name__ == &quot;__main__&quot;:
+    asyncio.run(main())
+
+</code></pre>
+</body>
+</html>

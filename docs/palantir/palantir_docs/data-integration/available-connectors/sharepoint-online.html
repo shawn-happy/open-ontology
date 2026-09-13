@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SharePoint Online</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>SharePoint Online</h1>
+<p>Connect to SharePoint Online to import files from specified SharePoint libraries into Foundry.</p>
+<h2>Supported capabilities</h2>
+<table>
+<thead>
+<tr>
+<th>Capability</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Exploration</td>
+<td>ð¢ Generally available</td>
+</tr>
+<tr>
+<td>Bulk import</td>
+<td>ð¢ Generally available</td>
+</tr>
+<tr>
+<td>Incremental</td>
+<td>ð¢ Generally available</td>
+</tr>
+<tr>
+<td>Export tasks</td>
+<td>ð¡ Sunset</td>
+</tr>
+<tr>
+<td><a href="https://www.palantir.com/docs/foundry/data-connection/export-overview/#file-exports">File exports</a></td>
+<td>ð¢ Generally available</td>
+</tr>
+</tbody>
+</table>
+<h2>Data model</h2>
+<p>The connector can transfer files of any type into Foundry datasets. File formats are preserved, and no schemas are applied during or after the transfer. Apply any necessary schema to the output dataset, or <a href="https://www.palantir.com/docs/foundry/pipeline-builder/transforms-overview/">write a downstream transformation</a> to access the data.</p>
+<h2>Performance and limitations</h2>
+<p>There is no limit to the size of transferable files. However, network issues can result in failures of large-scale transfers. In particular, Foundry syncs that take more than two days to run will be interrupted. To avoid network issues, we recommend using smaller file sizes and limiting the number of files that are ingested in every execution of the sync. Syncs can be <a href="https://www.palantir.com/docs/foundry/data-connection/set-up-sync/#build-or-schedule-your-batch-sync">scheduled</a> to run frequently.</p>
+<p>:::callout{theme="warning"}
+Connections to on-premise SharePoint servers are not supported. Use a <a href="https://www.palantir.com/docs/foundry/available-connectors/rest-apis/">REST API</a> source type to connect to on-premise SharePoint.
+:::</p>
+<h2>Setup</h2>
+<ol>
+<li>Open the <a href="https://www.palantir.com/docs/foundry/data-connection/overview/">Data Connection</a> application and select <strong>+ New Source</strong> in the upper right corner of the screen.</li>
+<li>Select <strong>SharePoint Online</strong> from the available connector types.</li>
+<li>Follow the additional configuration prompts to continue the setup of your connector using the information in the sections below.</li>
+</ol>
+<p>Learn more about <a href="https://www.palantir.com/docs/foundry/data-connection/set-up-source/">setting up a connector</a> in Foundry.</p>
+<h2>Authentication</h2>
+<p>:::callout{theme="warning"}
+Authentication for the SharePoint Online source requires an application in Microsoft Entra ID (formerly known as Azure Active Directory). If you are not an Entra ID administrator, contact your IT department to request access.
+:::</p>
+<p>Follow the initial steps below to access Azure application credentials:</p>
+<ol>
+<li>Create an application registration in Azure by following the instructions in the <a href="https://docs.microsoft.com/graph/auth-register-app-v2">Microsoft documentation â</a>.
+   * At Step 5, select <strong>Accounts in this organizational directory only</strong> and skip <strong>Redirect URL (optional)</strong>.</li>
+<li>Note the client ID and tenant ID once registration is complete.</li>
+</ol>
+<p>Then, choose between two available authentication method:</p>
+<ul>
+<li><a href="#client-credentials">Client credentials:</a> Recommended when a wide range of access is required for every SharePoint site.</li>
+<li><a href="#usernamepassword">Username/password:</a> Recommended for limiting access to one or a few SharePoint sites.</li>
+</ul>
+<h3>Client credentials</h3>
+<p>In your Microsoft Entra admin center, complete the following steps:</p>
+<ol>
+<li>Go to <strong>API Permissions</strong> in the left sidebar.</li>
+<li>Select <strong>Add a Permission</strong>.</li>
+<li>Select <strong>Microsoft Graph</strong>.</li>
+<li>Select <strong>Application Permissions</strong>.
+   * If you would like your application to read <em>all</em> SharePoint sites add <code>Sites.Read.All</code>.<ul>
+<li>If you plan to configure export tasks, use <code>Sites.ReadWrite.All</code> instead.</li>
+<li>If you would like your application to read <strong>selected SharePoint sites</strong> add <code>Sites.Selected</code>.</li>
+</ul>
+</li>
+<li>If you are an Entra Administrator, select <strong>Grant admin consent for [tenant]</strong>.</li>
+<li>If you added <code>Sites.Selected</code> above, <a href="https://devblogs.microsoft.com/microsoft365dev/controlling-app-access-on-specific-sharepoint-site-collections/">add your application to specific sites â</a>.</li>
+</ol>
+<ul>
+<li>The available options for the <code>"roles"</code> array parameter are <code>"write"</code> and/or <code>"read"</code>. The <code>"read"</code> option is sufficient to ingest files from the SharePoint site.</li>
+<li>To easily send a POST with proper authentication, use the <a href="https://developer.microsoft.com/graph/graph-explorer">Graph Explorer â</a>.</li>
+<li>You can receive metadata about a site by sending a GET to <code>https://graph.microsoft.com/v1.0/sites/[tenantName]:/sites/[siteName]</code> (for example: <code>https://graph.microsoft.com/v1.0/sites/contoso.sharepoint.com:/sites/mySite</code>). This request will return an ID that is a composite of several values: Site collection hostname, Site collection unique ID, and Site unique ID where the middle value is the siteId needed to run the permissions POST.
+7. <a href="https://docs.microsoft.com/azure/active-directory/develop/howto-create-service-principal-portal#option-2-create-a-new-application-secret">Generate a client secret. â</a>.</li>
+</ul>
+<p>Set the following source configurations in Data Connection:</p>
+<table>
+<thead>
+<tr>
+<th>Option</th>
+<th>Required?</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Azure Client ID</code></td>
+<td>Yes</td>
+<td>The ID of the app registration; also called Application ID.</td>
+</tr>
+<tr>
+<td><code>Azure Tenant ID</code></td>
+<td>Yes</td>
+<td>the unique identifier of the Microsoft Entra ID instance.</td>
+</tr>
+<tr>
+<td><code>Client secret</code></td>
+<td>Yes</td>
+<td>The secret generated in the app registration.</td>
+</tr>
+</tbody>
+</table>
+<h3>Username/password</h3>
+<p>The username/password flow involves creating a user account that can sign in to Microsoft 365. The Graph API does not support two-factor authentication for the username/password authentication method. Because of this, <strong>we strongly recommend creating a randomly generated password of at least 32 characters in length</strong>.</p>
+<p>In your Entra admin center, complete the following steps:</p>
+<ol>
+<li>Go to <strong>API Permissions</strong> in the left sidebar.</li>
+<li>Select <strong>Add a Permission</strong>.</li>
+<li>Select <strong>Microsoft Graph</strong>.</li>
+<li>Select <strong>Delegated Permissions</strong>.</li>
+<li>Add the <code>Sites.Read.All</code> permission;.
+   * If you plan to configure export tasks, use <code>Sites.ReadWrite.All</code> instead.</li>
+<li>If you are an Azure Administrator, select <strong>Grant admin consent for [tenant]</strong>.</li>
+<li>Go to <strong>Authentication</strong> in the left sidebar.</li>
+<li>Change <strong>Allow public client flows</strong> to <code>Yes</code>.</li>
+<li>Create a user in Microsoft Entra ID <em>with a randomly generated password of at least 32 characters</em>.</li>
+<li>Add that user to any SharePoint sites that you would like it to read or write.</li>
+</ol>
+<p>Set the following source configurations in Data Connection:</p>
+<table>
+<thead>
+<tr>
+<th>Option</th>
+<th>Required?</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Azure Client ID</code></td>
+<td>Yes</td>
+<td>The ID of the app registration; also called Application ID.</td>
+</tr>
+<tr>
+<td><code>Username</code></td>
+<td>Yes</td>
+<td>The user's email address.</td>
+</tr>
+<tr>
+<td><code>Password</code></td>
+<td>Yes</td>
+<td>The generated password.</td>
+</tr>
+</tbody>
+</table>
+<h3>XML-based permissioning for SharePoint Add-ins</h3>
+<p>If you are using <a href="https://learn.microsoft.com/en-us/sharepoint/dev/sp-add-ins/authorization-and-authentication-of-sharepoint-add-ins">SharePoint Add-ins for authorization and authentication â</a>, and your SharePoint Add-in uses XML for permission management, you must ensure that the correct scope is set in the scope URI to avoid access issues when connecting to SharePoint.</p>
+<p>Follow the steps below to verify and configure the correct scope:</p>
+<ol>
+<li>Locate the <code>AppManifest.xml</code> file containing the permission settings for your SharePoint Add-in.</li>
+<li>In the <code>AppManifest.xml</code> file, identify the scope URI within the XML file, which should look similar to this:</li>
+</ol>
+<p><code>&lt;AppPermissionRequests AllowAppOnlyPolicy="true"&gt; &lt;AppPermissionRequest Scope="http://sharepoint/content/sitecollection/web" Right="FullControl" /&gt; &lt;/AppPermissionRequests&gt;</code>.</p>
+<ol start="3">
+<li>Verify that the scope value (in this example, <code>http://sharepoint/content/sitecollection/web</code>) matches the SharePoint site to which you are connecting; if the scope value does not match, adjust the scope value accordingly.</li>
+</ol>
+<h2>Networking</h2>
+<p>The table below lists the domains that the source must access to run.</p>
+<p>For each domain, add a corresponding <a href="https://www.palantir.com/docs/foundry/administration/configure-egress/">egress policy</a>. If the source is hosted on-premises and not directly reachable from Foundry, use an <a href="https://www.palantir.com/docs/foundry/administration/configure-egress/#agent-proxy-egress-policies">agent proxy egress policy</a> instead; the agent host itself must also be able to reach the listed domains. See <a href="https://www.palantir.com/docs/foundry/data-connection/agent-proxy/">using an agent as a proxy</a> for details.</p>
+<p>The SharePoint Online connector requires network access to the following domains on port 443:</p>
+<table>
+<thead>
+<tr>
+<th>Domain</th>
+<th>Required</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>login.microsoftonline.com</code></td>
+<td>Always</td>
+</tr>
+<tr>
+<td><code>graph.microsoft.com</code></td>
+<td>Always</td>
+</tr>
+<tr>
+<td>Your SharePoint URL (for example, <code>contoso.sharepoint.com</code>)</td>
+<td>Always</td>
+</tr>
+</tbody>
+</table>
+<p>If you are using a GovCloud SharePoint instance, use the following domains on port 443 instead:</p>
+<table>
+<thead>
+<tr>
+<th>Domain</th>
+<th>Required</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>login.microsoftonline.us</code></td>
+<td>Always</td>
+</tr>
+<tr>
+<td><code>graph.microsoft.us</code></td>
+<td>Always</td>
+</tr>
+<tr>
+<td>Your SharePoint URL (for example, <code>contoso.sharepoint.us</code>)</td>
+<td>Always</td>
+</tr>
+</tbody>
+</table>
+<h2>Configuration options</h2>
+<p>The following configuration options are available for the SharePoint Online connector:</p>
+<table>
+<thead>
+<tr>
+<th>Option</th>
+<th>Required?</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>SharePoint Library URL</code></td>
+<td>Yes</td>
+<td>A single SharePoint site may have several document libraries; your URL must point to a specific library. Must be in the format <code>https://[tenant].sharepoint.com/sites/[site]/[library]</code>.</td>
+</tr>
+<tr>
+<td><code>Credentials settings</code></td>
+<td>Yes</td>
+<td>Configure using the <a href="#authentication">Authentication</a> guidance shown above.</td>
+</tr>
+<tr>
+<td><code>Proxy settings</code></td>
+<td>No</td>
+<td>Enable to use a proxy while connecting to SharePoint Online.</td>
+</tr>
+</tbody>
+</table>
+<h2>Sync data from SharePoint Online</h2>
+<p>The SharePoint Online connector uses the <a href="https://www.palantir.com/docs/foundry/data-connection/file-based-syncs/">file-based sync interface</a>.</p>
+<h2>Export data to SharePoint Online</h2>
+<p>To export to a SharePoint site, first <a href="https://www.palantir.com/docs/foundry/data-connection/export-overview/#enable-exports-for-source">enable exports</a> for your SharePoint Online connector. Then, <a href="https://www.palantir.com/docs/foundry/data-connection/export-overview/#create-a-new-export">create a new export</a>.</p>
+<h3>Export configuration options</h3>
+<table>
+<thead>
+<tr>
+<th>Option</th>
+<th>Required?</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Directory path</code></td>
+<td>Yes</td>
+<td>/</td>
+<td>The path to the folder in the SharePoint library where files should be exported. The full path for an exported file is calculated as <code>&lt;SharePoint Library URL&gt;/Directory Path&gt;/&lt;Exported File Path&gt;</code></td>
+</tr>
+</tbody>
+</table>
+<h2>Use SharePoint sources in code</h2>
+<p>The example below demonstrates how to upload a file to a SharePoint source using the <a href="https://pypi.org/project/Office365-REST-Python-Client/">Python client for SharePoint â</a> <code>Office365-REST-Python-Client</code> in an <a href="https://www.palantir.com/docs/foundry/data-connection/external-transforms/">external transform</a>. Note that this example uses <strong>client certificate</strong> authentication.</p>
+<p>Review more <a href="https://github.com/vgrem/office365-rest-python-client/tree/master/examples/sharepoint">examples from SharePoint â</a>.</p>
+<pre><code class="language-python">from pyspark.sql import DataFrame
+from transforms.api import Input, Output, transform, lightweight
+from transforms.external.systems import external_systems, Source
+import pandas as pd
+import polars as pl
+from office365.sharepoint.client_context import ClientContext
+
+@lightweight
+@external_systems(
+    sharepoint_source=Source(&quot;&lt;source_rid&gt;&quot;)
+)
+@transform(
+    output=Output(&quot;&lt;dataset_rid&gt;&quot;),
+    input_df=Input(&quot;&lt;dataset_rid&gt;&quot;), # Dataset containing a list of files to export to SharePoint
+)
+def compute(ctx, input_df: DataFrame, output, sharepoint_source) -&gt; DataFrame:
+
+    # 1. Connect to SharePoint using client certificate authentication.
+    client = ClientContext(&quot;&lt;sharepoint_url&gt;&quot;).with_client_certificate(
+        tenant=&quot;&lt;tenant_id&gt;&quot;,
+        client_id=&quot;&lt;client_id&gt;&quot;,
+        thumbprint=&quot;&lt;thumbprint&gt;&quot;,
+        private_key=sharepoint_source.get_secret(&quot;clientSecret&quot;),
+    )
+
+    current_web = client.web
+    client.load(current_web)
+    client.execute_query()
+
+    target_folder = client.web.lists.get_by_title(&quot;&lt;document_library_name&gt;&quot;).root_folder
+
+    # 2 Upload files from input_df, store URL in dataset
+    upload_urls = []
+    fs = input_df.filesystem()
+    input_files = fs.ls()
+    for f in input_files:
+        with fs.open(f.path) as fileobj:
+            uploaded_file = target_folder.upload_file(f.path, fileobj).execute_query()
+            upload_urls.append({'file_name': f.path, 'upload_url': uploaded_file.serverRelativeUrl})
+
+
+    # 3. Return dataset of uploaded URLs
+    output.write_table(pl.from_pandas(pd.DataFrame.from_records(upload_urls)))
+</code></pre>
+<h3>Ingest SharePoint Lists</h3>
+<p>The SharePoint Online connector only supports file-based ingestion. To ingest data from SharePoint Lists, use an <a href="https://www.palantir.com/docs/foundry/data-connection/external-transforms/">external transform</a> with the Microsoft Graph API. The following helper class handles OAuth2 authentication and provides methods to retrieve lists and list items with automatic pagination:</p>
+<pre><code class="language-python">import requests
+import logging
+from typing import Optional, Dict, List
+from urllib.parse import urlparse
+
+
+class SharePointListReader:
+    &quot;&quot;&quot;
+    Client for reading SharePoint lists via Microsoft Graph API.
+
+    This class handles OAuth2 authentication and provides methods to:
+    - Retrieve all lists from a SharePoint site
+    - Fetch items from specific lists with automatic pagination
+
+    Args:
+        tenant_id: Azure AD tenant ID
+        client_id: Azure AD application (client) ID
+        client_secret: Azure AD application client secret
+        site_url: Full SharePoint site URL (e.g., https://contoso.sharepoint.com/sites/mysite)
+        logger: Optional custom logger instance
+    &quot;&quot;&quot;
+
+    def __init__(
+        self,
+        tenant_id: str,
+        client_id: str,
+        client_secret: str,
+        site_url: str,
+        logger: Optional[logging.Logger] = None
+    ):
+        self.tenant_id = tenant_id
+        self.client_id = client_id
+        self.client_secret = client_secret
+        self.site_url = site_url.rstrip(&quot;/&quot;)
+        self.base_url = &quot;https://graph.microsoft.com/v1.0&quot;
+
+        self.access_token: Optional[str] = None
+        self.site_id: Optional[str] = None
+        self.logger = logger or self._setup_default_logger()
+
+    def _setup_default_logger(self) -&gt; logging.Logger:
+        &quot;&quot;&quot;Configure default logger with console output.&quot;&quot;&quot;
+        logger = logging.getLogger(__name__)
+        if not logger.handlers:
+            handler = logging.StreamHandler()
+            formatter = logging.Formatter('%(levelname)s: %(message)s')
+            handler.setFormatter(formatter)
+            logger.addHandler(handler)
+            logger.setLevel(logging.INFO)
+        return logger
+
+    def get_access_token(self) -&gt; bool:
+        &quot;&quot;&quot;
+        Acquire OAuth2 access token from Azure AD.
+
+        Returns:
+            True if token was successfully acquired, False otherwise
+        &quot;&quot;&quot;
+        token_url = f&quot;https://login.microsoftonline.com/{self.tenant_id}/oauth2/v2.0/token&quot;
+        payload = {
+            &quot;grant_type&quot;: &quot;client_credentials&quot;,
+            &quot;client_id&quot;: self.client_id,
+            &quot;client_secret&quot;: self.client_secret,
+            &quot;scope&quot;: &quot;https://graph.microsoft.com/.default&quot;,
+        }
+
+        try:
+            response = requests.post(token_url, data=payload)
+            response.raise_for_status()
+            token_data = response.json()
+            self.access_token = token_data[&quot;access_token&quot;]
+
+            expires_in = token_data.get(&quot;expires_in&quot;, 3600)
+            self.logger.info(f&quot;Authentication successful (expires in {expires_in}s)&quot;)
+            return True
+
+        except requests.exceptions.RequestException as e:
+            self.logger.error(f&quot;Authentication failed: {e}&quot;)
+            return False
+
+    def _make_graph_request(self, url: str, params: Optional[Dict] = None) -&gt; Optional[Dict]:
+        &quot;&quot;&quot;
+        Execute authenticated GET request to Microsoft Graph API.
+
+        Args:
+            url: Full Graph API endpoint URL
+            params: Optional query parameters
+
+        Returns:
+            JSON response as dictionary, or None on failure
+        &quot;&quot;&quot;
+        if not self.access_token and not self.get_access_token():
+            return None
+
+        headers = {
+            &quot;Authorization&quot;: f&quot;Bearer {self.access_token}&quot;,
+            &quot;Content-Type&quot;: &quot;application/json&quot;,
+        }
+
+        try:
+            response = requests.get(url, headers=headers, params=params)
+            response.raise_for_status()
+            return response.json()
+
+        except requests.exceptions.RequestException as e:
+            self.logger.error(f&quot;API request failed: {e}&quot;)
+            if hasattr(e, 'response') and e.response is not None:
+                self.logger.debug(f&quot;Response details: {e.response.text}&quot;)
+            return None
+
+    def get_site_id(self) -&gt; Optional[str]:
+        &quot;&quot;&quot;
+        Retrieve SharePoint site ID from site URL.
+
+        Returns:
+            Site ID string, or None if retrieval fails
+        &quot;&quot;&quot;
+        if self.site_id:
+            return self.site_id
+
+        parsed = urlparse(self.site_url)
+        hostname = parsed.hostname
+        site_path = parsed.path.strip(&quot;/&quot;)
+
+        url = f&quot;{self.base_url}/sites/{hostname}:/{site_path}&quot;
+        data = self._make_graph_request(url)
+
+        if data and &quot;id&quot; in data:
+            self.site_id = data[&quot;id&quot;]
+            self.logger.debug(f&quot;Site ID retrieved: {self.site_id}&quot;)
+            return self.site_id
+
+        self.logger.error(&quot;Failed to retrieve site ID&quot;)
+        return None
+
+    def get_all_lists(self) -&gt; Optional[Dict]:
+        &quot;&quot;&quot;
+        Retrieve all lists from the SharePoint site.
+
+        Returns:
+            Dictionary containing list metadata, or None on failure
+        &quot;&quot;&quot;
+        site_id = self.get_site_id()
+        if not site_id:
+            return None
+
+        url = f&quot;{self.base_url}/sites/{site_id}/lists&quot;
+        data = self._make_graph_request(url)
+
+        if data and &quot;value&quot; in data:
+            self.logger.info(f&quot;Found {len(data['value'])} lists in site&quot;)
+            for lst in data[&quot;value&quot;]:
+                self.logger.info(f&quot;  - {lst['name']} (ID: {lst['id']})&quot;)
+
+        return data
+
+    def get_all_list_items(self, list_id: str) -&gt; Optional[List[Dict]]:
+        &quot;&quot;&quot;
+        Retrieve all items from a SharePoint list with automatic pagination.
+
+        Args:
+            list_id: GUID of the SharePoint list
+
+        Returns:
+            List of item dictionaries, or None on failure
+        &quot;&quot;&quot;
+        site_id = self.get_site_id()
+        if not site_id:
+            return None
+
+        all_items = []
+        url = f&quot;{self.base_url}/sites/{site_id}/lists/{list_id}/items&quot;
+        params = {&quot;$expand&quot;: &quot;fields&quot;, &quot;$top&quot;: 5000}
+
+        page_count = 0
+        while url:
+            current_params = None if &quot;@odata.nextLink&quot; in url else params
+            data = self._make_graph_request(url, current_params)
+
+            if not data or &quot;value&quot; not in data:
+                break
+
+            page_count += 1
+            items_in_page = len(data[&quot;value&quot;])
+            all_items.extend(data[&quot;value&quot;])
+
+            self.logger.debug(f&quot;Page {page_count}: retrieved {items_in_page} items&quot;)
+
+            url = data.get(&quot;@odata.nextLink&quot;)
+            params = None
+
+        self.logger.info(f&quot;Retrieved {len(all_items)} total items from list&quot;)
+        return all_items
+</code></pre>
+<p>The following example demonstrates how to use this class in an external transform to ingest SharePoint List data into a Foundry dataset:</p>
+<pre><code class="language-python">from transforms.api import Output, transform, lightweight
+from transforms.external.systems import external_systems, Source
+import polars as pl
+
+
+@lightweight
+@external_systems(
+    sharepoint_source=Source(&quot;&lt;source_rid&gt;&quot;)
+)
+@transform(
+    output=Output(&quot;&lt;dataset_rid&gt;&quot;),
+)
+def compute(ctx, output, sharepoint_source):
+
+    # 1. Initialize the SharePoint List reader with credentials from the source
+    reader = SharePointListReader(
+        tenant_id=&quot;&lt;tenant_id&gt;&quot;,
+        client_id=&quot;&lt;client_id&gt;&quot;,
+        client_secret=sharepoint_source.get_secret(&quot;clientSecret&quot;),
+        site_url=&quot;https://contoso.sharepoint.com/sites/mysite&quot;
+    )
+
+    # 2. Retrieve all items from a specific list
+    items = reader.get_all_list_items(list_id=&quot;&lt;list_guid&gt;&quot;)
+
+    # 3. Extract the fields from each item and write to the output dataset
+    records = [item[&quot;fields&quot;] for item in items if &quot;fields&quot; in item]
+    output.write_table(pl.from_dicts(records))
+</code></pre>
+</body>
+</html>

@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Logical type cast</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Logical type cast</h1>
+<blockquote>
+<p>Supported in: Batch, Faster, Streaming</p>
+</blockquote>
+<p>Cast expression to given logical type. Unlike the regular cast expression, this expression will not change the underlying base representation of the data, but rather enforce the constraints associated with the specified logical type, so that the output can be used as the input to downstream expressions which specifically demand an instance of that logical type.</p>
+<p><strong>Expression categories:</strong> Cast</p>
+<h2>Declared arguments</h2>
+<ul>
+<li><strong>Expression:</strong> Expression to cast.<br><em>Expression\<C></em></li>
+<li><strong>Logical type:</strong> Logical type to cast to.<br><em>LogicalType</em></li>
+<li><em>optional</em> <strong>Default value:</strong> Default value in case the specified expression does not fulfill the constraints of the desired logical type. If not specified, this default value will be null. If the default value itself does not fulfill the constraints of the desired logical type, the result of this expression will be null.<br><em>Expression\<C></em></li>
+</ul>
+<p><strong>Type variable bounds:</strong> <em>C accepts AnyType</em></p>
+<p><strong>Output type:</strong> <em>C</em></p>
+<h2>Examples</h2>
+<h3>Example 1: Base case</h3>
+<p><strong>Description:</strong> Unsuccessful cast to natural number with default</p>
+<p><strong>Argument values:</strong></p>
+<ul>
+<li><strong>Expression:</strong> -1234</li>
+<li><strong>Logical type:</strong> Natural number</li>
+<li><strong>Default value:</strong> -1</li>
+</ul>
+<p><strong>Output:</strong> <em>null</em></p>
+<hr />
+<h3>Example 2: Base case</h3>
+<p><strong>Description:</strong> Successful cast to natural number</p>
+<p><strong>Argument values:</strong></p>
+<ul>
+<li><strong>Expression:</strong> 1234</li>
+<li><strong>Logical type:</strong> Natural number</li>
+<li><strong>Default value:</strong> <em>null</em></li>
+</ul>
+<p><strong>Output:</strong> 1234</p>
+<hr />
+<h3>Example 3: Base case</h3>
+<p><strong>Description:</strong> Unsuccessful cast to natural number</p>
+<p><strong>Argument values:</strong></p>
+<ul>
+<li><strong>Expression:</strong> -1234</li>
+<li><strong>Logical type:</strong> Natural number</li>
+<li><strong>Default value:</strong> <em>null</em></li>
+</ul>
+<p><strong>Output:</strong> <em>null</em></p>
+<hr />
+<h3>Example 4: Base case</h3>
+<p><strong>Description:</strong> Unsuccessful cast to natural number with default</p>
+<p><strong>Argument values:</strong></p>
+<ul>
+<li><strong>Expression:</strong> -1234</li>
+<li><strong>Logical type:</strong> Natural number</li>
+<li><strong>Default value:</strong> 1</li>
+</ul>
+<p><strong>Output:</strong> 1</p>
+<hr />
+</body>
+</html>

@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Object View versioning</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Object View versioning</h1>
+<p>Saved edits to an Object View will be stored as a new version. A version can contain several changes, such as adding, editing, and deleting tabs. Versioning enables you to:</p>
+<ul>
+<li>Iterate on Object Views safely by saving your changes incrementally</li>
+<li>Control which version is published and visible to users</li>
+<li>Republish older versions in case newer versions contain errors</li>
+<li>Collaborate with other editors by adding descriptions to versions</li>
+</ul>
+<p>There are separate <a href="https://www.palantir.com/docs/foundry/workshop/versions/">versions for each Workshop module</a> included in the Object View. Both version numbers appear in the <a href="https://www.palantir.com/docs/foundry/object-views/config-object-views/#use-the-object-view-editor">Object View editor header</a>.</p>
+<h2>Save new versions</h2>
+<p>After editing the Object View, you can save changes by selecting the <strong>Save</strong> button in the Object View editor header. If <strong>Automatically publish new versions</strong> is enabled, this button will display <strong>Save and publish</strong> instead, and will publish both tab changes and any changes to the current Workshop module. Automatic publishing is enabled by default.</p>
+<p>Disabling <strong>Automatically publish new versions</strong> will display two separate buttons for saving and publishing. The <strong>Save</strong> button will save both tab and workshop module changes, and the <strong>Publish</strong> button will publish both of these changes to the user.</p>
+<p><img src="../../_resources/external-3bbeca22b597.png" alt="The 'Save and publish' Object View button." width="300"></p>
+<p>As you edit the Workshop module, it will be periodically auto-saved like any other Workshop module, but these changes will not be visible to users until the Object View is published.</p>
+<p>:::callout{theme="neutral"}
+If your Object View is actively used by many users or there are multiple editors collaborating on the view, we recommend disabling automatic publishing. This improves collaboration and lowers the chances of breaking user workflows.
+:::</p>
+<h2>Access prior versions</h2>
+<p>To view a list of prior versions of the Object View, select the blue Object View version number in the Object View editor header. This will open a dialog displaying the date, author, and description of all prior versions. From this dialog, all versions can be previewed.</p>
+<ul>
+<li>The currently published version will be marked with a green checkmark.</li>
+<li>Prior published versions will show a grey checkmark.</li>
+<li>Versions that were never published will not have a checkmark.</li>
+</ul>
+<p><img src="../../_resources/external-788a70bf00b4.png" alt="The Object View edit history panel." width="500"></p>
+</body>
+</html>

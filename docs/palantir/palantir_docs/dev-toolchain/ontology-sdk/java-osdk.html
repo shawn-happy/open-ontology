@@ -1,0 +1,1072 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Java OSDK</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Java OSDK</h1>
+<p>This page provides generic documentation for the Java OSDK based on an example Restaurant object and its associated Actions and Queries. You can use Developer Console in the platform to <a href="https://www.palantir.com/docs/foundry/developer-console/create-application/">generate documentation based on your specific Ontology</a>.</p>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>API Name</th>
+<th>Type</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Restaurant Id</code> (primary key)</td>
+<td><code>restaurantId</code></td>
+<td>String</td>
+</tr>
+<tr>
+<td><code>Restaurant Name</code> (title)</td>
+<td><code>restaurantName</code></td>
+<td>String</td>
+</tr>
+<tr>
+<td><code>Address</code></td>
+<td><code>address</code></td>
+<td>String</td>
+</tr>
+<tr>
+<td><code>E Mail</code></td>
+<td><code>eMail</code></td>
+<td>String</td>
+</tr>
+<tr>
+<td><code>Number Of Reviews</code></td>
+<td><code>numberOfReviews</code></td>
+<td>Integer</td>
+</tr>
+<tr>
+<td><code>Phone Number</code></td>
+<td><code>phoneNumber</code></td>
+<td>String</td>
+</tr>
+<tr>
+<td><code>Review Summary</code></td>
+<td><code>reviewSummary</code></td>
+<td>String</td>
+</tr>
+<tr>
+<td><code>Date Of Opening</code></td>
+<td><code>dateOfOpening</code></td>
+<td>LocalDate</td>
+</tr>
+</tbody>
+</table>
+<h2>Load single <code>Restaurant</code></h2>
+<p>Parameters:</p>
+<ul>
+<li>primaryKey <code>string</code>: The primary key of the <code>Restaurant</code> you want to fetch
+  Example query:</li>
+</ul>
+<pre><code class="language-java">Restaurant result = client.ontology().objects().Restaurant().fetch(&quot;primaryKey&quot;).orElseThrow();
+</code></pre>
+<p>Example API response:</p>
+<pre><code class="language-json">{
+    &quot;__rid&quot;: &quot;ri.phonograph2-objects.main.object.00000000-0000-0000-0000-000000000000&quot;,
+    &quot;__primaryKey&quot;: &quot;Restaurant Id&quot;,
+    &quot;eMail&quot;: &quot;E Mail&quot;,
+    &quot;restaurantId&quot;: &quot;Restaurant Id&quot;,
+    &quot;address&quot;: &quot;Address&quot;,
+    &quot;reviewSummary&quot;: &quot;Review Summary&quot;,
+    &quot;phoneNumber&quot;: &quot;Phone Number&quot;,
+    &quot;numberOfReviews&quot;: 123,
+    &quot;restaurantName&quot;: &quot;Restaurant Name&quot;
+}
+</code></pre>
+<h2>Load a stream of <code>Restaurants</code></h2>
+<p>Load a stream of objects that can be collected. This automatically loads pages of objects depending on how many objects are streamed by the user.</p>
+<p>Note that this endpoint leverages the underlying object syncing technology used for the object type. If <code>Restaurant</code> is backed by Object Storage v2, there is no request limit. If <code>Restaurant</code> is backed by Object Storage v1 (Phonograph), there is a limit of 10,000 results; if more than 10,000 <code>Restaurants</code> have been requested, an <code>ObjectsExceededLimit</code> error will be thrown.</p>
+<p>Example query:</p>
+<pre><code class="language-java">Stream&lt;Restaurant&gt; result = client.ontology().objects().Restaurant().fetchStream()
+</code></pre>
+<p>Example API response:</p>
+<pre><code class="language-json">{
+    &quot;nextPageToken&quot;: &quot;v1.000000000000000000000000000000000000000000000000000000000000000000000000&quot;,
+    &quot;data&quot;: [
+        {
+            &quot;__rid&quot;: &quot;ri.phonograph2-objects.main.object.00000000-0000-0000-0000-000000000000&quot;,
+            &quot;__primaryKey&quot;: &quot;Restaurant Id&quot;,
+            &quot;eMail&quot;: &quot;E Mail&quot;,
+            &quot;restaurantId&quot;: &quot;Restaurant Id&quot;,
+            &quot;address&quot;: &quot;Address&quot;,
+            &quot;reviewSummary&quot;: &quot;Review Summary&quot;,
+            &quot;phoneNumber&quot;: &quot;Phone Number&quot;,
+            &quot;numberOfReviews&quot;: 123,
+            &quot;restaurantName&quot;: &quot;Restaurant Name&quot;
+        }
+        // ... Rest of page
+    ]
+}
+</code></pre>
+<h2>Load all <code>Restaurants</code></h2>
+<p>Loads all <code>Restaurant</code> Objects into a list.</p>
+<p>Note that this endpoint leverages the underlying object syncing technology used for the object type. If <code>Restaurant</code> is backed by Object Storage v2, there is no request limit. If <code>Restaurant</code> is backed by Object Storage v1 (Phonograph), there is a limit of 10,000 results; if more than 10,000 <code>Restaurants</code> have been requested, an <code>ObjectsExceededLimit</code> error will be thrown.</p>
+<p>Example query:</p>
+<pre><code class="language-java">List&lt;Restaurant&gt; result = client.ontology().objects().Restaurant().fetchStream().toList()
+</code></pre>
+<p>Example API response:</p>
+<pre><code class="language-json">{
+    &quot;data&quot;: [
+        {
+            &quot;__rid&quot;: &quot;ri.phonograph2-objects.main.object.00000000-0000-0000-0000-000000000000&quot;,
+            &quot;__primaryKey&quot;: &quot;Restaurant Id&quot;,
+            &quot;eMail&quot;: &quot;E Mail&quot;,
+            &quot;restaurantId&quot;: &quot;Restaurant Id&quot;,
+            &quot;address&quot;: &quot;Address&quot;,
+            &quot;reviewSummary&quot;: &quot;Review Summary&quot;,
+            &quot;phoneNumber&quot;: &quot;Phone Number&quot;,
+            &quot;numberOfReviews&quot;: 123,
+            &quot;restaurantName&quot;: &quot;Restaurant Name&quot;
+        }
+        // ... Rest of data
+    ]
+}
+</code></pre>
+<h2>Load ordered results</h2>
+<p>Load an ordered list of <code>Restaurants</code> by specifying a sort direction for specific properties. When calling via APIs, sorting criteria are specified via the <code>fields</code> array. When calling via SDKs, you can chain multiple <code>orderBy</code> calls together. The sort order for strings is case-sensitive, meaning numbers will come before uppercase letters, which will come before lowercase letters. For example, Cat will come before bat.</p>
+<p>Parameters:</p>
+<ul>
+<li>ordering <code>{ObjectType}Ordering</code>: The property you want to order by. With the Java SDK, this is provided for you via a <code>{ObjectType}Ordering</code> interface.</li>
+<li>property name and direction <code>ASC</code>| <code>DESC</code> : The direction you want to sort in, either ascending or descending. With the Java SDK, this is provided via the <code>{PROPERTY_NAME}_ASC</code> and <code>{PROPERTY_NAME}_DESC</code> qualifiers on the <code>{ObjectType}Ordering</code> interface.</li>
+</ul>
+<p>Example query:</p>
+<pre><code class="language-java">Stream&lt;Restaurant&gt; result = client.ontology()
+    .objects()
+    .Restaurant()
+    .orderBy(RestaurantOrdering.RESTAURANT_NAME_ASC)
+    .fetchStream();
+</code></pre>
+<p>Example API response:</p>
+<pre><code class="language-json">{
+    &quot;nextPageToken&quot;: &quot;v1.000000000000000000000000000000000000000000000000000000000000000000000000&quot;,
+    &quot;data&quot;: [
+        {
+            &quot;__rid&quot;: &quot;ri.phonograph2-objects.main.object.00000000-0000-0000-0000-000000000000&quot;,
+            &quot;__primaryKey&quot;: &quot;Object A&quot;,
+            &quot;restaurantName&quot;: &quot;A&quot;
+            // ...Rest of properties
+        },
+        {
+            &quot;__rid&quot;: &quot;ri.phonograph2-objects.main.object.00000000-0000-0000-0000-000000000000&quot;,
+            &quot;__primaryKey&quot;: &quot;Object B&quot;,
+            &quot;restaurantName&quot;: &quot;B&quot;
+            // ...Rest of properties
+        }
+        // ...Rest of page
+    ]
+}
+</code></pre>
+<h2>Filtering</h2>
+<p>The types of filtering you can perform depend on the types of the properties on a given object type. These filters can also be combined together via Boolean expressions to construct more complex filters.</p>
+<p>Note that this endpoint leverages the underlying object syncing technology used for the object type. If <code>Restaurant</code> is backed by Object Storage v2, there is no request limit. If <code>Restaurant</code> is backed by Object Storage v1 (Phonograph), there is a limit of 10,000 results; if more than 10,000 <code>Restaurants</code> have been requested, an <code>ObjectsExceededLimit</code> error will be thrown.</p>
+<p>Parameters:</p>
+<ul>
+<li>where <code>Filter</code> (optional): Filter on a particular property. The possible operations depend on the type of the property. This is represented through <code>{ObjectType}Filter</code> with methods to call for each property.</li>
+<li>orderBy <code>OrderBy</code> (optional): Order the results based on a particular property. If using the SDK, you can chain the <code>.where</code> call with an <code>orderBy</code> call to achieve the same result. This is represented through <code>{ObjectType}OrderBy</code> with methods to call for each property.</li>
+</ul>
+<p>Example query:</p>
+<pre><code class="language-java">List&lt;Restaurant&gt; result = client.ontology()
+    .objects()
+    .Restaurant()
+    .where(RestaurantFilter.restaurantName().isNull(false))
+    .fetchStream()
+    .toList();
+</code></pre>
+<p>Example API response:</p>
+<pre><code class="language-json">{
+    &quot;nextPageToken&quot;: &quot;v1.000000000000000000000000000000000000000000000000000000000000000000000000&quot;,
+    &quot;data&quot;: [
+        {
+            &quot;__rid&quot;: &quot;ri.phonograph2-objects.main.object.00000000-0000-0000-0000-000000000000&quot;,
+            &quot;__primaryKey&quot;: &quot;Restaurant Id&quot;,
+            &quot;restaurantName&quot;: null
+            // ... Rest of properties
+        }
+        // ... Rest of page
+    ]
+}
+</code></pre>
+<h3>Types of search filters (<code>RestaurantFilter</code>)</h3>
+<h4>Starts with</h4>
+<p>Only applies to String properties. Searches for <code>Restaurants</code> where <code>restaurantName</code> starts with the given string (case insensitive).</p>
+<p>Parameters:</p>
+<ul>
+<li>field <code>method</code>: Name of the property to use (for example, restaurantName).</li>
+<li>value <code>string</code>: Value to use for prefix matching against <code>Restaurant Name</code>. For example, "foo" will match "foobar" but not "barfoo".</li>
+</ul>
+<p>Example query:</p>
+<pre><code class="language-java">RestaurantObjectSet result = client.ontology()
+    .objects()
+    .Restaurant()
+    .where(RestaurantFilter.restaurantName().startsWith(&quot;foo&quot;));
+</code></pre>
+<p>Example API response:</p>
+<pre><code class="language-json">{
+    &quot;nextPageToken&quot;: &quot;v1.000000000000000000000000000000000000000000000000000000000000000000000000&quot;,
+    &quot;data&quot;: [
+        {
+            &quot;__rid&quot;: &quot;ri.phonograph2-objects.main.object.00000000-0000-0000-0000-000000000000&quot;,
+            &quot;__primaryKey&quot;: &quot;Restaurant Id&quot;,
+            &quot;restaurantName&quot;: &quot;foobar&quot;
+            // ... Rest of properties
+        }
+    ]
+}
+</code></pre>
+<h4>Contains any terms</h4>
+<p>Only applies to String properties. Returns <code>Restaurants</code> where <code>restaurantName</code> contains any of the whitespace separated words (case insensitive) in any order in the provided value.</p>
+<p>Parameters:</p>
+<ul>
+<li>field <code>method</code>: Name of the property to use (for example, restaurantName).</li>
+<li>value <code>string</code>: White-space separated set of words to match on. For example, "foo bar" will match "bar baz" but not "baz qux".</li>
+</ul>
+<p>Example query:</p>
+<pre><code class="language-java">RestaurantObjectSet result = client.ontology()
+    .objects()
+    .Restaurant()
+    .where(RestaurantFilter.restaurantName().containsAnyTerm(&quot;foo bar&quot;));
+</code></pre>
+<p>Example API response:</p>
+<pre><code class="language-json">{
+    &quot;nextPageToken&quot;: &quot;v1.000000000000000000000000000000000000000000000000000000000000000000000000&quot;,
+    &quot;data&quot;: [
+        {
+            &quot;__rid&quot;: &quot;ri.phonograph2-objects.main.object.00000000-0000-0000-0000-000000000000&quot;,
+            &quot;__primaryKey&quot;: &quot;Restaurant Id&quot;,
+            &quot;restaurantName&quot;: &quot;foo bar baz&quot;
+            // ... Rest of properties
+        },
+        {
+            &quot;__rid&quot;: &quot;ri.phonograph2-objects.main.object.00000000-0000-0000-0000-000000000001&quot;,
+            &quot;restaurantName&quot;: &quot;bar baz&quot;
+            // ... Rest of properties
+        }
+    ]
+}
+</code></pre>
+<h4>Contains all terms</h4>
+<p>Only applies to String properties. Returns <code>Restaurants</code> where <code>restaurantName</code> contains all the whitespace separated words (case insensitive) in any order in the provided value.</p>
+<p>Parameters:</p>
+<ul>
+<li>field <code>method</code>: Name of the property to use (for example, <code>restaurantName</code>).</li>
+<li>value <code>string</code>: White-space separated set of words to match on. For example, "foo bar" will match "hello foo baz bar" but not "foo qux".</li>
+</ul>
+<p>Example query:</p>
+<pre><code class="language-java">RestaurantObjectSet result = client.ontology()
+    .objects()
+    .Restaurant()
+    .where(RestaurantFilter.restaurantName().containsAllTerms(&quot;foo bar&quot;));
+</code></pre>
+<p>Example API response:</p>
+<pre><code class="language-json">{
+    &quot;nextPageToken&quot;: &quot;v1.000000000000000000000000000000000000000000000000000000000000000000000000&quot;,
+    &quot;data&quot;: [
+        {
+            &quot;__rid&quot;: &quot;ri.phonograph2-objects.main.object.00000000-0000-0000-0000-000000000000&quot;,
+            &quot;__primaryKey&quot;: &quot;Restaurant Id&quot;,
+            &quot;restaurantName&quot;: &quot;hello foo baz bar&quot;
+            // ... Rest of properties
+        }
+    ]
+}
+</code></pre>
+<h4>Contains all terms in order</h4>
+<p>Only applies to String properties. Returns <code>Restaurants</code> where <code>restaurantName</code> contains all the terms in the order provided (case insensitive), but they do have to be adjacent to each other.</p>
+<p>Parameters:</p>
+<ul>
+<li>field <code>method</code>: Name of the property to use (for example, <code>restaurantName</code>).</li>
+<li>value <code>string</code>: White-space separated set of words to match on. For example, "foo bar" will match "hello foo bar baz" but not "bar foo qux".</li>
+</ul>
+<p>Example query:</p>
+<pre><code class="language-java">RestaurantObjectSet result = client.ontology()
+    .objects()
+    .Restaurant()
+    .where(RestaurantFilter.restaurantName().containsAllTermsInOrder(&quot;foo bar&quot;));
+</code></pre>
+<p>Example API response:</p>
+<pre><code class="language-json">{
+    &quot;nextPageToken&quot;: &quot;v1.000000000000000000000000000000000000000000000000000000000000000000000000&quot;,
+    &quot;data&quot;: [
+        {
+            &quot;__rid&quot;: &quot;ri.phonograph2-objects.main.object.00000000-0000-0000-0000-000000000000&quot;,
+            &quot;__primaryKey&quot;: &quot;Restaurant Id&quot;,
+            &quot;restaurantName&quot;: &quot;foo bar baz&quot;
+            // ... Rest of properties
+        }
+    ]
+}
+</code></pre>
+<h4>Range comparison</h4>
+<p>Only applies to Numeric, String and DateTime properties. Returns <code>Restaurants</code> where <code>Restaurant.restaurantName</code> is less than a value.</p>
+<p>Parameters:</p>
+<ul>
+<li>field <code>method</code>: Name of the property to use (for example, <code>restaurantName</code>).</li>
+<li>value <code>string</code>: Value to compare <code>Restaurant Name</code> to</li>
+</ul>
+<p>Comparison types:</p>
+<ul>
+<li>Less than <code>lt</code></li>
+<li>Greater than <code>gt</code></li>
+<li>Less than or equal to <code>lte</code></li>
+<li>Greater than or equal to <code>gte</code></li>
+</ul>
+<p>Example query:</p>
+<pre><code class="language-java">RestaurantObjectSet result = client.ontology()
+    .objects()
+    .Restaurant()
+    .where(RestaurantFilter.restaurantName().lt(&quot;Restaurant Name&quot;));
+</code></pre>
+<h4>Equal to</h4>
+<p>Only applies to Boolean, DateTime, Numeric, and String properties. Searches for <code>Restaurants</code> where <code>restaurantName</code> equals the given value.</p>
+<p>Parameters:</p>
+<ul>
+<li>field <code>method</code>: Name of the property to use (for example, <code>restaurantName</code>).</li>
+<li>value <code>string</code>: Value to do an equality check with <code>Restaurant Name</code>.</li>
+</ul>
+<p>Example query:</p>
+<pre><code class="language-java">RestaurantObjectSet result = client.ontology()
+    .objects()
+    .Restaurant()
+    .where(RestaurantFilter.restaurantName().eq(&quot;Restaurant Name&quot;));
+</code></pre>
+<p>Example API response:</p>
+<pre><code class="language-json">{
+    &quot;nextPageToken&quot;: &quot;v1.000000000000000000000000000000000000000000000000000000000000000000000000&quot;,
+    &quot;data&quot;: [
+        {
+            &quot;__rid&quot;: &quot;ri.phonograph2-objects.main.object.00000000-0000-0000-0000-000000000000&quot;,
+            &quot;__primaryKey&quot;: &quot;Restaurant Id&quot;,
+            &quot;restaurantName&quot;: &quot;Restaurant Name&quot;
+            // ... Rest of properties
+        }
+    ]
+}
+</code></pre>
+<h4>Null check</h4>
+<p>Only applies to Array, Boolean, DateTime, Numeric, and String properties. Searches for <code>Restaurants</code> based on whether a value for <code>restaurantName</code> exists or not.</p>
+<p>Parameters:</p>
+<ul>
+<li>field <code>method</code>: Name of the property to use (for example, <code>restaurantName</code>).</li>
+<li>value <code>boolean</code>: Whether <code>Restaurant Name</code> exists. Note for the TypeScript SDK, you will need to use a not filter for checking that fields are non-null.</li>
+</ul>
+<p>Example query:</p>
+<pre><code class="language-java">RestaurantObjectSet result = client.ontology()
+    .objects()
+    .Restaurant()
+    .where(RestaurantFilter.restaurantName().isNull(true));
+</code></pre>
+<h4><code>Not</code> filter</h4>
+<p>Returns <code>Restaurants</code> where the query is not satisfied. This can be further combined with other boolean filter operations.</p>
+<p>Parameters:</p>
+<ul>
+<li>value <code>Filter</code>: The search query to invert.</li>
+</ul>
+<p>Example query:</p>
+<pre><code class="language-java">RestaurantObjectSet result = client.ontology()
+    .objects()
+    .Restaurant()
+    .where(
+        RestaurantFilter.$not(
+            RestaurantFilter.restaurantName().isNull(true)
+        )
+    );
+</code></pre>
+<h4><code>And</code> filter</h4>
+<p>Returns <code>Restaurants</code> where all queries are satisfied. This can be further combined with other boolean filter operations.</p>
+<p>Parameters:</p>
+<ul>
+<li>value <code>Filter[]</code>: The set of search queries to <code>and</code> together.</li>
+</ul>
+<p>Example query:</p>
+<pre><code class="language-java">RestaurantObjectSet result = client.ontology()
+    .objects()
+    .Restaurant()
+    .where(
+        RestaurantFilter.$and(
+            RestaurantFilter.restaurantName().isNull(false),
+            RestaurantFilter.restaurantName().eq(&quot;&lt;primarykey&gt;&quot;)
+        )
+    );
+</code></pre>
+<h4><code>Or</code> filter</h4>
+<p>Returns <code>Restaurants</code> where any of the specified queries are satisfied. This can be further combined with other Boolean filter operations.</p>
+<p>Parameters:</p>
+<ul>
+<li>value <code>Filter[]</code>: The set of search queries to <code>or</code> together.</li>
+</ul>
+<p>Example query:</p>
+<pre><code class="language-java">RestaurantObjectSet result = client.ontology()
+    .objects()
+    .Restaurant()
+    .where(
+        RestaurantFilter.$or(
+            RestaurantFilter.restaurantName().isNull(false),
+            RestaurantFilter.restaurantName().eq(&quot;&lt;primarykey&gt;&quot;)
+        )
+    );
+</code></pre>
+<h2>Aggregations</h2>
+<p>Aggregations allow you to compute summary statistics over a set of data. They are useful for understanding patterns and insights from large datasets without having to manually analyze each individual data point. You can combine multiple aggregation operations to create more complex queries that provide deeper insights into the data.</p>
+<p>Note that this endpoint leverages the underlying object syncing technology used for the object type. If <code>Restaurant</code> is backed by Object Storage v2, there is no request limit. If <code>Restaurant</code> is backed by Object Storage v1 (Phonograph), there is a limit of 10,000 results; if more than 10,000 <code>Restaurants</code> have been requested, an <code>ObjectsExceededLimit</code> error will be thrown.</p>
+<p>Perform aggregations on <code>Restaurants</code>.</p>
+<p>Parameters:</p>
+<ul>
+<li>aggregation <code>Aggregation[]</code> (optional): Set of aggregation functions to perform. With the SDK, aggregation computations can be chained together with further searches using <code>.where</code>.</li>
+<li>groupBy <code>GroupBy[]</code> (optional): A set of groupings to create for aggregation results</li>
+<li>where <code>Filter</code> (optional): Filter on a particular property. The possible operations depend on the type of the property.</li>
+</ul>
+<p>Example query:</p>
+<pre><code class="language-java">AggregationResponse numRestaurants = client.ontology()
+        .objects()
+        .Restaurants()
+        .where(RestaurantFilter.restaurantName().isNull(false))
+        .groupBy(GroupBy.exact(Restaurant.Property.restaurantName()))
+        .count()
+        .compute();
+</code></pre>
+<p>Example API response:</p>
+<pre><code>{
+    excludedItems: 0,
+    data: [{
+        group: {
+            &quot;restaurantName&quot;: &quot;Restaurant Name&quot;
+        },
+        metrics: [
+            {
+                name: &quot;count&quot;,
+                value: 100
+            }
+        ]
+    }]
+}
+</code></pre>
+<h3>Types of aggregations (<code>Aggregation</code>)</h3>
+<h4>Approximate distinct</h4>
+<p>Computes an approximate number of distinct values for <code>restaurantName</code>.</p>
+<p>Parameters:</p>
+<ul>
+<li>field <code>Property</code>: Name of the property to use (for example, <code>restaurantName</code>).</li>
+<li>name <code>string</code> (optional): Alias for the computed count. By default, this is <code>distinctCount</code>.</li>
+</ul>
+<p>Example query:</p>
+<pre><code class="language-java">Double distinctRestaurants = client.ontology()
+        .objects()
+        .Restaurant()
+        .approximateDistinct(Restaurant.Property.restaurantName())
+        .compute();
+
+// This is equivalent to the above, but uses metricName as the metric name instead of the default &quot;distinctCount&quot;
+
+AggregationResponse distinctRestaurants = client.ontology()
+        .objects()
+        .Restaurant()
+        .aggregate(
+            Map.of(
+                &quot;metricName&quot;,
+                Aggregation.approximateDistinct(Restaurant.Property.restaurantName())
+            )
+        )
+        .compute();
+</code></pre>
+<p>Example API response:</p>
+<pre><code>{
+    excludedItems: 0,
+    data: [{
+        group: {},
+        metrics: [
+            {
+                name: &quot;distinctCount&quot;,
+                value: 100
+            }
+        ]
+    }]
+}
+</code></pre>
+<h4>Count</h4>
+<p>Computes the total count of <code>Restaurants</code>.</p>
+<p>Parameters:</p>
+<ul>
+<li>name <code>string</code> (optional): Alias for the computed count. By default, this is <code>count</code>.</li>
+</ul>
+<p>Example query:</p>
+<pre><code class="language-java">Double distinctRestaurants = client.ontology()
+        .objects()
+        .Restaurant()
+        .count()
+        .compute();
+</code></pre>
+<p>Example API response:</p>
+<pre><code>{
+    excludedItems: 0,
+    data: [{
+        group: {},
+        metrics: [
+            {
+                name: &quot;count&quot;,
+                value: 100
+            }
+        ]
+    }]
+}
+</code></pre>
+<h4>Numeric aggregations</h4>
+<p>Only applies to numeric properties. Calculate the maximum, minimum, sum, or average of a numeric property for <code>Restaurants</code>.</p>
+<p>Parameters:</p>
+<ul>
+<li>field <code>NumericProperty</code>: Name of the property to use (for example, <code>numberOfReviews</code>).</li>
+<li>name <code>string</code> (optional): An alias for the computed value.</li>
+</ul>
+<p>Aggregation types:</p>
+<ul>
+<li>Average: <code>avg()</code></li>
+<li>Maximum: <code>max()</code></li>
+<li>Minimum: <code>min()</code></li>
+<li>Sum: <code>sum()</code></li>
+</ul>
+<p>Example query:</p>
+<pre><code class="language-java">Double avgReviewScore = client.ontology()
+        .objects()
+        .Restaurant()
+        .avg(Restaurant.Property.numberOfReviews())
+        .compute();
+
+// This is equivalent to the above, but uses avgReview as the metric name instead of the default &quot;avg&quot;
+
+AggregationResponse distinctRestaurants = client.ontology()
+        .objects()
+        .Restaurant()
+        .aggregate(
+            Map.of(
+                &quot;avgReview&quot;,
+                Aggregation.avg(Restaurant.Property.numberOfReviews())
+            )
+        )
+        .compute();
+</code></pre>
+<p>Example API response:</p>
+<pre><code>{
+    excludedItems: 0,
+    data: [{
+        group: {},
+        metrics: [
+            {
+                name: &quot;avg&quot;,
+                value: 100
+            }
+        ]
+    }]
+}
+</code></pre>
+<h3>Types of group bys (<code>GroupBy</code>)</h3>
+<h4>Exact grouping</h4>
+<p>Groups <code>Restaurants</code> by exact values of <code>restaurantName</code>.</p>
+<p>Parameters:</p>
+<ul>
+<li>field <code>Property</code>: Name of the property to use (for example, <code>restaurantName</code>).</li>
+<li>maxGroupCount <code>integer</code> (optional): Maximum number of groupings of <code>restaurantName</code> to create.</li>
+</ul>
+<p>Example query:</p>
+<pre><code class="language-java">AggregationResponse groupedRestaurants = client.ontology()
+       .objects()
+       .Restaurant()
+       .groupBy(GroupBy.exact(Restaurant.Property.restaurantName()))
+       .count()
+       .compute();
+</code></pre>
+<p>Example API response:</p>
+<pre><code>{
+    excludedItems: 0,
+    data: [{
+        group: {
+            &quot;restaurantName&quot;: &quot;Restaurant Name&quot;
+        },
+        metrics: [
+            {
+                name: &quot;count&quot;,
+                value: 100
+            }
+        ]
+    }]
+}
+</code></pre>
+<h4>Numeric bucketing</h4>
+<p>Groups <code>Restaurants</code> by dividing <code>numberOfReviews</code> into buckets with the specified width.</p>
+<p>Parameters:</p>
+<ul>
+<li>field <code>NumericProperty</code>: Name of the property to use (for example, <code>numberOfReviews</code>).</li>
+<li>fixedWidth <code>integer</code> (optional): Width of each bucket to divide the selected property into.</li>
+</ul>
+<p>Example query:</p>
+<pre><code class="language-java">AggregationResponse groupedRestaurants = client.ontology()
+       .objects()
+       .Restaurant()
+       .groupBy(GroupBy.fixedWidth(Restaurant.Property.numberOfReviews(), 10))
+       .count()
+       .compute();
+</code></pre>
+<p>Example API response:</p>
+<pre><code>{
+    excludedItems: 0,
+    data: [{
+        group: {
+            &quot;restaurantName&quot;: &quot;Restaurant Name&quot;
+        },
+        metrics: [
+            {
+                name: &quot;count&quot;,
+                value: 100
+            }
+        ]
+    }]
+}
+</code></pre>
+<h4>Range grouping</h4>
+<p>Groups <code>Restaurants</code> by specified ranges of <code>numberOfReviews</code>.</p>
+<p>Parameters:</p>
+<ul>
+<li>field <code>NumericProperty | DateProperty | TimestampProperty</code>: Name of the property to use (for example, <code>numberOfReviews</code>).</li>
+<li>ranges <code>AggregationRange[]</code> (optional): Set of ranges which have an inclusive start value and exclusive end value.</li>
+</ul>
+<p>Example query:</p>
+<pre><code class="language-java">AggregationResponse groupedRestaurants = client.ontology()
+    .objects()
+    .Restaurant()
+    .groupBy(
+        GroupBy.range(
+            Restaurant.Property.numberOfReviews(),
+            List.of(
+                AggregationRange.of(0, 3),
+                AggregationRange.of(3, 5)
+            )
+        )
+    )
+    .count()
+    .compute();
+</code></pre>
+<p>Example API response:</p>
+<pre><code class="language-json">{
+    &quot;excludedItems&quot;: 0,
+    &quot;data&quot;: [
+        {
+            &quot;group&quot;: {
+                &quot;numberOfReviews&quot;: {
+                    &quot;startValue&quot;: 0,
+                    &quot;endValue&quot;: 3
+                }
+            },
+            &quot;metrics&quot;: [
+                {
+                    &quot;name&quot;: &quot;count&quot;,
+                    &quot;value&quot;: 50
+                }
+            ]
+        },
+        {
+            &quot;group&quot;: {
+                &quot;numberOfReviews&quot;: {
+                    &quot;startValue&quot;: 3,
+                    &quot;endValue&quot;: 5
+                }
+            },
+            &quot;metrics&quot;: [
+                {
+                    &quot;name&quot;: &quot;count&quot;,
+                    &quot;value&quot;: 30
+                }
+            ]
+        }
+    ]
+}
+</code></pre>
+<h4>Datetime grouping</h4>
+<p>Groups <code>Restaurants</code> by <code>dateOfOpening</code> via buckets of a specific date/time duration.</p>
+<p>Parameters:</p>
+<ul>
+<li>field <code>DateProperty | TimestampProperty</code>: Name of the property to use (for example, <code>dateOfOpening</code>).</li>
+<li>value <code>integer</code> (optional): The number of duration units to group by.</li>
+</ul>
+<p>Duration types:</p>
+<ul>
+<li>Seconds <code>bySeconds()</code></li>
+<li>Minutes <code>byMinutes()</code></li>
+<li>Hours <code>byHours()</code></li>
+<li>Days <code>byDays()</code></li>
+<li>Weeks <code>byWeeks()</code></li>
+<li>Months <code>byMonths()</code></li>
+<li>Quarters <code>byQuarters()</code></li>
+<li>Years <code>byYears()</code></li>
+</ul>
+<p>Example query:</p>
+<pre><code class="language-java">AggregationResponse groupedRestaurants = client.ontology()
+       .objects()
+       .Restaurant()
+       .groupBy(GroupBy.byDays(Restaurant.Property.dateOfOpening(), 10))
+       .count()
+       .compute();
+</code></pre>
+<p>Example API response:</p>
+<pre><code>{
+    excludedItems: 0,
+    data: [{
+        group: {
+            &quot;dateOfOpening&quot;: {
+                startValue: &quot;2024-09-25&quot;
+            }
+        },
+        metrics: [
+            {
+                name: &quot;count&quot;,
+                value: 100
+            }
+        ]
+    }]
+}
+</code></pre>
+<h2>Actions on the Ontology</h2>
+<p>Action types in the Ontology refer to predefined operations that you can perform on objects within your data model. These actions can create, modify, and delete objects in the Ontology. Action types are generated based on the Ontology and can be used within the Java OSDK to perform specific tasks on objects in the code.</p>
+<h3>Parameters for adding a review to a <code>Restaurant</code> (<code>AddRestaurantReview</code>)</h3>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>API Name</th>
+<th>Type</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Restaurant Id</code></td>
+<td><code>restaurantId</code></td>
+<td>String</td>
+</tr>
+<tr>
+<td><code>Review Rating</code></td>
+<td><code>reviewRating</code></td>
+<td>Integer</td>
+</tr>
+<tr>
+<td><code>Review Summary</code></td>
+<td><code>reviewSummary</code></td>
+<td>String</td>
+</tr>
+</tbody>
+</table>
+<h4>Apply action</h4>
+<p>To apply an action, fill in the input parameter values. This will execute an action and return if the response was valid or invalid.</p>
+<p>Parameters:</p>
+<ul>
+<li>parameters <code>Object</code>: Map of parameter ID to values to use for those input parameters.</li>
+<li><code>restaurantId</code> <code>string</code></li>
+<li><code>reviewRating</code> <code>integer</code></li>
+<li><code>reviewSummary</code> <code>string</code></li>
+<li>options <code>integer</code> (optional): The number of duration units to group by.</li>
+</ul>
+<p>Example Query:</p>
+<pre><code class="language-java">AddReviewActionResponse response = client.ontology()
+    .actions()
+    .addReview()
+    .apply(
+        AddReviewActionRequest.builder()
+            .restaurantId(restaurantId)
+            .reviewRating(5)
+            .reviewSummary(&quot;It was great!&quot;)
+            .build(),
+        ReturnEditsMode.ALL
+    );
+
+response.getValidationResult().accept(new ActionValidationVisitor&lt;Object&gt;() {
+    @Override
+    public Object valid(ActionValidationResponse response) {
+        System.out.println(&quot;Review added successfully &quot; + response);
+        return null;
+    }
+
+    @Override
+    public Object invalid(ActionValidationResponse response) {
+        System.out.println(&quot;Review validation failed! &quot; + response);
+        return null;
+    }
+});
+</code></pre>
+<p>Example API response:</p>
+<pre><code class="language-json">{
+    &quot;validation&quot;: {
+        &quot;result&quot;: &quot;VALID&quot;,
+        &quot;submissionCriteria&quot;: [],
+        &quot;parameters&quot;: {
+            &quot;restaurantId&quot;: {
+                &quot;result&quot;: &quot;VALID&quot;,
+                &quot;evaluatedConstraints&quot;: [],
+                &quot;required&quot;: true
+            },
+            &quot;reviewRating&quot;: {
+                &quot;result&quot;: &quot;VALID&quot;,
+                &quot;evaluatedConstraints&quot;: [],
+                &quot;required&quot;: true
+            },
+            &quot;reviewSummary&quot;: {
+                &quot;result&quot;: &quot;VALID&quot;,
+                &quot;evaluatedConstraints&quot;: [],
+                &quot;required&quot;: true
+            }
+        }
+    },
+    &quot;edits&quot;: {
+        &quot;type&quot;: &quot;edits&quot;,
+        &quot;edits&quot;: [
+            {
+                &quot;type&quot;: &quot;modifyObject&quot;,
+                &quot;primaryKey&quot;: &quot;restaurantId1&quot;,
+                &quot;objectType&quot;: &quot;Restaurant&quot;
+            }
+        ],
+        &quot;addedObjectCount&quot;: 0,
+        &quot;modifiedObjectsCount&quot;: 1,
+        &quot;deletedObjectsCount&quot;: 0,
+        &quot;addedLinksCount&quot;: 0,
+        &quot;deletedLinksCount&quot;: 0
+    }
+}
+</code></pre>
+<h4>Apply batch action</h4>
+<p>To apply a batch of actions, fill in the input parameter values. This will execute a series of actions and return if the response was valid or invalid. Note that this does not return validations, only edits. Batch application is all-or-nothing: if any action in the batch fails, none of the edits in the batch are applied.</p>
+<p>Parameters:</p>
+<ul>
+<li>parameters <code>Object</code>: Map of parameter ID to values to use for those input parameters.</li>
+<li><code>restaurantId</code> <code>string</code></li>
+<li><code>reviewRating</code> <code>integer</code></li>
+<li><code>reviewSummary</code> <code>string</code></li>
+<li>value <code>ReturnEditsMode.(ALL|NONE)</code> (optional): Whether the edits are returned in the response after the action is applied.</li>
+</ul>
+<p>Example Query:</p>
+<pre><code class="language-java">AddReviewBatchActionResponse response = client.ontology()
+    .actions()
+    .addReview()
+    .applyBatch(
+        List.of(
+            AddReviewActionRequest.builder()
+                .restaurantId(&quot;restaurantId1&quot;)
+                .reviewRating(5)
+                .reviewSummary(&quot;It was great!&quot;)
+                .build(),
+            AddReviewActionRequest.builder()
+                .restaurantId(&quot;restaurantId2&quot;)
+                .reviewRating(4)
+                .reviewSummary(&quot;Good food but service can improve.&quot;)
+                .build()
+        ),
+        ReturnEditsMode.ALL
+    );
+
+
+responseAction.getActionEdits().get().accept(new ActionEditsVisitor&lt;Void&gt;() {
+        @Override
+        public Void objectEdits(ObjectEdits response) {
+            System.out.println(&quot;Edited Objects &quot; + response);
+            return null;
+        }
+
+        @Override
+        public Void largeScaleObjectEdits(ObjectTypeEdits response) {
+            System.out.println(&quot;Edited ObjectTypes: &quot; + response);
+            return null;
+        }
+    });
+</code></pre>
+<p>Example Response:</p>
+<pre><code class="language-json">{
+    &quot;edits&quot;: {
+        &quot;type&quot;: &quot;edits&quot;,
+        &quot;edits&quot;: [
+            {
+                &quot;type&quot;: &quot;modifyObject&quot;,
+                &quot;primaryKey&quot;: &quot;restaurantId1&quot;,
+                &quot;objectType&quot;: &quot;Restaurant&quot;
+            },
+            {
+                &quot;type&quot;: &quot;modifyObject&quot;,
+                &quot;primaryKey&quot;: &quot;restaurantId2&quot;,
+                &quot;objectType&quot;: &quot;Restaurant&quot;
+            }
+        ],
+        &quot;addedObjectCount&quot;: 0,
+        &quot;modifiedObjectsCount&quot;: 2,
+        &quot;deletedObjectsCount&quot;: 0,
+        &quot;addedLinksCount&quot;: 0,
+        &quot;deletedLinksCount&quot;: 0
+    }
+}
+</code></pre>
+<h2>Functions</h2>
+<p><a href="https://www.palantir.com/docs/foundry/functions/overview/">Functions</a> (sometimes referred to as "functions on objects" or FoO) in the Palantir platform are a powerful feature designed to enhance data modeling and manipulation. Functions provide a way to define and execute custom logic on the data stored in the Ontology, allowing users to create more sophisticated data transformations, validations, and analytics.</p>
+<p>Within the Java SDK, a user can execute Foundry Functions through generated queries.</p>
+<p>By adding your functions to your application, you can generate Queries that call FoO to execute logic and get the result.</p>
+<p>In this example, we have a function <code>findSimilarRestaurants</code> that takes in an ID and returns an ObjectSet containing all the similar <code>Restaurants</code>.</p>
+<h3>Parameters for executing a function to find similar <code>Restaurants</code>(<code>findSimilarRestaurants</code>)</h3>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>API Name</th>
+<th>Type</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Restaurant Id</code></td>
+<td><code>restaurantId</code></td>
+<td>String</td>
+</tr>
+</tbody>
+</table>
+<p>Returns: <code>RestaurantObjectSet</code></p>
+<h4>Apply function</h4>
+<p>To apply a function, you must access and execute a query. This is done by accessing <code>.queries()</code> and executing the logic function through <code>.execute(...).getReturnValue()</code></p>
+<p>Example Query:</p>
+<pre><code class="language-java">RestaurantObjectSet response = client
+    .ontology()
+    .queries()
+    .findSimilarRestaurants()
+    .execute(&quot;restaurantId&quot;)
+    .getReturnValue();
+</code></pre>
+<h2>Media reference properties</h2>
+<p>A <a href="https://www.palantir.com/docs/foundry/data-integration/media-sets/">media reference</a> in the Palantir platform is a reference to a piece of media present in a <code>MediaSet</code>.</p>
+<p>Within the Java SDK, a user can add a media reference property that allows them to <code>upload</code> and <code>download</code> media to the backing media set.</p>
+<p>In the following example, we have a <code>restaurantMenu</code> property that represents the menu associated with a particular <code>Restaurant</code> object.</p>
+<h3>Property for accessing media on <code>Restaurants</code>(<code>restaurantMenu</code>)</h3>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>API Name</th>
+<th>Type</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Restaurant Menu</code></td>
+<td><code>restaurantMenu</code></td>
+<td>Media</td>
+</tr>
+</tbody>
+</table>
+<p>We also have an Action defined as <code>ChangeMenu</code> that allows us to modify the associated <code>restaurantMenu</code> with a <code>Restaurant</code>.</p>
+<h4>Parameters for changing the menu of a <code>Restaurant</code> (<code>ChangeMenu</code>)</h4>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>API Name</th>
+<th>Type</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Restaurant Id</code></td>
+<td><code>restaurantId</code></td>
+<td>String</td>
+</tr>
+<tr>
+<td><code>Restaurant Menu</code></td>
+<td><code>restaurantMenu</code></td>
+<td>Media</td>
+</tr>
+</tbody>
+</table>
+<h4>Object/interface with a media reference property</h4>
+<pre><code class="language-java">Restaurant restaurant = client.ontology().objects().Restaurant().fetch(primaryKey).orElseThrow();
+Media restaurantMenu = restaurant.restaurantMenu().get();
+</code></pre>
+<h4>Media reference property definition</h4>
+<p>The media reference property is exposed as an interface to the user. The property has functions that fetch data that are implemented internally and not exposed to the user. You can get the underlying <code>MediaReferenceId</code> by accessing <code>getId()</code>:</p>
+<pre><code class="language-java">public interface Media {
+
+    /**
+     * Get the identifier for the media reference.
+     */
+    MediaReferenceId getId();
+
+    /**
+     * Fetch an object's media reference property metadata.
+     */
+    MediaMetadata fetchMetadata();
+
+    /**
+     * Opens a new stream to load the media
+     * file associated with an object's media reference property.
+     */
+    @MustBeClosed
+    InputStream openStream();
+}
+</code></pre>
+<h4>Fetch metadata</h4>
+<p>To get the <code>MediaMetadata</code>, call <code>restaurantMenu.fetchMetadata()</code>:</p>
+<pre><code class="language-java">Media restaurantMenu = restaurant.restaurantMenu().get();
+MediaMetadata restaurantMenuMetadata = restaurantMenu.fetchMetadata();
+</code></pre>
+<h4>Download media</h4>
+<p>To download media, call <code>restaurantMenu.openStream()</code> to receive a stream to fetch the contents:</p>
+<pre><code class="language-java">try (InputStream inputStream = restaurant.restaurantMenu().get().openStream()) {
+        byte[] fileBytes = inputStream.readAllBytes();
+    } catch (IOException e) {
+        throw new RuntimeException(e);
+    }
+</code></pre>
+<h4>Upload media</h4>
+<p>To upload a media file, first upload to the backing media set itself. Then, link the uploaded <code>MediaItem</code> to a specific object.</p>
+<p>Each <code>ObjectSet</code> will have a method to upload media to a specific propertyâs backing <code>MediaSet</code>. This returns a <code>Media</code> instance representing the uploaded media's media reference. In this example, the object has a generated <code>uploadRestaurantMenu()</code> method that allows you to upload media to the backing <code>MediaSet</code>:</p>
+<pre><code class="language-java">Media media =
+        client.ontology()
+                .objects()
+                .Restaurant()
+                .uploadRestaurantMenu(UploadMediaRequest.builder()
+                        .mediaItemPath(...)
+                        .mediaType(...)
+                        .inputStream(...)
+                        .build());
+</code></pre>
+<p>Once successfully uploaded, you can use the returned <code>Media</code> object to link the uploaded media item to a corresponding object by executing the appropriate Action.</p>
+<h4>Media in actions</h4>
+<p>After uploading and getting a resulting <code>Media</code> object, you can use the media reference on an Action to associate the media reference with a specific object's media property:</p>
+<pre><code class="language-java">client.ontology()
+        .actions()
+        .changeMenuAction()
+        .apply(ChangeMenuActionRequest.builder()
+                .restaurant_menu(media)
+                .build());
+</code></pre>
+<p>You can also use another objectâs media reference in an Action:</p>
+<pre><code class="language-java">client.ontology()
+        .actions()
+        .changeMenuAction()
+        .apply(ChangeMenuActionRequest.builder()
+                .restaurant_menu(restaurant.restaurantMenu().get())
+                .build());
+</code></pre>
+<p>Note that the media reference must reference the same <code>MediaSet</code> wherever it is used. This means that you cannot upload a <code>MediaItem</code> to <code>MediaSet A</code> and then link that <code>MediaItem</code> to <code>MediaSet B</code>, for example.</p>
+</body>
+</html>

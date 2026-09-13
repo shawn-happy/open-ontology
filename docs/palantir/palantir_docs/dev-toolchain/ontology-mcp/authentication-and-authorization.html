@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Authentication and authorization</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Authentication and authorization</h1>
+<p>Ontology MCP (OMCP) is built on top of the OAuth 2.0 configuration of the <a href="https://www.palantir.com/docs/foundry/developer-console/overview/">Developer Console application</a> that exposes it. When an MCP client connects to your Ontology MCP server, it authenticates using the same OAuth 2.0 client and authorization server that handle all other requests to your application; there is no separate authentication system to configure for MCP.</p>
+<p>The <a href="https://www.palantir.com/docs/foundry/developer-console/application-restrictions/">application restrictions</a>, <a href="https://www.palantir.com/docs/foundry/developer-console/permissions/">permissions</a>, and OAuth client settings you have already defined for your Developer Console application also apply to requests made through Ontology MCP. Tokens issued for MCP access are scoped to the operations and resources you have granted to the application.</p>
+<h2>Supported grant types</h2>
+<p>Ontology MCP supports the two OAuth 2.0 grant types that Foundry exposes for third-party applications. Choose the grant type that matches how your MCP client will act on behalf of users:</p>
+<ul>
+<li><strong><a href="https://www.palantir.com/docs/foundry/platform-security-third-party/writing-oauth2-clients/#authorization-code-grant">Authorization code grant</a>:</strong> Use this grant type when the MCP client should act on behalf of an end user. Each user explicitly consents to the requested scopes, and the resulting access token is scoped to that user's permissions in Foundry. This is the appropriate choice for interactive agents and editors where individual users sign in to access ontology resources.</li>
+<li><strong><a href="https://www.palantir.com/docs/foundry/platform-security-third-party/writing-oauth2-clients/#client-credentials-grant">Client credentials grant</a>:</strong> Use this grant type for non-interactive, service-to-service workflows where the MCP client acts as a service user rather than on behalf of a specific end user. The client authenticates with a client ID and client secret, so it must be a confidential client capable of safely storing the secret. This is the appropriate choice for backend services and integrations such as <a href="https://www.palantir.com/docs/foundry/ontology-mcp/mcp-tools-and-agent-configuration/#microsoft-copilot-studio-integration">Microsoft Copilot Studio</a>.</li>
+</ul>
+<p>You can enable one or both grant types on the same Developer Console application, depending on the MCP clients you intend to support. Configure the redirect URLs, scopes, and client secrets for each grant type from the <strong>OAuth &amp; restrictions</strong> page of your application in Developer Console.</p>
+<p>For a full description of the OAuth 2.0 flows, endpoints, and parameters that Foundry supports, see <a href="https://www.palantir.com/docs/foundry/platform-security-third-party/writing-oauth2-clients/">Writing OAuth2 clients for Foundry</a>.</p>
+<h2>Scopes and restrictions</h2>
+<p>Access tokens issued to MCP clients are restricted by the <a href="https://www.palantir.com/docs/foundry/developer-console/application-restrictions/">scopes</a> configured on your Developer Console application. Make sure that the application is granted the operations required by the ontology resources that you expose through MCP, and that the requesting user or service user has the necessary <a href="https://www.palantir.com/docs/foundry/developer-console/permissions/">permissions</a> on the underlying objects, actions, and queries.</p>
+</body>
+</html>

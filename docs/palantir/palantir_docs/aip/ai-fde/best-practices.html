@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Best practices for using AI FDE</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Best practices for using AI FDE</h1>
+<p>Review the following best practices to help you leverage AI FDE effectively while maintaining system integrity and optimizing results.</p>
+<h2>Verify resources and procedures</h2>
+<p>Always verify generated resources before implementing them in production environments. This verification process should include reviewing all generated code for correctness and adherence to organizational standards.</p>
+<p>Test transformation logic with representative sample data to ensure it performs as expected under various conditions. Note that AI FDE will make changes on a branch by default and propose its changes in a Global Branch proposal or Code Repository pull request for review.</p>
+<p>Depending on the tool being used and tool configurations, AI FDE may ask for tool approval before performing an action. Ensure that you understand the action that the model is trying to execute, and that you check the tool being used before approving.</p>
+<h2>Limit tools and context</h2>
+<p>We recommend that you provide the model with only the context and tools that are essential for a given task. Providing unnecessary context or tools can lead to suboptimal or incorrect actions. By restricting the available tools to only those required for a specific task, and including only the most relevant context, you can reduce the likelihood of confusion or error. Limiting tools and context can improve the efficiency and accuracy of AI FDE, as well as enhance security by minimizing access to sensitive operations or information.</p>
+<h2>Decompose problems and use iterative development</h2>
+<p>Complex operations should be broken down into smaller, more manageable steps. We recommend that you start with basic structures and gradually add complexity as each component is verified.</p>
+<p>AI FDE is particularly effective for rapid prototyping, allowing for quick exploration of different approaches. For production-quality implementations, combine AI-generated foundations with manual development for fine-tuning and optimization.</p>
+<h2>Track performance with AIP Evals</h2>
+<p>Use <a href="https://www.palantir.com/docs/foundry/aip-evals/overview/">AIP Evals</a> to evaluate and track the performance of functions created or modified by AI FDE. Creating evaluation suites for your LLM-backed functions allows you to measure the impact of changes over time and compare different approaches. This is particularly valuable when using AI FDE for iterative function development, as it provides quantitative feedback on whether changes improve or degrade performance.</p>
+<h2>Consider infrastructure constraints</h2>
+<p>When using AI FDE, it is important to acknowledge the differences in operational patterns compared to human developers. While human developers typically perform one operation at a time, often pausing to think between actions and taking breaks, AI FDE can execute operations in rapid succession, with only seconds between each action. This can trigger dozens of operations in minutes, running continuously until tasks are complete. Multiple AI FDE sessions may operate in parallel, compounding the overall impact on infrastructure. This can expose infrastructure bottlenecks that may be manageable for the slower, more sequential pace of human activity.</p>
+<p>Give careful consideration to the following areas:</p>
+<ul>
+<li>Storage read/write</li>
+<li>Compute resources, particularly GPUs</li>
+<li>Storage capacity</li>
+</ul>
+<p>AI FDE usage may require infrastructure that can accommodate high-frequency parallel operations, sustained compute loads, increased network activity, and expanded storage needs.</p>
+</body>
+</html>

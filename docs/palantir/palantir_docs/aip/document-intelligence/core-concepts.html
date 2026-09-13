@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Core concepts</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Core concepts</h1>
+<h2>Traditional extraction</h2>
+<p>Traditional extraction configurations are based on algorithms not backed by large language models, such as PDF metadata extraction, Optical Character Recognition (OCR) detection, and layout detection. These configurations in AIP Document Intelligence are backed by the <a href="https://www.palantir.com/docs/foundry/api/v2/media-sets-v2-resources/media-sets/transform-media-item">transform media item endpoint</a>.</p>
+<p><a href="https://www.palantir.com/docs/foundry/document-intelligence/document-to-text/">Learn more about using document extraction media transformations in AIP Document Intelligence.</a></p>
+<h2>Preprocessing</h2>
+<p>For use cases that work with more complex documents, combining VLMs with preprocessing techniques has proven quite successful. Under <strong>Configuration &gt; Generative AI</strong>, toggle on <strong>Preprocess document</strong>. Document preprocessing essentially runs traditional OCR (Optical Character Recognition) on the document, then passes that output <em>in addition</em> to the document page itself to a VLM, giving the model more context to successfully analyze the document.</p>
+<p><img alt="The preprocessing configuration section found in AIP Document Intelligence." src="../../_resources/foundry/document-intelligence/preprocessing.png" /></p>
+<h2>Evaluations</h2>
+<p>:::callout{theme="warning"}
+Currently, you can only perform extraction evaluations if Anthropic Claude 4 Sonnet is available for your enrollment.
+:::</p>
+<p>For each run of an extraction strategy, you can choose to view a qualitative rubric that leverages your selected VLM as a judge. We fine-tuned the prompt to rank various area from 1 (worst) to 5 (best), including how well a given strategy extracted tables, headers, and more. Evaluations allow you to quickly iterate and make judgments as you test different prompts and strategies.</p>
+<h2>Deployment paths</h2>
+<p>Once you are satisfied with a particular strategy, you can deploy it in a batch pipeline to run it over your wider dataset, or as per-page extraction Python functions. Per-page functions let you build your own extraction workflow that consumes the Ontology, structured however your use case requires.</p>
+<h3>Python transform</h3>
+<p>You can <a href="https://www.palantir.com/docs/foundry/document-intelligence/deploy-to-python-transforms/">export your strategy to a Python transform repository template</a> that is fully dynamic; the dataset RID/path, model RID/path, custom prompt, and selected configuration are all automatically configured. We recommend you verify this work before triggering a build.</p>
+<h3>Python functions</h3>
+<p><img alt="The Deploy to functions button in the AIP Document Intelligence app." src="../../_resources/foundry/document-intelligence/deploy-functions-button.png" /></p>
+<p>Follow the in-platform guide and use the generated code snippets to <a href="https://www.palantir.com/docs/foundry/document-intelligence/deploy-to-python-functions/">set up a Python functions repository with your extraction strategy</a>. These functions extract one page at a time. Use your own orchestration strategy with tools like <a href="https://www.palantir.com/docs/foundry/automate/getting-started/">Automate</a> to customize this workflow with your Ontology.</p>
+<p>Learn more about the <a href="https://www.palantir.com/docs/foundry/document-intelligence/overview/#features">features</a> of AIP Document Intelligence and how to <a href="https://www.palantir.com/docs/foundry/document-intelligence/overview/#getting-started">get started</a>.</p>
+</body>
+</html>

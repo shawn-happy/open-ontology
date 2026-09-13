@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Share code across repositories</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Share code across repositories</h1>
+<p>This section covers the basic workflow for sharing Java code between repositories.</p>
+<h2>Prerequisites</h2>
+<p>Before reading on, make sure you have created a separate repository containing the Java code / macros which you will depend on in other repositories. Throughout this guide, we will refer to this repository containing the Java code / macros to be shared as the <em>shared code repository</em>, and we will refer to any repository that depends on the <em>shared code repository</em> as a <em>dependent repository</em>.</p>
+<p>After adding Java code / macros to your <em>shared code repository</em>, make sure to compile the repository by committing your changes.</p>
+<h2>Permissions Setup</h2>
+<p>In order to share code, you must ensure that the <em>dependent repository</em> has access to the artifact produced by the <em>shared code repository</em>. To configure the artifacts that can be referenced from the <em>dependent repository</em>, navigate to the <em>Artifacts</em> section of the <em>Settings</em> tab. <a href="https://www.palantir.com/docs/foundry/code-repositories/artifact-settings/">Learn more about artifact settings.</a></p>
+<h2>Gradle Setup</h2>
+<h3>For the Dependent Repository</h3>
+<p>:::callout{theme="neutral"}
+The Gradle setup for the <em>dependent repository</em> is required any time you are sharing code across repositories (this includes Java code as well as macros).
+:::</p>
+<p>Jemma automatically publishes the artifact produced by the <em>shared code repository</em>. Thus, after setting up the required permissions mentioned above, all the <em>dependent repository</em> needs to do is point to the published artifact. That will involve adding a block like the following to the end of the <code>build.gradle</code> file in the language-specific subproject of the <em>dependent repository</em>:</p>
+<pre><code class="language-gradle">dependencies {
+    compile '&lt;SHARED_CODE_REPO_RID&gt;:&lt;SHARED_CODE_REPO_GRADLE_SUBPROJECT&gt;:&lt;SHARED_CODE_REPO_VERSION&gt;'
+}
+</code></pre>
+<p>Step through the process for getting the required information and adding it to the <code>build.gradle</code> file.</p>
+<ol>
+<li>
+<p>First, you need the <code>SHARED_CODE_REPO_RID</code>, that is, the RID of the <em>shared code repository</em>. You can obtain this from the repo URL. Alternatively, you can click on a repository entry on the Artifacts Settings tab to copy the above <code>compile</code> line with the shared repository RID filled in (such as <code>compile 'ri.stemma.repository.some-random-rid:&lt;SHARED_CODE_REPO_GRADLE_SUBPROJECT&gt;:&lt;SHARED_CODE_REPO_VERSION&gt;'</code>) to your clipboard. <br><br>\
+   <img alt="Artifacts settings tab" src="../../_resources/foundry/transforms-java/artifacts-copy-dependency.png" /> <br><br></p>
+</li>
+<li>
+<p>Next, you need to obtain values for <code>SHARED_CODE_REPO_GRADLE_SUBPROJECT</code> and <code>SHARED_CODE_REPO_VERSION</code>. To obtain these, modify the <code>ci.yml</code> file in the <em>shared code repository</em> by adding <code>--info</code> to the last line (starting with <code>./gradlew</code>). For example:</p>
+</li>
+</ol>
+<p><code>./gradlew --no-daemon --build-cache --stacktrace patch publish</code></p>
+<p>Becomes:</p>
+<p><code>./gradlew --no-daemon --build-cache --stacktrace patch publish --info</code></p>
+<p>Then, refer to the CI output for the latest Jemma job in the <em>shared code repository</em>. Look for a line in the CI output that matches one of the following forms:</p>
+<p><code>Upload https://&lt;MAVEN_REPO_URL&gt;/maven-repository-proxy/authz/user-code/&lt;SHARED_CODE_REPO_RID&gt;/&lt;SHARED_CODE_REPO_GRADLE_SUBPROJECT&gt;/&lt;SHARED_CODE_REPO_VERSION&gt;/&lt;SHARED_CODE_REPO_GRADLE_SUBPROJECT&gt;-&lt;SHARED_CODE_REPO_VERSION&gt;.jar</code></p>
+<p>or</p>
+<p><code>Uploading: ri/stemma/main/repository/&lt;SHARED_CODE_REPO_UUID&gt;/&lt;SHARED_CODE_REPO_GRADLE_SUBPROJECT&gt;/&lt;SHARED_CODE_REPO_VERSION&gt;/&lt;SHARED_CODE_REPO_GRADLE_SUBPROJECT&gt;-&lt;SHARED_CODE_REPO_VERSION&gt;.jar to repository remote at https://&lt;ARTIFACTS_URL&gt;/artifacts/api/legacy/mrp/authz/user-code/</code></p>
+<p>or</p>
+<p><code>Uploading: ri/stemma/main/repository/&lt;SHARED_CODE_REPO_UUID&gt;/&lt;SHARED_CODE_REPO_GRADLE_SUBPROJECT&gt;/&lt;SHARED_CODE_REPO_VERSION&gt;/&lt;SHARED_CODE_REPO_GRADLE_SUBPROJECT&gt;-&lt;SHARED_CODE_REPO_VERSION&gt;.jar to repository remote at https://&lt;ARTIFACTS_URL&gt;/artifacts/api/repositories/&lt;SHARED_CODE_REPO_UUID&gt;/contents/release/maven/</code></p>
+<p>Using the information from the CI output, you can construct the Maven coordinate referencing the artifact produced by your <em>shared code repository</em>. Note that the <code>&lt;SHARED_CODE_REPO_RID&gt;</code> you provide in your Maven coordinate should be of the form <code>ri.stemma.main.repository.{RID_VALUE}</code>.</p>
+<ol start="3">
+<li>Now that you have the Maven coordinate, you can update the <code>build.gradle</code> file. Make sure you edit the <code>build.gradle</code> file in the language-specific subproject folder (e.g. <code>transforms-java/build.gradle</code>), <strong>not the one at the root of the repository</strong>. Your updated <code>build.gradle</code> should look something like the following (note the two <code>dependencies</code> blocks):</li>
+</ol>
+<p>```gradle
+   buildscript {
+       // ...
+       dependencies {
+           classpath "com.palantir.transforms.java:lang-java-gradle-plugin:${transformsJavaVersion}"
+       }
+   }</p>
+<p>apply plugin: 'com.palantir.transforms.lang.java'
+   apply plugin: 'com.palantir.transforms.lang.java-defaults'</p>
+<p>dependencies {
+       compile '<SHARED_CODE_REPO_RID>:<SHARED_CODE_REPO_GRADLE_SUBPROJECT>:<SHARED_CODE_REPO_VERSION>'
+   }
+   ```</p>
+<p>You should now be able to access code from the <em>shared code repository</em> in the <em>dependent code repository</em>!</p>
+<p>:::callout{theme="warning" title="Warning"}
+As you update the code in the <em>shared code repository</em>, you will need to update the <code>&lt;SHARED_CODE_REPO_VERSION&gt;</code> in your Maven coordinate to ensure that your <em>dependent repository</em> is using the most up-to-date version of the shared code. Each time you compile the <em>shared code repository</em>, check the CI output to find the updated version number you should be referencing.
+:::</p>
+<h2>Conclusion</h2>
+<p>Now, you are ready to start sharing code across repositories. For any <em>dependent repository</em> that needs to reference code from the <em>shared code repository</em>, make sure you have taken the steps mentioned above to set up the correct permissions and dependencies.</p>
+<p>:::callout{theme="neutral"}
+Unlike with Python, Code Repositories does not support the creation of Java libraries, only the sharing of Java repositories. This means features such as tagging are also unsupported for Java.
+:::</p>
+</body>
+</html>

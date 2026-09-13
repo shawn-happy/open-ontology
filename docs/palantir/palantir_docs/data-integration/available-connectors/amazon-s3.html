@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Amazon S3</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Amazon S3</h1>
+<p>Connect Foundry to AWS S3 to read and sync data between S3 and Foundry.</p>
+<h2>Supported capabilities</h2>
+<table>
+<thead>
+<tr>
+<th>Capability</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Exploration</td>
+<td>ð¢ Generally available</td>
+</tr>
+<tr>
+<td>Bulk import</td>
+<td>ð¢ Generally available</td>
+</tr>
+<tr>
+<td>Incremental</td>
+<td>ð¢ Generally available for supported file formats</td>
+</tr>
+<tr>
+<td>Media sets</td>
+<td>ð¢ Generally available</td>
+</tr>
+<tr>
+<td><a href="https://www.palantir.com/docs/foundry/data-integration/virtual-tables/">Virtual tables</a></td>
+<td>ð¢ Generally available</td>
+</tr>
+<tr>
+<td><a href="https://www.palantir.com/docs/foundry/data-connection/export-overview/#file-exports">File exports</a></td>
+<td>ð¢ Generally available</td>
+</tr>
+</tbody>
+</table>
+<h2>Setup</h2>
+<ol>
+<li>Open the <a href="https://www.palantir.com/docs/foundry/data-connection/overview/">Data Connection</a> application and select <strong>+ New Source</strong> in the upper right corner of the screen.</li>
+<li>Select <strong>S3</strong> from the available connector types.</li>
+<li>Follow the additional configuration prompts to continue the setup of your connector using the information in the sections below.</li>
+</ol>
+<p>Learn more about <a href="https://www.palantir.com/docs/foundry/data-connection/set-up-source/">setting up a connector</a> in Foundry.</p>
+<h2>Connection details</h2>
+<table>
+<thead>
+<tr>
+<th>Option</th>
+<th>Required?</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>URL</code></td>
+<td>Yes</td>
+<td>URL of the S3 bucket. Data connection supports the s3a protocol. Should contain a trailing slash. See AWS's <a href="https://docs.aws.amazon.com/AmazonS3/latest/userguide/access-bucket-intro.html#accessing-a-bucket-using-S3-format">official documentation â</a> for more details. <br />For example: <code>s3://bucket-name/</code></td>
+</tr>
+<tr>
+<td><code>Endpoint</code></td>
+<td>Yes</td>
+<td>The endpoint to use to access S3.  <br />For example: <code>s3.amazonaws.com</code> or <code>s3.us-east-1.amazonaws.com</code></td>
+</tr>
+<tr>
+<td><code>Region</code></td>
+<td>No</td>
+<td>The AWS region to use when configuring AWS services. This is required when using STS roles. Warning: Providing region together with an S3 endpoint also containing the region can cause failures. <br /> For example: <code>us-east-1</code> or <code>eu-central-1</code></td>
+</tr>
+<tr>
+<td><code>Network connectivity</code></td>
+<td>Yes</td>
+<td><strong>Step 1: Foundry egress policy</strong> <br />Attach a Foundry <a href="https://www.palantir.com/docs/foundry/administration/configure-egress/#network-egress-overview">egress policy</a> to the bucket to allow Foundry to egress to S3. The Data Connection application suggests appropriate egress policies based on the connection details provided. <br /> For example: <code>bucket-name.s3.us-east-1.amazonaws.com (Port 443)</code> <br /><br /> <strong>Step 2: AWS bucket policy</strong> <br />Additionally, you will need to allowlist the relevant Foundry IP and/or bucket details for access from S3. Your Foundry IP details can be found under <strong>Network egress</strong> in the <a href="https://www.palantir.com/docs/foundry/administration/control-panel/">Control Panel application</a>. See <a href="https://docs.aws.amazon.com/AmazonS3/latest/userguide/example-bucket-policies.html#example-bucket-policies-IP">official AWS documentation â</a> for more details on how to configure bucket policies in S3. <br /> <br /><em>Note: Setting up access to an S3 bucket hosted in the same region as your Foundry enrollment requires additional configuration. Read more about these requirements in the <a href="https://www.palantir.com/docs/foundry/administration/configure-egress/#aws-s3-bucket-endpoint-policies">network egress documentation</a>.</em></td>
+</tr>
+<tr>
+<td><code>Client certificates &amp; private key</code></td>
+<td>No</td>
+<td>Client certificates and private keys may or may not be required by your source to secure the connection.</td>
+</tr>
+<tr>
+<td><code>Server certificates</code></td>
+<td>No</td>
+<td>Server certificates may or may not be required by your source to secure the connection.</td>
+</tr>
+<tr>
+<td><code>Credentials</code></td>
+<td>Yes</td>
+<td><strong>Option 1: Access key and secret</strong><br/>Provide the Access Key ID and Secret for connecting to S3. <br/> Credentials can be generated by creating a new IAM User for Foundry in your AWS Account, and granting that IAM User access to the S3 bucket. <br/><br/> <strong>Option 2: OpenID Connect (OIDC)</strong> <br/> Follow the displayed source system configuration instructions to set up OIDC. See official <a href="https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles_providers_create_oidc.html">AWS documentation â</a> for details on OpenID Connect and <a href="https://www.palantir.com/docs/foundry/data-connection/oidc/">our documentation</a> for details on how OIDC works with Foundry. <br/><br/> See official <a href="https://docs.aws.amazon.com/IAM/latest/UserGuide/id_users_create.html">AWS documentation â</a> for more details on creating an AWS IAM user. Review <a href="#required-read-and-sync-permissions-for-s3">our documentation permissions for S3</a> for details on which AWS permissions Foundry expects the user to have.</td>
+</tr>
+<tr>
+<td><code>STS role</code></td>
+<td>No</td>
+<td>The S3 connector can optionally assume a <a href="https://docs.aws.amazon.com/STS/latest/APIReference/welcome.html">Security Token Service (STS) role â</a> when connecting to S3. See <a href="#sts-role-configuration">STS role configuration</a> for more details.</td>
+</tr>
+<tr>
+<td><code>Connection timeout</code></td>
+<td>No</td>
+<td>The amount of time to wait (in milliseconds) when initially establishing a connection before giving up and timing out. <br /> Default: <code>50000</code></td>
+</tr>
+<tr>
+<td><code>Socket timeout</code></td>
+<td>No</td>
+<td>The amount of time to wait (in milliseconds)   for data to be transferred over an established, open connection before the connection times out and is closed. <br /> Default: <code>50000</code></td>
+</tr>
+<tr>
+<td><code>Max connections</code></td>
+<td>No</td>
+<td>The maximum number of allowed open HTTP connections. <br /> Default: <code>50</code></td>
+</tr>
+<tr>
+<td><code>Max error retries</code></td>
+<td>No</td>
+<td>The maximum number of retry attempts for failed retryable requests (ex: 5xx error responses from services). <br /> Default: <code>3</code></td>
+</tr>
+<tr>
+<td><code>Client KMS key</code></td>
+<td>No</td>
+<td>A KMS key name or alias used to perform client-side data encryption with the AWS SDK. Using this option on an agent in PCloud requires proxy changes.</td>
+</tr>
+<tr>
+<td><code>Client KMS region</code></td>
+<td>No</td>
+<td>The AWS region to use for the KMS client. Only relevant if a AWS KMS key is provided.</td>
+</tr>
+<tr>
+<td><code>Match subfolder exactly</code></td>
+<td>No</td>
+<td>Optionally match the path specified under subfolder as an exact subfolder in S3. If set to false, both <code>s3://bucket-name/foo/bar/</code> and <code>s3://bucket-name/foo/bar_baz/</code> will be matched with a subfolder setting of <code>foo/bar/</code>.</td>
+</tr>
+<tr>
+<td><code>Proxy configurations</code></td>
+<td>Yes - for agent-based connection only</td>
+<td>Configure proxy settings for S3. <br /> <em>Note: this is required if (a) your Foundry enrollment is hosted in AWS, (b) you are connecting to an S3 bucket hosted in a different AWS region than your Foundry enrollment, and (c) you are connecting via a data connection agent. See <a href="#s3-proxy-configuration-agent-based-connections">S3 proxy configuration</a> for more details.</em></td>
+</tr>
+<tr>
+<td><code>Enable path style access</code></td>
+<td>No</td>
+<td>Use Path-style access URLs (for example,<code>https://s3.region-code.amazonaws.com/bucket-name/key-name</code>) instead of Virtual-hosted-style access URLs (for example, <code>https://bucket-name.s3.region-code.amazonaws.com/key-name</code>). See <a href="https://docs.aws.amazon.com/AmazonS3/latest/userguide/VirtualHosting.html">official AWS documentation â</a> for more details.</td>
+</tr>
+<tr>
+<td><code>Catalog</code></td>
+<td>No</td>
+<td>Configure a catalog for tables stored in this S3 bucket. See <a href="#virtual-tables">Virtual tables</a> for more details.</td>
+</tr>
+</tbody>
+</table>
+<h2>Required read and sync permissions for S3</h2>
+<p>The following AWS permission is required for interactive exploration of the S3 bucket:</p>
+<pre><code class="language-json">{
+    &quot;Action&quot;: [&quot;s3:ListBucket&quot;],
+    &quot;Resource&quot;: [&quot;arn:aws:s3:::path/to/bucket&quot;],
+    &quot;Effect&quot;: &quot;Allow&quot;,
+}
+</code></pre>
+<p>The following AWS permission is required for batch syncs, virtual tables and media syncs from S3:</p>
+<pre><code class="language-json">{
+    &quot;Action&quot;: [&quot;s3:GetObject&quot;],
+    &quot;Resource&quot;: [&quot;arn:aws:s3:::path/to/bucket/*&quot;],
+    &quot;Effect&quot;: &quot;Allow&quot;,
+}
+</code></pre>
+<p>See <a href="https://docs.aws.amazon.com/AmazonS3/latest/userguide/access-policy-language-overview.html">official AWS documentation on Policies and Permissions in Amazon S3 â</a> for more details on how to configure bucket policies in S3.</p>
+<h2>S3 proxy configuration (agent-based connections)</h2>
+<p>When connecting to S3 using a data connection agent, you can define proxy settings in two ways:</p>
+<ul>
+<li>Source Config: Define each proxy setting directly in the source configuration, as outlined in the table below.</li>
+<li>Agent's System Properties: As a fallback, you can configure the proxy settings within the agent's system properties. To achieve this, include the appropriate JVM arguments in the advanced configuration settings for the agent (for example, <code>-Dhttps.proxyHost=example.proxy.com</code>).</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Required?</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>host</code></td>
+<td>Y</td>
+<td></td>
+<td>HTTP proxy host (no scheme).</td>
+</tr>
+<tr>
+<td><code>port</code></td>
+<td>Y</td>
+<td></td>
+<td>Port for HTTP proxy.</td>
+</tr>
+<tr>
+<td><code>protocol</code></td>
+<td>N</td>
+<td><code>HTTPS</code></td>
+<td>The protocol to use. Either <code>HTTPS</code> or <code>HTTP</code>.</td>
+</tr>
+<tr>
+<td><code>nonProxyHosts</code></td>
+<td>N</td>
+<td></td>
+<td>List of host names (or wild card domain names) that should not use the proxy. For example: <code>*.s3-external-1.amazonaws.com|*.example.com</code>.</td>
+</tr>
+<tr>
+<td><code>credentials</code></td>
+<td>N</td>
+<td></td>
+<td>Include this block if your proxy requires basic HTTP authentication (prompted by a <a href="https://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html#sec14.34">HTTP 407 response â</a>).</td>
+</tr>
+<tr>
+<td><code>credentials.username</code></td>
+<td>N</td>
+<td></td>
+<td>Plaintext username for the HTTP proxy.</td>
+</tr>
+<tr>
+<td><code>credentials.password</code></td>
+<td>N</td>
+<td></td>
+<td>Encrypted password for the HTTP proxy.</td>
+</tr>
+</tbody>
+</table>
+<h2>STS role configuration</h2>
+<p>STS role configuration allows you to make use of <a href="https://docs.aws.amazon.com/STS/latest/APIReference/Welcome.html">AWS Security Token Service â</a> to assume a role when reading from S3.</p>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Required?</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>roleArn</code></td>
+<td>Y</td>
+<td></td>
+<td>STS role ARN name.</td>
+</tr>
+<tr>
+<td><code>roleSessionName</code></td>
+<td>Y</td>
+<td></td>
+<td>The session name to use when assuming this role.</td>
+</tr>
+<tr>
+<td><code>roleSessionDuration</code></td>
+<td>N</td>
+<td>3600 seconds</td>
+<td>The session duration.</td>
+</tr>
+<tr>
+<td><code>externalId</code></td>
+<td>N</td>
+<td></td>
+<td>An external ID to use when assuming a role.</td>
+</tr>
+</tbody>
+</table>
+<h2>Cloud identity configuration</h2>
+<p>Cloud identity authentication allows Foundry to access resources in your AWS instance. Cloud identities are configured and managed at the <a href="https://www.palantir.com/docs/foundry/administration/enrollments-and-organizations/">enrollment</a> level in Control Panel. Learn how to <a href="https://www.palantir.com/docs/foundry/administration/configure-cloud-identities/">configure cloud identities</a>.</p>
+<p><img alt="S3 Source With Cloud Identity" src="../../_resources/foundry/available-connectors/s3-source-with-cloud-identity.png" /></p>
+<p>When using cloud identity authentication, the role ARN will be displayed in the credentials section. After selecting the <code>Cloud identity</code> credential option, you must also configure the following:</p>
+<ol>
+<li>Configure an Identity and Access Management (IAM) role in the target Amazon AWS account.</li>
+<li>Grant the IAM role access to the S3 bucket to which you wish to connect. You can generally do this with a <a href="https://docs.aws.amazon.com/AmazonS3/latest/userguide/bucket-policies.html">bucket policy â</a>.</li>
+<li>In the S3 source configuration details, add the IAM role under the <a href="https://docs.aws.amazon.com/STS/latest/APIReference/API_AssumeRole.html">Security Token Service (STS) role â</a> configuration. The cloud identity IAM role in Foundry will attempt to assume the <a href="https://docs.aws.amazon.com/STS/latest/APIReference/API_AssumeRole.html">AWS Account IAM role â</a> when accessing S3.</li>
+<li><a href="https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles_manage.html">Configure a corresponding trust policy â</a> to allow the cloud identity IAM role to assume the target AWS account IAM role.</li>
+</ol>
+<h2>Virtual tables</h2>
+<p>This section provides additional details around using <a href="https://www.palantir.com/docs/foundry/data-integration/virtual-tables/">virtual tables</a> from an S3 source. This section is not applicable when syncing to Foundry datasets.</p>
+<p>The table below highlights the virtual table capabilities that are supported for S3.</p>
+<table>
+<thead>
+<tr>
+<th>Capability</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Bulk registration</td>
+<td>ð´ Not available</td>
+</tr>
+<tr>
+<td>Automatic registration</td>
+<td>ð´ Not available</td>
+</tr>
+<tr>
+<td>Table inputs</td>
+<td>ð¢ Generally available: <a href="https://avro.apache.org/">Avro â</a>, <a href="https://docs.delta.io/latest/">Delta â</a>, <a href="https://iceberg.apache.org/">Iceberg â</a>, <a href="https://parquet.apache.org/">Parquet â</a> in <a href="https://www.palantir.com/docs/foundry/code-repositories/overview/">Code Repositories</a>, <a href="https://www.palantir.com/docs/foundry/pipeline-builder/overview/">Pipeline Builder</a></td>
+</tr>
+<tr>
+<td>Table outputs</td>
+<td>ð¢ Generally available: <a href="https://avro.apache.org/">Avro â</a>, <a href="https://docs.delta.io/latest/">Delta â</a>, <a href="https://iceberg.apache.org/">Iceberg â</a>, <a href="https://parquet.apache.org/">Parquet â</a> in <a href="https://www.palantir.com/docs/foundry/code-repositories/overview/">Code Repositories</a>, <a href="https://www.palantir.com/docs/foundry/pipeline-builder/overview/">Pipeline Builder</a></td>
+</tr>
+<tr>
+<td>Incremental pipelines</td>
+<td>ð¢ Generally available for Delta tables: <code>APPEND</code> only (<a href="#delta">details</a>)<br /> ð¢ Generally available for Iceberg tables: <code>APPEND</code> only (<a href="#iceberg">details</a>)<br /> ð´ Not available for Parquet tables</td>
+</tr>
+<tr>
+<td>Compute pushdown</td>
+<td>ð´ Not available</td>
+</tr>
+</tbody>
+</table>
+<p>Consult the <a href="https://www.palantir.com/docs/foundry/data-integration/virtual-tables/#supported-foundry-workflows">virtual tables documentation</a> for details on the supported Foundry workflows where tables stored in S3 can be used as inputs or outputs.</p>
+<h3>Source configuration requirements</h3>
+<p>When registering <a href="https://www.palantir.com/docs/foundry/data-integration/virtual-tables/">virtual tables</a>, remember the following source configuration requirements:</p>
+<ul>
+<li>You must use a <a href="https://www.palantir.com/docs/foundry/data-connection/core-concepts/#foundry-worker">Foundry worker</a> source. Virtual tables do not support use of <a href="https://www.palantir.com/docs/foundry/data-connection/core-concepts/#agent-worker">agent worker</a> connections.</li>
+<li>Ensure that bi-directional connectivity and allowlisting is established as described under the <strong>Network Connectivity</strong> section in <a href="#connection-details">Connection details</a>.</li>
+<li>If using virtual tables in Code Repositories, refer to the <a href="https://www.palantir.com/docs/foundry/data-integration/virtual-tables/#virtual-tables-in-code-repositories">Virtual Tables documentation</a> for details of additional source configuration required.</li>
+<li>If your bucket contains <code>.</code>, you must enable path-style access and set up the appropriate egress policy.</li>
+</ul>
+<p>See the <a href="#connection-details">Connection Details</a> section above for more details.</p>
+<h3>Delta</h3>
+<p>To enable incremental support for pipelines backed by virtual tables, ensure that <a href="https://docs.databricks.com/en/delta/delta-change-data-feed.html#enable-change-data-feed">Change Data Feed â</a> is enabled on the source Delta table. The <code>current</code> and <code>added</code> read modes in <a href="https://www.palantir.com/docs/foundry/transforms-python/incremental-usage/#incrementaltransforminput">Python Transforms</a> are supported. The <code>_change_type</code>, <code>_commit_version</code> and <code>_commit_timestamp</code> columns will be made available in Python Transforms.</p>
+<h3>Iceberg</h3>
+<p>An Iceberg catalog is required to load virtual tables backed by an Apache Iceberg table. To learn more about Iceberg catalogs, see the <a href="https://iceberg.apache.org/terms/">Apache Iceberg documentation â</a>. All Iceberg tables registered on a source must use the same Iceberg catalog.</p>
+<p>By default, tables will be created using Iceberg metadata files in S3. A <code>warehousePath</code> indicating the location of these metadata files must be provided when registering a table.</p>
+<p><a href="https://aws.amazon.com/glue/">AWS Glue â</a> can be used as an Iceberg catalog when tables are stored in S3. To learn more about this integration, see the <a href="https://docs.aws.amazon.com/glue/latest/dg/aws-glue-programming-etl-format-iceberg.html">AWS Glue documentation â</a>. The credentials configured on the source must have access to your AWS Glue Data Catalog. AWS Glue can be configured in the <a href="#connection-details">Connection Details</a> tab on the source. All Iceberg tables registered on this source will automatically use AWS Glue as the catalog. Tables should be registered using <code>database_name.table_name</code> naming pattern.</p>
+<p><a href="https://www.databricks.com/product/unity-catalog">Unity Catalog â</a> can be used as an Iceberg catalog when using Delta Universal Format (UniForm) in Databricks. To learn more about this integration, see the <a href="https://docs.databricks.com/en/delta/uniform.html">Databricks documentation â</a>. As with AWS Glue, the catalog can be configured in the <a href="#connection-details"><strong>Connection details</strong></a> tab on the source. You will need to provide the endpoint and a <a href="https://docs.databricks.com/en/dev-tools/auth/pat.html">personal access token</a> to connect to Unity Catalog. Tables should be registered using <code>catalog_name.schema_name.table_name</code> naming pattern.</p>
+<p><a href="https://polaris.apache.org/">Polaris â</a> can be used as an Iceberg catalog for tables stored in S3. As with other catalogs, Polaris can be configured in the <a href="#connection-details">Connection Details</a> tab on the source.</p>
+<p><img alt="Virtual Tables S3 Catalog" src="../../_resources/foundry/available-connectors/virtual_tables_s3_catalog.png" /></p>
+<p>Incremental support relies on Iceberg <a href="https://iceberg.apache.org/docs/1.5.1/spark-queries/#incremental-read">Incremental Reads â</a> and is currently append-only. The <code>current</code> and <code>added</code> read modes in <a href="https://www.palantir.com/docs/foundry/transforms-python/incremental-usage/#incrementaltransforminput">Python Transforms</a> are supported.</p>
+<h3>Parquet</h3>
+<p>Virtual tables using Parquet rely on schema inference. At most 100 files will be used to determine the schema.</p>
+<h2>Export data to S3</h2>
+<p>To export to S3, first <a href="https://www.palantir.com/docs/foundry/data-connection/export-overview/#enable-exports-for-source">enable exports</a> for your S3 connector. Then, <a href="https://www.palantir.com/docs/foundry/data-connection/export-overview/#create-a-new-export">create a new export</a>.</p>
+<h2>Required export permissions for S3</h2>
+<p>The following AWS permission is required to export data to S3:</p>
+<pre><code class="language-json">{
+    &quot;Action&quot;: [&quot;s3:PutObject&quot;],
+    &quot;Resource&quot;: [&quot;arn:aws:s3:::path/to/bucket/*&quot;],
+    &quot;Effect&quot;: &quot;Allow&quot;,
+}
+</code></pre>
+<p>See <a href="https://docs.aws.amazon.com/AmazonS3/latest/userguide/access-policy-language-overview.html">official AWS documentation on Policies and Permissions in Amazon S3 â</a> for more details on how to configure bucket policies in S3.</p>
+<h2>Required permissions for Iceberg BYOB storage</h2>
+<p>When using an S3 bucket as a <a href="https://www.palantir.com/docs/foundry/iceberg/iceberg-byob/">bring-your-own-bucket (BYOB) storage location</a> for Foundry Iceberg tables, the following AWS permissions are required on the S3 bucket and the KMS key used to encrypt it:</p>
+<pre><code class="language-json">{
+    &quot;Action&quot;: [
+        &quot;s3:DeleteObject&quot;,
+        &quot;s3:GetObject&quot;,
+        &quot;s3:ListBucket&quot;,
+        &quot;s3:PutObject&quot;
+    ],
+    &quot;Resource&quot;: [
+        &quot;arn:aws:s3:::bucket-name&quot;,
+        &quot;arn:aws:s3:::bucket-name/*&quot;
+    ],
+    &quot;Effect&quot;: &quot;Allow&quot;
+}
+</code></pre>
+<p>Additionally, the following KMS permissions are required:</p>
+<pre><code class="language-json">{
+    &quot;Action&quot;: [
+        &quot;kms:Decrypt&quot;,
+        &quot;kms:Encrypt&quot;,
+        &quot;kms:GenerateDataKey&quot;
+    ],
+    &quot;Resource&quot;: [&quot;arn:aws:kms:region:account-id:key/key-id&quot;],
+    &quot;Effect&quot;: &quot;Allow&quot;
+}
+</code></pre>
+<p>The <code>sts:GetFederationToken</code> permission is also required for credential vending. See the <a href="https://www.palantir.com/docs/foundry/iceberg/iceberg-byob/">BYOB storage documentation</a> for complete setup instructions.</p>
+<h3>Export configuration options</h3>
+<table>
+<thead>
+<tr>
+<th>Option</th>
+<th>Required?</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Path Prefix</code></td>
+<td>No</td>
+<td>N/A</td>
+<td>The path prefix that should be used for exported files. The full path for an exported file is calculated as <code>s3://&lt;bucket-name&gt;/&lt;path-in-source-config&gt;/&lt;path-prefix&gt;/&lt;exported-file&gt;</code></td>
+</tr>
+<tr>
+<td><code>Canned ACL</code></td>
+<td>No</td>
+<td>N/A</td>
+<td>Set the AWS  access control list (ACL) attached to the uploaded files, using one of the canned ACLs. See <a href="https://docs.aws.amazon.com/AmazonS3/latest/userguide/acl-overview.html#canned-acl">AWS documentation â</a> for a description of each ACL.</td>
+</tr>
+</tbody>
+</table>
+<h2>Export tasks (legacy)</h2>
+<p>:::callout{theme="warning"}
+<a href="https://www.palantir.com/docs/foundry/data-connection/export-tasks/">Export tasks</a> are a legacy feature that is <em>not</em> recommended for new implementations. All new exports should use the current <a href="#export-data-to-s3">recommended export workflow</a>. This documentation is provided for users who are still using legacy export tasks.
+:::</p>
+<h3>S3 export task configuration</h3>
+<p>To export files from a Foundry dataset to an S3 bucket using export tasks, the source must be of type <code>s3-direct</code>. The task type is <code>export-s3-task</code>.</p>
+<h4>Basic configuration</h4>
+<pre><code class="language-yaml">type: export-s3-task
+directoryPath: /some/directory
+</code></pre>
+<h4>Advanced configuration options</h4>
+<table>
+<thead>
+<tr>
+<th>Option</th>
+<th>Required</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>directoryPath</code></td>
+<td>Yes</td>
+<td>N/A</td>
+<td>The S3 path where files will be exported</td>
+</tr>
+<tr>
+<td><code>retriesPerFile</code></td>
+<td>No</td>
+<td>0</td>
+<td>Number of retry attempts for each file export</td>
+</tr>
+<tr>
+<td><code>setBucketPolicy</code></td>
+<td>No</td>
+<td>true</td>
+<td>Whether to apply bucket policy to exported files</td>
+</tr>
+<tr>
+<td><code>bucketPolicy</code></td>
+<td>No</td>
+<td>N/A</td>
+<td>Specific bucket policy to apply (for example, <code>BucketOwnerFullControl</code>). See <a href="https://docs.aws.amazon.com/AWSJavaSDK/latest/javadoc/com/amazonaws/services/s3/model/CannedAccessControlList.html">AWS CannedAccessControlList â</a></td>
+</tr>
+<tr>
+<td><code>incrementalType</code></td>
+<td>No</td>
+<td>snapshot</td>
+<td>Use <code>incremental</code> for incremental exports</td>
+</tr>
+<tr>
+<td><code>useMultipart</code></td>
+<td>No</td>
+<td>false</td>
+<td>Enable parallel export</td>
+</tr>
+<tr>
+<td><code>threads</code></td>
+<td>No</td>
+<td>1</td>
+<td>Number of objects to export in parallel</td>
+</tr>
+<tr>
+<td><code>rewritePaths</code></td>
+<td>No</td>
+<td>N/A</td>
+<td>Map of regex patterns for path rewriting</td>
+</tr>
+</tbody>
+</table>
+<h4>Example configurations</h4>
+<p>Incremental export with retries:</p>
+<pre><code class="language-yaml">type: export-s3-task
+directoryPath: /exports/data
+incrementalType: incremental
+retriesPerFile: 2
+</code></pre>
+<p>Parallel export with custom bucket policy:</p>
+<pre><code class="language-yaml">type: export-s3-task
+directoryPath: /exports/data
+useMultipart: false
+threads: 4
+bucketPolicy: BucketOwnerFullControl
+setBucketPolicy: true
+</code></pre>
+<p>Path rewriting to remove Spark prefix:</p>
+<pre><code class="language-yaml">type: export-s3-task
+directoryPath: /exports/data
+rewritePaths:
+  &quot;^spark/(.*)&quot;: &quot;$1&quot;
+</code></pre>
+<h2>Use S3 sources in code</h2>
+<p>You can connect to S3 buckets from a <a href="https://www.palantir.com/docs/foundry/transforms-python/getting-started/">Python transforms code repository</a> to export datasets or process files using <a href="https://www.palantir.com/docs/foundry/data-connection/external-transforms/">external transforms</a>.</p>
+<h3>Write file to S3 bucket</h3>
+<p>The example below demonstrates how to export a set of dataset RIDs to an S3 bucket using a transforms generator:</p>
+<pre><code class="language-python"># This example shows how to export a list of datasets to an S3 bucket using your AWS session credentials.
+# For each exported dataset, an output log containing the dataset's RID, export timestamp, number of exported
+# files, and S3 destination path will be generated.
+
+from pyspark.sql import functions as F, types as T
+from transforms.api import Input, Output, transform, Transform
+from transforms.external.systems import external_systems, Source
+from typing import List
+from datetime import datetime
+import boto3
+import logging
+
+log = logging.getLogger(__name__)
+
+S3_BUCKET_REGION = &quot;&lt;region&gt;&quot;
+S3_BUCKET_NAME = &quot;&lt;name&gt;&quot;
+S3_ENDPOINT_URL = &quot;&lt;endpoint_url&gt;&quot;
+S3_DEST_PATH = &quot;&lt;s3_dest_path&gt;&quot;
+
+S3_SOURCE_RID = &quot;&lt;s3_source_rid&gt;&quot;
+
+LOG_OUTPUT_PATH = &quot;&lt;log_output_path&gt;&quot;
+
+DATASET_RID = &quot;&lt;dataset_rid&gt;&quot;
+
+@external_systems(
+    s3_source=Source(S3_SOURCE_RID)
+)
+@transform(
+    export_log=Output(f&quot;{LOG_OUTPUT_PATH}/export_{DATASET_RID}_log&quot;),
+    input_dataset=Input(f&quot;{DATASET_RID}&quot;)
+)
+def compute_function(ctx, input_dataset, s3_source, export_log):
+    # 1. Retrieve credentials for the S3 bucket
+    refreshable_creds = s3_source.get_session_credentials()
+    creds = refreshable_creds.get()
+
+    # 2. Construct S3 key for the current dataset
+    s3_dataset_key = f&quot;{S3_DEST_PATH}/{DATASET_RID}/&quot;
+
+    # 3. Set up the boto3 client
+    # NOTE: For large exports that may exceed credential TTL (~1 hour),
+    # consider refreshing credentials periodically or implementing
+    # boto3's RefreshableCredentials pattern
+    s3_client = boto3.client(
+        &quot;s3&quot;,
+        aws_access_key_id=creds.access_key_id,
+        aws_secret_access_key=creds.secret_access_key,
+        region_name=S3_BUCKET_REGION,
+        endpoint_url=S3_ENDPOINT_URL,
+    )
+
+    # Helper function to write dataset files to S3
+    def write_file(row):
+        try:
+            with input_dataset.filesystem().open(row.path, &quot;rb&quot;) as in_f:
+                s3_key = s3_dataset_key + row.path
+                s3_client.upload_fileobj(in_f, S3_BUCKET_NAME, s3_key)
+
+        except Exception as e:
+            log.error(f&quot;Exception when uploading {DATASET_RID} to S3: {e}&quot;)
+            raise
+
+    # 4. Write dataset files to S3
+    result = input_dataset.filesystem().files()
+    result.foreach(write_file)
+
+    # 5. Define output export log schema
+    schema = T.StructType([
+        T.StructField(&quot;dataset_rid&quot;, T.StringType(), False),
+        T.StructField(&quot;export_timestamp&quot;, T.TimestampType(), False),
+        T.StructField(&quot;files_uploaded&quot;, T.IntegerType(), False),
+        T.StructField(&quot;s3_dest_path&quot;, T.StringType(), False)
+    ])
+    file_count = result.count()
+    output_df = ctx.spark_session.createDataFrame([(DATASET_RID, datetime.now(), file_count, s3_dataset_key)], schema)
+    export_log.write_dataframe(output_df)
+</code></pre>
+</body>
+</html>

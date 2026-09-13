@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Embed Vulcan in a Workshop module</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Embed Vulcan in a Workshop module</h1>
+<p>You can embed Vulcan in a Workshop module by using the <strong>Vulcan</strong> widget. The widget provides the same 3D viewport and tools as the standalone application. Its inputs, outputs, and interface can also connect to Workshop variables so that Vulcan can interact with other widgets in the module.</p>
+<p>Embedding Vulcan in a Workshop module takes three steps: add the widget, choose a CAD object, and configure the widget.</p>
+<h2>Add a Vulcan widget in Workshop</h2>
+<p>In the Workshop section where you want Vulcan to appear, select the <strong>+</strong> icon or <strong>+ Add widget</strong> to open the widget menu, then search for and select the <strong>Vulcan</strong> widget.</p>
+<h2>Choose a CAD object</h2>
+<p>Vulcan needs at least one CAD object to render. A CAD object is an Ontology object with a property carrying the <code>cad_media_reference</code> type class. For the complete schema, refer to <a href="https://www.palantir.com/docs/foundry/vulcan/schema-reference/#cad-object">CAD object</a>.</p>
+<p>Under <strong>Input &gt; Models</strong>, add a model and set <strong>Model objects</strong> to a Workshop object set that contains the CAD object. Vulcan loads the first object in the set. To render multiple models, add a separate model entry for each object set.</p>
+<h2>Configure the widget</h2>
+<p>The Vulcan widget configuration is organized into the following sections.</p>
+<h3>Input</h3>
+<p>The <strong>Input</strong> section controls the Ontology data and scenario that the widget uses:</p>
+<ul>
+<li><strong>Models:</strong> A repeatable list of CAD model inputs.</li>
+<li><strong>Model objects:</strong> The object set containing the model.</li>
+<li><strong>Options:</strong> Settings that apply only to this model. <strong>Transforms</strong> and <strong>Part coloring</strong> accept function outputs described in the return schemas below.<ul>
+<li><strong>Annotation objects:</strong> An object set of annotations associated with the model. Each object must follow the <a href="https://www.palantir.com/docs/foundry/vulcan/schema-reference/#annotation">annotation schema</a>.</li>
+<li><strong>Transforms:</strong> Transform overrides for part instances or assemblies. Refer to <a href="#transforms-return-schema">Transforms return schema</a>.</li>
+<li><strong>Selected part ID</strong> and <strong>Selected part instance ID:</strong> Two-way string variables for the current selection. A part ID selects every instance of that part in this model; a part instance ID selects one specific instance.</li>
+<li><strong>Part coloring:</strong> Color and opacity overrides. Refer to <a href="#part-coloring-return-schema">Part coloring return schema</a>.</li>
+<li><strong>Fallback color:</strong> A CSS color value for parts in this model that have no assigned color. This value overrides the global <strong>Fallback color</strong> for the model.</li>
+</ul>
+</li>
+<li><strong>Measurement objects</strong> and <strong>Section plane objects:</strong> Object sets containing measurements to display and section planes to apply. Objects must follow the corresponding <a href="https://www.palantir.com/docs/foundry/vulcan/schema-reference/#measurement">measurement</a> or <a href="https://www.palantir.com/docs/foundry/vulcan/schema-reference/#section-plane">section plane</a> schema.</li>
+<li><strong>Scenario:</strong> The Workshop primary scenario to use when loading Ontology objects.</li>
+</ul>
+<h4>Transforms return schema</h4>
+<p><strong>Transforms</strong> accepts a list of structs with the following fields:</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Required</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>id</code></td>
+<td>Yes</td>
+<td>String</td>
+<td>The part instance or assembly ID to transform.</td>
+</tr>
+<tr>
+<td><code>transform</code></td>
+<td>Yes</td>
+<td>Array of numbers</td>
+<td>Exactly 16 finite numbers representing a 4Ã4 transformation matrix in column-major order.</td>
+</tr>
+</tbody>
+</table>
+<p>The matrix values must use the order <code>[m11, m21, m31, m41, m12, m22, m32, m42, m13, m23, m33, m43, m14, m24, m34, m44]</code>. Vulcan ignores entries with a missing ID or an invalid matrix.</p>
+<h4>Part coloring return schema</h4>
+<p><strong>Part coloring</strong> accepts a list of structs with the following fields:</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Required</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>partInstanceIds</code></td>
+<td>Yes</td>
+<td>Array of strings</td>
+<td>One or more part instance or assembly IDs to style.</td>
+</tr>
+<tr>
+<td><code>color</code></td>
+<td>No</td>
+<td>String</td>
+<td>A CSS color value, such as <code>#0055ff</code> or <code>rgb(0, 85, 255)</code>.</td>
+</tr>
+<tr>
+<td><code>opacity</code></td>
+<td>No</td>
+<td>Number</td>
+<td>Base opacity, from <code>0</code> for transparent to <code>1</code> for opaque.</td>
+</tr>
+<tr>
+<td><code>selectedOpacity</code></td>
+<td>No</td>
+<td>Number</td>
+<td>Opacity while selected or highlighted, using the same <code>0</code> to <code>1</code> scale.</td>
+</tr>
+</tbody>
+</table>
+<p>Each struct must define at least one of <code>color</code>, <code>opacity</code>, or <code>selectedOpacity</code> to affect the model. If the Scene Coloring tool also assigns a color, the scene coloring value takes precedence while the configured opacity values remain in effect.</p>
+<h3>Interaction</h3>
+<p>Camera target, position, and zoom bindings work in both directions. The <strong>Interaction</strong> section connects the following camera and scene interaction state to Workshop variables:</p>
+<ul>
+<li><strong>Camera target X / Y / Z:</strong> The point that the camera faces. Configure all three coordinates.</li>
+<li><strong>Camera position X / Y / Z:</strong> The camera location. Configure all three coordinates.</li>
+<li><strong>Camera zoom:</strong> The camera zoom level.</li>
+<li><strong>Click X / Y / Z:</strong> Output number variables for the 3D coordinates of the point on a model part that the user most recently selected. Bind all three variables to reconstruct the selected point.</li>
+</ul>
+<h3>Styling</h3>
+<p>Color fields accept CSS color values. The <strong>Styling</strong> section controls the default scene appearance with the following settings:</p>
+<ul>
+<li><strong>Fallback color:</strong> The color for parts that have no assigned color. A model-specific fallback color takes precedence for that model.</li>
+<li><strong>Background color:</strong> The 3D viewport background color.</li>
+</ul>
+<h3>Interface</h3>
+<p>All options are on by default. The <strong>Interface</strong> section controls which interface elements are available:</p>
+<ul>
+<li><strong>Show sidebar</strong>, <strong>Show toolbar</strong>, and <strong>Show gizmo:</strong> Control the visibility of the scene tree sidebar, top toolbar, and orientation gizmo.</li>
+<li><strong>Enable context menu:</strong> Allows users to open context menus on parts.</li>
+<li><strong>Expand sidebar by default:</strong> Opens the sidebar when the widget first loads.</li>
+</ul>
+<h3>Scene</h3>
+<p>By default, Vulcan uses Complete mode, an Orthographic camera, and Orbit controls. Mode switching and part information are on; auto-rotate is off. The <strong>Scene</strong> section controls how Vulcan presents and navigates the model with the following settings:</p>
+<ul>
+<li><strong>Default mode:</strong> The initial scene mode.</li>
+<li><strong>Complete:</strong> Display the assembled model and complete scene tree.</li>
+<li><strong>Grid:</strong> Display a sortable grid of unique parts.</li>
+<li><strong>Component:</strong> Focus on the selected component.</li>
+<li><strong>Enable switching modes:</strong> Show controls for changing scene modes.</li>
+<li><strong>Camera mode:</strong> Use an <strong>Orthographic</strong> or <strong>Perspective</strong> camera.</li>
+<li><strong>Controls mode:</strong> Use <strong>Orbit</strong> or <strong>Trackball</strong> camera controls.</li>
+<li><strong>Enable scene auto-rotate:</strong> Rotate the scene automatically.</li>
+<li><strong>Complete mode config &gt; Enable part info on select:</strong> Show part information when a user selects a part in Complete mode.</li>
+</ul>
+<h3>Tools</h3>
+<p>The <strong>Tools</strong> section lets you hide functionality that the module does not need. All settings are on by default. Turn off a setting to remove that tool's controls from the embedded widget. Each tool is described in detail on the <a href="https://www.palantir.com/docs/foundry/vulcan/tool-overview/">Tools</a> page.</p>
+<table>
+<thead>
+<tr>
+<th>Setting</th>
+<th>Functionality</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Enable annotation tool</strong></td>
+<td>Annotation creation on model parts.</td>
+</tr>
+<tr>
+<td><strong>Enable mesh styling tool</strong></td>
+<td>Appearance controls for individual meshes.</td>
+</tr>
+<tr>
+<td><strong>Enable measurement tool</strong></td>
+<td>Distance measurements between model points.</td>
+</tr>
+<tr>
+<td><strong>Enable section view tool</strong></td>
+<td>Model cross-sections using section planes.</td>
+</tr>
+<tr>
+<td><strong>Enable transform tool</strong></td>
+<td>Repositioning of parts and assemblies.</td>
+</tr>
+<tr>
+<td><strong>Enable scene coloring tool</strong></td>
+<td>Property- or function-based coloring of parts.</td>
+</tr>
+</tbody>
+</table>
+<h3>Actions</h3>
+<p>The <strong>Actions</strong> section specifies which Ontology actions save user-created content. Use <strong>Annotation action</strong>, <strong>Measurement action</strong>, and <strong>Section plane action</strong> to select the action for each content type.</p>
+<p>If you do not configure an action, Vulcan discovers actions that have the required parameter type classes and lets the user choose from the matches. Configuring an action limits saving to that action and can provide defaults or user input fields for additional action parameters. Vulcan supplies the tool-specific values listed in <a href="https://www.palantir.com/docs/foundry/vulcan/schema-reference/#action-types">Action types</a>.</p>
+<h3>Output</h3>
+<p>When at least one output is configured, users can choose which measurement to send to Workshop from the Measurement tool. The <strong>Output</strong> section sends a selected measurement to Workshop variables through the following settings:</p>
+<ul>
+<li><strong>Measurement scene distance:</strong> The total measurement distance as a number in the model's scene units.</li>
+<li><strong>Measurement unit distance:</strong> The same distance as a formatted string in the user's selected display unit, such as <code>12.30 mm</code>. If the model has no recognized unit, the output uses <code>units</code>.</li>
+</ul>
+</body>
+</html>

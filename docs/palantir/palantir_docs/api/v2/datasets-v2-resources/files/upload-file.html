@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Upload File</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../../../index.html">返回目录</a></div>
+<p><code>POST /api/v2/datasets/{datasetRid}/files/{filePath}/upload</code></p>
+<p>Uploads a File to an existing Dataset.
+The body of the request must contain the binary content of the file and the <code>Content-Type</code> header must be <code>application/octet-stream</code>.
+By default the file is uploaded to a new transaction on the default branch - <code>master</code> for most enrollments.
+If the file already exists only the most recent version will be visible in the updated view.</p>
+<h4>Advanced Usage</h4>
+<p>See <a href="https://www.palantir.com/docs/foundry/data-integration/datasets/">Datasets Core Concepts</a> for details on using branches and transactions. 
+To <strong>upload a file to a specific Branch</strong> specify the Branch's name as <code>branchName</code>. A new transaction will 
+be created and committed on this branch. By default the TransactionType will be <code>UPDATE</code>, to override this
+default specify <code>transactionType</code> in addition to <code>branchName</code>. 
+See <a href="https://www.palantir.com/docs/foundry/api/datasets-resources/branches/create-branch/">createBranch</a> to create a custom branch.
+To <strong>upload a file on a manually opened transaction</strong> specify the Transaction's resource identifier as
+<code>transactionRid</code>. This is useful for uploading multiple files in a single transaction. 
+See <a href="https://www.palantir.com/docs/foundry/api/datasets-resources/transactions/create-transaction/">createTransaction</a> to open a transaction.</p>
+<p>Third-party applications using this endpoint via OAuth2 must request the following operation scope: <code>api:datasets-write</code>.</p>
+<p><strong>OAuth2 scopes</strong>: <code>api:datasets-write</code></p>
+<h2>Path parameters</h2>
+<table>
+<thead>
+<tr>
+<th>参数</th>
+<th>类型</th>
+<th>必填</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>datasetRid</code></td>
+<td>string</td>
+<td>是</td>
+<td>The Resource Identifier (RID) of a Dataset.<br>示例: <code>ri.foundry.main.dataset.c26f11c8-cdb3-4f44-9f5d-9816ea1c82da</code></td>
+</tr>
+<tr>
+<td><code>filePath</code></td>
+<td>string</td>
+<td>是</td>
+<td>The path to a File within Foundry. Paths are relative and must not start with a leading slash.<br>Examples: <code>my-file.txt</code>, <code>path/to/my-file.jpg</code>, <code>dataframe.snappy.parquet</code>.<br>示例: <code>My Folder/my-file.csv</code></td>
+</tr>
+</tbody>
+</table>
+<h2>Query parameters</h2>
+<table>
+<thead>
+<tr>
+<th>参数</th>
+<th>类型</th>
+<th>必填</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>branchName</code></td>
+<td>string</td>
+<td>否</td>
+<td>The name of the Branch on which to upload the File. Defaults to <code>master</code> for most enrollments.<br>示例: <code>master</code></td>
+</tr>
+<tr>
+<td><code>transactionType</code></td>
+<td>enum</td>
+<td>否</td>
+<td>The type of the Transaction to create when using branchName. Defaults to <code>UPDATE</code>.<br>示例: <code>APPEND</code></td>
+</tr>
+<tr>
+<td><code>transactionRid</code></td>
+<td>string</td>
+<td>否</td>
+<td>The Resource Identifier (RID) of the open Transaction on which to upload the File.<br>示例: <code>ri.foundry.main.transaction.0a0207cb-26b7-415b-bc80-66a3aa3933f4</code></td>
+</tr>
+</tbody>
+</table>
+<h2>Request body</h2>
+<h2>Response</h2>
+<p><strong>File</strong></p>
+<table>
+<thead>
+<tr>
+<th>参数</th>
+<th>类型</th>
+<th>必填</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>File</code></td>
+<td>object</td>
+<td>是</td>
+<td>示例: <code>{"path":"2020/09/30/trades.csv","updatedTime":"2020-09-30T12:34:56.789Z","transactionRid":"ri.foundry.main.transaction.0a0207cb-26b7-415b-bc80-66a3aa3933f4"}</code></td>
+</tr>
+<tr>
+<td><code>File.path</code></td>
+<td>string</td>
+<td>是</td>
+<td>The path to a File within Foundry. Paths are relative and must not start with a leading slash.<br>Examples: <code>my-file.txt</code>, <code>path/to/my-file.jpg</code>, <code>dataframe.snappy.parquet</code>.<br>示例: <code>My Folder/my-file.csv</code></td>
+</tr>
+<tr>
+<td><code>File.transactionRid</code></td>
+<td>string</td>
+<td>是</td>
+<td>The Resource Identifier (RID) of a Transaction.<br>示例: <code>ri.foundry.main.transaction.0a0207cb-26b7-415b-bc80-66a3aa3933f4</code></td>
+</tr>
+<tr>
+<td><code>File.sizeBytes</code></td>
+<td>string</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>File.updatedTime</code></td>
+<td>string</td>
+<td>是</td>
+<td>示例: <code>2020-09-30T12:34:56.789Z</code></td>
+</tr>
+</tbody>
+</table>
+<pre><code class="language-json">{
+  &quot;path&quot;: &quot;2020/09/30/trades.csv&quot;,
+  &quot;updatedTime&quot;: &quot;2020-09-30T12:34:56.789Z&quot;,
+  &quot;transactionRid&quot;: &quot;ri.foundry.main.transaction.0a0207cb-26b7-415b-bc80-66a3aa3933f4&quot;
+}
+</code></pre>
+<h2>Error responses</h2>
+<table>
+<thead>
+<tr>
+<th>错误码</th>
+<th>错误名称</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>NOT_FOUND</td>
+<td><code>BranchNotFound</code></td>
+<td>The requested branch could not be found, or the client token does not have access to it.</td>
+</tr>
+<tr>
+<td>NOT_FOUND</td>
+<td><code>DatasetNotFound</code></td>
+<td>The requested dataset could not be found, or the client token does not have access to it.</td>
+</tr>
+<tr>
+<td>CONFLICT</td>
+<td><code>OpenTransactionAlreadyExists</code></td>
+<td>A transaction is already open on this dataset and branch. A branch of a dataset can only have one open transaction at a time.</td>
+</tr>
+<tr>
+<td>NOT_FOUND</td>
+<td><code>FileAlreadyExists</code></td>
+<td>The given file path already exists in the dataset and transaction.</td>
+</tr>
+<tr>
+<td>INVALID_ARGUMENT</td>
+<td><code>InvalidParameterCombination</code></td>
+<td>The given parameters are individually valid but cannot be used in the given combination.</td>
+</tr>
+<tr>
+<td>INVALID_ARGUMENT</td>
+<td><code>InvalidFilePath</code></td>
+<td>The provided file path is invalid. Check that the path does not start with a leading slash.</td>
+</tr>
+<tr>
+<td>NOT_FOUND</td>
+<td><code>TransactionNotFound</code></td>
+<td>The requested transaction could not be found on the dataset, or the client token does not have access to it.</td>
+</tr>
+<tr>
+<td>INVALID_ARGUMENT</td>
+<td><code>TransactionNotOpen</code></td>
+<td>The given transaction is not open.</td>
+</tr>
+<tr>
+<td>PERMISSION_DENIED</td>
+<td><code>CreateTransactionPermissionDenied</code></td>
+<td>The provided token does not have permission to create a transaction on this dataset.</td>
+</tr>
+<tr>
+<td>PERMISSION_DENIED</td>
+<td><code>AbortTransactionPermissionDenied</code></td>
+<td>The provided token does not have permission to abort the given transaction on the given dataset.</td>
+</tr>
+<tr>
+<td>PERMISSION_DENIED</td>
+<td><code>CommitTransactionPermissionDenied</code></td>
+<td>The provided token does not have permission to commit the given transaction on the given dataset.</td>
+</tr>
+<tr>
+<td>INVALID_ARGUMENT</td>
+<td><code>InvalidBranchName</code></td>
+<td>The requested branch name cannot be used. Branch names cannot be empty and must not look like RIDs or UUIDs.</td>
+</tr>
+<tr>
+<td>PERMISSION_DENIED</td>
+<td><code>UploadFilePermissionDenied</code></td>
+<td>Could not upload the File.</td>
+</tr>
+</tbody>
+</table>
+</body>
+</html>

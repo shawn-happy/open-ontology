@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Text segmentation</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Text segmentation</h1>
+<blockquote>
+<p>Supported in: Batch, Faster, Streaming</p>
+</blockquote>
+<p>Extract a series of text segments using sliding window segmentation.</p>
+<p><strong>Expression categories:</strong> String</p>
+<h2>Declared arguments</h2>
+<ul>
+<li><strong>Expression:</strong> The body of text that is to be segmented.<br><em>Expression\<String></em></li>
+<li><strong>Length:</strong> The length in terms of words for the segments that the text will be broken into.<br><em>Expression\<Integer></em></li>
+<li><em>optional</em> <strong>Overflow:</strong> The number of words a segment can share with another segment.<br><em>Expression\<Integer></em></li>
+</ul>
+<p><strong>Output type:</strong> <em>Array\<String></em></p>
+<h2>Examples</h2>
+<h3>Example 1: Base case</h3>
+<p><strong>Description:</strong> This test shows the ability of the transform to properly segment a small set of text where the end will be its own segment as well.</p>
+<p><strong>Argument values:</strong></p>
+<ul>
+<li><strong>Expression:</strong> <code>string</code></li>
+<li><strong>Length:</strong> 3</li>
+<li><strong>Overflow:</strong> 1</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>string</th>
+<th><strong>Output</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>hello world this is a test string</td>
+<td>[ hello world this, this is a, a test string, string ]</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3>Example 2: Base case</h3>
+<p><strong>Description:</strong> Test with negative overflow.</p>
+<p><strong>Argument values:</strong></p>
+<ul>
+<li><strong>Expression:</strong> <code>string</code></li>
+<li><strong>Length:</strong> <code>length</code></li>
+<li><strong>Overflow:</strong> <code>overflow</code></li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>string</th>
+<th>length</th>
+<th>overflow</th>
+<th><strong>Output</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>She sells sea shells by</td>
+<td>2</td>
+<td>-1</td>
+<td>[ She sells, shells by ]</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3>Example 3: Base case</h3>
+<p><strong>Description:</strong> A larger test with overflow and a smaller segment at the end.</p>
+<p><strong>Argument values:</strong></p>
+<ul>
+<li><strong>Expression:</strong> <code>string</code></li>
+<li><strong>Length:</strong> <code>length</code></li>
+<li><strong>Overflow:</strong> <code>overflow</code></li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>string</th>
+<th>length</th>
+<th>overflow</th>
+<th><strong>Output</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>hello world this is a larger test with overlap, the nature of the human spirit is strange as such i ...</td>
+<td>10</td>
+<td>3</td>
+<td>[ hello world this is a larger test with overlap, the, with overlap, the nature of the human spirit ...</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3>Example 4: Base case</h3>
+<p><strong>Description:</strong> Test a string where overflow is set to 0and the last segment is smaller than a full length.</p>
+<p><strong>Argument values:</strong></p>
+<ul>
+<li><strong>Expression:</strong> <code>string</code></li>
+<li><strong>Length:</strong> 3</li>
+<li><strong>Overflow:</strong> <em>null</em></li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>string</th>
+<th><strong>Output</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>hello world this is a test string</td>
+<td>[ hello world this, is a test, string ]</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3>Example 5: Base case</h3>
+<p><strong>Description:</strong> Test with no overflow where the segments are perfectly divided by length.</p>
+<p><strong>Argument values:</strong></p>
+<ul>
+<li><strong>Expression:</strong> <code>string</code></li>
+<li><strong>Length:</strong> <code>length</code></li>
+<li><strong>Overflow:</strong> <code>overflow</code></li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>string</th>
+<th>length</th>
+<th>overflow</th>
+<th><strong>Output</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>hello world this is a test string without overlap</td>
+<td>3</td>
+<td>0</td>
+<td>[ hello world this, is a test, string without overlap ]</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3>Example 6: Null case</h3>
+<p><strong>Description:</strong> Test with no overflow where the segments are perfectly divided by length.</p>
+<p><strong>Argument values:</strong></p>
+<ul>
+<li><strong>Expression:</strong> <code>string</code></li>
+<li><strong>Length:</strong> <code>length</code></li>
+<li><strong>Overflow:</strong> <code>overflow</code></li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>string</th>
+<th>length</th>
+<th>overflow</th>
+<th><strong>Output</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><em>null</em></td>
+<td><em>null</em></td>
+<td><em>null</em></td>
+<td><em>null</em></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3>Example 7: Null case</h3>
+<p><strong>Description:</strong> Test with no overflow where the segments are perfectly divided by length.</p>
+<p><strong>Argument values:</strong></p>
+<ul>
+<li><strong>Expression:</strong> <code>string</code></li>
+<li><strong>Length:</strong> <code>length</code></li>
+<li><strong>Overflow:</strong> <code>overflow</code></li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>string</th>
+<th>length</th>
+<th>overflow</th>
+<th><strong>Output</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><em>null</em></td>
+<td>1</td>
+<td><em>null</em></td>
+<td><em>null</em></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3>Example 8: Null case</h3>
+<p><strong>Description:</strong> Test with no overflow where the segments are perfectly divided by length.</p>
+<p><strong>Argument values:</strong></p>
+<ul>
+<li><strong>Expression:</strong> <code>string</code></li>
+<li><strong>Length:</strong> <code>length</code></li>
+<li><strong>Overflow:</strong> <code>overflow</code></li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>string</th>
+<th>length</th>
+<th>overflow</th>
+<th><strong>Output</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Hello world</td>
+<td><em>null</em></td>
+<td><em>null</em></td>
+<td><em>null</em></td>
+</tr>
+</tbody>
+</table>
+<hr />
+</body>
+</html>

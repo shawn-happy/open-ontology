@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Aggregate Object Set</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../../../index.html">返回目录</a></div>
+<p><code>POST /api/v2/ontologies/{ontology}/objectSets/aggregate</code></p>
+<p>Aggregates the ontology objects present in the <code>ObjectSet</code> from the provided object set definition.</p>
+<p>Third-party applications using this endpoint via OAuth2 must request the following operation scope: <code>api:ontologies-read</code>.</p>
+<p><strong>OAuth2 scopes</strong>: <code>api:ontologies-read</code></p>
+<h2>Path parameters</h2>
+<table>
+<thead>
+<tr>
+<th>参数</th>
+<th>类型</th>
+<th>必填</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ontology</code></td>
+<td>string</td>
+<td>是</td>
+<td>The API name or RID of the Ontology. To find the API name or RID, use the <strong>List Ontologies</strong> endpoint or<br>check the <strong>Ontology Manager</strong>.<br>示例: <code>palantir</code></td>
+</tr>
+</tbody>
+</table>
+<h2>Query parameters</h2>
+<table>
+<thead>
+<tr>
+<th>参数</th>
+<th>类型</th>
+<th>必填</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>sdkPackageRid</code></td>
+<td>string</td>
+<td>否</td>
+<td>The package rid of the generated SDK.</td>
+</tr>
+<tr>
+<td><code>sdkVersion</code></td>
+<td>string</td>
+<td>否</td>
+<td>The package version of the generated SDK.</td>
+</tr>
+<tr>
+<td><code>branch</code></td>
+<td>string</td>
+<td>否</td>
+<td>The Foundry branch to aggregate the objects from. If not specified, the default branch is used.<br>Branches are an experimental feature and not all workflows are supported.<br>示例: <code>ri.branch..branch.d827184f-ee0e-4351-8b70-efbe51e07252</code></td>
+</tr>
+<tr>
+<td><code>transactionId</code></td>
+<td>string</td>
+<td>否</td>
+<td>The ID of an Ontology transaction to read from.<br>Transactions are an experimental feature and all workflows may not be supported.</td>
+</tr>
+<tr>
+<td><code>scenarioRid</code></td>
+<td>string</td>
+<td>否</td>
+<td>The resource identifier of an ontology scenario to aggregate the objects on.<br>示例: <code>ri.actions..scenario.a1b2c3d4-e5f6-7890-abcd-ef1234567890</code></td>
+</tr>
+<tr>
+<td><code>executeInMemoryOnly</code></td>
+<td>boolean</td>
+<td>否</td>
+<td>If true, the request fails with an error when it cannot be computed in-memory.<br>Use this to opt into fast failure on requests that would otherwise require<br>heavier computation.<br>Defaults to false.</td>
+</tr>
+</tbody>
+</table>
+<h2>Request body</h2>
+<pre><code class="language-json">{
+  &quot;objectSet&quot;: {
+    &quot;objectType&quot;: &quot;Employee&quot;,
+    &quot;type&quot;: &quot;base&quot;
+  },
+  &quot;aggregation&quot;: [
+    {
+      &quot;field&quot;: &quot;tenure&quot;,
+      &quot;name&quot;: &quot;min_tenure&quot;,
+      &quot;type&quot;: &quot;min&quot;
+    },
+    {
+      &quot;field&quot;: &quot;tenure&quot;,
+      &quot;name&quot;: &quot;avg_tenure&quot;,
+      &quot;type&quot;: &quot;avg&quot;
+    }
+  ],
+  &quot;groupBy&quot;: [
+    {
+      &quot;field&quot;: &quot;startDate&quot;,
+      &quot;ranges&quot;: [
+        {
+          &quot;endValue&quot;: &quot;2020-06-01&quot;,
+          &quot;startValue&quot;: &quot;2020-01-01&quot;
+        }
+      ],
+      &quot;type&quot;: &quot;range&quot;
+    },
+    {
+      &quot;field&quot;: &quot;city&quot;,
+      &quot;type&quot;: &quot;exact&quot;
+    }
+  ]
+}
+</code></pre>
+<h2>Response</h2>
+<p><strong>AggregateObjectsResponseV2</strong></p>
+<p>Success response.</p>
+<table>
+<thead>
+<tr>
+<th>参数</th>
+<th>类型</th>
+<th>必填</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>AggregateObjectsResponseV2</code></td>
+<td>object</td>
+<td>是</td>
+<td>Success response.<br>示例: <code>{"data":[{"metrics":[{"name":"min_tenure","value":1},{"name":"avg_tenure","value":3}],"group":{"startDate":{"startValue":"2020-01-01","endValue":"2020-06-01"},"city":"New York City"}},{"metrics":[{"name":"min_tenure","value":2},{"name":"avg_tenure","value":3}],"group":{"startDate":{"startValue":"2020-01-01","endValue":"2020-06-01"},"city":"San Francisco"}}]}</code></td>
+</tr>
+<tr>
+<td><code>AggregateObjectsResponseV2.excludedItems</code></td>
+<td>integer</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>AggregateObjectsResponseV2.accuracy</code></td>
+<td>enum</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>AggregateObjectsResponseV2.data</code></td>
+<td>list<AggregateObjectsResponseItemV2></td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>AggregateObjectsResponseV2.data.AggregateObjectsResponseItemV2</code></td>
+<td>object</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>AggregateObjectsResponseV2.data.AggregateObjectsResponseItemV2.group</code></td>
+<td>map</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>AggregateObjectsResponseV2.data.AggregateObjectsResponseItemV2.group.AggregationGroupKeyV2</code></td>
+<td>string</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>AggregateObjectsResponseV2.data.AggregateObjectsResponseItemV2.group.AggregationGroupValueV2</code></td>
+<td>any</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>AggregateObjectsResponseV2.data.AggregateObjectsResponseItemV2.metrics</code></td>
+<td>list<AggregationMetricResultV2></td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>AggregateObjectsResponseV2.data.AggregateObjectsResponseItemV2.metrics.AggregationMetricResultV2</code></td>
+<td>object</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>AggregateObjectsResponseV2.data.AggregateObjectsResponseItemV2.metrics.AggregationMetricResultV2.name</code></td>
+<td>string</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>AggregateObjectsResponseV2.data.AggregateObjectsResponseItemV2.metrics.AggregationMetricResultV2.value</code></td>
+<td>any</td>
+<td>否</td>
+<td>The value of the metric. This will be a double in the case of<br>a numeric metric, or a date string in the case of a date metric.</td>
+</tr>
+<tr>
+<td><code>AggregateObjectsResponseV2.computeUsage</code></td>
+<td>number</td>
+<td>否</td>
+<td>A measurement of compute usage expressed in <a href="https://www.palantir.com/docs/foundry/resource-management/usage-types#compute-second">compute-seconds</a>. For more information, please refer to the <a href="https://www.palantir.com/docs/foundry/resource-management/usage-types">Usage types</a> documentation.<br>示例: <code>3.7</code></td>
+</tr>
+</tbody>
+</table>
+<pre><code class="language-json">{
+  &quot;data&quot;: [
+    {
+      &quot;metrics&quot;: [
+        {
+          &quot;name&quot;: &quot;min_tenure&quot;,
+          &quot;value&quot;: 1
+        },
+        {
+          &quot;name&quot;: &quot;avg_tenure&quot;,
+          &quot;value&quot;: 3
+        }
+      ],
+      &quot;group&quot;: {
+        &quot;startDate&quot;: {
+          &quot;startValue&quot;: &quot;2020-01-01&quot;,
+          &quot;endValue&quot;: &quot;2020-06-01&quot;
+        },
+        &quot;city&quot;: &quot;New York City&quot;
+      }
+    },
+    {
+      &quot;metrics&quot;: [
+        {
+          &quot;name&quot;: &quot;min_tenure&quot;,
+          &quot;value&quot;: 2
+        },
+        {
+          &quot;name&quot;: &quot;avg_tenure&quot;,
+          &quot;value&quot;: 3
+        }
+      ],
+      &quot;group&quot;: {
+        &quot;startDate&quot;: {
+          &quot;startValue&quot;: &quot;2020-01-01&quot;,
+          &quot;endValue&quot;: &quot;2020-06-01&quot;
+        },
+        &quot;city&quot;: &quot;San Francisco&quot;
+      }
+    }
+  ]
+}
+</code></pre>
+</body>
+</html>

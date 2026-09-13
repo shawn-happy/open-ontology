@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AIP Document Intelligence</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>AIP Document Intelligence</h1>
+<p>AIP Document Intelligence is Foundry's entry point for all document extraction workflows. You can use AIP Document Intelligence to open a media set of enterprise documents, quickly execute different state-of-the-art document extraction strategies, and retrieve evaluation results of the quality, speed, and token cost of such strategies. With a single click, you can then deploy the configured extraction strategy as a Python transform to a batch pipeline over a media set.</p>
+<p><img alt="An example PDF document from a media set previewed in AIP Document Intelligence." src="../../_resources/foundry/document-intelligence/ui_preview.png" /></p>
+<h2>Features</h2>
+<p>AIP Document Intelligence features several extraction capabilities alongside a simplified interface for efficient walk-up use:</p>
+<p><img alt="An example of document extracting in Document Intelligence, using bounding boxes to highlight distinct areas of extraction." src="../../_resources/foundry/document-intelligence/bounding_boxes.png" /></p>
+<ul>
+<li><strong>Intuitive user interface:</strong> Easily search for and select Foundry media sets to process with a variety of extraction strategies.</li>
+<li><strong>Quick confirmation loop:</strong> Results of an executed strategy are easy to confirm using the Markdown output mapped to bounding boxes on the original PDF.</li>
+<li><strong>Traditional extractions:</strong> Leverage preexisting strategies to extract Markdown from the document:</li>
+<li><strong>Raw text:</strong> Extracts text by reading document metadata. Only available for electronically generated PDFs.</li>
+<li><strong>OCR:</strong> Uses traditional OCR (Optical Character Recognition) to extract text without preserving layout information.</li>
+<li><strong>Layout-aware OCR:</strong> Uses advanced OCR with bounding boxes to preserve document layout and structure.</li>
+<li><strong>Generative AI extractions:</strong> Execute vision language model (VLM) strategies with prompts that are fine-tuned to extract Markdown. The default prompts are tuned to yield best performance in our internal evaluation set. You can also modify the prompts with custom logic through the configuration interface.</li>
+<li><strong>Preprocessing with VLM extractions:</strong> For more complex use cases, you can combine document preprocessing with traditional methods, such as layout-aware OCR. Then, you can pass the results of the preprocessing to a VLM for better performance. Learn more about <a href="https://www.palantir.com/docs/foundry/document-intelligence/core-concepts/#preprocessing">document preprocessing</a>.</li>
+<li><strong>Execution metrics:</strong> Observe rubric metrics for extraction quality, execution time, and input/output token consumption.</li>
+<li><strong>Evaluations:</strong> Using the VLM as a judge, extraction results are scored on a variety of factors that may be included in the document, including the quality of lists, tables, and code blocks. The evaluation strategy is tuned to match evaluation results against ground truth in our internal evaluation set. Learn more about <a href="https://www.palantir.com/docs/foundry/document-intelligence/core-concepts/#evaluations">extraction evaluations</a>.</li>
+<li><strong>Deployment:</strong> After confirming an ideal extraction strategy, easily deploy the strategy into a Python transforms repository with a single click. The transforms will be configured with the exact extraction strategy, including model selection and any prompt modifications. Learn more about <a href="https://www.palantir.com/docs/foundry/document-intelligence/core-concepts/#deployment-paths">extraction strategy deployment</a>.</li>
+</ul>
+<h2>Getting started</h2>
+<p>AIP Document Intelligence follows a testing workflow where users import a media set, select a configuration, and iterate on their strategy by observing results and evaluations until satisfaction before deploying. Follow the steps below to get started:</p>
+<p><img alt="A diagram of the standard workflow when using AIP Document Intelligence." src="../../_resources/foundry/document-intelligence/workflow.png" /></p>
+<ol>
+<li>
+<p><strong>Upload a media set:</strong> From the application landing page, choose to select a media set from your available files, or upload a new media set.</p>
+</li>
+<li>
+<p><strong>Select a configuration:</strong> Once the media set opens, open the <strong>Configuration</strong> tab to set up the extraction method you want to use. Choose between traditional or generative AI methods, enable preprocessing if desired, and customize prompts to use with a VLM. Select <strong>Save</strong> to remember your configuration choice in the future. <br><br>
+   <img alt="The Configuration tab in AIP Document Intelligence" src="../../_resources/foundry/document-intelligence/configuration.png" /> <br><br></p>
+</li>
+<li>
+<p><strong>Execute strategy on a media set:</strong> After configuring the extraction method, select <strong>Run</strong> in the top right corner of the <strong>Configuration</strong> tab.</p>
+</li>
+<li>
+<p><strong>Preview extraction results:</strong> After running the extraction, navigate to the <strong>Extraction result</strong> tab to view the output based on the chosen strategy.</p>
+</li>
+<li>
+<p><strong>Evaluate extraction results (optional):</strong> From the results tab, select <strong>Evaluate results</strong> to use an LLM to evaluate the extraction results. Continue to test steps 3 through 5 until you are satisfied with the extraction results and evaluation. <br><br>
+   <img alt="An example of an evaluation of document extraction results." src="../../_resources/foundry/document-intelligence/evaluation.png" /> <br><br></p>
+</li>
+<li>
+<p><strong>Visualize chunking (optional):</strong> From the <strong>Extraction result</strong> tab, select the <strong>Chunk</strong> button next to an extraction result to preview how text will be split. You can adjust chunking parameters and see the results.</p>
+</li>
+<li>
+<p><strong>Deploy extraction strategy:</strong> Open the <strong>Deployment</strong> tab, select your saved configuration from the dropdown menu, and select <strong>Create transform repository</strong>. You will be prompted to choose a name and location for a new Python transforms repository. Optionally enable chunking and embedding. After the repository is created, specify the output dataset and start the build. See the repository's <code>README.md</code> for detailed instructions. <br><br>
+   <img alt="A Python transform repository, preconfigured with an AIP Document Intelligence template." src="../../_resources/foundry/document-intelligence/python_transform.png" /></p>
+</li>
+</ol>
+</body>
+</html>

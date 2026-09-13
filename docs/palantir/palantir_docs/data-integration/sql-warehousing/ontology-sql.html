@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ontology SQL</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Ontology SQL</h1>
+<p>:::callout{theme="neutral" title="Beta"}
+Ontology SQL is in the <a href="https://www.palantir.com/docs/foundry/platform-overview/development-life-cycle/">beta</a> phase of development and some features may not be available on your environment. Functionality may change during active development. Contact Palantir support to request access to Beta features.
+:::</p>
+<p>Ontology SQL is Foundry's SQL query engine for ontology objects, purpose-built to bring familiar SQL semantics to your ontology data. Ontology SQL lets you run SQL queries directly against object types, many-to-many links, and interfaces. With Ontology SQL, you can query ontology objects using standard Spark SQL syntax, executing directly against object storage. Ontology SQL is built on Foundry's SQL infrastructure, providing a single <code>SELECT</code> statement interface that supports variables, standard SQL functions, and seamless integration with your existing ontology modeling.</p>
+<h2>Ontology SQL architecture</h2>
+<p>Ontology SQL provides a unified SQL experience for querying ontology objects, sharing the same SQL dialect and front-end experience as Foundry's other SQL offerings while operating with its own specialized backend.</p>
+<ul>
+<li><strong>Unified SQL dialect:</strong> Ontology SQL shares the same SQL parsing layer and ANSI-compliant Spark <a href="https://www.palantir.com/docs/foundry/sql-warehousing/sql-dialect/">SQL dialect</a> as <a href="https://www.palantir.com/docs/foundry/sql-warehousing/furnace/">Furnace</a>, ensuring consistent syntax and behavior across Foundry's SQL ecosystem. This provides a familiar SQL experience, while the underlying query planning and optimization are tailored specifically for ontology data.</li>
+<li><strong>Ontology data providers:</strong> Ontology SQL introduces specialized providers for object types and many-to-many link tables. These providers translate ontology concepts such as object properties, primary keys, and link relationships into SQL-compatible table schemas, enabling seamless querying of ontology data using standard SQL syntax.</li>
+<li><strong>Direct object storage access:</strong> Queries execute directly against Foundry's object storage layer, the same underlying storage used by object sets. This direct access ensures that performance and cost characteristics remain consistent with other ontology operations, with no intermediate data movement required.</li>
+<li><strong>Compute engine abstraction:</strong> After planning, the object storage service (OSS) determines which compute engine should execute the query. The compute engine is responsible for running the query, reading data, and returning results, with automatic resource management and built-in scale constraints to ensure reliable performance.</li>
+<li><strong>Consistent API experience:</strong> Ontology SQL provides a similar API surface to Furnace, delivering a consistent developer experience and enabling future extensibility as the platform evolves.</li>
+<li><strong>Supported compute engines:</strong> Ontology SQL is built on Foundry's compute engine abstraction, allowing for future optimization and updates as the platform evolves. Additionally, to leverage larger and more complex queries, some queries in Ontology SQL can be executed in <a href="https://spark.apache.org/">Spark â</a>.</li>
+</ul>
+<h2>Getting started with Ontology SQL</h2>
+<h3>Access Ontology SQL</h3>
+<p>You can interact with Ontology SQL in object mode in <a href="https://www.palantir.com/docs/foundry/sql-warehousing/sql-studio/#object-mode">SQL Studio</a> or <a href="https://www.palantir.com/docs/foundry/sql-warehousing/sql-console/#modes">SQL Console</a>. Once in object mode, you will be able to query your object types using standard SQL syntax. For a complete reference of available operations, refer to the <a href="https://www.palantir.com/docs/foundry/sql-warehousing/sql-dialect/#functions">SQL dialect</a> documentation.</p>
+<h3>Write your first query</h3>
+<p>Ontology SQL queries reference object types using their resource identifiers (RIDs). The basic syntax follows this pattern:</p>
+<pre><code class="language-sql">SELECT * FROM `ri.ontology.main.object-type.&lt;object-type-rid&gt;`;
+</code></pre>
+<p>For example, a query for all properties from an <code>Employee</code> object type would be written as follows:</p>
+<pre><code class="language-sql">SELECT * FROM `ri.ontology.main.object-type.00000000-0000-0000-0000-000000000000`;
+</code></pre>
+<p>A query for many-to-many links can be written as shown below:</p>
+<pre><code class="language-sql">SELECT * FROM `ri.ontology.main.relation.&lt;relation-rid&gt;`;
+</code></pre>
+<h3>Understanding column names</h3>
+<p>All object properties are referenced in queries using their <strong>API names</strong>, not their display names. The columns available in your query correspond directly to the property API names defined in your ontology. You can find <a href="https://www.palantir.com/docs/foundry/object-link-types/create-object-type/#configure-api-names">property API names</a> in Ontology Manager.</p>
+<p>For example, if an <code>Employee</code> object has properties with API names <code>employeeId</code>, <code>firstName</code>, and, <code>department</code>, you would write a query as follows:</p>
+<pre><code class="language-sql">SELECT employeeId, firstName, department
+FROM ri.ontology.main.object-type.&lt;employee-rid&gt;;
+</code></pre>
+<h3>Working with link types</h3>
+<h4>One-to-one and one-to-many links</h4>
+<p>One-to-one and one-to-many link types do not need to be defined in Ontology Manager to be used in Ontology SQL. You can use SQL to join objects however you wish. Performance will be identical whether or not the join uses a link defined in Ontology Manager.</p>
+<h4>Many-to-many links</h4>
+<p>Many-to-many links require join tables and must be defined in Ontology Manager. To use them in your SQL joins, you must select the link type in the SQL query.</p>
+<p>When querying many-to-many link tables, column names follow a specific convention to avoid ambiguity.</p>
+<p>Each foreign key column is named using the pattern below:</p>
+<pre><code>&lt;objectTypeApiName&gt;_&lt;relationApiName&gt;
+</code></pre>
+<p>Consider a many-to-many relationship between <code>Person</code> and <code>Car</code> objects.</p>
+<p>The Ontology setup is as follows:</p>
+<ul>
+<li><strong>Object type:</strong> <code>Person</code> (API name: <code>person</code>)</li>
+<li><strong>Primary key:</strong> <code>personId</code></li>
+<li><strong>Link API name on <code>Person</code> side:</strong> <code>vehicles</code></li>
+<li><strong>Object type:</strong> <code>Car</code> (API name: <code>car</code>)</li>
+<li><strong>Primary key:</strong> <code>carId</code></li>
+<li><strong>Link API name on <code>Car</code> side:</strong> <code>drivers</code></li>
+<li><strong>Link type rid:</strong> <code>ri.ontology.main.relation.0</code></li>
+</ul>
+<p>Below is an example query to find all cars driven by a specific person:</p>
+<pre><code class="language-sql">SELECT c.*
+FROM `ri.ontology.main.relation.0` AS linkTable
+INNER JOIN `car` AS c
+  ON c.`carId` = linkTable.`person_vehicles`
+WHERE linkTable.`car_drivers` = 'person-123';
+</code></pre>
+<p>And an example query to find all people who drive a specific car:</p>
+<pre><code class="language-sql">SELECT p.*
+FROM `ri.ontology.main.relation.0` AS linkTable
+INNER JOIN `person` AS p
+  ON p.`personId` = linkTable.`car_drivers`
+WHERE linkTable.`person_vehicles` = 'car-456';
+</code></pre>
+<p>:::callout{theme="neutral" title="Best practice"}
+Always use table aliases when working with many-to-many links. Without aliases, column names can become difficult to read and maintain. Compare the following examples: <br><br>
+With aliases (recommended):</p>
+<pre><code class="language-sql">SELECT c.*
+FROM `ri.ontology.main.relation.0` AS linkTable
+INNER JOIN car AS c ON c.carId = linkTable.person_vehicles
+WHERE linkTable.car_drivers = 'person-123';
+</code></pre>
+<p><br>
+Without aliases (harder to read):</p>
+<pre><code class="language-sql">SELECT car.*
+FROM `ri.ontology.main.relation.0`
+INNER JOIN car ON car.carId = `ri.ontology.main.relation.0`.person_vehicles
+WHERE `ri.ontology.main.relation.0`.car_drivers = 'person-123';
+</code></pre>
+<p>:::</p>
+<h3>Using variables</h3>
+<p>Ontology SQL supports variables through the <code>DECLARE</code> statement:</p>
+<pre><code class="language-sql">DECLARE @minSalary DOUBLE = 75000.0, @department STRING = 'Engineering';
+
+SELECT employeeId, salary
+FROM ri.ontology.main.object-type.&lt;employee-rid&gt;
+WHERE salary &gt; @minSalary AND department = @department;
+</code></pre>
+<h4>Variable requirements</h4>
+<ul>
+<li>The <code>DECLARE</code> statement must be the first statement in your query, and can only be used once. Reference the example above for how to declare multiple variables.</li>
+<li>For supported variable types, refer to the <a href="https://www.palantir.com/docs/foundry/sql-warehousing/sql-dialect/#data-types">SQL dialect</a> documentation.</li>
+<li>Variable names can contain letters, digits, and underscores.</li>
+<li><code>SET</code> statements are not allowed.</li>
+</ul>
+<h4>Object set variables</h4>
+<p>You can define object set variables using the following Palantir-custom syntax:</p>
+<pre><code class="language-sql">DECLARE @employees `ri.ontology.main.object-type.&lt;object-type-rid&gt;`;
+
+SELECT employeeId
+FROM @employees;
+</code></pre>
+<p>Instead of specifying a variable type such as INT or STRING, write an object type RID surrounded by backticks. This enforces the object set shape. The default value for object set variables is all objects of the given type, and cannot be overridden.</p>
+<h3>Reserved keywords</h3>
+<p>Some keywords, such as <code>user</code> and <code>result</code>, are reserved. It is best practice to wrap column names in backticks to avoid conflicts as shown below:</p>
+<pre><code class="language-sql">SELECT `user`, `result` FROM ri.ontology.main.object-type.&lt;object-rid&gt;;
+</code></pre>
+<h3>Best practices for performance</h3>
+<h4>Avoid functions in filter conditions</h4>
+<p>When applying functions or transformations to columns in <code>WHERE</code> clauses, or when using computed columns for filtering, the query engine cannot leverage indices. This severely limits query performance and the scale of computation.</p>
+<p><strong>Avoid</strong> the following patterns that prevent index usage:</p>
+<pre><code class="language-sql">-- Filtering on a computed column
+SELECT employeeId, salary, bonus
+FROM employee
+WHERE salary + bonus &gt; 100000;
+
+-- Filtering on a function result
+SELECT employeeId, hireDate
+FROM employee
+WHERE YEAR(hireDate) = 2023;
+</code></pre>
+<p><strong>Prefer</strong> the following patterns to allow index usage:</p>
+<pre><code class="language-sql">-- Filter on the original column directly
+SELECT employeeId, salary, bonus
+FROM employee
+WHERE salary &gt; 100000 - bonus;
+
+-- Use date range comparison instead of extracting year
+SELECT employeeId, hireDate
+FROM employee
+WHERE hireDate &gt;= '2023-01-01' AND hireDate &lt; '2024-01-01';
+</code></pre>
+<p>The same principle applies to aggregations. Filtering over columns that were transformed by any part of the query (for example, <code>colA + colB AS newColumn</code>) means the engine cannot use indices to efficiently locate matching rows, resulting in slower performance.</p>
+<h4>Avoid selecting unnecessary large columns</h4>
+<p>Do not select large columns like vectors (embeddings) from queries when not needed. These columns can significantly increase query execution time and memory usage without providing value if they are not required for your analysis.</p>
+<h2>Limitations and constraints</h2>
+<h3>Query structure limitations</h3>
+<ul>
+<li><strong><code>SELECT</code> queries only:</strong> Ontology SQL exclusively supports read operations. No data modification (<code>INSERT</code>, <code>UPDATE</code>, <code>DELETE</code>) or schema definition (<code>CREATE</code>, <code>ALTER</code>, <code>DROP</code>) operations are available.</li>
+<li><strong>Single <code>SELECT</code> statement:</strong> Only one <code>SELECT</code> statement is allowed per query, with the exception of the <code>DECLARE</code> statement for variables.</li>
+<li><strong>No mixing of objects and datasets:</strong> Queries must operate entirely on ontology objects or entirely on datasets. Mixing the two in a single query is not supported.</li>
+</ul>
+<h3>Data type constraints</h3>
+<ul>
+<li><strong>Vector columns</strong> (embeddings) are technically supported, but are often excluded by front-end applications due to their size and limited utility in SQL contexts.</li>
+<li><strong>All other ontology column types</strong> are supported and automatically converted to SQL-compatible types.</li>
+</ul>
+<h3>Scale and performance constraints</h3>
+<ul>
+<li><strong>Output limit:</strong> The Ontology SQL service truncates results at 10,000 rows maximum. Even if no limit is provided in the query, the result will be capped to 10,000 rows. <code>OFFSET</code> is supported as long as <code>OFFSET</code> + <code>LIMIT</code> is less than or equal to 10,000. For example, <code>OFFSET 1000 LIMIT 1000</code> works, but <code>OFFSET 9000 LIMIT 2000</code> does not. If interacting with Ontology SQL using applications, those respective applications may enforce stricter limits.</li>
+</ul>
+<h3>Resource constraints</h3>
+<ul>
+<li>Jobs may be queued for up to 6 seconds during OSS Spark resource saturation.</li>
+<li>Query execution timeout is 20 seconds.</li>
+<li>Exceeding these durations will result in a <code>NotEnoughSparkResources</code> error.</li>
+</ul>
+<h3>Platform constraints</h3>
+<ul>
+<li><strong>Object Storage v2 only:</strong> Ontology SQL is currently available exclusively on Object Storage v2.</li>
+<li><strong>No branch or scenario support:</strong> Queries execute against the main branch only. Support for branches and scenarios is planned for future releases.</li>
+<li><strong>Object set limitations:</strong></li>
+<li>Object sets can be used as query inputs, depending on the front-end application.</li>
+<li>Object sets cannot be directly used as query outputs.</li>
+</ul>
+<h3>Supported ontology features</h3>
+<table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>Support status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Object types</td>
+<td>Supported; object type must be defined in Ontology Manager</td>
+</tr>
+<tr>
+<td>Many-to-many links</td>
+<td>Supported; link type must be defined in Ontology Manager</td>
+</tr>
+<tr>
+<td>Interfaces</td>
+<td>Not supported</td>
+</tr>
+<tr>
+<td>One-to-one and one-to-many links</td>
+<td>Supported; can be used directly in Ontology SQL as defining the link type in Ontology Manager is not required</td>
+</tr>
+<tr>
+<td>Branching</td>
+<td>Not supported</td>
+</tr>
+<tr>
+<td>Scenarios</td>
+<td>Not supported</td>
+</tr>
+<tr>
+<td>Write operations</td>
+<td>Not supported</td>
+</tr>
+</tbody>
+</table>
+</body>
+</html>

@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Key by</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Key by</h1>
+<blockquote>
+<p>Supported in: Streaming</p>
+</blockquote>
+<p>Keys the input by the provided key by columns. Note that this does not re-sort the data and only maintains per key ordering from the point the keys are set. Re-keying data may be unsafe in that if the newly keyed data was depending on any specific ordering then we can't guarantee that ordering if it wasn't already maintained by the previous keying. Additionally sets the primary key if cdc (change data capture) mode is enabled. Primary key defines columns that indicate which rows are updates, deletes, and the ordering of when read as a current view.</p>
+<p><strong>Transform categories</strong>: Other</p>
+<h2>Declared arguments</h2>
+<ul>
+<li><strong>Dataset:</strong> Dataset to perform key by on.<br><em>Table</em></li>
+<li><strong>Enable cdc mode:</strong> If false, only the partition columns are set which control ordering guarantee; rows with the same values for all key columns will be output in the same order they are received. If true both partition columns and primary key are set, which in addition to modifying the ordering guarantee also sets the configuration for how to de-duplicate rows with the same values for all key columns.<br><em>Literal\<Boolean></em></li>
+<li><strong>Key by columns:</strong> Columns on which to partition the input by key. If change data capture is enabled (by specifying primary key parameters), these columns will also be used to defines updates. A row is considered an update if its key values exactly match the key values of a previous row.<br><em>Set\<Column\\<Binary | Boolean | Byte | Double | Float | Integer | Long | Short | String | Timestamp>></em></li>
+<li><em>optional</em> <strong>Primary key is deleted column:</strong> Requires cdc mode enabled. Used in change data capture to define deletes. A row is considered a delete if its deleted column value is set to true, and the key columns exactly match a row to be deleted.<br><em>Column\<Boolean></em></li>
+<li><em>optional</em> <strong>Primary key ordering columns:</strong> Requires cdc mode enabled. Recommended to leave blank for streams. Used in change data capture to define ordering for batch and archive datasets. A row may only be an update or delete if it comes after the row it is trying to modify. If left blank and in streaming cdc mode, the most recently streamed row will always win.<br><em>List\<Column\\<Byte | Date | Decimal | Integer | Long | Short | String | Timestamp>></em></li>
+</ul>
+</body>
+</html>

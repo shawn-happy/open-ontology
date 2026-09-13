@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Using AIP Analyst</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Using AIP Analyst</h1>
+<p>This page covers the features and concepts that make up an AIP Analyst session.</p>
+<h2>Context</h2>
+<p>Context is the information AIP Analyst has access to during an analysis, such as your previous messages, the agent's tool results, and any Foundry resources you have added.</p>
+<p>You can add resources to context manually using the <strong>+</strong> button in the input field. You can also drag and drop Foundry resources directly into the chat input area to add them as context. Dragging a resource URL from another browser tab or from within Foundry will automatically resolve the resource and load it into your analysis. Supported resources include datasets, object sets, Notepad documents, Workshop modules, functions, and more. You can also paste Foundry resource identifiers (RIDs) directly into the input to import them.</p>
+<p>You can manage context manually using the <a href="#outline">outline</a>, or let AIP Analyst handle it using the <a href="https://www.palantir.com/docs/foundry/aip-analyst/capabilities/#planning">context cleanup</a> tool.</p>
+<p><img alt="Manually add context to AIP Analyst." src="../../_resources/foundry/aip-analyst/aip-analyst-manual-context-button.png" /></p>
+<h2>Settings</h2>
+<p>The <strong>Settings</strong> dialog is organized into three tabs: <strong>Analysis</strong>, <strong>Skills</strong>, and <strong>General</strong>.</p>
+<p><img src="../../_resources/external-a9779b307b3a.png" alt="The AIP Analyst 'Settings' menu." width="600"></p>
+<h3>Analysis settings</h3>
+<p>Analysis settings control search scope, initial context, and advanced agent behavior. Where these settings are stored depends on whether the analysis has been saved:</p>
+<ul>
+<li><strong>Unsaved analyses:</strong> Changes apply to the current analysis and become your defaults for all new analyses.</li>
+<li><strong>Saved analyses:</strong> The tab is marked with a <strong>Current analysis</strong> tag, and changes apply only to that <a href="https://www.palantir.com/docs/foundry/aip-analyst/analysis-resources/">analysis resource</a>. To promote the current values to your defaults for new analyses, select <strong>Save as user defaults</strong> and confirm.</li>
+</ul>
+<h4>Limit search scope</h4>
+<p>Use these settings to restrict which Ontology entities AIP Analyst searches. When limits are set, the <strong>Object type search</strong> and <strong>Object search</strong> tools only return results that match. For an Ontology with hundreds or thousands of object types, applying these filters can improve performance.</p>
+<ul>
+<li><strong>Ontology:</strong> Limit search to a single Ontology.</li>
+<li><strong>Object type groups:</strong> Limit search to specific object type groups within the chosen Ontology.</li>
+<li><strong>Object type statuses:</strong> Filter discoverable object types by status: <code>Endorsed</code>, <code>Active</code>, <code>Experimental</code>, <code>Deprecated</code>, or <code>Example</code>.</li>
+<li><strong>Object type visibility:</strong> Filter discoverable object types by visibility: <code>Prominent</code>, <code>Normal</code>, or <code>Hidden</code>.</li>
+<li><strong>Projects:</strong> Limit search to Ontology entities contained within specific projects. This setting does not apply to manually added context, and any selected folders that are not projects are ignored.</li>
+</ul>
+<h4>Initial context</h4>
+<p>These settings control the resources that are automatically added to AIP Analyst when it starts:</p>
+<ul>
+<li><strong>Include recent resources:</strong> Include context about your recently viewed resources in the conversation.</li>
+<li><strong>Include favorite resources:</strong> Include context about your favorite resources in the conversation.</li>
+</ul>
+<h4>Advanced</h4>
+<ul>
+<li><strong>Object set tool similarity threshold:</strong> Set the threshold for semantic search in the object set tool, between <code>0</code> (broadest) and <code>1</code> (exact). Higher values return fewer but more relevant results.</li>
+</ul>
+<h3>Skills</h3>
+<p>The <strong>Skills</strong> tab lists the AIP skills available in your analyses. A skill packages reusable instructions that AIP Analyst can load when it determines the skill is relevant to your question.</p>
+<p>From this tab, you can:</p>
+<ul>
+<li>Select <strong>Add skills</strong> to add a skill to your library, or search across all skills you can access.</li>
+<li>Search your library by name.</li>
+<li>Toggle each skill on or off. When a skill is enabled, the agent can discover and invoke it on its own.</li>
+<li>Select a skill to open its detail panel, where you can review its name, description, and last update, or remove it from your library.</li>
+</ul>
+<p>You can also create a skill from a conversation using the <a href="#export">export</a> menu.</p>
+<h3>General</h3>
+<p>General settings are application-wide preferences that apply across all your analyses:</p>
+<ul>
+<li><strong>Appearance:</strong> Set the color theme to light or dark.</li>
+<li><strong>Notifications:</strong> If enabled, AIP Analyst can send notifications when in the background, allowing you to ask questions and be informed when an analysis requires your attention. Your browser and system settings must also allow notifications.</li>
+<li><strong>Unsaved analysis cost attribution:</strong> Select the project that the cost of unsaved analyses is attributed to. Saved and embedded analyses are attributed based on their owning resource. See <a href="https://www.palantir.com/docs/foundry/aip-analyst/compute-usage/#cost-attribution">Compute usage with AIP Analyst</a> for details on how usage is attributed.</li>
+</ul>
+<h2>Tabs and branching</h2>
+<p>An analysis path can be forked at any point, creating a new tab that only contains the prior context and enables users to explore multiple analysis paths from identical starting states. Empty analysis paths can be created using the <strong>+</strong> button in the tab header. Tabs will continue running even when not in focus.</p>
+<p><img alt="The option to create a new branch from a given message." src="../../_resources/foundry/aip-analyst/aip-analyst-branching.png" /></p>
+<h2>Outline</h2>
+<p>The analysis outline provides a structured summary of your session, displaying your questions, manually added context, and the agent's tool usage. Your messages appear with circle icons, while tool calls are marked with icons corresponding to their function.</p>
+<p>You can use the outline to:</p>
+<ul>
+<li>Navigate quickly through prior analysis steps.</li>
+<li>Review token usage for each tool call. See <a href="https://www.palantir.com/docs/foundry/aip-analyst/compute-usage/#monitor-your-usage">Monitor your usage</a> for the other ways to track consumption.</li>
+<li>Hide specific tool results by selecting the eye icon that appears when hovering over outline items. Hidden results are no longer resent to the model on later turns, which reduces <a href="https://www.palantir.com/docs/foundry/aip-analyst/compute-usage/#keep-context-small">token usage</a>.</li>
+</ul>
+<p><img alt="An AIP Analyst outline." src="../../_resources/foundry/aip-analyst/aip-analyst-outline.png" /></p>
+<h2>Graph</h2>
+<p>To improve confidence in AIP Analyst output, you can trace the analysis by reviewing the <strong>graph</strong> view, which is a directed graph showing the provenance and logic path of each step in the analysis. The graph view allows you to:</p>
+<ul>
+<li>Trace how the agent arrived at its conclusions and check the logic of each step.</li>
+<li>Audit data transformations applied during analysis and ensure reproducibility of results.</li>
+<li>Verify that results are grounded in actual data rather than hallucinations. With AIP Analyst, you can view the Ontology data that is used at each step and ensure that all conclusions are accurate.</li>
+</ul>
+<p><img alt="A sample AIP Analyst graph." src="../../_resources/foundry/aip-analyst/aip-analyst-graph.png" /></p>
+<h2>Audio input</h2>
+<p>You can record audio input directly from the chat interface, enabling voice-driven analysis.</p>
+<h2>Export</h2>
+<p>Select the <strong>Export</strong> button in the session header to turn the current conversation into a durable artifact.</p>
+<ul>
+<li><strong>Print to PDF:</strong> Export your conversation as a printable PDF document. The export dialog lets you select which context items to include, expand or collapse tool results, and preview the document before printing. This uses your browser's print dialog, allowing you to save the output as a PDF file.</li>
+<li><strong>Export to Notepad:</strong> Generate a Notepad document from your conversation.</li>
+<li><strong>Export to Skill:</strong> Turn your conversation into a reusable AIP Skill, which AIP Analyst can then apply to similar questions in future analyses. See <a href="#skills">skills</a> for more information.</li>
+<li><strong>Export to Quiver:</strong> Convert results into a Quiver analysis or dashboard.</li>
+<li><strong>Export to Contour:</strong> Convert results into a Contour analysis.</li>
+</ul>
+<p><img alt="The AIP Analyst export menu." src="../../_resources/foundry/aip-analyst/aip-analyst-export-menu.png" /></p>
+<p>In the <a href="https://www.palantir.com/docs/foundry/aip-analyst/workshop-widget/#view-configuration">Workshop widget</a>, the PDF, Notepad, Quiver, and Contour targets can each be hidden individually.</p>
+</body>
+</html>

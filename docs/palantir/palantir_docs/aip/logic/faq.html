@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AIP Logic FAQ</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>AIP Logic FAQ</h1>
+<p>This page details some frequently asked questions about the AIP Logic application.</p>
+<ul>
+<li><a href="#how-can-i-use-aip-logic-with-the-rest-of-the-platform">How can I use AIP Logic with the rest of the platform?</a></li>
+<li><a href="#how-do-i-reduce-my-token-count">How do I reduce my token count?</a></li>
+<li><a href="#when-should-i-keep-my-logic-function-in-one-block-versus-splitting-into-multiple-blocks">When should I keep my Logic function in one block versus splitting into multiple blocks?</a></li>
+<li><a href="#how-do-i-improve-the-performance-of-an-aip-logic-block">How do I improve the performance of an AIP Logic block?</a></li>
+<li><a href="#is-there-a-way-to-modify-the-temperature-of-the-llm-or-other-model-parameters">Is there a way to modify the temperature of the LLM or other model parameters?</a></li>
+<li><a href="#is-it-possible-to-support-semantic-search-workflows-using-logic">Is it possible to support semantic search workflows using Logic?</a></li>
+<li><a href="#how-can-an-llm-learn-from-feedback">How can an LLM âlearnâ from feedback?</a></li>
+<li><a href="#how-can-i-ensure-the-output-of-my-logic-is-correct">How can I ensure the output of my Logic is correct?</a></li>
+<li><a href="#how-can-you-create-test-cases-from-previous-executions">How can you create test cases from previous executions?</a></li>
+</ul>
+<h2>How can I use AIP Logic with the rest of the platform?</h2>
+<p>Review the documentation on how to <a href="https://www.palantir.com/docs/foundry/logic/getting-started/#use-a-logic-function">use a Logic function</a>.</p>
+<h2>How do I reduce my token count?</h2>
+<p>All activity in AIP Logic counts toward token limits, including tool responses. Token limits reset on a per-block basis. You can see the number of tokens used at the end of each message in the Debugger. If the bar is red, consider reducing your token count to facilitate reliable performance.</p>
+<p>We recommend the following steps to reduce your token count:</p>
+<ul>
+<li>Select the specific properties needed from your input object, or specify which object properties you want to query to reduce the size of the string (<code>OBJECT_NAME property1 property2</code> etc.) that the LLM sends and receives; you can see this in the Debugger by selecting <strong>Show raw</strong>.</li>
+<li>When using the <strong>Query objects</strong> tool, select a subset of properties to send to the LLM.</li>
+<li>Consider <a href="#when-should-i-keep-my-logic-function-in-one-block-versus-splitting-into-multiple-blocks">splitting single blocks into multiple <strong>Use LLM</strong> blocks</a>; each block has a token limit, so you can try breaking a block into intermediate steps.</li>
+<li>Change your LLM model to 32k.</li>
+<li>Whenever possible, use deterministic blocks such as the transform block, <a href="https://www.palantir.com/docs/foundry/logic/blocks/#execute-function">execute block</a>, and <a href="https://www.palantir.com/docs/foundry/logic/blocks/#apply-action">apply action block</a>. These blocks help produce more predictable outcomes, and do not use any tokens, making your logic more efficient and manageable.</li>
+</ul>
+<h2>When should I keep my Logic function in one block versus splitting into multiple blocks?</h2>
+<p>A single large block allows you to iterate quickly and easily make large changes while experimenting with the LLM's capabilities, but you might want to split your Logic into multiple blocks if:</p>
+<ul>
+<li>You have multiple steps you want the LLM to take and are getting inconsistent results.</li>
+<li>The block is reaching its context limit.</li>
+<li>Each run is taking too long to execute.</li>
+</ul>
+<p>Since each block gets its own context window, splitting into multiple blocks can have the following advantages:</p>
+<ul>
+<li>The LLM will only have access to what you pass in; intermediate results in a single large block can be potentially irrelevant.</li>
+<li>You are less likely to run out of tokens.</li>
+<li>Several smaller tasks can potentially execute faster than one long task.</li>
+</ul>
+<h2>How do I improve the performance of an AIP Logic block?</h2>
+<p>To improve the performance of an AIP Logic block, try the following suggestions:</p>
+<ul>
+<li>Choose 5-10 examples of inputs / output pairs and run these every time you modify prompts. Save these as unit tests in AIP Logic.</li>
+<li>Provide few-shot examples to the LLM; this can significantly enhance LLM performance by making the task more comprehensible for the model. You can input a system prompt for the LLM to reference.</li>
+<li>If you are seeing surprising failures, validate that the model has the right "understanding" of your data by asking the LLM to explain its plan and understanding of the problem - this can provide insight into what context is missing.</li>
+<li>Consider building a feedback loop with dynamic few-shot examples.</li>
+<li>Use deterministic transform boards such as the transform block, <a href="https://www.palantir.com/docs/foundry/logic/blocks/#execute-function">execute block</a>, and <a href="https://www.palantir.com/docs/foundry/logic/blocks/#apply-action">apply action block</a>.</li>
+<li>Use <a href="https://www.palantir.com/docs/foundry/aip-evals/overview/">AIP Evals</a> to run evaluations. The results analyzer in the Results view clusters failing cases into root-cause categories and proposes targeted prompt edits as you iterate on prompts.</li>
+</ul>
+<h2>Is there a way to modify the temperature of the LLM or other model parameters?</h2>
+<p>You can modify the <em>temperature</em> of the LLM, a parameter that represents the randomness of an LLMâs response, by editing the temperature in a <strong>Use LLM</strong> block's <strong>Configuration</strong> text field. The default temperature is 0. Lower temperatures return a more deterministic output.</p>
+<p>Example code:</p>
+<pre><code class="language-json">{
+    &quot;temperature&quot;: 0.9
+}
+</code></pre>
+<h2>Is it possible to support semantic search workflows using Logic?</h2>
+<p>Yes, you can currently add a tool that allows Logic to perform semantic search on the Ontology, made possible either through an action or writing a function-on-object which is then called from AIP Logic. Review the <a href="https://www.palantir.com/docs/foundry/ontology/using-palantir-provided-models-to-create-a-semantic-search-workflow/">semantic search workflow</a> tutorial to learn more.</p>
+<h2>How can an LLM âlearnâ from feedback?</h2>
+<p>You can help an LLM âlearnâ from feedback with this design pattern, if it suits your workflow:</p>
+<ol>
+<li>Whenever the LLM makes a recommendation, capture (1) the recommendation as well as (2) the reasoning. Then, when connecting the Logic function to Workshop and building in a human review process, write back the (3) human feedback as well as the (4) correct human-verified decision. For the sake of this example, imagine we call this writeback object the âSuggestionâ object.</li>
+<li>In your Logic function, enable the LLM to use the <strong>Query objects</strong> tool on the âSuggestionâ object, searching for other instances where the LLM has made the same recommendation. Let the LLM process the human feedback, then query the LLM about whether to proceed with the LLMâs recommendation.</li>
+</ol>
+<h2>How can I ensure the output of my Logic is correct?</h2>
+<p>Add unit tests to check whether the function runs successfully on a given input. You can also use <a href="https://www.palantir.com/docs/foundry/aip-evals/overview/">AIP Evals</a> to create evaluation suites for your Logic functions. To generate a suite, open the <strong>Evals</strong> tab in the right sidebar and select <strong>Generate evals</strong>. AIP Evals bootstraps the suite with test cases, evaluators, and metrics based on your function. Review and refine the generated test cases and evaluators before running evaluations. The Results view includes a built-in results analyzer that clusters failing cases into root-cause categories, surfaces representative examples, and proposes targeted prompt changes to improve accuracy. Learn more in <a href="https://www.palantir.com/docs/foundry/aip-evals/getting-started/">AIP Evals: Getting started</a>.</p>
+<h2>How can you create test cases from previous executions?</h2>
+<p>In <strong>Run history</strong>, use <strong>Add as test case</strong> to convert historical execution results into test cases for new or existing evaluation suites. This helps you build comprehensive test suites from function executions.</p>
+<h2>Can I see previous versions of my Logic?</h2>
+<p>Yes, you can see and rollback to previously saved versions using the version history sidebar.</p>
+<p>Select a prior version from the list to compare with the current state.</p>
+<p><img alt="AIP Logic past version panel and preview." src="../../_resources/foundry/logic/aip-logic-versioning.png" /></p>
+<h2>Can one LLM block return multiple values?</h2>
+<p>Yes. By using the "Struct" output type you can return multiple named values.</p>
+<p><img alt="Showing output for variable name and values requested." src="../../_resources/foundry/logic/multiple-values.png" /></p>
+<h2>Can I configure how many objects my tools give to the LLM blocks?</h2>
+<p>Yes, when you add an Object Query tool on a Function tool in the LLM block, you can select <strong>Configure object return limits</strong> to choose the number of objects you would like to return from any tool use.</p>
+<p><img alt="Configure object return limits option." src="../../_resources/foundry/logic/configure-object-return-limits.png" /></p>
+<h2>Why does my function execute successfully in AIP Logic Debugger but fail in Workshop or when called via an API?</h2>
+<p>While testing and developing your AIP Logic function in the Debugger, the function is not subject to the five-minute execution time limit. However, when the function is called from either the Workshop environment or through the function execution API, the five-minute execution time limit is enforced.</p>
+</body>
+</html>

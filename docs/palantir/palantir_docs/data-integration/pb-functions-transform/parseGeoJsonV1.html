@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Extract rows from a GeoJSON file</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Extract rows from a GeoJSON file</h1>
+<blockquote>
+<p>Supported in: Batch</p>
+</blockquote>
+<p>Reads a dataset of files and parses each GeoJSON file into rows. The output dataset will have a geometry column, and a column for each property listed by the user, apart from the _error and _file columns. If the user provides no properties to extract, the entire properties struct will be extracted into a properties column as a string. All GeoJSONs in the files must either be:
+a) multiline FeatureCollection: an entire file with one GeoJSON of type FeatureCollection
+b) single-line Feature: a file where every line is a fully valid GeoJSON of type Feature.</p>
+<p><strong>Transform categories</strong>: File, Geospatial</p>
+<h2>Declared arguments</h2>
+<ul>
+<li><strong>Dataset:</strong> Dataset of GeoJSON files to process.<br><em>Files</em></li>
+<li><strong>Multiline:</strong> If every line in each file is a fully valid GeoJSON of type Feature, set this to false. If the entire file is a valid GeoJSON of type FeatureCollection, set this to true.<br><em>Literal\<Boolean></em></li>
+<li><em>optional</em> <strong>List of properties:</strong> List of properties and their types that need to be extracted from these GeoJSON files. If no value or an empty struct is provided, extracts all 'properties' in one properties column as a string.<br><em>Type\<Struct></em></li>
+<li><em>optional</em> <strong>Source coordinate system:</strong> Coordinate system identifier formatted as "authority:id". For example, UTM zone 18N could be identified by EPSG:32618. If not specified, will default to WGS84 which is EPSG:4326.<br><em>Literal\<String></em></li>
+</ul>
+</body>
+</html>

@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Replace File Import</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../../../index.html">返回目录</a></div>
+<p><code>PUT /api/v2/connectivity/connections/{connectionRid}/fileImports/{fileImportRid}</code></p>
+<p>Replace the FileImport with the specified rid.</p>
+<p>Third-party applications using this endpoint via OAuth2 must request the following operation scope: <code>api:connectivity-file-import-write</code>.</p>
+<p><strong>OAuth2 scopes</strong>: <code>api:connectivity-file-import-write</code></p>
+<h2>Path parameters</h2>
+<table>
+<thead>
+<tr>
+<th>参数</th>
+<th>类型</th>
+<th>必填</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>connectionRid</code></td>
+<td>string</td>
+<td>是</td>
+<td>The Resource Identifier (RID) of a Connection (also known as a source).<br>示例: <code>ri.magritte..source.c078b71b-92f9-41b6-b0df-3760f411120b</code></td>
+</tr>
+<tr>
+<td><code>fileImportRid</code></td>
+<td>string</td>
+<td>是</td>
+<td>The Resource Identifier (RID) of a FileImport (also known as a batch sync).<br>示例: <code>ri.magritte..extract.27bb4f2b-63b8-44b8-a579-4e2bd65ba158</code></td>
+</tr>
+</tbody>
+</table>
+<h2>Request body</h2>
+<pre><code class="language-json">{
+  &quot;importMode&quot;: &quot;SNAPSHOT&quot;,
+  &quot;displayName&quot;: &quot;My file import&quot;,
+  &quot;subfolder&quot;: &quot;subfolder1/subfolder2&quot;,
+  &quot;fileImportFilters&quot;: [
+    {
+      &quot;type&quot;: &quot;pathMatchesFilter&quot;,
+      &quot;regex&quot;: &quot;my-subfolder&quot;
+    }
+  ]
+}
+</code></pre>
+<h2>Response</h2>
+<p><strong>FileImport</strong></p>
+<p>The replaced FileImport</p>
+<table>
+<thead>
+<tr>
+<th>参数</th>
+<th>类型</th>
+<th>必填</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>FileImport</code></td>
+<td>object</td>
+<td>是</td>
+<td>The replaced FileImport<br>示例: <code>{"datasetRid":"ri.foundry.main.dataset.c26f11c8-cdb3-4f44-9f5d-9816ea1c82da","importMode":"SNAPSHOT","displayName":"My file import","connectionRid":"ri.magritte..source.c078b71b-92f9-41b6-b0df-3760f411120b","branchName":"master","subfolder":"subfolder1/subfolder2","rid":"ri.magritte..extract.27bb4f2b-63b8-44b8-a579-4e2bd65ba158","fileImportFilters":[{"type":"pathMatchesFilter","regex":"my-subfolder"}]}</code></td>
+</tr>
+<tr>
+<td><code>FileImport.rid</code></td>
+<td>string</td>
+<td>是</td>
+<td>The Resource Identifier (RID) of a FileImport (also known as a batch sync).<br>示例: <code>ri.magritte..extract.27bb4f2b-63b8-44b8-a579-4e2bd65ba158</code></td>
+</tr>
+<tr>
+<td><code>FileImport.connectionRid</code></td>
+<td>string</td>
+<td>是</td>
+<td>The RID of the Connection (also known as a source) that the File Import uses to import data.<br>示例: <code>ri.magritte..source.c078b71b-92f9-41b6-b0df-3760f411120b</code></td>
+</tr>
+<tr>
+<td><code>FileImport.datasetRid</code></td>
+<td>string</td>
+<td>是</td>
+<td>The RID of the output dataset. Can not be modified after the file import is created.<br>示例: <code>ri.foundry.main.dataset.c26f11c8-cdb3-4f44-9f5d-9816ea1c82da</code></td>
+</tr>
+<tr>
+<td><code>FileImport.branchName</code></td>
+<td>string</td>
+<td>否</td>
+<td>The branch name in the output dataset that will contain the imported data. Defaults to <code>master</code> for most enrollments. Can not be modified after the file import is created.<br>示例: <code>master</code></td>
+</tr>
+<tr>
+<td><code>FileImport.displayName</code></td>
+<td>string</td>
+<td>是</td>
+<td>示例: <code>My file import</code></td>
+</tr>
+<tr>
+<td><code>FileImport.fileImportFilters</code></td>
+<td>list<FileImportFilter></td>
+<td>否</td>
+<td>Use filters to limit which files should be imported. Filters are applied in the order they are defined. A different ordering of filters may lead to a more optimized import. <a href="https://www.palantir.com/docs/foundry/data-connection/file-based-syncs/#optimize-file-based-syncs">Learn more about optimizing file imports.</a></td>
+</tr>
+<tr>
+<td><code>FileImport.fileImportFilters.FileImportFilter</code></td>
+<td>union</td>
+<td>是</td>
+<td><a href="https://www.palantir.com/docs/foundry/data-connection/file-based-syncs/#filters">Filters</a> allow you to filter source files<br>before they are imported into Foundry.</td>
+</tr>
+<tr>
+<td><code>FileImport.fileImportFilters.FileImportFilter.pathNotMatchesFilter</code></td>
+<td>object</td>
+<td>否</td>
+<td>Only import files whose path (relative to the root of the source) does not match the regular expression.<br><strong>Example</strong><br>Suppose we are importing files from <code>relative/subfolder</code>.<br><code>relative/subfolder</code> contains:<br>- <code>relative/subfolder/include-file.txt</code><br>- <code>relative/subfolder/exclude-file.txt</code><br>- <code>relative/subfolder/other-file.txt</code><br>With the <code>relative/subfolder/exclude-.*.txt</code> regex, both <code>relative/subfolder/include-file.txt</code> and <code>relative/subfolder/other-file.txt</code> will be imported,<br>and <code>relative/subfolder/exclude-file.txt</code> will be excluded from the import.</td>
+</tr>
+<tr>
+<td><code>FileImport.fileImportFilters.FileImportFilter.pathNotMatchesFilter.regex</code></td>
+<td>string</td>
+<td>是</td>
+<td>Must be written to match the paths relative to the root of the source, even if a subfolder is specified.<br>示例: <code>my-subfolder</code></td>
+</tr>
+<tr>
+<td><code>FileImport.fileImportFilters.FileImportFilter.anyPathMatchesFilter</code></td>
+<td>object</td>
+<td>否</td>
+<td>If any file has a relative path matching the regular expression, sync all files in the subfolder that are not otherwise filtered.</td>
+</tr>
+<tr>
+<td><code>FileImport.fileImportFilters.FileImportFilter.anyPathMatchesFilter.regex</code></td>
+<td>string</td>
+<td>是</td>
+<td>The regular expression for the relative path to match against.<br>示例: <code>my-subfolder</code></td>
+</tr>
+<tr>
+<td><code>FileImport.fileImportFilters.FileImportFilter.filesCountLimitFilter</code></td>
+<td>object</td>
+<td>否</td>
+<td>Only retain <code>filesCount</code> number of files in each transaction.<br>The choice of files to retain is made without any guarantee of order.<br>This option can increase the reliability of incremental syncs.</td>
+</tr>
+<tr>
+<td><code>FileImport.fileImportFilters.FileImportFilter.filesCountLimitFilter.filesCount</code></td>
+<td>integer</td>
+<td>是</td>
+<td>The number of files to import in the transaction. The value specified must be positive.<br>示例: <code>5</code></td>
+</tr>
+<tr>
+<td><code>FileImport.fileImportFilters.FileImportFilter.changedSinceLastUploadFilter</code></td>
+<td>object</td>
+<td>否</td>
+<td>Only import files that have changed or been added since the last import run. Whether or not a file is considered to be changed is determined by the specified file properties.<br>This will exclude files uploaded in any previous imports, regardless of the file import mode used. A SNAPSHOT file import mode does not reset the filter.</td>
+</tr>
+<tr>
+<td><code>FileImport.fileImportFilters.FileImportFilter.changedSinceLastUploadFilter.fileProperties</code></td>
+<td>list<FileProperty></td>
+<td>否</td>
+<td>The criteria on which to determine whether a file has been changed or not since the last import.<br>If any of the specified criteria have changed, the file is consider changed. The criteria include:<br>LAST_MODIFIED: The file's last modified timestamp has changed since the last import.<br>SIZE: The file's size has changed since the last import.<br>If no criteria are specified, only newly added files will be imported.</td>
+</tr>
+<tr>
+<td><code>FileImport.fileImportFilters.FileImportFilter.changedSinceLastUploadFilter.fileProperties.FileProperty</code></td>
+<td>enum</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>FileImport.fileImportFilters.FileImportFilter.customFilter</code></td>
+<td>object</td>
+<td>否</td>
+<td>A custom file import filter. Custom file import filters can be fetched but cannot currently be used<br>when creating or updating file imports.</td>
+</tr>
+<tr>
+<td><code>FileImport.fileImportFilters.FileImportFilter.customFilter.config</code></td>
+<td>any</td>
+<td>是</td>
+<td>示例: <code>{"type":"my-custom-file-filter","my-custom-property":"my value"}</code></td>
+</tr>
+<tr>
+<td><code>FileImport.fileImportFilters.FileImportFilter.lastModifiedAfterFilter</code></td>
+<td>object</td>
+<td>否</td>
+<td>Only import files that have been modified after a specified timestamp</td>
+</tr>
+<tr>
+<td><code>FileImport.fileImportFilters.FileImportFilter.lastModifiedAfterFilter.afterTimestamp</code></td>
+<td>string</td>
+<td>否</td>
+<td>Timestamp threshold, specified in ISO-8601 format.<br>If not specified, defaults to the timestamp the filter is added to the file import.<br>示例: <code>2020-01-01T00:00:00Z</code></td>
+</tr>
+<tr>
+<td><code>FileImport.fileImportFilters.FileImportFilter.pathMatchesFilter</code></td>
+<td>object</td>
+<td>否</td>
+<td>Only import files whose path (relative to the root of the source) matches the regular expression.<br><strong>Example</strong><br>Suppose we are importing files from <code>relative/subfolder</code>.<br><code>relative/subfolder</code> contains:<br>- <code>relative/subfolder/include-file.txt</code><br>- <code>relative/subfolder/exclude-file.txt</code><br>- <code>relative/subfolder/other-file.txt</code><br>With the <code>relative/subfolder/include-.*.txt</code> regex, only <code>relative/subfolder/include-file.txt</code> will be imported.</td>
+</tr>
+<tr>
+<td><code>FileImport.fileImportFilters.FileImportFilter.pathMatchesFilter.regex</code></td>
+<td>string</td>
+<td>是</td>
+<td>Must be written to match the paths relative to the root of the source, even if a subfolder is specified.<br>示例: <code>my-subfolder</code></td>
+</tr>
+<tr>
+<td><code>FileImport.fileImportFilters.FileImportFilter.atLeastCountFilter</code></td>
+<td>object</td>
+<td>否</td>
+<td>Import all filtered files only if there are at least the specified number of files remaining.</td>
+</tr>
+<tr>
+<td><code>FileImport.fileImportFilters.FileImportFilter.atLeastCountFilter.minFilesCount</code></td>
+<td>integer</td>
+<td>是</td>
+<td>The minimum number of files remaining expected.<br>The value specified must be greater than 0.<br>示例: <code>5</code></td>
+</tr>
+<tr>
+<td><code>FileImport.fileImportFilters.FileImportFilter.fileSizeFilter</code></td>
+<td>object</td>
+<td>否</td>
+<td>Only import files whose size is between the specified minimum and maximum values.<br>At least one of <code>gt</code> or <code>lt</code> should be present.<br>If both are present, the value specified for <code>gt</code> must be strictly less than <code>lt - 1</code>.</td>
+</tr>
+<tr>
+<td><code>FileImport.fileImportFilters.FileImportFilter.fileSizeFilter.gt</code></td>
+<td>string</td>
+<td>否</td>
+<td>File size must be greater than this number for it to be imported.<br>The value specified cannot be a negative number.<br>示例: <code>72526847</code></td>
+</tr>
+<tr>
+<td><code>FileImport.fileImportFilters.FileImportFilter.fileSizeFilter.lt</code></td>
+<td>string</td>
+<td>否</td>
+<td>File size must be less than this number for it to be imported.<br>The value specified must be at least 1 byte.<br>示例: <code>72526847</code></td>
+</tr>
+<tr>
+<td><code>FileImport.importMode</code></td>
+<td>enum</td>
+<td>是</td>
+<td>Import mode governs how raw files are read from an external system, and written into a Foundry dataset.<br>SNAPSHOT: Defines a new dataset state consisting only of files from a particular import execution.<br>APPEND: Purely additive and yields data from previous import executions in addition to newly added files.<br>UPDATE: Replaces existing files from previous import executions based on file names.<br>示例: <code>SNAPSHOT</code></td>
+</tr>
+<tr>
+<td><code>FileImport.subfolder</code></td>
+<td>string</td>
+<td>否</td>
+<td>A subfolder in the external system that will be imported. If not specified, defaults to the root folder of the external system.<br>示例: <code>subfolder1/subfolder2</code></td>
+</tr>
+</tbody>
+</table>
+<pre><code class="language-json">{
+  &quot;datasetRid&quot;: &quot;ri.foundry.main.dataset.c26f11c8-cdb3-4f44-9f5d-9816ea1c82da&quot;,
+  &quot;importMode&quot;: &quot;SNAPSHOT&quot;,
+  &quot;displayName&quot;: &quot;My file import&quot;,
+  &quot;connectionRid&quot;: &quot;ri.magritte..source.c078b71b-92f9-41b6-b0df-3760f411120b&quot;,
+  &quot;branchName&quot;: &quot;master&quot;,
+  &quot;subfolder&quot;: &quot;subfolder1/subfolder2&quot;,
+  &quot;rid&quot;: &quot;ri.magritte..extract.27bb4f2b-63b8-44b8-a579-4e2bd65ba158&quot;,
+  &quot;fileImportFilters&quot;: [
+    {
+      &quot;type&quot;: &quot;pathMatchesFilter&quot;,
+      &quot;regex&quot;: &quot;my-subfolder&quot;
+    }
+  ]
+}
+</code></pre>
+<h2>Error responses</h2>
+<table>
+<thead>
+<tr>
+<th>错误码</th>
+<th>错误名称</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>INVALID_ARGUMENT</td>
+<td><code>FileSizeFilterMissingGreaterThanAndLessThan</code></td>
+<td>Both the <code>gt</code> and <code>lt</code> properties are missing from the FileSizeFilter. At least one of these<br>properties must be present</td>
+</tr>
+<tr>
+<td>INVALID_ARGUMENT</td>
+<td><code>FileSizeFilterGreaterThanCannotBeNegative</code></td>
+<td>The <code>gt</code> property in the FileSizeFilter cannot be a negative number.</td>
+</tr>
+<tr>
+<td>INVALID_ARGUMENT</td>
+<td><code>FileSizeFilterLessThanMustBeOneByteOrLarger</code></td>
+<td>The <code>lt</code> property in the FileSizeFilter must be at least 1 byte.</td>
+</tr>
+<tr>
+<td>INVALID_ARGUMENT</td>
+<td><code>FileSizeFilterInvalidGreaterThanAndLessThanRange</code></td>
+<td>The provided <code>gt</code> and <code>lt</code> properties in the FileSizeFilter are invalid. No files will ever<br>satisfy the provided range. The value specified for <code>gt</code> must be strictly less than <code>lt - 1</code>.</td>
+</tr>
+<tr>
+<td>INVALID_ARGUMENT</td>
+<td><code>FileAtLeastCountFilterInvalidMinCount</code></td>
+<td>The provided <code>minFilesCount</code> property in the FileAtLeastCountFilter must be strictly greater than 0.</td>
+</tr>
+<tr>
+<td>INVALID_ARGUMENT</td>
+<td><code>FileImportCustomFilterCannotBeUsedToCreateOrUpdateFileImports</code></td>
+<td>Custom file import filters can be fetched but cannot currently be used<br>when creating or updating file imports.</td>
+</tr>
+<tr>
+<td>PERMISSION_DENIED</td>
+<td><code>ReplaceFileImportPermissionDenied</code></td>
+<td>Could not replace the FileImport.</td>
+</tr>
+<tr>
+<td>NOT_FOUND</td>
+<td><code>FileImportNotFound</code></td>
+<td>The given FileImport could not be found.</td>
+</tr>
+</tbody>
+</table>
+</body>
+</html>

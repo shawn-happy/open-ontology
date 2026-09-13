@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Considerations: Pipeline Builder and Code Repositories</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Considerations: Pipeline Builder and Code Repositories</h1>
+<p>Foundry has two products available for writing and managing data pipelines: <strong>Pipeline Builder</strong> and <strong>Code Repositories</strong>. These tools are complementary and are built to work together to provide solutions for all pipelining needs. The guide below is intended to help you determine which tool is best suited to your use case and how to use them in conjunction with each other.</p>
+<h2>Pipeline Builder</h2>
+<p>Pipeline Builder is Foundryâs primary application for fast, flexible, and scalable delivery of data pipelines while providing robustness and security. With Pipeline Builder, end users and data engineers can collaborate in a graph and form-based environment to integrate data, create business logic transformation, and define a rigorous release process for production pipelines. Users can write pipelines that provide real time feedback, with no need to use code. Additionally, Pipeline Builder uses health checks that guarantee only fully compliant data will be deployed to production. <a href="https://www.palantir.com/docs/foundry/pipeline-builder/overview/">Learn more about Pipeline Builder.</a></p>
+<h2>Code Repositories</h2>
+<p>Code Repositories provides a web-based integrated development environment (IDE) for writing and collaborating on production-ready code in Foundry. The application provides a user-friendly way to interact with the underlying Git repository. <a href="https://www.palantir.com/docs/foundry/code-repositories/overview/">Learn more about Code Repositories.</a></p>
+<h2>Best practices</h2>
+<p>We recommend building your pipeline design in Pipeline Builder. Doing so will:</p>
+<ul>
+<li>Enable collaboration between different user groups through an easily understandable point-and-click interface.</li>
+<li>Safeguard pipeline health by utilizing Pipeline Builderâs rails for safe and usage-efficient data transformations and pipeline management.</li>
+</ul>
+<p>In cases where users require specialized code-based logic not available in Pipeline Builder, Code Repositories should be used to create those stages to add to the main pipeline. Some examples of these specialized cases include:</p>
+<ul>
+<li>Making API calls</li>
+<li>Using custom libraries</li>
+<li>Adding code-based logical concepts</li>
+</ul>
+<p>Since both Pipeline Builder and Code Repositories use Foundry datasets as inputs and outputs, a pipeline input built in Code Repositories can be added before, after, and in the middle of a pipeline in Pipeline Builder. Schedules and health checks can be configured for the full pipeline in Data Lineage, regardless of the application used to create the pipeline. <a href="https://www.palantir.com/docs/foundry/data-lineage/overview/">Learn more about Data Lineage.</a></p>
+<h2>Feature summary</h2>
+<p>The following table describes the features and support available in Pipeline Builder and Code Repositories. As explained above, using both tools together allows you to create robust, type-safe, reusable pipelines with specialized, code-based logic.</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th><strong>Pipeline Builder</strong></th>
+<th><strong>Code Repositories</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Recommended use</strong></td>
+<td>Build and maintain production pipelines for organizations and specialized pipelines for cross-organization collaboration.</td>
+<td>Create specialized, code-based data transformations to add to a pipeline.</td>
+</tr>
+<tr>
+<td><strong>Build interface</strong></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Pipeline interface</td>
+<td>Graph and form-based</td>
+<td>Web-based integrated development environment (IDE)</td>
+</tr>
+<tr>
+<td>Supported languages</td>
+<td>No code required</td>
+<td>Python, SQL, Java, Mesa</td>
+</tr>
+<tr>
+<td>Reusability</td>
+<td>Copy and paste complete pipelines or pipeline stages.</td>
+<td>Reuse utility functions and libraries, and copy code between files.</td>
+</tr>
+<tr>
+<td>Type-safe functions</td>
+<td>Strongly typed; errors are flagged immediately instead of at build time.</td>
+<td>Code-based; errors surfaced at build time.</td>
+</tr>
+<tr>
+<td>Parameters</td>
+<td>User-defined persistent parameters that can be used across a pipeline.</td>
+<td>Code-defined constant can be used in a repository.</td>
+</tr>
+<tr>
+<td><strong>Supported pipelines</strong></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Batch pipeline</td>
+<td>Yes</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>Streaming pipeline</td>
+<td>Yes</td>
+<td>Yes (for advanced users)</td>
+</tr>
+<tr>
+<td>File Based transformation</td>
+<td>Yes</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>Incremental computation</td>
+<td><a href="https://www.palantir.com/docs/foundry/pipeline-builder/datasets-computation-modes-for-batch/#incremental-computation">Yes</a></td>
+<td><a href="https://www.palantir.com/docs/foundry/transforms-python-spark/incremental-examples/">Yes</a></td>
+</tr>
+<tr>
+<td>Filesystem and API access</td>
+<td>No</td>
+<td><a href="https://www.palantir.com/docs/foundry/transforms-python/unstructured-files/">Yes</a></td>
+</tr>
+<tr>
+<td><strong>Pipeline testing</strong></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Data preview scope</td>
+<td>Preview based on full dataset.</td>
+<td>Preview data sample.</td>
+</tr>
+<tr>
+<td>Data preview timeline</td>
+<td>Preview updates in real time.</td>
+<td>Preview upon request.</td>
+</tr>
+<tr>
+<td>Data preview checkpoints</td>
+<td>Preview each transformation step.</td>
+<td>Preview intermediary dataframes and variables at selected checkpoints in debug mode.</td>
+</tr>
+<tr>
+<td>Debug</td>
+<td>Type-safe; errors surface while creating the pipeline and do not require checks or builds to debug.</td>
+<td>Debugger and Read-Eval-Print Loop (REPL) support.</td>
+</tr>
+<tr>
+<td>Unit testing</td>
+<td><a href="https://www.palantir.com/docs/foundry/pipeline-builder/dataexpectations-unit-tests/">Yes</a></td>
+<td><a href="https://www.palantir.com/docs/foundry/code-repositories/unit-tests/">Yes</a> (for advanced users)</td>
+</tr>
+<tr>
+<td><strong>Pipeline management</strong></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Data expectations</td>
+<td>Yes</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>Schedules</td>
+<td>Yes</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>Publish custom libraries</td>
+<td>In development</td>
+<td><a href="https://www.palantir.com/docs/foundry/transforms-python/share-python-libraries/">Yes</a></td>
+</tr>
+<tr>
+<td>Versioning</td>
+<td>Full versioning workflow on rails for no-code/high-code user collaboration.</td>
+<td>Full Git workflow.</td>
+</tr>
+<tr>
+<td>Build memory management</td>
+<td>Users can set an approved or custom compute profile.</td>
+<td>Code-based configuration is available.</td>
+</tr>
+<tr>
+<td>Manage security markings</td>
+<td><a href="https://www.palantir.com/docs/foundry/pipeline-builder/outputs-remove-markings-and-organizations/">Yes</a></td>
+<td><a href="https://www.palantir.com/docs/foundry/building-pipelines/remove-inherited-markings/">Yes</a></td>
+</tr>
+</tbody>
+</table>
+</body>
+</html>

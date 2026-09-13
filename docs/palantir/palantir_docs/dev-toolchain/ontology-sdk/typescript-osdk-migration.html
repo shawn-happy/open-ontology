@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TypeScript OSDK migration guide (1.x to 2.0)</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>TypeScript OSDK migration guide (1.x to 2.0)</h1>
+<p>This guide is intended to help you migrate applications using TypeScript OSDK 1.x to TypeScript OSDK 2.0. The sections below explain the differences between the two versions and highlights relevant changes in syntax and structure.</p>
+<p>:::callout{theme="neutral"}
+TypeScript documentation is also available in-platform in the Developer Console at <code>/workspace/developer-console/</code>. Use the version picker to select <code>2.0</code> for documentation on TypeScript OSDK 2.0.
+:::</p>
+<h2>Why upgrade from TypeScript OSDK 1.x to 2.0?</h2>
+<h3>Performance and scalability</h3>
+<p>TypeScript OSDK 1.x enables users to interact with the Ontology outside of the Palantir platform. However, this initial version had limited scalability:</p>
+<ul>
+<li>TypeScript OSDK 1.x generates full implementations of code for any object, Action, or other Ontology item. This means that the OSDK 1.x scales with the size of your entire Ontology, which could be very large.</li>
+<li>TypeScript OSDK 1.x closely couples the client to the generated Ontology.</li>
+</ul>
+<p>TypeScript OSDK 2.0 provides a number of performance and usability improvements by overhauling the way the SDK is generated and how the Ontology is accessed.</p>
+<ul>
+<li>TypeScript OSDK 2.0 scales linearly with the shape and metadata of your Ontology instead of the actual Ontology. This significantly improves OSDK performance since the OSDK is no longer tied to all of the items in your Ontology. TypeScript OSDK 2.0 also supports lazy loading, meaning that applications only require what they use when they use it.</li>
+<li>TypeScript OSDK 2.0 separates the client from your generated code, which makes it easier to deploy rapid hotfixes by enabling quicker library dependency updates without requiring SDK regeneration. TypeScript OSDK 2.0 also exponentially increases the capability for code reuse through an OSDK codebase.</li>
+<li>TypeScript OSDK 2.0 provides streamlined code generation, which can significantly increase iteration speed when building against large ontologies.</li>
+</ul>
+<p>For more details on major design differences between the two versions and the rationale behind them, review the <a href="https://github.com/palantir/osdk-ts/tree/main/dev-docs">developer documentation â</a> in the open-source TypeScript OSDK repository.</p>
+<h3>Support and features</h3>
+<p>The new TypeScript version of the OSDK increases interaction capabilities to the Ontology. Because of this, new feature releases such as <a href="https://www.palantir.com/docs/foundry/interfaces/interface-overview/">interfaces</a> and <a href="https://www.palantir.com/docs/foundry/data-integration/media-sets/#media-sets-unstructured-data">media sets</a> will require TypeScript OSDK 2.0.</p>
+<p>:::callout{theme="warning"}
+Palantir will maintain support for the TypeScript version 1.x of OSDK for at least one year after the release of TypeScript OSDK 2.0.
+:::</p>
+<h2>How do I upgrade from TypeScript OSDK 1.x to 2.0?</h2>
+<p>You can generate a new SDK version for an existing Developer Console application using the Typescript OSDK 2.0 generator in the <strong>SDK versions</strong> tab of your application. Existing applications must also have <a href="#initial-setup">the required dependencies</a> to use the newly generated SDK. New applications created in Developer Console will generate SDKs using the Typescript OSDK 2.0 generator by default, and developers can quickly get started by following the instructions in the <strong>Start developing</strong> tab.</p>
+<p><img alt="Generate a new version of your SDK with the new 2.0 version of the TypeScript OSDK." src="../../_resources/external-bf34642621df.png" /></p>
+<h2>Migrate from TypeScript OSDK 1.x to 2.0</h2>
+<ol>
+<li>Ensure you have installed <a href="#initial-setup">all newly required dependencies </a> in your project.</li>
+<li>Instantiate a <a href="#clientauth">new TypeScript OSDK 2.0 client</a>.</li>
+<li>Modify your project's <a href="#queries">query calls</a>, focusing on updating the syntax of calls and tweaking the handling of return types as needed.</li>
+<li>Modify your projectâs <a href="#actions">Action calls</a>. Apart from syntax, the major change here is updating code that may be looking at validation or Action edit responses.</li>
+<li>Migrate <a href="#objects">object types</a>.</li>
+<li>Conduct a thorough review of how OSDK object types are used within your code.<ol>
+<li>Identify where you rely on the object types generated by the 1.x version of the OSDK, and understand <a href="#objects">how they differ</a> from the types used by the 2.0 version.</li>
+<li>Decide on an <a href="#solution-paths">optimal solution path</a> for your codebase.</li>
+</ol>
+</li>
+<li>Next, review your OSDK usage and modify object loads to use the new client. Follow the steps in the <a href="#syntax-translations">objects syntax translation section</a> and note any changes in property types.</li>
+<li>Review <a href="#other-differences">other differences</a> between the two versions of the OSDK.</li>
+</ol>
+<h2>Initial setup</h2>
+<p>Install the latest versions of the <code>@osdk/client</code> package from npm, or update your projectâs <code>package-lock.json</code> accordingly.</p>
+<pre><code class="language-bash">npm install @osdk/client
+npm install @osdk/oauth
+</code></pre>
+<h2>Client/Auth</h2>
+<h3>Creation</h3>
+<p>The client in TypeScript OSDK 2.0 is created using the <code>createClient</code> function. This function requires an additional parameter named <code>ontologyRid</code>. The <code>ontologyRid</code> parameter can be passed as a string, read from an environment variable, or dynamically read from the new <code>$ontologyRid</code> variable that is generated in your SDK package.</p>
+<h4>TypeScript OSDK 1.x (legacy)</h4>
+<pre><code class="language-typescript">import { FoundryClient, PublicClientAuth } from &quot;@your-generated-sdk&quot;;
+
+//Public OAuth
+const auth = new PublicClientAuth({
+        clientId: FOUNDRY_CLIENT_ID,
+        url: FOUNDRY_API_URL,
+        redirectUrl: APPLICATION_REDIRECT_URL,
+    });
+
+const legacyClient = new FoundryClient({
+    url: API_PROXY_TARGET_URL,
+    auth: auth,
+});
+</code></pre>
+<h4>TypeScript OSDK 2.0</h4>
+<pre><code class="language-typescript">import { createClient } from &quot;@osdk/client&quot;;
+import {
+    PublicOauthClient,
+    createConfidentialOauthClient,
+    createPublicOauthClient
+} from &quot;@osdk/oauth&quot;;
+import { $ontologyRid } from &quot;@your-generated-sdk&quot;;
+
+// Confidential OAuth
+const auth = createConfidentialOauthClient(
+    FOUNDRY_CLIENT_ID,
+    FOUNDRY_CLIENT_SECRET,
+    FOUNDRY_API_URL,
+);
+
+// Or
+
+// Public OAuth
+const auth = createPublicOauthClient(
+    FOUNDRY_CLIENT_ID,
+    FOUNDRY_API_URL,
+    APPLICATION_REDIRECT_URL
+);
+
+const client = createClient(
+    FOUNDRY_API_URL,
+    $ontologyRid, // See note
+    auth
+);
+</code></pre>
+<p>:::callout{theme="neutral"}
+For a complete walkthrough on setting up a backend service application using confidential OAuth with a service user, see <a href="https://www.palantir.com/docs/foundry/developer-console/how-to-bootstrapping-server-side-typescript/">Bootstrap a back-end TypeScript application</a>.
+:::</p>
+<p>:::callout{theme="neutral"}
+If you install your Ontologyâs OSDK through the CLI, your <code>$ontologyRid</code> will be exported from the root of the SDK package, which you can access as above. Otherwise, you need to pass in your known <code>ontologyRid</code> to where you construct the client. You can get this information from the Ontology Manager in Foundry. Select your desired ontology, navigate to the <strong>Ontology configuration</strong> tab, and copy your Ontology RID from the <strong>Ontology metadata</strong> section.
+:::</p>
+<h3>Usage and general syntax</h3>
+<h4>TypeScript OSDK 1.x (legacy)</h4>
+<p>In TypeScript OSDK 1.x, you can access methods on the client through a nested object structure. For example:</p>
+<pre><code> legacyClient.objects.legacyObject.fetchPage();
+</code></pre>
+<h4>TypeScript OSDK 2.0</h4>
+<p>In TypeScript OSDK 2.0, the client is now directly invocable. This means you can interface with the client, passing in the objects or Actions you want to work with. The new usage pattern generally follows this syntax:</p>
+<pre><code>client(myObject).fetchPage()
+client($Objects.myObject).fetchPage()
+</code></pre>
+<h2>Objects</h2>
+<p>The primary distinction between object types in TypeScript version 1.x and version 2.0 lies in the different types used to access an object's data. In the 1.x version, you could access an object's properties by interfacing with a <code>myObject</code> type. However, in version 2.0, similar functionality to the legacy object type is present in the wrapped type: <code>Osdk.Instance&lt;myObject&gt;.</code></p>
+<p>This is reflected in the method return types throughout the SDK. For example, the TypeScript OSDK 1.x page result type is <code>Page&lt;myObject&gt;</code>, whereas the TypeScript OSDK 2.0 page result type is <code>PageResult&lt;Osdk.Instance&lt;myObject&gt;&gt;</code>.</p>
+<p>This creates several different compatibility problems you may face when converting your code.</p>
+<h4>Issue: <code>Osdk.Instance&lt;myObject&gt;</code> is not equivalent to <code>legacyMyObject</code></h4>
+<p>There have been significant changes to the properties within two objects.</p>
+<ul>
+<li>TypeScript OSDK 1.x uses <code>GeoShape, GeoPoint</code> while TypeScript OSDK 2.0 uses <code>GeoJSON</code></li>
+<li>TypeScript OSDK 1.x uses <code>Timestamp, LocalDate</code> while TypeScript OSDK 2.0 treats those types as <code>strings</code></li>
+</ul>
+<p>Imagine you want to replace your object load calls with the new client but do not want to change any of your helper functions that would expect object types from the legacy TypeScript OSDK 1.x. Assume that you are still importing object types from the legacy TypeScript OSDK 1.x; in this case, you will encounter errors due to the two types being incompatible.</p>
+<pre><code class="language-typescript">const objectResult: Result&lt;legacyMyObject, GetObjectError&gt; =
+    await legacyClient.ontology.
+    objects.legacyMyObject.fetchOne(&quot;&lt;primaryKey&quot;);
+
+const object = client(myObject).fetchOne(&quot;&lt;primaryKey&gt;&quot;);
+   -&gt; Returns Osdk.Instance&lt;myObjectV2&gt;
+
+const locationName = getObjectLocation(object)
+
+function getLocation(obj: legacyMyObject){...} : Unmodified
+</code></pre>
+<p>This is because <code>Osdk.Instance&lt;myObjectV2&gt;</code> is not compatible with <code>legacyMyObject</code>.</p>
+<h4>Issue: ObjectType â  Osdk.Instance<ObjectType></h4>
+<p>In TypeScript OSDK 2.0, wrapping an object type in <code>Osdk.Instance&lt;&gt;</code> is crucial for accessing various properties. The <code>Osdk</code> wrapper elevates these properties to the top level of the type, making it more analogous to legacy types in TypeScript OSDK 1.x.</p>
+<p>However, if you modify object type imports to come from TypeScript OSDK 2.0, an issue would occur. Without the <code>Osdk</code> wrapper, you would not have top level access to object properties, and the imports would be missing the other fields listed above.</p>
+<pre><code class="language-typescript">const object = client(myObjectV2).fetchOne(&quot;&lt;primaryKey&gt;&quot;);
+    -&gt; returns Osdk.Instance&lt;myObjectV2&gt;
+const locationName = getObjectLocation(object)
+
+function getLocation(obj: myObjectV2){ ... }
+</code></pre>
+<p>This is because <code>Osdk.Instance&lt;myObjectV2&gt;</code> is not compatible with <code>myObjectV2</code>.</p>
+<h4>Solution paths</h4>
+<p>Consider the following ways you can edit your code to use the new OSDK object types in TypeScript OSDK 2.0:</p>
+<ol>
+<li><strong>Direct replacement:</strong> Substitute all instances of the legacy object type in your codebase with the corresponding TypeScript OSDK 2.0 object type as you modify object retrievals. This is optimal for simple use cases, but challenging for codebases that heavily use TypeScript OSDK 1.x object types.</li>
+<li><strong>Custom frontend types:</strong> Prior to migrating objects to TypeScript OSDK 2.0, refactor your code to use custom frontend types instead of the built-in legacy TypeScript OSDK 1.x types. Then, develop a translator function that maps legacy TypeScript OSDK 1.x types to your custom types. When you commence the migration to TypeScript OSDK 2.0, you will only need to update the translator function, leaving the rest of your codebase intact.</li>
+</ol>
+<h3>Syntax translations</h3>
+<p>This section contains simple examples that illustrate how to map between TypeScript OSDK 1.x and 2.0 clients. For more complex TypeScript OSDK 2.0 syntax examples, refer to the <a href="https://github.com/palantir/osdk-ts/blob/main/examples-extra/docs_example/src/osdkExample.tsx">OSDK examples on Palantir's public GitHub repository â</a>.</p>
+<h3>Load single objects</h3>
+<h4>TypeScript OSDK 1.x (legacy)</h4>
+<pre><code class="language-typescript">const objectResult: Result&lt;legacyObject, GetObjectError&gt; =
+    await legacyClient.ontology.objects.legacyObject.fetchOneWithErrors(&quot;&lt;primaryKey&gt;&quot;);
+</code></pre>
+<h4>TypeScript OSDK 2.0</h4>
+<pre><code class="language-typescript">const objectResult: Result&lt;Osdk.Instance&lt;myObject&gt;&gt; =
+    await client(myObject).fetchOneWithErrors(&quot;&lt;primaryKey&gt;&quot;);
+</code></pre>
+<p>:::callout{theme="neutral"}
+You can also use the <code>fetchOne</code> method to have the object returned without the result wrapper.
+:::</p>
+<h3>Access object RIDs</h3>
+<p>In TypeScript OSDK 2.0, object RIDs are not included by default when fetching objects. To access an object's RID, you need to explicitly request it by using the <code>$includeRid: true</code> option in your fetch call and typing the returned instance accordingly.</p>
+<h4>TypeScript OSDK 2.0</h4>
+<pre><code class="language-typescript">const objectWithRid: Osdk.Instance&lt;myObject, &quot;$rid&quot;&gt; =
+    await client(myObject).fetchOne(&quot;&lt;primaryKey&gt;&quot;, { $includeRid: true });
+
+// The RID is now available on the returned object
+const rid = objectWithRid.$rid;
+</code></pre>
+<p>:::callout{theme="neutral"}
+The <code>$includeRid</code> option can also be used with <code>fetchPage</code> and other fetch methods. Ensure you type the result with <code>Osdk.Instance&lt;ObjectType, "$rid"&gt;</code> to access the <code>$rid</code> property on the returned objects.
+:::</p>
+<h3>Load objects with paging</h3>
+<h4>TypeScript OSDK 1.x (legacy)</h4>
+<pre><code class="language-typescript">const objectResult =
+    await legacyClient.ontology.objects.legacyObject.fetchPage({ pageSize: 30 });
+</code></pre>
+<h4>TypeScript OSDK 2.0</h4>
+<pre><code class="language-typescript">const objectResult = await client(myObject).fetchPage({ $pageSize: 30 });
+
+const object = objectResult.data[0];
+</code></pre>
+<h3>Load all objects</h3>
+<h4>TypeScript OSDK 1.x (legacy)</h4>
+<pre><code class="language-typescript">const objects: legacyObject[]= [];
+
+for await (const obj of client.ontology.objects.legacyObject.asyncIter()) {
+    objects.push(obj);
+}
+const object = objects.value[0];
+</code></pre>
+<h4>TypeScript OSDK 2.0</h4>
+<pre><code class="language-typescript">const objects: myObject[]= [];
+
+for await(const obj of client(myObject).asyncIter()) {
+    objects.push(obj);
+}
+const object = objects.value[0];
+</code></pre>
+<h3>Links</h3>
+<h4>TypeScript OSDK 1.x (legacy)</h4>
+<pre><code class="language-typescript">const object = ...load ontology object with legacy client
+const link = object.legacyObjectProperty.fetchPage({ pageSize: 100 });
+</code></pre>
+<h4>TypeScript OSDK 2.0</h4>
+<pre><code class="language-typescript">const object = ...load ontology object with new client
+const link = object.$link.myObjectProperty.fetchPage({ $pageSize: 100 });
+</code></pre>
+<h3>Filtering</h3>
+<h4><code>WHERE</code> clauses</h4>
+<h5>TypeScript OSDK 1.x (legacy)</h5>
+<pre><code>legacyClient.ontology.objects.legacyObject
+    .where(query =&gt; query.legacyProperty.startsWith(&quot;foo&quot;))...
+</code></pre>
+<h5>TypeScript OSDK 2.0</h5>
+<pre><code>client(myObject).where({
+        myObjectProperty: { $startsWith: &quot;foo&quot; }
+    })...
+</code></pre>
+<h4><code>orderBy</code> clauses</h4>
+<p>Order-by clauses are now specified within the object passed to <code>fetchPage</code> rather than a separate filter clause.</p>
+<h5>TypeScript OSDK 1.x (legacy)</h5>
+<pre><code>client.ontology.objects.legacyObject
+    .orderBy(sortBy =&gt; sortBy.OntologyProperty.asc())
+    .fetchPageWithErrors({ pageSize: 30 });
+</code></pre>
+<h5>TypeScript OSDK 2.0</h5>
+<pre><code>client(myObject).fetchPage({
+        $orderBy: { &quot;OntologyProperty&quot;: &quot;asc&quot; }
+        $pageSize: 30
+    });
+</code></pre>
+<h3>Aggregations</h3>
+<p>TypeScript OSDK 2.0 syntax allows you to pass in an argument for the ordering of your aggregations. This enables you to control the order in which results are returned when specifying a <code>groupBy</code> aggregation. The available options are <code>unordered</code>, <code>asc</code> (ascending), and <code>desc</code> (descending).</p>
+<h4>Return the count of objects</h4>
+<h5>TypeScript OSDK 1.x (legacy)</h5>
+<pre><code class="language-typescript">const aggResults = legacyClient.ontology.objects.legacyObject.where(...).count().compute();
+if (isOk(aggResults)) {
+    const count: number = aggResults.value;
+}
+</code></pre>
+<h5>TypeScript OSDK 2.0</h5>
+<pre><code class="language-typescript">const aggResults = await client(myObject).where(...).aggregate({
+    $select: { $count: &quot;unordered&quot; }
+    })
+const count: number = aggResults.$count;
+</code></pre>
+<h4>Group by (<code>groupBy</code>)</h4>
+<h5>TypeScript OSDK 1.x (legacy)</h5>
+<pre><code>legacyClient.ontology.objects.legacyObject.where(...)
+    .groupBy(legacyObject =&gt; legacyObject.imageId.exact)
+    .groupBy(legacyObject =&gt; legacyObject.objectLabel.exact)
+    .count().
+    .compute();
+</code></pre>
+<h5>TypeScript OSDK 2.0</h5>
+<pre><code>client(myObject).where(...).aggregate({ $select: { $count: &quot;unordered&quot; },
+    $groupBy: { imageId: &quot;exact&quot;, objectLabel: &quot;exact&quot; }});
+</code></pre>
+<h3>Common aggregations</h3>
+<h4>TypeScript OSDK 1.x (legacy)</h4>
+<pre><code class="language-typescript">const aggResults = legacyClient.ontology.objects.legacyObject
+    .aggregate(obj =&gt; ({
+        legacyObject: obj.createdBy.approximateDistinct(),
+    }))
+    .compute();
+
+//OR
+
+const aggResults = legacyClient.ontology.objects.legacyObject
+ .approximateDistinct((obj) =&gt; obj.legacyProperty)
+ .count()
+ .compute();
+
+if (isOk(aggResults)) {
+    const result = aggregationResults.value;
+}
+</code></pre>
+<h4>TypeScript OSDK 2.0</h4>
+<pre><code class="language-typescript">const aggregationResults = await client(myObject)
+    .aggregate({
+        $select: { &quot;ObjectProperty:approximateDistinct&quot;: &quot;unordered&quot; },
+    });
+
+const result = aggregationResults.ObjectProperty.approximateDistinct;
+</code></pre>
+<h2>Actions</h2>
+<h3>Simple Actions</h3>
+<p>TypeScript OSDK 2.0's syntax for applying simple Actions is very similar to the legacy TypeScript OSDK 1.x syntax: in both, you call the <code>applyAction</code> function.</p>
+<h4>TypeScript OSDK 1.x (legacy)</h4>
+<pre><code>await legacyClient.ontology.actions.createObject({ ...params });
+</code></pre>
+<h4>TypeScript OSDK 2.0</h4>
+<pre><code>await client(createObject).applyAction({ ...params });
+</code></pre>
+<h3>Batch Actions</h3>
+<p>Batch Actions will require a similar syntax change as with simple Actions.</p>
+<h4>TypeScript OSDK 1.x (legacy)</h4>
+<pre><code>await legacyClient.ontology.batchActions.createObject({ ...params });
+</code></pre>
+<h4>TypeScript OSDK 2.0</h4>
+<pre><code>await client(createObject).batchApplyAction({ ...params });
+</code></pre>
+<h3>Action validations and edits</h3>
+<p>If you were validating inputs or receiving <code>ActionEdits</code> in OSDK 1.x, you can now define these by specifying <code>$returnEdits</code> and <code>$validateOnly</code> properties
+in the <code>Options</code> object. It is not possible to return edits and validateOnly at the same time.</p>
+<h4>TypeScript OSDK 1.x (legacy)</h4>
+<pre><code>await legacyClient.ontology.actions.createObject({ ...params },
+    { mode: ActionExecutionMode.VALIDATE_AND_EXECUTE,
+    returnEdits: ReturnEditsMode.ALL });
+
+// If you only want to validate
+await legacyClient.ontology.actions.createObject({ ...params },
+    { mode: ActionExecutionMode.VALIDATE_ONLY });
+</code></pre>
+<h4>TypeScript OSDK 2.0</h4>
+<pre><code>// This call will throw on validation errors
+await client(createObject).applyAction({ ...params }, { $returnEdits: true });
+
+await client(createObject).applyAction({ ...params }, { $validateOnly: true });
+</code></pre>
+<h2>Queries</h2>
+<p>The change between TypeScript OSDK 1.x and 2.0 query syntax is very similar to the change for Actions. In TypeScript OSDK 2.0, you can call the <code>executeFunction</code> object on your client after you pass in the query that you want to execute.</p>
+<h4>TypeScript OSDK 1.x (legacy)</h4>
+<pre><code>await legacyClient.queries.legacyQuery({ ...params });
+</code></pre>
+<h4>TypeScript OSDK 2.0</h4>
+<pre><code>await client(exampleQuery).executeFunction({ ...params });
+</code></pre>
+<h2>Other differences</h2>
+<h3><code>DateTime</code> handling</h3>
+<p>The 1.x version of the TypeScript OSDK provided custom types for handling dates and times, such as <code>LocalDate</code> and <code>Timestamp</code>. TypeScript OSDK 2.0 does not provide concrete types for <code>DateTime</code>. Instead, for operations in the OSDK that return and accept <code>DateTime</code> values we instead use raw strings in the international standard of <a href="https://en.wikipedia.org/wiki/ISO_8601">ISO 8601 â</a>.</p>
+<p>The OSDK expects properly formatted ISO 8601 strings when using <code>DateTime</code> properties. For example, when filtering an object set using a <code>where</code> clause using a <code>DateTime property</code>, you must provide a properly formatted string:</p>
+<pre><code>client(myObject).where({
+    &quot;dateTimeProperty&quot;: {
+        &quot;$gt&quot;: &quot;2010-10-01T00:00:00Z&quot;,
+    }
+});
+</code></pre>
+<p><code>DateTime</code> values from various OSDK methods will also be returned in this format. For example, when loading objects a DateTime property on an object will be returned with a datetime string.</p>
+<h3>Common utilities</h3>
+<h4><code>OntologyObject</code></h4>
+<p>The <code>OntologyObject</code> type is not present in the TypeScript OSDK V2. A contextually equivalent type is the <code>OsdkBase</code> type found in the <code>@osdk/api</code> package.</p>
+<h4><code>IsOntologyObject</code></h4>
+<p><code>IsOntologyObject</code> is not present in TypeScript OSDK V2.</p>
+</body>
+</html>

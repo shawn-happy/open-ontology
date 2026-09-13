@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Manage users</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Manage users</h1>
+<p>Access the user administration page by going to <strong>Account &gt; Settings</strong> in the navigation sidebar. Then, select <strong>Users</strong> in the <strong>Platform Settings</strong> section of the sidebar.</p>
+<p><img alt="Manage users" src="../../_resources/foundry/platform-security-management/manage-users.png" /></p>
+<p>From here, you can view different information about users within Foundry:</p>
+<ul>
+<li><strong>User ID:</strong> The permanent unique ID of the user.</li>
+<li><strong>Organization:</strong> The <a href="https://www.palantir.com/docs/foundry/administration/enrollments-and-organizations/">Organization</a> to which a user belongs.</li>
+<li><strong>Groups:</strong> The list of groups to which a user belongs.</li>
+<li><strong>Attributes:</strong> Information about a user represented in a key-value format that is typically used by other Foundry services. For example, a user might have an attribute for geographical region which can be used to restrict what objects in the ontology the user can see.</li>
+</ul>
+<p><a href="https://www.palantir.com/docs/foundry/security/restricted-views/">Learn more about restricted views.</a></p>
+<h2>Preregister user</h2>
+<p>Platform administrators with preregister permissions can perform actions on users before they ever log into Foundry. Administrators can create usernames, give users appropriate group memberships, assign Organization and Marking access, and more to ensure the new user has proper access to resources when they first log in.</p>
+<p>:::callout{theme="warning"}
+The created username needs to match the userâs login username exactly for the preregistered actions to work.
+:::</p>
+<h2>User inactivity</h2>
+<p>Foundry user accounts are automatically considered inactive if no successful login has occurred for 30 days. Inactive accounts behave in the same way as active accounts in Foundry, except that all tokens for the inactive user account are invalid while the account is inactive.</p>
+<p>The inactive user account will be automatically set to active after a successful login, which re-enables all disabled tokens. No administrator action is required for this reactivation.</p>
+<p>It is possible to exclude users in certain Foundry groups and authentication realms from this inactivity behavior. Contact your Palantir representative for more information about these exclusions.</p>
+<p>:::callout{theme="warning"}
+If a user encounters the message: "Your account has been locked. Contact your support person to unlock it, then try again." upon login, contact your Palantir representative for account unlocking.
+:::</p>
+<h2>Troubleshooting</h2>
+<h3>âYour account has been disabledâ error</h3>
+<p>If a login fails with the error <code>Your account has been disabled</code>, it means the user account has been deleted. You can reach out to an administrator to find and "undelete" the account using the <code>getDeletedUsers</code> and <code>undeleteExternalUser</code> endpoints, respectively. Organization administrators with <code>Manage membership</code> permissions are able to call these endpoints. Example curl requests are listed below.</p>
+<h4>Find the deleted user via getDeletedUsers</h4>
+<p>This step is optional and only required if the user ID of the deleted user is unknown.</p>
+<pre><code>curl -XGET -H &quot;Authorization: Bearer $TOKEN&quot; '&lt;FOUNDRY_URL&gt;/multipass/api/administration/users/deleted?pageSize=&lt;NUMBER_OF_RESULTS_TO_RETURN&gt;&amp;pageToken=&lt;PAGE_START_TOKEN&gt;'
+</code></pre>
+<p><strong>Note:</strong> The max page size is 1000.</p>
+<h4>Undelete the deleted user via undeleteExternalUser</h4>
+<pre><code>curl -XPOST -H &quot;Authorization: Bearer $TOKEN&quot; '&lt;FOUNDRY_URL&gt;/multipass/api/administration/users/&lt;USER_ID&gt;/undelete/external'
+</code></pre>
+</body>
+</html>

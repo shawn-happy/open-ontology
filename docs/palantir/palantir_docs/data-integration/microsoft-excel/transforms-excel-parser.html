@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Transforms Excel Parser</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Transforms Excel Parser</h1>
+<p>There are many ways to extract tabular data from a schemaless dataset containing Microsoft Excel files in Foundry, including <a href="https://www.palantir.com/docs/foundry/pb-functions-transform/parseExcelV2/">Pipeline Builder</a>, <a href="https://www.palantir.com/docs/foundry/transforms-python/unstructured-files/">Python file-based transforms</a> using open-source libraries like <a href="https://openpyxl.readthedocs.io/en/stable/tutorial.html">openpyxl â</a>, and <a href="https://www.palantir.com/docs/foundry/transforms-java/unstructured-files/">Java file-based transforms</a> using open-source libraries like <a href="https://poi.apache.org/">Apache POI â</a>.</p>
+<p>In addition to these options, Palantir provides a library called <code>transforms-excel-parser</code>, which wraps Apache POI with sensible default behavior to make it easy to use in a <a href="https://www.palantir.com/docs/foundry/transforms-java/overview/">transforms-java</a> repository with minimal configuration.</p>
+<p>Some examples of the useful features and behavior provided by this library include the following:</p>
+<ul>
+<li>Processing an input dataset containing files with partially overlapping but inconsistent schemas, inferring the schemas from the table headers.</li>
+<li>Extracting data from multiple sheets (or different tables from the same sheet) and writing the result into multiple output datasets while only reading the file into memory once.</li>
+<li>Providing a fluent API for defining extraction of fields from non-tabular, "form-style" sheets (where data is located above, below, or adjacent to labels).</li>
+<li>Setting appropriate global parameters that resolve common Apache POI issues such as incorrect "zip bomb" detection or failures due to exceeding "max byte array size."</li>
+<li>Supporting both fail-fast and fail-safe behavior with the <code>errorDataframe()</code> method on the <code>ParseResult</code> class, which can be checked at runtime to fail a job or alternatively written to a separate output and checked asynchronously.</li>
+<li>Providing appropriate configuration options and utility functions for incremental pipelines in order to handle common edge cases such as inconsistent schemas between incremental batches.</li>
+</ul>
+<p>:::callout{theme="neutral" title="Spreadsheet" media sets}
+For source of truth workflows and unstructured excel files, see <a href="https://www.palantir.com/docs/foundry/media-sets-advanced-formats/media-overview/">spreadsheet media sets</a>.
+:::</p>
+<h2>Setup</h2>
+<h3>1. Confirm availability of transforms-excel-parser-bundle and add it as a backing repository</h3>
+<p>Search for <code>transforms-excel-parser</code> in the repository's Maven library panel.</p>
+<p><img alt="transforms-excel-parser library search." src="../../_resources/foundry/microsoft-excel/transforms-excel-parser-library-search.png" /></p>
+<p>Select the latest version available.</p>
+<p><img src="../../_resources/external-f3dd259dcebb.png" alt="Select the latest version available for transforms-excel-parser." width="220"/></p>
+<p>This will show a dialog for importing <code>transforms-excel-parser-bundle</code> as an additional backing repository. Select "Add library".</p>
+<p><img src="../../_resources/external-0790e8613ed0.png" alt="Confirming library dependencies changes prompt." width="450" /></p>
+<p>:::callout{theme="neutral"}
+You may see <code>eddie-spark-module-bundle</code> and/or <code>ri.eddie.artifacts.repository.bundles</code> in addition to <code>transforms-excel-parser-bundle</code> as dropdown options.</p>
+<p>The backing repositories with <code>eddie</code> in their name are intended for the exclusive use of the <a href="https://www.palantir.com/docs/foundry/pipeline-builder/overview/">Pipeline Builder</a> application, so they are not the appropriate choice, and using them may lead to issues in the future.
+If you do not see <code>transforms-excel-parser-bundle</code> as an option, contact your Palantir representative for installation.
+:::</p>
+<h3>2. Add dependency to build.gradle</h3>
+<p>Add the latest version available to your <code>transforms-java/build.gradle</code> file as below.</p>
+<p><img alt="Code snippet for transforms-excel-parser gradle dependency." src="../../_resources/foundry/microsoft-excel/transforms-excel-parser-gradle-dependency.png" /></p>
+<p>:::callout{theme="neutral"}
+<code>transforms-java/build.gradle</code> is a hidden file, so you will need to toggle the <strong>Show hidden files</strong> setting in order to see it.
+:::</p>
+<h2>API documentation</h2>
+<p>For detailed API documentation, <a href="./media/transforms-excel-parser-javadoc-1.155.0.zip">download the javadoc archive</a>, unzip it, and view the contained HTML files in a web browser.
+The best place to start when reading the javadoc is <code>com/palantir/transforms/excel/package-summary.html</code>.</p>
+<h2>Known issues and caveats</h2>
+<h3>Supported file types</h3>
+<p>The following file formats are currently supported:</p>
+<ul>
+<li>xls</li>
+<li>xlt</li>
+<li>xltm</li>
+<li>xltx</li>
+<li>xlsx</li>
+<li>xlsm</li>
+</ul>
+<p>Note that xlsb files are not currently supported.</p>
+<h3>Code Assist preview instability</h3>
+<p>When running Code Assist preview, you may observe an issue where the first run after workspace startup succeeds and the second run fails with an error similar to the below:</p>
+<pre><code>java.lang.ClassCastException: class com.palantir.transforms.excel.KeyedParsedRecord cannot be cast to class com.palantir.transforms.excel.KeyedParsedRecord (com.palantir.transforms.excel.KeyedParsedRecord is in unnamed module of loader java.net.URLClassLoader @5a5d825a; com.palantir.transforms.excel.KeyedParsedRecord is in unnamed module of loader java.net.URLClassLoader @53dafc50)
+</code></pre>
+<p>This issue is exclusive to the Code Assist preview functionality and does not lead to issues at build time.
+Refreshing your browser window should allow you to preview again without performing a full Code Assist workspace rebuild.</p>
+<h3>Memory requirements</h3>
+<p>The Apache POI library is known for its high memory consumption, which means that even relatively small Excel files can result in a considerable memory footprint when opened. As a result, it is common for default transform Spark profile settings to provide insufficient memory-per-task to accommodate the in-memory objects. Insufficient memory can result in the following issues:</p>
+<ul>
+<li>The transform job fails with an error like <code>Spark module '{module_rid}' died while job '{job_rid}' was using it</code>.</li>
+<li>The transform job stalls for an extended period, neither succeeding nor failing.</li>
+</ul>
+<p>A rough guideline for identifying if a job is stalling is whether it takes more than 10 minutes to process a single file, since given sufficient memory, a very large Excel file can take about 8 minutes to process. Note that a single Spark task can process multiple input files, so it is not always straightforward to apply this rule.</p>
+<p>Whether the symptom of insufficient memory is job failure or job stalling, it is advisable to resolve the issue by switching to a <a href="https://www.palantir.com/docs/foundry/optimizing-pipelines/spark-profiles-reference/">spark profile</a> combination that provides more memory per task, such as <code>EXECUTOR_MEMORY_LARGE</code> and <code>EXECUTOR_CORES_EXTRA_SMALL</code>.</p>
+<h2>Usage examples</h2>
+<h3>Simple tabular Excel files</h3>
+<pre><code class="language-java">package myproject.datasets;
+
+import com.palantir.transforms.excel.ParseResult;
+import com.palantir.transforms.excel.Parser;
+import com.palantir.transforms.excel.TransformsExcelParser;
+import com.palantir.transforms.excel.table.SimpleHeaderExtractor;
+import com.palantir.transforms.excel.table.TableParser;
+import com.palantir.transforms.lang.java.api.Compute;
+import com.palantir.transforms.lang.java.api.FoundryInput;
+import com.palantir.transforms.lang.java.api.FoundryOutput;
+import com.palantir.transforms.lang.java.api.Input;
+import com.palantir.transforms.lang.java.api.Output;
+import java.util.Optional;
+import org.apache.spark.sql.Dataset;
+import org.apache.spark.sql.Row;
+
+public final class SimpleTabularExcel {
+
+    @Compute
+    public void myComputeFunction(
+            @Input(&quot;&lt;input_dataset_rid&gt;&quot;) FoundryInput myInput,
+            @Output(&quot;&lt;output_dataset_rid&gt;&quot;) FoundryOutput myOutput,
+            @Output(&quot;&lt;error_output_dataset_rid&gt;&quot;) FoundryOutput errorOutput
+        ) {
+        // Create a TableParser with an appropriately configured SimpleHeaderExtractor
+        // In this example, the header of the file is on the second row.
+        // If the header were on the first row, we would not need to
+        // specify rowsToSkip, since the default value is 0, and in fact
+        // we could just do TableParser.builder().build() in that case.
+        Parser tableParser = TableParser.builder()
+                .headerExtractor(
+                        SimpleHeaderExtractor.builder().rowsToSkip(1).build())
+                .build();
+
+        // Create a TransformsExcelParser with the TableParser
+        TransformsExcelParser transformsParser = TransformsExcelParser.of(tableParser);
+
+        // Parse input
+        ParseResult result =
+                transformsParser.parse(myInput.asFiles().getFileSystem().filesAsDataset());
+
+        // Get the parsed data, which may be empty if there were no rows in the input
+        // or an error occurred
+        Optional&lt;Dataset&lt;Row&gt;&gt; maybeDf = result.singleResult();
+
+        // If parsed data is not empty, write it to the output dataset
+        maybeDf.ifPresent(df -&gt; myOutput.getDataFrameWriter(df).write());
+
+        // Write error information to the error output
+        errorOutput.getDataFrameWriter(result.errorDataframe()).write();
+    }
+}
+</code></pre>
+<h3>Tabular Excel files with complex, multi-row headers</h3>
+<pre><code class="language-java">package myproject.datasets;
+
+import com.palantir.transforms.excel.ParseResult;
+import com.palantir.transforms.excel.Parser;
+import com.palantir.transforms.excel.TransformsExcelParser;
+import com.palantir.transforms.excel.table.MultilayerMergedHeaderExtractor;
+import com.palantir.transforms.excel.table.TableParser;
+import com.palantir.transforms.lang.java.api.Compute;
+import com.palantir.transforms.lang.java.api.FoundryInput;
+import com.palantir.transforms.lang.java.api.FoundryOutput;
+import com.palantir.transforms.lang.java.api.Input;
+import com.palantir.transforms.lang.java.api.Output;
+import java.util.Optional;
+import org.apache.spark.sql.Dataset;
+import org.apache.spark.sql.Row;
+
+public final class ComplexHeaderExcel {
+
+    @Compute
+    public void myComputeFunction(
+            @Input(&quot;&lt;input_dataset_rid&gt;&quot;) FoundryInput myInput,
+            @Output(&quot;&lt;output_dataset_rid&gt;&quot;) FoundryOutput myOutput,
+            @Output(&quot;&lt;error_output_dataset_rid&gt;&quot;) FoundryOutput errorOutput
+        ) {
+        // Create a TableParser with a MultilayerMergedHeaderExtractor
+        Parser tableParser = TableParser.builder()
+                .headerExtractor(MultilayerMergedHeaderExtractor.builder()
+                        .topLeftCellName(&quot;A1&quot;)
+                        .bottomRightCellName(&quot;D2&quot;)
+                        .build())
+                .build();
+
+        // Create a TransformsExcelParser with the TableParser
+        TransformsExcelParser transformsParser = TransformsExcelParser.of(tableParser);
+
+        // Parse input
+        ParseResult result =
+                transformsParser.parse(myInput.asFiles().getFileSystem().filesAsDataset());
+
+        // Get the parsed data, which may be empty if there were no rows in the input
+        // or an error occurred
+        Optional&lt;Dataset&lt;Row&gt;&gt; maybeDf = result.singleResult();
+
+        // If parsed data is not empty, write it to the output dataset
+        maybeDf.ifPresent(df -&gt; myOutput.getDataFrameWriter(df).write());
+
+        // Write error information to the error output
+        errorOutput.getDataFrameWriter(result.errorDataframe()).write();
+    }
+}
+</code></pre>
+<h3>Excel files with forms</h3>
+<p>In this example, we register multiple <code>FormParser</code> instances, but it is also possible to register a mix of <code>FormParser</code> and <code>TableParser</code> instances, and that is a common pattern with complex forms that include tabular elements (within the same sheet or across sheets).</p>
+<pre><code class="language-java">package myproject.datasets;
+
+import com.palantir.transforms.excel.TransformsExcelParser;
+import com.palantir.transforms.excel.ParseResult;
+import com.palantir.transforms.excel.Parser;
+import com.palantir.transforms.excel.form.FieldSpec;
+import com.palantir.transforms.excel.form.FormParser;
+import com.palantir.transforms.excel.form.Location;
+import com.palantir.transforms.excel.form.cellvalue.AdjacentCellAssertion;
+import com.palantir.transforms.excel.form.cellvalue.CellValue;
+import com.palantir.transforms.excel.functions.RegexSubstringMatchingSheetSelector;
+import com.palantir.transforms.lang.java.api.Compute;
+import com.palantir.transforms.lang.java.api.FoundryInput;
+import com.palantir.transforms.lang.java.api.FoundryOutput;
+import com.palantir.transforms.lang.java.api.Input;
+import com.palantir.transforms.lang.java.api.Output;
+
+public final class FormStyleExcel {
+    private static final String FORM_A_KEY = &quot;FORM_A&quot;;
+    private static final String FORM_B_KEY = &quot;FORM_B&quot;;
+
+    @Compute
+    public void myComputeFunction(
+            @Input(&quot;&lt;input_dataset_rid&quot;) FoundryInput myInput,
+            @Output(&quot;&lt;form_a_output_dataset_rid&gt;&quot;) FoundryOutput formAOutput,
+            @Output(&quot;&lt;form_b_output_dataset_rid&gt;&quot;) FoundryOutput formBOutput,
+            @Output(&quot;&lt;error_output_dataset_rid&gt;&quot;) FoundryOutput errorOutput) {
+        // Form A parser configuration
+        Parser formAParser = FormParser.builder()
+                .sheetSelector(new RegexSubstringMatchingSheetSelector(&quot;Form_A&quot;))
+                .addFieldSpecs(createFieldSpec(&quot;form_a_field_1&quot;, &quot;B1&quot;))
+                .addFieldSpecs(createFieldSpec(&quot;form_a_field_2&quot;, &quot;B2&quot;))
+                .build();
+
+        // Form B parser configuration
+        Parser formBParser = FormParser.builder()
+                .sheetSelector(new RegexSubstringMatchingSheetSelector(&quot;Form_B&quot;))
+                .addFieldSpecs(createFieldSpec(&quot;form_b_field_1&quot;, &quot;B1&quot;))
+                .addFieldSpecs(createFieldSpec(&quot;form_b_field_2&quot;, &quot;B2&quot;))
+                .build();
+
+        // TransformsExcelParser with both Form A and Form B parsers
+        TransformsExcelParser transformsParser = TransformsExcelParser.builder()
+                .putKeyToParser(FORM_A_KEY, formAParser)
+                .putKeyToParser(FORM_B_KEY, formBParser)
+                .build();
+
+        // Parse input
+        ParseResult result =
+                transformsParser.parse(myInput.asFiles().getFileSystem().filesAsDataset());
+
+        // Write parsed data to the output datasets
+        result.dataframeForKey(FORM_A_KEY)
+                .ifPresent(df -&gt; formAOutput.getDataFrameWriter(df).write());
+        result.dataframeForKey(FORM_B_KEY)
+                .ifPresent(df -&gt; formBOutput.getDataFrameWriter(df).write());
+
+        // Write error information to the error output
+        errorOutput.getDataFrameWriter(result.errorDataframe()).write();
+    }
+
+    // Helper method to concisely create a FieldSpec with an appropriate assertion
+    private static FieldSpec createFieldSpec(String fieldName, String cellLocation) {
+        return FieldSpec.of(
+                fieldName,
+                CellValue.builder()
+                        .addAssertions(AdjacentCellAssertion.left(1, fieldName))
+                        .location(Location.of(cellLocation))
+                        .build());
+    }
+}
+</code></pre>
+<h3>Incremental processing with multiple outputs</h3>
+<pre><code class="language-java">package myproject.datasets;
+
+import com.palantir.transforms.excel.ParseResult;
+import com.palantir.transforms.excel.Parser;
+import com.palantir.transforms.excel.TransformsExcelParser;
+import com.palantir.transforms.excel.functions.RegexSubstringMatchingSheetSelector;
+import com.palantir.transforms.excel.table.CaseNormalizationOption;
+import com.palantir.transforms.excel.table.SimpleHeaderExtractor;
+import com.palantir.transforms.excel.table.TableParser;
+import com.palantir.transforms.excel.utils.IncrementalUtils;
+import com.palantir.transforms.lang.java.api.*;
+
+public final class IncrementalTransform {
+
+    @Compute
+    public void myComputeFunction(
+            @Input(&quot;&lt;input_dataset_rid&gt;&quot;) FoundryInput myInput,
+            @Output(&quot;&lt;sheet_1_output_dataset_rid&gt;&quot;) FoundryOutput sheet1Output,
+            @Output(&quot;&lt;sheet_2_output_dataset_rid&gt;&quot;) FoundryOutput sheet2Output) {
+        // Define the parsers
+        // Specifying either CONVERT_TO_LOWERCASE or CONVERT_TO_UPPERCASE for a
+        // CaseNormalizationOption is especially important with incremental processing
+        // to avoid subtle issues due to inconsistent casing between input files across
+        // incremental batches.
+        Parser sheet1Parser = TableParser.builder()
+                .headerExtractor(SimpleHeaderExtractor.builder()
+                        .caseNormalizationOption(CaseNormalizationOption.CONVERT_TO_LOWERCASE).build())
+                .sheetSelector(new RegexSubstringMatchingSheetSelector(&quot;Sheet1&quot;)).build();
+        Parser sheet2Parser = TableParser.builder()
+                .headerExtractor(SimpleHeaderExtractor.builder()
+                        .caseNormalizationOption(CaseNormalizationOption.CONVERT_TO_LOWERCASE).build())
+                .sheetSelector(new RegexSubstringMatchingSheetSelector(&quot;Sheet2&quot;)).build();
+        TransformsExcelParser transformsParser = TransformsExcelParser.builder().putKeyToParser(&quot;Sheet1&quot;, sheet1Parser)
+                .putKeyToParser(&quot;Sheet2&quot;, sheet2Parser).build();
+
+        // Parse the data
+        FoundryFiles foundryFiles = myInput.asFiles();
+        ParseResult result = transformsParser.parse(foundryFiles.getFileSystem(ReadRange.UNPROCESSED).filesAsDataset());
+
+        // Check for errors and fail fast
+        // With incremental processing in particular, it is often better to fail fast
+        // instead of writing the error dataframe to a separate output and
+        // checking it asynchronously. If failing fast is not an option and you
+        // adopt the &quot;write error dataframe to separate output&quot; approach, note
+        // that you will need to either â  re-upload files that had parse errors to the input dataset
+        // or â¡ force a snapshot build of this transform via a manual dummy transaction
+        // on one of the output datasets in order to trigger the reprocessing of the
+        // files that had parse errors.
+        if (result.errorDataframe().count() &gt; 0) {
+            throw new RuntimeException(&quot;Errors: &quot; + result.errorDataframe().collectAsList().toString());
+        }
+
+        // Write parsed data incrementally to the outputs via an APPEND transaction if possible
+        // and a merge-and-replace SNAPSHOT transaction if not
+        // The below implementation assumes that it is normal and expected for a subset of the
+        // parsers to find no data in a given incremental batch of files. If that is not
+        // the case, you may want to raise an exception if a subset of the dataframes is
+        // absent and there were a non-zero number of unprocessed files in the input.
+        // An absent result does not necessarily mean that an error will be present
+        // in the error dataframe (for example, a SheetSelector returning an empty
+        // collection of sheets is not considered an error).
+        FilesModificationType filesModificationType = foundryFiles.modificationType();
+        result.dataframeForKey(&quot;Sheet1&quot;).ifPresent(
+                dataframe -&gt; IncrementalUtils.writeAppendingIfPossible(filesModificationType, dataframe, sheet1Output));
+        result.dataframeForKey(&quot;Sheet2&quot;).ifPresent(
+                dataframe -&gt; IncrementalUtils.writeAppendingIfPossible(filesModificationType, dataframe, sheet2Output));
+    }
+}
+</code></pre>
+<h3>Custom interface implementations</h3>
+<p>Most of the configuration methods in the <code>TableParser</code> and <code>FormParser</code> builders, such as <code>sheetSelector</code> and <code>headerExtractor</code>, specify interfaces instead of classes in their argument signatures. Therefore, you can define custom implementations when the built-in implementations, such as <code>RegexSubstringMatchingSheetSelector</code>, <code>SimpleHeaderExtractor</code>, and <code>MultilayerMergedHeaderExtractor</code>, are not sufficient. Additionally, since most of these interfaces have only one method, you can usually use Java <a href="https://docs.oracle.com/javase/tutorial/java/javaOO/lambdaexpressions.html">lambda expressions â</a> when defining a custom implementation in this way.</p>
+<p>For example, the built-in <code>MultilayerMergedHeaderExtractor</code> requires you to specify the top-left and bottom-right cell names statically. However, inconsistencies may exist between input files in the number of empty rows before the header begins. The example below shows how you can define a custom implementation of the <code>HeaderExtractor</code> interface that dynamically identifies the start of the header, uses that information to define a local instance of <code>MultilayerMergedHeaderExtractor</code>, and then returns the result of calling the local <code>MultilayerMergedHeaderExtractor</code>'s <code>extractHeader</code> method.</p>
+<p>Consult the <a href="#api-documentation">API documentation</a> for detailed definitions of <code>HeaderExtractor</code> and other interfaces.</p>
+<pre><code class="language-java">package myproject.datasets;
+
+import com.palantir.transforms.excel.ParseResult;
+import com.palantir.transforms.excel.Parser;
+import com.palantir.transforms.excel.TransformsExcelParser;
+import com.palantir.transforms.excel.table.HeaderExtractor;
+import com.palantir.transforms.excel.table.MultilayerMergedHeaderExtractor;
+import com.palantir.transforms.excel.table.TableParser;
+import com.palantir.transforms.excel.utils.WorkbookUtils;
+import com.palantir.transforms.lang.java.api.*;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.util.CellReference;
+import org.apache.spark.sql.Dataset;
+
+import java.util.Optional;
+
+public class CustomHeaderExtractorUsageExample {
+    private static Optional&lt;String&gt; getFirstCellValue(Sheet sheet, int rowIndex) {
+        Row row = sheet.getRow(rowIndex);
+        if (row == null) {
+            return Optional.empty();
+        }
+        Cell cell = row.getCell(0);
+        if (cell == null) {
+            return Optional.empty();
+        }
+        String value = WorkbookUtils.getValueAsString(cell);
+        if (value == null) {
+            return Optional.empty();
+        }
+        return Optional.of(value);
+    }
+
+    @Compute
+    public void myComputeFunction(
+            @Input(&quot;&lt;input_dataset_rid&gt;&gt;&quot;) FoundryInput myInput,
+            @Output(&quot;&lt;output_dataset_rid&gt;&quot;) FoundryOutput myOutput,
+            @Output(&quot;&lt;error_output_dataset_rid&gt;&quot;) FoundryOutput errorOutput
+    ) {
+        HeaderExtractor headerExtractor = sheet -&gt; {
+            int rowsInSheet = sheet.getLastRowNum();
+            Integer firstHeaderRow = null;
+            for (int currentRowIndex = 0; currentRowIndex &lt; rowsInSheet; currentRowIndex += 1) {
+                Optional&lt;String&gt; firstCellValue = getFirstCellValue(sheet, currentRowIndex);
+                // Assume that we can always identify the start of the header by looking for the first row
+                // in which the value in the first cell is the string &quot;record_id&quot;.
+                if (firstCellValue.isPresent() &amp;&amp; firstCellValue.get().equals(&quot;record_id&quot;)) {
+                    firstHeaderRow = currentRowIndex;
+                    break;
+                }
+            }
+            if (firstHeaderRow == null) {
+                return Optional.empty();
+            }
+            // Assume that the height of the header is always two rows. We could implement
+            // additional logic to attempt to find the height on a per-file basis
+            // if that assumption were not valid.
+            int lastHeaderRow = firstHeaderRow + 1;
+            return MultilayerMergedHeaderExtractor
+                    .builder()
+                    .topLeftCellName(new CellReference(firstHeaderRow, 0).formatAsString())
+                    // Assume that the width of the header is always five columns (the indices in the CellReference
+                    // constructor are zero-indexed). We could implement additional logic to attempt to find
+                    // the width on a per-file basis if that assumption were not valid.
+                    .bottomRightCellName(new CellReference(lastHeaderRow, 4).formatAsString())
+                    .build()
+                    .extractHeader(sheet);
+        };
+
+        Parser tableParser = TableParser.builder()
+                .headerExtractor(headerExtractor)
+                .build();
+
+        TransformsExcelParser transformsParser = TransformsExcelParser.of(tableParser);
+
+        ParseResult result =
+                transformsParser.parse(myInput.asFiles().getFileSystem().filesAsDataset());
+
+        Optional&lt;Dataset&lt;org.apache.spark.sql.Row&gt;&gt; maybeDf = result.singleResult();
+
+        maybeDf.ifPresent(df -&gt; myOutput.getDataFrameWriter(df).write());
+        errorOutput.getDataFrameWriter(result.errorDataframe()).write();
+    }
+}
+</code></pre>
+</body>
+</html>

@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Use actions in the platform</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Use actions in the platform</h1>
+<p>Action types can be seamlessly integrated across applications in Foundry. Read on to learn how to configure and apply an action from <a href="https://www.palantir.com/docs/foundry/object-explorer/overview/">Object Explorer</a> and <a href="https://www.palantir.com/docs/foundry/workshop/overview/">Workshop</a>.</p>
+<p>In the examples below, we use the term <strong>single action type</strong> to refer to an action type using an object reference parameter, and <strong>bulk action type</strong> to refer to an action using an object reference list parameter.</p>
+<h2>Object views</h2>
+<p>Actions can be added to an <a href="https://www.palantir.com/docs/foundry/object-views/overview/">Object View</a> using the <strong>Actions section</strong>.</p>
+<p><img alt="The Actions section of the Object View" src="../../_resources/foundry/action-types/integrate_actions_object_explorer_object_view_actions_section.png" /></p>
+<p>When configuring the <strong>Actions section</strong> you have the option to:</p>
+<ul>
+<li>Add any action as a button in the section.</li>
+<li>Give each button its own label and color.</li>
+<li>Change the default on-click behavior from opening the form to applying the action immediately using the default values (if valid).</li>
+<li>Specify whether the button should be hidden or disabled if a non-visible parameter is invalid (the idea being that visible parameters could be corrected upon opening the form).</li>
+<li>Provide a default value for each parameter; this can be a property value of the current object or a "local" value (current user, current timestamp, current object, or a manually entered value).</li>
+<li>Override the visibility of each parameter.</li>
+</ul>
+<p>As shown above, you can therefore use this section to offer multiple structured versions of the same generic action ("Delay 10 minutes", "Delay 30 minutes", etc.).</p>
+<h2>Object Explorer</h2>
+<p>Actions will automatically be shown in three places across <a href="https://www.palantir.com/docs/foundry/object-explorer/overview/">Object Explorer</a>:</p>
+<ol>
+<li>From the <strong>Actions</strong> dropdown in the Exploration View (top right).</li>
+</ol>
+<p><img alt="The Actions dropdown in the Exploration View" src="../../_resources/foundry/action-types/integrate_actions_object_explorer_exploration_view_actions_dropdown.png" /></p>
+<p>Using the current set of objects, this dropdown is automatically populated with applicable bulk actions.</p>
+<ol start="2">
+<li>From the <strong>Object Actions</strong> dropdown menu in the Object View (top right).</li>
+</ol>
+<p><img alt="The Object Actions dropdown in the Object View" src="../../_resources/foundry/action-types/integrate_actions_object_explorer_object_view_object_actions_dropdown.png" /></p>
+<p>Using the current object, this dropdown menu is automatically populated with applicable single and bulk action types.</p>
+<ol start="3">
+<li>From the <strong>Linked objects view section</strong> in the Object View (top).</li>
+</ol>
+<p><img alt="The Linked objects view section in the Object View" src="../../_resources/foundry/action-types/integrate_actions_object_explorer_object_view_linked_objects_view_section.png" /></p>
+<p>Using the selected object(s), this dropdown is automatically populated with applicable single and/or bulk action types.</p>
+<p>:::callout
+In "bulk" contexts (where multiple objects are shown in a list view), only actions that accept object list parameters of the correct type will be shown.
+:::</p>
+<h2>Workshop</h2>
+<p>In <a href="https://www.palantir.com/docs/foundry/workshop/overview/">Workshop</a>, Actions can be configured and applied using the <a href="https://www.palantir.com/docs/foundry/workshop/widgets-button-group/"><strong>Button group</strong> widget</a>.</p>
+<p><img alt="Button group widget in Workshop" src="../../_resources/foundry/action-types/integrate_actions_workshop_button_group_widget.png" /></p>
+<p>This widget has the same configuration options as the <a href="#object-views">Actions section</a> in an Object View, with a few notable extensions:</p>
+<ul>
+<li>There are three possible layouts, all of which are shown above.</li>
+<li>The buttons have additional display options, including left/right icons, minimal styles, and tag styles.</li>
+<li>In addition to an Action, an individual button can trigger a Workshop event, URL, or object set export.</li>
+</ul>
+<p>And one difference:</p>
+<ul>
+<li>A default value can be a <a href="https://www.palantir.com/docs/foundry/workshop/concepts-variables/">variable</a>, the current user, or the current timestamp</li>
+</ul>
+<p>Read more about <a href="https://www.palantir.com/docs/foundry/workshop/actions-overview/">Actions in Workshop</a>, or read the full reference for the <a href="https://www.palantir.com/docs/foundry/workshop/widgets-button-group/">Button Group widget</a> to learn about all available configuration options.</p>
+</body>
+</html>

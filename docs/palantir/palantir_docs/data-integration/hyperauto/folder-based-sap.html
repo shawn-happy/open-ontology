@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Folder-based SAP pipelines</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Folder-based SAP pipelines</h1>
+<p>HyperAuto V2 also supports creating pipelines from SAP data without needing a direct SAP connection. This provides flexibility, enabling support for a large variety of architecture, including source mirrors, static data extracts and pre-filtered data.</p>
+<h2>Set up a HyperAuto V2 pipeline for SAP static data</h2>
+<p>To create a HyperAuto V2 pipeline on top of SAP datasets, set up a single Foundry folder containing:</p>
+<ul>
+<li>Input table datasets (one dataset per SAP table you want to process)</li>
+<li>Data dictionary tables</li>
+</ul>
+<p>Keep all datasets directly within the same folder to ensure auto-detection works and to minimize the pipeline creation steps. Calling the input table datasets by their SAP table name (for example, <code>MARA</code>) will facilitate the auto-mapping process and reduce the number of manual steps required.</p>
+<p>The data needs to be an untransformed extract of raw SAP tables, with their technical column names.</p>
+<h3>Data dictionary tables</h3>
+<p>Data dictionary tables contain the necessary metadata from SAP with which HyperAuto generates a pipeline, including table and column descriptions, and descriptions of the relationships between tables.</p>
+<p>The data dictionary tables required to create a folder-based SAP HyperAuto pipeline are:</p>
+<ul>
+<li><strong>DD02L</strong> (Details of tables in the SAP system)</li>
+<li><strong>DD02T</strong> (Descriptive text and labels for tables in different languages)</li>
+<li><strong>DD03L</strong> (Field definitions, data types, and lengths)</li>
+<li><strong>DD04T</strong> (Descriptions and labels for data elements in multiple languages)</li>
+<li><strong>DD05S</strong> (Details of foreign key relationships, including the parent and child table fields)</li>
+<li><strong>DD08L</strong> (Metadata about the foreign key relationships between tables in the SAP system)</li>
+</ul>
+<p>Data dictionary tables must be in their raw format and <strong>unfiltered</strong> for HyperAuto to function properly.</p>
+<h3>Example</h3>
+<p>To create a basic HyperAuto pipeline on top of an SAP system's <code>MARA</code> and <code>MAKT</code> tables, create a folder containing the following datasets:</p>
+<p><img src="../../_resources/external-d36c9bfe80a7.png" alt="Folder based input example" width="750"></p>
+<h2>Create a folder-based pipeline</h2>
+<ol>
+<li>Once you have your <a href="#set-up-a-hyperauto-v2-pipeline-for-sap-static-data">input folder set up</a>, navigate to the HyperAuto homepage to create the new pipeline. This can be found via the Applications browser in the left-hand sidebar of Foundry.</li>
+</ol>
+<p><img src="../../_resources/external-b4f38b148161.png" alt="HyperAuto app homepage" width="750"></p>
+<ol start="2">
+<li>Click <strong>+ Create Pipeline</strong> to open the create pipeline dialogue.</li>
+</ol>
+<p><img src="../../_resources/external-64d27e352914.png" alt="Create pipeline" width="750"></p>
+<ol start="3">
+<li>Here you are provided the choice to create a typical pipeline (which will require a live SAP connection) or a folder-based SAP pipeline. Select "Folder (SAP only)" and choose your <a href="#set-up-a-hyperauto-v2-pipeline-for-sap-static-data">input folder</a> by clicking <strong>Browse</strong>.</li>
+</ol>
+<p>Click <strong>Create Pipeline</strong> to be taken to the HyperAuto pipeline creation wizard.</p>
+<p><img src="../../_resources/external-ae1894a72247.png" alt="Create new folder based pipeline" width="750"></p>
+<h3>Setup wizard</h3>
+<ol>
+<li>Now, you will define the basic pipeline configuration similarly to source-based pipelines.</li>
+</ol>
+<p>First, choose a valid name and location for the pipeline.</p>
+<p><img src="../../_resources/external-0dca0ce2c228.png" alt="Create new folder based pipeline" width="750"></p>
+<ol start="2">
+<li>The source configuration step ensures HyperAuto is aware of the data dictionary tables such that it can read the necessary metadata to build the pipeline.</li>
+</ol>
+<p>If the input is set up correctly these will be automatically mapped. Otherwise, manually map each metadata table before progressing.</p>
+<p><img src="../../_resources/external-d2a69c57bcbf.png" alt="Source configuration" width="750"></p>
+<ol start="3">
+<li>The next step is to choose the inputs to be processed. By default, only discoverable inputs (those which have datasets matching by name directly within the input folder) are shown in the input selection interface.</li>
+</ol>
+<p><img src="../../_resources/external-323ca648a5c1.png" alt="Discovered input configuration" width="750"></p>
+<p>To show all available tables (based on the data dictionary tables) click <strong>Show undiscovered tables</strong>.</p>
+<p>Adding an undiscovered table will require you to manually map the input to an appropriate Foundry dataset for it to be usable as an input.</p>
+<p><img src="../../_resources/external-03997eff9358.png" alt="Discovered input configuration" width="750"></p>
+<p>:::callout{theme="warning"}
+Creating a pipeline with an unmapped input will cause that input to be ignored.
+:::</p>
+<ol start="4">
+<li>Select the pipeline configuration as desired and click <strong>Create HyperAuto Pipeline</strong> to complete the wizard and trigger pipeline creation.</li>
+</ol>
+<p><img src="../../_resources/external-b75a3ccd71c0.png" alt="Pipeline configuration" width="750"></p>
+</body>
+</html>

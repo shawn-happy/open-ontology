@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Python version support</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Python version support</h1>
+<p>As Python development continues, the Python Software Foundation <a href="https://devguide.python.org/versions/">marks old Python versions as "end of life" (EOL) â</a>; versions beyond their EOL date are officially unsupported.</p>
+<h2>Foundry and Python versioning</h2>
+<p>Starting from Python version 3.9, Foundry will follow the Python Software Foundation's EOL schedule and will not support deprecated Python versions. Deprecated Python versions can pose security risks to the platform and may be incompatible with technologies necessary for the platform to function (for example, Apache Spark does not support older Python versions). Palantir will notify Foundry users who are using Python versions that are approaching EOL.</p>
+<h2>How do I know if my workflows are using deprecated Python versions?</h2>
+<p>You will be notified by pop-ups and banners if one of your workflows is using a deprecated Python version. These notifications will contain information on how to upgrade from the deprecated version.</p>
+<h2>Which Python versions are safe?</h2>
+<p>The Python Software Foundation's <a href="https://devguide.python.org/versions/">version end of life table â</a> is continuously updated and indicates which Python versions are safe. We suggest that you always use the latest supported version. You can refer to the following table for information about Foundry support of Python versions.</p>
+<table>
+<thead>
+<tr>
+<th>Version</th>
+<th>Supported in Foundry</th>
+<th>End of life start in Foundry</th>
+<th>Support discontinued in Foundry</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>3.6</td>
+<td>No<sup>*</sup></td>
+<td>2023-07-16</td>
+<td>2024-01-31</td>
+</tr>
+<tr>
+<td>3.7</td>
+<td>No<sup>*</sup></td>
+<td>2023-07-16</td>
+<td>2024-01-31</td>
+</tr>
+<tr>
+<td>3.8</td>
+<td>No<sup>*</sup></td>
+<td>2024-09-04</td>
+<td>2025-01-31</td>
+</tr>
+<tr>
+<td>3.9</td>
+<td>No<sup>*</sup></td>
+<td>2025-10-01</td>
+<td>2026-01-31</td>
+</tr>
+<tr>
+<td>3.10</td>
+<td>Yes</td>
+<td>2026-04-30</td>
+<td>2026-10-31</td>
+</tr>
+<tr>
+<td>3.11</td>
+<td>Yes</td>
+<td>2027-04-30</td>
+<td>2027-10-31</td>
+</tr>
+<tr>
+<td>3.12</td>
+<td>Yes</td>
+<td>2028-04-30</td>
+<td>2028-10-31</td>
+</tr>
+<tr>
+<td>3.13</td>
+<td>Coming soon</td>
+<td>2029-04-30</td>
+<td>2029-10-31</td>
+</tr>
+<tr>
+<td>3.14</td>
+<td>In planning</td>
+<td>2030-04-30</td>
+<td>2030-10-31</td>
+</tr>
+</tbody>
+</table>
+<p><sup>*</sup> This indicates a version that has reached EOL in Foundry, which means that workflows using this version are unsupported and there are no guarantees of functionality or compatibility.</p>
+<p>:::callout{theme="warning" title="Warning"}
+Palantir will not offer support for workflows that run on Python versions past EOL.
+:::</p>
+<h2>Python version deprecations</h2>
+<p>Campaigns will be created in platform to help users identify affected workflows at start of end of life.</p>
+<p>Python 3.10 will be unsupported in Foundry starting on 2026-10-31. Users will be notified with information on how to identify any affected workflows and migrate to non-deprecated Python versions before the deadline.</p>
+<p>Python 3.9 is no longer supported in Foundry as of 2026-01-31. Users should migrate to non-deprecated Python versions.</p>
+<p>Python 3.6, 3.7, and 3.8 are no longer supported in Foundry as of 2025-01-31. Users should migrate to non-deprecated Python versions.</p>
+<p>Refer to the <a href="https://www.palantir.com/docs/foundry/transforms-python/environment-troubleshooting/">Environment Troubleshooting guide</a> to learn more about changing your Python versions.</p>
+</body>
+</html>

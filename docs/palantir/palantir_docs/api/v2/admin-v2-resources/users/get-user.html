@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Get User</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../../../index.html">返回目录</a></div>
+<p><code>GET /api/v2/admin/users/{userId}</code></p>
+<p>Get the User with the specified id.</p>
+<p>Third-party applications using this endpoint via OAuth2 must request the following operation scope: <code>api:admin-read</code>.</p>
+<p><strong>OAuth2 scopes</strong>: <code>api:admin-read</code></p>
+<h2>Path parameters</h2>
+<table>
+<thead>
+<tr>
+<th>参数</th>
+<th>类型</th>
+<th>必填</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>userId</code></td>
+<td>string</td>
+<td>是</td>
+<td>A Foundry User ID.<br>示例: <code>dd05feb8-662a-445d-8f4c-ce92d46bedeb</code></td>
+</tr>
+</tbody>
+</table>
+<h2>Query parameters</h2>
+<table>
+<thead>
+<tr>
+<th>参数</th>
+<th>类型</th>
+<th>必填</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>status</code></td>
+<td>enum</td>
+<td>否</td>
+<td>Present status of user.<br>示例: <code>ACTIVE</code></td>
+</tr>
+</tbody>
+</table>
+<h2>Response</h2>
+<p><strong>User</strong></p>
+<table>
+<thead>
+<tr>
+<th>参数</th>
+<th>类型</th>
+<th>必填</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>User</code></td>
+<td>object</td>
+<td>是</td>
+<td>示例: <code>{"givenName":"John","familyName":"Smith","organization":"ri.multipass..organization.c30ee6ad-b5e4-4afe-a74f-fe4a289f2faa","realm":"palantir-internal-realm","attributes":{"multipass:givenName":["John"],"multipass:familyName":["Smith"],"multipass:email:primary":["jsmith@example.com"],"multipass:realm":["eab0a251-ca1a-4a84-a482-200edfb8026f"],"multipass:organization-rid":["ri.multipass..organization.c30ee6ad-b5e4-4afe-a74f-fe4a289f2faa"],"department":["Finance"],"jobTitle":["Accountant"]},"id":"0d1fe74e-2b70-4a93-9b1a-80070637788b","email":"jsmith@example.com","username":"jsmith","status":"ACTIVE"}</code></td>
+</tr>
+<tr>
+<td><code>User.id</code></td>
+<td>string</td>
+<td>是</td>
+<td>A Foundry User ID.<br>示例: <code>dd05feb8-662a-445d-8f4c-ce92d46bedeb</code></td>
+</tr>
+<tr>
+<td><code>User.username</code></td>
+<td>string</td>
+<td>是</td>
+<td>The Foundry username of the User. This is unique within the realm.<br>示例: <code>jsmith</code></td>
+</tr>
+<tr>
+<td><code>User.givenName</code></td>
+<td>string</td>
+<td>否</td>
+<td>The given name of the User.<br>示例: <code>John</code></td>
+</tr>
+<tr>
+<td><code>User.familyName</code></td>
+<td>string</td>
+<td>否</td>
+<td>The family name (last name) of the User.<br>示例: <code>Smith</code></td>
+</tr>
+<tr>
+<td><code>User.email</code></td>
+<td>string</td>
+<td>否</td>
+<td>The email at which to contact a User. Multiple users may have the same email address.<br>示例: <code>jsmith@example.com</code></td>
+</tr>
+<tr>
+<td><code>User.realm</code></td>
+<td>string</td>
+<td>是</td>
+<td>Identifies which Realm a User or Group is a member of.<br>The <code>palantir-internal-realm</code> is used for Users or Groups that are created in Foundry by administrators and not associated with any SSO provider.<br>示例: <code>palantir-internal-realm</code></td>
+</tr>
+<tr>
+<td><code>User.organization</code></td>
+<td>string</td>
+<td>否</td>
+<td>The RID of the user's primary Organization. This will be blank for third-party application service users.<br>示例: <code>ri.multipass..organization.c30ee6ad-b5e4-4afe-a74f-fe4a289f2faa</code></td>
+</tr>
+<tr>
+<td><code>User.status</code></td>
+<td>enum</td>
+<td>是</td>
+<td>The current status of the user.<br>示例: <code>ACTIVE</code></td>
+</tr>
+<tr>
+<td><code>User.attributes</code></td>
+<td>map</td>
+<td>否</td>
+<td>A map of the User's attributes. Attributes prefixed with "multipass:" are reserved for internal use by<br>Foundry and are subject to change. Additional attributes may be configured by Foundry administrators in<br>Control Panel and populated by the User's SSO provider upon login.<br>示例: <code>{"multipass:givenName":["John"],"multipass:familyName":["Smith"],"multipass:email:primary":["jsmith@example.com"],"multipass:realm":["eab0a251-ca1a-4a84-a482-200edfb8026f"],"multipass:organization-rid":["ri.multipass..organization.c30ee6ad-b5e4-4afe-a74f-fe4a289f2faa"],"department":["Finance"],"jobTitle":["Accountant"]}</code></td>
+</tr>
+<tr>
+<td><code>User.attributes.AttributeName</code></td>
+<td>string</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>User.attributes.AttributeValues</code></td>
+<td>list<AttributeValue></td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>User.attributes.AttributeValues.AttributeValue</code></td>
+<td>string</td>
+<td>是</td>
+<td>—</td>
+</tr>
+</tbody>
+</table>
+<pre><code class="language-json">{
+  &quot;givenName&quot;: &quot;John&quot;,
+  &quot;familyName&quot;: &quot;Smith&quot;,
+  &quot;organization&quot;: &quot;ri.multipass..organization.c30ee6ad-b5e4-4afe-a74f-fe4a289f2faa&quot;,
+  &quot;realm&quot;: &quot;palantir-internal-realm&quot;,
+  &quot;attributes&quot;: {
+    &quot;multipass:givenName&quot;: [
+      &quot;John&quot;
+    ],
+    &quot;multipass:familyName&quot;: [
+      &quot;Smith&quot;
+    ],
+    &quot;multipass:email:primary&quot;: [
+      &quot;jsmith@example.com&quot;
+    ],
+    &quot;multipass:realm&quot;: [
+      &quot;eab0a251-ca1a-4a84-a482-200edfb8026f&quot;
+    ],
+    &quot;multipass:organization-rid&quot;: [
+      &quot;ri.multipass..organization.c30ee6ad-b5e4-4afe-a74f-fe4a289f2faa&quot;
+    ],
+    &quot;department&quot;: [
+      &quot;Finance&quot;
+    ],
+    &quot;jobTitle&quot;: [
+      &quot;Accountant&quot;
+    ]
+  },
+  &quot;id&quot;: &quot;0d1fe74e-2b70-4a93-9b1a-80070637788b&quot;,
+  &quot;email&quot;: &quot;jsmith@example.com&quot;,
+  &quot;username&quot;: &quot;jsmith&quot;,
+  &quot;status&quot;: &quot;ACTIVE&quot;
+}
+</code></pre>
+<h2>Error responses</h2>
+<table>
+<thead>
+<tr>
+<th>错误码</th>
+<th>错误名称</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>INVALID_ARGUMENT</td>
+<td><code>UserDeleted</code></td>
+<td>The user is deleted.</td>
+</tr>
+<tr>
+<td>INVALID_ARGUMENT</td>
+<td><code>UserIsActive</code></td>
+<td>The user is an active user.</td>
+</tr>
+<tr>
+<td>NOT_FOUND</td>
+<td><code>UserNotFound</code></td>
+<td>The given User could not be found.</td>
+</tr>
+</tbody>
+</table>
+</body>
+</html>

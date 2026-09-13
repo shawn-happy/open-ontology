@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Foundry Rules</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Foundry Rules</h1>
+<p>Foundry Rules (previously known as Taurus) enables users to actively manage complex business logic in Foundry with a point-and-click, low-code interface. With Foundry Rules, users can create rules and apply those rules to datasets, objects, and time series for a variety of use cases like alert generation or data categorization.</p>
+<p>Foundry Rules comprises a set of components for creating, managing, and applying rules:</p>
+<ul>
+<li>A <strong>rule</strong> is a set of <em>conditions</em> that, taken together, can specify particular rows of data in a dataset.</li>
+<li>The <strong>conditions</strong> that form a rule apply to the columns of a dataset and can range from simple filters to complex aggregations, joins, or other operators.</li>
+</ul>
+<p><img alt="Screenshot of filter group with rules and conditions" src="../../_resources/foundry/foundry-rules/filter_group.png" /></p>
+<p>The following pages describe several <a href="https://www.palantir.com/docs/foundry/foundry-rules/core-concepts/">core concepts</a> and provide instructions for how to <a href="https://www.palantir.com/docs/foundry/foundry-rules/deploy-foundry-rules/">deploy</a> and <a href="https://www.palantir.com/docs/foundry/foundry-rules/customization/">customize</a> Foundry Rules.</p>
+<h2>Example use cases</h2>
+<p>Foundry Rules can simplify the process of managing use cases that involve complex sets of rules, such as:</p>
+<ul>
+<li><strong>Anti-Money Laundering (AML):</strong> Flag suspicious transactions through rules targeting both per-transaction and aggregated metrics.</li>
+<li><strong>Equipment monitoring:</strong> Raise alerts for potential equipment degradation based on sensor data (e.g. when certain measurements reach specific values).</li>
+<li><strong>Cohorting:</strong> Categorize entities into groups or "cohorts" based on rules. For example, creating groups of customers with particular features for better targeted marketing.</li>
+</ul>
+</body>
+</html>

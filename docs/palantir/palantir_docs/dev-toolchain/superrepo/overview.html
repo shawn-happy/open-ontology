@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SuperRepo \[Beta]</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>SuperRepo [Beta]</h1>
+<p>:::callout{theme="neutral" title="Beta"}
+SuperRepo is in the <a href="https://www.palantir.com/docs/foundry/platform-overview/development-life-cycle/">beta</a> phase of development and may not be available on your enrollment. Functionality may change during active development.
+:::</p>
+<p><img alt="A diagram illustrating the SuperRepo architecture built around the Ontology." src="../../_resources/foundry/superrepo/superrepo-cover.png" /></p>
+<p>SuperRepo is Foundry's new approach to enabling developers to build complex full-stack applications anchored around the Ontology inside a pro-code monorepo. SuperRepos expose an increasing number of the platform's core components, such as <a href="https://www.palantir.com/docs/foundry/functions/overview/">functions</a>, the <a href="https://www.palantir.com/docs/foundry/ontology/overview/">Ontology</a>, and React applications, to allow deeper integration and faster development cycles when developing complex applications.</p>
+<p>As more platform features gain first-class SuperRepo support covering an ever-increasing scope of use cases, SuperRepo will be the preferred way of interacting with platform features in a pro-code manner.</p>
+<p>SuperRepo aims to improve the application building and delivery experience from two angles:</p>
+<ul>
+<li><strong>Developer experience:</strong> The integrated full-stack application in a single repository and the <a href="https://www.palantir.com/docs/foundry/superrepo/foundry-cli/">Foundry CLI</a> allow developers to test their changes across the entire application during the development process, without having to wait between stages. This improves the iteration speed of the developer loop, surfacing issues or breaks immediately.</li>
+<li><strong>Programmatic DevOps:</strong> SuperRepo allows development teams and administrators to host their code where they choose and then deploy to multiple environments through their CI/CD system of choice, including an integrated one available out of the box. The Foundry CLI enables programmatic DevOps through <a href="https://www.palantir.com/docs/foundry/marketplace/overview/">Marketplace</a>, which allows teams to ship their code in a self-contained, reproducible, and cryptographically signed bundle using the processes that they already have in place.</li>
+</ul>
+<p>A central architectural choice of SuperRepo is that it builds around the Ontology, which enables pro-code development teams to build Ontology objects and applications in code while plugging into the powerful Foundry ecosystem.</p>
+<p>SuperRepos are best thought of as a new interface for interacting with the platform. For instance, SuperRepo integrates Ontology-as-code by default, allowing a programmatic definition of the application's domain model. Types created in Ontology-as-code are visible in the UI, and types created in the UI can be <a href="https://www.palantir.com/docs/foundry/superrepo/core-concepts/#importing">imported</a> into Ontology-as-code. Applications are never siloed by how their Ontology types were created.</p>
+<h2>Next steps</h2>
+<ul>
+<li>Review the <a href="https://www.palantir.com/docs/foundry/superrepo/core-concepts/">core concepts</a> behind the development, build, and deployment lifecycle of a SuperRepo.</li>
+<li><a href="https://www.palantir.com/docs/foundry/superrepo/create-a-superrepo/">Create a SuperRepo</a> in the Palantir platform or from the <a href="https://www.palantir.com/docs/foundry/superrepo/foundry-cli/">Foundry CLI</a>.</li>
+<li>Follow the <a href="https://www.palantir.com/docs/foundry/superrepo/tutorial-develop-with-a-superrepo/">end-to-end tutorial</a> to import an object type, define a link type, add a function, and expose all of it in an <a href="https://www.palantir.com/docs/foundry/ontology-sdk/overview/">Ontology SDK</a> application.</li>
+</ul>
+</body>
+</html>

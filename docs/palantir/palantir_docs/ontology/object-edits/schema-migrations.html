@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Manage schema changes</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Manage schema changes</h1>
+<h2>Changing object type schema</h2>
+<p>Workflows and applications built on the Foundry Ontology should evolve as an organization's needs change; in some cases, this evolution may involve updating the schema of object types in a way that requires additional changes elsewhere ("breaking changes"). Examples of breaking changes to the schema include changing the data type of an existing property, changing an object typeâs backing datasource, or changing the primary key of an object type. See below for a <a href="#list-of-breaking-schema-changes">full list of breaking schema changes</a>.</p>
+<p>In Object Storage v1 (Phonograph), the user interface discourages such schema changes, particularly when an object type has received user edits. This is because such user edits cannot be migrated in OSv1; instead, breaking changes will result in the loss of existing user edits unless time-consuming and complex manual intervention can be performed.</p>
+<p>Object Storage v2 removes this restriction on schema changes to facilitate flexible and iterative workflow building. To that end, OSv2 provides a schema migration framework with a list of predefined migrations that can be applied to existing user edits after a breaking schema change. The Ontology Manager automatically detects breaking schema changes and guides users to select a migration option from the predefined list. See below for a <a href="#list-of-supported-schema-migrations-in-osv2">full list of supported migrations</a>.</p>
+<h3>Example workflow</h3>
+<p>In this example workflow, a user deletes the <code>Description</code> property from an object type that has existing user edits. Ontology Manager automatically identifies this as a breaking schema change and displays a warning that a migration is required, as seen in the screenshot below.</p>
+<p><img alt="Breaking change warning" src="../../_resources/foundry/object-edits/breaking_changes.png" /></p>
+<p>In addition to displaying a warning, Ontology Manager will present a <strong>Migrations</strong> tab in the <strong>Review changes</strong> interface when the user wants to save their changes to the Ontology. Ontology Manager will block the user from saving changes until they define a migration for the breaking change. This prevents the change from breaking other workflows.</p>
+<p>When the user navigates to the <strong>Migrations</strong> tab, the Ontology Manager displays the available migration options based on the type of breaking change, as shown below.</p>
+<p><img alt="Review edits" src="../../_resources/foundry/object-edits/edits_review.png" /></p>
+<p>Once a schema change is specified and saved by a user in the Ontology Manager, a new schema version is created for the object type in the backend, and a corresponding <a href="https://www.palantir.com/docs/foundry/object-indexing/funnel-batch-pipelines/#funnel-batch-pipelines">replacement Funnel batch pipeline</a> is orchestrated to update the index of the object type. The new object type version will be queryable by the Object Set Service (OSS) and other consumers of the Ontology APIs as soon as the replacement pipeline is completed and the new version is declared to be fully <a href="https://www.palantir.com/docs/foundry/object-indexing/funnel-batch-pipelines/#hydration">hydrated by object databases</a>.</p>
+<h2>List of breaking schema changes</h2>
+<p>The following changes in the Ontology are considered to be breaking schema changes:</p>
+<ul>
+<li>Changing the input datasources of an object type</li>
+<li>Changing the primary key of an object type</li>
+<li>Changing the data type of a property</li>
+<li>Changing the ID of a property that has received user edits</li>
+<li>Deleting a property that has received user edits</li>
+<li>Deleting a struct field that has received user edits</li>
+<li>Changing the data type of a struct field</li>
+</ul>
+<h2>List of non-breaking schema changes</h2>
+<p>The following changes in the Ontology are <strong>not</strong> considered to be breaking schema changes:</p>
+<ul>
+<li>Changing the display name, title key, render hints, type classes, or visibility of a property that has received user edits</li>
+<li>Deleting properties or making schema changes to properties that have never received user edits</li>
+<li>Deleting struct fields or making schema changes to struct fields that have never received user edits</li>
+</ul>
+<h2>List of supported schema migrations in OSv2</h2>
+<p>Below is the full list of schema migrations that are currently supported in Object Storage v2.</p>
+<ul>
+<li>
+<p><strong>Drop all property edits:</strong> This migration instruction drops all existing user edits on a specific property of an object type. User edits on other properties of the object type are not impacted. This instruction is generally used when deleting a property from an object type and there is no new property as a replacement.</p>
+</li>
+<li>
+<p><strong>Drop all struct field edits:</strong> This migration instruction drops all existing user edits on a specific struct field within a struct property of an object type. User edits on other struct fields on the same struct property are not impacted. This instruction is generally used when deleting a struct field from a struct property, and there is no new replacement struct field.</p>
+</li>
+<li>
+<p><strong>Drop all edits:</strong> This migration instruction drops all existing user edits on all properties of an object type. When this migration runs, the state of all objects of an object type is reset to data in the input datasources. To execute this migration, navigate to the  <strong>Datasources</strong> tab of the object type and select <strong>Delete edits</strong>, located in the <strong>Edits</strong> section.</p>
+</li>
+<li>
+<p><strong>Move edits:</strong> This migration instruction moves all existing user edits on a specific property or on the entire object type. This instruction is generally used in two cases:</p>
+</li>
+<li>When an existing property is renamed or deleted and being replaced by a new property, or</li>
+<li>
+<p>When the input datasource of an object type is being replaced by another datasource.</p>
+</li>
+<li>
+<p><strong>Move struct field edits:</strong> This migration instruction moves all existing user edits on a specific struct field to another struct field. This instruction is generally used when an existing struct field is deleted and being replaced by a new struct field.</p>
+</li>
+<li>
+<p><strong>Cast property to new type:</strong> This migration instruction casts the data type of existing user edits on a specific property to the new data type of the property. The list of supported data type casts are:</p>
+</li>
+<li>Attachment â String</li>
+<li>Boolean â String</li>
+<li>Date â String</li>
+<li>Double â Integer</li>
+<li>Double â Long</li>
+<li>Double â String</li>
+<li>Geopoint â String</li>
+<li>Geoshape â String</li>
+<li>Integer â Long</li>
+<li>Integer â Double</li>
+<li>Integer â String</li>
+<li>Long â Integer</li>
+<li>Long â Double</li>
+<li>Long â String</li>
+<li>Mandatory marking â String</li>
+<li>String â Integer</li>
+<li>String â Long</li>
+<li>String â Double</li>
+<li>String â Boolean</li>
+<li>String â Date</li>
+<li>String â Timestamp</li>
+<li>String â Geopoint</li>
+<li>String â Geoshape</li>
+<li>
+<p>Timestamp â String</p>
+</li>
+<li>
+<p><strong>Cast struct field to new type:</strong> This migration instruction casts the data type of existing user edits on a specific struct field to the new data type of the struct field. The list of supported data type casts are:</p>
+</li>
+<li>Boolean â String</li>
+<li>Date â String</li>
+<li>Double â Integer</li>
+<li>Double â Long</li>
+<li>Double â String</li>
+<li>Geopoint â String</li>
+<li>Integer â Long</li>
+<li>Integer â Double</li>
+<li>Integer â String</li>
+<li>Long â Integer</li>
+<li>Long â Double</li>
+<li>Long â String</li>
+<li>String â Integer</li>
+<li>String â Long</li>
+<li>String â Double</li>
+<li>String â Boolean</li>
+<li>String â Date</li>
+<li>String â Timestamp</li>
+<li>String â Geopoint</li>
+<li>
+<p>Timestamp â String</p>
+</li>
+<li>
+<p><strong>Revert migration:</strong> This migration instruction reverts a previously-applied schema migration. This instruction is generally used when a saved Ontology change is being reverted through the <strong>History</strong> section in the Ontology Manager.</p>
+</li>
+<li>To revert a migration, navigate to the <strong>History</strong> section in the Ontology Manager for the desired ontology, expand the <strong>Migrations</strong> section within the history event, open the <strong>...</strong> menu on the migration event, and select <strong>Revert</strong>. Once the migrations have been reverted, save the modifications within the Ontology Manager.</li>
+</ul>
+<p><img alt="Revert migration" src="../../_resources/foundry/object-edits/revert_migration.png" /></p>
+<p>:::callout{theme="neutral"}
+You can only apply up to 500 schema migrations at a single time. If the number of schema changes exceeds this limit, the migration must be performed in batches. <br><br>
+The current schema migration framework does not support applying migration instructions on the primary key property of object types.
+:::</p>
+<ul>
+<li><strong>Recovering from failed schema migrations:</strong> When schema migrations fail to complete, an error message above the replacement pipeline on the <strong>Datasources</strong> tab will provide information to help recover your object type from indexing failure. If recovering from the failure requires staging additional schema migrations, the error message will present a <strong>Fix schema migrations</strong> option to stage the necessary migrations.</li>
+</ul>
+<p><img alt="The Datasources tab displays an error message above the replacement pipeline with an option for recovering an object type from a failed schema migration." src="../../_resources/foundry/object-edits/schema-migration-recovery-ui.png" /></p>
+</body>
+</html>

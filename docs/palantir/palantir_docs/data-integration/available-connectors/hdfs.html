@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>HDFS</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>HDFS</h1>
+<p>Connect Foundry to the Hadoop Distributed File System (HDFS) to read and sync data from HDFS to Foundry datasets.</p>
+<h2>Supported capabilities</h2>
+<table>
+<thead>
+<tr>
+<th>Capability</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Exploration</td>
+<td>ð¢ Generally available</td>
+</tr>
+<tr>
+<td>Bulk import</td>
+<td>ð¢ Generally available</td>
+</tr>
+</tbody>
+</table>
+<h2>Data model</h2>
+<p>The connector can transfer files of any type into Foundry datasets. File formats are preserved, and no schemas are applied during or after the transfer. Apply any necessary schema to the output dataset, or <a href="https://www.palantir.com/docs/foundry/pipeline-builder/transforms-overview/">write a downstream transformation</a> to access the data.</p>
+<h2>Performance and limitations</h2>
+<p>There is no limit to the size of transferable files. However, network issues can result in failures of large-scale transfers. In particular, direct cloud syncs that take more than two days to run will be interrupted. To avoid network issues, we recommend using smaller file sizes and limiting the number of files that are ingested in every execution of the sync. Syncs can be <a href="https://www.palantir.com/docs/foundry/data-connection/set-up-sync/#build-or-schedule-your-batch-sync">scheduled</a> to run frequently.</p>
+<h2>Setup</h2>
+<ol>
+<li>Open the <a href="https://www.palantir.com/docs/foundry/data-connection/overview/">Data Connection</a> application and select <strong>+ New Source</strong> in the upper right corner of the screen.</li>
+<li>Select <strong>HDFS</strong> from the available connector types.</li>
+<li>Follow the additional configuration prompts to continue the setup of your connector using the information in the sections below.</li>
+</ol>
+<p>Learn more about <a href="https://www.palantir.com/docs/foundry/data-connection/set-up-source/">setting up a connector</a> in Foundry.</p>
+<h3>Networking</h3>
+<p>We recommend using the <a href="https://hadoop.apache.org/docs/stable/hadoop-project-dist/hadoop-hdfs/ViewFsOverloadScheme.html">HDFS scheme â</a> if available due to faster RPC performance. Alternatively, <a href="https://hadoop.apache.org/docs/r1.0.4/webhdfs.html">WebHDFS â</a> is a HTTP REST API that supports the complete FileSystem interface for HDFS. Some examples include:</p>
+<ul>
+<li>hdfs://myhost.example.com:1234/path/to/root/directory</li>
+<li>webhdfs://example.com/path</li>
+<li>swebhdfs://example.com/path</li>
+</ul>
+<p>:::callout{theme="warning"}
+The required network ports will differ based on the selected scheme. For the HDFS scheme, these ports are typically 8020/9000 on the NameNode server and 1019, 50010, and 50020 on the DataNode. For the WebHDFS scheme, the required port is typically 9820.
+:::</p>
+<h3>Certificates and private keys</h3>
+<p>SSL connections validate server certificates. Normally, SSL validations happen through a certificate chain; by default, both agent and Foundry workers trust most industry-standard certificate chains. If the server to which you are connecting has a self-signed certificate, or if there is TLS interception during the validation, the connector must trust the certificate. Learn more about <a href="https://www.palantir.com/docs/foundry/data-connection/set-up-source/#optional-add-certificates">using certificates in Data Connection</a>.</p>
+<h2>Configuration options</h2>
+<p>The following configuration options are available for the HDFS connector:</p>
+<table>
+<thead>
+<tr>
+<th>Option</th>
+<th>Required?</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>URL</code></td>
+<td>Yes</td>
+<td>The HDFS URL to the root data directory</td>
+</tr>
+<tr>
+<td><code>Extra properties</code></td>
+<td>No</td>
+<td>Add a properties map that is passed to the <a href="https://hadoop.apache.org/docs/r2.7.1/api/org/apache/hadoop/conf/Configuration.html">Hadoop Configuration â</a>. Each entry is a name and value pair that corresponds to a single property, avoiding the need for specifying the config on disk via <code>configurationResources</code>.</td>
+</tr>
+</tbody>
+</table>
+<h3>Advanced options</h3>
+<p>The following advanced options are available for the HDFS connector:</p>
+<table>
+<thead>
+<tr>
+<th>Option</th>
+<th>Required?</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>User</code></td>
+<td>No</td>
+<td>HDFS user. For legacy agent worker sources, defaults to the currently logged-in user on the agent host. <br>The <code>user</code> parameter overrides Data Connection's global Kerberos settings. Leave the <code>user</code> parameter blank if you are using Kerberos.</td>
+</tr>
+<tr>
+<td><code>File change timeout</code></td>
+<td>No</td>
+<td>Amount of time (in <a href="https://docs.oracle.com/javase/8/docs/api/java/time/Duration.html#parse-java.lang.CharSequence">ISO-8601 â</a>) a file must remain constant before being considered for upload. <br>If possible, use the more efficient <code>lastModifiedBefore</code> processor.</td>
+</tr>
+</tbody>
+</table>
+<h2>Sync data from HDFS</h2>
+<p>Visit the <code>Explore</code> tab to interactively explore data available in the configured HDFS instance. Select <code>New Sync</code> to regularly pull data from HDFS to a specified dataset in Foundry.</p>
+<h2>HDFS export task (legacy)</h2>
+<p>:::callout{theme="warning"}
+<a href="https://www.palantir.com/docs/foundry/data-connection/export-tasks/">Export tasks</a> are a legacy feature that is <em>not</em> recommended for new implementations. This documentation is provided for users who are still using legacy export tasks.
+:::</p>
+<h3>Basic configuration</h3>
+<pre><code class="language-yaml">type: export-hdfs-task
+directoryPath: /some/directory
+</code></pre>
+<h3>Complete configuration options</h3>
+<table>
+<thead>
+<tr>
+<th>Option</th>
+<th>Required</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>directoryPath</code></td>
+<td>Yes</td>
+<td>N/A</td>
+<td>The directory where files will be written</td>
+</tr>
+<tr>
+<td><code>incrementalType</code></td>
+<td>No</td>
+<td>snapshot</td>
+<td>Use <code>incremental</code> for incremental exports</td>
+</tr>
+<tr>
+<td><code>retriesPerFile</code></td>
+<td>No</td>
+<td>0</td>
+<td>Number of retry attempts per file on failure</td>
+</tr>
+<tr>
+<td><code>rewritePaths</code></td>
+<td>No</td>
+<td>N/A</td>
+<td>Map of regex patterns for path rewriting (see <a href="https://www.palantir.com/docs/foundry/data-connection/export-tasks/#path-rewriting">common configuration</a>)</td>
+</tr>
+</tbody>
+</table>
+<h3>Incremental exports</h3>
+<p>For incremental exports, set <code>incrementalType</code> to <code>incremental</code>. The first export will export all files, then subsequent exports will only include new transactions if the previous transaction is still present in the dataset.</p>
+<pre><code class="language-yaml">type: export-hdfs-task
+directoryPath: /exports/incremental/
+incrementalType: incremental
+</code></pre>
+<h3>Connection retries</h3>
+<p>If you experience connection issues to the HDFS cluster, you can configure retry attempts per file. Setting <code>retriesPerFile: 1</code> will attempt to export each file twice (one initial attempt plus one retry).</p>
+<pre><code class="language-yaml">type: export-hdfs-task
+directoryPath: /some/directory
+retriesPerFile: 1
+</code></pre>
+</body>
+</html>

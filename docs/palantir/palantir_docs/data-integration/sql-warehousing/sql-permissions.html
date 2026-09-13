@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SQL permissions</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>SQL permissions</h1>
+<p>This page describes the <a href="https://www.palantir.com/docs/foundry/platform-security-management/manage-roles/">roles</a> that govern access to SQL functionality in Foundry, including <a href="https://www.palantir.com/docs/foundry/sql-warehousing/sql-studio/">SQL Studio</a>, the embedded <a href="https://www.palantir.com/docs/foundry/sql-warehousing/sql-console/">SQL console</a>, and external SQL clients connected via <a href="https://www.palantir.com/docs/foundry/sql-warehousing/arrow-flight-sql/">Arrow Flight SQL</a> or the SQL <a href="https://www.palantir.com/docs/foundry/api/v2/sql-queries-v2-resources/sql-queries/execute-sql-query/">REST API</a>.</p>
+<p>Roles described here are part of the <strong>Foundry SQL Server</strong> and <strong>Download</strong> role set categories.</p>
+<h2>Relevant operations</h2>
+<p>The following operations control SQL access. A user must hold at least one of <code>foundry-sql-server:preview</code> or <code>foundry-sql-server:read</code> on a resource to run any SQL against it.</p>
+<p>SQL operations do not grant access to the underlying resources. Users must also have the normal permissions required to read or modify every resource referenced by the query.</p>
+<table>
+<thead>
+<tr>
+<th>Operation</th>
+<th>Foundry behavior</th>
+<th>External API behavior</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Preview: <code>foundry-sql-server:preview</code></td>
+<td>Results preview returns the first 1,000 rows of the query result.</td>
+<td>-</td>
+</tr>
+<tr>
+<td>Query: <code>foundry-sql-server:read</code></td>
+<td>Results preview defaults to 1,000 rows. In SQL Studio, users can extend the preview limit to 10,000 rows from the settings menu.</td>
+<td>Returns the complete query result with no row limit.</td>
+</tr>
+<tr>
+<td>Download: <code>foundry-sql-server:frontend-download</code></td>
+<td>Required for the <strong>Download</strong> action in the results panel. Downloads the rows displayed in the results preview (up to 1,000 rows).</td>
+<td>â</td>
+</tr>
+<tr>
+<td>Worksheet read: <code>foundry-sql-server:read-worksheet</code></td>
+<td>Open and view saved SQL worksheets.</td>
+<td>â</td>
+</tr>
+<tr>
+<td>Worksheet write: <code>foundry-sql-server:write-worksheet</code></td>
+<td>Create, edit, and save SQL worksheets.</td>
+<td>â</td>
+</tr>
+</tbody>
+</table>
+<p>These operations can be granted as part of the default role sets or via a custom role within a <a href="https://www.palantir.com/docs/foundry/platform-security-management/manage-roles/#role-sets">custom role set</a>.</p>
+<p>Querying the ontology via <a href="https://www.palantir.com/docs/foundry/sql-warehousing/ontology-sql/">ontology SQL</a> does not require an additional role. Access follows the standard ontology roles on the object types being queried.</p>
+<h2>Custom role configurations</h2>
+<p>Default roles can be customized through <a href="https://www.palantir.com/docs/foundry/platform-security-management/manage-roles/#role-sets">custom role sets</a>. Common configurations include:</p>
+<ul>
+<li><strong>Restricting Query:</strong> Some organizations restrict <code>Query datasets using SQL</code> to prevent users from running unbounded queries via the SQL API. In this case, <code>Preview datasets using SQL</code> can still be granted to allow users to run capped queries inside Foundry.</li>
+<li><strong>Separating Download from Query:</strong> Some organizations restrict <code>Download SQL results in Foundry</code> to prevent users from downloading results via the UI download button, even if they are granted preview permissions.</li>
+</ul>
+<h2>AI-assisted query generation</h2>
+<p>The <a href="https://www.palantir.com/docs/foundry/sql-warehousing/sql-studio/#ai-assisted-query-generation">AI-assisted query generation</a> feature is gated on AIP enablement rather than a roleset permission.</p>
+<p>AIP must be enabled for the user's organization and for the project containing the queried resource. For details, see <a href="https://www.palantir.com/docs/foundry/aip/enable-aip-features/#aip-permissions">AIP permissions</a>.</p>
+</body>
+</html>

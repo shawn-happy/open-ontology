@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Blocks</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Blocks</h1>
+<p>AIP Logic functions are composed of blocks, which take an input, return an output, and comprise a discrete interaction with your data. Blocks have many different purposes, such as reading or writing to the Ontology, performing a calculation, aggregating data, calling other functions, or interacting with an LLM. The output of a block can be used in subsequent blocks, enabling complex operations to be constructed by chaining blocks together.</p>
+<p>There are many different types of blocks; a selection of commonly used blocks are described below:</p>
+<ul>
+<li><a href="#use-llm">Use LLM</a></li>
+<li><a href="#apply-action">Apply action</a></li>
+<li><a href="#execute-function">Execute function</a></li>
+<li><a href="#loops">Loops</a></li>
+<li><a href="#conditionals">Conditionals</a></li>
+<li><a href="#create-variable">Create variable</a></li>
+</ul>
+<h2>Use LLM</h2>
+<p>The <strong>Use LLM</strong> block is the heart of AIP Logic and enables you to leverage LLMs to define a Logic block. Logic blocks are composed of a <a href="#prompts">prompt</a>, <a href="#tools">tools</a>, and an <a href="https://www.palantir.com/docs/foundry/logic/getting-started/#outputs">output</a>. The Use LLM block supports any available LLM in the platform, in keeping with Palantir's <em>k-LLM</em> philosophy.</p>
+<p><img alt="LLM Block." src="../../_resources/foundry/logic/block-use-llm-prompt.png" /></p>
+<p>To replace the model used across multiple Logic functions at once, you can <a href="https://www.palantir.com/docs/foundry/workflow-lineage/refactor-and-understand-workflows/#bulk-replace-models">bulk replace models in Workflow Lineage</a>.</p>
+<h3>Prompts</h3>
+<p>Prompts are instructions for an LLM, written in natural language. We recommend starting with the most important information (such as an overview of the task the LLM should complete), followed by the data the LLM will need and guidance on when to use the <a href="#tools">tools</a>. When composing a prompt, keep in mind that an LLM only has access to what you specifically provide.</p>
+<p>In the following notional prompt, we use the LLM to search for information from previous email conversations to provide a response to a customer seeking a solution. The notional prompt begins with the overview of the task:</p>
+<blockquote>
+<p>You are my complaint helper agent. Find other emails that describe similar events to those described in the input email. Look only at the email body. Determine the best solution based on what has worked in the past. Return your one solution recommendation, do not list findings from every email.</p>
+</blockquote>
+<p>Then, the prompt specifies the data to query (in this case, the complaints emails, represented as <code>complaint</code> objects). After entering the prompt, you can provide the LLM access to your inputs by typing <code>/</code> in the prompt field and selecting one or more of the variables available at that point in your Logic function, such as inputs and block outputs. Selecting an object or object set opens a submenu where you choose which of its properties to insert; in the screenshot below, we choose properties of the email object.</p>
+<p><img alt="Notional prompt sharing an overview of the task &quot;You are my complaints helper agent. Find other emails that describe similar events to those described in the input email. Look only at the email body. Determine the best solution based on what has worked in the past. Return your one solution recommendation, do not list findings from every email.&quot;" src="../../_resources/foundry/logic/block-use-llm-prompt.png" /></p>
+<h3>Tools</h3>
+<p>Tools are the mechanism by which AIP Logic enables the LLM to read or write to the Ontology and power real-world operations. AIP Logic leverages three categories of Ontology-driven tools - data, logic, and action - to effectively query data, execute logical operations, and safely take actions. Note that LLMs do not have direct access to tools; LLMs can only ask to use tools, and these tool calls are then executed by AIP Logic within the invoking user's permissions.</p>
+<p>:::callout{theme="warning" title="Read-time enforcement only"}
+Row and column access controls (including <a href="https://www.palantir.com/docs/foundry/security/restricted-views/">restricted views</a>, <a href="https://www.palantir.com/docs/foundry/object-permissioning/object-security-policies/">object security policies</a>, and <a href="https://www.palantir.com/docs/foundry/security/property-security-markings/">property security policies</a>) filter what a user can read when <strong>Query objects</strong> reads data into the prompt. These controls do not extend to the model's output or to any Ontology edits composed by <strong>Apply actions</strong>. To keep data protected as it flows downstream, pair these controls with a <a href="https://www.palantir.com/docs/foundry/security/markings/">marking</a> or <a href="https://www.palantir.com/docs/foundry/security/classification-based-access-controls/">Classification-based Access Control</a>. For the full model, see <a href="https://www.palantir.com/docs/foundry/security/access-control-propagation/">Access control propagation</a>.
+:::</p>
+<h4>Tool calling modes</h4>
+<p>AIP Logic supports prompted and native tool calling. Native tool calling uses capabilities built into the underlying LLM to improve performance and token efficiency. Prompted tool calling uses prompts to instruct the LLM how to use tools.</p>
+<p>When every model in a Use LLM board supports native tool calling, AIP Logic automatically upgrades from prompted to native and shows a message in the <a href="https://www.palantir.com/docs/foundry/logic/core-concepts/#debugging">Debugger</a>. If any model lacks native support, AIP Logic continues to use prompted tool calling.</p>
+<p><img src="../../_resources/external-9b7f39b8f445.png" alt="AIP Logic tools available for selection: Apply actions, Call function, Query objects, Calculator tool." width="350"></p>
+<p>The available tools include:</p>
+<ul>
+<li><a href="#apply-actions">Apply actions</a></li>
+<li><a href="#call-function">Call function</a></li>
+<li><a href="#query-objects">Query objects</a></li>
+<li><a href="#calculator-tool">Calculator tool</a></li>
+</ul>
+<h4>Apply actions</h4>
+<p>The <strong>Apply actions</strong> tool enables the LLM to use <a href="https://www.palantir.com/docs/foundry/action-types/overview/">Actions</a> to edit the Ontology. You can describe when the LLM should use the Action provided. For more details on how to apply changes to the Ontology, review <a href="https://www.palantir.com/docs/foundry/logic/getting-started/#make-ontology-edits-using-logic-functions">Make Ontology edits using Logic functions</a>.</p>
+<p><img alt="Apply &quot;Adjust delivery completion date&quot; action on &quot;[Titan] Delivery&quot;." src="/docs/resources/foundry/logic/apply-actions-example.png" /></p>
+<h4>Call function</h4>
+<p>The <strong>Call function</strong> tool allows you to select functions that the LLM can call. Functions can be code-defined in repositories, or can be existing Logic functions.</p>
+<p><img alt="Call function tool with &quot;extractAnswer&quot; function selected from function dropdown." src="../../_resources/foundry/logic/call-function-example.png" /></p>
+<h4>Query objects</h4>
+<p>The <strong>Query objects</strong> tool specifies object types that the LLM can access. You can add as many object types as needed and specify which properties the LLM can access in order to make the query more token-efficient.</p>
+<p><img alt="Query objects tool with three objects of &quot;[Titan] customer order&quot;, &quot;[Titan] Distribution center&quot;, and &quot;[Titan] Finished good&quot; added." src="/docs/resources/foundry/logic/query-objects-example.png" /></p>
+<h4>Calculator tool</h4>
+<p>The <strong>Calculator tool</strong> enables you to perform accurate mathematical calculations with an LLM.</p>
+<h2>Apply action</h2>
+<p>The <strong>Apply action</strong> block allows you to deterministically call actions without having to go via an LLM block. This block gives you precise control over how parameters are filled out and speeds up the execution. In this example, we can call an action that attributes a priority status to a given incident.</p>
+<p>:::callout{theme="neutral"}
+Calling an AIP Logic function from an action is required for edits to be written back to the Ontology. The Ontology will not be edited unless the Logic function is executed from an action, even if the function contains an <strong>Apply action</strong> block.
+:::</p>
+<p><img alt="&quot;Apply action&quot; block." src="../../_resources/foundry/logic/action-block.png" /></p>
+<h2>Execute function</h2>
+<p>The <strong>Execute function</strong> block allows you to call other existing functions within Foundry such as TypeScript, Python, and even other Logic functions. The Execute block enables you to reuse existing functions that already accomplish your intended task, rather than reimplementing the logic yourself. In the example below, the Execute block is used to leverage the output from a semantic search function to help return the resolution text from similar incidents.</p>
+<p><img alt="Execute block1/2." src="../../_resources/foundry/logic/execute-one.png" />
+<img alt="Execute block2/2." src="../../_resources/foundry/logic/execute-two.png" /></p>
+<h2>Conditionals</h2>
+<p>Conditionals are blocks that evaluate a condition and execute different paths based on whether that condition is true or false. Think of conditionals as "if-then-else" statements in traditional programming:</p>
+<ul>
+<li><strong>If</strong> a condition is true, <strong>then</strong> perform one set of operations</li>
+<li><strong>Else</strong> perform a different set of operations</li>
+</ul>
+<p><img alt="Conditional block in the AIP Logic interface" src="../../_resources/foundry/logic/conditional-block.png" /></p>
+<p>Conditionals are useful when you need to process data differently or run different actions based on specific criteria.</p>
+<h4>Branch return values</h4>
+<p>In the "then" or "else" sections, you define what values the conditional branch should return. There are 3 options:</p>
+<ol>
+<li><strong>Define a Path:</strong> Create a sequence of blocks to execute.</li>
+<li><strong>Return a Variable:</strong> Return an existing variable or previous block output.</li>
+<li><strong>Take No Action:</strong> Configure the branch to take no action (available when another branch is returning ontology edits).</li>
+</ol>
+<p>Note: You can configure multiple branches in a conditional block, each with its own "when" condition and "then" actions.</p>
+<p>When working with conditional branches, all branches must return consistent output. For example, if one branch outputs a string, all other branches (including the else branch) must also output strings. If branches are returning ontology edits via actions, all branches must either run an action or explicitly specify "take no action".</p>
+<h2>Loops</h2>
+<p>Loops enable AIP Logic to iterate over a collection and, for each element, run a transformation and/or an action. Loops are useful for performing operations over a list of elements or making ontology edits on multiple objects.</p>
+<p>The output of a loop can be either a list of values or ontology edits.</p>
+<p><img src="../../_resources/external-395daa71bed7.png" alt="Loop block" width="400"></p>
+<p>Within a loop, you can access the current element via the <code>element</code> variable and the index of the current element via the <code>index</code> variable (these can be renamed if needed).</p>
+<p>Loops only operate on Lists, not Arrays. Selecting an array as input to a loop will automatically insert an "Array to List" block before the loop that converts the input to a list prior to passing it into the loop.</p>
+<p><img src="../../_resources/external-abe6f4f46627.png" alt="Loop transform" width="400"></p>
+<p>Note: If your loop contains no actions each iteration will be executed in parallel.</p>
+<h2>Create variable</h2>
+<p>The <strong>Create variable</strong> block creates a variable that can be used in future blocks. The variable can be of the following types: array, boolean, date, double, float, integer, long, object, short, string, or timestamp.</p>
+<p><img alt="Create variable section block." src="../../_resources/foundry/logic/block-create-variable.png" /></p>
+</body>
+</html>

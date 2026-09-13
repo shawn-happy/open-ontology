@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Output column metadata</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Output column metadata</h1>
+<p>You can read and write the column descriptions and column typeclasses for your output datasets in Code Repository Transforms.</p>
+<h2>Updating column descriptions in Code Repository Transforms</h2>
+<p>You can add output column descriptions to your output datasets by providing the optional <code>column_descriptions</code> argument to the <code>write_dataframe()</code> function of the <a href="https://www.palantir.com/docs/foundry/api-reference/transforms-python-library/api-transformoutput/#transforms.api.TransformOutput"><code>TransformOutput</code></a>.</p>
+<ul>
+<li>This argument should be a <a href="https://docs.python.org/3/library/stdtypes.html#dict">dict â</a> with keys of column names and values of column descriptions. Column descriptions are limited up to 800 characters in length.</li>
+<li>The code will automatically compute the intersection of the column names available on your <a href="https://spark.apache.org/docs/latest/api/python/reference/pyspark.sql/api/pyspark.sql.DataFrame.html">DataFrame â</a> and the keys in the <a href="https://docs.python.org/3/library/stdtypes.html#dict">dict â</a> you provide, so it will not try to put descriptions on columns that do not exist.</li>
+</ul>
+<h3>Example: Write column descriptions in Code Repository Transforms</h3>
+<pre><code class="language-python">from transforms.api import transform, Input, Output
+
+
+@transform(
+    my_output=Output(&quot;/my/output&quot;),
+    my_input=Input(&quot;/my/input&quot;),
+)
+def my_compute_function(my_input, my_output):
+    my_output.write_dataframe(
+        my_input.dataframe(),
+        column_descriptions={
+            &quot;col_1&quot;: &quot;col 1 description&quot;
+        }
+    )
+</code></pre>
+<h2>Column typeclasses</h2>
+<p>The <code>column_typeclasses</code> property gives back a structured <code>Dict&lt;str, List&lt;Dict&lt;str, str&gt;&gt;&gt;</code>, which maps column names to their column typeclasses.</p>
+<ul>
+<li>Each typeclass in the <code>List</code> is a <code>Dict[str, str]</code> object.</li>
+<li>This <code>Dict</code> object must only use the keys <code>"name"</code> and <code>"kind"</code>. Each of these keys maps to the corresponding string the user wants.</li>
+</ul>
+<p>An example <code>column_typeclasses</code> value would be <code>{"my_column": [{"name": "my_typeclass_name", "kind": "my_typeclass_kind"}]}</code>.</p>
+<h3>Example: Read and write column descriptions and typeclasses in Code Repository Transforms</h3>
+<pre><code class="language-python">from transforms.api import transform, Input, Output
+
+
+@transform(
+    my_output=Output(&quot;ri.foundry.main.dataset.my-output-dataset&quot;),
+    my_input=Input(&quot;ri.foundry.main.dataset.my-input-dataset&quot;),
+)
+def my_compute_function(my_input, my_output):
+    recent = my_input.dataframe().limit(10)
+
+    existing_typeclasses = my_input.column_typeclasses
+    existing_descriptions = my_input.column_descriptions
+
+    my_output.write_dataframe(
+        recent,
+        column_descriptions=existing_descriptions,
+        column_typeclasses=existing_typeclasses
+    )
+</code></pre>
+</body>
+</html>

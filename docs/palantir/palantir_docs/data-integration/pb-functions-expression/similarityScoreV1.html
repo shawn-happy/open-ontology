@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Similarity score</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Similarity score</h1>
+<blockquote>
+<p>Supported in: Batch</p>
+</blockquote>
+<p>Returns the similarity score of two embedding vectors.</p>
+<p><strong>Expression categories:</strong> Distance measurement, Numeric</p>
+<h2>Declared arguments</h2>
+<ul>
+<li><strong>Left embedded vector:</strong> The left embedded vector.<br><em>Expression\<T></em></li>
+<li><strong>Right embedded vector:</strong> The right embedded vector.<br><em>Expression\<T></em></li>
+<li><strong>Similarity metric:</strong> The similarity metric for comparing the left and right embeddings.<br><em>Enum\<Cosine Distance, Cosine Similarity, Dot Product, Euclidean Distance></em></li>
+</ul>
+<p><strong>Type variable bounds:</strong> <em>T accepts Array\<Float></em></p>
+<p><strong>Output type:</strong> <em>Double</em></p>
+<h2>Examples</h2>
+<h3>Example 1: Base case</h3>
+<p><strong>Description:</strong> Cosine similarity of the Ada embeddings for the word 'palantir' and 'foundry'.</p>
+<p><strong>Argument values:</strong></p>
+<ul>
+<li><strong>Left embedded vector:</strong> <code>leftEmbeddedVector</code></li>
+<li><strong>Right embedded vector:</strong> <code>rightEmbeddedVector</code></li>
+<li><strong>Similarity metric:</strong> <code>COSINE_SIMILARITY</code></li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>leftEmbeddedVector</th>
+<th>rightEmbeddedVector</th>
+<th><strong>Output</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>[ -0.019182289, -0.02127992, 0.009529043, -0.008066221, -0.0014429842, 0.019154688, -0.023556953, -0...</td>
+<td>[ -0.0046147984, -0.014344796, -0.022795992, -0.035806388, -0.028467191, 0.026243191, -0.028161392, ...</td>
+<td>0.7814455755180517</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3>Example 2: Base case</h3>
+<p><strong>Description:</strong> Cosine similarity between the Ada embeddings for the word 'palantir'.</p>
+<p><strong>Argument values:</strong></p>
+<ul>
+<li><strong>Left embedded vector:</strong> <code>leftEmbeddedVector</code></li>
+<li><strong>Right embedded vector:</strong> <code>rightEmbeddedVector</code></li>
+<li><strong>Similarity metric:</strong> <code>COSINE_SIMILARITY</code></li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>leftEmbeddedVector</th>
+<th>rightEmbeddedVector</th>
+<th><strong>Output</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>[ -0.019182289, -0.02127992, 0.009529043, -0.008066221, -0.0014429842, 0.019154688, -0.023556953, -0...</td>
+<td>[ -0.019182289, -0.02127992, 0.009529043, -0.008066221, -0.0014429842, 0.019154688, -0.023556953, -0...</td>
+<td>1.0</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3>Example 3: Base case</h3>
+<p><strong>Description:</strong> Dot product of the Ada embeddings for the word 'palantir' and 'foundry'.</p>
+<p><strong>Argument values:</strong></p>
+<ul>
+<li><strong>Left embedded vector:</strong> <code>leftEmbeddedVector</code></li>
+<li><strong>Right embedded vector:</strong> <code>rightEmbeddedVector</code></li>
+<li><strong>Similarity metric:</strong> <code>DOT_PRODUCT</code></li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>leftEmbeddedVector</th>
+<th>rightEmbeddedVector</th>
+<th><strong>Output</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>[ -0.019182289, -0.02127992, 0.009529043, -0.008066221, -0.0014429842, 0.019154688, -0.023556953, -0...</td>
+<td>[ -0.0046147984, -0.014344796, -0.022795992, -0.035806388, -0.028467191, 0.026243191, -0.028161392, ...</td>
+<td>0.7814455030932973</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3>Example 4: Base case</h3>
+<p><strong>Description:</strong> Dot product of the Ada embeddings for the word 'palantir'.</p>
+<p><strong>Argument values:</strong></p>
+<ul>
+<li><strong>Left embedded vector:</strong> <code>leftEmbeddedVector</code></li>
+<li><strong>Right embedded vector:</strong> <code>rightEmbeddedVector</code></li>
+<li><strong>Similarity metric:</strong> <code>DOT_PRODUCT</code></li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>leftEmbeddedVector</th>
+<th>rightEmbeddedVector</th>
+<th><strong>Output</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>[ -0.019182289, -0.02127992, 0.009529043, -0.008066221, -0.0014429842, 0.019154688, -0.023556953, -0...</td>
+<td>[ -0.019182289, -0.02127992, 0.009529043, -0.008066221, -0.0014429842, 0.019154688, -0.023556953, -0...</td>
+<td>1.0</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3>Example 5: Base case</h3>
+<p><strong>Description:</strong> Euclidean distance between the Ada embeddings for the word 'palantir' and 'foundry'.</p>
+<p><strong>Argument values:</strong></p>
+<ul>
+<li><strong>Left embedded vector:</strong> <code>leftEmbeddedVector</code></li>
+<li><strong>Right embedded vector:</strong> <code>rightEmbeddedVector</code></li>
+<li><strong>Similarity metric:</strong> <code>EUCLIDEAN_DISTANCE</code></li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>leftEmbeddedVector</th>
+<th>rightEmbeddedVector</th>
+<th><strong>Output</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>[ -0.019182289, -0.02127992, 0.009529043, -0.008066221, -0.0014429842, 0.019154688, -0.023556953, -0...</td>
+<td>[ -0.0046147984, -0.014344796, -0.022795992, -0.035806388, -0.028467191, 0.026243191, -0.028161392, ...</td>
+<td>0.6611420486192364</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3>Example 6: Base case</h3>
+<p><strong>Description:</strong> Euclidean distance between the Ada embeddings for the word 'palantir'.</p>
+<p><strong>Argument values:</strong></p>
+<ul>
+<li><strong>Left embedded vector:</strong> <code>leftEmbeddedVector</code></li>
+<li><strong>Right embedded vector:</strong> <code>rightEmbeddedVector</code></li>
+<li><strong>Similarity metric:</strong> <code>EUCLIDEAN_DISTANCE</code></li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>leftEmbeddedVector</th>
+<th>rightEmbeddedVector</th>
+<th><strong>Output</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>[ -0.019182289, -0.02127992, 0.009529043, -0.008066221, -0.0014429842, 0.019154688, -0.023556953, -0...</td>
+<td>[ -0.019182289, -0.02127992, 0.009529043, -0.008066221, -0.0014429842, 0.019154688, -0.023556953, -0...</td>
+<td>0.0</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3>Example 7: Null case</h3>
+<p><strong>Description:</strong> Null inputs should have a null output</p>
+<p><strong>Argument values:</strong></p>
+<ul>
+<li><strong>Left embedded vector:</strong> <code>leftEmbeddedVector</code></li>
+<li><strong>Right embedded vector:</strong> <code>rightEmbeddedVector</code></li>
+<li><strong>Similarity metric:</strong> <code>COSINE_SIMILARITY</code></li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>leftEmbeddedVector</th>
+<th>rightEmbeddedVector</th>
+<th><strong>Output</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><em>null</em></td>
+<td><em>null</em></td>
+<td><em>null</em></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3>Example 8: Null case</h3>
+<p><strong>Description:</strong> Null inputs should have a null output</p>
+<p><strong>Argument values:</strong></p>
+<ul>
+<li><strong>Left embedded vector:</strong> <code>leftEmbeddedVector</code></li>
+<li><strong>Right embedded vector:</strong> <code>rightEmbeddedVector</code></li>
+<li><strong>Similarity metric:</strong> <code>DOT_PRODUCT</code></li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>leftEmbeddedVector</th>
+<th>rightEmbeddedVector</th>
+<th><strong>Output</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><em>null</em></td>
+<td><em>null</em></td>
+<td><em>null</em></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3>Example 9: Null case</h3>
+<p><strong>Description:</strong> Null inputs should have a null output</p>
+<p><strong>Argument values:</strong></p>
+<ul>
+<li><strong>Left embedded vector:</strong> <code>leftEmbeddedVector</code></li>
+<li><strong>Right embedded vector:</strong> <code>rightEmbeddedVector</code></li>
+<li><strong>Similarity metric:</strong> <code>EUCLIDEAN_DISTANCE</code></li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>leftEmbeddedVector</th>
+<th>rightEmbeddedVector</th>
+<th><strong>Output</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><em>null</em></td>
+<td><em>null</em></td>
+<td><em>null</em></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3>Example 10: Edge case</h3>
+<p><strong>Description:</strong> Regular arrays become null when arrays have different length</p>
+<p><strong>Argument values:</strong></p>
+<ul>
+<li><strong>Left embedded vector:</strong> <code>leftArray</code></li>
+<li><strong>Right embedded vector:</strong> <code>rightArray</code></li>
+<li><strong>Similarity metric:</strong> <code>DOT_PRODUCT</code></li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>leftArray</th>
+<th>rightArray</th>
+<th><strong>Output</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>[ 1.0, 2.0 ]</td>
+<td>[ 1.0, 3.0 ]</td>
+<td>7.0</td>
+</tr>
+<tr>
+<td>[ 1.0, 2.0, 3.0 ]</td>
+<td>[ 1.0, 3.0 ]</td>
+<td><em>null</em></td>
+</tr>
+<tr>
+<td>[ 1.0, 2.0 ]</td>
+<td>[ 1.0, 2.0, 3.0 ]</td>
+<td><em>null</em></td>
+</tr>
+<tr>
+<td>[ 1.0, 2.0 ]</td>
+<td><em>null</em></td>
+<td><em>null</em></td>
+</tr>
+<tr>
+<td><em>null</em></td>
+<td>[ 1.0, 2.0 ]</td>
+<td><em>null</em></td>
+</tr>
+</tbody>
+</table>
+<hr />
+</body>
+</html>

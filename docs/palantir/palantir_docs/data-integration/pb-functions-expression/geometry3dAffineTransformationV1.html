@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Geometry 3d affine transformation</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Geometry 3d affine transformation</h1>
+<blockquote>
+<p>Supported in: Batch, Faster, Streaming</p>
+</blockquote>
+<p>Applies a three dimensional affine transformation to the input geometry. This transformation occurs in the user-provided projected coordinate system, and the result is projected back to WGS84. Two dimensional geometries will have their z-coordinates set to 0 before the affine transformation is applied. The returned geometry is three dimensional and for each coordinate [x,y,z] represents the matrix multiplication [[x0, x1, x2, x-offset], [y0, y1, y2, y-offset], [z0, z1, z2, z-offset], [0, 0, 0, 1]] *  [x, y, z, 1], where the first three ordinates of the result are returned.</p>
+<p><strong>Expression categories:</strong> Geospatial</p>
+<h2>Declared arguments</h2>
+<ul>
+<li><strong>Geometry column:</strong> The geometries on which the affine transformation is applied.<br><em>Expression\<String></em></li>
+<li><strong>Projected coordinate system:</strong> Coordinate system identifier formatted as "authority:id". For example, UTM zone 18N could be identified by EPSG:32618. Geometries will be cast to the source coordinate system, have an affine transformation  applied, then re-cast to WGS84.<br><em>Literal\<String></em></li>
+<li><em>optional</em> <strong>X offset:</strong> The (0,3) value of the matrix with default 0.0. This parameter represents the distance in projected coordinates that the geometry will be translated in the positive x direction.<br><em>Literal\<Double></em></li>
+<li><em>optional</em> <strong>X0:</strong> The (0,0) value of the matrix with default 1.0.<br><em>Literal\<Double></em></li>
+<li><em>optional</em> <strong>X1:</strong> The (0,1) value of the matrix with default 0.0.<br><em>Literal\<Double></em></li>
+<li><em>optional</em> <strong>X2:</strong> The (0,2) value of the matrix with default 0.0.<br><em>Literal\<Double></em></li>
+<li><em>optional</em> <strong>Y offset:</strong> The (1,3) value of the matrix with default 0.0. This parameter represents the distance in projected coordinates that the geometry will be translated in the positive y direction.<br><em>Literal\<Double></em></li>
+<li><em>optional</em> <strong>Y0:</strong> The (1,0) value of the matrix with default 0.0.<br><em>Literal\<Double></em></li>
+<li><em>optional</em> <strong>Y1:</strong> The (1,1) value of the matrix with default 1.0.<br><em>Literal\<Double></em></li>
+<li><em>optional</em> <strong>Y2:</strong> The (1,2) value of the matrix with default 0.0.<br><em>Literal\<Double></em></li>
+<li><em>optional</em> <strong>Z offset:</strong> The (2,3) value of the matrix with default 0.0. This parameter represents the distance in projected coordinates that the geometry will be translated in the positive z direction.<br><em>Literal\<Double></em></li>
+<li><em>optional</em> <strong>Z0:</strong> The (2,0) value of the matrix with default 0.0.<br><em>Literal\<Double></em></li>
+<li><em>optional</em> <strong>Z1:</strong> The (2,1) value of the matrix with default 0.0.<br><em>Literal\<Double></em></li>
+<li><em>optional</em> <strong>Z2:</strong> The (2,2) value of the matrix with default 1.0.<br><em>Literal\<Double></em></li>
+</ul>
+<p><strong>Output type:</strong> <em>Geometry</em></p>
+<h2>Examples</h2>
+<h3>Example 1: Base case</h3>
+<p><strong>Argument values:</strong></p>
+<ul>
+<li><strong>Geometry column:</strong> <code>geometry</code></li>
+<li><strong>Projected coordinate system:</strong> EPSG:4326</li>
+<li><strong>X offset:</strong> 0.0</li>
+<li><strong>X0:</strong> 0.0</li>
+<li><strong>X1:</strong> -1.0</li>
+<li><strong>X2:</strong> 0.0</li>
+<li><strong>Y offset:</strong> 0.0</li>
+<li><strong>Y0:</strong> 1.0</li>
+<li><strong>Y1:</strong> 0.0</li>
+<li><strong>Y2:</strong> 0.0</li>
+<li><strong>Z offset:</strong> 0.0</li>
+<li><strong>Z0:</strong> 0.0</li>
+<li><strong>Z1:</strong> 0.0</li>
+<li><strong>Z2:</strong> 0.0</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>geometry</th>
+<th><strong>Output</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>{"type":"Polygon","coordinates":[[[0.0, 0.0],[1.0, 0.0],[1.0, 1.0],[0.0, 1.0],[0.0, 0.0]]]}</td>
+<td>{"type":"Polygon","coordinates":[[[0.0, 0.0, 0.0],[0.0, 1.0, 0.0],[-1.0, 1.0, 0.0],[-1.0, 0.0, 0.0],[0.0, 0.0, 0.0]]]}</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3>Example 2: Base case</h3>
+<p><strong>Argument values:</strong></p>
+<ul>
+<li><strong>Geometry column:</strong> <code>geometry</code></li>
+<li><strong>Projected coordinate system:</strong> EPSG:4326</li>
+<li><strong>X offset:</strong> 1.0</li>
+<li><strong>X0:</strong> 0.0</li>
+<li><strong>X1:</strong> -3.0</li>
+<li><strong>X2:</strong> 0.0</li>
+<li><strong>Y offset:</strong> 2.0</li>
+<li><strong>Y0:</strong> 0.0</li>
+<li><strong>Y1:</strong> 2.0</li>
+<li><strong>Y2:</strong> 0.0</li>
+<li><strong>Z offset:</strong> 3.0</li>
+<li><strong>Z0:</strong> 0.0</li>
+<li><strong>Z1:</strong> 0.0</li>
+<li><strong>Z2:</strong> 1.0</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>geometry</th>
+<th><strong>Output</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>{"type":"Polygon","coordinates":[[[0.0, 0.0, 1.0],[1.0, 0.0, 2.0],[1.0, 1.0, 3.0],[0.0, 1.0, 2.0],[0.0, 0.0, 1.0]]]}</td>
+<td>{"type":"Polygon","coordinates":[[[1.0, 2.0, 4.0],[1.0, 2.0, 5.0],[-2.0, 4.0, 6.0],[-2.0, 4.0, 5.0],[1.0, 2.0, 4.0]]]}</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3>Example 3: Base case</h3>
+<p><strong>Argument values:</strong></p>
+<ul>
+<li><strong>Geometry column:</strong> <code>geometry</code></li>
+<li><strong>Projected coordinate system:</strong> EPSG:4326</li>
+<li><strong>X offset:</strong> 0.0</li>
+<li><strong>X0:</strong> 2.0</li>
+<li><strong>X1:</strong> 0.0</li>
+<li><strong>X2:</strong> 0.0</li>
+<li><strong>Y offset:</strong> 0.0</li>
+<li><strong>Y0:</strong> 0.0</li>
+<li><strong>Y1:</strong> 3.0</li>
+<li><strong>Y2:</strong> 0.0</li>
+<li><strong>Z offset:</strong> 0.0</li>
+<li><strong>Z0:</strong> 0.0</li>
+<li><strong>Z1:</strong> 0.0</li>
+<li><strong>Z2:</strong> 4.0</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>geometry</th>
+<th><strong>Output</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>{"type":"Point","coordinates":[1.0, 2.0, 3.0]}</td>
+<td>{"type":"Point","coordinates":[2.0, 6.0, 12.0]}</td>
+</tr>
+<tr>
+<td>{"type":"LineString","coordinates":[[0.0, 1.0, 1.0], [1.0, 2.0, 3.0]]}</td>
+<td>{"type":"LineString","coordinates":[[0.0, 3.0, 4.0],[2.0, 6.0, 12.0]]}</td>
+</tr>
+<tr>
+<td>{"type":"Polygon","coordinates":[[[0.0, 0.0],[1.0, 0.0],[1.0, 1.0],[0.0, 1.0],[0.0, 0.0]]]}</td>
+<td>{"type":"Polygon","coordinates":[[[0.0, 0.0, 0.0],[2.0, 0.0, 0.0],[2.0, 3.0, 0.0],[0.0, 3.0, 0.0],[0.0, 0.0, 0.0]]]}</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3>Example 4: Base case</h3>
+<p><strong>Argument values:</strong></p>
+<ul>
+<li><strong>Geometry column:</strong> <code>geometry</code></li>
+<li><strong>Projected coordinate system:</strong> EPSG:4326</li>
+<li><strong>X offset:</strong> 0.0</li>
+<li><strong>X0:</strong> 1.0</li>
+<li><strong>X1:</strong> 1.0</li>
+<li><strong>X2:</strong> 0.0</li>
+<li><strong>Y offset:</strong> 0.0</li>
+<li><strong>Y0:</strong> 0.0</li>
+<li><strong>Y1:</strong> 1.0</li>
+<li><strong>Y2:</strong> 0.0</li>
+<li><strong>Z offset:</strong> 0.0</li>
+<li><strong>Z0:</strong> 0.0</li>
+<li><strong>Z1:</strong> 0.0</li>
+<li><strong>Z2:</strong> 0.0</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>geometry</th>
+<th><strong>Output</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>{"type":"Polygon","coordinates":[[[0.0, 0.0],[1.0, 0.0],[1.0, 1.0],[0.0, 1.0],[0.0, 0.0]]]}</td>
+<td>{"type":"Polygon","coordinates":[[[0.0, 0.0, 0.0],[1.0, 0.0, 0.0],[2.0, 1.0, 0.0],[1.0, 1.0, 0.0],[0.0, 0.0, 0.0]]]}</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3>Example 5: Base case</h3>
+<p><strong>Argument values:</strong></p>
+<ul>
+<li><strong>Geometry column:</strong> <code>geometry</code></li>
+<li><strong>Projected coordinate system:</strong> EPSG:4326</li>
+<li><strong>X offset:</strong> 1.0</li>
+<li><strong>X0:</strong> 1.0</li>
+<li><strong>X1:</strong> 0.0</li>
+<li><strong>X2:</strong> 0.0</li>
+<li><strong>Y offset:</strong> 1.0</li>
+<li><strong>Y0:</strong> 0.0</li>
+<li><strong>Y1:</strong> 1.0</li>
+<li><strong>Y2:</strong> 0.0</li>
+<li><strong>Z offset:</strong> 1.0</li>
+<li><strong>Z0:</strong> 0.0</li>
+<li><strong>Z1:</strong> 0.0</li>
+<li><strong>Z2:</strong> 1.0</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>geometry</th>
+<th><strong>Output</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>{"type":"Point","coordinates":[1.0, 2.0, 3.0]}</td>
+<td>{"type":"Point","coordinates":[2.0, 3.0, 4.0]}</td>
+</tr>
+<tr>
+<td>{"type":"LineString","coordinates":[[0.0, 1.0, 2.0], [1.0, 2.0, 3.0]]}</td>
+<td>{"type":"LineString","coordinates":[[1.0, 2.0, 3.0],[2.0, 3.0, 4.0]]}</td>
+</tr>
+<tr>
+<td>{"type":"Polygon","coordinates":[[[0.0, 0.0],[1.0, 0.0],[1.0, 1.0],[0.0, 1.0],[0.0, 0.0]]]}</td>
+<td>{"type":"Polygon","coordinates":[[[1.0, 1.0, 1.0],[2.0, 1.0, 1.0],[2.0, 2.0, 1.0],[1.0, 2.0, 1.0],[1.0, 1.0, 1.0]]]}</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3>Example 6: Null case</h3>
+<p><strong>Argument values:</strong></p>
+<ul>
+<li><strong>Geometry column:</strong> <code>geometry</code></li>
+<li><strong>Projected coordinate system:</strong> EPSG:32618</li>
+<li><strong>X offset:</strong> 0.0</li>
+<li><strong>X0:</strong> 2.0</li>
+<li><strong>X1:</strong> 0.0</li>
+<li><strong>X2:</strong> 0.0</li>
+<li><strong>Y offset:</strong> 0.0</li>
+<li><strong>Y0:</strong> 3.0</li>
+<li><strong>Y1:</strong> 0.0</li>
+<li><strong>Y2:</strong> 0.0</li>
+<li><strong>Z offset:</strong> 0.0</li>
+<li><strong>Z0:</strong> 4.0</li>
+<li><strong>Z1:</strong> 0.0</li>
+<li><strong>Z2:</strong> 0.0</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>geometry</th>
+<th><strong>Output</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><em>null</em></td>
+<td><em>null</em></td>
+</tr>
+</tbody>
+</table>
+<hr />
+</body>
+</html>

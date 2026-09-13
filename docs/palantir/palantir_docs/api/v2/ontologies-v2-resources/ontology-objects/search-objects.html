@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Search Objects</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../../../index.html">返回目录</a></div>
+<p><code>POST /api/v2/ontologies/{ontology}/objects/{objectType}/search</code></p>
+<p>Search for objects in the specified ontology and object type. The request body is used
+to filter objects based on the specified query. The supported queries are:</p>
+<table>
+<thead>
+<tr>
+<th>Query type</th>
+<th>Description</th>
+<th>Supported Types</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>lt</td>
+<td>The provided property is less than the provided value.</td>
+<td>number, string, date, timestamp</td>
+</tr>
+<tr>
+<td>gt</td>
+<td>The provided property is greater than the provided value.</td>
+<td>number, string, date, timestamp</td>
+</tr>
+<tr>
+<td>lte</td>
+<td>The provided property is less than or equal to the provided value.</td>
+<td>number, string, date, timestamp</td>
+</tr>
+<tr>
+<td>gte</td>
+<td>The provided property is greater than or equal to the provided value.</td>
+<td>number, string, date, timestamp</td>
+</tr>
+<tr>
+<td>eq</td>
+<td>The provided property is exactly equal to the provided value.</td>
+<td>number, string, date, timestamp</td>
+</tr>
+<tr>
+<td>isNull</td>
+<td>The provided property is (or is not) null.</td>
+<td>all</td>
+</tr>
+<tr>
+<td>contains</td>
+<td>The provided property contains the provided value.</td>
+<td>array</td>
+</tr>
+<tr>
+<td>not</td>
+<td>The sub-query does not match.</td>
+<td>N/A (applied on a query)</td>
+</tr>
+<tr>
+<td>and</td>
+<td>All the sub-queries match.</td>
+<td>N/A (applied on queries)</td>
+</tr>
+<tr>
+<td>or</td>
+<td>At least one of the sub-queries match.</td>
+<td>N/A (applied on queries)</td>
+</tr>
+<tr>
+<td>containsAllTermsInOrderPrefixLastTerm</td>
+<td>The provided property contains all the terms provided in order. The last term can be a partial prefix match.</td>
+<td>string</td>
+</tr>
+<tr>
+<td>containsAllTermsInOrder</td>
+<td>The provided property contains the provided term as a substring.</td>
+<td>string</td>
+</tr>
+<tr>
+<td>containsAnyTerm</td>
+<td>The provided property contains at least one of the terms separated by whitespace.</td>
+<td>string</td>
+</tr>
+<tr>
+<td>containsAllTerms</td>
+<td>The provided property contains all the terms separated by whitespace.</td>
+<td>string</td>
+</tr>
+<tr>
+<td>startsWith</td>
+<td>Deprecated alias for containsAllTermsInOrderPrefixLastTerm.</td>
+<td>string</td>
+</tr>
+</tbody>
+</table>
+<p>Queries can be at most three levels deep. By default, terms are separated by whitespace or punctuation (<code>?!,:;-[](){}'"~</code>). Periods (<code>.</code>) on their own are ignored.
+Partial terms are not matched by terms filters except where explicitly noted.</p>
+<p>The <code>pageSize</code> parameter is a maximum. A page may contain fewer objects than requested if the
+objects in the page are large enough to reach an internal memory limit; this does not indicate
+that there are no more results. As long as the response contains a <code>nextPageToken</code>, the remaining
+objects can be retrieved by requesting subsequent pages.</p>
+<p>Third-party applications using this endpoint via OAuth2 must request the following operation scope: <code>api:ontologies-read</code>.</p>
+<p><strong>OAuth2 scopes</strong>: <code>api:ontologies-read</code></p>
+<h2>Path parameters</h2>
+<table>
+<thead>
+<tr>
+<th>参数</th>
+<th>类型</th>
+<th>必填</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ontology</code></td>
+<td>string</td>
+<td>是</td>
+<td>The API name or RID of the Ontology. To find the API name or RID, use the <strong>List Ontologies</strong> endpoint or<br>check the <strong>Ontology Manager</strong>.<br>示例: <code>palantir</code></td>
+</tr>
+<tr>
+<td><code>objectType</code></td>
+<td>string</td>
+<td>是</td>
+<td>The API name of the object type. To find the API name, use the <strong>List object types</strong> endpoint or<br>check the <strong>Ontology Manager</strong>.<br>示例: <code>employee</code></td>
+</tr>
+</tbody>
+</table>
+<h2>Query parameters</h2>
+<table>
+<thead>
+<tr>
+<th>参数</th>
+<th>类型</th>
+<th>必填</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>sdkPackageRid</code></td>
+<td>string</td>
+<td>否</td>
+<td>The package rid of the generated SDK.</td>
+</tr>
+<tr>
+<td><code>sdkVersion</code></td>
+<td>string</td>
+<td>否</td>
+<td>The version of the generated SDK.</td>
+</tr>
+<tr>
+<td><code>branch</code></td>
+<td>string</td>
+<td>否</td>
+<td>The Foundry branch to search objects from. If not specified, the default branch will be used.<br>Branches are an experimental feature and not all workflows are supported.<br>示例: <code>ri.branch..branch.d827184f-ee0e-4351-8b70-efbe51e07252</code></td>
+</tr>
+<tr>
+<td><code>executeInMemoryOnly</code></td>
+<td>boolean</td>
+<td>否</td>
+<td>If true, the request fails with an error when it cannot be computed in-memory.<br>Use this to opt into fast failure on requests that would otherwise require<br>heavier computation.<br>Defaults to false.</td>
+</tr>
+</tbody>
+</table>
+<h2>Request body</h2>
+<pre><code class="language-json">{
+  &quot;where&quot;: {
+    &quot;type&quot;: &quot;eq&quot;,
+    &quot;field&quot;: &quot;age&quot;,
+    &quot;value&quot;: 21
+  }
+}
+</code></pre>
+<h2>Response</h2>
+<p><strong>SearchObjectsResponseV2</strong></p>
+<p>Success response.</p>
+<table>
+<thead>
+<tr>
+<th>参数</th>
+<th>类型</th>
+<th>必填</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>SearchObjectsResponseV2</code></td>
+<td>object</td>
+<td>是</td>
+<td>Success response.<br>示例: <code>{"data":[{"__rid":"ri.phonograph2-objects.main.object.5b5dbc28-7f05-4e83-a33a-1e5b851ababb","__primaryKey":1000,"__apiName":"Employee","employeeId":1000,"lastName":"smith","firstName":"john","age":21}]}</code></td>
+</tr>
+<tr>
+<td><code>SearchObjectsResponseV2.data</code></td>
+<td>list<OntologyObjectV2></td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>SearchObjectsResponseV2.data.OntologyObjectV2</code></td>
+<td>map</td>
+<td>是</td>
+<td>Represents an object in the Ontology.</td>
+</tr>
+<tr>
+<td><code>SearchObjectsResponseV2.data.OntologyObjectV2.PropertyApiName</code></td>
+<td>string</td>
+<td>是</td>
+<td>The name of the property in the API. To find the API name for your property, use the <code>Get object type</code><br>endpoint or check the <strong>Ontology Manager</strong>.</td>
+</tr>
+<tr>
+<td><code>SearchObjectsResponseV2.data.OntologyObjectV2.PropertyValue</code></td>
+<td>any</td>
+<td>是</td>
+<td>Represents the value of a property in the following format.<br>| Type                                                                                                                      | JSON encoding                                               | Example                                                                                            |<br>|---------------------------------------------------------------------------------------------------------------------------|-------------------------------------------------------------|----------------------------------------------------------------------------------------------------|<br>| Array                                                                                                                     | array                                                       | <code>["alpha", "bravo", "charlie"]</code>                                                                    |<br>| <a href="../attachment-properties/attachment-property-basics.html">Attachment</a>              | JSON encoded <code>AttachmentProperty</code> object                    | <code>{"rid":"ri.blobster.main.attachment.2f944bae-5851-4204-8615-920c969a9f2e"}</code>                       |<br>| Boolean                                                                                                                   | boolean                                                     | <code>true</code>                                                                                             |<br>| Byte                                                                                                                      | number                                                      | <code>31</code>                                                                                               |<br>| CipherText                                                                                                                | string                                                      | <code>"CIPHER::ri.bellaso.main.cipher-channel.e414ab9e-b606-499a-a0e1-844fa296ba7e::unzjs3VifsTxuIpf1fH1CJ7OaPBr2bzMMdozPaZJtCii8vVG60yXIEmzoOJaEl9mfFFe::CIPHER"</code>                                                                                                                                                                                        |<br>| Date                                                                                                                      | ISO 8601 extended local date string                         | <code>"2021-05-01"</code>                                                                                     |<br>| Decimal                                                                                                                   | string                                                      | <code>"2.718281828"</code>                                                                                    |<br>| Double                                                                                                                    | number                                                      | <code>3.14159265</code>                                                                                       |<br>| Float                                                                                                                     | number                                                      | <code>3.14159265</code>                                                                                       |<br>| GeoPoint                                                                                                                  | geojson                                                     | <code>{"type":"Point","coordinates":[102.0,0.5]}</code>                                                       |<br>| GeoShape                                                                                                                  | geojson                                                     | <code>{"type":"LineString","coordinates":[[102.0,0.0],[103.0,1.0],[104.0,0.0],[105.0,1.0]]}</code>            |<br>| Integer                                                                                                                   | number                                                      | <code>238940</code>                                                                                           |<br>| Long                                                                                                                      | string                                                      | <code>"58319870951433"</code>                                                                                 |<br>| <a href="../media-reference-properties/media-reference-property-basics.html">MediaReference</a>| JSON encoded <code>MediaReference</code> object                        | <code>{"mimeType":"application/pdf","reference":{"type":"mediaSetViewItem","mediaSetViewItem":{"mediaSetRid":"ri.mio.main.media-set.4153d42f-ca4b-4e42-8ca5-8e6aa7edb642","mediaSetViewRid":"ri.mio.main.view.82a798ad-d637-4595-acc6-987bcf16629b","mediaItemRid":"ri.mio.main.media-item.001ec98b-1620-4814-9e17-8e9c4e536225"}}}</code>                       |<br>| Secured Property Value                                                                                                    | JSON encoded <code>SecuredPropertyValue</code> object                  | <code>{"value": 10, "propertySecurityIndex" : 5}</code>                                                       |<br>| Short                                                                                                                     | number                                                      | <code>8739</code>                                                                                             |<br>| String                                                                                                                    | string                                                      | <code>"Call me Ishmael"</code>                                                                                |<br>| Struct                                                                                                                    | JSON object of struct field API name -&gt; value               | {"firstName": "Alex", "lastName": "Karp"}                                                          |<br>| Timestamp                                                                                                                 | ISO 8601 extended offset date-time string in UTC zone       | <code>"2021-01-04T05:00:00Z"</code>                                                                           |<br>| <a href="../time-series-properties/time-series-property-basics.html">Timeseries</a>            | JSON encoded <code>TimeseriesProperty</code> object or seriesId string | <code>{"seriesId": "wellPressureSeriesId", "syncRid": ri.time-series-catalog.main.sync.04f5ac1f-91bf-44f9-a51f-4f34e06e42df"}</code> or <code>{"templateRid": "ri.codex-emu.main.template.367cac64-e53b-4653-b111-f61856a63df9", "templateVersion": "0.0.0"}</code> or <code>"wellPressureSeriesId"</code>|                                                                           |<br>| Vector                                                                                                                    | array                                                       | <code>[0.1, 0.3, 0.02, 0.05 , 0.8, 0.4]</code>                                                                |<br>Note that for backwards compatibility, the Boolean, Byte, Double, Float, Integer, and Short types can also be encoded as JSON strings.</td>
+</tr>
+<tr>
+<td><code>SearchObjectsResponseV2.nextPageToken</code></td>
+<td>string</td>
+<td>否</td>
+<td>The page token indicates where to start paging. This should be omitted from the first page's request.<br>To fetch the next page, clients should take the value from the <code>nextPageToken</code> field of the previous response<br>and use it to populate the <code>pageToken</code> field of the next request.</td>
+</tr>
+<tr>
+<td><code>SearchObjectsResponseV2.totalCount</code></td>
+<td>string</td>
+<td>是</td>
+<td>The total number of items across all pages.<br>示例: <code>7587</code></td>
+</tr>
+</tbody>
+</table>
+<pre><code class="language-json">{
+  &quot;data&quot;: [
+    {
+      &quot;__rid&quot;: &quot;ri.phonograph2-objects.main.object.5b5dbc28-7f05-4e83-a33a-1e5b851ababb&quot;,
+      &quot;__primaryKey&quot;: 1000,
+      &quot;__apiName&quot;: &quot;Employee&quot;,
+      &quot;employeeId&quot;: 1000,
+      &quot;lastName&quot;: &quot;smith&quot;,
+      &quot;firstName&quot;: &quot;john&quot;,
+      &quot;age&quot;: 21
+    }
+  ]
+}
+</code></pre>
+</body>
+</html>

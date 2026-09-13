@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Search Experiments</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../../../index.html">返回目录</a></div>
+<p><code>POST /api/v2/models/{modelRid}/experiments/search</code></p>
+<p>:::callout{theme=warning title=Warning}
+  This endpoint is in preview and may be modified or removed at any time.
+  To use this endpoint, add <code>preview=true</code> to the request query parameters.
+:::</p>
+<p>Search experiments using complex nested queries on experiment metadata, parameters, series,
+and summary metrics. Supports AND/OR/NOT combinations and various predicates.
+Returns a maximum of 100 results per page.</p>
+<p>Third-party applications using this endpoint via OAuth2 must request the following operation scope: <code>api:models-read</code>.</p>
+<p><strong>OAuth2 scopes</strong>: <code>api:models-read</code></p>
+<h2>Path parameters</h2>
+<table>
+<thead>
+<tr>
+<th>参数</th>
+<th>类型</th>
+<th>必填</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>modelRid</code></td>
+<td>string</td>
+<td>是</td>
+<td>The Resource Identifier (RID) of a Model.<br>示例: <code>ri.models.main.model.f351c142-0e4c-4b12-adc2-6e1539737ae9</code></td>
+</tr>
+</tbody>
+</table>
+<h2>Query parameters</h2>
+<table>
+<thead>
+<tr>
+<th>参数</th>
+<th>类型</th>
+<th>必填</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>preview</code></td>
+<td>boolean</td>
+<td>否</td>
+<td>Enables the use of preview functionality.<br>示例: <code>true</code></td>
+</tr>
+</tbody>
+</table>
+<h2>Request body</h2>
+<pre><code class="language-json">{
+  &quot;orderBy&quot;: {
+    &quot;field&quot;: &quot;EXPERIMENT_NAME&quot;,
+    &quot;direction&quot;: &quot;ASC&quot;
+  },
+  &quot;pageSize&quot;: 100,
+  &quot;pageToken&quot;: &quot;v1.QnVpbGQgdGhlIEZ1dHVyZTogaHR0cHM6Ly93d3cucGFsYW50aXIuY29tL2NhcmVlcnMvP2xldmVyLXNvdXJjZSU1YiU1ZD1BUElEb2NzI29wZW4tcG9zaXRpb25z&quot;
+}
+</code></pre>
+<h2>Response</h2>
+<p><strong>SearchExperimentsResponse</strong></p>
+<p>Response from searching experiments.</p>
+<table>
+<thead>
+<tr>
+<th>参数</th>
+<th>类型</th>
+<th>必填</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>SearchExperimentsResponse</code></td>
+<td>object</td>
+<td>是</td>
+<td>Response from searching experiments.<br>示例: <code>{"data":[{"source":{"type":"codeWorkspace","containerRid":"ri.foundry-container-service.main.container.a1b2c3d4-e5f6-7890-abcd-ef1234567890","deploymentRid":"ri.foundry-container-service.main.deployment.b2c3d4e5-f6a7-8901-bcde-f12345678901"},"rid":"ri.models.main.experiment.abc123","branch":"master","summaryMetrics":[{"seriesName":"loss","aggregation":"LAST","value":0.07}],"tags":["production"],"createdBy":"f05f8da4-b84c-4fca-9c77-8af0b13d11de","series":[{"name":"loss","length":100,"value":{"type":"double","min":0.05,"max":1.5,"last":0.07}}],"linkedModelVersion":"ri.models.main.model-version.adf94926-c3ac-41ea-beb2-4946699d08ee","createdTime":"2003-05-06T12:34:56.789Z","jobRid":"ri.foundry.main.job.aaf94076-d773-4732-a1df-3b638eb50448","parameters":[{"name":"learning_rate","value":{"type":"double","value":0.001}}],"modelRid":"ri.models.main.model.f351c142-0e4c-4b12-adc2-6e1539737ae9","status":"RUNNING","artifacts":{"predictions_table":{"name":"predictions_table","description":"Test set predictions","sizeBytes":4096,"details":{"type":"table","rowCount":100}}}}],"nextPageToken":"v1.QnVpbGQgdGhlIEZ1dHVyZTogaHR0cHM6Ly93d3cucGFsYW50aXIuY29tL2NhcmVlcnMvP2xldmVyLXNvdXJjZSU1YiU1ZD1BUElEb2NzI29wZW4tcG9zaXRpb25z"}</code></td>
+</tr>
+<tr>
+<td><code>SearchExperimentsResponse.data</code></td>
+<td>list<Experiment></td>
+<td>否</td>
+<td>List of experiments matching the search criteria.</td>
+</tr>
+<tr>
+<td><code>SearchExperimentsResponse.data.Experiment</code></td>
+<td>object</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>SearchExperimentsResponse.data.Experiment.rid</code></td>
+<td>string</td>
+<td>是</td>
+<td>The Resource Identifier (RID) of an Experiment.<br>示例: <code>ri.models.main.experiment.abc123</code></td>
+</tr>
+<tr>
+<td><code>SearchExperimentsResponse.data.Experiment.modelRid</code></td>
+<td>string</td>
+<td>是</td>
+<td>The Resource Identifier (RID) of a Model.<br>示例: <code>ri.models.main.model.f351c142-0e4c-4b12-adc2-6e1539737ae9</code></td>
+</tr>
+<tr>
+<td><code>SearchExperimentsResponse.data.Experiment.createdTime</code></td>
+<td>string</td>
+<td>是</td>
+<td>The time at which the resource was created.<br>示例: <code>2003-05-06T12:34:56.789Z</code></td>
+</tr>
+<tr>
+<td><code>SearchExperimentsResponse.data.Experiment.createdBy</code></td>
+<td>string</td>
+<td>是</td>
+<td>The Foundry user who created this resource<br>示例: <code>f05f8da4-b84c-4fca-9c77-8af0b13d11de</code></td>
+</tr>
+<tr>
+<td><code>SearchExperimentsResponse.data.Experiment.source</code></td>
+<td>union</td>
+<td>是</td>
+<td>The source from which the experiment was created.<br>示例: <code>{"type":"codeWorkspace","containerRid":"ri.foundry-container-service.main.container.a1b2c3d4-e5f6-7890-abcd-ef1234567890","deploymentRid":"ri.foundry-container-service.main.deployment.b2c3d4e5-f6a7-8901-bcde-f12345678901"}</code></td>
+</tr>
+<tr>
+<td><code>SearchExperimentsResponse.data.Experiment.source.codeWorkspace</code></td>
+<td>object</td>
+<td>否</td>
+<td>Experiment created from a code workspace.</td>
+</tr>
+<tr>
+<td><code>SearchExperimentsResponse.data.Experiment.source.codeWorkspace.containerRid</code></td>
+<td>string</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>SearchExperimentsResponse.data.Experiment.source.codeWorkspace.deploymentRid</code></td>
+<td>string</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>SearchExperimentsResponse.data.Experiment.source.authoring</code></td>
+<td>object</td>
+<td>否</td>
+<td>Experiment created from an authoring repository.</td>
+</tr>
+<tr>
+<td><code>SearchExperimentsResponse.data.Experiment.source.authoring.stemmaRid</code></td>
+<td>string</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>SearchExperimentsResponse.data.Experiment.source.sdk</code></td>
+<td>object</td>
+<td>否</td>
+<td>Experiment created from the SDK.</td>
+</tr>
+<tr>
+<td><code>SearchExperimentsResponse.data.Experiment.status</code></td>
+<td>enum</td>
+<td>是</td>
+<td>The current status of an experiment.<br>示例: <code>RUNNING</code></td>
+</tr>
+<tr>
+<td><code>SearchExperimentsResponse.data.Experiment.statusMessage</code></td>
+<td>string</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>SearchExperimentsResponse.data.Experiment.branch</code></td>
+<td>string</td>
+<td>是</td>
+<td>The name of a Branch.<br>示例: <code>master</code></td>
+</tr>
+<tr>
+<td><code>SearchExperimentsResponse.data.Experiment.parameters</code></td>
+<td>list<Parameter></td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>SearchExperimentsResponse.data.Experiment.parameters.Parameter</code></td>
+<td>object</td>
+<td>是</td>
+<td>A parameter with its name and value.</td>
+</tr>
+<tr>
+<td><code>SearchExperimentsResponse.data.Experiment.parameters.Parameter.name</code></td>
+<td>string</td>
+<td>是</td>
+<td>The parameter name<br>示例: <code>learning_rate</code></td>
+</tr>
+<tr>
+<td><code>SearchExperimentsResponse.data.Experiment.parameters.Parameter.value</code></td>
+<td>union</td>
+<td>是</td>
+<td>The parameter value<br>示例: <code>{"type":"double","value":0.001}</code></td>
+</tr>
+<tr>
+<td><code>SearchExperimentsResponse.data.Experiment.parameters.Parameter.value.datetime</code></td>
+<td>object</td>
+<td>否</td>
+<td>A datetime parameter value.</td>
+</tr>
+<tr>
+<td><code>SearchExperimentsResponse.data.Experiment.parameters.Parameter.value.datetime.value</code></td>
+<td>string</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>SearchExperimentsResponse.data.Experiment.parameters.Parameter.value.boolean</code></td>
+<td>object</td>
+<td>否</td>
+<td>A boolean parameter value.</td>
+</tr>
+<tr>
+<td><code>SearchExperimentsResponse.data.Experiment.parameters.Parameter.value.boolean.value</code></td>
+<td>boolean</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>SearchExperimentsResponse.data.Experiment.parameters.Parameter.value.string</code></td>
+<td>object</td>
+<td>否</td>
+<td>A string parameter value.</td>
+</tr>
+<tr>
+<td><code>SearchExperimentsResponse.data.Experiment.parameters.Parameter.value.string.value</code></td>
+<td>string</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>SearchExperimentsResponse.data.Experiment.parameters.Parameter.value.double</code></td>
+<td>object</td>
+<td>否</td>
+<td>A double parameter value.</td>
+</tr>
+<tr>
+<td><code>SearchExperimentsResponse.data.Experiment.parameters.Parameter.value.double.value</code></td>
+<td>number</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>SearchExperimentsResponse.data.Experiment.parameters.Parameter.value.integer</code></td>
+<td>object</td>
+<td>否</td>
+<td>An integer parameter value.</td>
+</tr>
+<tr>
+<td><code>SearchExperimentsResponse.data.Experiment.parameters.Parameter.value.integer.value</code></td>
+<td>string</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>SearchExperimentsResponse.data.Experiment.series</code></td>
+<td>list<SeriesAggregations></td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>SearchExperimentsResponse.data.Experiment.series.SeriesAggregations</code></td>
+<td>object</td>
+<td>是</td>
+<td>Series with precomputed aggregation values.</td>
+</tr>
+<tr>
+<td><code>SearchExperimentsResponse.data.Experiment.series.SeriesAggregations.name</code></td>
+<td>string</td>
+<td>是</td>
+<td>The series name<br>示例: <code>loss</code></td>
+</tr>
+<tr>
+<td><code>SearchExperimentsResponse.data.Experiment.series.SeriesAggregations.length</code></td>
+<td>string</td>
+<td>否</td>
+<td>Number of values in the series. This field may be absent when series aggregations are derived from summary metrics rather than the full series data.</td>
+</tr>
+<tr>
+<td><code>SearchExperimentsResponse.data.Experiment.series.SeriesAggregations.value</code></td>
+<td>union</td>
+<td>是</td>
+<td>Aggregated values for this series<br>示例: <code>{"type":"double","min":0.05,"max":1.5,"last":0.07}</code></td>
+</tr>
+<tr>
+<td><code>SearchExperimentsResponse.data.Experiment.series.SeriesAggregations.value.double</code></td>
+<td>object</td>
+<td>否</td>
+<td>Aggregated statistics for numeric series.</td>
+</tr>
+<tr>
+<td><code>SearchExperimentsResponse.data.Experiment.series.SeriesAggregations.value.double.min</code></td>
+<td>number</td>
+<td>否</td>
+<td>Minimum value in the series. Absent if the metric has not been computed.</td>
+</tr>
+<tr>
+<td><code>SearchExperimentsResponse.data.Experiment.series.SeriesAggregations.value.double.max</code></td>
+<td>number</td>
+<td>否</td>
+<td>Maximum value in the series. Absent if the metric has not been computed.</td>
+</tr>
+<tr>
+<td><code>SearchExperimentsResponse.data.Experiment.series.SeriesAggregations.value.double.last</code></td>
+<td>number</td>
+<td>否</td>
+<td>Most recent value in the series. Absent if the metric has not been computed.</td>
+</tr>
+<tr>
+<td><code>SearchExperimentsResponse.data.Experiment.summaryMetrics</code></td>
+<td>list<SummaryMetric></td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>SearchExperimentsResponse.data.Experiment.summaryMetrics.SummaryMetric</code></td>
+<td>object</td>
+<td>是</td>
+<td>A summary metric with series name, aggregation type, and computed value.</td>
+</tr>
+<tr>
+<td><code>SearchExperimentsResponse.data.Experiment.summaryMetrics.SummaryMetric.seriesName</code></td>
+<td>string</td>
+<td>是</td>
+<td>Name of the series this metric belongs to<br>示例: <code>loss</code></td>
+</tr>
+<tr>
+<td><code>SearchExperimentsResponse.data.Experiment.summaryMetrics.SummaryMetric.aggregation</code></td>
+<td>enum</td>
+<td>是</td>
+<td>Type of aggregation (MIN, MAX, LAST)<br>示例: <code>MIN</code></td>
+</tr>
+<tr>
+<td><code>SearchExperimentsResponse.data.Experiment.summaryMetrics.SummaryMetric.value</code></td>
+<td>number</td>
+<td>是</td>
+<td>The computed value</td>
+</tr>
+<tr>
+<td><code>SearchExperimentsResponse.data.Experiment.artifacts</code></td>
+<td>map</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>SearchExperimentsResponse.data.Experiment.artifacts.ExperimentArtifactName</code></td>
+<td>string</td>
+<td>是</td>
+<td>The name of an experiment artifact.</td>
+</tr>
+<tr>
+<td><code>SearchExperimentsResponse.data.Experiment.artifacts.ExperimentArtifactMetadata</code></td>
+<td>object</td>
+<td>是</td>
+<td>Metadata about an experiment artifact.</td>
+</tr>
+<tr>
+<td><code>SearchExperimentsResponse.data.Experiment.artifacts.ExperimentArtifactMetadata.name</code></td>
+<td>string</td>
+<td>是</td>
+<td>The name of an experiment artifact.<br>示例: <code>predictions_table</code></td>
+</tr>
+<tr>
+<td><code>SearchExperimentsResponse.data.Experiment.artifacts.ExperimentArtifactMetadata.description</code></td>
+<td>string</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>SearchExperimentsResponse.data.Experiment.artifacts.ExperimentArtifactMetadata.sizeBytes</code></td>
+<td>string</td>
+<td>是</td>
+<td>The size of the file or attachment in bytes.<br>示例: <code>72526847</code></td>
+</tr>
+<tr>
+<td><code>SearchExperimentsResponse.data.Experiment.artifacts.ExperimentArtifactMetadata.details</code></td>
+<td>union</td>
+<td>是</td>
+<td>Details about an experiment artifact.<br>示例: <code>{"type":"table","rowCount":100}</code></td>
+</tr>
+<tr>
+<td><code>SearchExperimentsResponse.data.Experiment.artifacts.ExperimentArtifactMetadata.details.table</code></td>
+<td>object</td>
+<td>否</td>
+<td>Details about a table artifact.</td>
+</tr>
+<tr>
+<td><code>SearchExperimentsResponse.data.Experiment.artifacts.ExperimentArtifactMetadata.details.table.rowCount</code></td>
+<td>string</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>SearchExperimentsResponse.data.Experiment.tags</code></td>
+<td>list<ExperimentTagText></td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>SearchExperimentsResponse.data.Experiment.tags.ExperimentTagText</code></td>
+<td>string</td>
+<td>是</td>
+<td>A tag associated with an experiment.</td>
+</tr>
+<tr>
+<td><code>SearchExperimentsResponse.data.Experiment.linkedModelVersion</code></td>
+<td>string</td>
+<td>否</td>
+<td>The Resource Identifier (RID) of a Model Version.<br>示例: <code>ri.models.main.model-version.adf94926-c3ac-41ea-beb2-4946699d08ee</code></td>
+</tr>
+<tr>
+<td><code>SearchExperimentsResponse.data.Experiment.jobRid</code></td>
+<td>string</td>
+<td>否</td>
+<td>The RID of a Job.<br>示例: <code>ri.foundry.main.job.aaf94076-d773-4732-a1df-3b638eb50448</code></td>
+</tr>
+<tr>
+<td><code>SearchExperimentsResponse.nextPageToken</code></td>
+<td>string</td>
+<td>否</td>
+<td>Token for retrieving the next page of results, if more results are available.</td>
+</tr>
+</tbody>
+</table>
+<pre><code class="language-json">{
+  &quot;data&quot;: [
+    {
+      &quot;source&quot;: {
+        &quot;type&quot;: &quot;codeWorkspace&quot;,
+        &quot;containerRid&quot;: &quot;ri.foundry-container-service.main.container.a1b2c3d4-e5f6-7890-abcd-ef1234567890&quot;,
+        &quot;deploymentRid&quot;: &quot;ri.foundry-container-service.main.deployment.b2c3d4e5-f6a7-8901-bcde-f12345678901&quot;
+      },
+      &quot;rid&quot;: &quot;ri.models.main.experiment.abc123&quot;,
+      &quot;branch&quot;: &quot;master&quot;,
+      &quot;summaryMetrics&quot;: [
+        {
+          &quot;seriesName&quot;: &quot;loss&quot;,
+          &quot;aggregation&quot;: &quot;LAST&quot;,
+          &quot;value&quot;: 0.07
+        }
+      ],
+      &quot;tags&quot;: [
+        &quot;production&quot;
+      ],
+      &quot;createdBy&quot;: &quot;f05f8da4-b84c-4fca-9c77-8af0b13d11de&quot;,
+      &quot;series&quot;: [
+        {
+          &quot;name&quot;: &quot;loss&quot;,
+          &quot;length&quot;: 100,
+          &quot;value&quot;: {
+            &quot;type&quot;: &quot;double&quot;,
+            &quot;min&quot;: 0.05,
+            &quot;max&quot;: 1.5,
+            &quot;last&quot;: 0.07
+          }
+        }
+      ],
+      &quot;linkedModelVersion&quot;: &quot;ri.models.main.model-version.adf94926-c3ac-41ea-beb2-4946699d08ee&quot;,
+      &quot;createdTime&quot;: &quot;2003-05-06T12:34:56.789Z&quot;,
+      &quot;jobRid&quot;: &quot;ri.foundry.main.job.aaf94076-d773-4732-a1df-3b638eb50448&quot;,
+      &quot;parameters&quot;: [
+        {
+          &quot;name&quot;: &quot;learning_rate&quot;,
+          &quot;value&quot;: {
+            &quot;type&quot;: &quot;double&quot;,
+            &quot;value&quot;: 0.001
+          }
+        }
+      ],
+      &quot;modelRid&quot;: &quot;ri.models.main.model.f351c142-0e4c-4b12-adc2-6e1539737ae9&quot;,
+      &quot;status&quot;: &quot;RUNNING&quot;,
+      &quot;artifacts&quot;: {
+        &quot;predictions_table&quot;: {
+          &quot;name&quot;: &quot;predictions_table&quot;,
+          &quot;description&quot;: &quot;Test set predictions&quot;,
+          &quot;sizeBytes&quot;: 4096,
+          &quot;details&quot;: {
+            &quot;type&quot;: &quot;table&quot;,
+            &quot;rowCount&quot;: 100
+          }
+        }
+      }
+    }
+  ],
+  &quot;nextPageToken&quot;: &quot;v1.QnVpbGQgdGhlIEZ1dHVyZTogaHR0cHM6Ly93d3cucGFsYW50aXIuY29tL2NhcmVlcnMvP2xldmVyLXNvdXJjZSU1YiU1ZD1BUElEb2NzI29wZW4tcG9zaXRpb25z&quot;
+}
+</code></pre>
+<h2>Error responses</h2>
+<table>
+<thead>
+<tr>
+<th>错误码</th>
+<th>错误名称</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>INVALID_ARGUMENT</td>
+<td><code>InvalidExperimentSearchFilter</code></td>
+<td>The search filter is invalid. This can occur when using an unsupported operator and value type<br>combination in a parameter filter, filtering by an unsupported status, or providing a malformed filter.</td>
+</tr>
+<tr>
+<td>PERMISSION_DENIED</td>
+<td><code>SearchExperimentsPermissionDenied</code></td>
+<td>Could not search the Experiment.</td>
+</tr>
+</tbody>
+</table>
+</body>
+</html>

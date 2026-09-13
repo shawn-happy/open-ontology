@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ontology Manager</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Ontology Manager</h1>
+<p><strong>Ontology Manager</strong> (sometimes called the Ontology Management Application, or OMA) enables you to build and maintain your organizationâs Ontology. You can use Ontology Manager for a wide range of activities related to your Ontology, from creating a new object type and defining a new action type, to connecting data to the Ontology, and investigating whether data is updating in user applications.</p>
+<h2>Accessing the application</h2>
+<p>You can access the application in three different ways, by either:</p>
+<ul>
+<li>Selecting the <strong>Ontology Manager</strong> icon from the Workspace sidebarâs <strong>Apps</strong> section;</li>
+<li>Right-clicking on an object type in Data Lineage and selecting <strong>Configure object type</strong>; or</li>
+<li>Adding <code>/workspace/ontology</code> to the end of your Foundry home page URL (for instance, <code>https://example.website.com/workspace/ontology</code>).</li>
+</ul>
+<h2>User interface</h2>
+<p>The Ontology Manager interface is divided into the following elements that you will see referenced throughout the documentation:</p>
+<ul>
+<li><a href="#ontology-manager-navigation">Ontology Manager navigation</a></li>
+<li><a href="#discover">Discover view</a></li>
+<li><a href="#object-type-view">Object type view</a></li>
+<li><a href="#property-editor-view">Property editor view</a></li>
+<li><a href="#link-type-view">Link type view</a></li>
+<li><a href="#action-type-view">Action type view</a></li>
+<li><a href="#function-type-view">Function type view</a></li>
+</ul>
+<h3>Ontology Manager navigation</h3>
+<p>The two persisting elements of Ontology Manager are the top bar and the sidebar. The top bar and sidebar serve as navigation elements, providing intuitive access to various features, functionalities, and sections within the application.</p>
+<p>The top bar has three main functionalities. It allows users to search for Ontology resources, create new Ontology resources, and navigate between or create new branches.</p>
+<p>The sidebar provides easy navigation to different resources, pages, or applications within Ontology Manager.</p>
+<p><img alt="Ontology Manager annotated view." src="../../_resources/foundry/ontology-manager/oma-navigation-annotated.png" /></p>
+<h3>Discover</h3>
+<p>The Discover view offers a highly customizable landing page tailored to your preferences. By default, the Discover view showcases favorite object types, recently-viewed object types, and favorite groups.</p>
+<p><img alt="Ontology Manager Discover view." src="../../_resources/foundry/ontology-manager/oma-discover-view.png" /></p>
+<p>In case the user is new to the Ontology, two specialized sections will be presented: one which displays all object types that were recently modified within that Ontology, and one for all prominent object types.</p>
+<p><img alt="Ontology Manager Fallback sections." src="../../_resources/foundry/ontology-manager/oma-fallback-sections.png" /></p>
+<p>The Discover view provides the flexibility to configure the sections that appear on the page and control the number of items displayed within each section. The available sections include "Recently viewed object types," "Favorite object types," and "Favorite groups." Additionally, you have the option to add a separate section for a specific group, allowing you to explore all object types within that group.</p>
+<p><img alt="Ontology Manager Customize homepage feature." src="../../_resources/foundry/ontology-manager/oma-customize-homepage.png" /></p>
+<p><img alt="Ontology Manager Group section." src="../../_resources/foundry/ontology-manager/oma-type-group-section.png" /></p>
+<h3>Object type view</h3>
+<p>Selecting an object type brings up the object type view, which has the following components:</p>
+<ul>
+<li>Sidebar with page selections (on the left in the image below)</li>
+<li>Selected page (on the right in the image below)</li>
+</ul>
+<p><img alt="Object type view." src="../../_resources/foundry/ontology-manager/oma-user-interface-object-type-view.png" /></p>
+<p>The <strong>Overview</strong> page of an object type has the following sections, as numbered in the image below:</p>
+<ol>
+<li>Object type metadata</li>
+<li>Properties</li>
+<li>Action types</li>
+<li>Link type graph</li>
+<li>Dependents</li>
+<li>Data</li>
+<li>Usage</li>
+</ol>
+<p><img alt="Object type overview page." src="../../_resources/foundry/ontology-manager/oma-user-interface-overview-annotated.png" /></p>
+<h3>Property editor view</h3>
+<p>Select a property from the <strong>Properties</strong> section of an object typeâs <strong>Overview</strong> page to open the property editor view of the application.</p>
+<p><img alt="Property editor interface." src="../../_resources/foundry/ontology-manager/oma-user-interface-property-editor-v2.png" /></p>
+<h3>Link type view</h3>
+<p>Selecting a link type from the link type graph of an object typeâs <strong>Overview</strong> tab (see image below) opens the link type view (with <strong>Overview</strong> and <strong>Datasources</strong> pages).</p>
+<p><img alt="Link type view." src="../../_resources/foundry/ontology-manager/oma-user-interface-link-type.png" /></p>
+<h3>Action type view</h3>
+<p>Selecting an action type from the action type section of an object typeâs <strong>Overview</strong> tab opens the action type view, with further access to the <strong>Overview</strong>, <strong>Logic</strong> and <strong>Observability</strong> pages.</p>
+<p><img alt="Action type view." src="../../_resources/foundry/ontology-manager/oma-user-interface-action-type.png" /></p>
+<h4>View action metrics and monitoring rules</h4>
+<p>The <strong>Observability</strong> tab shows the near real-time <a href="https://www.palantir.com/docs/foundry/action-types/action-metrics/">usage of the action</a> over the last 30 days as well as any <a href="https://www.palantir.com/docs/foundry/monitoring-views/overview/">monitoring rules</a> and their status defined for the action. <a href="https://www.palantir.com/docs/foundry/monitoring-views/rules-reference/#action-rules">Review action rules</a> for detailed action monitoring rule configuration options.</p>
+<p><img alt="Action observability tab view." src="../../_resources/foundry/ontology-manager/oma-user-interface-action-type-observability-tab.png" /></p>
+<h3>Function type view</h3>
+<p>Selecting a function type from the function type section of an object typeâs <strong>Overview</strong> tab opens the function type view, with further access to the <strong>Overview</strong>, <strong>Configuration</strong> and <strong>Observability</strong> pages.</p>
+<h4>Usage history of a function</h4>
+<p>The Usage History panel records the applications which have used any version of a function, along with the respective version information. From this panel, you can navigate to these applications in order to upgrade the version of a function.</p>
+<h4>View previous versions of a function</h4>
+<p>By default, the latest version of the function is displayed. To view other versions, use the version dropdown selector located in the left panel.</p>
+<h4>Navigate to the Functions Code Repository</h4>
+<p>Modifications to the function can only be made within the Functions Code Repository. To navigate to the repository, use the <strong>Open in Code Repository</strong> button found in the top right-hand corner of the entity view.</p>
+<p><img alt="Function type view." src="../../_resources/foundry/ontology-manager/oma-user-interface-function-type.png" /></p>
+<h4>View function metrics and monitoring rules</h4>
+<p>The <strong>Observability</strong> tab shows the near real-time <a href="https://www.palantir.com/docs/foundry/functions/function-metrics/">usage of the function</a> over the last 30 days as well as any <a href="https://www.palantir.com/docs/foundry/monitoring-views/overview/">monitoring rules</a> and their status defined for the function. <a href="https://www.palantir.com/docs/foundry/monitoring-views/rules-reference/#function-rules">Review function rules</a> for detailed function monitoring rule configuration options.</p>
+<p><img alt="Function observability tab view." src="../../_resources/foundry/ontology-manager/oma-user-interface-function-type-observability-tab.png" /></p>
+</body>
+</html>

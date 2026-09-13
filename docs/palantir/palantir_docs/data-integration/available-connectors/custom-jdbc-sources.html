@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Custom JDBC sources</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Custom JDBC sources</h1>
+<p>Connect Foundry to JDBC sources to read and sync data between Foundry and most relational databases and data warehouses.</p>
+<p>Once the source is configured, you can flexibly define how data should be synced from the database using a SQL query specified in the extract definition. In addition, you can <a href="https://www.palantir.com/docs/foundry/data-connection/optimize-jdbc-syncs/#incremental-syncs">configure an incremental sync</a> that only reads data that has been updated since the last sync was run.</p>
+<h2>Setup</h2>
+<ol>
+<li>Open the <a href="https://www.palantir.com/docs/foundry/data-connection/overview/">Data Connection</a> application and select <strong>+ New Source</strong> in the upper right corner of the screen.</li>
+<li>Find your specific source from the listed types (<strong>BigQuery</strong> or <strong>PostgreSQL</strong>, for example). If your connector type is not listed, select <strong>JDBC</strong> instead.</li>
+<li>Follow the additional configuration prompts to continue the setup of your connector using the information in the sections below.</li>
+</ol>
+<h2>Configuration options</h2>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Required?</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>URL</code></td>
+<td>Yes</td>
+<td>Refer to the source system's documentation for the JDBC URL format, and review the <a href="https://docs.oracle.com/javase/tutorial/jdbc/basics/connecting.html">Java documentation â</a> for additional information.</td>
+</tr>
+<tr>
+<td><code>Driver class</code></td>
+<td>Yes</td>
+<td>Enter the driver class to use when connecting to the database. This driver must be on the classpath at Data Connection runtime. Learn more about <a href="#jdbc-drivers">JDBC drivers</a> below.</td>
+</tr>
+<tr>
+<td><code>Credentials</code></td>
+<td>Yes</td>
+<td>The username and password credentials of the JDBC connection.</td>
+</tr>
+<tr>
+<td><code>JDBC properties</code></td>
+<td>No</td>
+<td>Add property names and values to configure connection behavior. Learn more about <a href="#jdbc-properties">JDBC properties</a> below.</td>
+</tr>
+<tr>
+<td><code>Advanced Options</code></td>
+<td>No</td>
+<td>Expand this field to add optional JDBC output configurations. Learn more about <a href="#output-overrides-source">output settings</a> below.</td>
+</tr>
+</tbody>
+</table>
+<h3>JDBC drivers</h3>
+<p>By default, Data Connection agents ship with the ability to connect to JDBC-compatible systems. However, you <strong>must</strong> provide a <a href="https://en.wikipedia.org/wiki/JDBC_driver">JDBC driver â</a> to successfully connect to the system. You also must specify the driver class, typically found in the public documentation of the particular driver. For example, you can find the class for Snowflake's JDBC driver in their <a href="https://docs.snowflake.com/en/developer-guide/jdbc/jdbc-configure#jdbc-driver-class">public documentation â</a>.</p>
+<h4>Foundry worker connections</h4>
+<p><a href="https://www.palantir.com/docs/foundry/data-connection/core-concepts/#foundry-worker">Foundry worker connections</a> do not require Palantir-signed drivers. You can typically find and download drivers from the documentation of your particular source type, such as <a href="https://cloud.google.com/bigquery/docs/reference/odbc-jdbc-drivers">Google BigQuery â</a>. You can then upload the driver when you <a href="https://www.palantir.com/docs/foundry/data-connection/set-up-source/">configure the connection</a>.</p>
+<h4>Agent worker connections [Legacy]</h4>
+<p>:::callout{theme="warning" title="Legacy"}
+Agent worker is in the <a href="https://www.palantir.com/docs/foundry/platform-overview/development-life-cycle/">legacy</a> phase of development. The configuration below is provided for existing agent worker sources. See <a href="https://www.palantir.com/docs/foundry/data-connection/foundry-worker-vs-agent-worker/">Foundry worker vs agent worker</a>.
+:::</p>
+<p>For <a href="https://www.palantir.com/docs/foundry/data-connection/core-concepts/#agent-worker">agent worker</a> sources, drivers must be manually uploaded on the agent.</p>
+<p>:::callout{theme="warning"}
+JDBC drivers uploaded to the agent may cause classpath conflicts with other JDBC drivers already present on the agent. To avoid potential conflicts, use a <a href="https://www.palantir.com/docs/foundry/data-integration/foundry-provided-drivers/">Palantir-provided connector</a> instead of manually uploading a JDBC driver.
+:::</p>
+<p>:::callout{theme="neutral"}
+For security reasons, the agent requires JDBC drivers to be signed by Palantir to guarantee its authenticity. Contact Palantir Support to obtain signed copies of drivers necessary for your connection. Uploading unsigned drivers to an agent will prevent it from starting.
+:::</p>
+<p>To assign a driver to an agent, follow the steps below:</p>
+<ol>
+<li>Navigate to the agent overview page in Data Connection and select the <strong>Agent settings</strong> tab.</li>
+<li>Go to the <strong>JDBC Drivers</strong> section and select <strong>Edit</strong>.</li>
+</ol>
+<p><img alt="Add JDBC drivers to an agent in Data Connection." src="../../_resources/foundry/available-connectors/add-jdbc-driver-to-agent.png" /></p>
+<ol start="3">
+<li>If the driver you need is not available in the right sidebar, select <strong>Upload new</strong> in the top right corner to upload a new driver JAR file. Choose a location to store the driver.</li>
+<li>Select the <strong>â</strong> button next to the driver name to add the driver to the agent.</li>
+</ol>
+<p><img alt="Upload a new JDBC driver in Data Connection." src="../../_resources/foundry/available-connectors/upload-new-jdbc-driver.png" /></p>
+<ol start="5">
+<li>Select <strong>â</strong> to add the driver to the agent and exit the sidebar.</li>
+</ol>
+<p>:::callout{theme="neutral"}
+When <a href="#configuration-options">configuring a connection to a JDBC source</a> you can only specify the driver class, not the specific driver. For this reason, you should only add one driver of a given class to an agent.
+:::</p>
+<ol start="6">
+<li>After selecting or uploading the needed driver, you must select <strong>Restart agent</strong> to use the new driver file.</li>
+</ol>
+<h3>JDBC properties</h3>
+<p>You can optionally add <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/Properties.html">properties â</a> to your JDBC connection to configure behavior. Refer to the documentation of your specific source for additional available JDBC properties to add to your connection configuration.</p>
+<h3>Output overrides: Source</h3>
+<p>You can optionally add output overrides to modify the output file type and JDBC sync method. Configured settings will be applied to all JDBC syncs using the source. You can override these parameters for a specific sync by editing the sync configuration. To add output overrides, expand the <strong>Advanced Options</strong> section at the bottom of the setup page and enter the following:</p>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Required?</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Output</code></td>
+<td>Yes</td>
+<td><code>Parquet</code></td>
+<td>The format of the output file (<code>Avro</code> or <code>Parquet</code>)</td>
+</tr>
+<tr>
+<td><code>Compression Method</code></td>
+<td>No</td>
+<td>None</td>
+<td>Choose between <code>SNAPPY</code>,<code>ZSTD</code>, or no compression method.</td>
+</tr>
+<tr>
+<td><code>Fetch size</code></td>
+<td>No</td>
+<td>None</td>
+<td>The number of rows fetched with each database round trip for a query. Learn more in the <a href="#fetch-size">section below</a>.</td>
+</tr>
+<tr>
+<td><code>Max file size</code></td>
+<td>No</td>
+<td>None</td>
+<td>Specify the maximum size (in bytes or rows) of the output files. Learn more in the <a href="#maximum-file-size">section below</a>.</td>
+</tr>
+</tbody>
+</table>
+<h4>Fetch size</h4>
+<p>The fetch size of an output is the number of rows fetched with each database round trip for a query. By tuning the fetch size, you can alter the total number of network calls per sync. However, the fetch size will affect memory usage; increasing the fetch size will speed up syncs at the cost of increased memory usage. We recommend starting with fetch size: 500 and tuning accordingly.</p>
+<p>:::callout{theme="warning"}
+Fetch size configuration is available based on your JDBC driver. Ensure that your driver is compatible with the fetch size parameter if you require it for output configuration.
+:::</p>
+<h4>Maximum file size</h4>
+<p>You can also adjust the max file size (in bytes or rows) of your output files. Doing so may improve the performance and resiliency of your data upload to Foundry.</p>
+<p>When specifying file size in <code>Bytes</code>, the number of bytes must be at least double the in-memory buffer size of the Parquet (128MB) or Avro (64KB) writer.</p>
+<p>:::callout{theme="warning"}
+The maximum file size in bytes is approximate; output file sizes may be slightly smaller or larger.
+:::</p>
+<h2>Sync data from JDBC sources</h2>
+<p>To set up a JDBC sync, select <strong>Explore and create syncs</strong> in the upper right of the source <strong>Overview</strong> screen. Next, select the tables you want to sync into Foundry. When you are ready to sync, select <strong>Create sync for x datasets</strong>.</p>
+<p>Learn more about <a href="https://www.palantir.com/docs/foundry/data-connection/source-exploration/">source exploration</a> in Foundry.</p>
+<h2>Configure JDBC syncs</h2>
+<h3>Pre-queries</h3>
+<p>A pre-query is an optional array of SQL queries that run before the actual SQL query runs. We recommend using pre-queries for use cases where a database refresh must be triggered before running the actual query.</p>
+<h3>SQL queries</h3>
+<p>A single SQL query can be executed per sync. This query should produce a table of data as an output and should not perform operations like invoking stored procedures. The results of the query will be saved to the output dataset in Foundry.</p>
+<p><img alt="The SQL Query input on the Edit syncs page for a JDBC connector." src="../../_resources/foundry/available-connectors/jdbc-sql-query.png" /></p>
+<h3>Output overrides: Sync</h3>
+<p>Aside from configuring output overrides at the source configuration level, you can choose to apply specific overrides to individual sync outputs. The saved configuration will apply only to the individual sync. Review the <a href="#output-overrides-source">output overrides</a> section above for more information about configuration options.</p>
+<h4>Precision limits</h4>
+<p>At the sync configuration level, you can choose to <code>Enforce precision limits</code> for an individual JDBC sync. This limit rejects numeric values with precision over 38 decimal places. This setting is disabled by default.</p>
+<h2>Optimize JDBC syncs</h2>
+<p>If you are setting up a new sync or dealing with performance issues, consider switching to incremental syncs or parallelizing SQL queries to improve sync speed and reliability.</p>
+<p>We recommend first trying the incremental sync method. If issues persist, move on to parallelizing the SQL query.</p>
+<h3>Incremental JDBC syncs</h3>
+<p>Typically, syncs will import all matching rows from the target table, regardless if data changed between syncs or not. Incremental syncs, by contrast, are stateful syncs that enable you to do <code>APPEND</code> style transactions from the same table without duplicating data.</p>
+<p>Incremental syncs can be used when ingesting large tables from a JDBC source. To use incremental syncs, the table must contain a column that is strictly monotonically increasing.</p>
+<p>Follow the steps below to configure an incremental JDBC sync:</p>
+<ol>
+<li>Set the transaction type to <code>APPEND</code> on the <strong>Edit syncs</strong> page.</li>
+<li>Then, choose to <strong>Enable</strong>  in the <strong>Incremental</strong> section.</li>
+<li>Next, provide a monotonically increasing column and an initial value for this column. Select a value smaller than any value you intend to import; an incremental sync will import rows where the value is greater than the largest already imported.</li>
+</ol>
+<p><img alt="The Incremental configuration panel in the Edit syncs page" src="../../_resources/foundry/available-connectors/jdbc-incremental-config.png" /></p>
+<p><strong>Example:</strong> A 5 TB table contains billions of rows that you want to sync to a JDBC source. The table has a monotonically increasing column called <code>id</code>. The sync can be configured to ingest 50 million rows at a time using the <code>id</code> column as the incremental column, with an initial value of -1 and a configured limit of 50 million rows.</p>
+<p>When a sync is initially run, the first 50 million rows (ascending based on <code>id</code>) containing an <code>id</code> value greater than -1 will be ingested into Foundry. For example, if this sync was run several times and the largest <code>id</code> value ingested during the last run of the sync was 19384004822, the next sync will ingest the next 50 million rows starting with the first <code>id</code> value greater than 19384004822 and so on.</p>
+<p>Remember to also add a limit to the SQL query. For example, if your query was <code>SELECT * FROM "sales"."region"</code>, it could become <code>SELECT * FROM "sales"."region" WHERE sale_id &gt; ? limit 100000</code>; every time the build runs, 100000 rows will be imported into Foundry. The <code>?</code> value of the query will automatically update with the value from the last run.</p>
+<p>:::callout{theme="neutral"}
+For JDBC systems handling timestamp columns with no timezone definition, the timestamp is assumed to be expressed in UTC and incremental queries will run accordingly.
+:::</p>
+<h3>Parallelize the SQL query</h3>
+<p>:::callout{theme="warning"}
+The parallel feature runs separate queries against the target database. Before parallelizing the SQL query, consider how it could affect live-updating tables that may be treated differently by queries that occur at slightly different times.
+:::</p>
+<p>If performance does not improve after switching to incremental syncs, you can parallelize an SQL query to split it into multiple smaller queries that will be executed in parallel by the agent.</p>
+<p>To achieve this, you must change your SQL query to a new structure. For example:</p>
+<pre><code>SELECT
+/* FORCED_PARALLELISM_COLUMN(&lt;column&gt;), FORCED_PARALLELISM_SIZE(&lt;size&gt;) */
+*
+FROM &lt;table_name&gt;
+</code></pre>
+<p>The necessary parallelism details of the query are explained below.</p>
+<p><code>FORCED_PARALLELISM_COLUMN(&lt;column&gt;)</code>: Specifies the column on which the table will be divided. It should be a numeric column (or a column expression that yields a numeric column) with a distribution as even as possible.</p>
+<p><code>FORCED_PARALLELISM_SIZE(&lt;size&gt;)</code>: Specifies the degree of parallelism. For example, <code>4</code> would result in five simultaneous queries: four queries would split up the values for the specified parallelism column, and another would query for NULL values in the parallelism column.</p>
+<p>For example, using our SQL query above, <code>SELECT * FROM sales_data</code>, we can parallelize it by including additional details:</p>
+<pre><code>SELECT
+/* FORCED_PARALLELISM_COLUMN(sales_id), FORCED_PARALLELISM_SIZE(4) */
+*
+FROM &quot;sales&quot;.&quot;region&quot;
+</code></pre>
+<p><img alt="The parallelism example explained above, entered into the JDBC sync configuration interface in Data Connection. " src="../../_resources/foundry/available-connectors/jdbc-parallelize-sql-query.png" /></p>
+<p>:::callout{theme="warning"}
+When using parallelism with a <code>WHERE</code> clause that contains an <code>OR</code> condition, wrap conditions in parentheses to indicate how the conditions should be evaluated. For example: <code>SELECT /* FORCED_PARALLELISM_COLUMN(sales_id), FORCED_PARALLELISM_SIZE(4) */ * FROM "sales"."region" WHERE (condition1 = TRUE OR condition2 = TRUE)</code>
+:::</p>
+<h2>Iceberg syncs</h2>
+<p>You can sync data from a Custom JDBC source directly into Foundry <a href="https://www.palantir.com/docs/foundry/iceberg/overview/">Iceberg tables</a>. Iceberg syncs support both non-incremental and incremental batch ingestion, along with multiple write modes, and run on the <a href="https://www.palantir.com/docs/foundry/data-connection/core-concepts/#foundry-worker">Foundry worker</a> runtime. For configuration details and supported write modes, review the <a href="https://www.palantir.com/docs/foundry/iceberg/syncs/">Iceberg syncs documentation</a>.</p>
+<h2>Export data to JDBC sources</h2>
+<p>Data Connection supports table exports of datasets with schemas to JDBC sources.</p>
+<p>Review our documentation to learn how to <a href="https://www.palantir.com/docs/foundry/data-connection/export-overview/#table-exports">enable, configure, and schedule JDBC exports</a>.</p>
+<h3>Export configuration options for JDBC sources</h3>
+<p>Table exports using a JDBC source require specifying a destination database, schema, and table. These inputs determine the destination of Foundry exports and must match the values that already exist in the target database.</p>
+<p>You can either manually enter values for the destination database, schema, and table, or you can use the <strong>Explore &amp; autofill</strong> button to see a source preview to explore tables that exist in the target database, and autofills the inputs based on your selection.</p>
+<p><img alt="A zoomed-in view of the input form for the names of the destination table, schema, and dataset" src="../../_resources/foundry/available-connectors/table-export-schema-name-form.png" /></p>
+<p><img alt="A modal appears that allows users to see a source preview and select a destination without having to manually enter its name" src="../../_resources/foundry/available-connectors/file-select-preview.png" /></p>
+<h4>Export mode</h4>
+<p>You must select an <a href="https://www.palantir.com/docs/foundry/data-connection/export-overview/#table-export-modes">export mode</a>.</p>
+<h4>Batch size</h4>
+<p>Batch size refers to the number of records processed in a single batch when transferring data between Foundry and your source. Adjusting the batch size can impact the performance and efficiency of data export operations, allowing for optimized resource usage and reduced execution time.</p>
+<p>By default, export batching is disabled. After enabling export batching, you can choose a batch size between <code>2</code> and <code>5000</code>. If the driver on which your source depends is eligible for export batching, this configuration will take effect upon the execution of next export.</p>
+<h2>Health checks</h2>
+<p>Health checks run on sources to verify liveness and availability of the underlying source. By default, these run every 60 minutes and are executed from each agent assigned to the source. For JDBC sources, the health check is implemented as a <code>SELECT 1</code> query.</p>
+<h2>Export tasks (legacy)</h2>
+<p>:::callout{theme="warning"}
+<a href="https://www.palantir.com/docs/foundry/data-connection/export-tasks/">Export tasks</a> are a legacy feature that is <em>not</em> recommended for new implementations. All new exports should use the current <a href="#export-data-to-jdbc-sources">recommended export workflow</a>. This documentation is provided for users who are still using legacy export tasks.
+:::</p>
+<h3>Supported databases</h3>
+<p>Export tasks support the following databases:</p>
+<ul>
+<li>PostgreSQL</li>
+<li>Microsoft SQL Server</li>
+<li>MySQL</li>
+<li>IBM DB2</li>
+<li>Oracle</li>
+<li>Teradata</li>
+<li>Snowflake</li>
+<li>Vertica</li>
+</ul>
+<h3>Task configuration</h3>
+<p>A basic JDBC export task would look as follow:</p>
+<pre><code class="language-yaml">type: export-jdbc-task
+exporterType: parquet
+datasets:
+  - inputAlias: myInput  # only required if you have more than 1 input
+    writeDirectly: true
+    writeMode: Overwrite
+    table:
+      database: mydb  # Optional
+      schema: public  # Optional
+      table: mytable
+</code></pre>
+<p>The complete configuration options are:</p>
+<pre><code class="language-yaml">type: export-jdbc-task
+exporterType: parquet
+
+# Parallel execution
+parallelize: false  # Run exports for each dataset in parallel (up to 8)
+
+# SQL execution hooks
+preSql:  # SQL statements run before export
+  - TRUNCATE TABLE staging_table
+stagingSql:  # SQL statements run before table rename
+  - SELECT 1
+afterSql:  # SQL statements run after export
+  - INSERT INTO production_table SELECT * FROM staging_table
+
+# Transaction management
+manualTransactionManagement: false  # Set true to manage transactions yourself
+transactionIsolation: READ_COMMITTED  # java.sql.Connection.TransactionIsolationLevel
+
+# Dataset-specific configurations
+datasets:
+  - inputAlias: myInput
+    table:
+      database: mydb
+      schema: public
+      table: mytable
+
+    # Write configuration
+    writeDirectly: false  # false = use staging table first
+    copyMode: insert  # insert or directCopy (PostgreSQL only)
+    batchSize: 1000  # Rows per insert statement
+    writeMode: ErrorIfExists  # ErrorIfExists, Append, Overwrite, AppendIfPossible
+
+    # Incremental export
+    incrementalType: snapshot  # snapshot or incremental
+
+    # Performance
+    exporterThreads: 1  # Parallel file export threads
+
+    # Identifier handling
+    quoteIdentifiers: true  # Quote column names
+
+    # Transaction isolation for this export
+    exportTransactionIsolation: READ_UNCOMMITTED
+</code></pre>
+<h4>Write modes</h4>
+<ul>
+<li><strong>ErrorIfExists:</strong> Fails if table exists (default)</li>
+<li><strong>Append:</strong> Appends to existing table</li>
+<li><strong>Overwrite:</strong> Replaces existing table data</li>
+<li><strong>AppendIfPossible:</strong> Overwrite on first export, append on subsequent. May be desired when performing incremental exports.</li>
+</ul>
+<h4>Write directly vs. staging</h4>
+<p>When <code>writeDirectly: false</code> (default), the write flow is as follow:</p>
+<ol>
+<li>Data exports to <code>{tableName}_staged_</code></li>
+<li>Staging table is renamed to final table</li>
+<li>Original table is dropped</li>
+</ol>
+<p>When <code>writeDirectly: true</code>, data is written directly in the final table, which might be desired for incremental exports.</p>
+<h4>Copy modes</h4>
+<p><code>copyMode</code> controls how data is being copied to the database.</p>
+<ul>
+<li><strong>insert</strong> uses consecutive INSERT statements (one per row) with configurable batch size (default)</li>
+<li><strong>directCopy:</strong> uses one COPY statement per file for better performance. It is only available when exporting to PostgreSQL databases.</li>
+</ul>
+<h4>Quote identifiers</h4>
+<p><code>quoteIdentifiers</code> controls if identifiers should be quoted.</p>
+<p>The default is <code>true</code> because there are many cases where a valid Foundry column name would not be a valid database column name, for example due to special characters (<code>1_column</code>, <code>my column</code>, <code>my-column</code>) or reserved words (<code>level</code>, <code>values</code>).</p>
+<p>You may wish to turn this to <code>false</code> if you are exporting to Oracle DB or IBM DB2, since in these databases you will always need to quote the columns whenever you reference them.</p>
+<h3>Incremental exports</h3>
+<p>Incremental exports allow you to export only the data that has changed since the last export. When <code>incrementalType</code> is set to <code>incremental</code>, the first export behaves like a snapshot, exporting all data and remembering the last exported transaction. Subsequent exports only include new transactions if the previous transaction is still present in the dataset; otherwise, it falls back to a full snapshot.</p>
+<p>For JDBC exports, this option is specified per dataset rather than globally.</p>
+<p>The recommended approach uses a staging table pattern: incremental data is written to a temporary table, then merged into the final destination using <code>preSql</code> and <code>afterSql</code> statements. Set <code>writeDirectly: true</code> to avoid creating additional temporary tables, and use <code>writeMode: AppendIfPossible</code> to overwrite on the first run and append on subsequent runs.</p>
+<pre><code class="language-yaml">type: export-jdbc-task
+preSql:
+  - TRUNCATE TABLE mytable_incremental
+datasets:
+  - inputAlias: myInput
+    table:
+      schema: public
+      table: mytable_incremental
+    writeDirectly: true
+    writeMode: AppendIfPossible
+    incrementalType: incremental
+afterSql:
+  - INSERT INTO mytable SELECT * FROM mytable_incremental
+</code></pre>
+<h3>Database-specific considerations</h3>
+<h4>Teradata</h4>
+<p>The export will create a MULTISET table with the first column in your dataset treated as the partition key. Please re-arrange your columns so the first column has many values so that rows do not get indexed under one partition.</p>
+<p>Teradata does not support multiple Data Definition Language statements in one transaction. After each of DROP, CREATE, RENAME the exporter will make a commit.</p>
+<p>By default, Foundry String columns are exported as LONG VARCHAR. To override the default and use VARCHAR(N) type instead, you can specify varchar size per column using the dbOptions config as shown below:</p>
+<pre><code class="language-yaml">datasets:
+  - table:
+      table: mytable
+    dbOptions:
+      type: 'teradata'
+      columnVarcharSize:
+        someColumnName: 1000
+</code></pre>
+<h4>Snowflake</h4>
+<p>It is recommended to increase <code>batchSize</code> to ~50,000 when exporting to Snowflake. Keep in mind this will consume more heap memory on the agent.</p>
+<h4>Oracle</h4>
+<p>When exporting to an Oracle database, you can adapt
+the maximum column size (default 255 bytes) using <code>columnVarcharSize</code>:</p>
+<pre><code class="language-yaml">datasets:
+  - table:
+      table: mytable
+    dbOptions:
+      type: 'oracle'
+      columnVarcharSize:
+        someColumnName: 1000
+</code></pre>
+<h3>Performance optimization</h3>
+<p>When exporting large amounts of data, you may wish to use the following options:</p>
+<ul>
+<li>
+<p>Set <code>parallelize: true</code> to perform the export of each input dataset in parallel, and define the number of threads with <code>datasets.[].exporterThreads</code>. The export of each file in this dataset will be performed in parallel, with the number of specified threads. A good starting value would be the number of available cores on agent.</p>
+</li>
+<li>
+<p>Adjust <code>batchSize</code> based on database and memory constraints</p>
+</li>
+</ul>
+<h3>Troubleshooting</h3>
+<p>If you encounter batch insert errors (such as <code>PreparedStatement batch request</code> failures), consider these solutions:</p>
+<p><strong>Column ordering:</strong> Place high-cardinality columns first in your dataset. Databases like Teradata use the first column as a partition key, and low-cardinality first columns can cause all rows to be indexed under a single partition, leading to failures.</p>
+<p><strong>String encoding:</strong> Ensure your string data uses compatible character encoding for your target database. Teradata requires ASCII or Latin-1 encoding, not UTF-8. You may need to clean or transform your data before export.</p>
+<p><strong>Debugging with batch size:</strong> Reduce <code>batchSize</code> to 1 to isolate problematic rows. This slows the export but helps identify exactly which row is causing failures due to data quality issues or constraint violations.</p>
+</body>
+</html>

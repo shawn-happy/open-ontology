@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Model deprecation</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Model deprecation</h1>
+<p>Model providers often deprecate models, which affects workflows that rely on these models and requires users to transition to recommended substitutes. Palantir will notify affected users when providers announce model deprecations, and identify resources that rely on affected models through <a href="https://www.palantir.com/docs/foundry/upgrade-assistant/overview/">Upgrade Assistant</a>.</p>
+<p>Once notified, we encourage users to plan ahead by migrating any existing workflows that use soon-to-be deprecated models onto the recommended substitutes. Users will be notified of migration due dates, after which a series of brownout access restrictions to the model will be implemented to facilitate the migration process for any remaining workflows.</p>
+<p>If no action is taken by the brownout due date, workflows using deprecated models will fail and output the following error message during brownouts:</p>
+<pre><code class="language-json">{
+    &quot;errorCode&quot;: &quot;NOT_FOUND&quot;,
+    &quot;errorName&quot;: &quot;LanguageModelService:LanguageModelNotAvailable&quot;,
+    &quot;errorInstanceId&quot;: &quot;&lt;error instance id&gt;&quot;,
+    &quot;parameters&quot;: {
+        &quot;safeParams&quot;: &quot;{languageModelRid=&lt;language model rid&gt;, deprecationDate=&lt;deprecation date&gt;, brownoutStart=&lt;brown-out start&gt;, brownoutEnd=&lt;brown-out end&gt;}&quot;,
+        &quot;unsafeParams&quot;: &quot;{}&quot;,
+        &quot;message&quot;: &quot;Unable to use model: language model is in planned deprecation and is currently under a brown-out&quot;
+    }
+}
+</code></pre>
+<p>Likewise, if no action is taken by the providerâs model deprecation date, workflows that use deprecated models will fail and output the error message below until the workflow is migrated to an alternate model:</p>
+<pre><code class="language-json">{
+    &quot;errorCode&quot;: &quot;NOT_FOUND&quot;,
+    &quot;errorName&quot;: &quot;LanguageModelService:LanguageModelNotAvailable&quot;,
+    &quot;errorInstanceId&quot;: &quot;&lt;error instance id&gt;&quot;,
+    &quot;parameters&quot;: {
+        &quot;safeParams&quot;: &quot;{languageModelRid=&lt;language model rid&gt;, deprecationDate=&lt;deprecation date&gt;}&quot;,
+        &quot;unsafeParams&quot;: &quot;{}&quot;,
+        &quot;message&quot;: &quot;Unable to use model: language model is deprecated&quot;
+    }
+}
+</code></pre>
+<h2>Brownout access restrictions</h2>
+<p>Model brownouts serve as a strategy to guide users away from models that are being deprecated. Brownouts introduce deliberate, temporary instability to signal impending changes and avoid abruptly discontinuing service for users that did not action the affected resources listed in Upgrade Assistant.</p>
+<p>Each model follows a specific brownout schedule. To view the brownout schedule for a model undergoing deprecation, including the number of stages, start dates, and duration, refer to the deprecated modelâs Upgrade Assistant description page.</p>
+<h2>Migrate models</h2>
+<p>To successfully migrate away from deprecated models and avoid disruption of critical workflows, proceed with the following steps:</p>
+<ol>
+<li><a href="#identify-resources-that-require-migration">Identify resources that require migration.</a></li>
+<li><a href="#navigate-to-the-affected-resources">Navigate to the affected resources.</a></li>
+<li><a href="#replace-deprecated-models">Replace deprecated models.</a></li>
+</ol>
+<h3>Identify resources that require migration</h3>
+<p>Navigate to Upgrade Assistant and open the relevant model deprecation page in the <strong>Active upgrades</strong> section. On the deprecated model's description page, scroll down to the <strong>Resources</strong> section to see a list of resources affected by this model deprecation.</p>
+<p><img alt="The model deprecation affected resources list view." src="../../_resources/foundry/model-catalog/model-deprecation-list-view.png" /></p>
+<h4>Resource identification criteria</h4>
+<p>Resources are marked for migration based on the following criteria:</p>
+<ul>
+<li>If a resource makes a call to a deprecated model, this resource will be marked as <code>PENDING</code>. This indicates that the model used in this resource still needs to be migrated.</li>
+<li>If a resource that previously called a deprecated model makes calls to a different model, <em>and</em> the last call to the deprecated model was more than 24 hours ago, this resource will be marked as <code>COMPLETED</code>, since usage of a different model indicates that this resource was migrated.</li>
+</ul>
+<p>In rare cases, resources may be marked as <code>COMPLETED</code>, and then revert back to <code>PENDING</code>. This can occur if a resource makes a new call to a deprecated model. To prevent this, ensure that resources such as Workshop modules update to the latest version of affected functions after the function has been saved and published.</p>
+<p>Resources that are configured to use a deprecated model, but have not been actively used during the course of the migration period will <strong>not</strong> appear in the Upgrade Assistant resource list. For example, if a pipeline is configured to use a deprecated model, but has not been built during the migration period, it will not appear in the Upgrade Assistant resource list, as it is not actively calling a deprecated model. In such cases, we advise taking inventory of your production workflows and using the tools in the <a href="#additional-tools">section below</a> to understand resource usage and assess whether migration is necessary.</p>
+<h3>Navigate to the affected resources</h3>
+<p>In the Upgrade Assistant description page, select a resource to navigate to the resource application. Depending on the resource type, the process to migrate to a new model may vary. For each affected resource, you must identify how the deprecated model is used, such as in <code>Use LLM</code> nodes in Pipeline Builder and AIP Logic, or code references in transforms. You may need to navigate to additional upstream resources to select a new model for your workflow.</p>
+<h3>Replace deprecated models</h3>
+<p>To prevent disruptions in your workflows from deprecated models, a new model needs to be selected. Each deprecated model description page in Upgrade Assistant will include potential substitutes, but we highly encourage setting up evaluation suites in <a href="https://www.palantir.com/docs/foundry/aip-evals/overview/">AIP Evals</a> to ensure that you are using the best model for your use case.</p>
+<p>Upgrade Assistant identifies resources that use soon-to-be deprecated models, and each resource type needs to be resolved differently. Some resources can be configured directly, and the model selector can be used to choose a new model. In other resource types, such as Workshop modules or pipelines, models may be called from upstream resources, such as <a href="https://www.palantir.com/docs/foundry/logic/core-concepts/#logic-function">AIP Logic functions</a> or <a href="https://www.palantir.com/docs/foundry/code-repositories/create-transforms/">Code Repositories transforms</a>. In these cases, model selection needs to occur in the upstream resource that contains the model configuration options. See the sections below for more details on resource types.</p>
+<p>:::callout{theme="warning"}
+Users must have view and edit permissions on the affected resources. Otherwise, it will not be possible to properly examine resources such as pipelines and Workshop modules to find the root upstream resource for model configuration.
+:::</p>
+<h3>Model selector supported applications</h3>
+<p>If the deprecated model was chosen with the model selector, a new model can be chosen in the same way. When navigating to resources such as Logic functions and AIP Chatbots (formerly known as AIP Agents), open the resource configuration settings and use the model selector to choose a new model.</p>
+<p>Applications that support model selector include:</p>
+<ul>
+<li>Pipeline Builder</li>
+<li>AIP Chatbot Studio</li>
+<li>AIP Evals</li>
+<li>AIP Logic</li>
+<li>Workshop</li>
+<li>Quiver</li>
+<li>Marketplace</li>
+<li>Code Workspaces</li>
+</ul>
+<p>Resource configuration settings will display an alert next to the affected model, and it will be labeled as <strong>Sunset</strong>.</p>
+<p><img src="../../_resources/external-8a5e4183e41b.png" alt="A deprecated model displaying an alert and recommended substitute models." width="700"></p>
+<p>To choose a substitute model, open model selector and choose a new model.</p>
+<p><img src="../../_resources/external-bb8a12f9ee0a.png" alt="The model selector displaying available models and model description." width="700"></p>
+<h3>Model usage in Pipeline Builder</h3>
+<p>For Pipeline Builder resources, Upgrade Assistant will link to the entire pipeline, rather than the specific affected node. In order to efficiently find relevant nodes in large pipelines, use the Pipeline Builder search functionality.</p>
+<ol>
+<li>
+<p>Navigate to the affected pipeline by selecting it from the list of resources in the Upgrade Assistant model deprecation page.</p>
+</li>
+<li>
+<p>Select the search icon in the upper-right corner of the pipeline graph. <br><br> <img src="../../_resources/external-4ad16d7acc9b.png" alt="The Pipeline Builder search icon." width="500"> <br><br></p>
+</li>
+<li>
+<p>Enter âuse LLMâ as a search term to view a list of all <code>Use LLM</code> nodes in the pipeline. All search results will also be highlighted with the color shown in the pipeline graph legend. <br><br>
+   <img alt="Search results in Pipeline Builder." src="../../_resources/foundry/model-catalog/model-deprecation-pipeline-use-LLM.png" /> <br><br></p>
+</li>
+<li>
+<p>From the listed results, select each node to highlight it in the pipeline graph. Right click the selected node and select <strong>Edit</strong> from the context menu. This will open the node configuration page.</p>
+</li>
+<li>
+<p>Navigate to the <strong>Model</strong> section, which will indicate an alert icon next to the model name if the model is being deprecated. If this alert is present, select <strong>Show configurations</strong> and select a new model from the <strong>Model type</strong> dropdown.</p>
+</li>
+<li>
+<p>Repeat this process for all <code>Use LLM</code> nodes in the pipeline.</p>
+</li>
+<li>
+<p>Save, deploy, and rebuild your pipeline.</p>
+</li>
+</ol>
+<h3>Model usage in Workshop</h3>
+<p>Model usage in Workshop can originate from AIP widgets or referenced functions, such as AIP Logic functions. Depending on the source, the model can be changed from widget configuration settings or from the configuration settings of upstream resources, such as an AIP Logic function or an AIP Chatbot. You can navigate to affected Workshop modules by selecting them from the list of resources in the Upgrade Assistant model deprecation page. Enter edit mode to view module configuration settings.</p>
+<p>Note that users need to have edit permissions on affected Workshop modules. Follow the instructions below to address function-based and widget-based model usage.</p>
+<h4>Function-based model usage</h4>
+<ol>
+<li>
+<p>To identify the functions used in a Workshop module, open the <strong>Overview</strong> panel in the upper-left corner of your workspace. Under the <strong>Capabilities</strong> section, select <strong>Functions</strong>. <br><br>
+   <img alt="The &quot;Capabilities&quot; section in the &quot;Overview&quot; panel." src="../../_resources/foundry/model-catalog/model-deprecation-function-capabilities.png" /> <br><br></p>
+</li>
+<li>
+<p>In the <strong>Functions</strong> panel, select each function to view the function source. <br><br>
+   <img alt="A sample function and its source." src="../../_resources/foundry/model-catalog/model-deprecation-functions-source.png" /> <br><br></p>
+</li>
+<li>
+<p>Select the function source to navigate to the source application, in this case AIP Logic. From this source, you can configure model settings and select a new model if the function uses a deprecated model.</p>
+</li>
+<li>
+<p>Save and publish a new version of the function.</p>
+</li>
+<li>
+<p>Back in Workshop, navigate to the <strong>Functions</strong> section in the <strong>Overview</strong> panel as specified in step 1. Select the updated function, and use the function version dropdown under the <strong>Bulk update version</strong> section to select the latest version of the function for all variables or widgets. <br><br>
+   <img alt="The &quot;Bulk update version&quot; dropdown in the &quot;Functions&quot; section." src="../../_resources/foundry/model-catalog/model-deprecation-workshop-function-version.png" /> <br><br></p>
+</li>
+<li>
+<p>Repeat this process for all listed functions.</p>
+</li>
+</ol>
+<h4>Widget-based model usage</h4>
+<p>Widget-based model configuration depends on the type of widget used. Review the following options and follow the instructions for the widgets used in your Workshop module:</p>
+<ul>
+<li>
+<p><strong>AIP chatbot:</strong> The AIP Chatbot widget uses chatbots, so model configuration must take place in the chatbot configuration settings in AIP Chatbot Studio.
+  1. In the widget configuration panel, select the chatbot in use to open it in Chatbot Studio.
+  2. Edit the chatbot by selecting Edit in the upper-right corner of the chatbot interface.
+  3. Open the chatbot configuration panel and select a new model from the model selector.
+  4. Save and publish your chatbot.</p>
+</li>
+<li>
+<p><strong>AIP generated content:</strong> For the AIP generated content widget, model usage can only be configured in Workshop if the widget uses the <strong>Direct to LLM</strong> or <strong>LLM via prompt function</strong> options. Otherwise, it can be configured in the referenced Logic function. <br><br>
+  <img alt="The AIP generated content widget configuration options." src="../../_resources/foundry/model-catalog/model-deprecation-widget-content.png" /> <br><br></p>
+</li>
+<li>
+<p><strong>Direct to LLM/LLM via prompt function:</strong> A new model can be selected using the model selector in the widget configuration settings.</p>
+</li>
+<li>
+<p><strong>Logic:</strong> If the widget uses the Logic option, the Logic function will be listed under the moduleâs functions in the <strong>Overview</strong> panel. Refer to the <a href="#function-based-model-usage">function-based model usage</a> section for more details.</p>
+</li>
+<li>
+<p><strong>Free-form analysis:</strong> Model usage for the free-form analysis widget can be configured directly in Workshop. In the widget configuration settings, toggle on <strong>AIP options</strong> and select <strong>Enabled</strong> to configure model settings. Then, select a new model from the model selector. <br><br>
+  <img alt="&quot;AIP options&quot; in the free-form analysis widget configuration panel." src="../../_resources/foundry/model-catalog/model-deprecation-free-form.png" /> <br><br></p>
+</li>
+<li>
+<p><strong>Logic - Chain of thought:</strong> This widget uses Logic functions, which are listed in the <strong>Overview</strong> panel. Refer to the <a href="#function-based-model-usage">function-based model usage</a> section for more details.</p>
+</li>
+</ul>
+<p>Ensure that you save and publish your Workshop module after any changes.</p>
+<h3>Code-based model usage</h3>
+<p>For code-based model usage, Upgrade Assistant will list the containing <a href="https://www.palantir.com/docs/foundry/code-repositories/overview/">code repository</a>, <a href="https://www.palantir.com/docs/foundry/code-workspaces/overview/">code workspace</a>, or downstream resource, rather than the exact code file or function that contains references to the deprecated model. For cases where the downstream resource is flagged, review the <a href="#model-usage-in-workshop">Workshop model usage</a> and <a href="#additional-tools">additional tools</a> sections. In cases where the code repository or workspace is flagged, open the repository or workspace listed in the Upgrade Assistant resource list. In the repository or workspace, you can replace instances of deprecated model usage with a new model.</p>
+<p>TypeScript v1 and TypeScript v2 select the model differently, which changes what a migration requires:</p>
+<ul>
+<li><strong>TypeScript v1</strong> names the model in the import statement, so a deprecated model must be replaced in the import and at every call site that uses it. Review the <a href="https://www.palantir.com/docs/foundry/functions/language-models/">TypeScript v1 language model documentation</a> for more details; the examples below use the <a href="https://www.palantir.com/docs/foundry/functions/language-models-legacy/">legacy language model imports</a>.</li>
+<li><strong>TypeScript v2</strong> calls the model through a <a href="https://www.palantir.com/docs/foundry/functions/language-models-python-tsv2/#write-a-function-that-uses-a-language-model">proxy endpoint</a> and selects it with a <a href="https://www.palantir.com/docs/foundry/functions/model-aliases/">model alias</a>. The alias resolves to a model RID configured in the <strong>Platform SDK</strong> tab of the <strong>Resource imports</strong> panel, so the model name does not appear in the function body. Replacing a deprecated model changes a single alias reference rather than every call site. Request parameters, such as the temperature and token limit, follow the format of the proxy endpoint rather than the TypeScript v1 <code>params</code> object.</li>
+</ul>
+<p>The <code>openai</code> library used in the TypeScript v2 example is not pre-installed. Install it from the <strong>Libraries</strong> section of the left side panel.</p>
+<p>Models are selected and used as shown in the TypeScript v1, TypeScript v2, and Python examples below:</p>
+<p>```typescript tab="TypeScript v1"
+import { Function } from "@foundry/functions-api"
+// A deprecated model is imported
+import { GPT_4_5 } from "@foundry/models-api/language-models"</p>
+<p>/*<em>
+ * Used to send a text completion request to the model based on user input
+ * @param {string} userInput - Text input to send to model
+ </em>/
+export class MyFunctions {
+    @Function()
+    public async createChatCompletion(userInput: string): Promise<string | undefined> {
+        // Deprecated model usage
+        const response = await GPT_4_5.createChatCompletion({
+            params: {
+                "temperature": 0,
+                "maxTokens": 1000,
+            },
+            messages: [{ role: "USER", contents: [{ text: userInput }],  }],
+        });
+        return response.choices[0].message.content;
+    }
+}</p>
+<pre><code>
+```typescript tab=&quot;TypeScript v2&quot;
+import { PlatformClient } from &quot;@osdk/client&quot;;
+import OpenAI from &quot;openai&quot;;
+import { Aliases } from &quot;@osdk/functions&quot;;
+import { getFoundryToken, getOpenAiBaseUrl, createFetch } from &quot;@osdk/language-models&quot;;
+
+export default async function createChatCompletion(client: PlatformClient, userInput: string): Promise&lt;string&gt; {
+    const oaiClient = new OpenAI({
+        apiKey: await getFoundryToken(client),
+        baseURL: getOpenAiBaseUrl(client),
+        fetch: createFetch(client),
+    });
+
+    const completion = await oaiClient.chat.completions.create({
+        // Deprecated model usage through its alias
+        model: Aliases.model(&quot;gpt45&quot;).rid,
+        messages: [
+            { role: &quot;user&quot;, content: userInput },
+        ],
+        max_completion_tokens: 1000,
+    });
+
+    return completion.choices[0]?.message.content ?? &quot;&quot;;
+}
+</code></pre>
+<p>```python tab="Python"
+from transforms.api import transform, Input, Output
+from palantir_models.transforms import OpenAiGptChatLanguageModelInput
+from palantir_models.models import OpenAiGptChatLanguageModel
+from language_model_service_api.languagemodelservice_api_completion_v3 import GptChatCompletionRequest
+from language_model_service_api.languagemodelservice_api import ChatMessage, ChatMessageRole</p>
+<p>@transform(
+    reviews=Input("Input Dataset Rid"),
+    # Deprecated model usage
+    model=OpenAiGptChatLanguageModelInput("ri.language-model-service..language-model.gpt-4-5"),
+    output=Output("Output dataset rid or path"),
+)
+def compute_sentiment(ctx, reviews, model: OpenAiGptChatLanguageModel, output):
+    def get_completions(review_content: str) -&gt; str:
+        system_prompt = "Take the following review determine the sentiment of the review"
+        request = GptChatCompletionRequest(
+            [ChatMessage(ChatMessageRole.SYSTEM, system_prompt), ChatMessage(ChatMessageRole.USER, review_content)]
+        )
+        resp = model.create_chat_completion(request)
+        return resp.choices[0].message.content</p>
+<pre><code>reviews_df = reviews.pandas()
+reviews_df['sentiment'] = reviews_df['review_content'].apply(get_completions)
+out_df = ctx.spark_session.createDataFrame(reviews_df)
+return output.write_dataframe(out_df)
+</code></pre>
+<pre><code>
+If you are not sure how to import and use a new model, navigate to the [Model Catalog](https://www.palantir.com/docs/foundry/model-catalog/overview/) application for examples of Palantir-provided model usage. Search your code repository or workspace for deprecated model usage, and replace all instances with the recommended model, or a model of your choice. Depending on your workflow, this process may involve creating and merging a new branch to your repository or workspace for upstream function or transform usage to reflect these changes.
+
+In the example above, the deprecated model GPT-4.5 is used. Updating to GPT-4.1 requires a different change in each language.
+
+In TypeScript v2, [import GPT-4.1 into the repository](https://www.palantir.com/docs/foundry/functions/language-models-python-tsv2/#import-a-language-model). The import dialog creates an alias for the new model. Update the alias name passed to `Aliases.model()` to the new alias. The function body names the alias rather than the model. As a result, this update requires a single-line change rather than changes to the import statement and every TypeScript v1 call site.
+
+The updated examples are shown below:
+
+```typescript tab=&quot;TypeScript v1&quot;
+import { Function } from &quot;@foundry/functions-api&quot;
+// Import a new model
+import { GPT_4_1 } from &quot;@foundry/models-api/language-models&quot;
+
+/**
+ * Used to send a text completion request to the model based on user input
+ * @param {string} userInput - Text input to send to model
+ */
+export class MyFunctions {
+    @Function()
+    public async createChatCompletion(userInput: string): Promise&lt;string | undefined&gt; {
+        // Replace usage of the deprecated model with the new model.
+        const response = await GPT_4_1.createChatCompletion({
+            params: {
+                &quot;temperature&quot;: 0,
+                &quot;maxTokens&quot;: 1000,
+            },
+            messages: [{ role: &quot;USER&quot;, contents: [{ text: userInput }],  }],
+        });
+        return response.choices[0].message.content;
+    }
+}
+</code></pre>
+<p>```typescript tab="TypeScript v2"
+import { PlatformClient } from "@osdk/client";
+import OpenAI from "openai";
+import { Aliases } from "@osdk/functions";
+import { getFoundryToken, getOpenAiBaseUrl, createFetch } from "@osdk/language-models";</p>
+<p>export default async function createChatCompletion(client: PlatformClient, userInput: string): Promise<string> {
+    const oaiClient = new OpenAI({
+        apiKey: await getFoundryToken(client),
+        baseURL: getOpenAiBaseUrl(client),
+        fetch: createFetch(client),
+    });</p>
+<pre><code>const completion = await oaiClient.chat.completions.create({
+    // Reference the alias for the substitute model.
+    model: Aliases.model("gpt41").rid,
+    messages: [
+        { role: "user", content: userInput },
+    ],
+    max_completion_tokens: 1000,
+});
+
+return completion.choices[0]?.message.content ?? "";
+</code></pre>
+<p>}</p>
+<pre><code>
+```python tab=&quot;Python&quot;
+from transforms.api import transform, Input, Output
+from palantir_models.transforms import OpenAiGptChatLanguageModelInput
+from palantir_models.models import OpenAiGptChatLanguageModel
+from language_model_service_api.languagemodelservice_api_completion_v3 import GptChatCompletionRequest
+from language_model_service_api.languagemodelservice_api import ChatMessage, ChatMessageRole
+
+@transform(
+    reviews=Input(&quot;Input Dataset Rid&quot;),
+    # Replace usage of the deprecated model with the new model.
+    model=OpenAiGptChatLanguageModelInput(&quot;ri.language-model-service..language-model.gpt-4-1&quot;),
+    output=Output(&quot;Output dataset rid or path&quot;),
+)
+def compute_sentiment(ctx, reviews, model: OpenAiGptChatLanguageModel, output):
+    def get_completions(review_content: str) -&gt; str:
+        system_prompt = &quot;Take the following review determine the sentiment of the review&quot;
+        request = GptChatCompletionRequest(
+            [ChatMessage(ChatMessageRole.SYSTEM, system_prompt), ChatMessage(ChatMessageRole.USER, review_content)]
+        )
+        resp = model.create_chat_completion(request)
+        return resp.choices[0].message.content
+
+    reviews_df = reviews.pandas()
+    reviews_df['sentiment'] = reviews_df['review_content'].apply(get_completions)
+    out_df = ctx.spark_session.createDataFrame(reviews_df)
+    return output.write_dataframe(out_df)
+</code></pre>
+<h3>Model usage in Quiver</h3>
+<p>LLM usage in Quiver can be configured in the analysis settings. Navigate to the settings tab in the sidebar of the affected analysis, and access the model selector under the <strong>AIP Settings</strong> section.</p>
+<p><img src="../../_resources/external-2c6a6ad26a50.png" alt="The model selector in the Quiver analysis settings." width="500"></p>
+<h3>Additional tools</h3>
+<p>Workflows can grow to be complex and unwieldy, making it hard to intuitively find all instances of affected resource usage. Review the sections below to learn more about the tools available to help identify LLM usage in your workflows.</p>
+<h4>Workflow Lineage</h4>
+<p>For a better understanding of model usage across resources, you can use <a href="https://www.palantir.com/docs/foundry/workflow-lineage/overview/">Workflow Lineage</a>. Open a Workshop application or function repository in Workflow Lineage by using the keyboard shortcut <code>Cmd + I</code> (macOS) or <code>Ctrl + I</code> (Windows). In the Workflow Lineage graph, you will be able to view the objects, actions, and functions that back an application.</p>
+<ul>
+<li><strong>Workshop applications:</strong> For Workshop applications, Workflow Lineage will display upstream resources like Logic functions, and the models they are configured to use. Workflow Lineage also allows users to see other Workshop or OSDK applications that consume a given function, making it easier to understand the complete scope of affected resources. If a resource uses a deprecated model, Workflow Lineage will display an alert icon and a message alerting the user of the model's deprecated status. <br><br>
+  <img alt="A deprecated model used by a Logic function in a Workshop application." src="../../_resources/foundry/model-catalog/model-deprecation-workflow-lineage-alert-message.png" /> <br><br></li>
+</ul>
+<p>Workflow Lineage can help action model migrations for Workshop with its <a href="https://www.palantir.com/docs/foundry/workflow-lineage/refactor-and-understand-workflows/#function-backed-workshop-application-upgrades">bulk update features</a>. After updating a function as shown in the <a href="#function-based-model-usage">function-based model usage</a> section, you can open the Workshop application in Workflow Lineage to bulk update the function version used across one or all dependent Workshop applications. Additionally, Workflow Lineage enables you to <a href="https://www.palantir.com/docs/foundry/workflow-lineage/refactor-and-understand-workflows/#bulk-replace-models">replace language models in bulk</a> across multiple AIP Logic functions from the lineage graph with a single action.</p>
+<ul>
+<li><strong>Function repositories:</strong> Workflow Lineage can provide a visual representation to help users understand model usage in function repositories. Functions that make calls to models will have a connected model node, allowing users to identify whether functions are making calls to deprecated models at a glance. <br><br>
+  <img alt="A function in Workflow Lineage and its associated model." src="../../_resources/foundry/model-catalog/model-deprecation-workflow-lineage-function-repo.png" /> <br><br></li>
+</ul>
+<p>For more information on Workflow Lineage's complete set of features, refer to the Workflow Lineage <a href="https://www.palantir.com/docs/foundry/workflow-lineage/overview/">usage documentation</a>.</p>
+<h4>Ontology Manager</h4>
+<p>Once you have identified a function that contains a deprecated model, you can open it in <a href="https://www.palantir.com/docs/foundry/ontology-manager/overview/">Ontology Manager</a> to track the resources that use this function. You can then navigate to those resources and update the function version to ensure uninterrupted service. In the case of Workshop applications, you can use Workflow Lineage as described in the section above to update function versions in bulk.</p>
+<p>To view function usage, navigate to Ontology Manager and select <strong>Functions</strong> in the sidebar. On the functions page, you can search for the function name and select it from the <strong>Functions</strong> table to open its overview page.</p>
+<p>In the function overview page, scroll down to the <strong>Usage history</strong> section to see the list of resources that use this function. You can filter by version to find resources that may be using outdated versions of the function.</p>
+<p><img alt="The &quot;Usage history&quot; section in a function overview page." src="../../_resources/foundry/model-catalog/model-deprecation-ontology-manager.png" /></p>
+<p>You can then navigate to the resources that use this function to update it to the latest version. For more information, refer to the Ontology Manager <a href="https://www.palantir.com/docs/foundry/ontology-manager/overview/#function-type-view">function type view</a> documentation.</p>
+</body>
+</html>

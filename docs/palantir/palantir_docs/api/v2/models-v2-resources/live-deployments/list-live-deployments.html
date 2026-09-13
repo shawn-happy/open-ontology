@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>List Live Deployments</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../../../index.html">返回目录</a></div>
+<p><code>GET /api/v2/models/liveDeployments</code></p>
+<p>:::callout{theme=warning title=Warning}
+  This endpoint is in preview and may be modified or removed at any time.
+  To use this endpoint, add <code>preview=true</code> to the request query parameters.
+:::</p>
+<p>Lists direct live deployments for the specified Model, optionally filtered by branch. Only direct deployments (those tracking the latest model version on a branch) are returned.</p>
+<p>Third-party applications using this endpoint via OAuth2 must request the following operation scope: <code>api:models-read</code>.</p>
+<p><strong>OAuth2 scopes</strong>: <code>api:models-read</code></p>
+<h2>Query parameters</h2>
+<table>
+<thead>
+<tr>
+<th>参数</th>
+<th>类型</th>
+<th>必填</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>modelRid</code></td>
+<td>string</td>
+<td>是</td>
+<td>The Resource Identifier (RID) of the Model to list live deployments for.<br>示例: <code>ri.models.main.model.f351c142-0e4c-4b12-adc2-6e1539737ae9</code></td>
+</tr>
+<tr>
+<td><code>branch</code></td>
+<td>string</td>
+<td>否</td>
+<td>If provided, only return the live deployment associated with this branch.<br>示例: <code>master</code></td>
+</tr>
+<tr>
+<td><code>preview</code></td>
+<td>boolean</td>
+<td>否</td>
+<td>Enables the use of preview functionality.<br>示例: <code>true</code></td>
+</tr>
+</tbody>
+</table>
+<h2>Response</h2>
+<p><strong>ListLiveDeploymentsResponse</strong></p>
+<table>
+<thead>
+<tr>
+<th>参数</th>
+<th>类型</th>
+<th>必填</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ListLiveDeploymentsResponse</code></td>
+<td>object</td>
+<td>是</td>
+<td>示例: <code>{"data":[{"runtimeConfiguration":{"minReplicas":1,"maxReplicas":3,"cpu":1.0,"memory":"256MiB","threadCount":32,"environmentVariables":{"LOG_LEVEL":"INFO"}},"modelVersion":{"modelRid":"ri.models.main.model.f351c142-0e4c-4b12-adc2-6e1539737ae9","modelVersionRid":"ri.models.main.model-version.adf94926-c3ac-41ea-beb2-4946699d08ee"},"rid":"ri.foundry-ml-live.main.live-deployment.f351c142-0e4c-4b12-adc2-6e1539737ae9","branch":"master","status":{"state":"ACTIVE","isReady":true}}]}</code></td>
+</tr>
+<tr>
+<td><code>ListLiveDeploymentsResponse.data</code></td>
+<td>list<LiveDeployment></td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListLiveDeploymentsResponse.data.LiveDeployment</code></td>
+<td>object</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ListLiveDeploymentsResponse.data.LiveDeployment.rid</code></td>
+<td>string</td>
+<td>是</td>
+<td>The Resource Identifier (RID) of a Live Deployment.<br>示例: <code>ri.foundry-ml-live.main.live-deployment.f351c142-0e4c-4b12-adc2-6e1539737ae9</code></td>
+</tr>
+<tr>
+<td><code>ListLiveDeploymentsResponse.data.LiveDeployment.modelVersion</code></td>
+<td>object</td>
+<td>是</td>
+<td>The currently deployed model version.<br>示例: <code>{"modelRid":"ri.models.main.model.f351c142-0e4c-4b12-adc2-6e1539737ae9","modelVersionRid":"ri.models.main.model-version.adf94926-c3ac-41ea-beb2-4946699d08ee"}</code></td>
+</tr>
+<tr>
+<td><code>ListLiveDeploymentsResponse.data.LiveDeployment.modelVersion.modelRid</code></td>
+<td>string</td>
+<td>是</td>
+<td>The Resource Identifier (RID) of a Model.<br>示例: <code>ri.models.main.model.f351c142-0e4c-4b12-adc2-6e1539737ae9</code></td>
+</tr>
+<tr>
+<td><code>ListLiveDeploymentsResponse.data.LiveDeployment.modelVersion.modelVersionRid</code></td>
+<td>string</td>
+<td>是</td>
+<td>The Resource Identifier (RID) of a Model Version.<br>示例: <code>ri.models.main.model-version.adf94926-c3ac-41ea-beb2-4946699d08ee</code></td>
+</tr>
+<tr>
+<td><code>ListLiveDeploymentsResponse.data.LiveDeployment.branch</code></td>
+<td>string</td>
+<td>否</td>
+<td>The model branch this deployment tracks. Present for direct deployments that follow the latest model version on a branch; absent for deployment types that are not branch-scoped.<br>示例: <code>master</code></td>
+</tr>
+<tr>
+<td><code>ListLiveDeploymentsResponse.data.LiveDeployment.runtimeConfiguration</code></td>
+<td>object</td>
+<td>是</td>
+<td>The compute resource configuration for the deployment.<br>示例: <code>{"minReplicas":1,"maxReplicas":3,"cpu":1.0,"memory":"256MiB","threadCount":32,"environmentVariables":{"LOG_LEVEL":"INFO"}}</code></td>
+</tr>
+<tr>
+<td><code>ListLiveDeploymentsResponse.data.LiveDeployment.runtimeConfiguration.minReplicas</code></td>
+<td>integer</td>
+<td>是</td>
+<td>The minimum number of replicas to keep running.</td>
+</tr>
+<tr>
+<td><code>ListLiveDeploymentsResponse.data.LiveDeployment.runtimeConfiguration.maxReplicas</code></td>
+<td>integer</td>
+<td>是</td>
+<td>The maximum number of replicas to scale to under load.</td>
+</tr>
+<tr>
+<td><code>ListLiveDeploymentsResponse.data.LiveDeployment.runtimeConfiguration.cpu</code></td>
+<td>number</td>
+<td>否</td>
+<td>The number of CPU units requested. This is also set as the limit.</td>
+</tr>
+<tr>
+<td><code>ListLiveDeploymentsResponse.data.LiveDeployment.runtimeConfiguration.memory</code></td>
+<td>string</td>
+<td>否</td>
+<td>The amount of memory requested in human-readable format (e.g. "256MiB", "1GiB"). This is also set as the limit.</td>
+</tr>
+<tr>
+<td><code>ListLiveDeploymentsResponse.data.LiveDeployment.runtimeConfiguration.gpu</code></td>
+<td>object</td>
+<td>否</td>
+<td>Optional GPU resources for the deployment.<br>示例: <code>{"type":"A100"}</code></td>
+</tr>
+<tr>
+<td><code>ListLiveDeploymentsResponse.data.LiveDeployment.runtimeConfiguration.gpu.count</code></td>
+<td>integer</td>
+<td>是</td>
+<td>The number of GPU units requested (e.g. 1).</td>
+</tr>
+<tr>
+<td><code>ListLiveDeploymentsResponse.data.LiveDeployment.runtimeConfiguration.gpu.type</code></td>
+<td>enum</td>
+<td>否</td>
+<td>The specific type of GPU to use. Not setting a type means any type is acceptable.<br>示例: <code>A100</code></td>
+</tr>
+<tr>
+<td><code>ListLiveDeploymentsResponse.data.LiveDeployment.runtimeConfiguration.threadCount</code></td>
+<td>integer</td>
+<td>否</td>
+<td>The number of threads used for query handling. Defaults to 32 if not specified. Also affects how many concurrent requests will be sent to a single replica.</td>
+</tr>
+<tr>
+<td><code>ListLiveDeploymentsResponse.data.LiveDeployment.runtimeConfiguration.scalingConfiguration</code></td>
+<td>object</td>
+<td>否</td>
+<td>Autoscaling configuration for the deployment. Controls how the deployment scales replicas up and down based on load.<br>示例: <code>{"scaleUpDelay":{"unit":"SECONDS","value":30},"scaleDownDelay":{"unit":"SECONDS","value":30}}</code></td>
+</tr>
+<tr>
+<td><code>ListLiveDeploymentsResponse.data.LiveDeployment.runtimeConfiguration.scalingConfiguration.scaleUpLoadThreshold</code></td>
+<td>number</td>
+<td>是</td>
+<td>A threshold between 0.0 and 1.0. If the ratio of running jobs to job capacity exceeds this threshold for the duration of the scale-up delay, the deployment will scale up. Job capacity is the number of running replicas multiplied by the thread count (concurrency limit).</td>
+</tr>
+<tr>
+<td><code>ListLiveDeploymentsResponse.data.LiveDeployment.runtimeConfiguration.scalingConfiguration.scaleUpDelay</code></td>
+<td>object</td>
+<td>是</td>
+<td>The duration that load must exceed the scale-up threshold before scaling up.<br>示例: <code>{"unit":"SECONDS","value":30}</code></td>
+</tr>
+<tr>
+<td><code>ListLiveDeploymentsResponse.data.LiveDeployment.runtimeConfiguration.scalingConfiguration.scaleUpDelay.value</code></td>
+<td>integer</td>
+<td>是</td>
+<td>The duration value.<br>示例: <code>30</code></td>
+</tr>
+<tr>
+<td><code>ListLiveDeploymentsResponse.data.LiveDeployment.runtimeConfiguration.scalingConfiguration.scaleUpDelay.unit</code></td>
+<td>enum</td>
+<td>是</td>
+<td>The unit of duration.<br>示例: <code>SECONDS</code></td>
+</tr>
+<tr>
+<td><code>ListLiveDeploymentsResponse.data.LiveDeployment.runtimeConfiguration.scalingConfiguration.scaleDownDelay</code></td>
+<td>object</td>
+<td>是</td>
+<td>The duration that load must be below the scale-down threshold before scaling down.<br>示例: <code>{"unit":"SECONDS","value":30}</code></td>
+</tr>
+<tr>
+<td><code>ListLiveDeploymentsResponse.data.LiveDeployment.runtimeConfiguration.scalingConfiguration.scaleDownDelay.value</code></td>
+<td>integer</td>
+<td>是</td>
+<td>The duration value.<br>示例: <code>30</code></td>
+</tr>
+<tr>
+<td><code>ListLiveDeploymentsResponse.data.LiveDeployment.runtimeConfiguration.scalingConfiguration.scaleDownDelay.unit</code></td>
+<td>enum</td>
+<td>是</td>
+<td>The unit of duration.<br>示例: <code>SECONDS</code></td>
+</tr>
+<tr>
+<td><code>ListLiveDeploymentsResponse.data.LiveDeployment.runtimeConfiguration.sources</code></td>
+<td>list<ConnectionRid></td>
+<td>否</td>
+<td>The Connection (also known as source) RIDs attached to the deployment.</td>
+</tr>
+<tr>
+<td><code>ListLiveDeploymentsResponse.data.LiveDeployment.runtimeConfiguration.sources.ConnectionRid</code></td>
+<td>string</td>
+<td>是</td>
+<td>The Resource Identifier (RID) of a Connection (also known as a source).</td>
+</tr>
+<tr>
+<td><code>ListLiveDeploymentsResponse.data.LiveDeployment.runtimeConfiguration.environmentVariables</code></td>
+<td>map</td>
+<td>否</td>
+<td>User-supplied environment variables to set on the deployment container, keyed by variable name.</td>
+</tr>
+<tr>
+<td><code>ListLiveDeploymentsResponse.data.LiveDeployment.status</code></td>
+<td>object</td>
+<td>是</td>
+<td>The current operational status of the deployment.<br>示例: <code>{"state":"ACTIVE","isReady":true}</code></td>
+</tr>
+<tr>
+<td><code>ListLiveDeploymentsResponse.data.LiveDeployment.status.state</code></td>
+<td>enum</td>
+<td>是</td>
+<td>The current operational state of the deployment.<br>示例: <code>ACTIVE</code></td>
+</tr>
+<tr>
+<td><code>ListLiveDeploymentsResponse.data.LiveDeployment.status.isReady</code></td>
+<td>boolean</td>
+<td>是</td>
+<td>Whether the deployment is ready to serve inference requests. A deployment may be active but not ready if it has been autoscaled to zero replicas.</td>
+</tr>
+</tbody>
+</table>
+<pre><code class="language-json">{
+  &quot;data&quot;: [
+    {
+      &quot;runtimeConfiguration&quot;: {
+        &quot;minReplicas&quot;: 1,
+        &quot;maxReplicas&quot;: 3,
+        &quot;cpu&quot;: 1.0,
+        &quot;memory&quot;: &quot;256MiB&quot;,
+        &quot;threadCount&quot;: 32,
+        &quot;environmentVariables&quot;: {
+          &quot;LOG_LEVEL&quot;: &quot;INFO&quot;
+        }
+      },
+      &quot;modelVersion&quot;: {
+        &quot;modelRid&quot;: &quot;ri.models.main.model.f351c142-0e4c-4b12-adc2-6e1539737ae9&quot;,
+        &quot;modelVersionRid&quot;: &quot;ri.models.main.model-version.adf94926-c3ac-41ea-beb2-4946699d08ee&quot;
+      },
+      &quot;rid&quot;: &quot;ri.foundry-ml-live.main.live-deployment.f351c142-0e4c-4b12-adc2-6e1539737ae9&quot;,
+      &quot;branch&quot;: &quot;master&quot;,
+      &quot;status&quot;: {
+        &quot;state&quot;: &quot;ACTIVE&quot;,
+        &quot;isReady&quot;: true
+      }
+    }
+  ]
+}
+</code></pre>
+<h2>Error responses</h2>
+<table>
+<thead>
+<tr>
+<th>错误码</th>
+<th>错误名称</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>NOT_FOUND</td>
+<td><code>ModelNotFound</code></td>
+<td>The given Model could not be found.</td>
+</tr>
+</tbody>
+</table>
+</body>
+</html>

@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Data Connection FAQ</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Data Connection FAQ</h1>
+<p>The following are some frequently asked questions about Data Connection.</p>
+<p>For general information, view our <a href="https://www.palantir.com/docs/foundry/data-connection/overview/">Data Connection documentation</a>.</p>
+<ul>
+<li><a href="#scheduled-build-never-ran">Scheduled build never ran</a></li>
+<li><a href="#ingestion-led-to-duplicate-rows-in-a-dataset-when-running-a-snapshot-transaction">Ingestion led to duplicate rows in a dataset when running <code>SNAPSHOT</code> transaction</a></li>
+<li><a href="#incremental-load-run-time-info">Incremental load run time info</a></li>
+<li><a href="#column-type-is-not-consistent-between-database-and-dataset">Column type is not consistent between database and dataset</a></li>
+<li><a href="#status-of-running-query">Status of running query</a></li>
+<li><a href="#sync-is-failing-with-a-schema-mismatch">Sync is failing with a schema mismatch</a></li>
+<li><a href="#permission-error-when-re-adding-a-deleted-sync-job-spec">Permission error when re-adding a deleted sync job spec</a></li>
+<li><a href="#bootvisor-status-is-unknown">Bootvisor status is <code>Unknown</code></a></li>
+<li><a href="#common-tlsssl-issues">SSL/TLS issues</a></li>
+</ul>
+<hr />
+<h2>Scheduled build never ran</h2>
+<p>A build was scheduled to run at a given time, but it did not attempt to run.</p>
+<p>To troubleshoot, perform the following steps:</p>
+<ol>
+<li>
+<p>Is there another running sync for this dataset and branch? Verify that no other job is running at the same time as it is not possible to run two syncs on the same dataset and branch simultaneously.</p>
+</li>
+<li>
+<p>Has the schedule been paused? Verify this schedule is not paused on the schedule overview page for this dataset. You can access this page via the <strong>Edit in Scheduler</strong> view of the sync or in Dataset Preview's <strong>Manage Schedules</strong> option.</p>
+</li>
+<li>
+<p>Was the agent of this sync disabled? Navigate to the agent associated with the source of this sync, and verify the agent is not disabled.</p>
+</li>
+</ol>
+<p><a href="#data-connection-faq">Return to top</a></p>
+<hr />
+<h2>Ingestion led to duplicate rows in a dataset when running a <code>SNAPSHOT</code> transaction</h2>
+<p>A sync ran but led to duplicate rows.</p>
+<ol>
+<li>When creating a new sync, choose to run an <code>APPEND</code> type sync instead of a <code>Snapshot</code>.</li>
+<li>When declaring the incremental settings, if <code>last_upd_in_appl_ts</code> is the column that will be unique and always increasing, set that as the column and then select a value that is less than all the other values in this column.</li>
+<li>After this, no additional action should be required as Data Connection will track the latest value that was synced and only bring in additional newer rows. Newer means greater than previous values, and newer timestamps are greater than older timestamps.</li>
+</ol>
+<p><a href="#data-connection-faq">Return to top</a></p>
+<hr />
+<h2>Incremental load run time info</h2>
+<p>What value was used when I ran my incremental sync?</p>
+<p>To troubleshoot, perform the following steps:</p>
+<ol>
+<li>Go to the dataset.</li>
+<li>Select <strong>History</strong> near the top of the screen.</li>
+<li>Select the relevant transaction you are interested in on the left part of the screen.</li>
+<li>View <strong>Build</strong>.</li>
+<li>View <strong>Transaction</strong>.</li>
+<li>Expand the section for <strong>Custom Metadata</strong> towards the bottom of the screen.</li>
+<li>Review the block for <code>incrementalMetadata</code> and verify correctness.</li>
+</ol>
+<p><a href="#data-connection-faq">Return to top</a></p>
+<hr />
+<h2>Column type is not consistent between database and dataset</h2>
+<p>My type is something different from what appears on my dataset after it synced.</p>
+<p>To troubleshoot, perform the following steps:</p>
+<ol>
+<li>If the column is <code>TIMESTAMP</code>, verify if the resultant type is <code>LONG</code> in Foundry.  If it is <code>LONG</code>, you need to parse the type using your data preparation tool of choice (Code Repositories, Preparation, or another application) to <code>TIMESTAMP</code>. This is a side effect of many drivers provided by database creators where types are reverted to their safest representations.</li>
+<li>If the column is <code>DECIMAL</code> and has a different precision than the original database, we recommend casting the number to a specific precision and scale in the query on the database itself, or casting the column to <code>VARCHAR</code> in the query and re-casting in Foundry.</li>
+</ol>
+<p><a href="#data-connection-faq">Return to top</a></p>
+<hr />
+<h2><code>TIME</code> type columns lose sub-second precision between database and dataset</h2>
+<p>My database includes <code>TIME</code> type columns with sub-second precision and values with a non-zero sub-second component, but the value in the dataset only reflects distinctions up to the second component.</p>
+<p>For most JDBC-based sources, including PostgreSQL and Microsoft SQL Server, a <code>TIME</code> value in the database is reflected in the Foundry output dataset as an <code>INTEGER</code> representing the milliseconds since midnight rounded down to the nearest full second. As a result, values in the database like <code>05:00:00.000</code>, <code>05:00:00.200</code>, and <code>05:00:00.800</code> will all become <code>18000000</code> in the output dataset.</p>
+<p>To preserve sub-second distinctions, consider casting the value to a string in the sync configuration's SQL statement, as in the below Postgres example:</p>
+<pre><code class="language-sql">SELECT record_id, CAST(column_with_time_type AS text) FROM table_name
+</code></pre>
+<hr />
+<h2>Status of running query</h2>
+<p>After a query begins running, how do I check its status?</p>
+<p>To troubleshoot, perform the following steps:</p>
+<ol>
+<li>Open the <strong>Job tracker</strong> application and select the running sync.</li>
+<li>The most granular status of a sync is shown here.</li>
+<li>If possible, verify the query behavior in the source database.</li>
+</ol>
+<p><a href="#data-connection-faq">Return to top</a></p>
+<hr />
+<h2>Sync is failing with a schema mismatch</h2>
+<p>If the schema of a file or JDBC table changes between incremental <code>APPEND</code> transactions, your dataset will start failing with complaints of schema mismatches. Data Connection does infer schema for JDBC extracts, only propagates existing schemas for file-based extracts. In this event, you would have to apply the schema inference again if it is the same. If schemas truly have changed between <code>APPEND</code> transactions, a new dataset is needed for the new schema.</p>
+<p>To troubleshoot, perform the following steps:</p>
+<p><strong>File-based</strong></p>
+<ol>
+<li>
+<p>If the files are XLSX or CSV tabular data, it may be possible to re-infer schemas on the synced dataset without issue. If this schema matches the previous, the dataset will add the appended rows without issue.</p>
+</li>
+<li>
+<p>If after inferring schema you still get schema errors (either in Dataset Preview or another application), then this new file needs to instead be synced to a new dataset since it represents a fundamentally different view of a table.</p>
+</li>
+<li>
+<p>If the dataset was already appended with the new schema, we recommend reaching out to Palantir Support to revert this transaction. Additionally, the syncs of files to the current dataset need to be paused by going to the sync overview page and pausing any schedule associated with this sync.</p>
+</li>
+<li>
+<p>Subsequent files with new schemas should sync to a different dataset than the original, so we recommend copying the information from the original sync into a new sync, but replacing the target dataset with a different one (annotating in the dataset name the new version).</p>
+</li>
+<li>
+<p>Additionally, it may be best to delete the original sync to avoid any future schema mismatch errors from occurring and corrupting the existing data in Foundry.</p>
+</li>
+</ol>
+<p><strong>JDBC</strong></p>
+<ol>
+<li>In the case where you expect a schema to change at some point and persist in its new form into the future, it is best to land the original table into a dataset whose name indicates the schema version. (Such as <code>account_transactions_v1.0</code>).</li>
+<li>If a schema changes in the original table before a sync executes:
+   * Pause the sync's schedule (if it exists)</li>
+<li>If a schema changes in the original table after a sync executes:
+   * Pause the sync's schedule (if it exists)
+   * Contact Palantir Support to revert this transaction which has likely corrupted the target dataset</li>
+<li>After your sync is paused, and you are ready to move to the new schema, you must first land the new schema into a new dataset:
+   * Clone the sync into a new sync and replace the target dataset with a new one (such as <code>account_transactions_v1.1</code>). This new dataset can then be unioned with the original to contain the full set of data.
+   * If required for your use case, you can delete the original sync after verifying correct behavior in the new sync. This ensures no possibility of landing corrupt data in the old dataset at the cost of decreased transparency on prior loading configuration.</li>
+</ol>
+<p><a href="#data-connection-faq">Return to top</a></p>
+<hr />
+<h2>Permission error when re-adding a deleted sync job spec</h2>
+<p>After deleting a sync's job spec, attempting to re-add it results in a permission error.</p>
+<p>To resolve this issue:</p>
+<p>Create a new sync that outputs to the same dataset. This establishes a new job spec with the correct permissions while preserving your existing data in the target dataset.</p>
+<p><a href="#data-connection-faq">Return to top</a></p>
+<hr />
+<h2>Bootvisor status is <code>Unknown</code></h2>
+<p>My Bootvisor is stuck in a <code>Unknown</code> state and will not stop / start.</p>
+<p>:::callout{theme="warning"}
+Contact Palantir Support to check your setup before proceeding. Following the below steps will temporarily prevent syncs from running on this agent. Ensure multiple agents for sources or perform these steps during maintenance windows to prevent downtime.
+:::</p>
+<ol>
+<li>Pause syncs on the agent.</li>
+<li>Wait for all currently running syncs to finish.</li>
+<li>Stop the agent (this step may fail depending on the current state of the agent).</li>
+<li>SSH into the agent machine.</li>
+<li><code>kill</code> all JVM processes related to Data Connection.</li>
+<li>Start the Bootvisor with <code>./service/bin/init.sh start</code>.</li>
+<li>Start the agent in Data Connection, verifying the agent is not <code>paused</code> as well.</li>
+</ol>
+<p><a href="#data-connection-faq">Return to top</a></p>
+<hr />
+<h2>Common TLS/SSL issues</h2>
+<p>For guidance on TLS, mTLS, and SSL â including whether to add a server or client certificate and how to resolve common certificate errors such as <code>CERTIFICATE_VERIFY_FAILED</code> â see <a href="https://www.palantir.com/docs/foundry/data-connection/troubleshooting/#certificates-and-tls">Certificates and TLS</a>.</p>
+<p><a href="#data-connection-faq">Return to top</a></p>
+</body>
+</html>

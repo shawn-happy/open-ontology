@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Types of geospatial and geotemporal data</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Types of geospatial and geotemporal data</h1>
+<p>There are many types of geospatial and geotemporal data that you may work with in Foundry. It is important to understand what type of data you have when planning how to use it.</p>
+<p>There are two main types of geospatial data: <a href="#raster-data"><strong>raster</strong></a> and <a href="#vector-data"><strong>vector</strong></a>. Geospatial data with a temporal component is known as <a href="#geotemporal-data"><strong>geotemporal</strong></a> data.</p>
+<p>Review the <a href="https://www.palantir.com/docs/foundry/geospatial/coordinate-reference-systems-and-projections/">coordinate reference system (CRS) and projection</a> used to represent locations. Different CRSs can affect map alignment and calculations such as area and distance.</p>
+<p>All example images use notional or open-source data.</p>
+<h2>Raster data</h2>
+<p>Raster data consists of a matrix of cells organized into rows and columns, in which each cell represents specific information. Examples of raster data include satellite imagery sources, scanned maps, and digital elevation models (DEMs).</p>
+<p>Learn more about <a href="https://www.palantir.com/docs/foundry/geospatial/raster-data/">processing raster data</a>.</p>
+<p><img src="../../_resources/external-467cfd26f972.png" alt="Example of Raster Data: Satellite Weather Imagery" width="500" /></p>
+<h2>Vector data</h2>
+<p>Vector data is used for storing data that has discrete boundaries and represents these data as points, lines, and polygons. Examples of vector data include points representing cities on a map of the United States, lines representing roads in a state, and polygons representing electoral district boundaries.</p>
+<p>Learn more about <a href="https://www.palantir.com/docs/foundry/geospatial/vector-data-in-transforms/">processing vector data in transforms</a>.</p>
+<p><img src="../../_resources/external-b02e1cfb9893.png" alt="Example of Vector Data: a choropleth map of Oregon with overlaid electric transmission lines" width="500" /></p>
+<h2>Geotemporal data</h2>
+<p>Geospatial data may have a temporal component, such as the location of a vehicle over time or satellite images taken at different times. This data is <strong>geotemporal</strong>, also called "spatiotemporal", "geotime", or "track" data. Review the following key concepts to learn more about geotemporal data in Foundry.</p>
+<h3>Key geotemporal data concepts</h3>
+<h3>Geotemporal series</h3>
+<p>A geotemporal series is a sequence of position and timestamp data points representing the location of an entity over time. Each sequence of points is identified by a <a href="#series-id">series ID</a>. Individual points in the sequence are referred to as <a href="#observation">observations</a>, and the sequence itself is referred to as a track or a series. For example, a flight from San Francisco to New York City could be represented as a geotemporal series where each reported location from the plane during the flight is an observation.</p>
+<p><a href="https://www.palantir.com/docs/foundry/geospatial/geotemporal-series-overview/">Learn more about geotemporal series data</a>.</p>
+<h4>Geotemporal series sync</h4>
+<p>A geotemporal series sync or integration indexes the geotemporal series data into specialized geotemporal series databases. All observation values for a particular geotemporal series should be contained in the same integration. An integration is created using the <a href="https://www.palantir.com/docs/foundry/pipeline-builder/outputs-add-geotemporal-series-output/">geotemporal series sync output in Pipeline Builder</a>.</p>
+<h4>Geotemporal series reference (GTSR)</h4>
+<p>Within an ontology object type, a geotemporal series reference (GTSR) property type is used to reference a particular geotemporal series from a geotemporal series sync. Applications use this reference to fetch the backing geotemporal data for the series. Each object type may have at most one GTSR property type, and it may not allow multiple values. <a href="https://www.palantir.com/docs/foundry/geospatial/integrate-geotemporal-series-with-the-ontology/">Learn how to integrate geotemporal series with the Ontology</a>.</p>
+<h4>Geotemporal series object type</h4>
+<p>A geotemporal series object type contains a <a href="#geotemporal-series-reference-gtsr">geotemporal series reference</a> property, and optionally, other properties about the geotemporal series being referenced. For example, an object type representing a flight may include the origin and destination airports as string properties along with the flight path as a geotemporal series reference.</p>
+<p>:::callout{theme="neutral"}
+An object type can have at most one geotemporal series reference property, and it may not be an array of geotemporal series references.
+:::</p>
+<h4>Observation</h4>
+<p>An observation is an individual point in a geotemporal series that consists of a series ID, timestamp, position, and other integration-defined properties. For example, a single GPS ping from a plane would be an observation in a geotemporal series.</p>
+<h4>Series ID</h4>
+<p>A series ID is an identifier that groups multiple geotemporal observations into a single series. The series ID must be unique within a given geotemporal series sync. For example, the concatenation of the flight number, origin, destination, and date could be used to uniquely identify a single flight. <a href="https://www.palantir.com/docs/foundry/geospatial/data-modeling/#picking-a-series-id">Read more about series IDs</a>.</p>
+</body>
+</html>

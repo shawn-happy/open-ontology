@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ontology metrics</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Ontology metrics</h1>
+<p>The Ontology Manager can be configured to show usage metrics for object types and link types.</p>
+<h2>Key terminology</h2>
+<ul>
+<li><strong>Reads:</strong> A read is recorded when an application loads objects for a specified object type. This can include displaying objects in a table in Workshop, returning all objects from search for a given object type, aggregating a property on an object type, and so on. Note that one read represents one load request from <a href="https://www.palantir.com/docs/foundry/object-databases/object-storage-v1/">Object Storage v1 (Phonograph)</a> or the Object Set Service (OSS). Many objects loaded or aggregated at once will only be recorded as a single read. Also note that any object type or link type usage happening in Ontology Manager is not included.</li>
+<li><strong>Writes:</strong> A write is recorded when an application makes edits to objects of this type as the result of an <a href="https://www.palantir.com/docs/foundry/action-types/overview/">Action</a>, <a href="https://www.palantir.com/docs/foundry/functions/overview/">Function</a>, Foundry Form, direct Object Explorer edit, or API call. Note that one write represents one edit request sent to <a href="https://www.palantir.com/docs/foundry/object-databases/object-storage-v1/">Object Storage v1 (Phonograph)</a>. Many objects edited in bulk at once will only be recorded as a single write.</li>
+<li><strong>Interactions:</strong> The total number of reads and writes on objects of this type over the last 30 days.</li>
+<li><strong>Active users:</strong> The number of unique user IDs that triggered the reads and writes recorded over the last 30 days.</li>
+</ul>
+<h2>Viewing usage</h2>
+<p>There are two places in the Ontology Manager to view object type and link type usage:</p>
+<ul>
+<li>A usage graph on the <strong>Overview</strong> tab: High-level summary of usage over the last 30 days, enabling Ontology users to quickly understand the implications of making a breaking change to this resource.</li>
+</ul>
+<p><img alt="Usage graph on the overview tab" src="../../_resources/foundry/ontology-manager/oma-user-interface-overview-usage.png" /></p>
+<p>:::callout{theme="warning" title="Warning"}
+If you see âNo usage for the last 30 daysâ in the usage graph when you would expect to see usage statistics, then it is possible that internal tables may not have been configured. Contact your Palantir representative for more information.
+:::</p>
+<ul>
+<li>A dedicated <strong>Usage</strong> tab: Detailed usage metrics for resources. Users can see, over the last 30 days, who has used each object type, when, and in which Foundry applications. The feature is intended to help Ontology users make Ontology changes more safely by providing a clearer understanding of a change's impact. The <strong>Usage</strong> tab can also be accessed by clicking <strong>See more</strong> on the usage graph in the <strong>Overview</strong> tab.</li>
+</ul>
+<p><img alt="Usage tab" src="../../_resources/foundry/ontology-manager/oma-user-interface-usage-tab.png" /></p>
+<h2>Enabling Ontology usage</h2>
+<p>Usage on the <strong>Overview</strong> tab and detailed usage metrics in the <strong>Usage</strong> tab are configured from the <strong>Ontology settings</strong> tab in Control Panel using the <strong>Ontology metrics</strong> toggle. This toggle can only be enabled or disabled by Ontology administrators and changes may take up to 60 minutes to take effect in Ontology Manager.</p>
+<h2>Shared Ontology usage</h2>
+<p>If your organization shares an Ontology with another organization, then the <strong>Usage</strong> tab will be accessible by users of all organizations that have the Ontology metrics turned on. The usage metrics displayed only includes the usage from users who have access to the object type and those who are from organizations that have the Ontology metrics enabled. See the steps outlined in <a href="#enabling-ontology-usage">Enabling Ontology usage</a> for more information.</p>
+</body>
+</html>

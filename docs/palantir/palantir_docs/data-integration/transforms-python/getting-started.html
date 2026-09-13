@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Getting started</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Getting started</h1>
+<p>:::callout{theme="success" title="Tip"}
+The instructions below will guide you through a simple Python data transformation. If you are just getting started with data transformation, consider going through the batch pipeline tutorial for <a href="https://www.palantir.com/docs/foundry/building-pipelines/create-batch-pipeline-pb/">Pipeline Builder</a> or <a href="https://www.palantir.com/docs/foundry/building-pipelines/create-batch-pipeline-cr/">Code Repositories</a> first.
+:::</p>
+<p>This tutorial walks through how you can use Python transforms to transform a spreadsheet of recent meteorite discoveries to a usable dataset ready for analysis.</p>
+<h2>About the dataset</h2>
+<p>This tutorial uses data from <a href="https://data.nasa.gov/">NASAâs Open Data Portal â</a>. You can follow along on your own code repository with this sample dataset:</p>
+<p><a href="/docs/resources/foundry/transforms-python/meteorite_landings.csv"><code>Download meteorite_landings</code></a></p>
+<p>This dataset contains data about meteorites that have been found on Earth. Note that the data has been cleaned to make it easier to work with.</p>
+<p>The dataset includes name, mass, classification, and other identifying information for each meteorite, along with the year it was discovered and coordinates of where it was found. It is good practice to open the CSV to review the data before uploading it into Foundry.</p>
+<h2>Set up a Python code repository</h2>
+<p>Get started by creating a Python code repository.</p>
+<ol>
+<li>Navigate to a project, and select <strong>+ New &gt; Code repository</strong>.</li>
+<li>In the <strong>Repository type</strong> section, select <strong>Pipelines</strong>.</li>
+<li>Select <strong>Python</strong> as the <strong>Language</strong>.</li>
+<li>Choose to <strong>Initialize repository</strong>.</li>
+</ol>
+<h3>Optional: Use a local Python repository</h3>
+<p>Alternatively, you can copy your local Python repository into Code Repositories with the following steps:</p>
+<ol>
+<li>
+<p>Create a new Python code repository, as described above.</p>
+</li>
+<li>
+<p>On your local repository, remove your previous Git origin (if you cloned it from GitHub, for example): <code>git remote remove origin</code></p>
+</li>
+<li>
+<p>Add your code repository's Git remote URL: <code>git remote add origin &lt;repository_url&gt;</code></p>
+</li>
+</ol>
+<p>You can find your code repository URL in the top right corner of the GitHub interface. Select the green <strong>Clone</strong> button, then copy the Git remote URL. Confirm this by running <code>git remote -v</code> to return the code repository URL.</p>
+<ol start="4">
+<li>Merge the current <code>master</code> branch (or another branch of your choosing) in Code Repositories into your local branch: <code>git merge master</code></li>
+</ol>
+<p>If an error about <code>refusing to merge unrelated histories</code> occurs, run the command: <code>git merge master --allow-unrelated-histories</code>. This will remove the current Git history associated with your previous remote GitHub repository.</p>
+<p>This merge will bring essential files to your local repository that are required to make commits and changes in Code Repositories.</p>
+<ol start="5">
+<li>
+<p>Create a new branch and name it (<code>testbranch</code>, for example): <code>git checkout -b testbranch</code>.</p>
+</li>
+<li>
+<p>Make your changes and commit them to your branch.</p>
+</li>
+<li>
+<p>Perform <code>git push</code>, and confirm that the new branch appears in the Code Repositories interface. Verify that checks are successful.</p>
+</li>
+</ol>
+<p>Learn more about <a href="https://www.palantir.com/docs/foundry/transforms-python/local-development/">local development</a> in Code Repositories.</p>
+<h2>Write a Python data transformation</h2>
+<p>Navigate to your Python transforms repository. The default <code>examples.py</code> file contains example code to help you get started. Note that you can choose between pandas, Polars, and Spark compute engines. For more information on choosing a compute engine, refer to the <a href="https://www.palantir.com/docs/foundry/transforms-python/compute-engines/">compute engine comparison</a> documentation.
+Start by creating a new file in <code>src/myproject/datasets</code>, and call it <code>meteor_analysis.py</code> to organize your analysis. Make sure you import the required functions and classes. Define a transformation that takes your <code>meteor_landings</code> dataset as input and creates <code>meteor_landings_cleaned</code> as its output:</p>
+<p>```python tab="Polars"
+from transforms.api import transform, Input, Output</p>
+<p>@transform.using(
+    # Replace this with your output dataset path
+    output=Output("/Users/jsmith/meteorite_landings_cleaned"),
+    # Replace this with your input dataset path
+    meteorite_landings=Input("/Users/jsmith/meteorite_landings"),
+)
+def clean(output, meteorite_landings):
+    df = meteorite_landings.polars()
+    # Your data transformation logic
+    output.write_table(df)</p>
+<pre><code>
+```python tab=&quot;DuckDB&quot;
+from transforms.api import transform, Input, Output
+
+
+@transform.using(
+    # Replace this with your output dataset path
+    output=Output(&quot;/Users/jsmith/meteorite_landings_cleaned&quot;),
+    # Replace this with your input dataset path
+    meteorite_landings=Input(&quot;/Users/jsmith/meteorite_landings&quot;),
+)
+def clean(ctx, output, meteorite_landings):
+    conn = ctx.duckdb().conn
+    # Your data transformation logic using SQL
+    query = conn.sql(&quot;SELECT * FROM meteorite_landings&quot;)
+    output.write_table(query)
+</code></pre>
+<p>```python tab="Pandas"
+from transforms.api import transform, Input, Output</p>
+<p>@transform.using(
+    # Replace this with your output dataset path
+    output=Output("/Users/jsmith/meteorite_landings_cleaned"),
+    # Replace this with your input dataset path
+    meteorite_landings=Input("/Users/jsmith/meteorite_landings"),
+)
+def clean(output, meteorite_landings):
+    df = meteorite_landings.pandas()
+    # Your data transformation logic
+    output.write_table(df)</p>
+<pre><code>
+```python tab=&quot;PySpark&quot;
+from transforms.api import transform, Input, Output
+
+
+@transform.spark.using(
+    # Replace this with your output dataset path
+    output=Output(&quot;/Users/jsmith/meteorite_landings_cleaned&quot;),
+    # Replace this with your input dataset path
+    meteorite_landings=Input(&quot;/Users/jsmith/meteorite_landings&quot;),
+)
+def clean(output, meteorite_landings):
+    df = meteorite_landings.dataframe()
+    # Your data transformation logic
+    output.write_dataframe(df)
+</code></pre>
+<p>Now, suppose you want to filter your input dataset down to any âValidâ meteors that happened after the year 1950. Update your data transformation logic to filter the meteorites by <code>nametype</code> and <code>year</code>:</p>
+<p>```python tab="Polars"
+import polars as pl
+from transforms.api import transform, Input, Output</p>
+<p>@transform.using(
+    output=Output("/Users/jsmith/meteorite_landings_cleaned"),
+    meteorite_landings=Input("/Users/jsmith/meteorite_landings"),
+)
+def clean(output, meteorite_landings):
+    df = (
+        meteorite_landings.polars()
+        .filter(pl.col("nametype") == "Valid")
+        .filter(pl.col("year") &gt;= 1950)
+    )
+    output.write_table(df)</p>
+<pre><code>
+```python tab=&quot;DuckDB&quot;
+from transforms.api import transform, Input, Output
+
+@transform.using(
+    output=Output(&quot;/Users/jsmith/meteorite_landings_cleaned&quot;),
+    meteorite_landings=Input(&quot;/Users/jsmith/meteorite_landings&quot;),
+)
+def clean(ctx, output, meteorite_landings):
+    conn = ctx.duckdb().conn
+    query = conn.sql(&quot;&quot;&quot;
+        SELECT *
+        FROM meteorite_landings
+        WHERE nametype = 'Valid' AND year &gt;= 1950
+    &quot;&quot;&quot;)
+    output.write_table(query)
+</code></pre>
+<p>```python tab="Pandas"
+from transforms.api import transform, Input, Output</p>
+<p>@transform.using(
+    output=Output("/Users/jsmith/meteorite_landings_cleaned"),
+    meteorite_landings=Input("/Users/jsmith/meteorite_landings"),
+)
+def clean(output, meteorite_landings):
+    df = meteorite_landings.pandas()
+    df = df[
+        (df["nametype"] == "Valid") &amp;
+        (df["year"] &gt;= 1950)
+    ]
+    output.write_table(df)</p>
+<pre><code>
+```python tab=&quot;PySpark&quot;
+from transforms.api import transform, Input, Output
+
+
+@transform.spark.using(
+    output=Output(&quot;/Users/jsmith/meteorite_landings_cleaned&quot;),
+    meteorite_landings=Input(&quot;/Users/jsmith/meteorite_landings&quot;),
+)
+def clean(output, meteorite_landings):
+    df = (
+        meteorite_landings.dataframe().filter(
+            meteorite_landings.dataframe().nametype == 'Valid'
+        ).filter(
+            meteorite_landings.dataframe().year &gt;= 1950
+        )
+    )
+    output.write_dataframe(df)
+</code></pre>
+<h2>Build your output dataset</h2>
+<p>To build your resulting dataset, commit your changes and select <strong>Build</strong> in the top right corner. For more information about building datasets in Code Repositories, review the <a href="https://www.palantir.com/docs/foundry/building-pipelines/create-batch-pipeline-cr/">Create a simple batch pipeline</a> tutorial.</p>
+<h2>Add to your data transformation</h2>
+<p>:::callout{theme="neutral"}
+With Python transforms, you can create multiple output datasets in a single Python file.
+:::</p>
+<p>Suppose you want to filter down even further to only meteors that were particularly large for their meteorite type. To do so, you will need to:</p>
+<ol>
+<li>Find the average mass for each meteorite type, and</li>
+<li>Compare each meteorâs mass to the average mass for its meteor type.</li>
+</ol>
+<p>First, add a data transformation to <code>meteor_analysis.py</code> that finds the average mass for each meteorite type. This transformation takes your <code>meteor_landings</code> dataset as input and creates <code>meteorite_stats</code> as its output:</p>
+<p>```python tab="Polars"
+import polars as pl
+from transforms.api import transform, Input, Output</p>
+<p>@transform.using(
+    # Output dataset name must be unique
+    output=Output("/Users/jsmith/meteorite_stats"),
+    meteorite_landings=Input("/Users/jsmith/meteorite_landings"),
+)
+def stats(output, meteorite_landings):
+    df = (
+        meteorite_landings.polars()
+        .groupby("class")
+        .agg(pl.col("mass").mean().alias("avg_mass_per_class"))
+    )
+    output.write_table(df)</p>
+<pre><code>
+```python tab=&quot;Pandas&quot;
+from transforms.api import transform, Input, Output
+
+
+@transform.using(
+    # Output dataset name must be unique
+    output=Output(&quot;/Users/jsmith/meteorite_stats&quot;),
+    meteorite_landings=Input(&quot;/Users/jsmith/meteorite_landings&quot;),
+)
+def stats(output, meteorite_landings):
+    df = (
+        meteorite_landings.pandas()
+            .groupby(&quot;class&quot;, as_index=False)[&quot;mass&quot;]
+            .mean()
+            .rename(columns={&quot;mass&quot;: &quot;avg_mass_per_class&quot;})
+    )
+    output.write_table(df)
+</code></pre>
+<p>```python tab="PySpark"
+from transforms.api import transform, Input, Output</p>
+<p>@transform.spark.using(
+    # Output dataset name must be unique
+    output=Output("/Users/jsmith/meteorite_stats"),
+    meteorite_landings=Input("/Users/jsmith/meteorite_landings"),
+)
+def stats(output, meteorite_landings):
+    df = (
+        meteorite_landings.dataframe().groupBy("class").agg(
+            F.mean("mass").alias("avg_mass_per_class")
+        )
+    )
+    output.write_dataframe(df)</p>
+<pre><code>
+Next, create a data transformation that compares each meteorâs mass to the average mass for its meteor type. The information needed for this transformation is spread across the `meteorite_landings` and `meteorite_stats` tables that you created in this tutorial. You must join the two datasets and filter the resulting dataset to find meteorites that have a greater-than-average mass, as shown below:
+
+```python tab=&quot;Polars&quot;
+import polars as pl
+from transforms.api import transform, Input, Output
+
+
+@transform.using(
+    output=Output(&quot;/Users/jsmith/meteorite_enriched&quot;),
+    meteorite_landings=Input(&quot;/Users/jsmith/meteorite_landings&quot;),
+    meteorite_stats=Input(&quot;/Users/jsmith/meteorite_stats&quot;),
+)
+def enriched(output, meteorite_landings, meteorite_stats):
+    df_landings = meteorite_landings.polars()
+    df_stats = meteorite_stats.polars()
+
+    enriched = df_landings.join(df_stats, on=&quot;class&quot;, how=&quot;inner&quot;)
+    enriched = enriched.with_columns(
+        (pl.col(&quot;mass&quot;) &gt; pl.col(&quot;avg_mass_per_class&quot;)).alias(&quot;greater_mass&quot;)
+    )
+    result = enriched.filter(pl.col(&quot;greater_mass&quot;))
+    output.write_table(result)
+</code></pre>
+<p>```python tab="Pandas"
+from transforms.api import transform, Input, Output</p>
+<p>@transform.spark.using(
+    output=Output("/Users/jsmith/meteorite_enriched"),
+    meteorite_landings=Input("/Users/jsmith/meteorite_landings"),
+    meteorite_stats=Input("/Users/jsmith/meteorite_stats"),
+)
+def enriched(output, meteorite_landings, meteorite_stats):
+    df_landings = meteorite_landings.pandas()
+    df_stats = meteorite_stats.pandas()</p>
+<pre><code>enriched = df_landings.merge(df_stats, on="class", how="inner")
+enriched["greater_mass"] = enriched["mass"] &gt; enriched["avg_mass_per_class"]
+result = enriched[enriched["greater_mass"]]
+output.write_table(result)
+</code></pre>
+<pre><code>
+```python tab=&quot;PySpark&quot;
+from transforms.api import transform, Input, Output
+
+
+@transform.spark.using(
+    output=Output(&quot;/Users/jsmith/meteorite_enriched&quot;),
+    meteorite_landings=Input(&quot;/Users/jsmith/meteorite_landings&quot;),
+    meteorite_stats=Input(&quot;/Users/jsmith/meteorite_stats&quot;),
+)
+def enriched(output, meteorite_landings, meteorite_stats):
+    df_landings = meteorite_landings.dataframe()
+    df_stats = meteorite_stats.dataframe()
+
+    enriched_together = df_landings.join(df_stats, &quot;class&quot;)
+    greater_mass=enriched_together.withColumn(
+        'greater_mass', (enriched_together.mass &gt; enriched_together.avg_mass_per_class)
+    )
+    result = greater_mass.filter(&quot;greater_mass&quot;)
+    output.write_dataframe(result)
+</code></pre>
+<p>Now, you can further analyze the resulting <code>meteorite_enriched</code> dataset by exploring it in Contour.</p>
+<h2>Apply your data transformation to multiple inputs</h2>
+<p>So far, you created a dataset that contains meteorites of all types with a greater-than-average mass. The next step is to create separate datasets for each meteorite type. With Python transforms, you can use a for-loop to apply the same data transformation to each type of meteorite. For more information on applying the same data transformation to different inputs, refer to the section on <a href="https://www.palantir.com/docs/foundry/transforms-python/pipelines/#transform-generation">transform generation</a>.</p>
+<p>Create a new file in <code>src/myproject/datasets</code> and name it <code>meteor_class.py</code>. Note that you can continue writing your data transformation code in the <code>meteor_analysis.py</code> file, but this tutorial uses a new file to separate the data transformation logic.</p>
+<p>To create separate datasets for each meteorite type, filter the <code>meteorite_enriched</code> dataset by class. Then, define a <code>transform_generator</code> function that applies the same data transformation logic to each of the meteorite types you want to analyze:</p>
+<p>```python tab="Polars"
+import polars as pl
+from transforms.api import transform, Input, Output</p>
+<p>def transform_generator(sources):
+    transforms = []
+    for source in sources:
+        @transform.using(
+            output=Output(f'/Users/jsmith/meteorite_{source}'),
+            my_input=Input('/Users/jsmith/meteorite_enriched')
+        )
+        def filter_by_source(output, my_input, source=source):
+            df = my_input.polars()
+            result = df.filter(pl.col("class") == source)
+            output.write_table(result)
+        transforms.append(filter_by_source)
+    return transforms</p>
+<p>TRANSFORMS = transform_generator(["L6", "H5", "H4"])</p>
+<pre><code>
+```python tab=&quot;Pandas&quot;
+from transforms.api import transform, Input, Output
+
+
+def transform_generator(sources):
+    transforms = []
+    for source in sources:
+        @transform.using(
+            output=Output(f'/Users/jsmith/meteorite_{source}'),
+            my_input=Input('/Users/jsmith/meteorite_enriched')
+        )
+        def filter_by_source(output, my_input, source=source):
+            df = my_input.pandas()
+            result = df[df[&quot;class&quot;] == source]
+            output.write_table(result)
+        transforms.append(filter_by_source)
+    return transforms
+
+TRANSFORMS = transform_generator([&quot;L6&quot;, &quot;H5&quot;, &quot;H4&quot;])
+</code></pre>
+<p>```python tab="PySpark"
+from transforms.api import transform, Input, Output</p>
+<p>def transform_generator(sources):
+    transforms = []
+    for source in sources:
+        @transform.spark.using(
+            output=Output(f'/Users/jsmith/meteorite_{source}'),
+            my_input=Input('/Users/jsmith/meteorite_enriched')
+        )
+        def filter_by_source(output, my_input, source=source):
+            result = my_input.dataframe().filter(my_input["class"] == source)
+            output.write_table(result)
+        transforms.append(filter_by_source)
+    return transforms</p>
+<p>TRANSFORMS = transform_generator(["L6", "H5", "H4"])
+```</p>
+<p>This will create a transformation that filters our meteorite dataset by class. Note that we must pass <code>source=source</code> into the <code>filter_by_source</code> function in order to capture the <code>source</code> parameter in the functionâs scope.</p>
+<p>:::callout{theme="success" title="Tip"}
+For the initial data transformation created in the <code>meteor_analysis.py</code> file, you did not have to do any additional configuration to add Transforms to your projectâs pipeline. This is because the default Python project structure uses automatic registration to discover all transform objects within your <code>datasets</code> folder.</p>
+<p>To add this final transformation to your projectâs pipeline using automatic registration, you must add the generated transforms to a variable as a list. In the example above, we used the variable <code>TRANSFORMS</code>. For more information about automatic registration and transforms generators, refer to the section on <a href="https://www.palantir.com/docs/foundry/transforms-python/pipelines/#transform-generation">transforms generation</a> in the Python transforms documentation.
+:::</p>
+</body>
+</html>

@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Set up Python local development</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Set up Python local development</h1>
+<p>It is possible to carry out local development of Python transforms repositories, allowing for high-speed iterative development.</p>
+<h2>Work with your Python transforms repository locally</h2>
+<p>There are two options for developing locally in your Python transforms repository:</p>
+<ul>
+<li><strong>Option 1:</strong> <a href="#option-1-use-the-palantir-extension-for-visual-studio-code-recommended">Use the Palantir extension for Visual Studio Code [Recommended]</a></li>
+<li><strong>Option 2:</strong> <a href="#option-2-clone-the-repository-and-use-gradle-commands">Clone the repository and use Gradle commands</a></li>
+</ul>
+<h2>Option 1: Use the Palantir extension for Visual Studio Code [Recommended]</h2>
+<p>:::callout{theme="neutral"}
+To enable the extension and local preview capabilities, contact your platform administrator to modify <a href="https://www.palantir.com/docs/foundry/code-repositories/configure-repositories-in-control-panel/">Code Repositories settings</a> in Control Panel. The Palantir extension for Visual Studio Code is <strong>enabled by default</strong> when using <a href="https://www.palantir.com/docs/foundry/vs-code/overview/">VS Code workspaces</a>.
+:::</p>
+<h3>Prerequisites</h3>
+<ul>
+<li>Ensure you have <a href="https://code.visualstudio.com/">Visual Studio Code â</a> installed.</li>
+<li>Download the <a href="https://www.palantir.com/docs/foundry/palantir-extension-for-visual-studio-code/overview/#1-download-the-palantir-extension">Palantir extension</a> for Visual Studio Code if it is enabled for your enrollment.</li>
+</ul>
+<p><img alt="The &quot;Work locally inside Visual Studio Code&quot; dialog." src="../../_resources/foundry/transforms-python/use-visual-studio-code-dialog.png" /></p>
+<h3>Benefits</h3>
+<ul>
+<li><strong><a href="https://www.palantir.com/docs/foundry/palantir-extension-for-visual-studio-code/transforms-preview/">Preview your Python transforms</a></strong> directly from your local Visual Studio Code environment. The Palantir extension for Visual Studio Code supports full datasets (sample-less preview), so you can preview full datasets without losing precision. Note that to run previews locally, you will need your platform administrators to enable local preview through Control Panel.</li>
+<li><strong><a href="https://www.palantir.com/docs/foundry/palantir-extension-for-visual-studio-code/transforms-build/">Initiate a build</a></strong> directly from your own code editor.</li>
+<li><strong>Debug your code</strong> and run tests directly from the editor.</li>
+<li><strong>Leverage the <a href="https://www.palantir.com/docs/foundry/palantir-extension-for-visual-studio-code/python-libraries/">library panel</a></strong> to add libraries.</li>
+</ul>
+<h3>Troubleshooting</h3>
+<p>If you experience unexpected language server errors such as broken imports, the Python interpreter's automatic set up may have failed. To fix this, you can manually set up the interpreter by navigating to the <a href="https://code.visualstudio.com/docs/getstarted/userinterface#_commandpalette">Command Palette â</a>, then typing <code>Python: Select interpreter</code> and choosing a Python interpreter matching the path <code>./maestro/bin/python</code>. The <code>.maestro</code> folder should be present if the Palantir extension successfully ran the <code>Palantir: Install Python environment</code> command.</p>
+<h3>Run unit tests locally</h3>
+<p>Run unit tests for your Python transforms with the local test executable:</p>
+<pre><code class="language-bash">.maestro/bin/pytest
+</code></pre>
+<p>The <code>pytest-transforms</code> plugin discovers and runs tests that follow standard test conventions. For guidance on writing tests, see <a href="https://www.palantir.com/docs/foundry/transforms-python/unit-tests/">Unit tests</a>.</p>
+<h2>Option 2: Clone the repository and use Gradle commands</h2>
+<h3>Prerequisites</h3>
+<ul>
+<li>Ensure your repository is upgraded to the latest template version by following the steps outlined <a href="https://www.palantir.com/docs/foundry/code-repositories/repository-upgrades/#manual-branch-upgrade">here</a>.</li>
+<li>Ensure that the environment variables <code>CI</code>, <code>JEMMA</code>, and <code>CA</code> are not set.</li>
+<li>If running on an Apple silicon Mac, ensure that <a href="https://developer.apple.com/documentation/apple-silicon/about-the-rosetta-translation-environment">Rosetta 2 â</a> is installed. You can install Rosetta 2 by running <code>/usr/sbin/softwareupdate --install-rosetta --agree-to-license</code> in the terminal.</li>
+</ul>
+<h3>Clone the repository locally</h3>
+<ol>
+<li>In the menu bar of your repository, select the desktop icon to the right of <strong>Data lineage</strong> to open the dialog and copy the given repository URL.</li>
+</ol>
+<p><img alt="The top menu bar of a repository with the &quot;Work locally&quot; option to the right." src="../../_resources/foundry/transforms-python/clone-repo.png" /></p>
+<p><img alt="The &quot;Work locally&quot; dialog." src="../../_resources/foundry/transforms-python/clone-repository-dialog.png" /></p>
+<ol start="2">
+<li>Using the command line, run <code>git clone &lt;URL&gt;</code> on your local machine in a directory of your choice. Then, use the <code>cd</code> command to navigate to the repository.</li>
+</ol>
+<h3>Limitations</h3>
+<ul>
+<li>The token granted for cloning is short-lived and needs to be refreshed every 7 days.</li>
+<li>You will still need to push your changes to Foundry to publish job specs or artifacts, or if you wish to run checks or builds.</li>
+</ul>
+<h2>Preview</h2>
+<p>Dataset previews are supported in local development. Refer to <a href="https://www.palantir.com/docs/foundry/transforms-common/local-preview/">local preview</a> for more details.</p>
+</body>
+</html>

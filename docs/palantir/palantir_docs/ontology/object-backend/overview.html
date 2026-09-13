@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ontology architecture</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Ontology architecture</h1>
+<p>The Foundry Ontology is an operational layer for the organization. The Ontology sits on top of the digital assets integrated into Foundry (datasets and models) and connects them to their real-world counterparts, ranging from physical assets like factories, equipment, and products to concepts like customer orders or financial transactions. The Ontology serves as a digital twin of an organization, containing both the semantic elements (objects, properties, links) and kinetic elements (actions, functions, dynamic security) needed to enable use cases of all types. You can learn more about the Foundry Ontology and how it enables better decision-making in the <a href="https://www.palantir.com/docs/foundry/ontology/overview/">Ontology documentation</a>.</p>
+<p>The Foundry Ontology is backed by multiple services that work together to index, store, query, and manipulate objects in the Ontology. This page provides a high-level overview of the Ontologyâs backend architecture.</p>
+<h2>Functional components and architecture</h2>
+<p>The Foundry platform uses a microservices architecture in which multiple services together comprise the Ontology backend. The Ontology backend is responsible for three main functions:</p>
+<ul>
+<li><strong>Datasource management</strong> to feed the Ontology and manage schema definitions within the Ontology.</li>
+<li><strong>Querying, searching, and aggregating objects</strong> from the Ontology with support for specific filtering and permissioning.</li>
+<li><strong>Orchestration of writing to the Ontology</strong>, including indexing of datasources and edits to Ontology objects based on decisions made or actions taken in Foundry.</li>
+</ul>
+<p>These functions are handled collectively by the services that make up the Ontology backend, which are summarized below:</p>
+<ul>
+<li><a href="#ontology-metadata-service-oms">Ontology Metadata Service (OMS)</a></li>
+<li><a href="#object-databases">Object databases</a></li>
+<li><a href="#object-set-service-oss">Object Set Service (OSS)</a></li>
+<li><a href="#actions">Actions</a></li>
+<li><a href="#object-data-funnel">Object Data Funnel</a></li>
+<li><a href="#functions-on-objects">Functions on Objects</a></li>
+</ul>
+<h3>Ontology Metadata Service (OMS)</h3>
+<p>The Ontology Metadata Service (OMS) is an overarching service that defines the set of ontological entities that exist. This definition includes the metadata of object types, the link types that describe any relationships between object types, the action types that can modify object data in a structured and controlled way, and more.</p>
+<p>Learn more about core concepts in the Foundry Ontology in the <a href="https://www.palantir.com/docs/foundry/ontology/core-concepts/">Ontology metadata documentation</a>.</p>
+<h3>Object databases</h3>
+<p>Object databases are the services responsible for storing the indexed object data in the Ontology and are designed to provide fast data querying and query computation for user applications. In addition to storing indexed data, object databases are also responsible for indexing, querying, and orchestrating user edits.</p>
+<p><strong>Object Storage v1 (Phonograph)</strong> is Foundry's legacy Ontology backend component. <strong>Object Storage v2</strong> is the next-generation canonical data store for backing the Ontology. More information on these services can be found <a href="#evolution-of-the-ontology-backend">below</a>.</p>
+<h3>Object Set Service (OSS)</h3>
+<p>The Object Set Service (OSS) is the service responsible for serving reads from the Ontology; OSS allows other Foundry services and applications to query objects data from the Ontology, enabling searching, filtering, aggregating, and loading of objects.</p>
+<h4>Object sets</h4>
+<p>Object sets are lists of real-world entities that are saved for future reference and use across Foundry applications that support objects. Object sets are saved as resources for easy sharing with collaborators.</p>
+<p>Object sets can be described by definition (static or dynamic) and current state in the object backend (temporary or permanent):</p>
+<ul>
+<li>
+<p><strong>Static object sets:</strong> Static object sets are saved as a list of primary keys, and will stay the same regardless of any changes to the input data.</p>
+</li>
+<li>
+<p><strong>Dynamic object sets:</strong> Dynamic object sets are saved as a representation of the filters applied to create the object set. When new data matches the filters, the object set will be updated.</p>
+</li>
+<li>
+<p><strong>Temporary object sets:</strong> Temporary object sets are mainly used in the platform to hand object sets from one application or service to another and can only be accessed by the user who created them. A sample temporary object set RID will appear like <code>ri.object-set.main.temporary-object-set.37d7e171-2d11-4fcd-b031-9a0863f6f744</code> and expires within 24 hours.</p>
+</li>
+<li>
+<p><strong>Permanent object sets:</strong> Permanent object sets are stored in the object backend for future reference and use across the platform.</p>
+</li>
+</ul>
+<h3>Actions</h3>
+<p>The Actions service is responsible for applying user edits to object databases. Actions provide a structured way to modify property values of an object and enable complex permissions and conditions for user edits. Additionally, Actions can be used to create a historical action log for analysis of user decisions.</p>
+<h3>Object Data Funnel</h3>
+<p>The Object Data Funnel ("Funnel") is a microservice in the Object Storage v2 architecture responsible for orchestrating data writes into the Ontology. Funnel reads data from Foundry datasources (such as datasets, restricted views, and streaming datasources) and user edits (from Actions) and indexes these data into object databases. Funnel also ensures that indexed data is kept up-to-date as the underlying datasources update.</p>
+<h3>Functions on Objects</h3>
+<p>Functions enable code authors to write logic that can be executed quickly in operational contexts, such as dashboards and applications designed to power decision-making processes.</p>
+<p>See the <a href="https://www.palantir.com/docs/foundry/functions/overview/">Functions</a> documentation for more details.</p>
+<h2>Evolution of the Ontology backend</h2>
+<p>This section describes the legacy architecture of Object Storage v1 (Phonograph) and the updated architecture of Object Storage v2.</p>
+<h3>Object Storage v1 (Phonograph) architecture [Planned deprecation]</h3>
+<p>:::callout{theme="warning" title="Planned deprecation"}
+Object Storage v1 (Phonograph) is in the <a href="https://www.palantir.com/docs/foundry/platform-overview/development-life-cycle/">planned deprecation</a> phase of development and will be unavailable after June 30, 2026. <a href="https://www.palantir.com/docs/foundry/object-backend/osv1-osv2-migration/">Migrate your object types and link types</a> to Object Storage v2. Reference the <code>Migrate object types and many-to-many link types from Object Storage v1 to v2</code> intervention in <a href="https://www.palantir.com/docs/foundry/upgrade-assistant/overview/">Upgrade Assistant</a> for more information.
+Contact Palantir Support if you have questions about the OSv1 to OSv2 migration in your workflows.
+:::</p>
+<p>Object Storage v1 (Phonograph) is Foundry's original object database, designed to index and manage information from a wide range of potential data models while maintaining Foundry's security model across object data in the Ontology. Beyond indexing and storing data, Object Storage v1 (Phonograph) tracks the application of user-generated edits, serves complex user queries with searches and aggregations, and orchestrates data writeback.</p>
+<p>Below is a diagram describing the architecture for Object Storage v1 (Phonograph).</p>
+<p><img alt="Object Storage v1 Architecture" src="../../_resources/foundry/object-backend/osv1-arch.png" /></p>
+<h3>Object Storage v2 architecture</h3>
+<p>As Foundry gained more capabilities and evolved to meet the complex operational needs and growing scale of Palantir's customers, Object Storage v2 was built from first principles to enable the next generation of Ontology-driven use cases and workflows.</p>
+<p>Specifically, the new architecture separates dimensions of concern that had been consolidated in Object Storage v1 (Phonograph) and decouples responsibilities within the system design; by separating the subsystems responsible for indexing and querying data, Object Storage v2 can scale horizontally more easily to meet future needs.</p>
+<p>Object Storage v2 also incorporates additional services like <a href="https://www.palantir.com/docs/foundry/action-types/overview/">Actions</a> via the <a href="#object-data-funnel">Object Data Funnel</a>.</p>
+<p>New features and capabilities enabled by Object Storage v2 include:</p>
+<ul>
+<li>Significantly improved performance for Ontology data indexing through incremental object indexing (enabled by default) for all object types.</li>
+<li>Increased indexing throughput on the order of tens of billions of objects for a single object type.</li>
+<li>More granular object permissions with multi-datasource object types, including column/property level permissions.</li>
+<li>Increased user edit throughput, enabling up to 10,000 objects to be edited in a single Action. If you need to enable a higher limit, contact Palantir Support to create a change request for your enrollment.</li>
+<li>Reduced user edit latency and faster observation of user edits.</li>
+<li>The ability to migrate existing user edits after a breaking schema change in an object type.</li>
+<li>Low-latency data indexing into the Ontology through support of streaming datasources.</li>
+<li>Supports a maximum of 2000 properties per object type.</li>
+<li>Higher-scale Search Arounds and more accurate aggregations through a Spark-based query execution layer.</li>
+<li>By default, the Search Around limit is 100,000 objects. If your use cases require a higher scale Search Around of over 100,000 objects, contact Palantir Support for instructions on how to enable this.</li>
+</ul>
+<p>Below is an architecture diagram describing how Object Storage v2 powers the Ontology.</p>
+<p><img alt="Object Storage v2 Architecture" src="../../_resources/foundry/object-backend/osv2-arch.png" /></p>
+</body>
+</html>

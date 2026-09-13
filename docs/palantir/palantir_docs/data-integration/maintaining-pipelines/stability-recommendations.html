@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Stability recommendations</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Stability recommendations</h1>
+<p>This page covers key recommendations for creating a resilient and stable pipeline over time.</p>
+<h2>Version all changes</h2>
+<p>Every bit of logic that generates a dataset should be versioned. This makes it easier to track regressions and changes that happened to the pipeline. Practically speaking, it boils down to:</p>
+<ol>
+<li>When setting up a production-level pipeline, avoid using <a href="https://www.palantir.com/docs/foundry/contour/overview/">Contour</a> or <a href="https://www.palantir.com/docs/foundry/code-workbook/overview/">Code Workbook</a>, as tracking modifications in these tools is more challenging. These tools are great for the development phase, but as the pipeline matures functionality should be rewritten in Transforms, ideally in <a href="https://www.palantir.com/docs/foundry/transforms-python/overview/">Python</a> or <a href="https://www.palantir.com/docs/foundry/transforms-java/overview/">Java</a>.</li>
+<li>Ensure the <code>master</code> branch is locked on all your Code Repositories and all changes require a Pull Request and approval from a code reviewer.</li>
+<li>When merging, we recommend you always <code>Squash and merge</code> as this leaves a cleaner commit history on <code>master</code>.</li>
+</ol>
+<h2>Isolate common data quality errors</h2>
+<p>"Sensitive" or "unstable" datasets should be isolated from the rest of the pipeline via a validation step. In particular, datasets created in Fusion, manual data uploads, and other types of upload are prone to data quality issues that can end up affecting your entire pipeline.</p>
+<p>In the below example, suppose that dataset called <strong>Fusion</strong> is often experiencing data quality issues (schema changes, parsing errors, incomplete data, ...) that end up affecting the rest of the pipeline.</p>
+<p>The solution is to create a <strong>Fusion Validated</strong> dataset that copies the data from <strong>Fusion</strong> if some validation steps pass.</p>
+<p><em>Example Data Lineage Graph with validation datasets on Fusion Sheets and Manual Uploads</em></p>
+<p><img alt="fusion validation example" src="../../_resources/foundry/maintaining-pipelines/fusion_validated_example.png" /></p>
+<pre><code class="language-python"># Example validation code
+@transform(
+    input=Input(&quot;/MyProject/Fusion&quot;),
+    validated_input=Output(&quot;/MyProject/Fusion Validated&quot;),
+)
+def validate(input, validated_input):
+    found_dtypes = input.dataframe().dtypes
+
+    assert len(found_dtypes) &gt;= 8, &quot;Schema break, column count too low&quot;
+
+    assert (&quot;hours&quot;, &quot;int&quot;) in found_dtypes, &quot;'hours' has to be an int&quot;
+
+    validated_input.write_dataframe(input.dataframe())
+</code></pre>
+<p>Create an event-based schedule to build <strong>Fusion Validated</strong> whenever <strong>Fusion</strong> updates.</p>
+<p>Treat <strong>Fusion Validated</strong> as an input to the other pipelines. Ignore it from the builds, and add the relevant health-checks on it. Build status is important, since you may have to contact the people in charge of updating <strong>Fusion</strong> to let them know of potential errors or issues.</p>
+<p>The same reasoning applies to <strong>Manual Upload</strong> and <strong>Manual Upload Validated</strong> datasets.</p>
+<p><em>Example Data Lineage Graph highlighting datasets excluded from the build of Apex 1</em></p>
+<p><img alt="validated datasets" src="../../_resources/foundry/maintaining-pipelines/validated_datasets.png" /></p>
+<p>:::callout{theme="neutral"}
+You do not have to exclude Data Connection syncs from the build explicitly, as they are always considered up-to-date by the orchestration system. The fact that it is colored blue in the graph above <strong>does not</strong> mean that the ingestion will be triggered.
+:::</p>
+<h2>Handling shared resources</h2>
+<p>You might have a dataset that belongs to many different pipelines in your project. If your builds do not align perfectly, some pipelines might be blocked on building this dataset.</p>
+<p>In this case, you should consider creating a new pipeline to build this shared dataset as frequently as needed and have the shared dataset become an input in the other pipelines (ignoring it from the schedules). However, note that such an operation significantly increases the complexity of your pipeline setup. Our recommendation is <strong>not</strong> to perform it unless absolutely necessary.</p>
+<p>Another less invasive way of working around this problem is to build the shared resource in only one pipeline/schedule and treat it as an input in all other pipelines. For example, in the previous diagram, treat <strong>Shared</strong> as an input of <em>one</em> of the pipelines (i.e. exclude it from all but one schedule).</p>
+<h2>Avoid partial runs</h2>
+<p>You should avoid running only part of the pipeline or running 'Full Builds' on datasets.</p>
+<p>A pipeline is either up to date or not. If you run only part of the pipeline (e.g. only the export phase) you might end up in an inconsistent state making it harder to assess whether the pipeline is healthy. If you run a 'full build' on a terminal dataset, this build will be missing all the relevant options that the pipeline should be run with (retries, failure strategy, ignores, etc.). Whenever in need of initiating a build manually, you should use the 'Run Schedule Now' button on the Schedule overview page in order to run a build according to the schedule configuration.</p>
+</body>
+</html>

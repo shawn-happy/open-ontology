@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Latest Model Studio Config Versions</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../../../index.html">返回目录</a></div>
+<p><code>GET /api/v2/models/modelStudios/{modelStudioRid}/configVersions/latest</code></p>
+<p>:::callout{theme=warning title=Warning}
+  This endpoint is in preview and may be modified or removed at any time.
+  To use this endpoint, add <code>preview=true</code> to the request query parameters.
+:::</p>
+<p>Gets the latest configuration version for a Model Studio.</p>
+<p>Third-party applications using this endpoint via OAuth2 must request the following operation scope: <code>api:models-read</code>.</p>
+<p><strong>OAuth2 scopes</strong>: <code>api:models-read</code></p>
+<h2>Path parameters</h2>
+<table>
+<thead>
+<tr>
+<th>参数</th>
+<th>类型</th>
+<th>必填</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>modelStudioRid</code></td>
+<td>string</td>
+<td>是</td>
+<td>The Resource Identifier (RID) of a Model Studio.<br>示例: <code>ri.models.main.model-studio.a1b2c3d4-e5f6-7890-abcd-ef1234567890</code></td>
+</tr>
+</tbody>
+</table>
+<h2>Query parameters</h2>
+<table>
+<thead>
+<tr>
+<th>参数</th>
+<th>类型</th>
+<th>必填</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>preview</code></td>
+<td>boolean</td>
+<td>否</td>
+<td>Enables the use of preview functionality.<br>示例: <code>true</code></td>
+</tr>
+</tbody>
+</table>
+<h2>Response</h2>
+<p><strong>ModelStudioConfigVersion</strong></p>
+<table>
+<thead>
+<tr>
+<th>参数</th>
+<th>类型</th>
+<th>必填</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ModelStudioConfigVersion</code></td>
+<td>object</td>
+<td>是</td>
+<td>示例: <code>{"createdBy":"f05f8da4-b84c-4fca-9c77-8af0b13d11de","trainer":{"trainerId":"ri.models..trainer.autogluon_tabular_regression","version":"0.388.0"},"name":"Initial configuration","resources":{"memory":"4G","cpu":"2"},"createdTime":"2003-05-06T12:34:56.789Z","version":1,"workerConfig":{"outputs":{"model":{"type":"model","modelRid":"ri.models.main.model.a1b2c3d4-e5f6-7890-abcd-ef1234567890"}},"inputs":{"input_df":{"type":"dataset","rid":"ri.foundry.main.dataset.a1b2c3d4-e5f6-7890-abcd-ef1234567890","columnMapping":{"target_column":["target"]},"ignoreColumns":[],"selectColumns":[]}}},"trainerId":"ri.models..trainer.autogluon_tabular_regression"}</code></td>
+</tr>
+<tr>
+<td><code>ModelStudioConfigVersion.name</code></td>
+<td>string</td>
+<td>是</td>
+<td>Human readable name of the configuration version and experiment.<br>示例: <code>Initial configuration</code></td>
+</tr>
+<tr>
+<td><code>ModelStudioConfigVersion.version</code></td>
+<td>integer</td>
+<td>是</td>
+<td>The version number of this configuration.<br>示例: <code>1</code></td>
+</tr>
+<tr>
+<td><code>ModelStudioConfigVersion.trainerId</code></td>
+<td>string</td>
+<td>是</td>
+<td>The identifier of the trainer to use for this configuration.<br>示例: <code>ri.models..trainer.autogluon_tabular_regression</code></td>
+</tr>
+<tr>
+<td><code>ModelStudioConfigVersion.trainer</code></td>
+<td>object</td>
+<td>是</td>
+<td>The trainer and version used for this configuration.<br>示例: <code>{"trainerId":"ri.models..trainer.autogluon_tabular_regression","version":"0.388.0"}</code></td>
+</tr>
+<tr>
+<td><code>ModelStudioConfigVersion.trainer.trainerId</code></td>
+<td>string</td>
+<td>是</td>
+<td>The Resource Identifier (RID) of a trainer.<br>示例: <code>ri.models..trainer.autogluon_tabular_regression</code></td>
+</tr>
+<tr>
+<td><code>ModelStudioConfigVersion.trainer.version</code></td>
+<td>string</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ModelStudioConfigVersion.workerConfig</code></td>
+<td>object</td>
+<td>是</td>
+<td>The worker configuration including inputs, outputs, and custom settings.<br>示例: <code>{"outputs":{"model":{"type":"model","modelRid":"ri.models.main.model.a1b2c3d4-e5f6-7890-abcd-ef1234567890"}},"inputs":{"input_df":{"type":"dataset","rid":"ri.foundry.main.dataset.a1b2c3d4-e5f6-7890-abcd-ef1234567890","columnMapping":{"target_column":["target"]},"ignoreColumns":[],"selectColumns":[]}}}</code></td>
+</tr>
+<tr>
+<td><code>ModelStudioConfigVersion.workerConfig.customConfig</code></td>
+<td>map</td>
+<td>否</td>
+<td>Custom configuration matching the trainer's JSON schema.</td>
+</tr>
+<tr>
+<td><code>ModelStudioConfigVersion.workerConfig.inputs</code></td>
+<td>map</td>
+<td>否</td>
+<td>Input configurations keyed by alias.</td>
+</tr>
+<tr>
+<td><code>ModelStudioConfigVersion.workerConfig.inputs.InputAlias</code></td>
+<td>string</td>
+<td>是</td>
+<td>A string alias used to identify inputs in a Model Studio configuration.</td>
+</tr>
+<tr>
+<td><code>ModelStudioConfigVersion.workerConfig.inputs.ModelStudioInput</code></td>
+<td>union</td>
+<td>是</td>
+<td>Input specification for a Model Studio configuration.</td>
+</tr>
+<tr>
+<td><code>ModelStudioConfigVersion.workerConfig.inputs.ModelStudioInput.dataset</code></td>
+<td>object</td>
+<td>否</td>
+<td>Dataset input configuration.</td>
+</tr>
+<tr>
+<td><code>ModelStudioConfigVersion.workerConfig.inputs.ModelStudioInput.dataset.rid</code></td>
+<td>string</td>
+<td>是</td>
+<td>The RID of the input dataset.<br>示例: <code>ri.foundry.main.dataset.c26f11c8-cdb3-4f44-9f5d-9816ea1c82da</code></td>
+</tr>
+<tr>
+<td><code>ModelStudioConfigVersion.workerConfig.inputs.ModelStudioInput.dataset.columnMapping</code></td>
+<td>map</td>
+<td>否</td>
+<td>Mapping of column type spec IDs to column names.</td>
+</tr>
+<tr>
+<td><code>ModelStudioConfigVersion.workerConfig.inputs.ModelStudioInput.dataset.columnMapping.ColumnTypeSpecId</code></td>
+<td>string</td>
+<td>是</td>
+<td>An identifier for a column type specification.</td>
+</tr>
+<tr>
+<td><code>ModelStudioConfigVersion.workerConfig.inputs.ModelStudioInput.dataset.columnMapping.array</code></td>
+<td>list<ColumnName></td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ModelStudioConfigVersion.workerConfig.inputs.ModelStudioInput.dataset.columnMapping.array.ColumnName</code></td>
+<td>string</td>
+<td>是</td>
+<td>The name of a column in a dataset.</td>
+</tr>
+<tr>
+<td><code>ModelStudioConfigVersion.workerConfig.inputs.ModelStudioInput.dataset.ignoreColumns</code></td>
+<td>list<ColumnName></td>
+<td>否</td>
+<td>Columns to ignore from the dataset.</td>
+</tr>
+<tr>
+<td><code>ModelStudioConfigVersion.workerConfig.inputs.ModelStudioInput.dataset.ignoreColumns.ColumnName</code></td>
+<td>string</td>
+<td>是</td>
+<td>The name of a column in a dataset.</td>
+</tr>
+<tr>
+<td><code>ModelStudioConfigVersion.workerConfig.inputs.ModelStudioInput.dataset.selectColumns</code></td>
+<td>list<ColumnName></td>
+<td>否</td>
+<td>Columns to select from the dataset. If empty, all columns not in ignoreColumns will be used.</td>
+</tr>
+<tr>
+<td><code>ModelStudioConfigVersion.workerConfig.inputs.ModelStudioInput.dataset.selectColumns.ColumnName</code></td>
+<td>string</td>
+<td>是</td>
+<td>The name of a column in a dataset.</td>
+</tr>
+<tr>
+<td><code>ModelStudioConfigVersion.workerConfig.outputs</code></td>
+<td>map</td>
+<td>否</td>
+<td>Output configurations keyed by alias.</td>
+</tr>
+<tr>
+<td><code>ModelStudioConfigVersion.workerConfig.outputs.OutputAlias</code></td>
+<td>string</td>
+<td>是</td>
+<td>A string alias used to identify outputs in a Model Studio configuration.</td>
+</tr>
+<tr>
+<td><code>ModelStudioConfigVersion.workerConfig.outputs.ModelStudioOutput</code></td>
+<td>union</td>
+<td>是</td>
+<td>Output specification for a Model Studio configuration.</td>
+</tr>
+<tr>
+<td><code>ModelStudioConfigVersion.workerConfig.outputs.ModelStudioOutput.model</code></td>
+<td>object</td>
+<td>否</td>
+<td>Model output configuration.</td>
+</tr>
+<tr>
+<td><code>ModelStudioConfigVersion.workerConfig.outputs.ModelStudioOutput.model.modelRid</code></td>
+<td>string</td>
+<td>是</td>
+<td>The RID of the output model.<br>示例: <code>ri.models.main.model.f351c142-0e4c-4b12-adc2-6e1539737ae9</code></td>
+</tr>
+<tr>
+<td><code>ModelStudioConfigVersion.resources</code></td>
+<td>object</td>
+<td>是</td>
+<td>The compute resources allocated for training runs.<br>示例: <code>{"memory":"4G","cpu":"2"}</code></td>
+</tr>
+<tr>
+<td><code>ModelStudioConfigVersion.resources.memory</code></td>
+<td>string</td>
+<td>是</td>
+<td>Memory allocation (e.g., "4G").</td>
+</tr>
+<tr>
+<td><code>ModelStudioConfigVersion.resources.cpu</code></td>
+<td>string</td>
+<td>是</td>
+<td>CPU allocation (e.g., "2").</td>
+</tr>
+<tr>
+<td><code>ModelStudioConfigVersion.resources.gpu</code></td>
+<td>enum</td>
+<td>否</td>
+<td>GPU allocation (must be available in the project's resource queue).<br>示例: <code>A100</code></td>
+</tr>
+<tr>
+<td><code>ModelStudioConfigVersion.changelog</code></td>
+<td>string</td>
+<td>否</td>
+<td>Changelog describing changes in this version.</td>
+</tr>
+<tr>
+<td><code>ModelStudioConfigVersion.createdBy</code></td>
+<td>string</td>
+<td>是</td>
+<td>The Foundry user who created this resource<br>示例: <code>f05f8da4-b84c-4fca-9c77-8af0b13d11de</code></td>
+</tr>
+<tr>
+<td><code>ModelStudioConfigVersion.createdTime</code></td>
+<td>string</td>
+<td>是</td>
+<td>The time at which the resource was created.<br>示例: <code>2003-05-06T12:34:56.789Z</code></td>
+</tr>
+</tbody>
+</table>
+<pre><code class="language-json">{
+  &quot;createdBy&quot;: &quot;f05f8da4-b84c-4fca-9c77-8af0b13d11de&quot;,
+  &quot;trainer&quot;: {
+    &quot;trainerId&quot;: &quot;ri.models..trainer.autogluon_tabular_regression&quot;,
+    &quot;version&quot;: &quot;0.388.0&quot;
+  },
+  &quot;name&quot;: &quot;Initial configuration&quot;,
+  &quot;resources&quot;: {
+    &quot;memory&quot;: &quot;4G&quot;,
+    &quot;cpu&quot;: &quot;2&quot;
+  },
+  &quot;createdTime&quot;: &quot;2003-05-06T12:34:56.789Z&quot;,
+  &quot;version&quot;: 1,
+  &quot;workerConfig&quot;: {
+    &quot;outputs&quot;: {
+      &quot;model&quot;: {
+        &quot;type&quot;: &quot;model&quot;,
+        &quot;modelRid&quot;: &quot;ri.models.main.model.a1b2c3d4-e5f6-7890-abcd-ef1234567890&quot;
+      }
+    },
+    &quot;inputs&quot;: {
+      &quot;input_df&quot;: {
+        &quot;type&quot;: &quot;dataset&quot;,
+        &quot;rid&quot;: &quot;ri.foundry.main.dataset.a1b2c3d4-e5f6-7890-abcd-ef1234567890&quot;,
+        &quot;columnMapping&quot;: {
+          &quot;target_column&quot;: [
+            &quot;target&quot;
+          ]
+        },
+        &quot;ignoreColumns&quot;: [],
+        &quot;selectColumns&quot;: []
+      }
+    }
+  },
+  &quot;trainerId&quot;: &quot;ri.models..trainer.autogluon_tabular_regression&quot;
+}
+</code></pre>
+<h2>Error responses</h2>
+<table>
+<thead>
+<tr>
+<th>错误码</th>
+<th>错误名称</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>NOT_FOUND</td>
+<td><code>ModelStudioNotFound</code></td>
+<td>The requested Model Studio was not found.</td>
+</tr>
+<tr>
+<td>PERMISSION_DENIED</td>
+<td><code>LatestModelStudioConfigVersionsPermissionDenied</code></td>
+<td>Could not latest the ModelStudioConfigVersion.</td>
+</tr>
+</tbody>
+</table>
+</body>
+</html>

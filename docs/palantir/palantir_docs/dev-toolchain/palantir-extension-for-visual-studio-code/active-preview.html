@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Active Preview</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Active Preview</h1>
+<p>Active Preview is a feature designed to provide you with fast feedback as you develop your transforms. With Active Preview, your preview updates automatically every time you save changes, allowing you to immediately view results or errors as you write or update code.</p>
+<p>When Active Preview is enabled, your transform is re-executed on every save. This means the following:</p>
+<ul>
+<li>The preview panel always shows up-to-date intermediate results or errors.</li>
+<li>You do not need to manually trigger a new preview after each change.</li>
+<li>Extensive caching is used to speed up the process, so you get results faster compared to a normal preview.</li>
+</ul>
+<h2>Caching in Active Preview</h2>
+<p>Active Preview uses caching to make previews faster. This includes:</p>
+<ul>
+<li>Project resources and context</li>
+<li>Information about your project and its dependencies</li>
+<li>Network checks and setup file contents</li>
+<li>In-memory caching for datasets</li>
+</ul>
+<h2>When to use Active Preview</h2>
+<p>Active Preview is ideal for the following workflows:</p>
+<ul>
+<li><strong>Preview with expensive code-defined filters:</strong> The result of the code-defined filters is cached, resulting in faster subsequent previews.</li>
+<li><strong>Iterative development:</strong> Impact assessment while frequently changing transform logic.</li>
+<li><strong>Transforms with slow preview setup:</strong> Reduce waiting time with extra caching.</li>
+</ul>
+<p>:::callout{theme="neutral"}
+Since Active Preview stores filtered input datasets in memory, it is best suited for datasets small enough to fit into available memory.
+:::</p>
+<h2>Enable Active Preview</h2>
+<p>Toggle on <strong>Active Preview</strong> once you initiate a preview.</p>
+<p><img alt="The Active Preview toggle." src="../../_resources/foundry/palantir-extension-for-visual-studio-code/active_preview_toggle.png" /></p>
+<p>Once enabled, any preview you start in the same workspace will launch as an Active Preview session. To exit Active Preview, either <strong>Abort</strong> the current session or toggle off the option.</p>
+<h2>Best practices and considerations</h2>
+<ul>
+<li><strong>Do not change the name or location of your transform while Active Preview is running:</strong> If you need to edit these configurations, abort the Active Preview session, make your changes, then restart.</li>
+<li><strong>Caching and project updates:</strong> Sometimes, changes elsewhere in your project (like references) may not appear immediately in your preview due to extensive caching. If you need to view updates right away, stop and restart Active Preview.</li>
+<li><strong>Auto-save is automatically disabled:</strong> While Active Preview is running, previews only trigger when you manually save your work. Auto-save will be re-enabled when you exit Active Preview.</li>
+</ul>
+<p><img alt="The Active Preview auto-save setting." src="../../_resources/foundry/palantir-extension-for-visual-studio-code/active_preview_autosave.png" /></p>
+<ul>
+<li><strong>Be mindful of external requests:</strong> Every save triggers a new preview. If your transform makes requests to external APIs, those endpoints may see more traffic than usual.</li>
+<li><strong>Only run one preview at a time:</strong> While Active Preview is running, you cannot start another preview or use the debug mode. Disable Active Preview first if you need to switch.</li>
+<li><strong>Editing <code>setup.py</code>:</strong> If you need to change your <code>setup.py</code> file, do so outside of Active Preview sessions for best results.</li>
+</ul>
+</body>
+</html>

@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ontology design: Validation</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../index.html">返回目录</a></div>
+<h1>Ontology design: Validation</h1>
+<p>A structural review confirms that an Ontology is semantically coherent and technically correct. It cannot confirm that anyone can use it. Task-based validation closes that gap: you test the model against the decisions and investigations it must support, with the people and agents who will depend on it.</p>
+<p>At Palantir, we use internal analytical drills to test both Ontology design and fluency. Teams receive business questions they have not seen before, ranging from simple counts to multi-step investigations. Participants use general-purpose analytical applications and do not use workflows or dashboards that teams build for the task. This constraint tests the Ontology itself instead of application-specific crutches.</p>
+<p>These exercises inform the validation method described here. We recommend adapting these exercises to evaluate Ontology design in your own enterprise. An Ontology is not simply a raw write-through of source systems. It is the interface through which people and agents understand the enterprise, investigate changing conditions, and make decisions.</p>
+<p>Five lessons from these exercises shape the guidance that follows:</p>
+<table>
+<thead>
+<tr>
+<th>Lesson</th>
+<th>Where it is covered</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Structural correctness does not guarantee operational usability</td>
+<td><a href="#limits-of-structural-review">Limits of structural review</a></td>
+</tr>
+<tr>
+<td>Real business questions are the best acceptance tests</td>
+<td><a href="#sourcing-real-business-questions">Sourcing real business questions</a></td>
+</tr>
+<tr>
+<td>New users provide critical evidence</td>
+<td><a href="#drill-design-decisions">Drill design decisions</a></td>
+</tr>
+<tr>
+<td>Time to answer is a design signal</td>
+<td><a href="#reading-the-results">Reading the results</a></td>
+</tr>
+<tr>
+<td>People and agents expose different weaknesses</td>
+<td><a href="#comparing-people-and-agents">Comparing people and agents</a></td>
+</tr>
+</tbody>
+</table>
+<h2>Limits of structural review</h2>
+<p>Structural guidance can determine whether an object type represents a coherent entity, whether a link has meaningful cardinality, or whether multiple types should share an interface. These reviews are essential: they evaluate the internal integrity of the model and prevent design choices that become expensive to reverse. What they cannot evaluate is the experience of approaching the Ontology with only a business question.</p>
+<p>That experience does not begin at a schema diagram. It begins with an operational condition: output falls, a shipment arrives late, inventory goes missing, or a delay puts scheduled work at risk. From there the user must translate the condition into the language of the Ontology, find a useful starting object type, and follow links that match how they understand the organization.</p>
+<p>At each of those steps, the model either carries the context or transfers that burden back to the user. An ambiguous object type forces a guess. Without an alias, users cannot find an object type by its familiar name. A link that reflects a source-system join rather than a real relationship interrupts the investigation. When two concepts are duplicated, the user must already know which representation is authoritative.</p>
+<p>A builder can often navigate these weaknesses from memory, but a builder alone cannot validate the design. The context that makes the path obvious comes from the builder, not the Ontology.</p>
+<h2>Sourcing real business questions</h2>
+<p>The same limitation applies to the questions. If builders inspect the existing Ontology and ask what it can answer, they will validate the coverage they already know they have. This approach systematically excludes the concepts and relationships that never made it into the design.</p>
+<p>Instead, derive questions from the operating rhythm of the organization:</p>
+<ul>
+<li>What do leaders repeatedly ask their teams?</li>
+<li>What do teams need from one another before they can make a decision?</li>
+<li>Which investigation depends on an experienced person who knows where every piece of information lives?</li>
+<li>Which recurring report exists because the underlying answer is otherwise difficult to assemble?</li>
+<li>What information do users wish they could access without escalating to a technical team?</li>
+</ul>
+<p>The strongest questions are both common and consequential, as they reflect decisions that the organization makes repeatedly, under real constraints, and with meaningful costs for delay or error.</p>
+<p>Begin at the level where a leader or operator recognizes a significant condition, then move toward the objects and relationships that explain it. A useful sequence generally performs three kinds of work:</p>
+<ol>
+<li><strong>Establish the situation:</strong> Identify the customer, facility, asset, portfolio, or operational result that requires attention.</li>
+<li><strong>Trace the contributing factors:</strong> Follow relationships to the orders, events, materials, positions, or observations behind that result.</li>
+<li><strong>Assess the impact:</strong> Determine what else the situation affects, what it places at risk, and where teams can intervene.</li>
+</ol>
+<p>If the Ontology cannot express an important question naturally, keep that question in the set rather than replacing it. Treat the failure itself as a result, and review the design for a missing domain concept, relationship, or piece of business logic. How you run the exercise then determines how much these questions reveal.</p>
+<h2>Drill design decisions</h2>
+<p>Three decisions determine how much a drill reveals: which tools participants may use, who participates, and whether they work alone or in teams.</p>
+<p>Purpose-built applications can compensate for weak Ontology design by encoding the correct starting point, path, filters, and calculations in advance. A well-built Workshop application can deliver an excellent workflow and still tell you nothing about whether the underlying model is independently discoverable and expressive. Exclude these applications from the drill.</p>
+<p>Who participates determines what the result means. An experienced builder demonstrates what is possible with full knowledge of the implementation. A domain expert who did not build the Ontology provides stronger evidence of whether its names, descriptions, and relationships communicate on their own. A newer user tests whether the model can support onboarding rather than depending on institutional memory.</p>
+<p>Team and individual formats reveal different properties. A team exercise tests shared fluency and shows how users explain the model to one another. An individual exercise isolates usability for people who are unfamiliar with the Ontology. When using a team format, begin with an unassisted attempt before allowing coaching so that collective expertise does not hide the original point of confusion.</p>
+<p>The drill measures how much work the Ontology performs on the participant's behalf. That makes the observations you record as valuable as the answers you collect.</p>
+<h2>Reading the results</h2>
+<p>Correctness is the minimum. Operational value also depends on how quickly a user can identify the answer, explain the path, and act with confidence.</p>
+<p>For each question, capture whether the participant reaches the correct answer and how long the investigation takes. Record where the participant hesitates, which terms they search, which object types and links they try, and whether they need assistance. Manual exports and joins provide particularly important signals: they often indicate that a meaningful relationship exists in the business but not in the Ontology.</p>
+<p>The path to the answer can be more informative than the final answer. When a participant becomes confused, ask what they expected to find. Their language can identify a missing alias, an unclear description, or a relationship that is intuitive in the domain but absent from the model. An unexpected path can reveal either a useful alternative or an ambiguity that produces inconsistent results.</p>
+<p>Use observed behavior to distinguish symptoms from their most likely causes:</p>
+<table>
+<thead>
+<tr>
+<th>What you observe</th>
+<th>What to review</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Users cannot identify a starting object type</td>
+<td>Unclear names, insufficient aliases, too many visible types, or missing descriptions (<a href="https://www.palantir.com/docs/foundry/ontology/ontology-anti-patterns/#anti-pattern-the-misnomer">The Misnomer</a>)</td>
+</tr>
+<tr>
+<td>Users choose different object types for the same concept</td>
+<td>Duplicate, overlapping, or insufficiently differentiated concepts (<a href="https://www.palantir.com/docs/foundry/ontology/ontology-anti-patterns/#anti-pattern-department-silos">Department Silos</a>)</td>
+</tr>
+<tr>
+<td>Users cannot move between concepts they consider related</td>
+<td>A missing, misnamed, incorrectly directed, or unavailable link (<a href="https://www.palantir.com/docs/foundry/ontology/ontology-structural-guidance/#links-and-object-backed-link-types">Link design</a>)</td>
+</tr>
+<tr>
+<td>Users export data or construct manual joins</td>
+<td>A meaningful relationship or reusable analytical concept that the Ontology does not represent (<a href="https://www.palantir.com/docs/foundry/ontology/ontology-structural-guidance/#links-and-object-backed-link-types">Link design</a>)</td>
+</tr>
+<tr>
+<td>Reasonable paths produce different answers</td>
+<td>Unclear levels of detail, such as an order compared with an order line or shipment, or ambiguous identities, units, dates, or aggregation logic (<a href="https://www.palantir.com/docs/foundry/ontology/ontology-structural-guidance/#naming-conventions">Naming conventions</a>)</td>
+</tr>
+<tr>
+<td>Only builders or deeply technical users succeed</td>
+<td>Source-system terminology, hidden conventions, or insufficient documentation (<a href="https://www.palantir.com/docs/foundry/ontology/ontology-anti-patterns/#anti-pattern-system-silos">System Silos</a>)</td>
+</tr>
+<tr>
+<td>A reasonable path is consistently slow</td>
+<td>Query, indexing, data volume, or modeling performance constraints (<a href="https://www.palantir.com/docs/foundry/ontology/ontology-structural-guidance/#normalization-and-derived-properties">Normalization and derived properties</a>)</td>
+</tr>
+<tr>
+<td>No reasonable path can answer the question</td>
+<td>Missing data, a domain coverage gap, or an unsupported analytical operation</td>
+</tr>
+</tbody>
+</table>
+<p>Not every difficult task requires an Ontology change. First determine whether the constraint sits in the model, underlying data, permissions, analytical application, or user training. Treat a single failure as a possible edge case, and repeated confusion around the same object type or relationship as evidence of a systemic design problem. To separate a model problem from a knowledge problem, run the same questions again without human participants.</p>
+<h2>Comparing people and agents</h2>
+<p>An Ontology serves two classes of consumers: people and AI agents. Each brings different capabilities to an investigation. People contribute domain experience, organizational context, and implicit knowledge. Agents can search and transform large amounts of data, test several paths, and operate without the same dependence on visual hierarchy.</p>
+<p>After completing a drill with people, run the same questions through <a href="https://www.palantir.com/docs/foundry/aip-analyst/overview/">AIP Analyst</a> or <a href="https://www.palantir.com/docs/foundry/ai-fde/overview/">AI FDE</a>. Provide the question and the necessary Ontology access, but do not provide the path that the human participants take.</p>
+<p>The comparison reveals what knowledge the Ontology makes explicit:</p>
+<table>
+<thead>
+<tr>
+<th>Result</th>
+<th>What to investigate</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>People and AI both succeed</td>
+<td>Confirm that the model provides a discoverable and expressive path for this question</td>
+</tr>
+<tr>
+<td>AI succeeds, but people struggle</td>
+<td>Review human-facing names, aliases, descriptions, default views, and visual hierarchy; also consider whether the task naturally favors automated analysis at scale</td>
+</tr>
+<tr>
+<td>People succeed, but AI struggles</td>
+<td>Identify business logic or domain knowledge that participants supplied from experience but that the Ontology does not make explicit</td>
+</tr>
+<tr>
+<td>People and AI both struggle</td>
+<td>Look for missing data, links, semantics, or reusable business logic</td>
+</tr>
+</tbody>
+</table>
+<p>An AI-only run does not substitute for testing with people. It evaluates a different property: whether the Ontology contains enough context for an agent to reason without relying on the unwritten knowledge of the team. This is the same gap a builder covers from memory, at the scale of the whole organization. If people succeed only because they already know the business, that knowledge remains difficult to automate and difficult to transfer to someone new.</p>
+<h2>Exercise formats</h2>
+<p>We use two complementary exercises. A quiz-style game covers breadth: many independent questions, testing discoverability for people unfamiliar with the Ontology. A timed drill-down covers depth, testing whether teams can sustain one connected investigation from an organization-level question down to granular operational details.</p>
+<h3>Quiz-style game</h3>
+<p>We structure the first exercise as a race between teams. Time pressure forces participants to commit to a path and to make that path visible. Because the questions are unknown in advance, no team can arrive with a workflow already built for one of them. The format is also engaging and interactive.</p>
+<p>Use the following guidelines to run the game:</p>
+<ol>
+<li><strong>Keep questions hidden until the game begins.</strong> Teams can prepare by becoming familiar with their Ontology, but they cannot rehearse a specific analysis.</li>
+<li><strong>Assign higher point values to more difficult questions.</strong> Use lower-value questions that require a direct lookup, count, or single-object investigation. Use higher-value questions that require multi-step analysis across several object types and links.</li>
+<li><strong>Designate one participant to control the application.</strong> Ask each team to nominate the participant who is least familiar with the Ontology to operate the application. Other team members can coach, interpret the question, and suggest paths. This structure tests both usability for people unfamiliar with the Ontology and the team's ability to communicate its shared model.</li>
+<li><strong>Use only general-purpose analytical applications.</strong> Permit <a href="https://www.palantir.com/docs/foundry/insight/overview/">Insight</a>, <a href="https://www.palantir.com/docs/foundry/contour/overview/">Contour</a>, and <a href="https://www.palantir.com/docs/foundry/quiver/overview/">Quiver</a>, while excluding purpose-built <a href="https://www.palantir.com/docs/foundry/workshop/overview/">Workshop applications</a> and AI assistance such as <a href="https://www.palantir.com/docs/foundry/aip-analyst/overview/">AIP Analyst</a> and <a href="https://www.palantir.com/docs/foundry/ai-fde/overview/">AI FDE</a>. This constraint keeps the Ontology, rather than a prepared interface or agent, at the center of the exercise.</li>
+<li><strong>Require teams to show their work.</strong> Award the points to the first team that produces an answer and demonstrates its analytical path to a judge. Do not accept an unsupported number.</li>
+</ol>
+<h3>Timed drill-down</h3>
+<p>We recommend a second exercise to test depth, continuity, and speed across one connected analytical path. Teams begin with a broad question, then follow a fixed sequence of questions into the underlying operational details.</p>
+<p>Use the following guidelines to run the drill-down:</p>
+<ol>
+<li><strong>Build one connected sequence.</strong> Make each question depend on the answer or context established by the question before it.</li>
+<li><strong>Move from the organization-level view to granular details.</strong> Test whether links support a natural investigation across several levels and domains of the Ontology.</li>
+<li><strong>Measure total completion time.</strong> The fastest team wins, but every team's time and analytical path contribute evidence about the design.</li>
+</ol>
+<p>Competition is optional in both formats. Its value is the urgency and focus it creates, not the ranking itself.</p>
+<h2>Example questions</h2>
+<p>Each set below follows the same broad-to-granular sequence: establish the situation, trace the contributing factors, assess the impact. Adapt them to the language, decisions, and responsibilities of your organization.</p>
+<details>
+  <summary>Manufacturing</summary>
+
+1. Which customer ordered the highest product volume this year?
+2. Which product accounts for most of that customer's order volume?
+3. Which work orders produce that product?
+4. Which components do those work orders require (including multiple levels down in the bill of materials)?
+5. Which required components does the build location lack?
+6. Which supplier delay puts the greatest number of scheduled work orders at risk?
+
+</details>
+
+<details>
+  <summary>Healthcare</summary>
+
+1. Which facility has the highest appointment cancellation rate this quarter?
+2. Which specialty contributes most to that rate?
+3. Which appointment types account for most cancellations?
+4. Which cancellation reasons account for most of those appointments?
+5. Which facilities have capacity to reschedule the affected appointments?
+6. How many upcoming appointments remain at risk of cancellation?
+
+</details>
+
+<details>
+  <summary>Logistics and distribution</summary>
+
+1. Which region has the highest volume of late deliveries this month?
+2. Which distribution center contributes the most late deliveries in that region?
+3. Which customer orders account for the largest share?
+4. Which shipments fulfill those orders?
+5. Which route segments or handling events contribute most to the delays?
+6. Which upcoming deliveries follow the same routes or pass through the same bottlenecks?
+
+</details>
+
+<details>
+  <summary>Financial services</summary>
+
+1. Which portfolio has the greatest concentration risk?
+2. Which sector contributes most to that concentration?
+3. Which issuers and positions account for the exposure?
+4. Which recent transactions increased the exposure?
+5. Which linked risk events could affect those positions?
+6. Which proposed transactions would exceed the portfolio's risk limits?
+
+</details>
+
+<details>
+  <summary>Sensor analysis</summary>
+
+1. Which facility has the largest production shortfall this month?
+2. Which assets contribute most to that shortfall?
+3. Which sensor readings changed before production declined?
+4. Which maintenance events or operating conditions coincide with those changes?
+5. Where has the same sensor pattern occurred before?
+6. Which other assets currently show a similar pattern?
+
+</details>
+
+<details>
+  <summary>Defense intelligence</summary>
+
+1. How many ships are in a particular area of interest?
+2. Which ship classes account for most of the activity in that area?
+3. Which individual ships entered the area most recently?
+4. Which routes did those ships follow before entering the area?
+5. Which ports did those ships visit along those routes?
+6. Which other ships did they encounter during the same period?
+
+</details>
+
+<details>
+  <summary>Defense operations</summary>
+
+1. Which unit has the lowest current readiness?
+2. Which subordinate units account for most of the readiness gap?
+3. Which readiness requirements do those units fail to meet?
+4. Which maintenance actions or supply shortages constrain those units?
+5. Which supporting units or locations can provide the required resources?
+6. Which planned exercises conflict with the projected recovery dates?
+
+</details>
+
+<h2>Validation as an ongoing practice</h2>
+<p>A single design cycle will not produce a finished Ontology. Domains evolve, operating conditions change, and new decisions place new demands on the model. Maintain the process instead: repeated testing shows whether the Ontology still represents the organization in a form that people and agents can use.</p>
+<p>An initial drill requires only a small set of consequential questions, representative participants who did not build the model, and a general-purpose analytical application. A facilitator records accuracy, time, confusion, and assistance. After the drill, prioritize changes that affect several questions or block high-value workflows. Repeat some questions to measure improvement, then introduce unseen questions to determine whether that improvement generalizes.</p>
+<p>Over time, the question set becomes an evaluation suite for the Ontology. Use it to evaluate new object types, links, data sources, and business logic against the decisions the model must support. Lessons from each exercise compound into clearer semantics, more complete organizational context, and faster investigations.</p>
+<p>Neither a complete set of desired object types nor an expert who can eventually assemble an answer validates an Ontology. People and agents must repeatedly move from a consequential question to a trustworthy answer through a path that reflects how the organization actually operates.</p>
+</body>
+</html>

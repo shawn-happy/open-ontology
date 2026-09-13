@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Convert data to JSON</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Convert data to JSON</h1>
+<blockquote>
+<p>Supported in: Batch, Faster, Streaming</p>
+</blockquote>
+<p>Transforms input into json string.</p>
+<p><strong>Expression categories:</strong> File, String</p>
+<h2>Declared arguments</h2>
+<ul>
+<li><strong>Input:</strong> Input to be transformed.<br><em>Expression\<Array\\<AnyType> | Map\\<AnyType, AnyType> | Struct></em></li>
+</ul>
+<p><strong>Output type:</strong> <em>String</em></p>
+<h2>Examples</h2>
+<h3>Example 1: Base case</h3>
+<p><strong>Argument values:</strong></p>
+<ul>
+<li><strong>Input:</strong> <code>array</code></li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>array</th>
+<th><strong>Output</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>[ hello, world ]</td>
+<td>["hello","world"]</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3>Example 2: Base case</h3>
+<p><strong>Argument values:</strong></p>
+<ul>
+<li><strong>Input:</strong> <code>struct</code></li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>struct</th>
+<th><strong>Output</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>{<br>â<strong>airline</strong>: {<br>â<strong>id</strong>: NA,<br>},<br>}</td>
+<td>{"airline":{"id":"NA"}}</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3>Example 3: Base case</h3>
+<p><strong>Argument values:</strong></p>
+<ul>
+<li><strong>Input:</strong> <code>struct_0</code></li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>struct_0</th>
+<th><strong>Output</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>{<br>â<strong>date</strong>: 2021-01-01,<br>â<strong>dec32</strong>: 1.12,<br>â<strong>dec33</strong>: 0.120,<br>â**dec...</td>
+<td>{"dec32":1.12,"dec33":0.120,"dec64":10.0000,"timestamp":"2021-01-01T01:01:01.000Z","date":"2021-01-01","struct_1":{"airline":{"id":"NA"}}}</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3>Example 4: Base case</h3>
+<p><strong>Argument values:</strong></p>
+<ul>
+<li><strong>Input:</strong> <code>array</code></li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>array</th>
+<th><strong>Output</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>[ 1.00, 2.10, 36.00 ]</td>
+<td>[1.00,2.10,36.00]</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3>Example 5: Base case</h3>
+<p><strong>Argument values:</strong></p>
+<ul>
+<li><strong>Input:</strong> <code>map</code></li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>map</th>
+<th><strong>Output</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>{<br>âa -&gt; 1,<br>âb -&gt; 2,<br>}</td>
+<td>{"a":"1","b":"2"}</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3>Example 6: Base case</h3>
+<p><strong>Argument values:</strong></p>
+<ul>
+<li><strong>Input:</strong> <code>array</code></li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>array</th>
+<th><strong>Output</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>[ {<br>â<strong>airline</strong>: {<br>â<strong>id</strong>: NA,<br>},<br>}, <em>null</em> ]</td>
+<td>[{"airline":{"id":"NA"}},null]</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3>Example 7: Base case</h3>
+<p><strong>Argument values:</strong></p>
+<ul>
+<li><strong>Input:</strong> <code>map</code></li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>map</th>
+<th><strong>Output</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>{<br>âa -&gt; {<br>â<strong>airline</strong>: {<br>â<strong>id</strong>: NA,<br>},<br>},<br>}</td>
+<td>{"a":{"airline":{"id":"NA"}}}</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3>Example 8: Base case</h3>
+<p><strong>Argument values:</strong></p>
+<ul>
+<li><strong>Input:</strong> <code>struct_0</code></li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>struct_0</th>
+<th><strong>Output</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>{<br>â<strong>array_1</strong>: [ <em>null</em>, <em>null</em>, <em>null</em> ],<br>â<strong>struct_1</strong>: {<br>â<strong>double</strong>: <em>null</em>,<br>â<strong>string</strong>: <em>null</em>,<br>},<br>}</td>
+<td>{"struct_1":{"string":null,"double":null},"array_1":[null,null,null]}</td>
+</tr>
+<tr>
+<td>{<br>â<strong>array_1</strong>: <em>null</em>,<br>â<strong>struct_1</strong>: <em>null</em>,<br>}</td>
+<td>{"struct_1":null,"array_1":null}</td>
+</tr>
+</tbody>
+</table>
+<hr />
+</body>
+</html>

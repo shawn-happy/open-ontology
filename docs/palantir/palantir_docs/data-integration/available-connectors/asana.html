@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Asana</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Asana</h1>
+<p>Connect Foundry to Asana with the CData JDBC driver to import data into Foundry datasets.</p>
+<h2>Supported capabilities</h2>
+<table>
+<thead>
+<tr>
+<th>Capability</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Exploration</td>
+<td>ð¢ Generally available</td>
+</tr>
+<tr>
+<td>Bulk import</td>
+<td>ð¢ Generally available</td>
+</tr>
+<tr>
+<td>Incremental</td>
+<td>ð¢ Generally available</td>
+</tr>
+</tbody>
+</table>
+<h2>Data model</h2>
+<p>The CData driver models Asana data as a list of tables in a relational database that can be queried using standard SQL statements. For information about the available tables and their contents, review the CData documentation for <a href="https://cdn.cdata.com/help/UJJ/jdbc/pg_alltables.htm">Asana tables â</a>.</p>
+<h2>Setup</h2>
+<ol>
+<li>Open the <a href="https://www.palantir.com/docs/foundry/data-connection/overview/">Data Connection</a> application and select <strong>+ New Source</strong> in the upper right corner of the screen.</li>
+<li>Select <strong>Asana</strong> from the available connector types.</li>
+<li>Follow the additional configuration prompts to continue the setup of your connector using the information in the sections below.</li>
+</ol>
+<p>Learn more about <a href="https://www.palantir.com/docs/foundry/data-connection/set-up-source/">setting up a connector</a> in Foundry.</p>
+<h3>Authentication</h3>
+<p>Authentication to Asana is performed with personal or service access tokens.</p>
+<p>To generate a Service Account or personal access token, follow the guides in the Asana documentation:</p>
+<ul>
+<li><a href="https://help.asana.com/s/article/service-accounts">Service Account token â</a></li>
+<li>Use a Service Account token for persistent and durable source creation that does not directly link to an individual user.</li>
+<li><a href="https://developers.asana.com/docs/personal-access-token">Personal access token â</a></li>
+<li>Some organizations do not allow users to create access tokens. Reach out to your Asana administrators if you have issues obtaining one.</li>
+</ul>
+<h3>Networking</h3>
+<p>The table below lists the domains that the source must access to run.</p>
+<p>For <a href="https://www.palantir.com/docs/foundry/data-connection/core-concepts/#foundry-worker">Foundry worker</a> connections, add an egress policy for each domain.</p>
+<p>If the domains are on another network and you use <a href="https://www.palantir.com/docs/foundry/administration/configure-egress/#agent-proxy-egress-policies">agent proxy egress policies</a> (preferred) or an <a href="https://www.palantir.com/docs/foundry/data-connection/core-concepts/#agent-worker">agent worker</a> (not recommended), the agent must be able to reach them. The systems on those domains must also allow connections from the agent. <a href="https://www.palantir.com/docs/foundry/data-connection/set-up-agent/#configure-agent-network-access">Learn more about agent networking.</a></p>
+<table>
+<thead>
+<tr>
+<th>Domain</th>
+<th>Required</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>app.asana.com</code></td>
+<td>Always</td>
+</tr>
+</tbody>
+</table>
+<h2>Configuration options</h2>
+<p>The following configuration options are available for the Asana connector:</p>
+<table>
+<thead>
+<tr>
+<th>Option</th>
+<th>Required?</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Project ID</code></td>
+<td>Yes</td>
+<td>Find the project ID in the URL of the project on Asana. For example: <code>https://app.asana.com/0/PROJECT_ID/list</code></td>
+</tr>
+<tr>
+<td><code>Credentials settings</code></td>
+<td>Yes</td>
+<td>Configure using the <a href="#authentication">Authentication</a> guidance shown above.</td>
+</tr>
+<tr>
+<td><code>Proxy settings</code></td>
+<td>No</td>
+<td>Enable and enter the username and password to allow a proxy connection to Asana.</td>
+</tr>
+<tr>
+<td><code>Logs</code></td>
+<td>No</td>
+<td>Enable to control how the connector logs information. Review the <a href="#log-settings">log settings</a> section below for more details.</td>
+</tr>
+</tbody>
+</table>
+<h3>Log settings</h3>
+<p>Detailed logs may be required to troubleshoot connections. Use <strong>Verbosity level</strong> setting to increase or decrease the amount of information logged.</p>
+<p>:::callout{theme="warning"}
+Increasing log verbosity can lead to sensitive information being saved into Foundry build logs. Before sharing these logs, redact any passwords as necessary. Review the CData documentation to learn more about different <a href="https://cdn.cdata.com/help/DNJ/jdbc/pg_advancedlogging.htm">verbosity levels â</a>.
+:::</p>
+<h2>Sync data from Asana</h2>
+<p>To set up a Asana sync, select <strong>Explore and create syncs</strong> in the upper right of the source <strong>Overview</strong> screen. Next, select the tables you want to sync into Foundry. When you are ready to sync, select <strong>Create sync for x datasets</strong>.</p>
+<p>Learn more about <a href="https://www.palantir.com/docs/foundry/data-connection/source-exploration/">source exploration</a> in Foundry.</p>
+<h2>Configure Asana syncs</h2>
+<p>The Asana connector allows for advanced sync configurations to determine how much of which data is brought into Foundry.</p>
+<p>After exploring your available tables and adding them to your connection, navigate to <strong>Edit syncs</strong>. From the <strong>Syncs</strong> panel to the left, find the sync you want to configure and select <strong>&gt;</strong> to the right.</p>
+<table>
+<thead>
+<tr>
+<th>Option</th>
+<th>Required?</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Table</code></td>
+<td>Yes</td>
+<td>Choose what table from Asana should be copied into Foundry. See <a href="#data-model">data model</a> for what tables are supported.</td>
+</tr>
+<tr>
+<td><code>Column selection</code></td>
+<td>No</td>
+<td>Select a subset of columns to sync into Foundry. Review the <a href="#column-selection">column selection</a> section below for more information.</td>
+</tr>
+<tr>
+<td><code>Row filters</code></td>
+<td>No</td>
+<td>Enable and add filters to remove rows that do not fit criteria based on its column values. Review the <a href="#row-filters">row filters</a> section below for more information.</td>
+</tr>
+<tr>
+<td><code>Limit</code></td>
+<td>No</td>
+<td>Adds an SQL <code>limit</code> clause to the underlying query. This setting can be used to limit the number of rows synced into Foundry in a single run.</td>
+</tr>
+<tr>
+<td><code>Incremental</code></td>
+<td>No</td>
+<td>Enable to sync data into Foundry in small batches. Review the <a href="#incremental">incremental</a> section below for more information.</td>
+</tr>
+</tbody>
+</table>
+<h3>Incremental</h3>
+<p>Typically, syncs will import all matching rows from the target table, regardless if data changed between syncs or not. Incremental syncs, by contrast, maintain state about the most recent sync and only ingest new matching rows from the target.</p>
+<p>Incremental syncs can be used when ingesting large tables from Asana. To use incremental syncs, the table must contain a column that is strictly monotonically increasing. Additionally, the table being read from must contain a column with one of the following data types:</p>
+<ul>
+<li><code>DATE</code></li>
+<li><code>TIMESTAMP</code></li>
+</ul>
+<p>Numeric column types:</p>
+<ul>
+<li><code>int</code></li>
+<li><code>TINYINT</code></li>
+<li><code>SMALLINT</code></li>
+<li><code>INTEGER</code></li>
+<li><code>long</code></li>
+<li><code>BIGINT</code></li>
+<li><code>NUMERIC</code></li>
+<li><code>NUMBER</code></li>
+<li><code>DECIMAL</code></li>
+<li><code>DEC</code></li>
+</ul>
+<p>String column types:</p>
+<ul>
+<li><code>string</code></li>
+<li><code>VARCHAR</code></li>
+<li><code>CHAR</code></li>
+<li><code>NVARCHAR</code></li>
+<li><code>NCHAR</code></li>
+<li><code>LONGNVARCHAR</code></li>
+<li><code>LONGVARCHAR</code></li>
+</ul>
+<p>Incremental syncs require the following configurations:</p>
+<table>
+<thead>
+<tr>
+<th>Option</th>
+<th>Required?</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Column</td>
+<td>Yes</td>
+<td>Select the column that will be used for incremental ingests. The dropdown menu will be empty if the table does not contain any supported columns types.</td>
+</tr>
+<tr>
+<td><code>Initial value</code></td>
+<td>Yes</td>
+<td>The value from which to start syncing data.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Example:</strong> A 5TB table contains billions of rows that we want to sync to Asana. The table has a <strong>monotonically increasing column</strong> called <code>id</code>. The sync can be configured to ingest 50 million rows at a time using the <code>id</code> column as the <strong>incremental column</strong>, with an initial value of -1 and a configured limit of 50 million rows.</p>
+<p>When a sync is initially run, the first 50 million rows (ascending based on <code>id</code>) containing an <code>id</code> value greater than -1 will be ingested into Foundry. For example, if this sync was run several times and the largest <code>id</code> that was ingested during the last run of this sync was <code>19384004822</code>, the next sync will ingest the next 50 million rows starting with the first <code>id</code> greater than <code>19384004822</code>, and so on.</p>
+<h3>Column selection</h3>
+<p>Choose the columns to sync into Foundry. If no column is selected, all columns will be synced into Foundry.</p>
+<p>:::callout{theme="warning"}
+All column names must start with either an underscore or a character from the English alphabet. The names can only contain underscores, characters from the English alphabet, or numbers.</p>
+<p>The following examples are valid column names:</p>
+<ul>
+<li><code>_colum_name</code></li>
+<li><code>a_column_name_123</code></li>
+</ul>
+<p>The following examples are invalid column names:</p>
+<ul>
+<li><code>1ColumnName</code>; starts with a number.</li>
+<li><code>a-column-name*</code>; contains hyphens and an asterisk.</li>
+<li><code>Ã¥-column-name</code>; contains non-English characters.
+:::</li>
+</ul>
+<h3>Row filters</h3>
+<p>Filters can be added to reduce the amount of synced rows or to individually select which rows will be synced into Foundry. For row filters to be configured, previews of the table must succeed. Before configuring row filters, we recommend refreshing the preview using the <code>Preview of inbound data</code> section at the bottom of the interface. The preview can be refreshed to validate the behavior of the filters added.</p>
+<p>A filter configuration consists of a set of conditions that each row must pass for it to be synced into Foundry. Each set of conditions can be evaluated to either match if <code>all</code> the conditions match or if <code>at-least one</code>condition matches. Sets of conditions can be nested to give more fine-grained control over what to import and provide high flexibility. These are equivalent to <code>AND</code> and <code>OR</code> statements in standard SQL.</p>
+<p>A condition itself is a simple comparison of a value in the column of the table in Asana against a value that can be entered in the interface. For example, the condition <code>CreatedAt</code> is equal to <code>12/04/2021</code> will only import those rows where the value in the <code>CreatedAt</code> column is <code>12/04/2021</code>. The data type of the column determines the comparison operations that are supported.</p>
+<h4>Comparison operations</h4>
+<p>The following operations are supported in the filter:</p>
+<ul>
+<li><code>EQUAL TO</code></li>
+<li><code>GREATER THAN</code></li>
+<li><code>LESS THAN</code></li>
+<li><code>GREATER THAN OR EQUAL TO</code></li>
+<li><code>LESS THAN OR EQUAL TO</code></li>
+<li><code>NOT EQUAL TO</code></li>
+<li><code>IS NULL</code></li>
+<li><code>IS NOT NULL</code></li>
+</ul>
+<p>These comparison operations behave equivalent to how these operations would behave in standard SQL.</p>
+<p>String type columns additionally support <code>Like</code> and <code>Not like</code> operators which use the standard SQL-92 syntax.</p>
+</body>
+</html>

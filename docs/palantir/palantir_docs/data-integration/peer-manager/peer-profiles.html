@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Peer profiles</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Peer profiles</h1>
+<p>:::callout{theme="neutral" title="Beta"}
+Peer profiles are in the <a href="https://www.palantir.com/docs/foundry/platform-overview/development-life-cycle/">beta</a> phase of development and may not be available on your enrollment. Functionality may change during active development. Contact Palantir Support with questions about enabling peer profiles.
+:::</p>
+<p>A peer profile defines how data is shared between Foundry enrollments across <a href="https://www.palantir.com/docs/foundry/peer-manager/create-a-peer-connection/">peer connections</a> and serves as a reusable template: you define your peer configuration once, and then Foundry applies that configuration consistently across many connections at once.</p>
+<p><img alt="The Peer profiles page in Peer Manager displays an introductory panel explaining the feature alongside sections for installed and created profiles." src="../../_resources/foundry/peer-manager/peer-profiles-overview.png" /></p>
+<h2>Use peer profiles to streamline authorized data sharing across peer connections</h2>
+<p>Peer profiles simplify the configuration and management of authorized data sharing through <a href="https://www.palantir.com/docs/foundry/peer-manager/ontology-peering-overview/">Ontology</a> and <a href="https://www.palantir.com/docs/foundry/peer-manager/configure-file-peering/">file</a> peering across multiple <a href="https://www.palantir.com/docs/foundry/peer-manager/core-concepts/#peer-connections">peer connections</a> within a network of Foundry enrollments, particularly when many enrollments require the same peering configuration.</p>
+<p>While you can configure each peer connection one at a time, you should use peer profiles to define your peering configuration <em>once</em> and apply it everywhere it is needed across a mesh of enrollments, such as a central hub connected to many edge enrollments.</p>
+<p>Additionally, peer profiles streamline data sharing across many peer connections by enabling you to:</p>
+<ul>
+<li><strong>Automatically create and configure peer connections:</strong> Use peer profiles to automatically create peer connections, share data from your ontology, and configure file peering.</li>
+<li><strong>Future-proof your mesh of connections:</strong> New enrollments that join the mesh automatically receive the correct configuration without any manual setup steps.</li>
+<li><strong>Enforce consistent configuration:</strong> Every enrollment using the same profile receives the same data sharing setup, reducing the risk of mismatches or errors.</li>
+<li><strong>Distribute peer profiles via Marketplace:</strong> Profiles can be published to <a href="https://www.palantir.com/docs/foundry/marketplace/overview/">Marketplace</a>, making them easy to install on target enrollments through a familiar self-service workflow.</li>
+</ul>
+<h2>Key concepts</h2>
+<h3>Mesh</h3>
+<p>A mesh is a secure network of connected <a href="../../apollo/core/introduction.md">Apollo</a> environments that automatically enables data sharing across multiple peer connections defined by a peer profile.</p>
+<p>:::callout{theme="neutral"}
+Before you create a peer profile, contact Palantir Support to create a mesh for you that contains all environments you plan to connect through the peer profile.
+:::</p>
+<h3>Profile pairs</h3>
+<p>You will create a profile pair for each peer profile you configure in Peer Manager, with one profile for each side of the peer connection. These two profiles mirror each other automatically.</p>
+<p>For example, consider a setup with a <em>hub</em> and multiple <em>spoke</em> enrollments, where the:</p>
+<ul>
+<li>Hub is the central or primary enrollment.</li>
+<li>Spokes are enrollments that connect to the hub.</li>
+</ul>
+<p>If the hub profile is configured to <em>export</em> a certain object type, the corresponding spoke profile is automatically set to <em>import</em> that same object type. When creating a peer profile, you <em>only</em> need to configure one side of that profile pair, as Peer Manager generates the counterpart profile for you.</p>
+<h3>Remote strategy</h3>
+<p>When installing a profile, you choose which remote enrollments it applies to. The available options include:</p>
+<ul>
+<li><strong>All:</strong> Apply to all available remote enrollments.</li>
+<li><strong>Specific enrollment:</strong> Apply to a single, named enrollment.</li>
+<li><strong>Mesh:</strong> Apply to all enrollments within a mesh created by Palantir Support.</li>
+<li><strong>Mesh node labels:</strong> Apply to enrollments in a mesh that have specific labels. This option is useful for targeting subsets of a larger network.</li>
+</ul>
+<h2>Peer profile configurations</h2>
+<p>Use a single peer profile to bundle configuration for peer connections to share ontology resources and files.</p>
+<h3>Peer connections</h3>
+<p>Peer profiles can automatically create and manage peer connections, including:</p>
+<ul>
+<li><strong>Connection security:</strong> Define which classification markings and security labels are permitted to flow across connections. Data must satisfy these requirements to be shared. Review the <a href="https://www.palantir.com/docs/foundry/peer-manager/core-concepts/#connection-security">connection security documentation</a> for more information.</li>
+<li><strong>Allowed data types:</strong> Share ontology resources and files and specify their direction (export, import, or both).</li>
+</ul>
+<h3>Ontology peering</h3>
+<p><a href="https://www.palantir.com/docs/foundry/peer-manager/ontology-peering-overview/">Ontology peering</a> synchronizes <a href="https://www.palantir.com/docs/foundry/object-link-types/object-types-overview/">object types</a> and <a href="https://www.palantir.com/docs/foundry/object-link-types/link-types-overview/">link types</a> between enrollments. Within a peer profile, you can specify:</p>
+<ul>
+<li>Which object types to share.</li>
+<li>Which direction each object type flows (export from hub, import to spokes, or both).</li>
+<li>Which link types to include.</li>
+</ul>
+<p>This enables cross-enrollment object synchronization, including real-time action peering so user edits on one enrollment flow to others.</p>
+<p><img alt="The Edit peering configuration dialog in Peer Manager shows how to configure ontology peering for an object type, with separate Export and Import rows for selecting source data, actions, and the objects the configuration applies to." src="../../_resources/foundry/peer-manager/ontology_peering_configuration.png" /></p>
+<h3>File peering</h3>
+<p><a href="https://www.palantir.com/docs/foundry/peer-manager/configure-file-peering/">File peering</a> synchronizes Gotham files, such as <a href="https://www.palantir.com/docs/foundry/object-link-types/create-ontology-objects-from-gaia/">Gaia maps</a>, between enrollments. Within a peer profile, you can specify:</p>
+<ul>
+<li>Which file types to include.</li>
+<li>The peering direction for each file type.</li>
+<li>The peering tags that users should see to initiate file peering.</li>
+</ul>
+<p>File types not included in the profile are unaffected.</p>
+<h2>How to create and use peer profiles</h2>
+<h3>Step 1: Create a peer profile pair</h3>
+<ol>
+<li>Open Peer Manager and navigate to the <strong>Peer profiles</strong> tab.</li>
+<li>Select <strong>Create peer profile pair</strong>.</li>
+<li>Select <strong>Change</strong> in the <strong>Set location</strong> section and choose a <a href="https://www.palantir.com/docs/foundry/security/projects-and-roles/">Project</a> where you will save the peer profiles.</li>
+<li>Enter names for the <strong>Hub</strong> profile and <strong>Spoke</strong> profile in the <strong>Name the pair</strong> section. The terms <code>Hub</code> and <code>Spoke</code> are placeholders for each side of your peer connection.</li>
+</ol>
+<p><img alt="The Create peer profile pair form in Peer Manager shows the Location step, where users select a folder and provide names for the hub and spoke profiles." src="../../_resources/foundry/peer-manager/create-peer-profile-pair.png" /></p>
+<p>:::callout{theme="neutral"}
+Select <strong>Swap perspective</strong> to toggle between the hub and spoke perspectives while configuring a peer profile. Peer Manager automatically mirrors changes to one side on the other.
+:::</p>
+<ol start="5">
+<li>Optionally enable automatic peer connection creation at the top of the <strong>Creation and settings</strong> section.</li>
+<li>Set the <strong>Peer connection security</strong> by selecting the relevant <strong>Classification markings</strong> and <strong>Other markings</strong>.</li>
+<li>Select the governance strategy for ontology resources by setting their sharing direction in the <strong>Ontology</strong> section.</li>
+<li>Select the governance strategy for files by setting their sharing direction in the <strong>Files</strong> section.</li>
+<li>Add all object and link types to peer in the <strong>Ontology peering</strong> section and configure their sharing direction.</li>
+</ol>
+<p>Next, follow the instructions below to set the peering configuration for your selected file types in the <strong>File peering</strong> section:</p>
+<ol>
+<li>Select <strong>Add</strong> and choose the relevant file types before selecting <strong>Add [N] file types</strong>.</li>
+</ol>
+<p><img alt="The File peering section displays Map and Sheet file types." src="../../_resources/foundry/peer-manager/add-file-types.png" /></p>
+<ol start="2">
+<li>Choose a file type from the <strong>File types</strong> list to display the type's peering configuration drawer on the right side of your screen.</li>
+<li>Choose your desired <strong>Export selection</strong> configuration to peer all files of the type or enable users to select which files to peer by applying a peering tag.</li>
+</ol>
+<p><img alt="The file type peering drawer displays a map's peering configuration options." src="../../_resources/foundry/peer-manager/configure-file-type-peering.png" /></p>
+<ol start="4">
+<li>Optionally create a peering tag by selecting <strong>Add &gt; Create new peering tag</strong> in the <strong>Peering tags</strong> section to launch the <strong>Create new peering tag</strong> modal.</li>
+<li>Provide a user-facing <strong>Name</strong> and <strong>Description</strong> for the peering tag before entering a unique <strong>ID</strong>.</li>
+<li>Select <strong>Create</strong> to close the modal and add the tag back in the <strong>Peering tags</strong> section.</li>
+<li>Optionally <strong>Filter files</strong> to only send files over the peer connection that have been updated in a given time window.</li>
+<li>Select <strong>Save</strong>.</li>
+</ol>
+<p>Now that you have configured file peering for the peer profile, select <strong>Create peer profile</strong>, and Peer Manager will create two draft peer profiles: one for each side of the peer connection.</p>
+<h3>Step 2: Publish to Marketplace</h3>
+<p>:::callout{theme="neutral"}
+Review the <a href="https://www.palantir.com/docs/foundry/marketplace/overview/">Marketplace</a> and <a href="https://www.palantir.com/docs/foundry/foundry-devops/overview/">DevOps</a> documentation before proceeding to learn more about creating, publishing, and installing products via the Marketplace storefront on your Foundry enrollment.
+:::</p>
+<p>After you select <strong>Create peer profile</strong>, Peer Manager loads the <strong>Next steps</strong> needed to publish each profile in your pair to Marketplace and make them available for installation on the hub and spoke enrollments. Peer Manager provides checklist boxes for you to track your progress.</p>
+<p><img alt="Publish a peer profile to Marketplace after creation." src="../../_resources/foundry/peer-manager/publish-peer-profile-to-marketplace.png" /></p>
+<p>Select <strong>DevOps â</strong> to open each profile as a pre-configured <a href="https://www.palantir.com/docs/foundry/foundry-devops/create-products/#configure-a-new-product-draft">product draft in DevOps</a>.</p>
+<h3>Step 3: Install on target enrollments</h3>
+<p>Use <a href="https://www.palantir.com/docs/foundry/marketplace/install-product/">Marketplace to install the published profile</a> on each target enrollment. During installation, select:</p>
+<ul>
+<li>The local <a href="https://www.palantir.com/docs/foundry/security/orgs-and-spaces/#spaces">space</a> on the enrollment.</li>
+<li>The remote strategy, which determines which remote enrollments this profile should connect to.</li>
+</ul>
+<p>Once installed, the profile automatically creates or configures the appropriate peer connections and begins sharing data according to your peer connection's settings.</p>
+<p><a href="https://www.palantir.com/docs/foundry/marketplace/installations/">Learn more about installations in Marketplace.</a></p>
+<p>:::callout{theme="neutral"}
+You cannot edit a peer profile after installation. Uninstall the peer profile, make and save your changes, then reinstall it on the target enrollment.
+:::</p>
+<h3>Step 4: Monitor and manage your peer profiles</h3>
+<p>After you install the peer profile on each target enrollment, you can select it from the <strong>Installed</strong> section of the <strong>Peer profiles</strong> page to view its:</p>
+<ul>
+<li><strong>Connection status</strong>, which displays each peer connection's health and troubleshooting information if the connection is not healthy, such as a network path not found, a security mismatch, or an indication that the remote side has not installed its corresponding profile yet.</li>
+<li><strong>Ontology mapping progress</strong>, which quantifies the number of ontology resources successfully mapped on each connection.</li>
+</ul>
+<h2>FAQs</h2>
+<h3>What happens when I install a peer profile?</h3>
+<p>Peer connections within the mesh are automatically created with the configuration defined in the profile. If a peer connection already exists, the profile's configuration is applied to the existing connection.</p>
+<h3>Do peer profiles handle new enrollments that join the mesh later?</h3>
+<p>Yes, depending on the remote strategy that the installed peer profile uses. For example, if the peer profile uses a <strong>Mesh</strong> remote strategy, the peer profile applies to any current <em>and</em> future peer connections that are part of the specified mesh.</p>
+<h3>What if the remote side of a peer connection has not installed its peer profile yet?</h3>
+<p>The connection will show a status indicating that the remote system does not have a matching installed configuration. Once the remote side installs the corresponding hub or spoke profile, the connection will become healthy.</p>
+</body>
+</html>

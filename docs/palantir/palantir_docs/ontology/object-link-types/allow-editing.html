@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Allow users to edit objects and links</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Allow users to edit objects and links</h1>
+<h2>Editing data from Foundry object applications</h2>
+<p>You can allow users in user applications (like Workshop and Object Views) to edit property values, add and remove links, and create and delete objects. You can also configure side effects (like notifications) based on edits made by users.</p>
+<p>The supported way to configure this functionality is to create and configure action types in the Ontology Manager. <a href="https://www.palantir.com/docs/foundry/action-types/overview/">Learn more about how to set up action types.</a></p>
+<p>The remainder of this documentation covers what needs to be configured on object types and link types before users can take actions.</p>
+<h2>Editing data from external applications</h2>
+<p>The <a href="https://www.palantir.com/docs/foundry/api/ontology-resources/actions/apply-action/">Objects API</a> provides endpoints for external clients to write and update objects, properties, and links with full permissions enforcement.</p>
+<h2>Set up the prerequisites</h2>
+<p>In order for a user to be able to take an action defined in an action type configuration, a writeback dataset must be created. The writeback dataset will read the edits made by users when it is built and will reflect the most up-to-date state of any given object.</p>
+<p>:::callout{theme="neutral"}
+Note that edits are written to the writeback dataset and not the dataset backing an object type or link type. This ensures that users have access to both the original data and the edited data in their analyses.
+:::</p>
+<p>To set up a writeback dataset:</p>
+<ol>
+<li>Navigate to the <strong>Datasources</strong> page of the object type or link type you want to enable edits on.</li>
+<li>Select <strong>Generate</strong> in the <strong>Writeback dataset</strong> portion of the page to create a new writeback dataset. A dialog will open asking you to choose a Project where you would like to place the dataset. Select a location.</li>
+<li>Make sure the users who you want to be able to edit the object type or link type have edit permissions on the writeback dataset.</li>
+<li>Ensure that the users who you want to be able to view changes made to the object type or link type have view permissions on the writeback dataset.
+   * The ability to view objects and links is controlled by an object type and link typeâs backing datasources.
+   * The ability to view the edits on objects and links is controlled by the permissions on the writeback dataset.
+   * If users have access to only the former, they can see only the object as it exists without edits applied. If users have access to the latter, they can see both the edits and the object as it exists at present.</li>
+</ol>
+<p>:::callout{theme="neutral"}
+If you want to populate every property on an object type through actions, you can <a href="https://www.palantir.com/docs/foundry/object-link-types/create-object-type/#create-an-object-type-without-a-backing-datasource">create the object type without a backing datasource</a>. To populate an individual property through actions on an otherwise datasource-backed object type, create an <a href="https://www.palantir.com/docs/foundry/object-link-types/edit-only-properties/">edit-only property</a>.
+:::</p>
+</body>
+</html>

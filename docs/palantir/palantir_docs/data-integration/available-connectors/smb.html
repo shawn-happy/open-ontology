@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Server Message Block (SMB)</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Server Message Block (SMB)</h1>
+<p>Connect to Server Message Block (SMB) shares to sync data between folders and Foundry datasets. Common examples of SMB servers include Windows File Server and Samba File Server.</p>
+<h2>Supported capabilities</h2>
+<table>
+<thead>
+<tr>
+<th>Capability</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Exploration</td>
+<td>ð¢ Generally available</td>
+</tr>
+<tr>
+<td>Bulk import</td>
+<td>ð¢ Generally available</td>
+</tr>
+<tr>
+<td>Incremental</td>
+<td>ð¢ Generally available</td>
+</tr>
+<tr>
+<td><a href="https://www.palantir.com/docs/foundry/data-connection/export-overview/#file-exports">File exports</a></td>
+<td>ð¢ Generally available</td>
+</tr>
+</tbody>
+</table>
+<p>The SMB connector supports SMB protocol versions 2 and 3.</p>
+<h2>Data model</h2>
+<p>The connector can transfer files of any type into Foundry datasets. File formats are preserved, and no schemas are applied during or after the transfer. Apply any necessary schema to the output dataset, or <a href="https://www.palantir.com/docs/foundry/pipeline-builder/transforms-overview/">write a downstream transformation</a> to access the data.</p>
+<h2>Performance and limitations</h2>
+<p>There is no limit to the size of transferable files. However, network issues can result in failures of large-scale transfers. In particular, direct cloud syncs that take more than two days to run will be interrupted. To avoid network issues, we recommend using smaller file sizes and limiting the number of files that are ingested in every execution of the sync. Syncs can be <a href="https://www.palantir.com/docs/foundry/data-connection/set-up-sync/#build-or-schedule-your-batch-sync">scheduled</a> to run frequently.</p>
+<h2>Setup</h2>
+<ol>
+<li>Open the <a href="https://www.palantir.com/docs/foundry/data-connection/overview/">Data Connection</a> application and select <strong>+ New Source</strong> in the upper right corner of the screen.</li>
+<li>Select <strong>SMB</strong> from the <strong>Protocol sources</strong> section.</li>
+<li>Follow the additional configuration prompts to continue the setup of your connector using the information in the sections below.</li>
+</ol>
+<p>Learn more about <a href="https://www.palantir.com/docs/foundry/data-connection/set-up-source/">setting up a connector</a> in Foundry.</p>
+<h3>Configuration options</h3>
+<p>The following configuration options are available for the SMB connector:</p>
+<table>
+<thead>
+<tr>
+<th>Option</th>
+<th>Required?</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Hostname</code></td>
+<td>Yes</td>
+<td>The domain name pointing to the server or the IP address of the server.</td>
+</tr>
+<tr>
+<td><code>Port</code></td>
+<td>No</td>
+<td>The port on which the SMB server is running.</td>
+</tr>
+<tr>
+<td><code>Share</code></td>
+<td>Yes</td>
+<td>The name of the SMB share you are connecting to.</td>
+</tr>
+<tr>
+<td><code>Username</code></td>
+<td>Yes</td>
+<td>The SMB login username.</td>
+</tr>
+<tr>
+<td><code>Password</code></td>
+<td>Yes</td>
+<td>The SMB login password.</td>
+</tr>
+<tr>
+<td><code>Domain</code></td>
+<td>No</td>
+<td>The Active Directory domain of the SMB login account. Leave blank if the login account is not an AD user.</td>
+</tr>
+</tbody>
+</table>
+<h3>Networking</h3>
+<p>The SMB connector must be able to reach <code>Hostname</code> on <code>Port</code> (445 by default). If you are using a direct connection egress policy, you must use TCP-level allowlisting.</p>
+<h2>Sync data from SMB</h2>
+<p>The SMB connector uses the <a href="https://www.palantir.com/docs/foundry/data-connection/file-based-syncs/">file-based sync interface</a>.</p>
+<p>:::callout{theme="neutral" title="Media sets"}
+The SMB connector does not support <a href="https://www.palantir.com/docs/foundry/data-connection/media-set-sync/">media set syncs</a>; files synced from SMB land in a regular dataset. To use these files with media set features, such as <a href="https://www.palantir.com/docs/foundry/pipeline-builder/transforms-transform-media/">media transforms in Pipeline Builder</a>, first sync the files into a dataset, then create a media set from that dataset using a <a href="#read-files-from-smb-and-upload-as-media-sets">Python transform</a>.
+:::</p>
+<h2>Export data to SMB</h2>
+<p>To export to an SMB share, first <a href="https://www.palantir.com/docs/foundry/data-connection/export-overview/#enable-exports-for-source">enable exports</a> for your SMB connector. Then, <a href="https://www.palantir.com/docs/foundry/data-connection/export-overview/#create-a-new-export">create a new export</a>.</p>
+<h3>Export configuration options</h3>
+<table>
+<thead>
+<tr>
+<th>Option</th>
+<th>Required?</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Directory path</code></td>
+<td>Yes</td>
+<td>/</td>
+<td>The path to the folder in the SMB share where files should be exported. The full path for an exported file is calculated as <code>&lt;Share&gt;/&lt;Directory Path&gt;/&lt;Exported File Path&gt;</code></td>
+</tr>
+</tbody>
+</table>
+<h2>Use SMB sources in code</h2>
+<p>You can connect to SMB shares from a <a href="https://www.palantir.com/docs/foundry/transforms-python/getting-started/">Python transforms code repository</a> using <a href="https://www.palantir.com/docs/foundry/data-connection/external-transforms/">external transforms</a>.</p>
+<h3>Read files and metadata from SMB</h3>
+<p>The example below demonstrates the minimal code needed to connect to an SMB share and read files:</p>
+<pre><code class="language-python">import smbclient
+import pandas as pd
+from transforms.api import Output, transform
+from transforms.external.systems import external_systems, Source
+
+DOMAIN = &quot;&lt;smb_domain&gt;&quot;
+USERNAME = &quot;&lt;smb_username&gt;&quot;
+SMB_PATH = &quot;&lt;smb_path&gt;&quot;
+
+@external_systems(
+    smb_source=Source(&quot;ri.magritte..source.YOUR_SMB_SOURCE_RID&quot;)
+)
+@transform(
+    file_metadata=Output(&quot;ri.foundry.main.dataset.YOUR_METADATA_OUTPUT_RID&quot;),
+    output_files_dataset=Output(&quot;ri.foundry.main.dataset.YOUR_FILES_OUTPUT_RID&quot;)
+
+)
+def read_smb_files(ctx, smb_source, file_metadata, output_files_dataset):
+    &quot;&quot;&quot;
+    Read files from an SMB share and output files and metadata.
+    &quot;&quot;&quot;
+    # Configure SMB client with credentials from source
+    username = f&quot;{DOMAIN}\\{USERNAME}&quot;
+    password = smb_source.get_secret(&quot;Password&quot;)
+    smbclient.ClientConfig(username=username, password=password)
+
+    # List files in a directory
+    files_info = []
+
+    for item in smbclient.scandir(SMB_PATH):
+        if not item.is_dir():
+            # Get file info
+            stat = item.stat()
+
+            file_path = f&quot;{SMB_PATH}\\{item.name}&quot;
+            files_info.append({
+                &quot;filename&quot;: item.name,
+                &quot;safe_filename&quot;: create_safe_filename(item.name),
+                &quot;size_bytes&quot;: stat.st_size,
+                &quot;path&quot;: file_path
+            })
+            with smbclient.open_file(file_path, mode=&quot;rb&quot;) as f:
+                content = f.read()
+                safe_foundry_file_name = create_safe_filename(item.name)
+                with output_files_dataset.filesystem().open(safe_foundry_file_name, 'w') as fileobj:
+                    fileobj.write(content)
+
+    # Write metadata to output
+    if files_info:
+        df = ctx.spark_session.createDataFrame(pd.DataFrame(files_info))
+        file_metadata.write_dataframe(df)
+
+
+def create_safe_filename(filepath: str) -&gt; str:
+    &quot;&quot;&quot;
+    Create a safe filename for storage by removing problematic characters.
+
+    Args:
+        filepath: Original file path
+
+    Returns:
+        Sanitized filename safe for storage
+    &quot;&quot;&quot;
+    import os
+    filename = os.path.basename(filepath)
+    # Replace characters that might cause issues in storage
+    safe_chars = str.maketrans({&quot;\\&quot;: &quot;_&quot;, &quot;/&quot;: &quot;_&quot;, &quot;:&quot;: &quot;_&quot;, &quot;?&quot;: &quot;_&quot;, &quot;*&quot;: &quot;_&quot;, &quot;&lt;&quot;: &quot;_&quot;, &quot;&gt;&quot;: &quot;_&quot;, &quot;|&quot;: &quot;_&quot;})
+    return filename.translate(safe_chars)
+</code></pre>
+<h3>Read files from SMB and upload as media sets</h3>
+<p>Because the SMB connector only supports file-based dataset syncs, files must be uploaded to a media set through a Python transform before they can be used with Pipeline Builder <a href="https://www.palantir.com/docs/foundry/pipeline-builder/transforms-transform-media/">media transforms and expressions</a>, such as PDF text extraction. <a href="https://www.palantir.com/docs/foundry/media-sets-advanced-formats/media-overview/#media-reference-types">Media references produced directly from the synced dataset</a> are not accepted by these transforms.</p>
+<p>The comprehensive example below demonstrates how to connect to an SMB share from a Python transform code repository and create <a href="https://www.palantir.com/docs/foundry/media-sets-advanced-formats/media-overview/">media set</a> outputs, including error handling, recursive directory scanning, and file categorization:</p>
+<pre><code class="language-python">&quot;&quot;&quot;
+SMB File Processing Transform Template
+
+This template demonstrates how to connect to an SMB share
+from a Foundry Python transform to process files and organize them by type.
+
+Key concepts covered:
+- External systems integration with SMB sources
+- Recursive directory traversal
+- File categorization by extension
+- MediaSet outputs for different file types
+- Structured metadata collection
+- Error handling and logging
+
+Prerequisites:
+- SMB source configured in Data Connection
+- Input dataset with directory paths
+- Output datasets/mediasets configured
+- smbclient library available in the repository
+&quot;&quot;&quot;
+
+import logging
+import os
+from datetime import datetime
+
+import pandas as pd
+import smbclient
+from transforms.api import Input, Output, transform
+from transforms.external.systems import ResolvedSource, Source, external_systems
+from transforms.mediasets import MediaSetOutput
+
+# Configure logging
+
+logging.basicConfig(level=logging.INFO, format=&quot;%(levelname)s: %(message)s&quot;)
+logger = logging.getLogger(__name__)
+
+
+@external_systems(
+    smb_source=Source(&quot;ri.magritte..source.YOUR_SMB_SOURCE_RID&quot;)  # Replace with your SMB source RID
+)
+@transform(
+    input_directories=Input(&quot;ri.foundry.main.dataset.YOUR_INPUT_DATASET_RID&quot;),  # Dataset containing directory paths
+    documents_mediaset=MediaSetOutput(&quot;ri.mio.main.media-set.YOUR_DOCUMENTS_MEDIASET_RID&quot;),  # For PDF, DOC, PPT files
+    images_mediaset=MediaSetOutput(&quot;ri.mio.main.media-set.YOUR_IMAGES_MEDIASET_RID&quot;),  # For image files
+    spreadsheets_mediaset=MediaSetOutput(&quot;ri.mio.main.media-set.YOUR_SPREADSHEETS_MEDIASET_RID&quot;),  # For Excel files
+    file_metadata=Output(&quot;ri.foundry.main.dataset.YOUR_METADATA_OUTPUT_RID&quot;),  # Structured metadata output
+)
+def smb_file_processor(
+    ctx,
+    smb_source: ResolvedSource,
+    input_directories,
+    documents_mediaset,
+    images_mediaset,
+    spreadsheets_mediaset,
+    file_metadata,
+):
+    &quot;&quot;&quot;
+    Process files from SMB directories and categorize them into different outputs.
+
+    This transform:
+    1. Reads directory paths from input dataset
+    2. Connects to SMB share using configured source
+    3. Recursively scans directories for files
+    4. Categorizes files by extension
+    5. Downloads and stores files in appropriate MediaSets
+    6. Creates structured metadata for all processed files
+
+    Args:
+        ctx: Transform context
+        smb_source: Configured SMB source from Data Connection
+        input_directories: Dataset with 'path' column containing directory paths to process
+        documents_mediaset: MediaSet for document files (PDF, DOC, PPT, TXT)
+        images_mediaset: MediaSet for image files (JPG, PNG, etc.)
+        spreadsheets_mediaset: MediaSet for spreadsheet files (XLSX)
+        file_metadata: Structured dataset for file metadata and processing results
+    &quot;&quot;&quot;
+
+    # Define file categories by extension
+    DOCUMENT_EXTENSIONS = {&quot;.pdf&quot;, &quot;.pptx&quot;, &quot;.docx&quot;, &quot;.txt&quot;, &quot;.ppt&quot;, &quot;.doc&quot;}
+    IMAGE_EXTENSIONS = {&quot;.jpg&quot;, &quot;.jpeg&quot;, &quot;.png&quot;, &quot;.bmp&quot;, &quot;.tiff&quot;, &quot;.tif&quot;, &quot;.webp&quot;, &quot;.gif&quot;}
+    SPREADSHEET_EXTENSIONS = {&quot;.xlsx&quot;, &quot;.xls&quot;, &quot;.csv&quot;}
+
+    # SMB connection configuration
+    # These values should match your SMB source configuration in Data Connection
+    smb_config = {
+        &quot;hostname&quot;: &quot;your-smb-server.domain.com&quot;,  # Replace with your SMB server hostname
+        &quot;share&quot;: &quot;your-share-name&quot;,  # Replace with your SMB share name
+        &quot;username&quot;: &quot;your-service-account&quot;,  # Replace with your SMB username
+        &quot;password&quot;: smb_source.get_secret(&quot;Password&quot;),  # Password stored securely in source
+        &quot;domain&quot;: &quot;your.domain.com&quot;,  # Replace with your domain (optional)
+    }
+
+    logger.info(&quot;=&quot; * 80)
+    logger.info(&quot;SMB FILE PROCESSOR - STARTING&quot;)
+    logger.info(&quot;=&quot; * 80)
+    logger.info(f&quot;Server: {smb_config['hostname']}&quot;)
+    logger.info(f&quot;Share: {smb_config['share']}&quot;)
+    logger.info(f&quot;Username: {smb_config['domain']}\\{smb_config['username']}&quot;)
+    logger.info(&quot;=&quot; * 80)
+
+    def transform_directory_path(input_path: str) -&gt; str:
+        &quot;&quot;&quot;
+        Transform input directory path to SMB UNC format.
+
+        Modify this function based on your specific path transformation needs.
+        Example: Convert from local mount path to UNC path format.
+
+        Args:
+            input_path: Original directory path from input dataset
+
+        Returns:
+            SMB UNC path format (\\\\server\\share\\path)
+        &quot;&quot;&quot;
+        # Example transformation - customize for your environment
+        # Remove local mount prefix and convert to UNC format
+        local_prefix = &quot;/mnt/your-mount/path/&quot;  # Replace with your local mount prefix
+
+        if input_path.startswith(local_prefix):
+            relative_path = input_path[len(local_prefix) :]
+        else:
+            # Handle alternative path formats
+            logger.warning(f&quot;Unexpected path format: {input_path}&quot;)
+            relative_path = input_path
+
+        # Convert to UNC format
+        unc_path = f&quot;\\\\{smb_config['hostname']}\\{smb_config['share']}\\{relative_path}&quot;
+        return unc_path.replace(&quot;/&quot;, &quot;\\&quot;)  # Ensure Windows path separators
+
+    def get_file_category(filename: str) -&gt; str:
+        &quot;&quot;&quot;
+        Determine file category based on file extension.
+
+        Args:
+            filename: Name of the file
+
+        Returns:
+            Category string: 'document', 'image', 'spreadsheet', or 'other'
+        &quot;&quot;&quot;
+        ext = os.path.splitext(filename)[1].lower()
+
+        if ext in DOCUMENT_EXTENSIONS:
+            return &quot;document&quot;
+        elif ext in IMAGE_EXTENSIONS:
+            return &quot;image&quot;
+        elif ext in SPREADSHEET_EXTENSIONS:
+            return &quot;spreadsheet&quot;
+        else:
+            return &quot;other&quot;
+
+    def create_safe_filename(filepath: str) -&gt; str:
+        &quot;&quot;&quot;
+        Create a safe filename for storage by removing problematic characters.
+
+        Args:
+            filepath: Original file path
+
+        Returns:
+            Sanitized filename safe for storage
+        &quot;&quot;&quot;
+        filename = os.path.basename(filepath)
+        # Replace characters that might cause issues in storage
+        safe_chars = str.maketrans({&quot;\\&quot;: &quot;_&quot;, &quot;/&quot;: &quot;_&quot;, &quot;:&quot;: &quot;_&quot;, &quot;?&quot;: &quot;_&quot;, &quot;*&quot;: &quot;_&quot;, &quot;&lt;&quot;: &quot;_&quot;, &quot;&gt;&quot;: &quot;_&quot;, &quot;|&quot;: &quot;_&quot;})
+        return filename.translate(safe_chars)
+
+    def get_all_files_recursive(directory_path: str) -&gt; list:
+        &quot;&quot;&quot;
+        Recursively scan directory and return all files with their metadata.
+
+        Args:
+            directory_path: SMB directory path to scan
+
+        Returns:
+            List of dictionaries containing file information
+        &quot;&quot;&quot;
+        all_files = []
+
+        try:
+            # Scan directory contents
+            items = list(smbclient.scandir(directory_path))
+
+            for item in items:
+                if item.is_dir():
+                    # Recursively process subdirectories
+                    subdirectory_path = f&quot;{directory_path}\\{item.name}&quot;
+                    logger.info(f&quot;Scanning subdirectory: {subdirectory_path}&quot;)
+                    all_files.extend(get_all_files_recursive(subdirectory_path))
+                else:
+                    # Add file information
+                    file_info = {&quot;item&quot;: item, &quot;directory_path&quot;: directory_path}
+                    all_files.append(file_info)
+
+        except Exception as e:
+            logger.error(f&quot;Error scanning directory {directory_path}: {str(e)}&quot;)
+
+        return all_files
+
+    # Initialize tracking variables
+    metadata_records = []
+    total_files_processed = 0
+    files_by_category = {&quot;document&quot;: 0, &quot;image&quot;: 0, &quot;spreadsheet&quot;: 0, &quot;other&quot;: 0}
+
+    try:
+        # Configure SMB client authentication
+        username = f&quot;{smb_config['domain']}\\{smb_config['username']}&quot;
+        smbclient.ClientConfig(username=username, password=smb_config[&quot;password&quot;])
+
+        # Read input directories from dataset
+        input_df = input_directories.dataframe()
+        directory_rows = input_df.select(&quot;path&quot;).collect()
+        directory_paths = [row.path for row in directory_rows]
+
+        logger.info(f&quot;Processing {len(directory_paths)} directories&quot;)
+
+        # Process each directory
+        for idx, directory_path in enumerate(directory_paths, 1):
+            logger.info(f&quot;[{idx}/{len(directory_paths)}] Processing: {directory_path}&quot;)
+
+            try:
+                # Transform to SMB path format
+                smb_directory_path = transform_directory_path(directory_path)
+                logger.info(f&quot;SMB path: {smb_directory_path}&quot;)
+
+                # Get all files recursively
+                all_files_info = get_all_files_recursive(smb_directory_path)
+                logger.info(f&quot;Found {len(all_files_info)} files in directory tree&quot;)
+
+                # Process each file
+                for file_info in all_files_info:
+                    file_item = file_info[&quot;item&quot;]
+                    file_directory_path = file_info[&quot;directory_path&quot;]
+                    filename = file_item.name
+                    file_path = f&quot;{file_directory_path}\\{filename}&quot;
+
+                    try:
+                        # Get file statistics
+                        stat_info = file_item.stat()
+                        file_size = stat_info.st_size
+                        created_time = datetime.fromtimestamp(stat_info.st_ctime)
+                        modified_time = datetime.fromtimestamp(stat_info.st_mtime)
+
+                        # Categorize file
+                        category = get_file_category(filename)
+                        files_by_category[category] += 1
+                        total_files_processed += 1
+
+                        # Create metadata record
+                        metadata_record = {
+                            &quot;filename&quot;: filename,
+                            &quot;full_path&quot;: file_path,
+                            &quot;directory_path&quot;: file_directory_path,
+                            &quot;file_size_bytes&quot;: file_size,
+                            &quot;created_date&quot;: created_time,
+                            &quot;modified_date&quot;: modified_time,
+                            &quot;file_extension&quot;: os.path.splitext(filename)[1].lower(),
+                            &quot;category&quot;: category,
+                            &quot;processed_timestamp&quot;: pd.Timestamp.now(),
+                        }
+
+                        # Download and store files based on category
+                        if category in [&quot;document&quot;, &quot;image&quot;, &quot;spreadsheet&quot;]:
+                            try:
+                                # Download file content
+                                with smbclient.open_file(file_path, mode=&quot;rb&quot;) as smb_file:
+                                    file_content = smb_file.read()
+
+                                # Create safe filename for storage
+                                safe_filename = create_safe_filename(file_path)
+
+                                # Store in appropriate MediaSet
+                                import io
+
+                                file_stream = io.BytesIO(file_content)
+
+                                if category == &quot;document&quot;:
+                                    documents_mediaset.put_media_item(file_stream, safe_filename)
+                                elif category == &quot;image&quot;:
+                                    images_mediaset.put_media_item(file_stream, safe_filename)
+                                elif category == &quot;spreadsheet&quot;:
+                                    spreadsheets_mediaset.put_media_item(file_stream, safe_filename)
+
+                                logger.info(f&quot;â Downloaded {category}: {filename} ({file_size:,} bytes)&quot;)
+
+                            except Exception as download_error:
+                                logger.error(f&quot;â Failed to download {filename}: {str(download_error)}&quot;)
+                                metadata_record[&quot;download_error&quot;] = str(download_error)
+                        else:
+                            logger.info(f&quot;â  Skipped {filename} (category: {category})&quot;)
+
+                        metadata_records.append(metadata_record)
+
+                    except Exception as file_error:
+                        logger.error(f&quot;â Error processing file {filename}: {str(file_error)}&quot;)
+                        # Add error record
+                        error_record = {
+                            &quot;filename&quot;: filename,
+                            &quot;full_path&quot;: file_path,
+                            &quot;directory_path&quot;: file_directory_path,
+                            &quot;file_size_bytes&quot;: 0,
+                            &quot;created_date&quot;: None,
+                            &quot;modified_date&quot;: None,
+                            &quot;file_extension&quot;: os.path.splitext(filename)[1].lower(),
+                            &quot;category&quot;: &quot;error&quot;,
+                            &quot;processed_timestamp&quot;: pd.Timestamp.now(),
+                            &quot;processing_error&quot;: str(file_error),
+                        }
+                        metadata_records.append(error_record)
+
+            except Exception as dir_error:
+                logger.error(f&quot;â Failed to process directory {directory_path}: {str(dir_error)}&quot;)
+                # Add directory error record
+                error_record = {
+                    &quot;filename&quot;: None,
+                    &quot;full_path&quot;: None,
+                    &quot;directory_path&quot;: directory_path,
+                    &quot;file_size_bytes&quot;: 0,
+                    &quot;created_date&quot;: None,
+                    &quot;modified_date&quot;: None,
+                    &quot;file_extension&quot;: None,
+                    &quot;category&quot;: &quot;directory_error&quot;,
+                    &quot;processed_timestamp&quot;: pd.Timestamp.now(),
+                    &quot;processing_error&quot;: str(dir_error),
+                }
+                metadata_records.append(error_record)
+
+        # Write metadata to output dataset
+        if metadata_records:
+            metadata_df = ctx.spark_session.createDataFrame(pd.DataFrame(metadata_records))
+            file_metadata.write_dataframe(metadata_df)
+            logger.info(f&quot;â Written {len(metadata_records)} metadata records&quot;)
+        else:
+            logger.warning(&quot;No metadata records to write&quot;)
+
+    except Exception as e:
+        logger.error(f&quot;â CRITICAL FAILURE: {str(e)}&quot;)
+        raise
+
+    # Log final summary
+    logger.info(&quot;\n&quot; + &quot;=&quot; * 80)
+    logger.info(&quot;PROCESSING SUMMARY&quot;)
+    logger.info(&quot;=&quot; * 80)
+    logger.info(f&quot;Total files processed: {total_files_processed:,}&quot;)
+    logger.info(f&quot;Documents: {files_by_category['document']:,}&quot;)
+    logger.info(f&quot;Images: {files_by_category['image']:,}&quot;)
+    logger.info(f&quot;Spreadsheets: {files_by_category['spreadsheet']:,}&quot;)
+    logger.info(f&quot;Other/Skipped: {files_by_category['other']:,}&quot;)
+    logger.info(f&quot;Metadata records created: {len(metadata_records):,}&quot;)
+    logger.info(&quot;=&quot; * 80)
+</code></pre>
+</body>
+</html>

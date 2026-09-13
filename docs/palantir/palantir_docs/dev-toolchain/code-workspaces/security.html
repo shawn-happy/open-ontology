@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Security</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Security</h1>
+<p>Code Workspaces ensures that Foundryâs security and permissions model is applied to the third-party IDEs connected to Foundry. This layer of security on top of the third-party applications served by Code Workspaces provides a number of benefits:</p>
+<ul>
+<li>Data loaded in Code Workspaces is tracked by Foundry. Data downloads and uploads are restricted in Code Workspaces other than <a href="https://www.palantir.com/docs/foundry/code-workspaces/troubleshooting/#file-download-or-upload-errors">methods governed by Foundryâs data governance and access controls</a>.</li>
+<li>Every request to Code Workspaces is validated against Foundryâs governance framework. This means that if a userâs access to a Code Workspace is revoked, or access to the security markings of any data imported in the workspace, that user will immediately lose access to the application.</li>
+<li>Data produced from Code Workspaces is tracked by Foundry, so access to output data will be restricted if a user loses access to data which may have been used to produce the output data.</li>
+<li>Users are fully isolated. Each user opening a given JupyterÂ® or RStudioÂ® Code Workspace will get their own isolated environment.</li>
+<li>R and Python packages can only be loaded from Foundry Artifacts channels backing the repository, which enables control over the Conda, PyPI, or CRAN packages that can be used in a specific Code Workspace.</li>
+<li>External API calls can only be made to URLs configured as Network Policies which have been added to the Code Workspace. Credentials for external systems are held in <a href="https://www.palantir.com/docs/foundry/code-workspaces/external-systems/">sources</a> rather than in your code.</li>
+</ul>
+<h2>Restricted outputs mode</h2>
+<p>Restricted outputs mode provides enhanced safeguards when working with sensitive data. Restricted outputs mode is a "read-only" mode that restricts write operations and external source connections to ensure that data cannot be exported from the code workspace. In particular, it allows you to load <a href="https://www.palantir.com/docs/foundry/code-workspaces/data/#restricted-views">restricted views</a> into a workspace.</p>
+<p>:::callout{theme="neutral"}
+You can read restricted views only in JupyterLabÂ® workspaces.
+:::</p>
+<p>When enabled, restricted outputs mode:</p>
+<ul>
+<li><strong>Prevents write operations</strong> to all Foundry outputs, including datasets, models, and tables.</li>
+<li><strong>Disables telemetry collection and logs</strong>, as well as data checkpoint uploads, while still preserving <a href="https://www.palantir.com/docs/foundry/code-workspaces/getting-started/#code-checkpoints">code checkpoints</a>.</li>
+<li><strong>Disables network policies and sources</strong> that have been added to the workspace. These resources remain in the workspace but are inactivated while in restricted outputs mode.</li>
+</ul>
+<p>As described in the documentation on <a href="https://www.palantir.com/docs/foundry/code-workspaces/getting-started/#code-checkpoints">code checkpoints</a>, it is your responsibility to ensure that code files you write while in restricted outputs mode do not contain data.</p>
+<p>To enable or disable restricted outputs mode:</p>
+<ol>
+<li>Open the <strong>Settings</strong> side panel in your code workspace.</li>
+<li>Locate the <strong>Restricted outputs mode</strong> toggle.</li>
+<li>Toggle the setting on or off as needed.</li>
+<li>Save your changes and restart your workspace when prompted.</li>
+</ol>
+<p>:::callout{theme="neutral"}
+After enabling restricted outputs mode, your workspace will prompt you to restart. Your setting will persist across future workspace restarts until you explicitly disable it.
+:::</p>
+<hr />
+<p><em>RStudioÂ® and ShinyÂ® are trademarks of Positâ¢.</em></p>
+<p><em>JupyterÂ®, JupyterLabÂ®, and the JupyterÂ® logos are trademarks or registered trademarks of NumFOCUS.</em></p>
+<p>All third-party trademarks (including logos and icons) referenced remain the property of their respective owners. No affiliation or endorsement is implied.</p>
+</body>
+</html>

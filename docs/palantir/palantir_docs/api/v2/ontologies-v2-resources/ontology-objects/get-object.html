@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Get Object</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../../../index.html">返回目录</a></div>
+<p><code>GET /api/v2/ontologies/{ontology}/objects/{objectType}/{primaryKey}</code></p>
+<p>Gets a specific object with the given primary key.</p>
+<p>Third-party applications using this endpoint via OAuth2 must request the following operation scope: <code>api:ontologies-read</code>.</p>
+<p><strong>OAuth2 scopes</strong>: <code>api:ontologies-read</code></p>
+<h2>Path parameters</h2>
+<table>
+<thead>
+<tr>
+<th>参数</th>
+<th>类型</th>
+<th>必填</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ontology</code></td>
+<td>string</td>
+<td>是</td>
+<td>The API name or RID of the Ontology. To find the API name or RID, use the <strong>List Ontologies</strong> endpoint or<br>check the <strong>Ontology Manager</strong>.<br>示例: <code>palantir</code></td>
+</tr>
+<tr>
+<td><code>objectType</code></td>
+<td>string</td>
+<td>是</td>
+<td>The API name of the object type. To find the API name, use the <strong>List object types</strong> endpoint or<br>check the <strong>Ontology Manager</strong>.<br>示例: <code>employee</code></td>
+</tr>
+<tr>
+<td><code>primaryKey</code></td>
+<td>string</td>
+<td>是</td>
+<td>The primary key of the requested object. To look up the expected primary key for your object type, use the<br><code>Get object type</code> endpoint or the <strong>Ontology Manager</strong>.<br>示例: <code>50030</code></td>
+</tr>
+</tbody>
+</table>
+<h2>Query parameters</h2>
+<table>
+<thead>
+<tr>
+<th>参数</th>
+<th>类型</th>
+<th>必填</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>select</code></td>
+<td>list<SelectedPropertyApiName></td>
+<td>否</td>
+<td>The properties of the object type that should be included in the response. Omit this parameter to get all<br>the properties.</td>
+</tr>
+<tr>
+<td><code>select.SelectedPropertyApiName</code></td>
+<td>string</td>
+<td>是</td>
+<td>By default, whenever an object is requested, all of its properties are returned, except for properties of the<br>following types:<br>- Vector<br>The response can be filtered to only include certain properties using the <code>properties</code> query parameter. Note<br>that ontology object set endpoints refer to this parameter as <code>select</code>.<br>Properties to include can be specified in one of two ways.<br>- A comma delimited list as the value for the <code>properties</code> query parameter<br><code>properties={property1ApiName},{property2ApiName}</code><br>- Multiple <code>properties</code> query parameters.<br><code>properties={property1ApiName}&amp;properties={property2ApiName}</code><br>The primary key of the object will always be returned even if it wasn't specified in the <code>properties</code> values.<br>Unknown properties specified in the <code>properties</code> list will result in a <code>PropertiesNotFound</code> error.<br>To find the API name for your property, use the <code>Get object type</code> endpoint or check the <strong>Ontology Manager</strong>.</td>
+</tr>
+<tr>
+<td><code>sdkPackageRid</code></td>
+<td>string</td>
+<td>否</td>
+<td>The package rid of the generated SDK.</td>
+</tr>
+<tr>
+<td><code>sdkVersion</code></td>
+<td>string</td>
+<td>否</td>
+<td>The version of the generated SDK.</td>
+</tr>
+<tr>
+<td><code>excludeRid</code></td>
+<td>boolean</td>
+<td>否</td>
+<td>A flag to exclude the retrieval of the <code>__rid</code> property.<br>Setting this to true may improve performance of this endpoint for object types in OSV2.</td>
+</tr>
+<tr>
+<td><code>branch</code></td>
+<td>string</td>
+<td>否</td>
+<td>The Foundry branch to get the object from. If not specified, the default branch is used.<br>Branches are an experimental feature and not all workflows are supported.<br>示例: <code>ri.branch..branch.d827184f-ee0e-4351-8b70-efbe51e07252</code></td>
+</tr>
+<tr>
+<td><code>loadOntologyDefinedDerivedProperties</code></td>
+<td>boolean</td>
+<td>否</td>
+<td>A flag to load ontology-defined derived properties (OTDPs) in the response. Defaults to true.<br>Only applies when no explicit property selection is provided; when specific properties are<br>selected, this flag has no effect and the selected properties are always returned.<br>This feature is experimental and not yet generally available.</td>
+</tr>
+</tbody>
+</table>
+<h2>Response</h2>
+<p><strong>OntologyObjectV2</strong></p>
+<p>Success response.</p>
+<table>
+<thead>
+<tr>
+<th>参数</th>
+<th>类型</th>
+<th>必填</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>OntologyObjectV2</code></td>
+<td>map</td>
+<td>是</td>
+<td>Success response.<br>示例: <code>{"__rid":"ri.phonograph2-objects.main.object.88a6fccb-f333-46d6-a07e-7725c5f18b61","__primaryKey":50030,"__apiName":"Employee","id":50030,"firstName":"John","lastName":"Doe"}</code></td>
+</tr>
+<tr>
+<td><code>OntologyObjectV2.PropertyApiName</code></td>
+<td>string</td>
+<td>是</td>
+<td>The name of the property in the API. To find the API name for your property, use the <code>Get object type</code><br>endpoint or check the <strong>Ontology Manager</strong>.</td>
+</tr>
+<tr>
+<td><code>OntologyObjectV2.PropertyValue</code></td>
+<td>any</td>
+<td>是</td>
+<td>Represents the value of a property in the following format.<br>| Type                                                                                                                      | JSON encoding                                               | Example                                                                                            |<br>|---------------------------------------------------------------------------------------------------------------------------|-------------------------------------------------------------|----------------------------------------------------------------------------------------------------|<br>| Array                                                                                                                     | array                                                       | <code>["alpha", "bravo", "charlie"]</code>                                                                    |<br>| <a href="../attachment-properties/attachment-property-basics.html">Attachment</a>              | JSON encoded <code>AttachmentProperty</code> object                    | <code>{"rid":"ri.blobster.main.attachment.2f944bae-5851-4204-8615-920c969a9f2e"}</code>                       |<br>| Boolean                                                                                                                   | boolean                                                     | <code>true</code>                                                                                             |<br>| Byte                                                                                                                      | number                                                      | <code>31</code>                                                                                               |<br>| CipherText                                                                                                                | string                                                      | <code>"CIPHER::ri.bellaso.main.cipher-channel.e414ab9e-b606-499a-a0e1-844fa296ba7e::unzjs3VifsTxuIpf1fH1CJ7OaPBr2bzMMdozPaZJtCii8vVG60yXIEmzoOJaEl9mfFFe::CIPHER"</code>                                                                                                                                                                                        |<br>| Date                                                                                                                      | ISO 8601 extended local date string                         | <code>"2021-05-01"</code>                                                                                     |<br>| Decimal                                                                                                                   | string                                                      | <code>"2.718281828"</code>                                                                                    |<br>| Double                                                                                                                    | number                                                      | <code>3.14159265</code>                                                                                       |<br>| Float                                                                                                                     | number                                                      | <code>3.14159265</code>                                                                                       |<br>| GeoPoint                                                                                                                  | geojson                                                     | <code>{"type":"Point","coordinates":[102.0,0.5]}</code>                                                       |<br>| GeoShape                                                                                                                  | geojson                                                     | <code>{"type":"LineString","coordinates":[[102.0,0.0],[103.0,1.0],[104.0,0.0],[105.0,1.0]]}</code>            |<br>| Integer                                                                                                                   | number                                                      | <code>238940</code>                                                                                           |<br>| Long                                                                                                                      | string                                                      | <code>"58319870951433"</code>                                                                                 |<br>| <a href="../media-reference-properties/media-reference-property-basics.html">MediaReference</a>| JSON encoded <code>MediaReference</code> object                        | <code>{"mimeType":"application/pdf","reference":{"type":"mediaSetViewItem","mediaSetViewItem":{"mediaSetRid":"ri.mio.main.media-set.4153d42f-ca4b-4e42-8ca5-8e6aa7edb642","mediaSetViewRid":"ri.mio.main.view.82a798ad-d637-4595-acc6-987bcf16629b","mediaItemRid":"ri.mio.main.media-item.001ec98b-1620-4814-9e17-8e9c4e536225"}}}</code>                       |<br>| Secured Property Value                                                                                                    | JSON encoded <code>SecuredPropertyValue</code> object                  | <code>{"value": 10, "propertySecurityIndex" : 5}</code>                                                       |<br>| Short                                                                                                                     | number                                                      | <code>8739</code>                                                                                             |<br>| String                                                                                                                    | string                                                      | <code>"Call me Ishmael"</code>                                                                                |<br>| Struct                                                                                                                    | JSON object of struct field API name -&gt; value               | {"firstName": "Alex", "lastName": "Karp"}                                                          |<br>| Timestamp                                                                                                                 | ISO 8601 extended offset date-time string in UTC zone       | <code>"2021-01-04T05:00:00Z"</code>                                                                           |<br>| <a href="../time-series-properties/time-series-property-basics.html">Timeseries</a>            | JSON encoded <code>TimeseriesProperty</code> object or seriesId string | <code>{"seriesId": "wellPressureSeriesId", "syncRid": ri.time-series-catalog.main.sync.04f5ac1f-91bf-44f9-a51f-4f34e06e42df"}</code> or <code>{"templateRid": "ri.codex-emu.main.template.367cac64-e53b-4653-b111-f61856a63df9", "templateVersion": "0.0.0"}</code> or <code>"wellPressureSeriesId"</code>|                                                                           |<br>| Vector                                                                                                                    | array                                                       | <code>[0.1, 0.3, 0.02, 0.05 , 0.8, 0.4]</code>                                                                |<br>Note that for backwards compatibility, the Boolean, Byte, Double, Float, Integer, and Short types can also be encoded as JSON strings.</td>
+</tr>
+</tbody>
+</table>
+<pre><code class="language-json">{
+  &quot;__rid&quot;: &quot;ri.phonograph2-objects.main.object.88a6fccb-f333-46d6-a07e-7725c5f18b61&quot;,
+  &quot;__primaryKey&quot;: 50030,
+  &quot;__apiName&quot;: &quot;Employee&quot;,
+  &quot;id&quot;: 50030,
+  &quot;firstName&quot;: &quot;John&quot;,
+  &quot;lastName&quot;: &quot;Doe&quot;
+}
+</code></pre>
+</body>
+</html>

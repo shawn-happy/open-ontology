@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Unsupported types in OSDK</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Unsupported types in OSDK</h1>
+<p>The OSDK generates client-side code for TypeScript, Python, and Java packages; this code represents object types, action types, and functions from the Ontology. Not all data types are currently available in the OSDK; this page lists data types that are not yet supported.</p>
+<h2>Object types: Unsupported property types</h2>
+<p>If you use an object type with a property of a type which is listed below, the code generator will skip that property and log the error.</p>
+<h3>Typescript SDK</h3>
+<p>The following Typescript SDK property types are unsupported:</p>
+<ul>
+<li><code>Cipher</code></li>
+<li><code>Marking</code></li>
+<li><code>Vectors</code></li>
+</ul>
+<h3>Python SDK</h3>
+<p>The following Python SDK property types are unsupported:</p>
+<ul>
+<li><code>Cipher</code></li>
+<li><code>Marking</code></li>
+<li><code>Media</code></li>
+<li><code>Struct</code>, except for <a href="https://www.palantir.com/docs/foundry/functions/python-ontology-edits/#edit-struct-properties">beta struct property support in Python functions</a></li>
+<li><code>Vector</code></li>
+</ul>
+<h3>Java SDK</h3>
+<p>The following Java SDK property types are unsupported:</p>
+<ul>
+<li><code>TimeSeries</code></li>
+<li><code>Cipher</code></li>
+<li><code>Vector</code></li>
+</ul>
+<h2>Action types: Unsupported parameter types</h2>
+<p>If you use an action type with a parameter of a type mentioned below, the code generator will be unable to create your package. To resolve this, you must remove that action type from the SDK application until support is added for that type.</p>
+<h3>TypeScript SDK</h3>
+<p>The following TypeScript SDK parameter types are unsupported:</p>
+<ul>
+<li><code>InterfaceObjectSet</code></li>
+<li><code>MarkingList</code></li>
+</ul>
+<h3>Python SDK</h3>
+<p>The following Python SDK parameter types are unsupported:</p>
+<ul>
+<li><code>ObjectSet</code></li>
+</ul>
+<h2>Action types: Unsupported webhook types</h2>
+<p>Action types with <a href="https://www.palantir.com/docs/foundry/data-connection/webhooks-reference/#oauth-20-with-webhooks">webhooks that use OAuth 2.0 for authentication</a> are not supported. This is because users would be unable to use these action types through the SDK application without first authorizing the outbound application through Foundry (for instance, by first calling the action in a Workshop application).</p>
+<h2>Functions: Unsupported input parameter types and output types</h2>
+<p>If you use a function with an input or an output of a type which is listed below, the code generator will fail to generate your package. To resolve this, you must remove that function from the SDK application until such support is added.</p>
+<h3>Typescript SDK</h3>
+<h4>Function output types</h4>
+<p>The following Typescript SDK function output types are unsupported:</p>
+<ul>
+<li><code>Principal</code></li>
+<li><code>User</code></li>
+<li><code>Notification</code></li>
+<li><code>OntologyEdit</code></li>
+<li><code>ClassificationMarking</code></li>
+</ul>
+<h3>Python SDK</h3>
+<h4>Function input parameter types</h4>
+<p>The following Python SDK function input types are unsupported:</p>
+<ul>
+<li><code>ObjectSet</code></li>
+<li><code>AnonymousCustomType</code></li>
+<li><code>CustomType</code></li>
+<li><code>GeoShape</code></li>
+<li><code>Group</code></li>
+<li><code>MandatoryMarking</code></li>
+<li><code>ModelGraph</code></li>
+<li><code>Notification</code></li>
+<li><code>OntologyEdit</code></li>
+<li><code>Principal</code></li>
+<li><code>Range</code></li>
+<li><code>StringFunctionDateType_ThreeDimensionalAggregation</code></li>
+<li><code>TimeSeries</code></li>
+<li><code>TwoDimensionalAggregation</code></li>
+<li><code>User</code></li>
+</ul>
+<h4>Function output types</h4>
+<p>The following Python SDK function output types are unsupported:</p>
+<ul>
+<li><code>ObjectSet</code></li>
+<li><code>AnonymousCustomType</code></li>
+<li><code>CustomType</code></li>
+<li><code>GeoShape</code></li>
+<li><code>Group</code></li>
+<li><code>MandatoryMarking</code></li>
+<li><code>ModelGraph</code></li>
+<li><code>Notification</code></li>
+<li><code>OntologyEdit</code></li>
+<li><code>Principal</code></li>
+<li><code>Range</code></li>
+<li><code>StringFunctionDateType_ThreeDimensionalAggregation</code></li>
+<li><code>TimeSeries</code></li>
+<li><code>TwoDimensionalAggregation</code></li>
+<li><code>User</code></li>
+</ul>
+<h3>Java SDK</h3>
+<h4>Function input parameter types</h4>
+<p>The following Java SDK function input types are unsupported:</p>
+<ul>
+<li><code>AnonymousCustomType</code></li>
+<li><code>ClassificationMarking</code></li>
+<li><code>CustomType</code></li>
+<li><code>GeoShape</code></li>
+<li><code>Group</code></li>
+<li><code>MandatoryMarking</code></li>
+<li><code>ModelGraph</code></li>
+<li><code>Notification</code></li>
+<li><code>OntologyEdit</code></li>
+<li><code>Principal</code></li>
+<li><code>Range</code></li>
+<li><code>StringFunctionDateType_ThreeDimensionalAggregation</code></li>
+<li><code>TimeSeries</code></li>
+<li><code>TwoDimensionalAggregation</code></li>
+<li><code>User</code></li>
+</ul>
+<h4>Function output types</h4>
+<p>The following Java SDK function output types are unsupported:</p>
+<ul>
+<li><code>AnonymousCustomType</code></li>
+<li><code>ClassificationMarking</code></li>
+<li><code>CustomType</code></li>
+<li><code>GeoShape</code></li>
+<li><code>Group</code></li>
+<li><code>MandatoryMarking</code></li>
+<li><code>ModelGraph</code></li>
+<li><code>Notification</code></li>
+<li><code>OntologyEdit</code></li>
+<li><code>Principal</code></li>
+<li><code>Range</code></li>
+<li><code>StringFunctionDateType_ThreeDimensionalAggregation</code></li>
+<li><code>TimeSeries</code></li>
+<li><code>TwoDimensionalAggregation</code></li>
+<li><code>User</code></li>
+</ul>
+<h2>OpenAPI Specification</h2>
+<p>You can <a href="https://www.palantir.com/docs/foundry/ontology-sdk/generate-osdk-for-other-languages/">export an OpenAPI specification from Developer Console</a>. OpenAPI supports the <code>any</code> type, so you can still use the specification even if some types are unsupported. However, you will need to define the format for those parameters manually.</p>
+<p>The following types do not have first-class support in the OpenAPI specification and will be rendered as <code>any</code>:</p>
+<ul>
+<li><code>Struct</code></li>
+<li><code>Vector</code></li>
+</ul>
+</body>
+</html>

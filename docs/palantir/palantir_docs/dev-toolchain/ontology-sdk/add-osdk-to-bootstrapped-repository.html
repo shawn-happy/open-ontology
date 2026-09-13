@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Add an OSDK to a bootstrapped repository</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Add an OSDK to a bootstrapped repository</h1>
+<p>This guide explains how to add an OSDK to a repository that was originally bootstrapped without one. It assumes that you bootstrapped your repository from Developer Console in Foundry or locally using the <code>@osdk/create-app</code> CLI. If you have a custom setup, some steps may need to be adjusted.</p>
+<h2>Required changes</h2>
+<p>Follow the steps below to add an OSDK to your application.</p>
+<h3>1. Update <code>index.html</code></h3>
+<p>Add the following meta tag inside the <code>&lt;head&gt;</code> section of your <code>index.html</code> file:</p>
+<pre><code class="language-html">&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+  &lt;head&gt;
+    &lt;!-- Other head content --&gt;
+    &lt;meta name=&quot;osdk-ontologyRid&quot; content=&quot;%VITE_FOUNDRY_ONTOLOGY_RID%&quot; /&gt;
+    &lt;!-- Other head content --&gt;
+  &lt;/head&gt;
+  &lt;body&gt;
+    &lt;!-- Body content --&gt;
+  &lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
+<h3>2. Update environment files</h3>
+<p>Add the following environment variable to all environment variable files present in your project. For example: <code>.env.development</code>, <code>.env.production</code>, and <code>.env.code-workspaces</code>:</p>
+<pre><code>VITE_FOUNDRY_ONTOLOGY_RID=&lt;ri.ontology.main.ontology.your-ontology-rid&gt;
+</code></pre>
+<p>Replace <code>&lt;ri.ontology.main.ontology.your-ontology-rid&gt;</code> with your OSDK's Ontology RID.</p>
+<p>You can find the Ontology RID in Ontology Manager.</p>
+<h3>3. Update <code>client.ts</code></h3>
+<p>Read the Ontology RID and initialize the client object:</p>
+<pre><code class="language-typescript">- import { createPlatformClient, type PlatformClient } from &quot;@osdk/client&quot;;
++ import { type Client, createClient } from &quot;@osdk/client&quot;;
+
++ const ontologyRid = getMetaTagContent(&quot;osdk-ontologyRid&quot;);
+
+- export const client: PlatformClient = createPlatformClient(foundryUrl, auth);
++ export const client: Client = createClient(foundryUrl, ontologyRid, auth);
+</code></pre>
+<h3>4. Update <code>package.json</code></h3>
+<p>Add your OSDK package as a dependency:</p>
+<pre><code class="language-json">{
+  &quot;dependencies&quot;: {
+    + &quot;&lt;osdk-package-name&gt;/sdk&quot;: &quot;latest&quot;
+    // Other dependencies
+  }
+}
+</code></pre>
+<p>Replace <code>&lt;osdk-package-name&gt;</code> with your OSDK package name.</p>
+<p>You can find the OSDK package name under <strong>Developer Console &gt; Overview &gt; Generated SDKs</strong>.</p>
+<h3>5. Update <code>.npmrc</code></h3>
+<p>:::callout{theme="warning"}
+You only need to perform this step if you bootstrapped the repository in a local development environment. <br><br>
+If you bootstrapped the repository in Foundry, skip this step.
+:::</p>
+<p>Add the registry URL of your OSDK package.</p>
+<pre><code>+ &lt;osdk-package-name&gt;:registry=&lt;registry-url&gt;
+</code></pre>
+<p>Replace <code>&lt;osdk-package-name&gt;</code> and <code>&lt;registry-url&gt;</code> with your OSDK package name and registry URL.</p>
+<ul>
+<li>You can find the package name and registry URL under <strong>Developer Console &gt; Overview &gt; Generated SDKs</strong>.</li>
+<li>Do not include <code>/sdk</code> in the OSDK package name.</li>
+</ul>
+<p>The following is an example <code>.npmrc</code> file:</p>
+<pre><code>//hostname.palantirfoundry.com/artifacts/api/:\_authToken=${FOUNDRY_TOKEN}
+@osdk-package:registry=https://hostname.palantirfoundry.com/artifacts/api/repositories/ri.artifacts.main.repository.45660bd6-de33-442e-9f48-a0c02372b906/contents/release/npm
+</code></pre>
+<p>For a repository bootstrapped in a local development environment, export the <code>FOUNDRY_TOKEN</code> environment variable in your terminal before running <code>npm install</code>:</p>
+<pre><code class="language-bash">export FOUNDRY_TOKEN=&lt;your-token-value&gt;
+</code></pre>
+<p>:::callout{theme="warning"}
+Ensure the variable name in your <code>.npmrc</code> file is exactly <code>${FOUNDRY_TOKEN}</code> with no spaces. A common mistake is using <code>${FOUNDRY TOKEN}</code> (with a space), which causes 403 or 401 authentication errors.
+:::</p>
+<p>:::callout{theme="neutral"}
+<strong>Troubleshooting: npm 404 errors</strong></p>
+<p>If you receive a 404 error when running <code>npm install</code>, npm may be using a different registry. Inspect the following registry configurations and update any unintended overrides:</p>
+<ul>
+<li><strong>Global registry:</strong> Run <code>npm config get registry</code> to inspect the globally configured npm registry.</li>
+<li><strong>Local overrides:</strong> Review other <code>.npmrc</code> files in your project or parent directories that may override your settings.
+:::</li>
+</ul>
+</body>
+</html>

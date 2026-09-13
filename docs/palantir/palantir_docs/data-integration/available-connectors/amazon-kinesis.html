@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Amazon Kinesis</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Amazon Kinesis</h1>
+<p>Connect Foundry to Amazon Kinesis to read data from a Kinesis stream into a Foundry stream in realtime.</p>
+<h2>Supported capabilities</h2>
+<table>
+<thead>
+<tr>
+<th>Capability</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Exploration</td>
+<td>ð¢ Generally available</td>
+</tr>
+<tr>
+<td>Streaming syncs</td>
+<td>ð¢ Generally available</td>
+</tr>
+<tr>
+<td><a href="https://www.palantir.com/docs/foundry/data-connection/export-overview/#streaming-exports">Streaming exports</a></td>
+<td>ð¢ Generally available</td>
+</tr>
+</tbody>
+</table>
+<h2>Data model</h2>
+<table>
+<thead>
+<tr>
+<th>partition_key (string)</th>
+<th>data (string)</th>
+<th>kinesis_ingestion_timestamp (timestamp)</th>
+<th>foundry_ingestion_timestamp (timestamp)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>London</td>
+<td>{"firstName": "John", "lastName": "Doe"}</td>
+<td>2023-07-12T15:12:42.371Z</td>
+<td>2023-07-12T15:12:42.512Z</td>
+</tr>
+<tr>
+<td>Paris</td>
+<td>{"firstName": "Jean", "lastName": "DuPont"}</td>
+<td>2023-07-12T15:12:42.418Z</td>
+<td>2023-07-12T15:12:42.512Z</td>
+</tr>
+</tbody>
+</table>
+<p>The Kinesis connector parses message contents into unicode strings. Use a downstream streaming transform (for example, <code>parse_json</code> in <a href="https://www.palantir.com/docs/foundry/pipeline-builder/transforms-overview/">Pipeline Builder</a>) to parse structured data.</p>
+<ul>
+<li>The <code>partition_key</code> column will contain the partition key that was used to post the message to Kinesis.</li>
+<li>The <code>kinesis_ingestion_timestamp</code> column will contain the timestamp when the message was posted to Kinesis.</li>
+<li>The <code>foundry_ingestion_timestamp</code> column will contain the timestamp when the message was ingested by Foundry.</li>
+</ul>
+<h2>Performance and limitations</h2>
+<p>The connector always uses a single consumer thread per active shard on the source Kinesis stream.</p>
+<p>Streaming syncs are meant to be consistent, long-running jobs. Any interruption to a streaming sync is a potential outage, depending on the expected outcomes.</p>
+<p>Currently, streaming syncs have the following limitations:</p>
+<ul>
+<li>Jobs on a <a href="https://www.palantir.com/docs/foundry/data-connection/core-concepts/#foundry-worker">Foundry worker</a> restart at least once every 48 hours. Expected downtime is single-digit minutes (assuming resource availability allows jobs to restart immediately).</li>
+<li>For legacy <a href="https://www.palantir.com/docs/foundry/data-connection/core-concepts/#agent-worker">agent worker</a> sources, jobs restart during agent maintenance windows (typically once a week) to pick up upgrades. Expected downtime is less than five minutes. For high availability, connect through two agents with non-overlapping maintenance windows.</li>
+</ul>
+<h2>Message ordering</h2>
+<p>The Kinesis connector guarantees message delivery order for messages with the same <code>partition_key</code>. Messages with different <code>partition_key</code> values may be processed in any order.</p>
+<h2>Setup</h2>
+<ol>
+<li>Open the <a href="https://www.palantir.com/docs/foundry/data-connection/overview/">Data Connection</a> application and select <strong>+ New Source</strong> in the upper right corner of the screen.</li>
+<li>Select <strong>Kinesis</strong> from the available connector types.</li>
+<li>Follow the additional configuration prompts to continue the set up of your connector using the information in the sections below.</li>
+</ol>
+<p>Learn more about <a href="https://www.palantir.com/docs/foundry/data-connection/set-up-source/">setting up a connector</a> in Foundry.</p>
+<h3>Connection settings</h3>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Required?</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>AWS Region</td>
+<td>Yes</td>
+<td>us-east-1</td>
+<td>The AWS region your Kinesis stream is in.</td>
+</tr>
+</tbody>
+</table>
+<h3>Authentication</h3>
+<p>Select an authentication method for your Kinesis connection: <a href="#aws-instance">AWS Instance</a> or <a href="#static-credentials">Static Credentials</a>.</p>
+<p>Below is a sample IAM policy with examples of the permissions required to read from and write to specified kinesis streams.</p>
+<pre><code class="language-json">{
+  &quot;Version&quot;: &quot;2012-10-17&quot;,
+  &quot;Statement&quot;: [
+    {
+      &quot;Sid&quot;: &quot;ReadKinesisStream&quot;,
+      &quot;Effect&quot;: &quot;Allow&quot;,
+      &quot;Action&quot;: [
+        &quot;kinesis:ListShards&quot;,
+        &quot;kinesis:GetShardIterator&quot;,
+        &quot;kinesis:GetRecords&quot;,
+        &quot;kinesis:DescribeStream&quot;
+      ],
+      &quot;Resource&quot;: &quot;arn:aws:kinesis:us-east-1:123456789012:stream/read-stream-name&quot;
+    },
+    {
+        &quot;Sid&quot;: &quot;WriteKinesisStream&quot;,
+        &quot;Effect&quot;: &quot;Allow&quot;,
+        &quot;Action&quot;: [
+            &quot;kinesis:PutRecords&quot;
+        ],
+        &quot;Resource&quot;: &quot;arn:aws:kinesis:us-east-1:123456789012:stream/write-stream-name&quot;
+    }
+  ]
+}
+</code></pre>
+<h4>AWS Instance</h4>
+<p>:::callout{theme="warning" title="Legacy"}
+AWS instance authentication is only available for legacy <a href="https://www.palantir.com/docs/foundry/data-connection/core-concepts/#agent-worker">agent worker</a> sources. Foundry worker sources cannot use AWS instance authentication; use IAM access keys instead.
+:::</p>
+<p>When your Foundry agent is running on an AWS resource with a provisioned IAM role (e.g. an EC2 instance), the Kinesis connector will use the provisioned IAM role to connect to Kinesis streams. No additional configuration is required.</p>
+<h4>Static Credentials</h4>
+<p>Static Credentials refers to standard AWS authentication with an Access Key ID and Secret Access Key tied to an IAM user.</p>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Required?</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Access Key ID</td>
+<td>Yes</td>
+<td>No</td>
+</tr>
+<tr>
+<td>Secret Access Key</td>
+<td>Yes</td>
+<td>No</td>
+</tr>
+</tbody>
+</table>
+<h3>STS Role</h3>
+<p>The Kinesis connector can optionally assume an STS role before connecting to a Kinesis stream. Refer to the <a href="https://docs.aws.amazon.com/STS/latest/APIReference/API_AssumeRole.html">AWS documentation â</a> for details about these parameters.</p>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Required?</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Role ARN</td>
+<td>Yes</td>
+<td>No</td>
+</tr>
+<tr>
+<td>Role session name</td>
+<td>Yes</td>
+<td>No</td>
+</tr>
+<tr>
+<td>Role session duration</td>
+<td>Yes</td>
+<td>900</td>
+</tr>
+<tr>
+<td>External ID</td>
+<td>No</td>
+<td>No</td>
+</tr>
+</tbody>
+</table>
+<h3>Networking</h3>
+<p>The connector must have access to the AWS Kinesis API and optionally the AWS STS API if using an STS role.</p>
+<ul>
+<li><strong>Kinesis API:</strong> <code>https://kinesis.&lt;region&gt;.amazonaws.com</code></li>
+<li><strong>STS API:</strong> <code>https://sts.&lt;region&gt;.amazonaws.com</code></li>
+</ul>
+<h2>Sync data from Kinesis</h2>
+<p>Learn how to set up a sync with Kinesis in the <a href="https://www.palantir.com/docs/foundry/data-connection/set-up-streaming-sync/">Set up a streaming sync</a> tutorial.</p>
+<h2>Export data to Kinesis</h2>
+<p>The connector supports exporting to external Kinesis streams in Data Connection.</p>
+<p>To export to Kinesis, first <a href="https://www.palantir.com/docs/foundry/data-connection/export-overview/#enable-exports-for-source">enable exports</a> for your Kinesis connector. Then, <a href="https://www.palantir.com/docs/foundry/data-connection/export-overview/#create-a-new-export">create a new export</a>.</p>
+<h3>Export configuration options</h3>
+<table>
+<thead>
+<tr>
+<th>Option</th>
+<th>Required?</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Output stream ARN</code></td>
+<td>Yes</td>
+<td>N/A</td>
+<td>The ARN of the Kinesis stream to which you want to export.</td>
+</tr>
+<tr>
+<td><code>Partition column</code></td>
+<td>Yes</td>
+<td>First String Column</td>
+<td>The column that will be used to determine which shard a data record will belong to within the stream. This must be a string value, usually the primary key. Review the <a href="https://docs.aws.amazon.com/streams/latest/dev/key-concepts.html">AWS documentation â</a> for more information.</td>
+</tr>
+</tbody>
+</table>
+</body>
+</html>

@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Migrate from and disable the "Propagate view requirements" setting \[Planned deprecation]</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Migrate from and disable the "Propagate view requirements" setting [Planned deprecation]</h1>
+<p>:::callout{theme="warning" title="Planned deprecation"}
+The <strong>Propagate view requirements</strong> security setting is in the <a href="https://www.palantir.com/docs/foundry/platform-overview/development-life-cycle/">planned deprecation</a> phase of development, and most enrollments are no longer able to use this feature as of October 2024. Any enrollments still using the <strong>Propagate view requirements</strong> setting are strongly encouraged to follow the guide below to migrate away from this usage in favor of <a href="https://www.palantir.com/docs/foundry/security/projects-and-roles/">Projects</a> and <a href="https://www.palantir.com/docs/foundry/security/markings/">Markings</a>, which offer improved security legibility and management. <br><br>
+Contact Palantir Support if you require additional help with this migration.
+:::</p>
+<p>When the "Propagate view requirements" setting is enabled on a Project, each dataset in the Project will require users to have access permissions to view its downstream datasets, whether they are located inside this Project or in a different Project.</p>
+<p>We recommend disabling the "Propagate view requirements" setting and replacing it with a Marking if necessary. Unlike the "Propagate view requirements" setting, Markings more clearly define the requirements necessary to view the underlying data. If only some datasets contain sensitive data, consider adding the appropriate Marking to those specific datasets. If the entire Project is sensitive, add the Marking at the Project level.</p>
+<p>Below is a summary of the steps to take to migrate away from the "Propagate view requirements" setting:</p>
+<ol>
+<li>Start in the <a href="https://www.palantir.com/docs/foundry/upgrade-assistant/overview/">Upgrade Assistant</a> application and pick a Project that needs to be migrated.</li>
+<li>Consider your migration options and decide which is best for your situation.</li>
+<li>Perform the migration.</li>
+<li>Disable "Propagate view requirements" on the Project.</li>
+<li>Return to Upgrade Assistant and confirm that there is no longer a pending action corresponding to this project.</li>
+</ol>
+<h2>Migration steps</h2>
+<h3>1. Upgrade Assistant</h3>
+<p>Go to the Upgrade Assistant application in Foundry and select a specific project where "Propagate view requirements" is enabled to start the migration process.</p>
+<p><img alt="upgrade-assistant" src="../../_resources/foundry/platform-security-management/upgrade-assistant-pvr.png" /></p>
+<h3>2. Choose how to migrate the selected Project</h3>
+<p>There are several different ways to migrate away from using the "Propagate view requirements" setting. The method you choose depends on the sensitivity of your data, what Projects and Markings already exist on your platform, and the security architecture of your enterprise. Below is a list of migration options and questions you should ask to help decide next steps. As there may be significant privacy implications for your decision, we strongly suggest reading through all provided options.</p>
+<h4>Classify sensitive data</h4>
+<p>First, determine whether the Project contains sensitive data. Context matters; whether or not certain data is considered sensitive depends on relevant privacy regulations and standards for your organization.</p>
+<p>Sensitive data at Palantir is defined as any data that is broadly classified and/or requires extra security. Some laws formally designate specific data elements as sensitive (for example, <a href="https://commission.europa.eu/law/law-topic/data-protection/data-protection-eu_en">the EU's General Data Protection Regulation â</a>), while others are determined by data owners or common recognition regardless of legal status (such as Social Security Numbers). Whether data is classified as sensitive generally depends on the type or classification of data (for example, Personally Identifiable Information (PII)), the types of workflows (such as those limited to specific purposes), or any content that may trigger restricted access controls (including sensitive enterprise information).</p>
+<p>One common example of sensitive data, as mentioned above, is Personally Identifiable Information (PII), which includes direct identifiers and other information that can be used to re-identify or single out individuals.</p>
+<p>Here, you should identify cases where restricting access to data in a Project should restrict access to any downstream datasets, objects, or resources derived from it. If no data in the Project has a PII property, you can skip ahead to <a href="#4-disable-propagate-view-requirements-on-the-project">disable the "Propagate view requirements" setting</a> on the Project.</p>
+<p>If data sensitivities exist in the Project, categorize them. For example: âDatasets X, Y, and Z in this Project contain PII, and datasets A, B, and C in this Project contain Financial Informationâ.</p>
+<h4>Verify if Markings are applied to sensitive data</h4>
+<p><a href="https://www.palantir.com/docs/foundry/platform-security-management/manage-markings/">Markings</a> are a security control in Foundry that define eligibility criteria to restrict visibility and actions to users.</p>
+<p>Like the "Propagate view requirements" setting, <a href="https://www.palantir.com/docs/foundry/security/markings/">Markings</a> are a security primitive that propagate to downstream datasets and resources. When considering whether it is safe to turn off the "Propagate view requirements" setting for this Project, we recommend checking whether the sensitive data in this Project is already protected by an appropriate Marking. If this is the case, it may be appropriate to turn off "Propagate view requirements."</p>
+<p>Use the <a href="https://www.palantir.com/docs/foundry/security/checking-permissions/#data-lineage">Data Lineage</a> application to verify Markings on a dataset. First, add one or more datasets in your Project to the graph. Then, choose the <strong>Permissions</strong> node coloring option. Shield icons will appear on the graph next to resources protected by Markings. Select a node, then select <strong>Access Information</strong> in the right sidebar to expand details about the Markings on that node.</p>
+<p>For example, if you determine that a Project with an enabled "Propagate view requirements" setting contains only one sensitive data category (PII), and a PII Marking is already applied to every relevant dataset in the Project (either directly or through inheritance from a data dependency or the file hierarchy) then the "Propagate view requirements" setting is likely redundant and can be safely <a href="#4-disable-propagate-view-requirements-on-the-project">disabled for the Project</a>.</p>
+<h4>Determine if data sensitivity is introduced upstream or inside this Project</h4>
+<p>If the Project contains sensitive data, and that data is not already secured by a <a href="https://www.palantir.com/docs/foundry/security/markings/">Marking</a>, then we recommend applying a Marking before disabling the "Propagate view requirements" setting to ensure that downstream data is continuously protected by propagating security controls.</p>
+<p>However, the Project may not necessarily be the correct place to apply the Marking to the data.</p>
+<h5>Example</h5>
+<p>In the example below, a sensitive dataset in a Project with an enabled "Propagate view requirements" setting does not have a Marking applied to it. However, the sensitive dataset is actually derived from an upstream dataset.</p>
+<p><img alt="The sensitive data comes from an upstream dataset, as shown in the Data Lineage graph." src="../../_resources/foundry/platform-security-management/pvr-migration-example-data-lineage.png" /></p>
+<p><strong>Approach 1 (Incorrect):</strong> If you apply a Marking directly to the sensitive data in this Project, the upstream data would not be correctly marked; this would impact security legibility.</p>
+<p><img alt="A Marking was applied directly to the sensitive data in the Project." src="../../_resources/foundry/platform-security-management/pvr-migration-marking-applied-downstream.png" /></p>
+<p><strong>Approach 2 (Recommended):</strong> If you instead apply a Marking to the <em>upstream</em> data, then the Marking will automatically propagate to the data in this Project; both datasets would be correctly marked.</p>
+<p><img alt="A Marking was applied to the upstream dataset and propagated to the downstream sensitive data." src="../../_resources/foundry/platform-security-management/pvr-migration-marking-applied-upstream.png" /></p>
+<p>If any sensitive data in your Project should be protected by a Marking, we recommend securing that data as far upstream as possible to ensure that the sensitive data is consistently secured wherever it appears in the platform. Be sure to take appropriate upstream action before returning to your Project and continuing the migration.</p>
+<h4>Reuse existing Markings, if appropriate</h4>
+<p>If your Project is the origin (farthest upstream location) of some sensitive data, and the data is not protected by a Marking, then the Project may be the right place to apply a Marking to the data as a replacement for the "Propagate View requirements" setting. For each sensitive data category, <a href="#verify-if-markings-are-applied-to-sensitive-data">verify whether a Marking already exists</a> on the platform that correctly represents this data.</p>
+<p>From a data governance perspective, if the data is PII and there is already a PII Marking on the platform, we recommend applying the existing Marking rather than creating a second PII Marking; this ensures that user authorization can be managed in a single place.</p>
+<p>Record your decision about which Markings you plan to reuse before <a href="#3-complete-migration">continuing with the migration</a>.</p>
+<h4>Create a new Marking</h4>
+<p>If an appropriate Marking does not exist for the type of sensitive data in your Project, consider creating a new Marking. This should only be necessary if the following is true:</p>
+<ul>
+<li>The data in the Project is unique, and there is no existing Marking that can be used.</li>
+<li>The data originates in the Project; if it does not, the Marking should be applied to the upstream dataset from which the data is derived,</li>
+</ul>
+<p>Record your decision and complete the migration following the steps in the sections below.</p>
+<h3>3. Complete migration</h3>
+<p>The next sections describe how to complete your migration given the options discussed above.</p>
+<h4>Disable "Propagate view requirements"</h4>
+<p>No action needed. Continue to <a href="#4-disable-propagate-view-requirements-on-the-project">4. Disable "Propagate view requirements" on the Project</a>.</p>
+<h4>Apply an existing Marking</h4>
+<p>Add all users who have access to the sensitive datasets of a particular category in the Project (for example, the datasets containing PII) as members of the existing Marking (PII). This ensures that no one will lose access to the Project after the migration. Be aware that once the users are added as members to the existing Marking, they may be able to see any data where this Marking is applied throughout the platform.</p>
+<p>Before applying an existing Marking, review the steps to <a href="https://www.palantir.com/docs/foundry/platform-security-management/manage-markings/#apply-markings">apply a Marking</a>. Consider the downstream impact of applying a Marking and potentially locking out other downstream users.</p>
+<p>When you are ready, apply the Marking on the set of resources that require it. If there is only one category of sensitive data in the Project and all data is of that category, then apply the Marking to the Project itself. Otherwise, apply the Marking directly to the sensitive datasets or to their parent folder if they are colocated.</p>
+<h4>Create a new Marking</h4>
+<p>First, <a href="https://www.palantir.com/docs/foundry/platform-security-management/manage-markings/#create-markings">create a new Marking</a>. Then, add all users and/or groups who should have access to the data it describes as members of this new Marking. This ensures that no one will lose access after the migration.</p>
+<p>Before attempting to apply any Markings, review the <a href="https://www.palantir.com/docs/foundry/platform-security-management/manage-markings/#apply-markings">steps to do so</a>.</p>
+<h3>4. Disable "Propagate view requirements" on the Project</h3>
+<p>After <a href="#3-complete-migration">completing the migration</a> as many times as needed for the number of sensitive data types in the Project, be sure to disable the "Propagate view requirements" setting from the <strong>Settings</strong> tab in the right side panel of the Project view.</p>
+<p>:::callout{theme="warning"}
+You will not be able to re-enable the "Propagate view requirements" setting after disabling it.
+:::</p>
+<p><img alt="Disable the Propagate view requirements setting for a Project." src="../../_resources/foundry/platform-security-management/disable_pvr.png" /></p>
+<h3>5. Confirm action is complete</h3>
+<p>Return to Upgrade Assistant and confirm that there is no longer a pending action corresponding to this project.</p>
+</body>
+</html>

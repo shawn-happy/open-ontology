@@ -1,0 +1,2593 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SQL dialect</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>SQL dialect</h1>
+<p>Foundry SQL is generally a subset of <a href="https://spark.apache.org/docs/latest/sql-ref.html">Spark SQL â</a> with ANSI compliance.</p>
+<h2>Quick reference</h2>
+<h3>Common operations</h3>
+<pre><code class="language-sql">-- Create a table
+CREATE TABLE `/path/to/table` (id INT, name STRING);
+
+-- Insert data
+INSERT INTO `/path/to/table` VALUES (1, 'foo'), (2, 'bar');
+
+-- Basic query
+SELECT * FROM `/path/to/table` WHERE id = 1;
+
+-- Join tables
+SELECT a.*, b.name
+FROM `/path/to/table1` a
+LEFT JOIN `/path/to/table2` b ON a.id = b.id;
+
+-- Aggregate
+SELECT category, COUNT(*), AVG(price)
+FROM `/path/to/products`
+GROUP BY category
+HAVING COUNT(*) &gt; 10;
+
+-- Window function
+SELECT name, salary,
+       RANK() OVER (ORDER BY salary DESC) as rank
+FROM `/path/to/employees`;
+
+-- CTE (Common Table Expression)
+WITH summary AS (
+  SELECT category, SUM(amount) as total
+  FROM `/path/to/sales`
+  GROUP BY category
+)
+SELECT * FROM summary WHERE total &gt; 1000;
+</code></pre>
+<h3>Commonly used functions</h3>
+<table>
+<thead>
+<tr>
+<th>Category</th>
+<th>Functions</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Aggregation</strong></td>
+<td><code>count()</code>, <code>sum()</code>, <code>avg()</code>, <code>min()</code>, <code>max()</code>, <code>count(DISTINCT col)</code>, <code>collect_set()</code></td>
+</tr>
+<tr>
+<td><strong>String</strong></td>
+<td><code>upper()</code>, <code>lower()</code>, <code>trim()</code>, <code>concat()</code>, <code>concat_ws()</code>, <code>contains()</code>, <code>split()</code>, <code>substr()</code></td>
+</tr>
+<tr>
+<td><strong>Date/Time</strong></td>
+<td><code>current_date()</code>, <code>current_timestamp()</code>, <code>date_add()</code>, <code>date_diff()</code>, <code>to_date()</code>, <code>year()</code>, <code>month()</code>, <code>day()</code></td>
+</tr>
+<tr>
+<td><strong>Math</strong></td>
+<td><code>abs()</code>, <code>round()</code>, <code>ceil()</code>, <code>floor()</code>, <code>pow()</code>, <code>sqrt()</code>, <code>mod()</code></td>
+</tr>
+<tr>
+<td><strong>Array</strong></td>
+<td><code>array()</code>, <code>array_contains()</code>, <code>array_size()</code>, <code>array_distinct()</code>, <code>explode()</code>, <code>flatten()</code></td>
+</tr>
+<tr>
+<td><strong>Conditional</strong></td>
+<td><code>CASE WHEN ... THEN ... END</code>, <code>coalesce()</code>, <code>nullif()</code>, <code>regexp_like()</code>, <code>regexp_extract()</code></td>
+</tr>
+<tr>
+<td><strong>Window</strong></td>
+<td><code>ROW_NUMBER()</code>, <code>RANK()</code>, <code>DENSE_RANK()</code>, <code>LAG()</code>, <code>LEAD()</code></td>
+</tr>
+</tbody>
+</table>
+<h3>Table references</h3>
+<pre><code class="language-sql">-- By path
+SELECT * FROM `/path/to/table`;
+
+-- By RID
+SELECT * FROM `ri.rid.for.table.1234`;
+
+-- With branch
+SELECT * FROM `/path/to/table`.branch_master;
+</code></pre>
+<h3>Key syntax notes</h3>
+<ul>
+<li>Subqueries <strong>must</strong> be wrapped in parentheses.</li>
+<li>Created tables are Iceberg by default but can be overridden with <code>USING &lt;format&gt;</code> syntax.</li>
+<li>Only Iceberg tables support <code>INSERT</code>, <code>UPDATE</code>, and <code>DELETE</code>.</li>
+</ul>
+<h2>Table creation</h2>
+<pre><code>CREATE [ OR REPLACE ] TABLE table_identifier [ ( col_name1 col_type1, ... ) ] [ USING table_format ] [ PARTITIONED BY ( expr [, ...] ) ] [ TBLPROPERTIES ( 'key'='value' [, ...] ) ] [ AS select_statement ]
+</code></pre>
+<p><code>PARTITIONED BY</code> is only supported with Iceberg tables. <code>TBLPROPERTIES</code> sets <a href="https://iceberg.apache.org/docs/latest/configuration/">Iceberg table properties â</a>.</p>
+<p>If not specified, the table format will be Iceberg. Valid table formats include:</p>
+<ul>
+<li><strong>Iceberg:</strong> <code>iceberg</code></li>
+<li><strong>Parquet:</strong> <code>parquet</code></li>
+<li><strong>Avro:</strong> <code>avro</code></li>
+</ul>
+<pre><code class="language-sql">-- examples
+CREATE TABLE `/path/to/table` AS
+SELECT *
+FROM `/path/to/table`;
+
+CREATE TABLE `/path/to/table` USING parquet AS
+SELECT *
+FROM `/path/to/table`;
+
+CREATE TABLE `/path/to/table`
+(
+    id   INT,
+    name STRING
+);
+
+CREATE OR REPLACE TABLE `/path/to/table` (id INT, name STRING);
+
+CREATE TABLE `/path/to/table` (id INT, ts TIMESTAMP)
+    PARTITIONED BY (days(ts));
+
+CREATE TABLE `/path/to/table` (id INT)
+    TBLPROPERTIES ('write.format.default'='parquet');
+
+CREATE TABLE `/path/to/table`
+    PARTITIONED BY (id)
+    AS SELECT * FROM `/path/to/source`;
+</code></pre>
+<h2>Table alteration</h2>
+<p>Iceberg tables support data appends with <code>INSERT</code>, <code>UPDATE</code>, and <code>DELETE</code> statements. Non-Iceberg tables do not currently support table alteration.</p>
+<h3>Insert</h3>
+<pre><code>INSERT [ INTO ] table_identifier { VALUES ( { value | NULL } [ , ... ] ) [ , ( ... ) ] | query }
+</code></pre>
+<pre><code class="language-sql">-- examples
+INSERT INTO `/path/to/table` VALUES (1, 'foo'), (2, 'bar');
+
+INSERT INTO `/path/to/table` SELECT id, name FROM `/path/to/table2`;
+</code></pre>
+<h3>Update</h3>
+<pre><code>UPDATE table_identifier
+SET column_name = value [, ...]
+[ WHERE condition ]
+</code></pre>
+<pre><code class="language-sql">-- examples
+UPDATE `/path/to/table`
+SET col = 'new value';
+
+UPDATE `/path/to/table`
+SET col = 'new value'
+WHERE col = 'old value';
+</code></pre>
+<h3>Delete</h3>
+<pre><code>DELETE FROM table_identifier WHERE condition
+</code></pre>
+<pre><code class="language-sql">DELETE FROM `/path/to/table` WHERE col = 'to delete'
+</code></pre>
+<h3>Alter metadata</h3>
+<p>Iceberg tables support schema and metadata changes with <code>ALTER TABLE</code> syntax. Refer to the <a href="https://iceberg.apache.org/docs/latest/spark-ddl/">Iceberg Spark DDL documentation â</a> for additional details.</p>
+<h4>Column operations</h4>
+<pre><code>ALTER TABLE table_identifier ADD COLUMN col_name col_type [COMMENT 'comment']
+ALTER TABLE table_identifier ADD COLUMNS (col_name col_type [COMMENT 'comment'], ...)
+ALTER TABLE table_identifier DROP COLUMN col_name
+ALTER TABLE table_identifier DROP COLUMNS (col_name, ...)
+ALTER TABLE table_identifier RENAME COLUMN old_name TO new_name
+ALTER TABLE table_identifier ALTER COLUMN col_name TYPE new_type
+ALTER TABLE table_identifier ALTER COLUMN col_name COMMENT 'comment'
+ALTER TABLE table_identifier ALTER COLUMN col_name SET NOT NULL
+ALTER TABLE table_identifier ALTER COLUMN col_name DROP NOT NULL
+</code></pre>
+<pre><code class="language-sql">-- examples
+ALTER TABLE `/path/to/table` ADD COLUMN new_col STRING;
+ALTER TABLE `/path/to/table` ADD COLUMNS (col1 INT, col2 STRING COMMENT 'description');
+ALTER TABLE `/path/to/table` DROP COLUMN old_col;
+ALTER TABLE `/path/to/table` RENAME COLUMN old_name TO new_name;
+ALTER TABLE `/path/to/table` ALTER COLUMN col2 TYPE BIGINT;
+</code></pre>
+<h4>Partition fields</h4>
+<pre><code>ALTER TABLE table_identifier ADD PARTITION FIELD expr [AS alias]
+ALTER TABLE table_identifier DROP PARTITION FIELD expr
+ALTER TABLE table_identifier REPLACE PARTITION FIELD old_expr WITH new_expr [AS alias]
+</code></pre>
+<pre><code class="language-sql">-- examples
+ALTER TABLE `/path/to/table` ADD PARTITION FIELD days(ts);
+ALTER TABLE `/path/to/table` ADD PARTITION FIELD bucket(16, id) AS id_bucket;
+ALTER TABLE `/path/to/table` DROP PARTITION FIELD days(ts);
+ALTER TABLE `/path/to/table` REPLACE PARTITION FIELD days(ts) WITH hours(ts);
+</code></pre>
+<h4>Write ordering</h4>
+<pre><code>ALTER TABLE table_identifier WRITE ORDERED BY col1 [ASC|DESC] [, ...]
+ALTER TABLE table_identifier WRITE LOCALLY ORDERED BY col1 [ASC|DESC] [, ...]
+ALTER TABLE table_identifier WRITE DISTRIBUTED BY PARTITION [LOCALLY ORDERED BY col1 [ASC|DESC] [, ...]]
+ALTER TABLE table_identifier WRITE UNORDERED
+</code></pre>
+<pre><code class="language-sql">-- examples
+ALTER TABLE `/path/to/table` WRITE ORDERED BY col1, col2 DESC;
+ALTER TABLE `/path/to/table` WRITE DISTRIBUTED BY PARTITION LOCALLY ORDERED BY col1;
+ALTER TABLE `/path/to/table` WRITE UNORDERED;
+</code></pre>
+<h4>Identifier fields</h4>
+<pre><code>ALTER TABLE table_identifier SET IDENTIFIER FIELDS col1 [, ...]
+ALTER TABLE table_identifier DROP IDENTIFIER FIELDS col1 [, ...]
+</code></pre>
+<pre><code class="language-sql">-- examples
+ALTER TABLE `/path/to/table` SET IDENTIFIER FIELDS col1, col2;
+ALTER TABLE `/path/to/table` DROP IDENTIFIER FIELDS col1, col2;
+</code></pre>
+<h4>Table properties</h4>
+<pre><code>ALTER TABLE table_identifier SET TBLPROPERTIES ('key1'='value1' [, ...])
+ALTER TABLE table_identifier UNSET TBLPROPERTIES ('key1' [, ...])
+</code></pre>
+<pre><code class="language-sql">-- examples
+ALTER TABLE `/path/to/table` SET TBLPROPERTIES ('write.format.default'='parquet');
+ALTER TABLE `/path/to/table` SET TBLPROPERTIES ('write.format.default'='parquet', 'write.parquet.compression-codec'='zstd');
+ALTER TABLE `/path/to/table` UNSET TBLPROPERTIES ('write.format.default');
+</code></pre>
+<h4>Tags</h4>
+<pre><code>ALTER TABLE table_identifier CREATE TAG [IF NOT EXISTS] tag_name [AS OF VERSION snapshot_id] [RETAIN n DAYS]
+ALTER TABLE table_identifier CREATE OR REPLACE TAG tag_name [AS OF VERSION snapshot_id] [RETAIN n DAYS]
+ALTER TABLE table_identifier DROP TAG [IF EXISTS] tag_name
+ALTER TABLE table_identifier REPLACE TAG tag_name [AS OF VERSION snapshot_id] [RETAIN n DAYS]
+</code></pre>
+<pre><code class="language-sql">-- examples
+ALTER TABLE `/path/to/table` CREATE TAG v1 AS OF VERSION 42;
+ALTER TABLE `/path/to/table` CREATE TAG IF NOT EXISTS v1 AS OF VERSION 42 RETAIN 7 DAYS;
+ALTER TABLE `/path/to/table` CREATE OR REPLACE TAG v2 AS OF VERSION 100;
+ALTER TABLE `/path/to/table` DROP TAG IF EXISTS v1;
+ALTER TABLE `/path/to/table` REPLACE TAG v1 AS OF VERSION 50 RETAIN 14 DAYS;
+</code></pre>
+<h4>Branches</h4>
+<pre><code>ALTER TABLE table_identifier CREATE BRANCH [IF NOT EXISTS] branch_name [AS OF VERSION snapshot_id] [RETAIN n DAYS] [WITH SNAPSHOT RETENTION n SNAPSHOTS [n DAYS]]
+ALTER TABLE table_identifier CREATE OR REPLACE BRANCH branch_name [AS OF VERSION snapshot_id] [RETAIN n DAYS] [WITH SNAPSHOT RETENTION n SNAPSHOTS [n DAYS]]
+ALTER TABLE table_identifier DROP BRANCH [IF EXISTS] branch_name
+ALTER TABLE table_identifier REPLACE BRANCH branch_name [AS OF VERSION snapshot_id] [RETAIN n DAYS]
+</code></pre>
+<pre><code class="language-sql">-- examples
+ALTER TABLE `/path/to/table` CREATE BRANCH feature_branch;
+ALTER TABLE `/path/to/table` CREATE BRANCH IF NOT EXISTS my_branch AS OF VERSION 42 RETAIN 7 DAYS;
+ALTER TABLE `/path/to/table` CREATE OR REPLACE BRANCH my_branch AS OF VERSION 10;
+ALTER TABLE `/path/to/table` DROP BRANCH IF EXISTS old_branch;
+ALTER TABLE `/path/to/table` REPLACE BRANCH my_branch AS OF VERSION 5 RETAIN 30 DAYS;
+</code></pre>
+<h2>Transaction blocks</h2>
+<p>Transaction blocks group multiple statements to execute as a single atomic job.</p>
+<pre><code>BEGIN;
+statement1;
+statement2;
+...
+COMMIT;
+</code></pre>
+<p><strong>Rules:</strong></p>
+<ul>
+<li>All statements within <code>BEGIN</code>/<code>COMMIT</code> execute together in a single job.</li>
+<li>Transaction blocks cannot be nested.</li>
+<li>A transaction block must contain at least one write statement.</li>
+<li><code>BEGIN</code> without <code>COMMIT</code> or <code>COMMIT</code> without <code>BEGIN</code> is a parse error.</li>
+</ul>
+<pre><code class="language-sql">-- Create and populate a table atomically
+BEGIN;
+CREATE OR REPLACE TABLE `/path/to/table` (id INT, name STRING);
+INSERT INTO `/path/to/table` VALUES (1, 'foo'), (2, 'bar');
+COMMIT;
+
+-- Multiple inserts into separate tables as a single job
+BEGIN;
+INSERT INTO `/path/to/table1` SELECT * FROM `/path/to/source`;
+INSERT INTO `/path/to/table2` SELECT * FROM `/path/to/source`;
+COMMIT;
+</code></pre>
+<h2>Query composition</h2>
+<pre><code>[ WITH with_query [ , ... ] ]
+select_statement
+  [ { UNION | INTERSECT | EXCEPT } select_statement, ... ]
+  [ ORDER BY { expression [ ASC | DESC ] [ NULLS { FIRST | LAST } ] [, ...] } ]
+  [ WINDOW { window_name AS ( window_spec ) [, ...] } ]
+  [ LIMIT { ALL | expression } ]
+</code></pre>
+<h3>WITH clause (common table expressions)</h3>
+<p>Where <code>with_query</code> is:</p>
+<pre><code>cte_name [ ( column_name [, ...] ) ] AS ( select_statement )
+</code></pre>
+<pre><code class="language-sql">-- examples
+WITH sales_summary (cust_id, total_sales, order_count) AS (
+  SELECT customer_id, SUM(total_amount), COUNT(*)
+  FROM `/data/orders`
+  GROUP BY customer_id
+)
+SELECT * FROM sales_summary WHERE total_sales &gt; 10000;
+</code></pre>
+<h3>SELECT statement</h3>
+<p>Where <code>select_statement</code> is:</p>
+<pre><code>SELECT [ ALL | DISTINCT ] { [ named_expression | regex_column_names | * ] [, ...] }
+  FROM { from_item [, ...] }
+  [ WHERE boolean_expression ]
+  [ GROUP BY { ALL | { expression | ROLLUP(...) | CUBE(...) | GROUPING SETS(...) } [ , ... ] } ]
+  [ HAVING boolean_expression ]
+  [ LIMIT { ALL | expression } [ OFFSET expression ] ]
+</code></pre>
+<p>In Furnace queries, use <code>GROUP BY ALL</code> to group by every non-aggregate expression in the <code>SELECT</code> list.</p>
+<pre><code class="language-sql">SELECT region, product, SUM(revenue)
+FROM `/data/sales`
+GROUP BY ALL;
+</code></pre>
+<h4>Named expressions</h4>
+<p>Where <code>named_expression</code> is one of:</p>
+<p><strong>Expression with optional alias:</strong></p>
+<pre><code>expression [ AS alias ]
+</code></pre>
+<pre><code class="language-sql">-- examples
+SELECT count(*) AS total_count FROM `/path/to/table`;
+
+SELECT name, salary * 1.1 AS adjusted_salary FROM `/path/to/employees`;
+</code></pre>
+<p><strong>Window function:</strong></p>
+<pre><code>window_function() OVER ( window_spec )
+window_function() OVER window_name
+</code></pre>
+<p>Where <code>window_spec</code> is:</p>
+<pre><code>[ PARTITION BY expression [, ...] ]
+[ ORDER BY expression [ ASC | DESC ] [ NULLS { FIRST | LAST } ] [, ...] ]
+</code></pre>
+<pre><code class="language-sql">-- examples
+SELECT name, ROW_NUMBER() OVER (ORDER BY salary DESC) as rank
+FROM `/path/to/employees`;
+
+SELECT category, product_id,
+       ROW_NUMBER() OVER (PARTITION BY category ORDER BY price DESC) as category_rank
+FROM `/path/to/products`;
+
+-- Using named window
+SELECT customer_id, order_date, total,
+       ROW_NUMBER() OVER w as order_sequence
+FROM `/path/to/orders`
+WINDOW w AS (PARTITION BY customer_id ORDER BY order_date);
+</code></pre>
+<h3>FROM clause</h3>
+<p>Where <code>from_item</code> is one of:</p>
+<h4>Table reference</h4>
+<p>Tables can be referenced by filesystem path or resource identifier (RID). Both support optional branch specifications for querying specific Iceberg branches. Branch names that contain special characters need to be escaped with backticks.</p>
+<pre><code>{ `/path/to/table`[.branch_&lt;branch name&gt;] | `ri.rid.for.table.1234`[.branch_&lt;branch name&gt;] }
+</code></pre>
+<pre><code class="language-sql">-- examples
+SELECT * FROM `/path/to/table`;
+
+SELECT * FROM `/path/to/table`.branch_master;
+
+SELECT * FROM `/path/to/table` WHERE id = 1;
+
+SELECT * FROM `ri.rid.for.table.1234`;
+
+SELECT * FROM `ri.rid.for.table`.`branch_abc\xyz`;
+
+</code></pre>
+<p>Time travel queries to a specific version are possible with the <code>VERSION AS OF</code> syntax using a snapshot ID for Iceberg tables and a transaction RID for Foundry datasets.</p>
+<pre><code class="language-sql">-- Examples
+SELECT * FROM `/path/to/table` VERSION AS OF `ri.foundry.main.transaction.1234`;
+
+SELECT * FROM `/path/to/table` VERSION AS OF 1234567;
+</code></pre>
+<p>For Foundry datasets, you can read the rows added within a range of transactions with <code>VERSION BETWEEN ... AND ...</code>. The query returns rows added strictly after the start transaction up through the end transaction. The start bound is exclusive and the end bound is inclusive. Both bounds must be transaction RIDs, not snapshot IDs.</p>
+<pre><code class="language-sql">-- Rows appended after txn.1234, up to and including txn.5678
+SELECT * FROM `/path/to/table`
+    VERSION BETWEEN `ri.foundry.main.transaction.1234` AND `ri.foundry.main.transaction.5678`;
+</code></pre>
+<p><code>VERSION BETWEEN</code> is not supported on Iceberg tables. Other time travel syntax is not currently supported.</p>
+<h4>Join</h4>
+<pre><code>relation
+  { CROSS | LEFT [ OUTER ] | RIGHT [ OUTER ] | FULL [ OUTER ] }
+  JOIN relation
+  ON boolean_expression
+</code></pre>
+<pre><code class="language-sql">-- examples
+SELECT * FROM `/path/to/table` LEFT JOIN `/path/to/table2` ON id = id2;
+
+SELECT * FROM `/path/to/table` RIGHT OUTER JOIN `/path/to/table2` ON id = id2;
+</code></pre>
+<h4>Subquery</h4>
+<pre><code>( select_statement )
+</code></pre>
+<pre><code class="language-sql">-- examples
+SELECT * FROM (SELECT * FROM `/path/to/table`);
+
+SELECT * FROM (SELECT * FROM `/path/to/table`) WHERE id = 1;
+
+SELECT * FROM (
+  VALUES (9001, 1001, 1, DATE '2023-06-01', 'credit_card', 1329.98, 'completed',
+          TIMESTAMP '2023-06-01 11:00:00')
+) AS orders(order_id, customer_id, product_id, order_date, payment_method, total, status, created_at);
+</code></pre>
+<p>:::callout{theme="neutral"}
+Subqueries <em>must</em> be wrapped in parentheses. This is enforced in Foundry even though it is not always required in Spark SQL.
+:::</p>
+<h3>Complete query examples</h3>
+<pre><code class="language-sql">-- Complex query with joins and filtering
+SELECT DISTINCT o.order_id,
+                c.name,
+                o.total_amount,
+                p.category
+FROM `/data/orders` o
+         LEFT JOIN `/data/customers` c ON o.customer_id = c.id
+         CROSS JOIN (SELECT product_id, category
+                     FROM `/data/products`
+                     WHERE category = 'Electronics') p ON o.product_id = p.product_id
+WHERE o.order_date &gt; DATE '2024-01-01'
+  AND o.total_amount &gt; 1000.0
+ORDER BY o.total_amount DESC
+LIMIT 100;
+
+-- Aggregation with HAVING clause
+SELECT c.name,
+       COUNT(o.order_id) as order_count,
+       SUM(o.total_amount) as total_spent
+FROM `/data/customers` c
+       LEFT JOIN `/data/orders` o ON c.id = o.customer_id
+GROUP BY c.name
+HAVING COUNT(o.order_id) &gt; 0;
+
+-- UNION query with multiple joins
+SELECT emp_id, name, dept, 'Active' AS status
+FROM `/hr/employees` e
+         LEFT OUTER JOIN `/hr/departments` d ON e.dept_id = d.id
+WHERE e.active = true
+UNION
+SELECT emp_id, name, dept, 'Inactive' AS status
+FROM (SELECT *
+      FROM `/hr/employees`
+      WHERE termination_date &lt; current_timestamp()) e
+         RIGHT JOIN `/hr/departments` d ON e.dept_id = d.id
+WHERE e.active = false
+ORDER BY dept ASC, status DESC NULLS LAST;
+</code></pre>
+<h2>SQL hints</h2>
+<p>SQL hints provide additional directives to the query engine. Hints are specified using the following syntax:</p>
+<pre><code>/*+ hint1, hint2(opts...) */
+</code></pre>
+<p>The following hints are currently supported:</p>
+<ul>
+<li><code>adhoc</code>: Run a one-time write and retain it as an additional <a href="https://www.palantir.com/docs/foundry/sql-warehousing/sql-definitions/">SQL definition</a> without changing the active definition.</li>
+</ul>
+<pre><code class="language-sql">/*+ adhoc */
+CREATE OR REPLACE TABLE `/path/to/table` AS SELECT * FROM `/path/to/source`;
+</code></pre>
+<h2>Iceberg references</h2>
+<p>Foundry SQL supports Iceberg references to query metadata. Review the <a href="https://iceberg.apache.org/docs/latest/spark-queries/#querying-with-sql">official documentation â</a>.</p>
+<pre><code class="language-sql">-- examples
+SELECT * FROM `/path/to/table/`.files;
+
+SELECT * FROM `/path/to/table/`.snapshots;
+</code></pre>
+<h2>Introspection</h2>
+<p>Use <code>SHOW FUNCTIONS</code> to list the functions supported by Foundry SQL. The statement returns three columns: <code>name</code>, <code>kind</code> (one of <code>scalar</code>, <code>aggregate</code>, or <code>window</code>), and <code>signature</code>. An optional <code>LIKE</code> pattern filters by function name, where <code>%</code> matches any sequence of characters and <code>_</code> matches a single character.</p>
+<pre><code class="language-sql">SHOW FUNCTIONS;
+SHOW FUNCTIONS LIKE 'abs%';
+</code></pre>
+<h2>Functions</h2>
+<p>Functions are available to transforms data in more complex ways. Refer to the <a href="https://spark.apache.org/docs/latest/sql-ref-functions.html">Spark SQL documentation â</a> for detailed information on each function below.</p>
+<h3>Array functions</h3>
+<table>
+<thead>
+<tr>
+<th>Function</th>
+<th>Description</th>
+<th>Example</th>
+<th>Furnace</th>
+<th>Ontology</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>array(expr, ...)</code></td>
+<td>Create an array with given elements</td>
+<td><code>SELECT array(1, 2, 3)</code></td>
+<td>Supported</td>
+<td>Supported</td>
+</tr>
+<tr>
+<td><code>array_distinct(array)</code></td>
+<td>Remove duplicate values from array</td>
+<td><code>SELECT array_distinct(tags) FROM table</code></td>
+<td>Supported</td>
+<td>Not supported</td>
+</tr>
+<tr>
+<td><code>array_intersect(array1, array2)</code></td>
+<td>Elements in both arrays without duplicates</td>
+<td><code>SELECT array_intersect(arr1, arr2) FROM table</code></td>
+<td>Supported</td>
+<td>Not supported</td>
+</tr>
+<tr>
+<td><code>array_union(array1, array2)</code></td>
+<td>Elements in either array without duplicates</td>
+<td><code>SELECT array_union(arr1, arr2) FROM table</code></td>
+<td>Supported</td>
+<td>Not supported</td>
+</tr>
+<tr>
+<td><code>array_except(array1, array2)</code></td>
+<td>Elements in array1 but not in array2</td>
+<td><code>SELECT array_except(arr1, arr2) FROM table</code></td>
+<td>Supported</td>
+<td>Not supported</td>
+</tr>
+<tr>
+<td><code>array_join(array, delimiter [, nullReplacement])</code></td>
+<td>Concatenate array elements with delimiter</td>
+<td><code>SELECT array_join(tags, ',') FROM table</code></td>
+<td>Supported</td>
+<td>Supported</td>
+</tr>
+<tr>
+<td><code>array_max(array)</code></td>
+<td>Maximum value in array</td>
+<td><code>SELECT array_max(ARRAY(1, 5, 3))</code></td>
+<td>Supported</td>
+<td>Not supported</td>
+</tr>
+<tr>
+<td><code>array_min(array)</code></td>
+<td>Minimum value in array</td>
+<td><code>SELECT array_min(ARRAY(1, 5, 3))</code></td>
+<td>Supported</td>
+<td>Not supported</td>
+</tr>
+<tr>
+<td><code>array_position(array, element)</code></td>
+<td>Position of first occurrence (1-based, 0 if not found)</td>
+<td><code>SELECT array_position(tags, 'item') FROM table</code></td>
+<td>Supported</td>
+<td>Not supported</td>
+</tr>
+<tr>
+<td><code>array_remove(array, element)</code></td>
+<td>Remove all matching elements</td>
+<td><code>SELECT array_remove(tags, 'old') FROM table</code></td>
+<td>Supported</td>
+<td>Not supported</td>
+</tr>
+<tr>
+<td><code>array_size(array)</code></td>
+<td>Number of elements in array</td>
+<td><code>SELECT array_size(tags) FROM table</code></td>
+<td>Supported</td>
+<td>Supported</td>
+</tr>
+<tr>
+<td><code>array_contains(array, value)</code></td>
+<td>True if array contains value</td>
+<td><code>SELECT array_contains(tags, 'new') FROM table</code></td>
+<td>Supported</td>
+<td>Supported</td>
+</tr>
+<tr>
+<td><code>array_repeat(element, count)</code></td>
+<td>Create array with element repeated count times</td>
+<td><code>SELECT array_repeat('x', 5)</code></td>
+<td>Supported</td>
+<td>Not supported</td>
+</tr>
+<tr>
+<td><code>arrays_overlap(array1, array2)</code></td>
+<td>True if arrays have common non-null elements</td>
+<td><code>SELECT arrays_overlap(arr1, arr2) FROM table</code></td>
+<td>Supported</td>
+<td>Not supported</td>
+</tr>
+<tr>
+<td><code>flatten(arrayOfArrays)</code></td>
+<td>Flatten nested arrays into single array</td>
+<td><code>SELECT flatten(nested_arrays) FROM table</code></td>
+<td>Supported</td>
+<td>Not supported</td>
+</tr>
+<tr>
+<td><code>sequence(start, stop, step)</code></td>
+<td>Generate sequence of integers</td>
+<td><code>SELECT sequence(1, 10, 2)</code></td>
+<td>Supported</td>
+<td>Not supported</td>
+</tr>
+<tr>
+<td><code>shuffle(array)</code></td>
+<td>Random permutation of array</td>
+<td><code>SELECT shuffle(tags) FROM table</code></td>
+<td>Supported</td>
+<td>Not supported</td>
+</tr>
+<tr>
+<td><code>slice(array, start, length)</code></td>
+<td>Subset of array from start with length</td>
+<td><code>SELECT slice(tags, 1, 2) FROM table</code></td>
+<td>Supported</td>
+<td>Not supported</td>
+</tr>
+<tr>
+<td><code>sort_array(array[, ascendingOrder])</code></td>
+<td>Sort array in ascending (default) or descending order</td>
+<td><code>SELECT sort_array(tags) FROM table</code></td>
+<td>Supported</td>
+<td>Not supported</td>
+</tr>
+<tr>
+<td><code>array_sort(array)</code></td>
+<td>Sort array in ascending order with nulls last</td>
+<td><code>SELECT array_sort(tags) FROM table</code></td>
+<td>Supported</td>
+<td>Not supported</td>
+</tr>
+<tr>
+<td><code>get(array, index)</code></td>
+<td>Returns element at given index (0-based)</td>
+<td><code>SELECT get(tags, 0) FROM table</code></td>
+<td>Supported</td>
+<td>Supported</td>
+</tr>
+<tr>
+<td><code>element_at(array, index)</code></td>
+<td>Returns element at given index (1-based; negative counts from the end)</td>
+<td><code>SELECT element_at(tags, 1) FROM table</code></td>
+<td>Supported</td>
+<td>Not supported</td>
+</tr>
+<tr>
+<td><code>size(array)</code></td>
+<td>Number of elements in array (also accepts a map)</td>
+<td><code>SELECT size(tags) FROM table</code></td>
+<td>Supported</td>
+<td>Supported</td>
+</tr>
+<tr>
+<td><code>cardinality(array)</code></td>
+<td>Number of elements in array (also accepts a map)</td>
+<td><code>SELECT cardinality(tags) FROM table</code></td>
+<td>Supported</td>
+<td>Supported</td>
+</tr>
+<tr>
+<td><code>explode(array)</code></td>
+<td>Generates a new row for each element in the array</td>
+<td><code>SELECT explode(tags) FROM table</code></td>
+<td>Supported</td>
+<td>Supported</td>
+</tr>
+</tbody>
+</table>
+<h3>Map functions</h3>
+<table>
+<thead>
+<tr>
+<th>Function</th>
+<th>Description</th>
+<th>Example</th>
+<th>Furnace</th>
+<th>Ontology</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>map(key1, value1, key2, value2, ...)</code></td>
+<td>Create a map from key-value pairs</td>
+<td><code>SELECT map('a', 1, 'b', 2)</code></td>
+<td>Supported</td>
+<td>Not supported</td>
+</tr>
+<tr>
+<td><code>map_keys(map)</code></td>
+<td>Returns an array of the map's keys</td>
+<td><code>SELECT map_keys(attributes) FROM table</code></td>
+<td>Supported</td>
+<td>Not supported</td>
+</tr>
+<tr>
+<td><code>map_values(map)</code></td>
+<td>Returns an array of the map's values</td>
+<td><code>SELECT map_values(attributes) FROM table</code></td>
+<td>Supported</td>
+<td>Not supported</td>
+</tr>
+<tr>
+<td><code>element_at(map, key)</code></td>
+<td>Returns the value for the given key</td>
+<td><code>SELECT element_at(attributes, 'color') FROM table</code></td>
+<td>Supported</td>
+<td>Not supported</td>
+</tr>
+<tr>
+<td><code>size(map)</code></td>
+<td>Number of entries in map (also accepts an array)</td>
+<td><code>SELECT size(attributes) FROM table</code></td>
+<td>Supported</td>
+<td>Not supported</td>
+</tr>
+<tr>
+<td><code>cardinality(map)</code></td>
+<td>Number of entries in map (also accepts an array)</td>
+<td><code>SELECT cardinality(attributes) FROM table</code></td>
+<td>Supported</td>
+<td>Not supported</td>
+</tr>
+</tbody>
+</table>
+<h3>Struct functions</h3>
+<table>
+<thead>
+<tr>
+<th>Function</th>
+<th>Description</th>
+<th>Example</th>
+<th>Furnace</th>
+<th>Ontology</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>struct(expr1, expr2, ...)</code></td>
+<td>Create a struct from expressions</td>
+<td><code>SELECT struct('red', 'large', 2.0)</code></td>
+<td>Supported</td>
+<td>Not supported</td>
+</tr>
+</tbody>
+</table>
+<h3>Date and timestamp functions</h3>
+<table>
+<thead>
+<tr>
+<th>Function</th>
+<th>Description</th>
+<th>Example</th>
+<th>Furnace</th>
+<th>Ontology</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>current_timestamp()</code></td>
+<td>Returns current timestamp</td>
+<td><code>SELECT current_timestamp()</code></td>
+<td>Supported</td>
+<td>Supported</td>
+</tr>
+<tr>
+<td><code>current_date()</code></td>
+<td>Returns current date</td>
+<td><code>SELECT current_date()</code></td>
+<td>Supported</td>
+<td>Supported</td>
+</tr>
+<tr>
+<td><code>now()</code></td>
+<td>Returns current timestamp (alias for <code>current_timestamp</code>)</td>
+<td><code>SELECT now()</code></td>
+<td>Supported</td>
+<td>Not supported</td>
+</tr>
+<tr>
+<td><code>add_months(date, num_months)</code></td>
+<td>Add months to date</td>
+<td><code>add_months(order_date, 3)</code></td>
+<td>Supported</td>
+<td>Not supported</td>
+</tr>
+<tr>
+<td><code>date_add(expr, num_days)</code></td>
+<td>Add days to date</td>
+<td><code>date_add(order_date, 7)</code></td>
+<td>Supported</td>
+<td>Supported</td>
+</tr>
+<tr>
+<td><code>date_format(expr, format)</code></td>
+<td>Format date or timestamp as a string</td>
+<td><code>SELECT date_format(TIMESTAMP '2024-01-15 10:30:00', 'yyyy-MM-dd')</code></td>
+<td>Supported</td>
+<td>Supported</td>
+</tr>
+<tr>
+<td><code>date_sub(expr, num_days)</code></td>
+<td>Subtract days from date</td>
+<td><code>date_sub(order_date, 7)</code></td>
+<td>Supported</td>
+<td>Supported</td>
+</tr>
+<tr>
+<td><code>from_unixtime(expr [, format])</code></td>
+<td>Convert Unix timestamp to timestamp</td>
+<td><code>from_unixtime(1609459200)</code></td>
+<td>Supported</td>
+<td>Not supported</td>
+</tr>
+<tr>
+<td><code>unix_timestamp([expr] [, format])</code></td>
+<td>Convert timestamp to Unix timestamp</td>
+<td><code>unix_timestamp(current_timestamp())</code></td>
+<td>Supported</td>
+<td>Not supported</td>
+</tr>
+<tr>
+<td><code>day(date)</code></td>
+<td>Extract day of month from date</td>
+<td><code>SELECT day(order_date) FROM table</code></td>
+<td>Supported</td>
+<td>Supported</td>
+</tr>
+<tr>
+<td><code>hour(timestamp)</code></td>
+<td>Extract hour from timestamp</td>
+<td><code>SELECT hour(order_timestamp) FROM table</code></td>
+<td>Supported</td>
+<td>Not supported</td>
+</tr>
+<tr>
+<td><code>minute(timestamp)</code></td>
+<td>Extract minute from timestamp</td>
+<td><code>SELECT minute(order_timestamp) FROM table</code></td>
+<td>Supported</td>
+<td>Not supported</td>
+</tr>
+<tr>
+<td><code>month(date)</code></td>
+<td>Extract month from date</td>
+<td><code>SELECT month(order_date) FROM table</code></td>
+<td>Supported</td>
+<td>Supported</td>
+</tr>
+<tr>
+<td><code>quarter(date)</code></td>
+<td>Extract quarter from date</td>
+<td><code>SELECT quarter(order_date) FROM table</code></td>
+<td>Supported</td>
+<td>Supported</td>
+</tr>
+<tr>
+<td><code>second(timestamp)</code></td>
+<td>Extract second from timestamp</td>
+<td><code>SELECT second(order_timestamp) FROM table</code></td>
+<td>Supported</td>
+<td>Not supported</td>
+</tr>
+<tr>
+<td><code>year(date)</code></td>
+<td>Extract year from date</td>
+<td><code>SELECT year(order_date) FROM table</code></td>
+<td>Supported</td>
+<td>Supported</td>
+</tr>
+<tr>
+<td><code>date_trunc(unit, timestamp)</code></td>
+<td>Truncate timestamp to specified unit</td>
+<td><code>SELECT date_trunc('day', current_timestamp())</code></td>
+<td>Supported</td>
+<td>Not supported</td>
+</tr>
+<tr>
+<td><code>trunc(date, fmt)</code></td>
+<td>Truncate date to <code>YEAR</code>, <code>QUARTER</code>, <code>MONTH</code>, or <code>WEEK</code> granularity</td>
+<td><code>SELECT trunc(order_date, 'MM')</code></td>
+<td>Supported</td>
+<td>Not supported</td>
+</tr>
+<tr>
+<td><code>to_date(str [, format])</code></td>
+<td>Convert string to date</td>
+<td><code>SELECT to_date('2024-01-15')</code></td>
+<td>Supported</td>
+<td>Not supported</td>
+</tr>
+<tr>
+<td><code>to_timestamp(expr [, format])</code></td>
+<td>Convert to timestamp</td>
+<td><code>SELECT to_timestamp('2024-01-15 10:30:00')</code></td>
+<td>Supported</td>
+<td>Not supported</td>
+</tr>
+<tr>
+<td><code>timestamp(expr)</code></td>
+<td>Short-form cast to timestamp</td>
+<td><code>SELECT timestamp('2024-01-15 10:30:00')</code></td>
+<td>Supported</td>
+<td>Not supported</td>
+</tr>
+<tr>
+<td><code>from_utc_timestamp(ts, tz)</code></td>
+<td>Interpret a UTC timestamp in the given timezone</td>
+<td><code>SELECT from_utc_timestamp(ts, 'America/Los_Angeles')</code></td>
+<td>Supported</td>
+<td>Not supported</td>
+</tr>
+<tr>
+<td><code>to_utc_timestamp(ts, tz)</code></td>
+<td>Convert a timestamp in the given timezone to UTC</td>
+<td><code>SELECT to_utc_timestamp(ts, 'America/Los_Angeles')</code></td>
+<td>Supported</td>
+<td>Not supported</td>
+</tr>
+<tr>
+<td><code>dayofmonth(date)</code></td>
+<td>Extract day of month from date (alias for <code>day</code>)</td>
+<td><code>SELECT dayofmonth(order_date) FROM table</code></td>
+<td>Supported</td>
+<td>Not supported</td>
+</tr>
+<tr>
+<td><code>dayofweek(date)</code></td>
+<td>Day of week (1 = Sunday, 7 = Saturday)</td>
+<td><code>SELECT dayofweek(order_date) FROM table</code></td>
+<td>Supported</td>
+<td>Not supported</td>
+</tr>
+<tr>
+<td><code>weekday(date)</code></td>
+<td>Day of week (0 = Monday, 6 = Sunday)</td>
+<td><code>SELECT weekday(order_date) FROM table</code></td>
+<td>Supported</td>
+<td>Not supported</td>
+</tr>
+<tr>
+<td><code>dayofyear(date)</code></td>
+<td>Day of year (1 to 366)</td>
+<td><code>SELECT dayofyear(order_date) FROM table</code></td>
+<td>Supported</td>
+<td>Not supported</td>
+</tr>
+<tr>
+<td><code>weekofyear(date)</code></td>
+<td>ISO week of year</td>
+<td><code>SELECT weekofyear(order_date) FROM table</code></td>
+<td>Supported</td>
+<td>Not supported</td>
+</tr>
+<tr>
+<td><code>last_day(date)</code></td>
+<td>Last day of the month containing date</td>
+<td><code>SELECT last_day(order_date) FROM table</code></td>
+<td>Supported</td>
+<td>Not supported</td>
+</tr>
+<tr>
+<td><code>next_day(start_date, day_of_week)</code></td>
+<td>First date after <code>start_date</code> that falls on the named day</td>
+<td><code>SELECT next_day(order_date, 'Mon') FROM table</code></td>
+<td>Supported</td>
+<td>Not supported</td>
+</tr>
+<tr>
+<td><code>date_diff(date1, date2)</code></td>
+<td>Subtract two dates</td>
+<td><code>SELECT date_diff('2020-01-01', '2020-01-02')</code></td>
+<td>Supported</td>
+<td>Supported</td>
+</tr>
+<tr>
+<td><code>months_between(ts1, ts2 [, roundOff])</code></td>
+<td>Fractional months between two timestamps (rounds to eight digits unless <code>roundOff</code> is false)</td>
+<td><code>SELECT months_between('1997-02-28 10:30:00', '1996-10-30')</code></td>
+<td>Supported</td>
+<td>Not supported</td>
+</tr>
+<tr>
+<td><code>timestamp_seconds(seconds)</code></td>
+<td>Timestamp from seconds since the UTC epoch (accepts fractional values)</td>
+<td><code>SELECT timestamp_seconds(1230219000)</code></td>
+<td>Supported</td>
+<td>Not supported</td>
+</tr>
+<tr>
+<td><code>timestamp_millis(millis)</code></td>
+<td>Timestamp from milliseconds since the UTC epoch</td>
+<td><code>SELECT timestamp_millis(1230219000123)</code></td>
+<td>Supported</td>
+<td>Not supported</td>
+</tr>
+<tr>
+<td><code>timestamp_micros(micros)</code></td>
+<td>Timestamp from microseconds since the UTC epoch</td>
+<td><code>SELECT timestamp_micros(1230219000123123)</code></td>
+<td>Supported</td>
+<td>Not supported</td>
+</tr>
+<tr>
+<td><code>unix_seconds(timestamp)</code></td>
+<td>Seconds since 1970-01-01 UTC (truncates higher precision)</td>
+<td><code>SELECT unix_seconds(current_timestamp())</code></td>
+<td>Supported</td>
+<td>Not supported</td>
+</tr>
+<tr>
+<td><code>unix_millis(timestamp)</code></td>
+<td>Milliseconds since 1970-01-01 UTC (truncates higher precision)</td>
+<td><code>SELECT unix_millis(current_timestamp())</code></td>
+<td>Supported</td>
+<td>Not supported</td>
+</tr>
+<tr>
+<td><code>unix_micros(timestamp)</code></td>
+<td>Microseconds since 1970-01-01 UTC</td>
+<td><code>SELECT unix_micros(current_timestamp())</code></td>
+<td>Supported</td>
+<td>Not supported</td>
+</tr>
+</tbody>
+</table>
+<h3>Mathematical functions</h3>
+<table>
+<thead>
+<tr>
+<th>Function</th>
+<th>Description</th>
+<th>Example</th>
+<th>Furnace</th>
+<th>Ontology</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>abs(x)</code></td>
+<td>Absolute value</td>
+<td><code>SELECT abs(-5)</code></td>
+<td>Supported</td>
+<td>Supported</td>
+</tr>
+<tr>
+<td><code>acos(x)</code></td>
+<td>Arc cosine</td>
+<td><code>SELECT acos(0.5)</code></td>
+<td>Supported</td>
+<td>Not supported</td>
+</tr>
+<tr>
+<td><code>asin(x)</code></td>
+<td>Arc sine</td>
+<td><code>SELECT asin(0.5)</code></td>
+<td>Supported</td>
+<td>Not supported</td>
+</tr>
+<tr>
+<td><code>atan(x)</code></td>
+<td>Arc tangent</td>
+<td><code>SELECT atan(1)</code></td>
+<td>Supported</td>
+<td>Not supported</td>
+</tr>
+<tr>
+<td><code>atan2(y, x)</code></td>
+<td>Arc tangent of y/x</td>
+<td><code>SELECT atan2(1, 1)</code></td>
+<td>Supported</td>
+<td>Not supported</td>
+</tr>
+<tr>
+<td><code>cbrt(x)</code></td>
+<td>Cube root</td>
+<td><code>SELECT cbrt(27)</code></td>
+<td>Supported</td>
+<td>Not supported</td>
+</tr>
+<tr>
+<td><code>ceil(x)</code></td>
+<td>Round up to nearest integer</td>
+<td><code>SELECT ceil(3.7)</code></td>
+<td>Supported</td>
+<td>Supported</td>
+</tr>
+<tr>
+<td><code>ceiling(x)</code></td>
+<td>Round up to nearest integer</td>
+<td><code>SELECT ceiling(3.7)</code></td>
+<td>Supported</td>
+<td>Supported</td>
+</tr>
+<tr>
+<td><code>cos(x)</code></td>
+<td>Cosine</td>
+<td><code>SELECT cos(pi())</code></td>
+<td>Supported</td>
+<td>Not supported</td>
+</tr>
+<tr>
+<td><code>cosh(x)</code></td>
+<td>Hyperbolic cosine</td>
+<td><code>SELECT cosh(0)</code></td>
+<td>Supported</td>
+<td>Not supported</td>
+</tr>
+<tr>
+<td><code>degrees(x)</code></td>
+<td>Convert radians to degrees</td>
+<td><code>SELECT degrees(pi())</code></td>
+<td>Supported</td>
+<td>Not supported</td>
+</tr>
+<tr>
+<td><code>e()</code></td>
+<td>Euler's number</td>
+<td><code>SELECT e()</code></td>
+<td>Supported</td>
+<td>Not supported</td>
+</tr>
+<tr>
+<td><code>exp(x)</code></td>
+<td>e raised to power x</td>
+<td><code>SELECT exp(1)</code></td>
+<td>Supported</td>
+<td>Not supported</td>
+</tr>
+<tr>
+<td><code>floor(x)</code></td>
+<td>Round down to nearest integer</td>
+<td><code>SELECT floor(3.7)</code></td>
+<td>Supported</td>
+<td>Supported</td>
+</tr>
+<tr>
+<td><code>isnan(x)</code></td>
+<td>True if x is NaN (NULL input returns false)</td>
+<td><code>SELECT isnan(price) FROM table</code></td>
+<td>Supported</td>
+<td>Not supported</td>
+</tr>
+<tr>
+<td><code>nanvl(x, y)</code></td>
+<td>Returns x unless it is NaN, in which case returns y</td>
+<td><code>SELECT nanvl(price, 0) FROM table</code></td>
+<td>Supported</td>
+<td>Not supported</td>
+</tr>
+<tr>
+<td><code>ln(x)</code></td>
+<td>Natural logarithm</td>
+<td><code>SELECT ln(e())</code></td>
+<td>Supported</td>
+<td>Not supported</td>
+</tr>
+<tr>
+<td><code>log(base, x)</code></td>
+<td>Logarithm with specified base</td>
+<td><code>SELECT log(2, 8)</code></td>
+<td>Supported</td>
+<td>Not supported</td>
+</tr>
+<tr>
+<td><code>log10(x)</code></td>
+<td>Base 10 logarithm</td>
+<td><code>SELECT log10(100)</code></td>
+<td>Supported</td>
+<td>Not supported</td>
+</tr>
+<tr>
+<td><code>log2(x)</code></td>
+<td>Base 2 logarithm</td>
+<td><code>SELECT log2(8)</code></td>
+<td>Supported</td>
+<td>Not supported</td>
+</tr>
+<tr>
+<td><code>mod(n, m)</code></td>
+<td>Modulus (remainder)</td>
+<td><code>SELECT mod(10, 3)</code></td>
+<td>Supported</td>
+<td>Supported</td>
+</tr>
+<tr>
+<td><code>pi()</code></td>
+<td>Pi constant</td>
+<td><code>SELECT pi()</code></td>
+<td>Supported</td>
+<td>Not supported</td>
+</tr>
+<tr>
+<td><code>pow(x, p)</code></td>
+<td>x raised to power p</td>
+<td><code>SELECT pow(2, 3)</code></td>
+<td>Supported</td>
+<td>Not supported</td>
+</tr>
+<tr>
+<td><code>power(x, p)</code></td>
+<td>x raised to power p</td>
+<td><code>SELECT power(2, 3)</code></td>
+<td>Supported</td>
+<td>Supported</td>
+</tr>
+<tr>
+<td><code>radians(x)</code></td>
+<td>Convert degrees to radians</td>
+<td><code>SELECT radians(180)</code></td>
+<td>Supported</td>
+<td>Not supported</td>
+</tr>
+<tr>
+<td><code>rand([seed])</code></td>
+<td>Random value between 0 and 1. Optional seed is honored on Spark but ignored on Trino.</td>
+<td><code>SELECT rand()</code></td>
+<td>Supported</td>
+<td>Not supported</td>
+</tr>
+<tr>
+<td><code>random([seed])</code></td>
+<td>Random value between 0 and 1. Optional seed is honored on Spark but ignored on Trino.</td>
+<td><code>SELECT random()</code></td>
+<td>Supported</td>
+<td>Not supported</td>
+</tr>
+<tr>
+<td><code>round(x, d)</code></td>
+<td>Round to d decimal places</td>
+<td><code>SELECT round(3.7, 1)</code></td>
+<td>Supported</td>
+<td>Supported</td>
+</tr>
+<tr>
+<td><code>sign(x)</code></td>
+<td>Sign function (-1, 0, 1)</td>
+<td><code>SELECT sign(-5)</code></td>
+<td>Supported</td>
+<td>Not supported</td>
+</tr>
+<tr>
+<td><code>sin(x)</code></td>
+<td>Sine</td>
+<td><code>SELECT sin(pi() / 2)</code></td>
+<td>Supported</td>
+<td>Not supported</td>
+</tr>
+<tr>
+<td><code>sinh(x)</code></td>
+<td>Hyperbolic sine</td>
+<td><code>SELECT sinh(0)</code></td>
+<td>Supported</td>
+<td>Not supported</td>
+</tr>
+<tr>
+<td><code>sqrt(x)</code></td>
+<td>Square root</td>
+<td><code>SELECT sqrt(16)</code></td>
+<td>Supported</td>
+<td>Supported</td>
+</tr>
+<tr>
+<td><code>tan(x)</code></td>
+<td>Tangent</td>
+<td><code>SELECT tan(pi() / 4)</code></td>
+<td>Supported</td>
+<td>Not supported</td>
+</tr>
+<tr>
+<td><code>tanh(x)</code></td>
+<td>Hyperbolic tangent</td>
+<td><code>SELECT tanh(0)</code></td>
+<td>Supported</td>
+<td>Not supported</td>
+</tr>
+<tr>
+<td><code>bin(x)</code></td>
+<td>Binary (base-2) string representation of a long value (negatives use two's-complement 64-bit)</td>
+<td><code>SELECT bin(13)</code></td>
+<td>Supported</td>
+<td>Not supported</td>
+</tr>
+</tbody>
+</table>
+<h3>String functions</h3>
+<table>
+<thead>
+<tr>
+<th>Function</th>
+<th>Description</th>
+<th>Example</th>
+<th>Furnace</th>
+<th>Ontology</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>chr(n)</code></td>
+<td>Returns character from Unicode code point</td>
+<td><code>SELECT chr(65)</code></td>
+<td>Supported</td>
+<td>Not supported</td>
+</tr>
+<tr>
+<td><code>char(n)</code></td>
+<td>Returns character from code point (alias for chr)</td>
+<td><code>SELECT char(65)</code></td>
+<td>Supported</td>
+<td>Not supported</td>
+</tr>
+<tr>
+<td><code>contains(str, substr)</code></td>
+<td>True if string contains substring</td>
+<td><code>SELECT contains('hello', 'ell')</code></td>
+<td>Supported</td>
+<td>Supported</td>
+</tr>
+<tr>
+<td><code>concat_ws(sep, str1, ...)</code></td>
+<td>Concatenate strings with separator</td>
+<td><code>SELECT concat_ws(',', 'a', 'b')</code></td>
+<td>Supported</td>
+<td>Not supported</td>
+</tr>
+<tr>
+<td><code>concat(str1, ...)</code></td>
+<td>Concatenate strings</td>
+<td><code>SELECT concat('a', 'b')</code></td>
+<td>Supported</td>
+<td>Supported</td>
+</tr>
+<tr>
+<td><code>length(str)</code></td>
+<td>Length of string in characters</td>
+<td><code>SELECT length('hello')</code></td>
+<td>Supported</td>
+<td>Supported</td>
+</tr>
+<tr>
+<td><code>len(str)</code></td>
+<td>Length of string (alias for length); accepts string or binary</td>
+<td><code>SELECT len('hello')</code></td>
+<td>Supported</td>
+<td>Not supported</td>
+</tr>
+<tr>
+<td><code>char_length(str)</code></td>
+<td>Length of string (alias for length)</td>
+<td><code>SELECT char_length('hello')</code></td>
+<td>Supported</td>
+<td>Supported</td>
+</tr>
+<tr>
+<td><code>character_length(str)</code></td>
+<td>Length of string (alias for length)</td>
+<td><code>SELECT character_length('hello')</code></td>
+<td>Supported</td>
+<td>Supported</td>
+</tr>
+<tr>
+<td><code>bit_length(expr)</code></td>
+<td>Bit length of string or binary data (UTF-8 byte length multiplied by 8 for strings)</td>
+<td><code>SELECT bit_length('Spark SQL')</code></td>
+<td>Supported</td>
+<td>Not supported</td>
+</tr>
+<tr>
+<td><code>octet_length(expr)</code></td>
+<td>Byte length of string (UTF-8) or binary</td>
+<td><code>SELECT octet_length('Spark SQL')</code></td>
+<td>Supported</td>
+<td>Not supported</td>
+</tr>
+<tr>
+<td><code>format_number(num, places_or_format)</code></td>
+<td>Format a number like <code>'#,###.##'</code> rounded to N places, or with a user-supplied decimal-format pattern</td>
+<td><code>SELECT format_number(12332.123456, 4)</code></td>
+<td>Supported</td>
+<td>Not supported</td>
+</tr>
+<tr>
+<td><code>lower(str)</code></td>
+<td>Convert to lowercase</td>
+<td><code>SELECT lower('HELLO')</code></td>
+<td>Supported</td>
+<td>Supported</td>
+</tr>
+<tr>
+<td><code>lcase(str)</code></td>
+<td>Convert to lowercase (alias for lower)</td>
+<td><code>SELECT lcase('HELLO')</code></td>
+<td>Supported</td>
+<td>Not supported</td>
+</tr>
+<tr>
+<td><code>upper(str)</code></td>
+<td>Convert to uppercase</td>
+<td><code>SELECT upper('hello')</code></td>
+<td>Supported</td>
+<td>Supported</td>
+</tr>
+<tr>
+<td><code>ucase(str)</code></td>
+<td>Convert to uppercase (alias for upper)</td>
+<td><code>SELECT ucase('hello')</code></td>
+<td>Supported</td>
+<td>Not supported</td>
+</tr>
+<tr>
+<td><code>initcap(str)</code></td>
+<td>Capitalize the first letter of each word</td>
+<td><code>SELECT initcap('hello world')</code></td>
+<td>Supported</td>
+<td>Not supported</td>
+</tr>
+<tr>
+<td><code>lpad(str, len, pad)</code></td>
+<td>Left pad string to length</td>
+<td><code>SELECT lpad('hi', 5, 'x')</code></td>
+<td>Supported</td>
+<td>Not supported</td>
+</tr>
+<tr>
+<td><code>rpad(str, len, pad)</code></td>
+<td>Right pad string to length</td>
+<td><code>SELECT rpad('hi', 5, 'x')</code></td>
+<td>Supported</td>
+<td>Not supported</td>
+</tr>
+<tr>
+<td><code>ltrim(str)</code></td>
+<td>Remove leading whitespace</td>
+<td><code>SELECT ltrim('  hello')</code></td>
+<td>Supported</td>
+<td>Not supported</td>
+</tr>
+<tr>
+<td><code>rtrim(str)</code></td>
+<td>Remove trailing whitespace</td>
+<td><code>SELECT rtrim('hello  ')</code></td>
+<td>Supported</td>
+<td>Not supported</td>
+</tr>
+<tr>
+<td><code>trim(str)</code></td>
+<td>Remove leading and trailing whitespace</td>
+<td><code>SELECT trim('  hello  ')</code></td>
+<td>Supported</td>
+<td>Supported</td>
+</tr>
+<tr>
+<td><code>replace(str, search, replace)</code></td>
+<td>Replace all occurrences</td>
+<td><code>SELECT replace('hello', 'l', 'x')</code></td>
+<td>Supported</td>
+<td>Supported</td>
+</tr>
+<tr>
+<td><code>reverse(str)</code></td>
+<td>Reverse a string (also works on arrays)</td>
+<td><code>SELECT reverse('hello')</code></td>
+<td>Supported</td>
+<td>Not supported</td>
+</tr>
+<tr>
+<td><code>right(str, len)</code></td>
+<td>Rightmost <code>len</code> characters of string</td>
+<td><code>SELECT right('hello', 3)</code></td>
+<td>Supported</td>
+<td>Not supported</td>
+</tr>
+<tr>
+<td><code>substr(str, pos, len)</code></td>
+<td>Extract substring</td>
+<td><code>SELECT substr('hello', 2, 3)</code></td>
+<td>Supported</td>
+<td>Supported</td>
+</tr>
+<tr>
+<td><code>substring(str, pos, len)</code></td>
+<td>Extract substring</td>
+<td><code>SELECT substring('hello', 2, 3)</code></td>
+<td>Supported</td>
+<td>Supported</td>
+</tr>
+<tr>
+<td><code>substring_index(str, delim, count)</code></td>
+<td>Substring before <code>count</code> occurrences of the delimiter (negative counts from the end)</td>
+<td><code>SELECT substring_index('a.b.c.d', '.', 2)</code></td>
+<td>Supported</td>
+<td>Not supported</td>
+</tr>
+<tr>
+<td><code>split(str, delimiter)</code></td>
+<td>Split string into array</td>
+<td><code>SELECT split('a,b,c', ',')</code></td>
+<td>Supported</td>
+<td>Not supported</td>
+</tr>
+<tr>
+<td><code>split_part(str, delimiter, index)</code></td>
+<td>Get part from split string (1-based)</td>
+<td><code>SELECT split_part('a,b,c', ',', 2)</code></td>
+<td>Supported</td>
+<td>Not supported</td>
+</tr>
+<tr>
+<td><code>instr(str, substr)</code></td>
+<td>Find substring position (1-based, 0 if not found)</td>
+<td><code>SELECT instr('hello', 'll')</code></td>
+<td>Supported</td>
+<td>Not supported</td>
+</tr>
+<tr>
+<td><code>locate(substr, str [, pos])</code></td>
+<td>Find substring position starting at <code>pos</code> (1-based, 0 if not found)</td>
+<td><code>SELECT locate('ll', 'hello')</code></td>
+<td>Supported</td>
+<td>Not supported</td>
+</tr>
+<tr>
+<td><code>position(substr IN str)</code></td>
+<td>Find substring position (SQL standard syntax)</td>
+<td><code>SELECT position('ll' IN 'hello')</code></td>
+<td>Supported</td>
+<td>Not supported</td>
+</tr>
+<tr>
+<td><code>startswith(str, prefix)</code></td>
+<td>Check if string starts with prefix</td>
+<td><code>SELECT startswith('hello', 'he')</code></td>
+<td>Supported</td>
+<td>Supported</td>
+</tr>
+<tr>
+<td><code>luhn_check(str)</code></td>
+<td>Validate string using Luhn algorithm</td>
+<td><code>SELECT luhn_check('79927398713')</code></td>
+<td>Supported</td>
+<td>Not supported</td>
+</tr>
+</tbody>
+</table>
+<h3>Conditional functions</h3>
+<table>
+<thead>
+<tr>
+<th>Function</th>
+<th>Description</th>
+<th>Example</th>
+<th>Furnace</th>
+<th>Ontology</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>coalesce(expr1, expr2, ...)</code></td>
+<td>Returns first non-null expression</td>
+<td><code>SELECT coalesce(col, 'default')</code></td>
+<td>Supported</td>
+<td>Supported</td>
+</tr>
+<tr>
+<td><code>nullif(expr1, expr2)</code></td>
+<td>Returns null if <code>expr1</code> equals <code>expr2</code>, otherwise returns <code>expr1</code></td>
+<td><code>SELECT 100.0 / nullif(count, 0)</code></td>
+<td>Supported</td>
+<td>Supported</td>
+</tr>
+<tr>
+<td><code>if(cond, then, else)</code></td>
+<td>Returns <code>then</code> if <code>cond</code> is true, otherwise <code>else</code></td>
+<td><code>SELECT if(price &gt; 100, 'high', 'low')</code></td>
+<td>Supported</td>
+<td>Supported</td>
+</tr>
+<tr>
+<td><code>nvl(expr1, expr2)</code></td>
+<td>Returns <code>expr2</code> if <code>expr1</code> is null, otherwise <code>expr1</code></td>
+<td><code>SELECT nvl(col, 'default')</code></td>
+<td>Supported</td>
+<td>Not supported</td>
+</tr>
+<tr>
+<td><code>ifnull(expr1, expr2)</code></td>
+<td>Alias for <code>nvl</code></td>
+<td><code>SELECT ifnull(col, 'default')</code></td>
+<td>Supported</td>
+<td>Not supported</td>
+</tr>
+<tr>
+<td><code>nvl2(expr1, expr2, expr3)</code></td>
+<td>Returns <code>expr2</code> if <code>expr1</code> is not null, otherwise <code>expr3</code></td>
+<td><code>SELECT nvl2(col, 'present', 'missing')</code></td>
+<td>Supported</td>
+<td>Not supported</td>
+</tr>
+<tr>
+<td><code>greatest(expr1, expr2, ...)</code></td>
+<td>Largest non-null value (null only when all inputs are null)</td>
+<td><code>SELECT greatest(a, b, c) FROM table</code></td>
+<td>Supported</td>
+<td>Supported</td>
+</tr>
+<tr>
+<td><code>least(expr1, expr2, ...)</code></td>
+<td>Smallest non-null value (null only when all inputs are null)</td>
+<td><code>SELECT least(a, b, c) FROM table</code></td>
+<td>Supported</td>
+<td>Supported</td>
+</tr>
+<tr>
+<td><code>regexp_like(str, pattern)</code></td>
+<td>Test if string matches regex pattern</td>
+<td><code>SELECT regexp_like('hello123', '[0-9]+')</code></td>
+<td>Supported</td>
+<td>Not supported</td>
+</tr>
+<tr>
+<td><code>regexp_extract(str, pattern)</code></td>
+<td>Extract first substring matching pattern</td>
+<td><code>SELECT regexp_extract('hello123', '[0-9]+')</code></td>
+<td>Supported</td>
+<td>Supported</td>
+</tr>
+<tr>
+<td><code>regexp_extract_all(str, pattern)</code></td>
+<td>Extract all substrings matching pattern</td>
+<td><code>SELECT regexp_extract_all('a1b2c3', '[0-9]+')</code></td>
+<td>Supported</td>
+<td>Not supported</td>
+</tr>
+<tr>
+<td><code>regexp_replace(str, pattern, replacement)</code></td>
+<td>Replace all matches with replacement string</td>
+<td><code>SELECT regexp_replace('hello123', '[0-9]+', 'X')</code></td>
+<td>Supported</td>
+<td>Supported</td>
+</tr>
+<tr>
+<td><code>regexp_count(str, pattern)</code></td>
+<td>Count occurrences of pattern in string</td>
+<td><code>SELECT regexp_count('a1b2c3', '[0-9]+')</code></td>
+<td>Supported</td>
+<td>Not supported</td>
+</tr>
+<tr>
+<td><code>rlike(str, regexp)</code></td>
+<td>True if string matches the Java regex (partial match)</td>
+<td><code>SELECT rlike('hello123', '\\d+')</code></td>
+<td>Supported</td>
+<td>Not supported</td>
+</tr>
+<tr>
+<td><code>regexp(str, regexp)</code></td>
+<td>Alias for <code>rlike</code></td>
+<td><code>SELECT regexp('hello123', '\\d+')</code></td>
+<td>Supported</td>
+<td>Not supported</td>
+</tr>
+</tbody>
+</table>
+<h3>Hashing functions</h3>
+<table>
+<thead>
+<tr>
+<th>Function</th>
+<th>Description</th>
+<th>Example</th>
+<th>Furnace</th>
+<th>Ontology</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>md5(expr)</code></td>
+<td>MD5 128-bit checksum as a lowercase hex string</td>
+<td><code>SELECT md5('Spark')</code></td>
+<td>Supported</td>
+<td>Not supported</td>
+</tr>
+<tr>
+<td><code>sha(expr)</code></td>
+<td>SHA-1 hash as a hex string (alias for sha1)</td>
+<td><code>SELECT sha('Spark')</code></td>
+<td>Supported</td>
+<td>Not supported</td>
+</tr>
+<tr>
+<td><code>sha1(expr)</code></td>
+<td>SHA-1 hash as a hex string</td>
+<td><code>SELECT sha1('Spark')</code></td>
+<td>Supported</td>
+<td>Not supported</td>
+</tr>
+<tr>
+<td><code>sha2(expr, bitLength)</code></td>
+<td>SHA-2 hash (224, 256, 384, or 512; 0 means 256). Invalid bit length returns null</td>
+<td><code>SELECT sha2('Spark', 256)</code></td>
+<td>Supported</td>
+<td>Not supported</td>
+</tr>
+<tr>
+<td><code>crc32(expr)</code></td>
+<td>CRC32 checksum as a <code>BIGINT</code></td>
+<td><code>SELECT crc32('Spark')</code></td>
+<td>Supported</td>
+<td>Not supported</td>
+</tr>
+<tr>
+<td><code>xxhash64(expr)</code></td>
+<td>xxHash64 checksum with seed 42 as a <code>BIGINT</code></td>
+<td><code>SELECT xxhash64('Spark')</code></td>
+<td>Supported</td>
+<td>Not supported</td>
+</tr>
+</tbody>
+</table>
+<h3>Conversion functions</h3>
+<table>
+<thead>
+<tr>
+<th>Function</th>
+<th>Description</th>
+<th>Example</th>
+<th>Furnace</th>
+<th>Ontology</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>cast(expr AS type)</code></td>
+<td>Convert value to specified type</td>
+<td><code>cast(count() AS float)</code></td>
+<td>Supported</td>
+<td>Supported</td>
+</tr>
+<tr>
+<td><code>try_cast(expr AS type)</code></td>
+<td>Convert value to specified type, returns NULL on failure</td>
+<td><code>try_cast('abc' AS int)</code></td>
+<td>Supported</td>
+<td>Not supported</td>
+</tr>
+</tbody>
+</table>
+<h3>Aggregate functions</h3>
+<table>
+<thead>
+<tr>
+<th>Function</th>
+<th>Description</th>
+<th>Example</th>
+<th>Furnace</th>
+<th>Ontology</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>count()</code></td>
+<td>Count all rows</td>
+<td><code>SELECT count() FROM table</code></td>
+<td>Supported</td>
+<td>Supported</td>
+</tr>
+<tr>
+<td><code>count(DISTINCT col)</code></td>
+<td>Count distinct values in column</td>
+<td><code>SELECT count(DISTINCT id) FROM table</code></td>
+<td>Supported</td>
+<td>Supported if single property</td>
+</tr>
+<tr>
+<td><code>approx_count_distinct(col)</code></td>
+<td>Approximate count of distinct values (HyperLogLog)</td>
+<td><code>SELECT approx_count_distinct(id) FROM table</code></td>
+<td>Supported</td>
+<td>Not supported</td>
+</tr>
+<tr>
+<td><code>sum(col)</code></td>
+<td>Sum values in column</td>
+<td><code>SELECT sum(cost) FROM table</code></td>
+<td>Supported</td>
+<td>Supported</td>
+</tr>
+<tr>
+<td><code>avg(col)</code></td>
+<td>Mean average values in column</td>
+<td><code>SELECT avg(weight) FROM table</code></td>
+<td>Supported</td>
+<td>Supported</td>
+</tr>
+<tr>
+<td><code>mean(col)</code></td>
+<td>Mean average values in column (alias for avg)</td>
+<td><code>SELECT mean(weight) FROM table</code></td>
+<td>Supported</td>
+<td>Not supported</td>
+</tr>
+<tr>
+<td><code>min(col)</code></td>
+<td>Minimum value in column</td>
+<td><code>SELECT min(price) FROM table</code></td>
+<td>Supported</td>
+<td>Supported</td>
+</tr>
+<tr>
+<td><code>max(col)</code></td>
+<td>Maximum value in column</td>
+<td><code>SELECT max(price) FROM table</code></td>
+<td>Supported</td>
+<td>Supported</td>
+</tr>
+<tr>
+<td><code>min_by(x, y)</code></td>
+<td>Value of x associated with minimum value of y</td>
+<td><code>SELECT min_by(name, age) FROM table</code></td>
+<td>Supported</td>
+<td>Not supported</td>
+</tr>
+<tr>
+<td><code>max_by(x, y)</code></td>
+<td>Value of x associated with maximum value of y</td>
+<td><code>SELECT max_by(name, age) FROM table</code></td>
+<td>Supported</td>
+<td>Not supported</td>
+</tr>
+<tr>
+<td><code>first(col[, ignoreNulls])</code></td>
+<td>First value in a group (always nullable)</td>
+<td><code>SELECT first(name) FROM table GROUP BY category</code></td>
+<td>Supported</td>
+<td>Not supported</td>
+</tr>
+<tr>
+<td><code>last(col[, ignoreNulls])</code></td>
+<td>Last value in a group (always nullable)</td>
+<td><code>SELECT last(name) FROM table GROUP BY category</code></td>
+<td>Supported</td>
+<td>Not supported</td>
+</tr>
+<tr>
+<td><code>count_if(condition)</code></td>
+<td>Count rows where condition is true</td>
+<td><code>SELECT count_if(age &gt; 18) FROM table</code></td>
+<td>Supported</td>
+<td>Not supported</td>
+</tr>
+<tr>
+<td><code>bool_and(condition)</code></td>
+<td>True if all values are true</td>
+<td><code>SELECT bool_and(active) FROM table</code></td>
+<td>Supported</td>
+<td>Not supported</td>
+</tr>
+<tr>
+<td><code>bool_or(condition)</code></td>
+<td>True if any value is true</td>
+<td><code>SELECT bool_or(active) FROM table</code></td>
+<td>Supported</td>
+<td>Not supported</td>
+</tr>
+<tr>
+<td><code>bit_and(col)</code></td>
+<td>Bitwise AND of all non-null integer values</td>
+<td><code>SELECT bit_and(flags) FROM table</code></td>
+<td>Supported</td>
+<td>Not supported</td>
+</tr>
+<tr>
+<td><code>bit_or(col)</code></td>
+<td>Bitwise OR of all non-null integer values</td>
+<td><code>SELECT bit_or(flags) FROM table</code></td>
+<td>Supported</td>
+<td>Not supported</td>
+</tr>
+<tr>
+<td><code>bit_xor(col)</code></td>
+<td>Bitwise XOR of all non-null integer values</td>
+<td><code>SELECT bit_xor(flags) FROM table</code></td>
+<td>Supported</td>
+<td>Not supported</td>
+</tr>
+<tr>
+<td><code>every(condition)</code></td>
+<td>True if all values are true (alias for bool_and)</td>
+<td><code>SELECT every(active) FROM table</code></td>
+<td>Supported</td>
+<td>Not supported</td>
+</tr>
+<tr>
+<td><code>stddev(col)</code></td>
+<td>Sample standard deviation</td>
+<td><code>SELECT stddev(salary) FROM table</code></td>
+<td>Supported</td>
+<td>Supported</td>
+</tr>
+<tr>
+<td><code>stddev_pop(col)</code></td>
+<td>Population standard deviation</td>
+<td><code>SELECT stddev_pop(salary) FROM table</code></td>
+<td>Supported</td>
+<td>Supported</td>
+</tr>
+<tr>
+<td><code>stddev_samp(col)</code></td>
+<td>Sample standard deviation  (alias for stddev)</td>
+<td><code>SELECT stddev_samp(salary) FROM table</code></td>
+<td>Supported</td>
+<td>Supported</td>
+</tr>
+<tr>
+<td><code>variance(col)</code></td>
+<td>Sample variance</td>
+<td><code>SELECT variance(salary) FROM table</code></td>
+<td>Supported</td>
+<td>Not supported</td>
+</tr>
+<tr>
+<td><code>var_pop(col)</code></td>
+<td>Population variance</td>
+<td><code>SELECT var_pop(salary) FROM table</code></td>
+<td>Supported</td>
+<td>Not supported</td>
+</tr>
+<tr>
+<td><code>var_samp(col)</code></td>
+<td>Sample variance</td>
+<td><code>SELECT var_samp(salary) FROM table</code></td>
+<td>Supported</td>
+<td>Not supported</td>
+</tr>
+<tr>
+<td><code>corr(y, x)</code></td>
+<td>Pearson correlation coefficient</td>
+<td><code>SELECT corr(sales, ads) FROM table</code></td>
+<td>Supported</td>
+<td>Not supported</td>
+</tr>
+<tr>
+<td><code>covar_pop(y, x)</code></td>
+<td>Population covariance</td>
+<td><code>SELECT covar_pop(y, x) FROM table</code></td>
+<td>Supported</td>
+<td>Not supported</td>
+</tr>
+<tr>
+<td><code>covar_samp(y, x)</code></td>
+<td>Sample covariance</td>
+<td><code>SELECT covar_samp(y, x) FROM table</code></td>
+<td>Supported</td>
+<td>Not supported</td>
+</tr>
+<tr>
+<td><code>skewness(col)</code></td>
+<td>Skewness</td>
+<td><code>SELECT skewness(values) FROM table</code></td>
+<td>Supported</td>
+<td>Not supported</td>
+</tr>
+<tr>
+<td><code>regr_intercept(y, x)</code></td>
+<td>Linear regression intercept</td>
+<td><code>SELECT regr_intercept(y, x) FROM table</code></td>
+<td>Supported</td>
+<td>Not supported</td>
+</tr>
+<tr>
+<td><code>regr_slope(y, x)</code></td>
+<td>Linear regression slope</td>
+<td><code>SELECT regr_slope(y, x) FROM table</code></td>
+<td>Supported</td>
+<td>Not supported</td>
+</tr>
+<tr>
+<td><code>grouping(col)</code></td>
+<td>Returns 1 if column is aggregated, 0 otherwise (for use with ROLLUP/CUBE/GROUPING SETS)</td>
+<td><code>SELECT grouping(category) FROM table GROUP BY ROLLUP(category)</code></td>
+<td>Supported</td>
+<td>Not supported</td>
+</tr>
+<tr>
+<td><code>collect_set(col)</code></td>
+<td>Returns an array of unique values from column</td>
+<td><code>SELECT collect_set(name) FROM table GROUP BY category</code></td>
+<td>Supported</td>
+<td>Not supported</td>
+</tr>
+<tr>
+<td><code>collect_list(col)</code></td>
+<td>Returns an array of all values from column (preserves duplicates)</td>
+<td><code>SELECT collect_list(name) FROM table GROUP BY category</code></td>
+<td>Supported</td>
+<td>Not supported</td>
+</tr>
+<tr>
+<td><code>percentile(col, p[, freq])</code></td>
+<td>Exact percentile of column for percentage <code>p</code> (scalar or array)</td>
+<td><code>SELECT percentile(salary, 0.5) FROM table</code></td>
+<td>Supported</td>
+<td>Not supported</td>
+</tr>
+<tr>
+<td><code>percentile_approx(col, p[, accuracy])</code></td>
+<td>Approximate percentile; preserves input type (numeric, date, timestamp, interval)</td>
+<td><code>SELECT percentile_approx(salary, ARRAY(0.25, 0.5, 0.75)) FROM table</code></td>
+<td>Supported</td>
+<td>Not supported</td>
+</tr>
+<tr>
+<td><code>approx_percentile(col, p[, accuracy])</code></td>
+<td>Alias for <code>percentile_approx</code></td>
+<td><code>SELECT approx_percentile(salary, 0.5) FROM table</code></td>
+<td>Supported</td>
+<td>Not supported</td>
+</tr>
+</tbody>
+</table>
+<h3>Window functions</h3>
+<table>
+<thead>
+<tr>
+<th>Function</th>
+<th>Description</th>
+<th>Example</th>
+<th>Furnace</th>
+<th>Ontology</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ROW_NUMBER()</code></td>
+<td>Assigns sequential row number within partition</td>
+<td><code>ROW_NUMBER() OVER (ORDER BY col)</code></td>
+<td>Supported</td>
+<td>Supported</td>
+</tr>
+<tr>
+<td><code>RANK()</code></td>
+<td>Rank with gaps for ties</td>
+<td><code>RANK() OVER (ORDER BY salary DESC)</code></td>
+<td>Supported</td>
+<td>Supported</td>
+</tr>
+<tr>
+<td><code>DENSE_RANK()</code></td>
+<td>Rank without gaps for ties</td>
+<td><code>DENSE_RANK() OVER (ORDER BY salary DESC)</code></td>
+<td>Supported</td>
+<td>Supported</td>
+</tr>
+<tr>
+<td><code>PERCENT_RANK()</code></td>
+<td>Percentage ranking of value in group</td>
+<td><code>PERCENT_RANK() OVER (ORDER BY salary)</code></td>
+<td>Supported</td>
+<td>Not supported</td>
+</tr>
+<tr>
+<td><code>CUME_DIST()</code></td>
+<td>Cumulative distribution of value</td>
+<td><code>CUME_DIST() OVER (ORDER BY salary)</code></td>
+<td>Supported</td>
+<td>Not supported</td>
+</tr>
+<tr>
+<td><code>NTILE(n)</code></td>
+<td>Divide rows into n buckets</td>
+<td><code>NTILE(4) OVER (ORDER BY salary)</code></td>
+<td>Supported</td>
+<td>Not supported</td>
+</tr>
+<tr>
+<td><code>LAG(expr[, offset[, default]])</code></td>
+<td>Value from previous row</td>
+<td><code>LAG(salary, 1) OVER (ORDER BY date)</code></td>
+<td>Supported</td>
+<td>Supported</td>
+</tr>
+<tr>
+<td><code>LEAD(expr[, offset[, default]])</code></td>
+<td>Value from next row</td>
+<td><code>LEAD(salary, 1) OVER (ORDER BY date)</code></td>
+<td>Supported</td>
+<td>Supported</td>
+</tr>
+<tr>
+<td><code>FIRST_VALUE(expr)</code></td>
+<td>First value in window frame</td>
+<td><code>FIRST_VALUE(salary) OVER (ORDER BY date)</code></td>
+<td>Supported</td>
+<td>Supported</td>
+</tr>
+<tr>
+<td><code>LAST_VALUE(expr)</code></td>
+<td>Last value in window frame</td>
+<td><code>LAST_VALUE(salary) OVER (ORDER BY date)</code></td>
+<td>Supported</td>
+<td>Supported</td>
+</tr>
+<tr>
+<td><code>NTH_VALUE(expr, n)</code></td>
+<td>Nth value in window frame</td>
+<td><code>NTH_VALUE(salary, 2) OVER (ORDER BY date)</code></td>
+<td>Supported</td>
+<td>Supported</td>
+</tr>
+<tr>
+<td>Aggregate functions</td>
+<td>Standard aggregates (count, sum, avg, min, max, stddev, variance, etc.) can be used as window functions</td>
+<td><code>SUM(amount) OVER (PARTITION BY customer_id)</code></td>
+<td>Supported</td>
+<td>Only count, sum, min max, avg</td>
+</tr>
+</tbody>
+</table>
+<p>Window functions require an OVER clause with optional PARTITION BY and ORDER BY:</p>
+<pre><code class="language-sql">-- examples
+SELECT id, name, ROW_NUMBER() OVER (ORDER BY name) as row_num
+FROM `/path/to/table`;
+
+SELECT category, name, price,
+       ROW_NUMBER() OVER (PARTITION BY category ORDER BY price DESC) as rank_in_category
+FROM `/path/to/products`;
+
+SELECT order_id, customer_id, order_date, total_amount,
+       SUM(total_amount) OVER (PARTITION BY customer_id ORDER BY order_date) as running_total,
+        AVG(total_amount) OVER (PARTITION BY customer_id) as customer_avg,
+        COUNT(*) OVER (PARTITION BY customer_id) as customer_order_count
+FROM `/path/to/orders`;
+
+SELECT id, amount,
+       ROW_NUMBER() OVER w as sequence_num
+FROM `/path/to/transactions`
+WINDOW w AS (PARTITION BY customer_id ORDER BY transaction_date);
+</code></pre>
+<h3>JSON functions</h3>
+<table>
+<thead>
+<tr>
+<th>Function</th>
+<th>Description</th>
+<th>Example</th>
+<th>Furnace</th>
+<th>Ontology</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>get_json_object(json_str, path)</code></td>
+<td>Extract a value from a JSON string using a JSONPath expression</td>
+<td><code>SELECT get_json_object('{"a":1}', '$.a')</code></td>
+<td>Supported</td>
+<td>Not supported</td>
+</tr>
+<tr>
+<td><code>json_array_length(json_str)</code></td>
+<td>Returns the number of elements in a JSON array</td>
+<td><code>SELECT json_array_length('[1,2,3]')</code></td>
+<td>Supported</td>
+<td>Not supported</td>
+</tr>
+<tr>
+<td><code>json_object_keys(json_str)</code></td>
+<td>Returns the keys of a JSON object as an array</td>
+<td><code>SELECT json_object_keys('{"a":1,"b":2}')</code></td>
+<td>Supported</td>
+<td>Not supported</td>
+</tr>
+<tr>
+<td><code>to_json(expr)</code></td>
+<td>Convert a struct or map to a JSON string</td>
+<td><code>SELECT to_json(map('a', 1))</code></td>
+<td>Supported</td>
+<td>Not supported</td>
+</tr>
+</tbody>
+</table>
+<h3>Misc functions</h3>
+<table>
+<thead>
+<tr>
+<th>Function</th>
+<th>Description</th>
+<th>Example</th>
+<th>Furnace</th>
+<th>Ontology</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>zorder()</code></td>
+<td>Iceberg Z-order optimization (Iceberg only)</td>
+<td><code>CALL zorder('table', 'col1,col2')</code></td>
+<td>Supported</td>
+<td>Not supported</td>
+</tr>
+<tr>
+<td><code>typeof(expr)</code></td>
+<td>Returns the runtime type name of the expression</td>
+<td><code>SELECT typeof(price) FROM table</code></td>
+<td>Supported</td>
+<td>Not supported</td>
+</tr>
+</tbody>
+</table>
+<h3>Geospatial functions</h3>
+<table>
+<thead>
+<tr>
+<th>Function</th>
+<th>Description</th>
+<th>Example</th>
+<th>Furnace</th>
+<th>Ontology</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>st_point(x, y)</code></td>
+<td>Creates a point geometry from X, Y coordinates</td>
+<td><code>SELECT st_point(-122.4, 37.8)</code></td>
+<td>Supported</td>
+<td>Not supported</td>
+</tr>
+<tr>
+<td><code>st_contains(geom1, geom2)</code></td>
+<td>Returns true if geom1 contains geom2</td>
+<td><code>WHERE st_contains(boundary, location)</code></td>
+<td>Supported</td>
+<td>Not supported</td>
+</tr>
+<tr>
+<td><code>st_equals(geom1, geom2)</code></td>
+<td>Returns true if geometries are spatially equal</td>
+<td><code>SELECT st_equals(point1, point2)</code></td>
+<td>Supported</td>
+<td>Not supported</td>
+</tr>
+<tr>
+<td><code>st_geomfromgeojson(json)</code></td>
+<td>Creates geometry from GeoJSON string</td>
+<td><code>SELECT st_geomfromgeojson('{"type":"Point","coordinates":[0,0]}')</code></td>
+<td>Supported</td>
+<td>Not supported</td>
+</tr>
+<tr>
+<td><code>st_astext(geom)</code></td>
+<td>Returns geometry as Well-Known Text (WKT) string</td>
+<td><code>SELECT st_astext(st_point(0, 0))</code></td>
+<td>Supported</td>
+<td>Not supported</td>
+</tr>
+<tr>
+<td><code>st_h3cellids(geom, level, fullCover)</code></td>
+<td>Returns an array of H3 cells that cover the geometry</td>
+<td><code>SELECT st_h3cellids(st_point(0, 0), 8, true)</code></td>
+<td>Supported</td>
+<td>Not supported</td>
+</tr>
+</tbody>
+</table>
+<p>:::callout{theme="neutral"}
+Geometry columns cannot be returned directly. Use <code>st_astext()</code> to convert to WKT format.
+:::</p>
+<h2>Arithmetic operators</h2>
+<table>
+<thead>
+<tr>
+<th>Operator</th>
+<th>Description</th>
+<th>Example</th>
+<th>Furnace</th>
+<th>Ontology</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>+</code></td>
+<td>Plus</td>
+<td><code>SELECT count() + 5</code></td>
+<td>Supported</td>
+<td>Supported</td>
+</tr>
+<tr>
+<td><code>-</code></td>
+<td>Minus</td>
+<td><code>SELECT count() - 1</code></td>
+<td>Supported</td>
+<td>Supported</td>
+</tr>
+<tr>
+<td><code>*</code></td>
+<td>Times</td>
+<td><code>SELECT sum(weight * 2)</code></td>
+<td>Supported</td>
+<td>Supported</td>
+</tr>
+<tr>
+<td><code>/</code></td>
+<td>Divide</td>
+<td><code>SELECT (avg(a) + avg(b)) / 2</code></td>
+<td>Supported</td>
+<td>Supported</td>
+</tr>
+</tbody>
+</table>
+<h2>Boolean operators</h2>
+<table>
+<thead>
+<tr>
+<th>Operator</th>
+<th>Description</th>
+<th>Example</th>
+<th>Furnace</th>
+<th>Ontology</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>=</code></td>
+<td>Equal to</td>
+<td><code>WHERE id = 1</code></td>
+<td>Supported</td>
+<td>Supported</td>
+</tr>
+<tr>
+<td><code>&lt;&gt;</code>, <code>!=</code></td>
+<td>Not equal to</td>
+<td><code>WHERE status &lt;&gt; 'inactive'</code></td>
+<td>Supported</td>
+<td>Supported</td>
+</tr>
+<tr>
+<td><code>&lt;</code></td>
+<td>Less than</td>
+<td><code>WHERE age &lt; 18</code></td>
+<td>Supported</td>
+<td>Supported</td>
+</tr>
+<tr>
+<td><code>&lt;=</code></td>
+<td>Less than or equal to</td>
+<td><code>WHERE price &lt;= 100.0</code></td>
+<td>Supported</td>
+<td>Supported</td>
+</tr>
+<tr>
+<td><code>&gt;</code></td>
+<td>Greater than</td>
+<td><code>WHERE salary &gt; 50000</code></td>
+<td>Supported</td>
+<td>Supported</td>
+</tr>
+<tr>
+<td><code>&gt;=</code></td>
+<td>Greater than or equal to</td>
+<td><code>WHERE score &gt;= 90</code></td>
+<td>Supported</td>
+<td>Supported</td>
+</tr>
+<tr>
+<td><code>AND</code></td>
+<td>Logical AND</td>
+<td><code>WHERE active = true AND verified = true</code></td>
+<td>Supported</td>
+<td>Supported</td>
+</tr>
+<tr>
+<td><code>OR</code></td>
+<td>Logical OR</td>
+<td><code>WHERE status = 'new' OR status = 'pending'</code></td>
+<td>Supported</td>
+<td>Supported</td>
+</tr>
+<tr>
+<td><code>NOT</code></td>
+<td>Logical NOT</td>
+<td><code>WHERE NOT deleted</code></td>
+<td>Supported</td>
+<td>Supported</td>
+</tr>
+<tr>
+<td><code>IN</code></td>
+<td>Value in list</td>
+<td><code>WHERE category IN ('A', 'B', 'C')</code></td>
+<td>Supported</td>
+<td>Supported</td>
+</tr>
+<tr>
+<td><code>LIKE</code></td>
+<td>Pattern matching</td>
+<td><code>WHERE name LIKE 'John%'</code></td>
+<td>Supported</td>
+<td>Supported</td>
+</tr>
+<tr>
+<td><code>RLIKE</code>, <code>REGEXP</code></td>
+<td>Java regular expression partial match; can be negated with <code>NOT RLIKE</code></td>
+<td><code>WHERE name RLIKE '^[A-Z].*'</code></td>
+<td>Supported</td>
+<td>Not supported</td>
+</tr>
+<tr>
+<td><code>EXISTS</code></td>
+<td>True if subquery returns rows</td>
+<td><code>WHERE EXISTS (SELECT 1 FROM orders WHERE orders.customer_id = customers.id)</code></td>
+<td>Supported</td>
+<td>Supported</td>
+</tr>
+</tbody>
+</table>
+<h2>Other expressions</h2>
+<table>
+<thead>
+<tr>
+<th>Expression</th>
+<th>Description</th>
+<th>Example</th>
+<th>Furnace</th>
+<th>Ontology</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>CASE ... WHEN</code></td>
+<td>Switch expression</td>
+<td><code>SELECT CASE WHEN mark &gt;= 70 THEN 'A' WHEN mark &gt;= 60 THEN 'B' ELSE 'C' END</code></td>
+<td>Supported</td>
+<td>Supported</td>
+</tr>
+<tr>
+<td><code>INTERVAL</code></td>
+<td>Time interval literal</td>
+<td><code>SELECT order_date + INTERVAL 30 DAY</code>, <code>WHERE created_at &gt; current_timestamp() - INTERVAL 1 HOUR</code></td>
+<td>Supported</td>
+<td>Not supported</td>
+</tr>
+</tbody>
+</table>
+<p>:::callout{theme="neutral"}
+The <code>IF(condition, trueValue, falseValue)</code> function is not supported in Ontology SQL. Use <code>CASE WHEN condition THEN trueValue ELSE falseValue END</code> instead.
+:::</p>
+<h3>Case-when statements</h3>
+<pre><code class="language-sql">CASE WHEN condition THEN result
+     [WHEN condition THEN result]
+     [ELSE result]
+END
+</code></pre>
+<h3>Date/time intervals</h3>
+<pre><code class="language-sql">INTERVAL { yearMonthIntervalQualifier | dayTimeIntervalQualifier }
+
+yearMonthIntervalQualifier
+ { YEAR [TO MONTH] |
+   MONTH }
+
+dayTimeIntervalQualifier
+ { DAY [TO { HOUR | MINUTE | SECOND } ] |
+   HOUR [TO { MINUTE | SECOND } ] |
+   MINUTE [TO SECOND] |
+   SECOND }
+</code></pre>
+<pre><code class="language-sql">-- examples
+INTERVAL '1' YEAR
+INTERVAL '6' MONTH
+INTERVAL '25' DAY
+INTERVAL '6' YEAR TO MONTH
+</code></pre>
+<h2>Data types</h2>
+<table>
+<thead>
+<tr>
+<th>Type</th>
+<th>Spark equivalent</th>
+<th>Furnace</th>
+<th>Ontology</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>BOOLEAN</code></td>
+<td><code>BOOLEAN</code></td>
+<td>Supported</td>
+<td>Supported</td>
+</tr>
+<tr>
+<td><code>SHORT</code></td>
+<td><code>SHORT</code></td>
+<td>Supported</td>
+<td>Supported</td>
+</tr>
+<tr>
+<td><code>INT</code></td>
+<td><code>INT</code></td>
+<td>Supported</td>
+<td>Supported</td>
+</tr>
+<tr>
+<td><code>LONG</code></td>
+<td><code>LONG</code></td>
+<td>Supported</td>
+<td>Supported</td>
+</tr>
+<tr>
+<td><code>FLOAT</code></td>
+<td><code>FLOAT</code></td>
+<td>Supported</td>
+<td>Supported</td>
+</tr>
+<tr>
+<td><code>DOUBLE</code></td>
+<td><code>DOUBLE</code></td>
+<td>Supported</td>
+<td>Supported</td>
+</tr>
+<tr>
+<td><code>DATE</code></td>
+<td><code>DATE</code></td>
+<td>Supported</td>
+<td>Supported</td>
+</tr>
+<tr>
+<td><code>TIMESTAMP</code></td>
+<td><code>TIMESTAMP</code></td>
+<td>Supported</td>
+<td>Supported</td>
+</tr>
+<tr>
+<td><code>TIMESTAMP_NTZ</code></td>
+<td><code>TIMESTAMP_NTZ</code></td>
+<td>Supported</td>
+<td>Supported</td>
+</tr>
+<tr>
+<td><code>STRING</code></td>
+<td><code>STRING</code></td>
+<td>Supported</td>
+<td>Supported</td>
+</tr>
+<tr>
+<td><code>BINARY</code></td>
+<td><code>BINARY</code></td>
+<td>Supported</td>
+<td>Not supported</td>
+</tr>
+<tr>
+<td><code>DECIMAL</code></td>
+<td><code>DECIMAL</code></td>
+<td>Supported</td>
+<td>Supported</td>
+</tr>
+<tr>
+<td><code>MAP&lt;key, value&gt;</code></td>
+<td><code>MAP&lt;key, value&gt;</code></td>
+<td>Supported</td>
+<td>Not supported</td>
+</tr>
+<tr>
+<td><code>ARRAY&lt;element_type&gt;</code></td>
+<td><code>ARRAY&lt;element_type&gt;</code></td>
+<td>Supported</td>
+<td>Supported</td>
+</tr>
+<tr>
+<td><code>STRUCT&lt;field1_name: field1_type, field2_name: field2_type, â¦&gt;</code></td>
+<td><code>STRUCT&lt;field1_name: field1_type, field2_name: field2_type, â¦&gt;</code></td>
+<td>Supported</td>
+<td>Supported</td>
+</tr>
+</tbody>
+</table>
+<pre><code class="language-sql">CREATE TABLE `/path/to/table` (
+  col1 BOOLEAN,
+  col2 SHORT,
+  col3 INT,
+  col4 LONG,
+  col5 FLOAT,
+  col6 DOUBLE,
+  col7 DATE,
+  col8 TIMESTAMP,
+  col9 TIMESTAMP_NTZ,
+  col10 STRING,
+  col11 BINARY,
+  col12 DECIMAL(10, 2),
+  col13 MAP&lt;STRING, STRING&gt;,
+  col14 ARRAY&lt;STRING&gt;,
+  col15 STRUCT&lt;col1: STRING, col2: STRING&gt;
+);
+</code></pre>
+</body>
+</html>

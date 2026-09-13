@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Use raster data</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Use raster data</h1>
+<p>Foundry enables large-scale processing of raster data in a first-class manner with <a href="https://www.palantir.com/docs/foundry/data-integration/media-sets/">media sets</a>. <a href="https://www.palantir.com/docs/foundry/transforms-python/unstructured-files/">File-level transforms</a> are also supported for custom image pre-processing, or for processing any file formats not currently supported by media sets.</p>
+<p>Learn more about the different types of <a href="https://www.palantir.com/docs/foundry/geospatial/types-of-geospatial-and-geotemporal-data/">geospatial data</a>.</p>
+<h2>Data formats and sources</h2>
+<p>Supported media set raster file formats:</p>
+<ul>
+<li>TIFF / GeoTIFF</li>
+<li>NITF</li>
+<li>JPEG2000</li>
+</ul>
+<p>Other raster file formats that can only be processed at a file level:</p>
+<ul>
+<li>PNG</li>
+<li>JPEG</li>
+</ul>
+<h2>Use raster data with media sets</h2>
+<ol>
+<li>
+<p>Import supported raster file formats as media sets. You can either create a new media set via data connection or local machine uploads. Learn the different ways to <a href="https://www.palantir.com/docs/foundry/media-sets-advanced-formats/importing-media/">import media</a>.</p>
+</li>
+<li>
+<p>Once imported, you can leverage the media set through media references. Select the media references in <a href="https://www.palantir.com/docs/foundry/building-pipelines/create-batch-pipeline-pb-media-set/">Pipeline Builder</a> or in a <a href="https://www.palantir.com/docs/foundry/building-pipelines/create-batch-pipeline-cr-media-sets/">transform</a>.</p>
+</li>
+<li>
+<p>Create an object type in the Ontology, either as a pipeline output within Pipeline Builder or as a direct creation in the Ontology Manager. Ensure that the object type has the media reference property as a media reference type and that you have declared the backing media set in <strong>Capabilities</strong> so that the platform knows where and how to reference your media items. For more information, review our documentation on <a href="https://www.palantir.com/docs/foundry/media-sets-advanced-formats/media-in-ontology/">using media in the Ontology</a>.</p>
+</li>
+</ol>
+<p><img alt="Media reference property type" src="../../_resources/foundry/geospatial/media-reference-property.png" /></p>
+<p><img alt="Media reference capabilities data source" src="../../_resources/foundry/geospatial/media-reference-data-source.png" /></p>
+<p>Once you have an object type you can import it into the Map application to view it. Displaying raster files greater than 67 megabytes (MB) on maps is not supported.</p>
+<p><img alt="Media set backed object type in Maps" src="../../_resources/foundry/geospatial/media-set-map-example.png" /></p>
+<h2>Use raster data in transforms</h2>
+<p>For raster file types not currently supported by media sets, you can still process them in transforms. You can view the recommended libraries and code examples in the section below.</p>
+<p>Transforms are also ideal for pre-processing supported media set file types. For example, you can use transforms to update the size of your images using <code>MediaSetInput</code> and output a media set with <code>MediaSetOutput</code> like the example below. <a href="https://www.palantir.com/docs/foundry/building-pipelines/create-batch-pipeline-cr-media-sets/">Learn more on how to write media set batch pipelines</a>.</p>
+<pre><code class="language-python">from transforms.api import transform
+from transforms.mediasets import MediaSetInput, MediaSetOutput
+@transform(
+    images=MediaSetInput('/examples/images'),
+    output_images=MediaSetOutput('/examples/output_images')
+)
+def translate_images(images, output_images):
+...
+</code></pre>
+<h3>Recommended Python libraries</h3>
+<p>There are several common open-source libraries that work well in Foundry for processing raster data, including:</p>
+<ul>
+<li><a href="https://rasterio.readthedocs.io/en/latest/">Rasterio â</a></li>
+<li><a href="https://pillow.readthedocs.io/en/stable/">PIL â</a></li>
+</ul>
+<h3>Code examples</h3>
+<h4>Open a GeoTIFF File from a dataset using Rasterio</h4>
+<pre><code class="language-python">from transforms.api import transform, Input, Output, FileSystem
+import rasterio
+import tempfile
+import shutil
+import math
+
+@transform(
+    output=Output(&quot;OUTPUT_DATASET&quot;),
+    my_input=Input(&quot;INPUT_DATASET&quot;),
+)
+def my_compute_function(output, my_input):
+    def process_file(file_status):
+        # use temp file to download file so Image can open correctly
+        with tempfile.NamedTemporaryFile() as tmp:
+            with my_input.filesystem().open(file_status.path, 'rb') as f:
+                shutil.copyfileobj(f, tmp)
+                tmp.flush()
+                # open the file with rasterio
+                with rasterio.open(tmp.name, driver='GTiff') as dataset:
+                    &quot;&quot;&quot; fill in rasterio logic &quot;&quot;&quot;
+
+    files = list(my_input.filesystem().ls())
+    map(process_file, files)
+    return
+</code></pre>
+</body>
+</html>

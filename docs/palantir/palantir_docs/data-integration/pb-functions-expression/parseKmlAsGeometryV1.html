@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Parse KML string as geometry</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Parse KML string as geometry</h1>
+<blockquote>
+<p>Supported in: Batch, Streaming</p>
+</blockquote>
+<p>Parses KML geometry definitions as a GeoJSON. Ignores all attributes. This expression operates on already extracted text; please extract files to text before using this expression.</p>
+<p><strong>Expression categories:</strong> Geospatial</p>
+<h2>Declared arguments</h2>
+<ul>
+<li><strong>KML string to parse:</strong> Valid KML string to parse to geometry.<br><em>Expression\<String></em></li>
+<li><em>optional</em> <strong>Output mode:</strong> Choose whether to output null on an erroneous output, or a result type from which you can extract the 'ok' field to get the geometry or the 'error' field to get a descriptive error message.<br><em>Enum\<Simple, With errors></em></li>
+<li><em>optional</em> <strong>Prepare geometry after parse:</strong> Choose whether the kml should be prepared to adhere to Foundry geometry semantics. Geometries should be prepared prior to ingestion into the ontology to prevent failures during ontology indexing. Running prepare may result in more errors during the parse itself. For example, prepare will error on geometries with out of bounds coordinates during indexing.<br><em>Expression\<Boolean></em></li>
+</ul>
+<p><strong>Output type:</strong> <em>String | Struct\<ok:Geometry, error:String></em></p>
+<h2>Examples</h2>
+<h3>Example 1: Base case</h3>
+<p><strong>Description:</strong> Basic polygons.</p>
+<p><strong>Argument values:</strong></p>
+<ul>
+<li><strong>KML string to parse:</strong> <code>col</code></li>
+<li><strong>Output mode:</strong> <em>null</em></li>
+<li><strong>Prepare geometry after parse:</strong> <em>null</em></li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>col</th>
+<th><strong>Output</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>\<LineString><br> \<coordinates><br>-71.1663,42.2614<br>-71.1667,42.2616<br>\</coordinates><br>\</LineString></td>
+<td>{"type":"LineString","coordinates":[[-71.1663,42.2614],[-71.1667,42.2616]]}</td>
+</tr>
+<tr>
+<td>\<Polygon><br>\<extrude>1\</extrude><br>\<altitudeMode>relativeToGround\</altitudeMode><br>\&lt;ou...</td>
+<td>{"type":"Polygon","coordinates":[[[-122.0848938459612,37.42257124044786,17.0],[-122.0847882750515,37...</td>
+</tr>
+<tr>
+<td>\<Polygon><br>\<extrude>1\</extrude><br>\<altitudeMode>relativeToGround\</altitudeMode><br>\&lt;ou...</td>
+<td>{"type":"Polygon","coordinates":[[[-77.05465973756702,38.87291016281703,100.0],[-77.0531553685479,38...</td>
+</tr>
+<tr>
+<td>\<Point><br>\<coordinates><br>-71.1663,42.2614<br>\</coordinates><br>\</Point></td>
+<td>{"type":"Point","coordinates":[-71.1663,42.2614]}</td>
+</tr>
+<tr>
+<td>\<MultiGeometry><br>\<Polygon><br>\<outerBoundaryIs><br>\<coordinates> -71.1663,42.2614<br>-71.1...</td>
+<td>{"type":"MultiPolygon","coordinates":[[[[-81.1679,32.2614],[-81.1679,32.28],[-81.1663,32.28],[-81.16...</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3>Example 2: Base case</h3>
+<p><strong>Description:</strong> Basic polygons with result type outputs.</p>
+<p><strong>Argument values:</strong></p>
+<ul>
+<li><strong>KML string to parse:</strong> <code>col</code></li>
+<li><strong>Output mode:</strong> <code>with_errors</code></li>
+<li><strong>Prepare geometry after parse:</strong> <em>null</em></li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>col</th>
+<th>shouldPrepare</th>
+<th><strong>Output</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>\<LineString><br> \<coordinates><br>-71.1663,42.2614<br>-71.1667,42.2616<br>\</coordinates><br>\</LineString></td>
+<td>true</td>
+<td>{<br>â<strong>error</strong>: <em>null</em>,<br>â<strong>ok</strong>: {"type":"LineString","coordinates":[[-71.1663,42.2614],[-71.1667,42.2616]]},<br>}</td>
+</tr>
+<tr>
+<td>\<Polygon><br>\<extrude>1\</extrude><br>\<altitudeMode>relativeToGround\</altitudeMode><br>\&lt;ou...</td>
+<td>true</td>
+<td>{<br>â<strong>error</strong>: <em>null</em>,<br>â<strong>ok</strong>: {"type":"Polygon","coordinates":[[[-122.0848938459612,37.42257124044786,17.0],[-122.0847882750515,37...,<br>}</td>
+</tr>
+<tr>
+<td>\<Polygon><br>\<extrude>1\</extrude><br>\<altitudeMode>relativeToGround\</altitudeMode><br>\&lt;ou...</td>
+<td>true</td>
+<td>{<br>â<strong>error</strong>: <em>null</em>,<br>â<strong>ok</strong>: {"type":"Polygon","coordinates":[[[-77.05465973756702,38.87291016281703,100.0],[-77.0531553685479,38...,<br>}</td>
+</tr>
+<tr>
+<td>\<Point><br>\<coordinates><br>-71.1663,42.2614<br>\</coordinates><br>\</Point></td>
+<td>true</td>
+<td>{<br>â<strong>error</strong>: <em>null</em>,<br>â<strong>ok</strong>: {"type":"Point","coordinates":[-71.1663,42.2614]},<br>}</td>
+</tr>
+<tr>
+<td>\<MultiGeometry><br>\<Polygon><br>\<outerBoundaryIs><br>\<coordinates> -71.1663,42.2614<br>-71.1...</td>
+<td>true</td>
+<td>{<br>â<strong>error</strong>: <em>null</em>,<br>â<strong>ok</strong>: {"type":"MultiPolygon","coordinates":[[[[-81.1679,32.2614],[-81.1679,32.28],[-81.1663,32.28],[-81.16...,<br>}</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3>Example 3: Base case</h3>
+<p><strong>Description:</strong> Full KML files with documents and folders are not supported.</p>
+<p><strong>Argument values:</strong></p>
+<ul>
+<li><strong>KML string to parse:</strong> <code>col</code></li>
+<li><strong>Output mode:</strong> <em>null</em></li>
+<li><strong>Prepare geometry after parse:</strong> <em>null</em></li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>col</th>
+<th><strong>Output</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>\<kml xmlns="http://www.opengis.net/kml/2.2"><br>\<Document><br>\<name>KML Samples\</name><br>&lt;...</td>
+<td><em>null</em></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3>Example 4: Null case</h3>
+<p><strong>Description:</strong> Example of null input.</p>
+<p><strong>Argument values:</strong></p>
+<ul>
+<li><strong>KML string to parse:</strong> <code>col</code></li>
+<li><strong>Output mode:</strong> <em>null</em></li>
+<li><strong>Prepare geometry after parse:</strong> <em>null</em></li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>col</th>
+<th><strong>Output</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><em>null</em></td>
+<td><em>null</em></td>
+</tr>
+<tr>
+<td><em>empty string</em></td>
+<td><em>null</em></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3>Example 5: Edge case</h3>
+<p><strong>Description:</strong> Invalid KML examples.</p>
+<p><strong>Argument values:</strong></p>
+<ul>
+<li><strong>KML string to parse:</strong> <code>col</code></li>
+<li><strong>Output mode:</strong> <em>null</em></li>
+<li><strong>Prepare geometry after parse:</strong> <em>null</em></li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>col</th>
+<th><strong>Output</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>\<Polygon>\<mal> formed KML \</ml>\</Polygon></td>
+<td><em>null</em></td>
+</tr>
+<tr>
+<td>\<Polygon><br>\<extrude>1\</extrude><br>\<altitudeMode>relativeToGround\</altitudeMode><br>\&lt;ou...</td>
+<td><em>null</em></td>
+</tr>
+<tr>
+<td>\<Polygon>\<innerBoundaryIs>\<LinearRing><br>\<coordinates> -123.0,37.0,17<br>-122.0,38.0,17<br>...</td>
+<td><em>null</em></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3>Example 6: Edge case</h3>
+<p><strong>Description:</strong> Invalid KML examples with out-of-bounds coordinates</p>
+<p><strong>Argument values:</strong></p>
+<ul>
+<li><strong>KML string to parse:</strong> <code>col</code></li>
+<li><strong>Output mode:</strong> <em>null</em></li>
+<li><strong>Prepare geometry after parse:</strong> <em>null</em></li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>col</th>
+<th><strong>Output</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>\<Polygon>\<outerBoundaryIs>\<LinearRing><br>\<coordinates> -180.3348783983763,95.1514008468736,...</td>
+<td><em>null</em></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3>Example 7: Edge case</h3>
+<p><strong>Description:</strong> Invalid KML examples with out-of-bounds coordinates when prepare geometry is not run will return a geometry.</p>
+<p><strong>Argument values:</strong></p>
+<ul>
+<li><strong>KML string to parse:</strong> <code>col</code></li>
+<li><strong>Output mode:</strong> <code>simple</code></li>
+<li><strong>Prepare geometry after parse:</strong> <code>shouldPrepare</code></li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>col</th>
+<th>shouldPrepare</th>
+<th><strong>Output</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>\<Polygon>\<outerBoundaryIs>\<LinearRing><br>\<coordinates> -180.3348783983763,95.1514008468736,...</td>
+<td>false</td>
+<td>{"coordinates":[[[-180.3348783983763,95.1514008468736,100.0],[-180.3372535345629,95.14888517553887,1...</td>
+</tr>
+</tbody>
+</table>
+<hr />
+</body>
+</html>

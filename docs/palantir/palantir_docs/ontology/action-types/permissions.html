@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Permissions</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Permissions</h1>
+<p>Permissions apply to action types in the following ways:</p>
+<ul>
+<li>Who can view a given action type?</li>
+<li>Who can edit a given action type?</li>
+<li>Who can apply an action type with a given set of parameters?</li>
+</ul>
+<h2>Apply action</h2>
+<p>The ability to apply an action type depends on the configuration of the object types and link types it is editing. In all cases, the user submitting the action must be able to view the edited object types and link types and their datasources, and pass the <a href="https://www.palantir.com/docs/foundry/action-types/submission-criteria/">submission criteria</a>. If the object type only allows edits via actions, users can make edits for all the objects they can view. For object types and link types allowing edits beyond actions, the user also needs edit permissions on the writeback dataset if the object type or link type is backed by a dataset. If the object type or link type is backed by a <a href="https://www.palantir.com/docs/foundry/security/restricted-views/">Restricted View</a>, the user needs to pass the edit policy.</p>
+<p>:::callout{theme="neutral"}
+Use the <strong>Check access</strong> panel in the sidebar to check a user's access to a Workshop module, including access to dependent action types and their submission criteria. For more information, review the <a href="https://www.palantir.com/docs/foundry/security/checking-permissions/">check access panel documentation</a>.
+:::</p>
+<p>:::callout{theme="warning" title="Read-time enforcement only"}
+Row and column access controls (including <a href="https://www.palantir.com/docs/foundry/security/restricted-views/">restricted views</a>, <a href="https://www.palantir.com/docs/foundry/object-permissioning/object-security-policies/">object security policies</a>, and <a href="https://www.palantir.com/docs/foundry/security/property-security-markings/">property security policies</a>) filter what a user can read when invoking an action. These controls do not extend to the action's write. To keep data protected as it flows downstream, pair these controls with a <a href="https://www.palantir.com/docs/foundry/security/markings/">marking</a> or <a href="https://www.palantir.com/docs/foundry/security/classification-based-access-controls/">Classification-based Access Control</a>. For the full model, see <a href="https://www.palantir.com/docs/foundry/security/access-control-propagation/">Access control propagation</a>.
+:::</p>
+<h3>Submission criteria</h3>
+<p>Action submission criteria allow for fine-grained control over who can run an action. Simple submission criteria can require a specific user ID or group ID and can be combined with information from parameters. For more information see the <a href="https://www.palantir.com/docs/foundry/action-types/submission-criteria/">submission criteria documentation</a>.</p>
+<h3>Read and write authorizations</h3>
+<p>Read and write authorizations limit which marked data an action can read directly or receive as input from other logic and enforce minimum security for data it creates or modifies. For more information see the <a href="https://www.palantir.com/docs/foundry/action-types/read-write-authorizations/">read and write authorizations documentation</a>.</p>
+<h3>Action log permissions</h3>
+<p>If an action type is configured with an <a href="https://www.palantir.com/docs/foundry/action-types/action-log/">action log</a>, the user submitting the action needs the appropriate permissions for the action log object type. The same requirement applies to any other object type the action creates or modifies. Without those permissions, the action fails at submission.</p>
+<h3>Object edits permissions</h3>
+<p>Object edits can either be locked down so that edits are only allowed via actions, or reopened so that edits are allowed via actions, Foundry Forms, direct Object Explorer edits, and API calls. To enforce a consistent security paradigm across many workflows, by default, new object types only allow edits via actions. Other forms of edits are not recommended for new usage.</p>
+<p>For object types that only allow edits via actions, the user submitting the action will only need <code>Read</code> access on the objects that are being edited. This means that it is possible for users to create objects that they cannot view.</p>
+<p>By contrast, when an object type backed by a dataset can be edited by actions, Foundry Forms, direct Object Explorer edits, and API calls, the user submitting the action must have <code>Edit</code> permissions on the writeback datasets of all objects being edited. A user with <code>Edit</code> permissions will be able to view all data in a writeback dataset.</p>
+<p>Therefore, setting an object type to be edited by actions, Foundry Forms, direct Object Explorer edits, and API calls is discouraged since granting <code>Edit</code> permissions simply for object editing may expose more data to a user than is required to complete the Ontology editing workflow.</p>
+<p>With either writeback setting, an action type's configuration does not display permission settings on affected underlying object types; the person configuring the action type must ensure that these permissions are correct.</p>
+<p>Updating edit permissions on an object type to "Only allow edits via actions" will not remove historical, non-action edits, but they will prevent further edits from Foundry Forms, direct Object Explorer edits, and API calls.</p>
+<p><img alt="Only allow edits via actions is recommended." src="../../_resources/foundry/action-types/recommended-writeback-setting.png" /></p>
+<p><a href="https://www.palantir.com/docs/foundry/object-permissioning/configuring-rv-access-controls/">Learn more about writeback permissions.</a></p>
+<h2>Side effect permissions</h2>
+<p>Any user who can set up an action may configure side effects.</p>
+<ul>
+<li>Webhook side effects are not enabled by default. Additional permissions are required to configure a webhook plugin in the Data Connection app before it can be used in the actions setup page. Contact your Palantir representative with any questions about using webhooks on your Foundry instance.</li>
+</ul>
+<p>Submission criteria must pass as normal; if the action submission criteria fail, then side effects will not be triggered.</p>
+<p>Recipients must have access to any object data included in the notifications.</p>
+<ul>
+<li>If a user does not have access to all data included in the notification content, the notification will not be sent to them.</li>
+<li>If there are multiple recipients and some are missing the correct permissions data included in the notification, only the users with sufficient permissions will be notified.</li>
+<li>If notifications fail to send for whatever reason, edits may still succeed.</li>
+</ul>
+<p>The user executing the Action must be able to view the users and/or groups that will be receiving a notification.</p>
+</body>
+</html>

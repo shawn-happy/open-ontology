@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Standard Object Views</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Standard Object Views</h1>
+<p>When you create and configure an <a href="https://www.palantir.com/docs/foundry/object-link-types/object-types-overview/">object type</a> in your Ontology, Foundry automatically creates a standard Object View to provide a standardized representation of all its objects, ensuring other users have a holistic understanding of its schema and links. The standard Object View matches the object type's configuration by spotlighting prominent properties in either a dedicated table or in other visual formats if the property's <a href="https://www.palantir.com/docs/foundry/object-link-types/base-types/">base type</a> is a time series, media reference, or geospatial property. Normal properties are displayed in a regular table, and hidden properties are not visible.</p>
+<p>While standard Object Views are available for all object types, you can create <a href="https://www.palantir.com/docs/foundry/object-views/config-object-views/">configured views</a> to provide a contextualized and curated Object View experience for any object type based on its function in your Ontology. When you create a configured Object View, Foundry makes it available as the default view for a user; however, users can choose to select the standard view to see object data in its standard format.</p>
+<h2>Prominent property displays</h2>
+<p>Foundry surfaces <a href="https://www.palantir.com/docs/foundry/object-link-types/property-metadata/#metadata-reference">prominent properties</a> at the top of the standard Object View to provide immediate context about an object's most important information.</p>
+<h3>Display behavior</h3>
+<p>Properties marked as prominent receive enhanced visual treatment based on their type:</p>
+<ul>
+<li><strong><a href="https://www.palantir.com/docs/foundry/object-link-types/base-types/#media-references">Media reference properties</a>:</strong> Rendered with a dedicated media viewer for viewing all supported media types.</li>
+<li><strong><a href="https://www.palantir.com/docs/foundry/time-series/time-series-properties/">Time series properties</a>:</strong> Displayed as interactive charts showing temporal data patterns.</li>
+<li><strong><a href="https://www.palantir.com/docs/foundry/geospatial/ontology/">Geospatial properties</a>:</strong> Objects with prominent geohash, geoshape, or geotemporal series reference (GTSR) properties will render on a <a href="https://www.palantir.com/docs/foundry/map/overview/">Map</a>. Time series properties that <a href="https://www.palantir.com/docs/foundry/map/integrate-objects/#track-objects">represent an object's latitude and longitude over time</a> are also displayed on a Map.</li>
+<li><strong>Other property types:</strong> All other prominent properties are displayed using a larger, card-style format elevated above a table displaying the remaining standard properties.</li>
+</ul>
+<h2>Linked objects component</h2>
+<p>The <strong>Linked objects</strong> component enables you to traverse across <a href="https://www.palantir.com/docs/foundry/object-link-types/link-types-overview/">linked objects</a> directly within the standard Object View.</p>
+<p><img alt="The Linked objects component." src="../../_resources/foundry/object-views/linked-objects-component.png" /></p>
+<p>Use the <strong>Linked objects</strong> component of a standard Object View to:</p>
+<ul>
+<li>View linked objects grouped by link type.</li>
+<li>Preview properties of linked objects inline without leaving the current view.</li>
+<li>Open a subset of linked objects in a new tab for further exploration.</li>
+<li>Preview a selected linked object in the side panel of the standard Object View.</li>
+</ul>
+<h2>Panel standard Object View display behavior</h2>
+<p>You can also interact with all of a standard Object View's functionality in its <a href="https://www.palantir.com/docs/foundry/object-views/config-panel-views/">panel</a> form factor.</p>
+<p><img alt="The standard Object View panel." src="../../_resources/foundry/object-views/core-object-view-panel.png" /></p>
+</body>
+</html>

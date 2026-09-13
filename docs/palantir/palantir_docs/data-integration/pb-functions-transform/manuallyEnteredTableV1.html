@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Manually entered table</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Manually entered table</h1>
+<blockquote>
+<p>Supported in: Batch, Faster, Streaming</p>
+</blockquote>
+<p>Uses manually entered table data to create an output.</p>
+<p><strong>Transform categories</strong>: Other</p>
+<h2>Declared arguments</h2>
+<ul>
+<li><strong>Rows:</strong> A list of structs representing rows, with struct fields representing column names and values.<br><em>List\<Literal\\<Struct>></em></li>
+<li><em>optional</em> <strong>Schema:</strong> A schema to be used if present for column names and types. If undefined, rows must be nonempty and will be used to infer the schema.<br><em>Type\<Struct></em></li>
+</ul>
+<h2>Examples</h2>
+<h3>Example 1: Base case</h3>
+<p><strong>Argument values:</strong></p>
+<ul>
+<li><strong>Rows:</strong> [{<br>â<strong>airline</strong>: foundry airlines,<br>â<strong>flight_code</strong>: 112,<br>â<strong>flight_number</strong>: XB-123,<br>}, {<br>â<strong>airline</strong>: foundry airlines,<br>â<strong>flight_code</strong>: 533,<br>â<strong>flight_number</strong>: MT-444,<br>}, {<br>â<strong>airline</strong>: new air,<br>â<strong>flight_code</strong>: 934,<br>â<strong>flight_number</strong>: KK-123,<br>}]</li>
+<li><strong>Schema:</strong> Struct\<flight\_code:Integer, flight\_number:String, airline:String></li>
+</ul>
+<p><strong>Inputs:</strong></p>
+<p><strong>Output:</strong></p>
+<table>
+<thead>
+<tr>
+<th>flight_code</th>
+<th>flight_number</th>
+<th>airline</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>112</td>
+<td>XB-123</td>
+<td>foundry airlines</td>
+</tr>
+<tr>
+<td>533</td>
+<td>MT-444</td>
+<td>foundry airlines</td>
+</tr>
+<tr>
+<td>934</td>
+<td>KK-123</td>
+<td>new air</td>
+</tr>
+</tbody>
+</table>
+<hr />
+</body>
+</html>

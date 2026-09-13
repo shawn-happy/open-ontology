@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Get H3 indices covering a geometry</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Get H3 indices covering a geometry</h1>
+<blockquote>
+<p>Supported in: Batch, Faster, Streaming</p>
+</blockquote>
+<p>Convert geometry to H3 indices at a certain resolution. Resolution must be between 0 and 15, inclusive. For a polygon, three conversions are supported: a) H3 indices that fully cover the polygon, b) H3 indices that are fully contained by the polygon, c) H3 indices whose centroids are contained in the polygon. Returns null when the expected number of H3 indices exceed 7 million.</p>
+<p><strong>Expression categories:</strong> Geospatial</p>
+<h2>Declared arguments</h2>
+<ul>
+<li><strong>Cover type:</strong> Specifies type of H3 cover for the polygon.<br><em>Enum\<Centroid, Inner, Outer></em></li>
+<li><strong>Geometry:</strong> GeoJSON of type polygon, line, or point.<br><em>Expression\<Geometry></em></li>
+<li><strong>Resolution:</strong> H3 grid resolution between 0 and 15 (inclusive).<br><em>Expression\<Byte | Integer | Long | Short></em></li>
+</ul>
+<p><strong>Output type:</strong> <em>Array\<H3 Index></em></p>
+<h2>Examples</h2>
+<h3>Example 1: Base case</h3>
+<p><strong>Argument values:</strong></p>
+<ul>
+<li><strong>Cover type:</strong> <code>CENTROID</code></li>
+<li><strong>Geometry:</strong> <code>polygon</code></li>
+<li><strong>Resolution:</strong> 5</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>polygon</th>
+<th><strong>Output</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>{"type":"Polygon","coordinates":[[[-121.915080327056,37.271355866731],[-121.862223289024,37.35392645...</td>
+<td>[ 85283473fffffff ]</td>
+</tr>
+<tr>
+<td><em>null</em></td>
+<td><em>null</em></td>
+</tr>
+<tr>
+<td>{"type":"Polygon","coordinates":[[]]}</td>
+<td>[  ]</td>
+</tr>
+<tr>
+<td>{"type":"Polygon","coordinates":[]}</td>
+<td><em>null</em></td>
+</tr>
+<tr>
+<td>{"type":"MultiPolygon","coordinates":[[]]}</td>
+<td><em>null</em></td>
+</tr>
+<tr>
+<td>{"type":"MultiPolygon","coordinates":[[[],[]]]}</td>
+<td>[  ]</td>
+</tr>
+<tr>
+<td>{"type":"MultiPolygon","coordinates":[]}</td>
+<td>[  ]</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3>Example 2: Base case</h3>
+<p><strong>Argument values:</strong></p>
+<ul>
+<li><strong>Cover type:</strong> <code>CENTROID</code></li>
+<li><strong>Geometry:</strong> <code>polygon</code></li>
+<li><strong>Resolution:</strong> 6</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>polygon</th>
+<th><strong>Output</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>{"type":"Polygon","coordinates":[[[-121.915080327056,37.271355866731],[-121.862223289024,37.35392645...</td>
+<td>[ 862834707ffffff, 86283470fffffff, 862834717ffffff, 86283471fffffff, 862834727ffffff, 86283472fffffff, 862834737ffffff ]</td>
+</tr>
+<tr>
+<td>{"type":"Polygon","coordinates":[[[-121.915080327056,37.271355866732],[-121.862223289025,37.35392645...</td>
+<td>[ 862834707ffffff, 86283470fffffff, 862834717ffffff, 86283471fffffff, 862834727ffffff, 86283472fffffff, 862834737ffffff, 8628347a7ffffff ]</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3>Example 3: Base case</h3>
+<p><strong>Argument values:</strong></p>
+<ul>
+<li><strong>Cover type:</strong> <code>INNER</code></li>
+<li><strong>Geometry:</strong> <code>polygon</code></li>
+<li><strong>Resolution:</strong> 6</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>polygon</th>
+<th><strong>Output</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>{"type":"Polygon","coordinates":[[[-121.915080327056,37.271355866731],[-121.862223289024,37.35392645...</td>
+<td>[ 862834707ffffff ]</td>
+</tr>
+<tr>
+<td>{"type":"Polygon","coordinates":[[[-121.915080327056,37.271355866732],[-121.862223289025,37.35392645...</td>
+<td>[ 862834707ffffff, 862834717ffffff ]</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3>Example 4: Base case</h3>
+<p><strong>Argument values:</strong></p>
+<ul>
+<li><strong>Cover type:</strong> <code>OUTER</code></li>
+<li><strong>Geometry:</strong> <code>polygon</code></li>
+<li><strong>Resolution:</strong> 6</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>polygon</th>
+<th><strong>Output</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>{"type":"Polygon","coordinates":[[[-121.915080327056,37.271355866731],[-121.862223289024,37.35392645...</td>
+<td>[ 86283408fffffff, 86283409fffffff, 8628340d7ffffff, 8628340dfffffff, 86283444fffffff, 86283446fffff...</td>
+</tr>
+<tr>
+<td>{"type":"Polygon","coordinates":[[[-121.915080327056,37.271355866732],[-121.862223289025,37.35392645...</td>
+<td>[ 86283408fffffff, 86283409fffffff, 8628340d7ffffff, 8628340dfffffff, 86283444fffffff, 86283445fffff...</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3>Example 5: Base case</h3>
+<p><strong>Argument values:</strong></p>
+<ul>
+<li><strong>Cover type:</strong> <code>OUTER</code></li>
+<li><strong>Geometry:</strong> <code>polygon</code></li>
+<li><strong>Resolution:</strong> 2</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>polygon</th>
+<th><strong>Output</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>{"type":"Polygon", "coordinates":[[[-112.943779561642,34.817254144594],[-112.943779561642,33.0067953...</td>
+<td>[ 82264ffffffffff, 82265ffffffffff, 8226c7fffffffff, 8226cffffffffff, 8226d7fffffffff, 8226dffffffff...</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3>Example 6: Base case</h3>
+<p><strong>Argument values:</strong></p>
+<ul>
+<li><strong>Cover type:</strong> <code>INNER</code></li>
+<li><strong>Geometry:</strong> <code>polygon</code></li>
+<li><strong>Resolution:</strong> 5</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>polygon</th>
+<th><strong>Output</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>{"type":"Polygon","coordinates":[[[-121.915080327056,37.271355866731],[-121.862223289024,37.35392645...</td>
+<td>[ 85283473fffffff ]</td>
+</tr>
+<tr>
+<td><em>null</em></td>
+<td><em>null</em></td>
+</tr>
+<tr>
+<td>{"type":"Polygon","coordinates":[[]]}</td>
+<td>[  ]</td>
+</tr>
+<tr>
+<td>{"type":"Polygon","coordinates":[]}</td>
+<td><em>null</em></td>
+</tr>
+<tr>
+<td>{"type":"MultiPolygon","coordinates":[[]]}</td>
+<td><em>null</em></td>
+</tr>
+<tr>
+<td>{"type":"MultiPolygon","coordinates":[[[],[]]]}</td>
+<td>[  ]</td>
+</tr>
+<tr>
+<td>{"type":"MultiPolygon","coordinates":[]}</td>
+<td>[  ]</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3>Example 7: Base case</h3>
+<p><strong>Argument values:</strong></p>
+<ul>
+<li><strong>Cover type:</strong> <code>CENTROID</code></li>
+<li><strong>Geometry:</strong> <code>polygon</code></li>
+<li><strong>Resolution:</strong> 4</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>polygon</th>
+<th><strong>Output</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>{"type":"Polygon","coordinates":[[[-121.915080327056,37.271355866731],[-121.862223289024,37.35392645...</td>
+<td>[  ]</td>
+</tr>
+<tr>
+<td>{"type":"Polygon","coordinates":[[[-121.915080327056,37.271355866732],[-121.862223289025,37.35392645...</td>
+<td>[  ]</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3>Example 8: Base case</h3>
+<p><strong>Argument values:</strong></p>
+<ul>
+<li><strong>Cover type:</strong> <code>INNER</code></li>
+<li><strong>Geometry:</strong> <code>polygon</code></li>
+<li><strong>Resolution:</strong> 4</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>polygon</th>
+<th><strong>Output</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>{"type":"Polygon","coordinates":[[[-121.915080327056,37.271355866731],[-121.862223289024,37.35392645...</td>
+<td>[  ]</td>
+</tr>
+<tr>
+<td>{"type":"Polygon","coordinates":[[[-121.915080327056,37.271355866732],[-121.862223289025,37.35392645...</td>
+<td>[  ]</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3>Example 9: Base case</h3>
+<p><strong>Argument values:</strong></p>
+<ul>
+<li><strong>Cover type:</strong> <code>OUTER</code></li>
+<li><strong>Geometry:</strong> <code>polygon</code></li>
+<li><strong>Resolution:</strong> 4</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>polygon</th>
+<th><strong>Output</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>{"type":"Polygon","coordinates":[[[-121.915080327056,37.271355866731],[-121.862223289024,37.35392645...</td>
+<td>[ 8428341ffffffff, 8428345ffffffff, 8428347ffffffff ]</td>
+</tr>
+<tr>
+<td>{"type":"Polygon","coordinates":[[[-121.915080327056,37.271355866732],[-121.862223289025,37.35392645...</td>
+<td>[ 8428341ffffffff, 8428345ffffffff, 8428347ffffffff ]</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3>Example 10: Base case</h3>
+<p><strong>Argument values:</strong></p>
+<ul>
+<li><strong>Cover type:</strong> <code>OUTER</code></li>
+<li><strong>Geometry:</strong> <code>polygon</code></li>
+<li><strong>Resolution:</strong> 5</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>polygon</th>
+<th><strong>Output</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><em>null</em></td>
+<td><em>null</em></td>
+</tr>
+<tr>
+<td>{"type":"Polygon","coordinates":[[]]}</td>
+<td>[  ]</td>
+</tr>
+<tr>
+<td>{"type":"Polygon","coordinates":[]}</td>
+<td><em>null</em></td>
+</tr>
+<tr>
+<td>{"type":"MultiPolygon","coordinates":[[]]}</td>
+<td><em>null</em></td>
+</tr>
+<tr>
+<td>{"type":"MultiPolygon","coordinates":[[[],[]]]}</td>
+<td>[  ]</td>
+</tr>
+<tr>
+<td>{"type":"MultiPolygon","coordinates":[]}</td>
+<td>[  ]</td>
+</tr>
+<tr>
+<td>{"type":"Polygon","coordinates":[[[-121.915080327056,37.271355866731],[-121.862223289024,37.35392645...</td>
+<td>[ 8528340bfffffff, 8528340ffffffff, 85283447fffffff, 85283463fffffff, 85283473fffffff, 85283477fffffff, 8528347bfffffff ]</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3>Example 11: Base case</h3>
+<p><strong>Argument values:</strong></p>
+<ul>
+<li><strong>Cover type:</strong> <code>CENTROID</code></li>
+<li><strong>Geometry:</strong> <code>polygon</code></li>
+<li><strong>Resolution:</strong> 3</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>polygon</th>
+<th><strong>Output</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>{"type":"MultiLineString","coordinates":[[[0,0],[15,15],[30,-15],[45,15],[60,0]],[[15,30],[-15,-15]]]}</td>
+<td>[ 833f80fffffffff, 833f82fffffffff, 833f85fffffffff, 833f91fffffffff, 833f93fffffffff, 833faefffffff...</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3>Example 12: Base case</h3>
+<p><strong>Argument values:</strong></p>
+<ul>
+<li><strong>Cover type:</strong> <code>CENTROID</code></li>
+<li><strong>Geometry:</strong> <code>polygon</code></li>
+<li><strong>Resolution:</strong> 4</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>polygon</th>
+<th><strong>Output</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>{"type":"MultiPoint","coordinates":[[60,60],[60,58],[58,58],[58,60]]}</td>
+<td>[ 8410c03ffffffff, 8410c47ffffffff, 8410ee7ffffffff, 8410eedffffffff ]</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3>Example 13: Base case</h3>
+<p><strong>Argument values:</strong></p>
+<ul>
+<li><strong>Cover type:</strong> <code>OUTER</code></li>
+<li><strong>Geometry:</strong> <code>polygon</code></li>
+<li><strong>Resolution:</strong> 10</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>polygon</th>
+<th><strong>Output</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>{"type":"Polygon","coordinates":[[[-122.02869363438222,37.26184847647239],[-122.02805421389088,37.26...</td>
+<td>[ 8a283408b2c7fff, 8a283408b2cffff, 8a283408b2dffff, 8a283408b2effff, 8a28340d6597fff, 8a28340d65b7fff, 8a2834725967fff ]</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3>Example 14: Base case</h3>
+<p><strong>Argument values:</strong></p>
+<ul>
+<li><strong>Cover type:</strong> <code>CENTROID</code></li>
+<li><strong>Geometry:</strong> <code>polygon</code></li>
+<li><strong>Resolution:</strong> 4</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>polygon</th>
+<th><strong>Output</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>{"coordinates":[[[[60,60],[60,58],[58,58],[58,60],[60,60]],[[59.5,59.7],[59.8,58.1],[58.1,58.2],[58.2,59.4],[59.5,59.7]]], [[[55,56],[55.5,55.7],[55.7,55.7],[55,57],[55,56]]]],"type":"MultiPolygon"}</td>
+<td>[ 8410c01ffffffff, 8410c47ffffffff, 8410c57ffffffff, 8410e33ffffffff, 8410ee5ffffffff, 8410ee7ffffffff, 8410f23ffffffff ]</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3>Example 15: Base case</h3>
+<p><strong>Argument values:</strong></p>
+<ul>
+<li><strong>Cover type:</strong> <code>INNER</code></li>
+<li><strong>Geometry:</strong> <code>polygon</code></li>
+<li><strong>Resolution:</strong> 4</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>polygon</th>
+<th><strong>Output</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>{"coordinates":[[[[60,60],[60,58],[58,58],[58,60],[60,60]],[[59.5,59.7],[59.8,58.1],[58.1,58.2],[58.2,59.4],[59.5,59.7]]], [[[55,56],[55.5,55.7],[55.7,55.7],[55,57],[55,56]]]],"type":"MultiPolygon"}</td>
+<td>[  ]</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3>Example 16: Base case</h3>
+<p><strong>Argument values:</strong></p>
+<ul>
+<li><strong>Cover type:</strong> <code>OUTER</code></li>
+<li><strong>Geometry:</strong> <code>polygon</code></li>
+<li><strong>Resolution:</strong> 4</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>polygon</th>
+<th><strong>Output</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>{"coordinates":[[[[60,60],[60,58],[58,58],[58,60],[60,60]],[[59.5,59.7],[59.8,58.1],[58.1,58.2],[58.2,59.4],[59.5,59.7]]], [[[55,56],[55.5,55.7],[55.7,55.7],[55,57],[55,56]]]],"type":"MultiPolygon"}</td>
+<td>[ 8410c01ffffffff, 8410c03ffffffff, 8410c09ffffffff, 8410c0bffffffff, 8410c0dffffffff, 8410c1dffffff...</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3>Example 17: Base case</h3>
+<p><strong>Argument values:</strong></p>
+<ul>
+<li><strong>Cover type:</strong> <code>OUTER</code></li>
+<li><strong>Geometry:</strong> <code>polygon</code></li>
+<li><strong>Resolution:</strong> 3</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>polygon</th>
+<th><strong>Output</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>{"coordinates":[[[60.0,60.0],[50.0,60.0],[50.0,50.0],[60.0,50.0],[60.0,60.0]],[[57.0,57.0],[55.0,52.0],[52.0,52.0],[50.0,57.0],[57.0,57.0]]],"type":"Polygon"}</td>
+<td>[ 83100afffffffff, 831018fffffffff, 831019fffffffff, 83101afffffffff, 83101bfffffffff, 83101dfffffff...</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3>Example 18: Base case</h3>
+<p><strong>Argument values:</strong></p>
+<ul>
+<li><strong>Cover type:</strong> <code>CENTROID</code></li>
+<li><strong>Geometry:</strong> <code>polygon</code></li>
+<li><strong>Resolution:</strong> 4</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>polygon</th>
+<th><strong>Output</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>{"type":"MultiLineString","coordinates":[[[60,60],[60,58],[58,58],[58,60]],[[59.8,58.1],[58.1,58.2],[58.2,59.4],[59.5,59.7]],[[55,56],[55.5,55.7],[55.7,55.7],[55,57]]]}</td>
+<td>[ 8410c01ffffffff, 8410c03ffffffff, 8410c09ffffffff, 8410c0bffffffff, 8410c0dffffffff, 8410c1dffffff...</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3>Example 19: Base case</h3>
+<p><strong>Argument values:</strong></p>
+<ul>
+<li><strong>Cover type:</strong> <code>OUTER</code></li>
+<li><strong>Geometry:</strong> <code>polygon</code></li>
+<li><strong>Resolution:</strong> 9</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>polygon</th>
+<th><strong>Output</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>{"coordinates":[[[-110, 38], [-110,82],[-170,82],[-170,38],[-110, 38]]],"type":"Polygon"}</td>
+<td><em>null</em></td>
+</tr>
+</tbody>
+</table>
+<hr />
+</body>
+</html>

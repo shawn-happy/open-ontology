@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Debug using the replica status</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Debug using the replica status</h1>
+<p>Your first step when debugging your compute module should be to check the <strong>Replica Status</strong> section on the <strong>Overview</strong> tab. The <strong>Replica Status</strong> section shows each replica and its current status and can provide a high-level understanding of your deployment. Select an individual replica to view the images it contains, and view more detailed diagnostics by selecting the <strong>Replica Diagnostics</strong> callout. If you are unable to debug and think there may be an issue with the compute module infrastructure, contact Palantir Support by filing an issue.</p>
+<h2>Replica status</h2>
+<p>The <strong>Replica Status</strong> section shows which replicas are currently active and part of your deployment along with archived replicas. Archived replicas are no longer running but can still be used to debug issues that occurred in the past. Each replica has its own lifecycle and can be in any of the various states documented below:</p>
+<p><img alt="The various replica status possibilities you may see in your deployment." src="../../_resources/foundry/compute-modules/replica-status.png" /></p>
+<ul>
+<li><strong>Starting:</strong> The initial phase for a replica. We may be acquiring a host, pulling your image(s), starting your container(s), and so on. If a replica is spending a long time in this state, you may have a large image (&gt;5GB), a large resource request, or you configured a readiness probe that is taking a while to report as ready. If logs are appearing, we were able to at least start your container and investigate your code. If logs are not generating when you think they should, there may be an infrastructure issue.</li>
+<li><strong>Started:</strong> At this stage, the replica has been started. This means it acquired a host, pulled the image(s), and started the container(s). A replica can become responsive or unresponsive at this stage. This is considered normal operation; however, it is not normal to remain in this stage for a long period of time and may indicate an infrastructure issue if that occurs.</li>
+<li><strong>Responsive:</strong> At this stage, we have determined that your replica is responsive and able to respond to queries. This is considered normal operation. If you encounter issues with a replica in this stage, you should first review the logs to debug.</li>
+<li><strong>Unresponsive:</strong> If your replica is unable to respond to requests or fails to report on its readiness, it will be marked as unresponsive. This means we will not route requests to that replica, and if it remains unresponsive for long enough we may terminate it. Replicas can temporarily become unresponsive and may sometimes flicker in and out of this status. If you have problems with unresponsive replicas, check your logs or the diagnostic panel once the replica is deleted.</li>
+<li><strong>Decommissioned:</strong> When replicas are being deleted they may go through a 2-stage deletion process, where they are first decommissioned and then finally deleted. We do this to give replicas time to finish processing any requests that might be in progress. This may be normal operation, since individual replicas have a max TTL that is less than 24 hours.</li>
+<li><strong>Starting Error:</strong> Replicas can fail to start for various reasons. This could indicate an infrastructure problem, something wrong with your image, or problems with your configuration. You should select the replica and check its diagnostics, as logs will not be present at this stage.</li>
+<li><strong>Deleted:</strong> All replicas will eventually be deleted. This can happen normally as part of the replica lifecycle or exceptionally. If you observe a problem with your deployment, you can switch the replica status section to <strong>Archived</strong> and view the diagnostics for a specific deleted replica. Deleted replica diagnostics are only archived for one hour.</li>
+</ul>
+<h2>Replica diagnostics</h2>
+<p>Replica diagnostics can provide deeper insight into a degraded deployment. We provide a status and reason from our underlying infrastructure and/or from the compute module service directly. In the replica diagnostics panel, you can also select an individual image for further debugging.</p>
+<p>:::callout{theme="warning"}
+To view the diagnostics for a particular replica, you must first select the replica square. Some replicas may be archived, and you may need to toggle into the archive view.
+:::</p>
+<p>Below is an example of the diagnostics panel for a deployment that is failing to come up live:</p>
+<p><img alt="A replica diagnostic showing an &quot;Unresponsive&quot; error." src="../../_resources/foundry/compute-modules/replica-diagnostics.png" /></p>
+<p><img alt="A CrashLoopBackOff error displayed in the replica diagnostics panel." src="../../_resources/foundry/compute-modules/crashloopbackoff-status.png" /></p>
+<p>In the above image, the container is experiencing a <code>CrashLoopBackOff</code>. We can turn to logs and the code provided to try and debug further.</p>
+<h1>Debug upgrades</h1>
+<p>Compute modules will attempt a safe upgrade when possible. This means that when you upgrade your configuration while you have an active deployment, a new deployment will be launched alongside your active one and will switch over when your new deployment becomes responsive. New jobs will be routed to the updated deployment while existing jobs complete on the old deployment.</p>
+<h2>Upgrade process</h2>
+<p>Upgrades for compute modules progress through a series of steps documented below:</p>
+<ol>
+<li>The configuration for a running compute module changes. For example, you might have changed the version of a configured image. Some configuration settings may require downtime to apply, and you will be asked to acknowledge those before saving.</li>
+<li>The compute module service creates a second deployment with your changes.</li>
+<li>The compute module service waits for a responsive replica in your new deployment.</li>
+<li>Your new deployment has a responsive replica and new requests are routing to the new deployment. The old deployment is being decommissioned and given a grace period to finish existing requests before it is fully deleted.</li>
+</ol>
+<p>If your new deployment never becomes responsive, your current deployment will not change. If an upgrade is unsuccessful, you will not experience downtime. To end an unresponsive upgrade, you can revert your configuration changes or make forward changes where replicas can become responsive.</p>
+<h3>My upgrade is unresponsive</h3>
+<p>Like the active <strong>Replica Status</strong> section, the status of the upgraded deployment's replicas will display in a section in the <strong>Overview</strong> tab.</p>
+<p>Expand the section to view the images in the upgraded deployment, and select the replica square to view more replica diagnostics.</p>
+<p><img alt="The upgrade deployment status section showing replica status for the upgraded deployment." src="../../_resources/foundry/compute-modules/upgrade-deployment.png" /></p>
+</body>
+</html>

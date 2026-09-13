@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ontology primitives and data model configuration</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Ontology primitives and data model configuration</h1>
+<p>The Ontology primitives for dynamic scheduling are comprised of one <code>Schedule</code> object and one or more <code>Resource</code> objects. Begin by creating your objects in the <a href="https://www.palantir.com/docs/foundry/ontology-manager/overview/">Ontology Manager</a>. At a minimum, the Workshop widget requires two object types: a <code>Schedule</code> object and a <code>Resource</code> object.</p>
+<table>
+<thead>
+<tr>
+<th>Object Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Schedule object</td>
+<td>A schedule object represents the task or activity of interest and should include a start and end time of when that event is occurring and/or the expected duration.</td>
+</tr>
+<tr>
+<td>Resource object</td>
+<td>A resource object represents any entity (such as a person, location, project, etc.) that the schedule object is being assigned to or scheduled against.</td>
+</tr>
+</tbody>
+</table>
+<h2>Ontology requirements</h2>
+<p>The <code>Schedule</code> object must meet the property and link requirements outlined below.</p>
+<h3>Required schedule object properties</h3>
+<table>
+<thead>
+<tr>
+<th>Object property</th>
+<th>Type</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Foreign key to resource</td>
+<td>String</td>
+</tr>
+<tr>
+<td>Start time</td>
+<td>Timestamp</td>
+</tr>
+<tr>
+<td>End time</td>
+<td>Timestamp</td>
+</tr>
+</tbody>
+</table>
+<h3>Required Ontology links</h3>
+<p>The schedule object type should be linked to each resource object type. Both many-to-one and many-to-many relationships are supported. For instance, in the example above, many tasks can be assigned to one aircraft. The <strong>Resource Link Type</strong> in the widget configuration determines whether the relationship is many-to-one or many-to-many.</p>
+<h2>Example: Aircraft maintenance schedule</h2>
+<p>The example below demonstrates the process of scheduling maintenance tasks for aircraft.</p>
+<h3>Simple configuration</h3>
+<p>The two-object-type configuration, the minimum requirement for the Dynamic Scheduling Workshop widget, is illustrated below.</p>
+<ul>
+<li><strong>Schedule object type:</strong> In the example below, maintenance tasks are a time-bound activity.</li>
+<li><strong>Resource object type:</strong> Aircraft are the object/place where the tasks are conducted.</li>
+</ul>
+<p><img src="../../_resources/external-aa0c14157b9c.png" alt="Schedule object type." width="500" ></p>
+<h3>Advanced configuration</h3>
+<p>The dynamic scheduling data supports a variety of additional configurations beyond the two-object-type model, allowing application builders to create complex, advanced workflows.</p>
+<p>Building on the two-object-type model above, in addition to scheduling <em>when</em> maintenance tasks will occur on an assigned aircraft, users can also determine <em>who</em> will carry out the maintenance task by assigning the task to a specific mechanic. In this new Ontology, as pictured below, the mechanic object acts as a <strong>second resource object type</strong>, which can be unlimited in number.</p>
+<ul>
+<li><strong>Schedule object type:</strong> Maintenance tasks are a time-bound activity.</li>
+<li><strong>Resource object type 1:</strong> Aircraft are the object/place where the tasks are conducted.</li>
+<li><strong>Resource object type 2:</strong> Mechanic who will carry out the assigned maintenance task.</li>
+</ul>
+<p><img src="../../_resources/external-9c2a9a726ba0.png" alt="Advanced schedule object type." width="500" ></p>
+</body>
+</html>

@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>VS Code workspaces</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>VS Code workspaces</h1>
+<p>:::callout{theme="neutral"}
+VS Code workspaces and the Palantir extension for Visual Studio Code are not affiliated with or endorsed by Microsoft.
+:::</p>
+<p>:::callout{theme="neutral"}
+VS Code workspaces is available by default in all Organizations where Code Workspaces is enabled.
+:::</p>
+<p>VS Code workspaces bring the power of Microsoft's <a href="https://github.com/microsoft/vscode">VS Code â</a> IDE directly into the Palantir platform. VS Code workspaces are development environments deployed on Palantir infrastructure that leverage <a href="https://www.palantir.com/docs/foundry/code-workspaces/overview/">Code Workspaces</a> to provide an integrated development environment (IDE) for writing production-ready code. Whether you are building Python transforms, developing OSDK React applications, or working on compute modules (<a href="#supported-workflows">see a full list of supported workflows here</a>), VS Code workspaces provide a familiar, powerful environment with automatic environment setup and seamless integration with Foundry resources.</p>
+<h2>Why use VS Code workspaces?</h2>
+<p><a href="https://www.palantir.com/docs/foundry/vs-code/benefits/">Learn more about the benefits of VS Code workspaces.</a></p>
+<h2>Get started with VS Code workspaces</h2>
+<h3>Access a workspace</h3>
+<ol>
+<li>Open an existing or create a new <a href="#supported-workflows">supported repository</a> in VS Code.</li>
+<li>From Code Repositories, you can select <strong>Open in VS Code</strong> in the upper right corner (shown for supported repositories).</li>
+<li>At the time of creating a new repository, selecting VS Code will automatically bring you into a VS Code workspace.</li>
+<li>Your environment is ready, and you can start coding.</li>
+</ol>
+<p><img alt="The &quot;Open in VS Code&quot; button in a code repository." src="../../_resources/foundry/vs-code/vscode-supported-repository.png" /></p>
+<p><img alt="Create a new VS Code workspace." src="../../_resources/foundry/vs-code/launch-vs-code-workspace-1.png" /></p>
+<h3>Make VS Code your default editor</h3>
+<p>You can make VS Code your default code editor for all supported repository types by navigating to the <strong>Settings</strong> tab within any repository and selecting <strong>Open repositories in a VS Code workspace by default</strong>.</p>
+<p><img alt="Make &quot;VS Code Default&quot; Setting for supported repository types." src="../../_resources/foundry/vs-code/vscode-default-setting.png" /></p>
+<p>Note that some repositories will open in VS Code regardless of the default setting, since these repository types have been optimized for VS Code workspaces.</p>
+<h2>Supported workflows</h2>
+<p>VS Code workspaces support the workflows described in the sections below.</p>
+<h3>Python transforms</h3>
+<p>The Palantir extension automatically sets up your Python environment at startup and provides the following:</p>
+<ul>
+<li><a href="https://www.palantir.com/docs/foundry/palantir-extension-for-visual-studio-code/transforms-preview/">Preview integration</a> with sample-less and code-defined filtering options</li>
+<li><a href="https://www.palantir.com/docs/foundry/palantir-extension-for-visual-studio-code/debug-transforms/">Debugging support</a> with variable inspection</li>
+<li><a href="https://www.palantir.com/docs/foundry/palantir-extension-for-visual-studio-code/transforms-build/">Build triggers</a> from inside your editor</li>
+<li>Resource paths displayed with resource identifiers for easy navigation</li>
+<li>Automatic code environment setup</li>
+<li>Code snippets for common patterns</li>
+</ul>
+<p><img alt="The &quot;Preview&quot; section in VS Code Workspaces." src="../../_resources/foundry/vs-code/vscode-transforms-preview.png" /></p>
+<p><a href="https://www.palantir.com/docs/foundry/transforms-python/getting-started/">Learn more about Python transforms.</a></p>
+<h3>OSDK React applications</h3>
+<p>VS Code is integrated with <a href="https://www.palantir.com/docs/foundry/developer-console/overview/">Developer Console</a>, allowing you to rapidly build React applications. You can create a VS Code workspace in the <strong>Code repository</strong> section of your Developer Console.</p>
+<p><img alt="The option to use Code Repositories or VS Code Workspaces as a code environment in Developer Console." src="../../_resources/foundry/vs-code/vscode-dev-console-code-repository.png" /></p>
+<p>Key features include:</p>
+<ul>
+<li>Full Ontology integration with OSDK to interact with your unique Ontology resources</li>
+<li>Git repository configuration with OAuth pre-configured</li>
+<li>CI setup to deploy your website on every release</li>
+<li>Automatic node/npm environment setup</li>
+<li>Development server with live reload for instant feedback</li>
+</ul>
+<p><img alt="An example of a VS Code environment showing React OSDK application code in Developer Console." src="../../_resources/foundry/vs-code/vscode-dev-console-preview.png" /></p>
+<p><a href="https://www.palantir.com/docs/foundry/ontology-sdk-react-applications/overview/">Learn more about OSDK React applications.</a></p>
+<h3>Other supported workflows</h3>
+<ul>
+<li><strong><a href="https://www.palantir.com/docs/foundry/compute-modules/get-started/">Compute modules</a>:</strong> Build Python compute modules with run and debug capabilities.</li>
+<li><strong><a href="https://www.palantir.com/docs/foundry/transforms-python/share-python-libraries/">Python libraries</a>:</strong> Develop and debug reusable Python libraries.</li>
+</ul>
+<hr />
+<h2>Reference: VS Code workspaces vs. Code Repositories</h2>
+<p>VS Code and Code Repositories serve different primary purposes:</p>
+<ul>
+<li>
+<p><strong>Code Repositories:</strong> A Palantir-built IDE focused on all code-management needs, including editing, version control, change management, and continuous integration. This is the intended platform tool for pull request reviews and repository management.</p>
+</li>
+<li>
+<p><strong>VS Code:</strong> A VS Code environment deployed on Palantir infrastructure and accessible from the Palantir platform. Provides the familiar VS Code editing experience with automatic environment setup and integration with Foundry resources through the <a href="https://www.palantir.com/docs/foundry/palantir-extension-for-visual-studio-code/overview/">Palantir extension for Visual Studio Code</a>.</p>
+</li>
+<li>
+<p><strong>Palantir extension for Visual Studio Code (local):</strong> An extension you install in your local VS Code application to integrate directly with Foundry. Provides preview, debug, and build capabilities for Python transforms while working on your local machine.</p>
+</li>
+</ul>
+<h3>Feature comparison</h3>
+<table>
+<thead>
+<tr>
+<th style="text-align: right;">Feature</th>
+<th>Code Repositories</th>
+<th>VS Code workspaces</th>
+<th>Palantir extension for Visual Studio Code</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: right;"><strong>Transforms</strong></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td style="text-align: right;">Python transform preview</td>
+<td>Yes</td>
+<td>Yes</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td style="text-align: right;">Full data preview</td>
+<td>Preview data sample, with the ability to pre-filter the input sample</td>
+<td>Yes</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td style="text-align: right;">Debugger support</td>
+<td>Yes</td>
+<td>Yes</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td style="text-align: right;">Java transforms</td>
+<td>Yes</td>
+<td>No</td>
+<td>No</td>
+</tr>
+<tr>
+<td style="text-align: right;">Unit tests</td>
+<td>Yes</td>
+<td>Yes</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td style="text-align: right;"><strong>OSDK React applications</strong></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td style="text-align: right;">Typescript Language Server</td>
+<td>No</td>
+<td>Yes</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td style="text-align: right;">Live reload code changes</td>
+<td>No</td>
+<td>Yes</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td style="text-align: right;"><strong>Python compute modules</strong></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td style="text-align: right;">Run and debug Python files</td>
+<td>No</td>
+<td>Yes</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td style="text-align: right;"><strong>Python libraries</strong></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td style="text-align: right;">Run and debug Python files</td>
+<td>No</td>
+<td>Yes</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td style="text-align: right;"><strong>Workflows</strong></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td style="text-align: right;">SQL integration</td>
+<td>Yes</td>
+<td>No</td>
+<td>No</td>
+</tr>
+<tr>
+<td style="text-align: right;">Typescript function preview</td>
+<td>Yes</td>
+<td>No</td>
+<td>No</td>
+</tr>
+<tr>
+<td style="text-align: right;"><strong>IDE</strong></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td style="text-align: right;">Shell terminal</td>
+<td>No</td>
+<td>Yes (Remote host)</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td style="text-align: right;">Keybinding customization</td>
+<td>No</td>
+<td>Yes</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td style="text-align: right;">Public extension support</td>
+<td>N/A</td>
+<td>No</td>
+<td>Yes, if allowed by your organization</td>
+</tr>
+<tr>
+<td style="text-align: right;">AI Assistance</td>
+<td>AIP Autocomplete</td>
+<td>Yes, Continue extension</td>
+<td>No</td>
+</tr>
+</tbody>
+</table>
+<h2>Browse code while a workspace starts</h2>
+<p>By default, when you open a <a href="https://www.palantir.com/docs/foundry/code-workspaces/getting-started/#code-workspace-lifecycle">stopped VS Code workspace</a>, <a href="https://www.palantir.com/docs/foundry/code-workspaces/code-viewer/#continue-in-an-editor">the code viewer</a> opens while its workspace session starts in the background. You can browse committed code while the <strong>VS Code</strong> tab icon shows the workspace status. The code viewer remains open until you select the <strong>VS Code</strong> tab.</p>
+<h2>Choose your development environment</h2>
+<p>You have two options for using VS Code with Foundry. For a detailed comparison to help you decide which is right for you, review our documentation on <a href="https://www.palantir.com/docs/foundry/vs-code/local-vs-workspace-guide/">choosing between local development and VS Code workspaces</a>.</p>
+<p>The <a href="https://www.palantir.com/docs/foundry/palantir-extension-for-visual-studio-code/overview/">Palantir extension for Visual Studio Code</a> provides native integrations with the Palantir platform, including many features you see in <a href="https://www.palantir.com/docs/foundry/code-repositories/overview/">Code Repositories</a>.</p>
+<p><a href="https://www.palantir.com/docs/foundry/palantir-extension-for-visual-studio-code/extension-features/">Learn more about the features of the Palantir extension.</a></p>
+<h3>Pricing</h3>
+<p>For VS Code workspace pricing information see <a href="https://www.palantir.com/docs/foundry/code-workspaces/compute-usage/">Code Workspaces compute usage</a>.</p>
+</body>
+</html>

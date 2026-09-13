@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ontology roles migration \[Legacy]</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Ontology roles migration [Legacy]</h1>
+<p>:::callout{theme="neutral" title="Legacy"}
+This page describes a legacy process that is no longer the most up-to-date method for ontology resource permissioning. Ontology resources can now be <a href="https://www.palantir.com/docs/foundry/object-permissioning/ontology-permissions/">permissioned using the Compass filesystem</a>. To migrate over, <a href="https://www.palantir.com/docs/foundry/ontology-manager/migrate-to-project-based-permissions/">review the migration guide.</a>
+:::</p>
+<p><a href="https://www.palantir.com/docs/foundry/object-permissioning/ontology-permissions-legacy/#ontology-roles">Ontology roles</a> is a legacy authorization model for ontology resources, replacing <a href="https://www.palantir.com/docs/foundry/object-permissioning/ontology-permissions-legacy/#datasource-derived-permissions">datasource-derived permissions</a>. Ontology roles apply to object types, link types, and action types, which are referred to as âontology resourcesâ. Ontology roles are required to use the most recent features of the ontology, including shared property types, interfaces, and more. By default, ontology roles have been used on all new enrollments created since September 2023.</p>
+<p>Ontology roles allow you to grant roles <em>directly</em> on each Ontology resource and to their metadata. All metadata permissions are managed in Ontology Manager. Ontology roles allow you to decouple Ontology resources (like an <code>Aircraft</code> object type) from the <em>data</em> of these resources, such as <a href="https://www.palantir.com/docs/foundry/object-link-types/object-types-overview/">object instances</a> (like a specific plane represented as an Ontology object) and link instances; these data instances remain governed by their input datasource permissions. Learn more about <a href="https://www.palantir.com/docs/foundry/object-permissioning/ontology-permissions-legacy/">Ontology permissions</a>.</p>
+<p>Each Ontology is linked to one or multiple <a href="https://www.palantir.com/docs/foundry/security/orgs-and-spaces/#organizations">Foundry organizations</a>.</p>
+<p>Roles permissions are detailed in the <a href="https://www.palantir.com/docs/foundry/object-permissioning/ontology-permissions-legacy/#ontology-roles">Ontology roles documentation</a>.</p>
+<p>:::callout{theme="neutral"}
+Every object type, link type, and action type migrated to ontology roles will have view permission for all users that have access to that particular ontology. Therefore, ontology resource information is accessible for all users of that ontology.
+:::</p>
+<p>There is no explicit ordering required for migrating ontology resources to ontology roles, making it possible to have a mix of object types using <a href="https://www.palantir.com/docs/foundry/object-permissioning/ontology-permissions-legacy/#datasource-derived-permissions">datasource-derived permissions</a>, and others using ontology roles. Therefore, for the purpose of this migration, we define <code>able to edit an object type</code> as follows:</p>
+<ul>
+<li><strong>Object types using datasource-derived permissions:</strong> Users have <code>Editor</code> permission on the input datasources for that object type.</li>
+<li><strong>Object types using Ontology roles:</strong> Users have <code>Ontology Editor</code> permission on the object type and do not require any permissions on the input datasource. Users should note that this only allows editing Ontology resources and their metadata and does not grant any permission on the data/datasource itself. Access to object <em>data</em> (not <em>metadata</em>) is still governed by the permissions granted on input datasources.</li>
+</ul>
+<h2>Migrate to ontology roles</h2>
+<p>If Ontology roles are enabled on your enrollment, but you have not yet migrated the Ontology resources that you own to the roles authorization model, you will see a banner in Ontology Manager that prompts you to do so.
+Alternatively, when looking at the tables of Ontology resources, you can filter to the ones you own that are still using the "Same permissions as backing datasource".</p>
+<p>:::callout{theme="neutral"}
+Ontology roles are not yet available for all Foundry enrollments. If you do not have access to Ontology roles, contact Palantir Support.
+:::</p>
+<h3>Prerequisites</h3>
+<p>To perform the migration, users must have the following permissions:</p>
+<ol>
+<li>
+<p>Permissions to make changes in the Foundry Ontology.</p>
+</li>
+<li>
+<p>The following permissions for each individual resource:</p>
+</li>
+</ol>
+<ul>
+<li>For object types, users must have <code>Owner</code> permission on the input datasource.</li>
+<li>For one-to-many link types, users do not need additional permissions. Only <code>Viewer</code> permissions on both object types referenced in the link type are required, and the user must be an <code>Owner</code> on the link type itself or at the Ontology level.</li>
+<li>For many-to-many link types, users must also have <code>Owner</code> permission on the input datasource of the link type.</li>
+<li>No additional permission is needed for action types.</li>
+</ul>
+<p>:::callout{theme="neutral"}
+Additional permissions are required for <a href="https://www.palantir.com/docs/foundry/object-permissioning/ontology-permissions-legacy/#permissions-for-editing-action-types">modifying action types</a> after migrating to Ontology roles. You will need permissions on any object types the action type edits, and on the action type itself, to modify action types with roles.
+:::</p>
+<h3>Notification to migrate</h3>
+<p>Migration to Ontology roles is managed through <a href="https://www.palantir.com/docs/foundry/upgrade-assistant/overview/">Upgrade Assistant</a>. A dedicated Upgrade Assistant task displays the list of Ontology resources that must be migrated, along with assignees that have permission to perform the migration. Opening a resource from Upgrade Assistant directs the user to the <strong>Security</strong> tab of the resource to migrate it within the Ontology Manager application.</p>
+<p>If a user has permission to set Ontology roles, Ontology resources that have not yet migrated will appear in the migration interface in the <strong>Security</strong> tab to set Ontology roles for the first time. After the Ontology resource is migrated, the Ontology role picker is displayed under the <strong>Security</strong> tab and can be updated by <code>Ontology Owners</code>.</p>
+<h3>Migrate using Ontology Manager</h3>
+<p>There are two ways to migrate Ontology resources (object types, action types, link types) to Roles: <a href="#bulk-migration-of-ontology-resources">bulk migration</a> of Ontology resources or <a href="#one-by-one-migration-for-all-ontology-resources">one-by-one migration</a> for all Ontology resources.</p>
+<h4>Bulk migration of Ontology resources</h4>
+<p>You can bulk-migrate Ontology resources to Roles. Refer to the list of <a href="#prerequisites">prerequisites</a> before proceeding. You can only migrate 500 resources at a time.</p>
+<p>To bulk-migrate, go to <strong>Advanced</strong> in the Ontology Manager and select <strong>continue with migration assistant</strong> in the Migrations section.</p>
+<p>The migration wizard will appear with the following steps.</p>
+<ol>
+<li><strong>Choose resources:</strong> Choose all the object types, link types, or action types on which you wish to apply the same roles. The image below displays the interface for choosing resources in the migration wizard:</li>
+</ol>
+<p><img alt="Bulk migration." src="../../_resources/foundry/ontology-manager/oma-migration-wizard-choose-resources.png" /></p>
+<ol start="2">
+<li><strong>Related resources:</strong> This step is shown only if there are related resources (link types or action types) that can be migrated.</li>
+<li><strong>Assign roles:</strong> You can manually set the groups/users and the default role you want to assign to these Object types. The roles migrator cannot suggest roles in bulk for now. We strongly recommend using <strong>user groups</strong> over <strong>users</strong> when granting roles.</li>
+<li><strong>Summary:</strong> View the summary, acknowledge the implications of the migration, and complete the migration to apply the roles.</li>
+</ol>
+<p>:::callout{theme="warning"}
+When you acknowledge the implications of the migration, you are acknowledging that the permissions previously derived from backing datasources will be overwritten by the newly assigned role grants and that the migration is irreversible.
+:::</p>
+<h5>Exceptions to bulk migration</h5>
+<p>Some action types cannot be bulk-migrated without further steps.</p>
+<p>Action types cannot be migrated to roles if:</p>
+<ul>
+<li>The action type has no submission criteria that checks the current userâs permissions.</li>
+<li>Solution: Add a condition based on the current user in the <strong>Security &amp; Submission criteria</strong> tab of the Action type in the Ontology Manager (in the <strong>Submission criteria</strong> section) and save to the Ontology before re-attempting the migration.</li>
+<li>The action type is backed by a function and must be republished with <code>@edits decorators</code> before the migration.</li>
+<li>Solution: Refer to the steps in the <a href="https://www.palantir.com/docs/foundry/functions/decorators/#decorators">decorators</a> documentation.</li>
+</ul>
+<p>To address these issues, go to the <strong>Action Types</strong> page and filter down to <strong>Same permissions as backing datasource</strong>, which will display the action types that have not been migrated because of issues. Resolve all outstanding issues and then proceed with bulk migration again for any remaining action types.</p>
+<p>:::callout{theme="warning" title="Warning"}
+When migrating action types, ensure that permissions are only granted to users with sufficient context on both the referenced object types and all use cases where the action type is deployed.
+:::</p>
+<h4>One-by-one migration for all Ontology resources</h4>
+<p>From the Ontology Manager home page, select the Ontology resources that you want to migrate (object type, link type, or action type) and filter by <code>Security setup</code> to <code>Same permissions as backing datasource</code> and by <code>permissions</code> = <code>owner</code>.</p>
+<p>Select the entity to migrate, then choose either <strong>Migrate to roles</strong> on the header or <strong>Start using roles</strong> on the Security tab.</p>
+<p>The migration wizard will appear with two suggested role options: <strong>Datasource roles</strong> and <strong>Ontology admins and datasource roles</strong>. These options allow users to use and configure roles that align with their existing Ontology setups. Selecting one of the options pre-fills the list of suggested roles; these roles can be changed later.</p>
+<ul>
+<li><strong>Datasource roles:</strong> This option adds all users and user groups with an <code>Editor</code> or <code>Owner</code> role on the input datasource.</li>
+<li><strong>Ontology admins and datasource roles:</strong> This option adds all users that can currently modify the given Ontology resource based on <a href="https://www.palantir.com/docs/foundry/object-permissioning/ontology-permissions-legacy/#type-specific-edit-permissions">datasource-derived permissions</a>. These users belong to the <code>Ontology Administrators</code> user group and have an Editor or Owner role on the input datasource.</li>
+</ul>
+<p>The image below shows the roles suggestion in the migration wizard:</p>
+<p><img alt="Migrating one resource roles suggestion." src="../../_resources/foundry/ontology-manager/oma-migrating-one-resource-roles-suggestions.png" /></p>
+<p>Choose the desired role suggestions, review the suggested <a href="https://www.palantir.com/docs/foundry/object-permissioning/ontology-permissions-legacy/#ontology-roles">Ontology roles</a> and the default role for the object type, then make modifications if necessary. Next, view the summary, acknowledge the implication, and complete the migration to apply the roles.</p>
+<p>The image below shows how to assign roles in the migration wizard:</p>
+<p><img alt="Migrating one resource assign roles." src="../../_resources/foundry/ontology-manager/oma-migrating-one-resource-assign-roles.png" /></p>
+<h5>Exceptions</h5>
+<p>You may be prevented from attempting the migration of an action type to Roles if:</p>
+<ul>
+<li>The action type has no submission criteria that checks the current userâs permissions.</li>
+<li>Solution: Add a condition based on the current user in the <strong>Security &amp; Submission criteria</strong> tab of the action type in the Ontology Manager (in the <strong>Submission criteria</strong> section) and save to the Ontology before re-attempting the migration.</li>
+<li>The action type is backed by a function and must be republished with <code>@edits decorators</code> before the migration.</li>
+<li>Solution: Refer to the steps in the <a href="https://www.palantir.com/docs/foundry/functions/decorators/#decorators">decorators</a> documentation.</li>
+</ul>
+<p>When these issues have been resolved, you will be able to migrate the action types to Roles.</p>
+<h4>What if some ontology resources are no longer needed</h4>
+<p>If you no longer need an ontology resource that requires an action, you can delete the resource using the <a href="https://www.palantir.com/docs/foundry/ontology-manager/cleanup/">Ontology cleanup tool</a>. This tool helps you identify which object types are safe to delete based on a set of criteria (for example, if the datasource is trashed, the deprecation date has passed, the index is failing, whether they are using Ontology roles or not, and so on.)</p>
+<h4>Migrating function-backed action types</h4>
+<p>Function-backed action types require the backing Function to be migrated. Foundry will attempt to migrate Functions automatically, allowing you to migrate the action type as well. Some Functions, however, might not be migrated automatically and require manually declaration of the edited object types in the Functions. Check the <a href="#how-can-i-resolve-a-function-backed-action-that-is-failing-post-migration">FAQ</a> section if you see failures in your Function-backed actions after migrating an action type to Ontology roles.</p>
+<h3>Migration frequently asked questions</h3>
+<h4>Will there be any changes in object-aware applications?</h4>
+<p>Users may have access to metadata on object types and link types in the <a href="https://www.palantir.com/docs/foundry/ontology-manager/overview/">Ontology Manager</a> that they could not previously view because they did not have <code>Viewer</code> access to the input datasources. This does not mean they will get access to the data in the input datasources which is always governed by the roles on those datasources. The specifics of what metadata they will be able to see is determined by their <a href="https://www.palantir.com/docs/foundry/object-permissioning/ontology-permissions-legacy/#ontology-roles">Ontology role</a>.</p>
+<p>Object Explorer will also update the permission checks for editing Object Views when an object type is migrated. Before an object type is migrated, a user needs to be in the <code>Object View Administrators</code> group and have <code>Editor</code> access to the input datasources to edit Object Views. After an object type has been migrated, Object Explorer will only check that the user has <code>Ontology Editor</code> permissions on the object type itself.</p>
+<h4>How can I resolve a function-backed action that is failing post migration?</h4>
+<p>If Foundry failed to automatically detect the object types an Ontology Edit Function is editing, the action will fail after submission with the following error.</p>
+<p><img alt="Functions provenance error." src="../../_resources/foundry/ontology-manager/functions-provenance-error.png" /></p>
+<p>To resolve this error, follow the steps explained in the <a href="https://www.palantir.com/docs/foundry/functions/edits-overview/">Functions documentation</a>.</p>
+</body>
+</html>

@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Define data expectations</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Define data expectations</h1>
+<p><strong>Data expectations</strong> are a set of requirements defined in code on dataset, <a href="https://www.palantir.com/docs/foundry/data-integration/virtual-tables/">virtual table</a>, and <a href="https://www.palantir.com/docs/foundry/data-integration/iceberg-tables/">Iceberg table</a> inputs or outputs. These requirements, or "expectations," can be used to create checks that improve data pipeline stability. If a Data Expectation check fails as part of a dataset build, the build can be automatically aborted in order to save time and resources, and avoid issues in downstream data. Data Expectations are integrated with <a href="https://www.palantir.com/docs/foundry/health-checks/overview/">Data Health</a> for monitoring.</p>
+<p>Get started by viewing the <a href="https://www.palantir.com/docs/foundry/transforms-python/data-expectations-getting-started/">guide</a> in Python Transforms documentation, or see the <a href="https://www.palantir.com/docs/foundry/transforms-python/data-expectations-reference/">reference</a> of all available expectations.</p>
+<h2>Benefits of using Data Expectations</h2>
+<ul>
+<li><strong>Pipeline protection</strong> - Because Expectations run as part of the build, you can abort builds on failed expectations and prevent downstream failures and bad data from propagating to downstream resources.</li>
+<li><strong>Change management</strong> - Since Expectations are defined in Code Repositories, changing them will require the same pull-request review process that is set on your protected branches.</li>
+<li><strong>Proactive testing</strong> - Anticipate check failures before merging changes to protected branches by building them on a development branch</li>
+</ul>
+<h2>Terminology</h2>
+<ul>
+<li><strong>Expectation</strong> - A strongly typed requirement on the data structure or content (e.g. column is not null)</li>
+<li><strong>Check</strong> - A meaningful expectation (can be a composite of multiple expectations) that is connected to a single dataset (output or input) in a transform. A check has a name that will be used when identifying and monitoring it (e.g. âobject schema validationâ).</li>
+<li><strong>Pre-condition</strong> - A check that is assigned to an input of a transform, typically to validate essential assumptions on the inputs structure or content before proceeding with the build.</li>
+<li><strong>Post-condition</strong> - A check that is assigned to the output of the transform, typically to guarantee dataset SLAs are maintained and downstream dependencies are protected.</li>
+<li><strong>Check result</strong> - Produced when the check runs (during build) and contains information on the expectations result and their breakdown. The check result can be monitored in Data Health.</li>
+</ul>
+<h2>How does it work?</h2>
+<h3>Define</h3>
+<p>Data Expectations are defined on the dataset transform in the relevant Code Repository. Checks can be applied on the transform inputs and outputs (see <a href="https://www.palantir.com/docs/foundry/transforms-python/data-expectations-getting-started/">the guide</a> for details). The check name must be unique in a single transform.</p>
+<p>Alongside its expectation, a check defines how failures are handled during build time. When a check fails the build can either be aborted or resumed with a warning.</p>
+<p>The check is registered during CI on the relevant branch. Changing the expectations on protected branches will require a pull-request just like any other code change.</p>
+<p>:::callout{theme="neutral"}
+When making changes to protected branches, it is recommended to build the dataset on the development branch to ensure your Data Expectations are met before merging changes to the default branch.
+:::</p>
+<h3>Run</h3>
+<p>The registered checks will run as part of the build job. Failure to meet data expectations will be highlighted in the <a href="https://www.palantir.com/docs/foundry/data-integration/application-reference/#builds">Builds application</a> and in the dataset <a href="https://www.palantir.com/docs/foundry/dataset-preview/overview/#history">History tab</a>. If the check definition indicates FAIL on error, the job status will change to âAbortedâ with an appropriate error. In the Job timeline you can find the âExpectationsâ indicator; clicking on the indicator will show the check results and breakdown of the different expectations.</p>
+<p>:::callout{theme="neutral"}
+When a <strong>pre-condition</strong> fails the output of the transform will be aborted (rather than the input on which the pre-condition was defined). To abort builds of input datasets, the Data Expectation must be defined as a <strong>post-condition</strong> on the input dataset transform.
+:::</p>
+<h3>Monitor</h3>
+<p>Each check run produces a <em>result</em> that is reported to <a href="https://www.palantir.com/docs/foundry/health-checks/overview/">Data Health</a>. The most recent Data Expectations results will be presented in the Dataset Preview application <a href="https://www.palantir.com/docs/foundry/dataset-preview/overview/#health">Health tab</a> where notifications and issue triggers can be set (similar to other Data Health checks).</p>
+<p>:::callout{theme="neutral"}
+Remember that checks on a dataset are uniquely identified by their name. The history of a check, as well as its individual monitoring settings, will remain only as long as its name does not change. Changing the name of a check is equivalent to removing the old check and creating a new one in its place.
+:::</p>
+<h3>Incremental</h3>
+<p>All checks run on full datasets, regardless of the incremental nature of the transform.</p>
+<p>:::callout{theme="neutral"}
+For example, suppose we have a primary key check on the output of a transform running as incremental. Since data expectations checks are always run on the <em>full</em> dataset, the check will fail if a new primary key is included in the new transaction (which is about to be written, incrementally) and the same primary key has already been written (in a previous transaction).
+:::</p>
+</body>
+</html>

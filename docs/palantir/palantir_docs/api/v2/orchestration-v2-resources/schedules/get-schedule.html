@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Get Schedule</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../../../index.html">返回目录</a></div>
+<p><code>GET /api/v2/orchestration/schedules/{scheduleRid}</code></p>
+<p>:::callout{theme=warning title=Warning}
+  This endpoint is in preview and may be modified or removed at any time.
+  To use this endpoint, add <code>preview=true</code> to the request query parameters.
+:::</p>
+<p>Get the Schedule with the specified rid.</p>
+<p>Third-party applications using this endpoint via OAuth2 must request the following operation scope: <code>api:orchestration-read</code>.</p>
+<p><strong>OAuth2 scopes</strong>: <code>api:orchestration-read</code></p>
+<h2>Path parameters</h2>
+<table>
+<thead>
+<tr>
+<th>参数</th>
+<th>类型</th>
+<th>必填</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>scheduleRid</code></td>
+<td>string</td>
+<td>是</td>
+<td>The RID of a Schedule.<br>示例: <code>ri.scheduler.main.schedule.5ad5c340-59f3-4a60-9fc6-161bb984f871</code></td>
+</tr>
+</tbody>
+</table>
+<h2>Query parameters</h2>
+<table>
+<thead>
+<tr>
+<th>参数</th>
+<th>类型</th>
+<th>必填</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>preview</code></td>
+<td>boolean</td>
+<td>否</td>
+<td>Enables the use of preview functionality.<br>示例: <code>true</code></td>
+</tr>
+</tbody>
+</table>
+<h2>Response</h2>
+<p><strong>Schedule</strong></p>
+<table>
+<thead>
+<tr>
+<th>参数</th>
+<th>类型</th>
+<th>必填</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Schedule</code></td>
+<td>object</td>
+<td>是</td>
+<td>示例: <code>{"updatedTime":"2024-09-25T17:29:35.974Z","paused":false,"updatedBy":"f05f8da4-b84c-4fca-9c77-8af0b13d11de","createdBy":"f05f8da4-b84c-4fca-9c77-8af0b13d11de","displayName":"My Daily Schedule","currentVersionRid":"ri.scheduler.main.schedule-version.4d1eb55f-6c13-411c-a911-5d84e08d8017","description":"Run all the transforms at midnight","createdTime":"2024-09-25T17:29:35.974Z","action":{"abortOnFailure":false,"forceBuild":false,"retryBackoffDuration":{"unit":"SECONDS","value":30},"retryCount":1,"fallbackBranches":[],"branchName":"master","notificationsEnabled":false,"target":{"type":"manual","targetRids":["ri.foundry.main.dataset.b737e24d-6b19-43aa-93d5-da9fc4073f6e","ri.foundry.main.dataset.d2452a94-a755-4778-8bfc-a315ab52fc43"]}},"trigger":{"type":"time","cronExpression":"0 0 * * *","timeZone":"UTC"},"rid":"ri.scheduler.main.schedule.5ad5c340-59f3-4a60-9fc6-161bb984f871","scopeMode":{"type":"user"}}</code></td>
+</tr>
+<tr>
+<td><code>Schedule.rid</code></td>
+<td>string</td>
+<td>是</td>
+<td>The RID of a Schedule.<br>示例: <code>ri.scheduler.main.schedule.5ad5c340-59f3-4a60-9fc6-161bb984f871</code></td>
+</tr>
+<tr>
+<td><code>Schedule.displayName</code></td>
+<td>string</td>
+<td>否</td>
+<td>示例: <code>My Daily Schedule</code></td>
+</tr>
+<tr>
+<td><code>Schedule.description</code></td>
+<td>string</td>
+<td>否</td>
+<td>示例: <code>Run all the transforms at midnight</code></td>
+</tr>
+<tr>
+<td><code>Schedule.currentVersionRid</code></td>
+<td>string</td>
+<td>是</td>
+<td>The RID of the current schedule version</td>
+</tr>
+<tr>
+<td><code>Schedule.createdTime</code></td>
+<td>string</td>
+<td>是</td>
+<td>The time at which the resource was created.<br>示例: <code>2024-09-25T17:29:35.974Z</code></td>
+</tr>
+<tr>
+<td><code>Schedule.createdBy</code></td>
+<td>string</td>
+<td>是</td>
+<td>The Foundry user who created this resource<br>示例: <code>f05f8da4-b84c-4fca-9c77-8af0b13d11de</code></td>
+</tr>
+<tr>
+<td><code>Schedule.updatedTime</code></td>
+<td>string</td>
+<td>是</td>
+<td>The time at which the resource was most recently updated.<br>示例: <code>2024-09-25T17:29:35.974Z</code></td>
+</tr>
+<tr>
+<td><code>Schedule.updatedBy</code></td>
+<td>string</td>
+<td>是</td>
+<td>The Foundry user who last updated this resource<br>示例: <code>f05f8da4-b84c-4fca-9c77-8af0b13d11de</code></td>
+</tr>
+<tr>
+<td><code>Schedule.paused</code></td>
+<td>boolean</td>
+<td>是</td>
+<td>示例: <code>false</code></td>
+</tr>
+<tr>
+<td><code>Schedule.trigger</code></td>
+<td>union</td>
+<td>否</td>
+<td>The schedule trigger. If the requesting user does not have<br>permission to see the trigger, this will be empty.<br>示例: <code>{"type":"time","cronExpression":"0 0 * * *","timeZone":"UTC"}</code></td>
+</tr>
+<tr>
+<td><code>Schedule.trigger.jobSucceeded</code></td>
+<td>object</td>
+<td>否</td>
+<td>Trigger whenever a job succeeds on the dataset and on the target<br>branch.</td>
+</tr>
+<tr>
+<td><code>Schedule.trigger.jobSucceeded.datasetRid</code></td>
+<td>string</td>
+<td>是</td>
+<td>The Resource Identifier (RID) of a Dataset.<br>示例: <code>ri.foundry.main.dataset.c26f11c8-cdb3-4f44-9f5d-9816ea1c82da</code></td>
+</tr>
+<tr>
+<td><code>Schedule.trigger.jobSucceeded.branchName</code></td>
+<td>string</td>
+<td>是</td>
+<td>The name of a Branch.<br>示例: <code>master</code></td>
+</tr>
+<tr>
+<td><code>Schedule.trigger.or</code></td>
+<td>object</td>
+<td>否</td>
+<td>Trigger whenever any of the given triggers emit an event.</td>
+</tr>
+<tr>
+<td><code>Schedule.trigger.or.triggers</code></td>
+<td>list<Trigger></td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>Schedule.trigger.or.triggers.Trigger</code></td>
+<td>union</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>Schedule.trigger.newLogic</code></td>
+<td>object</td>
+<td>否</td>
+<td>Trigger whenever a new JobSpec is put on the dataset and on<br>that branch.</td>
+</tr>
+<tr>
+<td><code>Schedule.trigger.newLogic.branchName</code></td>
+<td>string</td>
+<td>是</td>
+<td>The name of a Branch.<br>示例: <code>master</code></td>
+</tr>
+<tr>
+<td><code>Schedule.trigger.newLogic.datasetRid</code></td>
+<td>string</td>
+<td>是</td>
+<td>The Resource Identifier (RID) of a Dataset.<br>示例: <code>ri.foundry.main.dataset.c26f11c8-cdb3-4f44-9f5d-9816ea1c82da</code></td>
+</tr>
+<tr>
+<td><code>Schedule.trigger.tableUpdated</code></td>
+<td>object</td>
+<td>否</td>
+<td>Trigger whenever a new transaction is committed to the<br>table on the target branch.</td>
+</tr>
+<tr>
+<td><code>Schedule.trigger.tableUpdated.tableRid</code></td>
+<td>string</td>
+<td>是</td>
+<td>The Resource Identifier (RID) of a Table.<br>示例: <code>ri.tables.main.table.beb574f7-019c-4a01-abd1-ff3c97bfaec8</code></td>
+</tr>
+<tr>
+<td><code>Schedule.trigger.tableUpdated.branchName</code></td>
+<td>string</td>
+<td>是</td>
+<td>The name of a Branch.<br>示例: <code>master</code></td>
+</tr>
+<tr>
+<td><code>Schedule.trigger.and</code></td>
+<td>object</td>
+<td>否</td>
+<td>Trigger after all of the given triggers emit an event.</td>
+</tr>
+<tr>
+<td><code>Schedule.trigger.and.triggers</code></td>
+<td>list<Trigger></td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>Schedule.trigger.and.triggers.Trigger</code></td>
+<td>union</td>
+<td>是</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>Schedule.trigger.datasetUpdated</code></td>
+<td>object</td>
+<td>否</td>
+<td>Trigger whenever a new transaction is committed to the<br>dataset on the target branch.</td>
+</tr>
+<tr>
+<td><code>Schedule.trigger.datasetUpdated.datasetRid</code></td>
+<td>string</td>
+<td>是</td>
+<td>The Resource Identifier (RID) of a Dataset.<br>示例: <code>ri.foundry.main.dataset.c26f11c8-cdb3-4f44-9f5d-9816ea1c82da</code></td>
+</tr>
+<tr>
+<td><code>Schedule.trigger.datasetUpdated.branchName</code></td>
+<td>string</td>
+<td>是</td>
+<td>The name of a Branch.<br>示例: <code>master</code></td>
+</tr>
+<tr>
+<td><code>Schedule.trigger.scheduleSucceeded</code></td>
+<td>object</td>
+<td>否</td>
+<td>Trigger whenever the specified schedule completes its action<br>successfully.</td>
+</tr>
+<tr>
+<td><code>Schedule.trigger.scheduleSucceeded.scheduleRid</code></td>
+<td>string</td>
+<td>是</td>
+<td>The RID of a Schedule.<br>示例: <code>ri.scheduler.main.schedule.5ad5c340-59f3-4a60-9fc6-161bb984f871</code></td>
+</tr>
+<tr>
+<td><code>Schedule.trigger.mediaSetUpdated</code></td>
+<td>object</td>
+<td>否</td>
+<td>Trigger whenever an update is made to a media set on the target<br>branch. For transactional media sets, this happens when a transaction<br>is committed. For non-transactional media sets, this event happens<br>eventually (but not necessary immediately) after an update.</td>
+</tr>
+<tr>
+<td><code>Schedule.trigger.mediaSetUpdated.mediaSetRid</code></td>
+<td>string</td>
+<td>是</td>
+<td>The Resource Identifier (RID) of a Media Set in Foundry.</td>
+</tr>
+<tr>
+<td><code>Schedule.trigger.mediaSetUpdated.branchName</code></td>
+<td>string</td>
+<td>是</td>
+<td>The name of a Branch.<br>示例: <code>master</code></td>
+</tr>
+<tr>
+<td><code>Schedule.trigger.time</code></td>
+<td>object</td>
+<td>否</td>
+<td>Trigger on a time based schedule.</td>
+</tr>
+<tr>
+<td><code>Schedule.trigger.time.cronExpression</code></td>
+<td>string</td>
+<td>是</td>
+<td>A standard CRON expression with minute, hour, day, month<br>and day of week.<br>示例: <code>0 0 * * 1-5</code></td>
+</tr>
+<tr>
+<td><code>Schedule.trigger.time.timeZone</code></td>
+<td>string</td>
+<td>是</td>
+<td>A string representation of a java.time.ZoneId<br>示例: <code>Europe/Paris</code></td>
+</tr>
+<tr>
+<td><code>Schedule.trigger.manual</code></td>
+<td>object</td>
+<td>否</td>
+<td>Only trigger the Schedule manually. If placed in an AND or OR condition, this Trigger will be ignored.</td>
+</tr>
+<tr>
+<td><code>Schedule.action</code></td>
+<td>object</td>
+<td>是</td>
+<td>示例: <code>{"abortOnFailure":false,"forceBuild":false,"retryBackoffDuration":{"unit":"SECONDS","value":30},"retryCount":1,"fallbackBranches":[],"branchName":"master","notificationsEnabled":false,"target":{"type":"manual","targetRids":["ri.foundry.main.dataset.b737e24d-6b19-43aa-93d5-da9fc4073f6e","ri.foundry.main.dataset.d2452a94-a755-4778-8bfc-a315ab52fc43"]}}</code></td>
+</tr>
+<tr>
+<td><code>Schedule.action.target</code></td>
+<td>union</td>
+<td>是</td>
+<td>The targets of the build.<br>示例: <code>{"type":"manual","targetRids":["ri.foundry.main.dataset.b737e24d-6b19-43aa-93d5-da9fc4073f6e","ri.foundry.main.dataset.d2452a94-a755-4778-8bfc-a315ab52fc43"]}</code></td>
+</tr>
+<tr>
+<td><code>Schedule.action.target.upstream</code></td>
+<td>object</td>
+<td>否</td>
+<td>Target the specified datasets along with all upstream datasets except the ignored datasets.</td>
+</tr>
+<tr>
+<td><code>Schedule.action.target.upstream.targetRids</code></td>
+<td>list<BuildableRid></td>
+<td>否</td>
+<td>The target datasets.</td>
+</tr>
+<tr>
+<td><code>Schedule.action.target.upstream.targetRids.BuildableRid</code></td>
+<td>string</td>
+<td>是</td>
+<td>The Resource Identifier (RID) of a Resource that can be built. For example, this is a Dataset RID, Media Set<br>RID or Restricted View RID.</td>
+</tr>
+<tr>
+<td><code>Schedule.action.target.upstream.ignoredRids</code></td>
+<td>list<BuildableRid></td>
+<td>否</td>
+<td>The datasets to ignore when calculating the final set of dataset to build.</td>
+</tr>
+<tr>
+<td><code>Schedule.action.target.upstream.ignoredRids.BuildableRid</code></td>
+<td>string</td>
+<td>是</td>
+<td>The Resource Identifier (RID) of a Resource that can be built. For example, this is a Dataset RID, Media Set<br>RID or Restricted View RID.</td>
+</tr>
+<tr>
+<td><code>Schedule.action.target.manual</code></td>
+<td>object</td>
+<td>否</td>
+<td>Manually specify all datasets to build.</td>
+</tr>
+<tr>
+<td><code>Schedule.action.target.manual.targetRids</code></td>
+<td>list<BuildableRid></td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>Schedule.action.target.manual.targetRids.BuildableRid</code></td>
+<td>string</td>
+<td>是</td>
+<td>The Resource Identifier (RID) of a Resource that can be built. For example, this is a Dataset RID, Media Set<br>RID or Restricted View RID.</td>
+</tr>
+<tr>
+<td><code>Schedule.action.target.connecting</code></td>
+<td>object</td>
+<td>否</td>
+<td>All datasets between the input datasets (exclusive) and the<br>target datasets (inclusive) except for the datasets to ignore.</td>
+</tr>
+<tr>
+<td><code>Schedule.action.target.connecting.inputRids</code></td>
+<td>list<BuildableRid></td>
+<td>否</td>
+<td>The upstream input datasets (exclusive).</td>
+</tr>
+<tr>
+<td><code>Schedule.action.target.connecting.inputRids.BuildableRid</code></td>
+<td>string</td>
+<td>是</td>
+<td>The Resource Identifier (RID) of a Resource that can be built. For example, this is a Dataset RID, Media Set<br>RID or Restricted View RID.</td>
+</tr>
+<tr>
+<td><code>Schedule.action.target.connecting.targetRids</code></td>
+<td>list<BuildableRid></td>
+<td>否</td>
+<td>The downstream target datasets (inclusive).</td>
+</tr>
+<tr>
+<td><code>Schedule.action.target.connecting.targetRids.BuildableRid</code></td>
+<td>string</td>
+<td>是</td>
+<td>The Resource Identifier (RID) of a Resource that can be built. For example, this is a Dataset RID, Media Set<br>RID or Restricted View RID.</td>
+</tr>
+<tr>
+<td><code>Schedule.action.target.connecting.ignoredRids</code></td>
+<td>list<BuildableRid></td>
+<td>否</td>
+<td>The datasets between the input datasets and target datasets to exclude.</td>
+</tr>
+<tr>
+<td><code>Schedule.action.target.connecting.ignoredRids.BuildableRid</code></td>
+<td>string</td>
+<td>是</td>
+<td>The Resource Identifier (RID) of a Resource that can be built. For example, this is a Dataset RID, Media Set<br>RID or Restricted View RID.</td>
+</tr>
+<tr>
+<td><code>Schedule.action.branchName</code></td>
+<td>string</td>
+<td>是</td>
+<td>The target branch the schedule should run on.<br>示例: <code>master</code></td>
+</tr>
+<tr>
+<td><code>Schedule.action.fallbackBranches</code></td>
+<td>list<BranchName></td>
+<td>否</td>
+<td>The branches to retrieve JobSpecs from if no JobSpec is found on the<br>target branch.<br>示例: <code>[]</code></td>
+</tr>
+<tr>
+<td><code>Schedule.action.fallbackBranches.BranchName</code></td>
+<td>string</td>
+<td>是</td>
+<td>The name of a Branch.</td>
+</tr>
+<tr>
+<td><code>Schedule.action.forceBuild</code></td>
+<td>boolean</td>
+<td>是</td>
+<td>Whether to ignore staleness information when running the build.<br>示例: <code>false</code></td>
+</tr>
+<tr>
+<td><code>Schedule.action.retryCount</code></td>
+<td>integer</td>
+<td>否</td>
+<td>The number of retry attempts for failed Jobs within the Build. A Job's failure is not considered final until<br>all retries have been attempted or an error occurs indicating that retries cannot be performed. Be aware,<br>not all types of failures can be retried.<br>示例: <code>1</code></td>
+</tr>
+<tr>
+<td><code>Schedule.action.retryBackoffDuration</code></td>
+<td>object</td>
+<td>否</td>
+<td>The duration to wait before retrying after a Job fails.<br>示例: <code>{"unit":"SECONDS","value":30}</code></td>
+</tr>
+<tr>
+<td><code>Schedule.action.retryBackoffDuration.value</code></td>
+<td>integer</td>
+<td>是</td>
+<td>The duration value.<br>示例: <code>30</code></td>
+</tr>
+<tr>
+<td><code>Schedule.action.retryBackoffDuration.unit</code></td>
+<td>enum</td>
+<td>是</td>
+<td>The unit of duration.<br>示例: <code>SECONDS</code></td>
+</tr>
+<tr>
+<td><code>Schedule.action.abortOnFailure</code></td>
+<td>boolean</td>
+<td>是</td>
+<td>If any job in the build is unsuccessful, immediately finish the<br>build by cancelling all other jobs.<br>示例: <code>false</code></td>
+</tr>
+<tr>
+<td><code>Schedule.action.notificationsEnabled</code></td>
+<td>boolean</td>
+<td>是</td>
+<td>Whether to receive a notification at the end of the build.<br>The notification will be sent to the user that has most recently edited the schedule.<br>No notification will be sent if the schedule has <code>scopeMode</code> set to <code>ProjectScope</code>.<br>示例: <code>false</code></td>
+</tr>
+<tr>
+<td><code>Schedule.scopeMode</code></td>
+<td>union</td>
+<td>是</td>
+<td>The boundaries for the schedule build.<br>示例: <code>{"type":"user"}</code></td>
+</tr>
+<tr>
+<td><code>Schedule.scopeMode.project</code></td>
+<td>object</td>
+<td>否</td>
+<td>The schedule will only build resources in the following projects.</td>
+</tr>
+<tr>
+<td><code>Schedule.scopeMode.project.projectRids</code></td>
+<td>list<ProjectRid></td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>Schedule.scopeMode.project.projectRids.ProjectRid</code></td>
+<td>string</td>
+<td>是</td>
+<td>The unique resource identifier (RID) of a Project.</td>
+</tr>
+<tr>
+<td><code>Schedule.scopeMode.user</code></td>
+<td>object</td>
+<td>否</td>
+<td>When triggered, the schedule will build all resources that the<br>associated user is permitted to build.</td>
+</tr>
+</tbody>
+</table>
+<pre><code class="language-json">{
+  &quot;updatedTime&quot;: &quot;2024-09-25T17:29:35.974Z&quot;,
+  &quot;paused&quot;: false,
+  &quot;updatedBy&quot;: &quot;f05f8da4-b84c-4fca-9c77-8af0b13d11de&quot;,
+  &quot;createdBy&quot;: &quot;f05f8da4-b84c-4fca-9c77-8af0b13d11de&quot;,
+  &quot;displayName&quot;: &quot;My Daily Schedule&quot;,
+  &quot;currentVersionRid&quot;: &quot;ri.scheduler.main.schedule-version.4d1eb55f-6c13-411c-a911-5d84e08d8017&quot;,
+  &quot;description&quot;: &quot;Run all the transforms at midnight&quot;,
+  &quot;createdTime&quot;: &quot;2024-09-25T17:29:35.974Z&quot;,
+  &quot;action&quot;: {
+    &quot;abortOnFailure&quot;: false,
+    &quot;forceBuild&quot;: false,
+    &quot;retryBackoffDuration&quot;: {
+      &quot;unit&quot;: &quot;SECONDS&quot;,
+      &quot;value&quot;: 30
+    },
+    &quot;retryCount&quot;: 1,
+    &quot;fallbackBranches&quot;: [],
+    &quot;branchName&quot;: &quot;master&quot;,
+    &quot;notificationsEnabled&quot;: false,
+    &quot;target&quot;: {
+      &quot;type&quot;: &quot;manual&quot;,
+      &quot;targetRids&quot;: [
+        &quot;ri.foundry.main.dataset.b737e24d-6b19-43aa-93d5-da9fc4073f6e&quot;,
+        &quot;ri.foundry.main.dataset.d2452a94-a755-4778-8bfc-a315ab52fc43&quot;
+      ]
+    }
+  },
+  &quot;trigger&quot;: {
+    &quot;type&quot;: &quot;time&quot;,
+    &quot;cronExpression&quot;: &quot;0 0 * * *&quot;,
+    &quot;timeZone&quot;: &quot;UTC&quot;
+  },
+  &quot;rid&quot;: &quot;ri.scheduler.main.schedule.5ad5c340-59f3-4a60-9fc6-161bb984f871&quot;,
+  &quot;scopeMode&quot;: {
+    &quot;type&quot;: &quot;user&quot;
+  }
+}
+</code></pre>
+<h2>Error responses</h2>
+<table>
+<thead>
+<tr>
+<th>错误码</th>
+<th>错误名称</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>NOT_FOUND</td>
+<td><code>ScheduleNotFound</code></td>
+<td>The given Schedule could not be found.</td>
+</tr>
+</tbody>
+</table>
+</body>
+</html>

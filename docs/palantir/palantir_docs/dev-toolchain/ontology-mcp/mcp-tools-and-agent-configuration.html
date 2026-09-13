@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MCP tools and agent configuration</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>MCP tools and agent configuration</h1>
+<h2>Action tool description</h2>
+<p>Use the <strong>Agent tool description</strong> field in the Ontology Manager application to update the description the agent sees when using the action as a tool. This allows you to provide specific guidance to AI agents about when and how to use each action. For example, an action that creates a new task and gets the project ID for linking the tasks could include instructions on how to obtain the project ID.</p>
+<p><img alt="The Agent tool description field in Ontology Manager." src="../../_resources/foundry/ontology-mcp/mcp-agent-tool-description.png" /></p>
+<h2>Using Ontology MCP with Claude skills</h2>
+<p><a href="https://docs.anthropic.com/en/docs/claude-code/skills">Claude skills â</a> are reusable instruction sets that extend what Claude can do. You can integrate Ontology MCP (OMCP) tools with your skills to encode more complex business logic into your agent.</p>
+<p>In the example below, a skill named <code>get-or-create-task</code> guides the agent on how to use both the search tool and the create task action tool in combination. This prevents duplicate tasks from being created by first searching for an existing task before creating a new one.</p>
+<pre><code class="language-markdown">---
+name: get-or-create-task
+description: Searches for a task by title in a project, returns it if found, or creates a new task if not found
+---
+
+# Get or create task
+
+Find an existing task by title within a project, or create a new task if no match is found.
+
+## Instructions
+
+1. Search for the task by title using the search tool:
+   - Tool: `search-osdk-todo-task`
+   - Filter results by `project_id` if provided
+
+2. Evaluate results:
+   - If a match is found, return the existing task details
+   - If multiple matches are found, use the first match
+   - If no matches are found, proceed to create a new task
+
+3. Create a new task using the create task action tool:
+   - Tool: `create-osdk-todo-task`
+   - Required parameters: `title`, `project_id`
+   - Optional parameters: `description`, `status`, `assigned_to`, `start_date`, `due_date`
+
+4. Return the task details including ID, title, project, status, and assignee
+</code></pre>
+<h2>Microsoft Copilot Studio integration</h2>
+<p>Microsoft Copilot Studio integration only supports <a href="https://www.palantir.com/docs/foundry/platform-security-third-party/writing-oauth2-clients/#authorization-code-grant">authorization code grant</a> in a Confidential Client. This means that when creating the <a href="https://www.palantir.com/docs/foundry/developer-console/overview/">Developer Console application</a> for your Ontology MCP integration with Microsoft Copilot Studio, you should choose <a href="https://www.palantir.com/docs/foundry/developer-console/how-to-bootstrapping-server-side-typescript/#1-create-an-osdk-package-using-developer-console"><strong>Backend service</strong></a> and <strong>User's permissions</strong>. This will create the required service user that Copilot Studio uses to issue the token on behalf of your users.</p>
+<h3>Using Adaptive Cards to format and display Ontology MCP data</h3>
+<p>Developed by Microsoft, <a href="https://adaptivecards.microsoft.com/">Adaptive Cards â</a> are a versatile UI framework for Teams, Copilot, and Outlook integrations. When paired with Ontology MCP tools, Adaptive Cards let your agent return structured data from your ontology and display it as a formatted card rather than plain text.</p>
+<p><img alt="An Adaptive Card rendered in Microsoft Teams showing a customer portfolio with risk status and renewal dates." src="../../_resources/foundry/ontology-mcp/mcp-adaptive-card-in-teams.png" /></p>
+<p>Additionally, you can use <code>Action.OpenUrlDialog</code> in your Adaptive Cards to trigger a URL that opens a custom dialog in Teams or Copilot, allowing users to interact with the data returned from your Ontology MCP tools.</p>
+<p><img alt="An example of an Adaptive Card with an Action.OpenUrlDialog button that opens a custom dialog in Teams." src="../../_resources/foundry/ontology-mcp/mcp-adaptive-card-open-url-dialog.png" /></p>
+<h4>Prerequisites</h4>
+<p>Before you begin, install the following VS Code extensions:</p>
+<ul>
+<li><a href="https://marketplace.visualstudio.com/items?itemName=TeamsDevApp.ms-teams-vscode-extension">Microsoft 365 Agents Toolkit â</a></li>
+<li><a href="https://marketplace.visualstudio.com/items?itemName=TeamsDevApp.vscode-adaptive-cards">Adaptive Card Previewer â</a></li>
+</ul>
+<h4>Configure your Ontology MCP server in VS Code</h4>
+<p>Create a <code>.vscode/mcp.json</code> file in your project to connect VS Code to your Ontology MCP server:</p>
+<pre><code class="language-json">{
+  &quot;inputs&quot;: [],
+  &quot;servers&quot;: {
+    &quot;todo-confidential&quot;: {
+      &quot;type&quot;: &quot;http&quot;,
+      &quot;url&quot;: &quot;&lt;your-ontology-mcp-server-url&gt;&quot;,
+      &quot;headers&quot;: {
+        &quot;Authorization&quot;: &quot;Bearer ${env:FOUNDRY_TOKEN}&quot;,
+        &quot;Accept&quot;: &quot;application/json, text/event-stream&quot;
+      }
+    }
+  }
+}
+</code></pre>
+<p>Replace <code>&lt;your-ontology-mcp-server-url&gt;</code> with your Ontology MCP server's URL, which you can find in your Developer Console application.</p>
+<h4>Create an adaptive agent</h4>
+<ol>
+<li>Select <strong>Start</strong> in the Microsoft 365 Agents Toolkit panel and connect to your Ontology MCP server.</li>
+</ol>
+<p><img alt="An example mcp.json file is displayed, connecting the Microsoft 365 Agents Toolkit to an Ontology MCP server." src="../../_resources/foundry/ontology-mcp/mcp-vs-code-mcp-json.png" /></p>
+<ol start="2">
+<li>Follow the guided steps in the Microsoft 365 Agents Toolkit to create a new adaptive agent.</li>
+</ol>
+<p><img alt="The Microsoft 365 Agents Toolkit VS Code extension is displayed." src="../../_resources/foundry/ontology-mcp/mcp-agent-toolkit.png" /></p>
+<h4>Add capabilities to your agent</h4>
+<p>To render an Adaptive Card from the Ontology MCP tool output, add a <code>capabilities</code> block to your agent's tool definition. The <code>static_template</code> property points to an Adaptive Card template file that defines how the returned data is displayed.</p>
+<p>The following example configures a <code>GetCustomerList</code> tool to render its response using an Adaptive Card:</p>
+<pre><code class="language-json">{
+    &quot;name&quot;: &quot;GetCustomerList&quot;,
+    &quot;description&quot;: &quot;List all customers.\n\n    Returns:\n        A list of CustomerSummary objects with key customer properties.&quot;,
+    &quot;parameters&quot;: {
+        &quot;type&quot;: &quot;object&quot;,
+        &quot;properties&quot;: {},
+        &quot;required&quot;: []
+    },
+    &quot;capabilities&quot;: {
+        &quot;response_semantics&quot;: {
+            &quot;data_path&quot;: &quot;$&quot;,
+            &quot;static_template&quot;: {
+                &quot;file&quot;: &quot;adaptiveCards/customerList.json&quot;
+            }
+        }
+    }
+}
+</code></pre>
+<p>The <code>data_path</code> property specifies the JSON path to the data in the tool response, and <code>static_template.file</code> points to the Adaptive Card template that renders the data.</p>
+<h4>Optional: Generate Adaptive Cards with a Claude skill</h4>
+<p>You can create a <a href="#using-ontology-mcp-with-claude-skills">Claude skill</a> that automatically generates Adaptive Card templates based on the schema of your Ontology MCP tools. First, follow the instructions on the <a href="https://www.palantir.com/docs/foundry/developer-console/ontology-mcp/">Developer Console MCP page</a> to connect your Ontology MCP server to Claude Code. Then, save the following skill file to your project's <code>.claude/skills</code> directory, such as the <code>.claude/skills/build-adaptive-card.md</code> example below:</p>
+<pre><code class="language-markdown">---
+name: build-adaptive-card
+description: Build an Adaptive Card for a specific MCP tool connected to Claude Code
+---
+
+# Build Adaptive Card for MCP Tool
+
+You are helping the user build an Adaptive Card for a specific MCP tool that is connected
+to Claude Code in this session.
+
+## Instructions
+
+Follow these steps precisely:
+
+### Step 1: Identify the target tool
+
+Ask the user which MCP tool they want to build an Adaptive Card for. List the available
+MCP tools you know about from the connected MCP server. If the user has already named the
+tool, skip asking.
+
+### Step 2: Call the tool to get a real response sample
+
+Call the named MCP tool with minimal or sample arguments to get a real response. If the
+tool requires arguments, use the most minimal and representative ones possible. Capture the
+full JSON response.
+
+If the tool requires arguments you cannot guess, ask the user for sample argument values
+before calling.
+
+### Step 3: Validate the response shape
+
+Inspect each property of the returned object. If any property value is a string that is
+itself valid JSON (starts with `[` or `{` and parses as JSON), the tool is double-serializing
+its output. Stop and tell the user:
+
+&gt; The tool is returning its data as a JSON-encoded string instead of a native JSON
+&gt; object or array. Adaptive Card templates cannot bind to a string. Fix the MCP server
+&gt; tool implementation to return a native Python dict or list instead of `json.dumps(...)`.
+
+Do not proceed until the user confirms the tool has been fixed.
+
+If the response is valid JSON, determine:
+- Is the top-level response an object with a `value` array? (MCP envelope pattern)
+- Or is it a flat array or a single object?
+- What are the field names, types, and which fields are nullable?
+- Which fields are numeric and might benefit from formatting (currency, percentages)?
+
+### Step 4: Generate the Adaptive Card JSON
+
+Create an Adaptive Card (version 1.5) following these rules:
+
+**Template binding:**
+- If response is `{&quot;value&quot;: [...]}`, use `&quot;$data&quot;: &quot;${value}&quot;` on the repeating Container
+- If response is a flat array, use `&quot;$data&quot;: &quot;${$root}&quot;` on the repeating Container
+- If response is a single object, bind fields directly with `${fieldName}`
+
+**Card structure:**
+- Start with a header Container (`style: &quot;emphasis&quot;`, `bleed: true`) with a title TextBlock
+- For list responses: use a repeating Container with a ColumnSet inside
+- For single-object responses: use a FactSet or labeled rows
+- Use `&quot;wrap&quot;: true` on all TextBlocks
+- For nullable fields, add `&quot;$when&quot;: &quot;${field != null}&quot;` guards
+- For currency fields: use `formatNumber` for display formatting
+- For status color coding: use conditional `if()` expressions
+- Do NOT use `.length` on arrays (not supported in template language)
+- Do NOT use date functions, structs, arrays, or window functions
+
+**File naming:** `appPackage/adaptiveCards/&lt;toolName&gt;.json` (camelCase the tool name)
+
+Write the card JSON to `appPackage/adaptiveCards/&lt;toolName&gt;.json`.
+
+Next, write a companion `.data.json` file at `appPackage/adaptiveCards/&lt;toolName&gt;.data.json`
+containing the actual sample response for design-time preview data.
+
+### Step 5: Wire up response_semantics in ai-plugin.json
+
+Read `appPackage/ai-plugin.json`. Find the function entry matching the tool name. Add or
+update the `capabilities` block:
+
+```json
+&quot;capabilities&quot;: {
+    &quot;response_semantics&quot;: {
+        &quot;data_path&quot;: &quot;$&quot;,
+        &quot;static_template&quot;: {
+            &quot;file&quot;: &quot;adaptiveCards/&lt;toolName&gt;.json&quot;
+        }
+    }
+}
+```
+
+### Step 6: Report to the user
+
+Print a summary of the card file created, the data sample file created, the function updated
+in `ai-plugin.json`, the `data_path` used, and key design decisions made.
+
+## Key constraints
+
+- `response_semantics` must be inside `capabilities`, not directly on the function
+- `static_template` uses `&quot;file&quot;: &quot;adaptiveCards/foo.json&quot;` (the toolkit inlines at build time)
+- Adaptive Card template language does not support `.length`
+- `$schema` for the card: `&quot;http://adaptivecards.io/schemas/adaptive-card.json&quot;`
+- Card version: `&quot;1.5&quot;`
+</code></pre>
+<p>Save your skill and invoke it in Claude Code with a prompt like <code>Build a card for the GetCustomerList tool</code>. The skill calls the MCP tool, inspects the response shape, generates the Adaptive Card template, and wires it into your agent configuration. <a href="#using-ontology-mcp-with-claude-skills">Learn more about how to create and use Claude skills with Ontology MCP</a>.</p>
+<p>:::callout{theme="info"}
+See the <a href="https://www.youtube.com/watch?v=QMKRMEuCoaU">Palantir DevCon4 presentation and demo â</a> for additional examples and guidance on using Ontology MCP.
+:::</p>
+</body>
+</html>

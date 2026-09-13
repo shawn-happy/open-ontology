@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Get Export Job</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../../../index.html">返回目录</a></div>
+<p><code>GET /api/v2/notepad/exportJobs/{exportJobRid}</code></p>
+<p>:::callout{theme=warning title=Warning}
+  This endpoint is in preview and may be modified or removed at any time.
+  To use this endpoint, add <code>preview=true</code> to the request query parameters.
+:::</p>
+<p>Loads an ExportJob. This endpoint is used to monitor job progress.</p>
+<p>Third-party applications using this endpoint via OAuth2 must request the following operation scope: <code>api:notepad-export</code>.</p>
+<p><strong>OAuth2 scopes</strong>: <code>api:notepad-export</code></p>
+<h2>Path parameters</h2>
+<table>
+<thead>
+<tr>
+<th>参数</th>
+<th>类型</th>
+<th>必填</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>exportJobRid</code></td>
+<td>string</td>
+<td>是</td>
+<td>The unique identifier for an ExportJob<br>示例: <code>ri.notepad.main.export-job.ef32c039-353c-4555-9704-eacfdfaa2c1c</code></td>
+</tr>
+</tbody>
+</table>
+<h2>Query parameters</h2>
+<table>
+<thead>
+<tr>
+<th>参数</th>
+<th>类型</th>
+<th>必填</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>preview</code></td>
+<td>boolean</td>
+<td>否</td>
+<td>Enables the use of preview functionality.<br>示例: <code>true</code></td>
+</tr>
+</tbody>
+</table>
+<h2>Response</h2>
+<p><strong>ExportJob</strong></p>
+<table>
+<thead>
+<tr>
+<th>参数</th>
+<th>类型</th>
+<th>必填</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ExportJob</code></td>
+<td>object</td>
+<td>是</td>
+<td>示例: <code>{"rid":"ri.notepad.main.export-job.ef32c039-353c-4555-9704-eacfdfaa2c1c","status":{"type":"running"}}</code></td>
+</tr>
+<tr>
+<td><code>ExportJob.rid</code></td>
+<td>string</td>
+<td>是</td>
+<td>The unique identifier for an ExportJob<br>示例: <code>ri.notepad.main.export-job.ef32c039-353c-4555-9704-eacfdfaa2c1c</code></td>
+</tr>
+<tr>
+<td><code>ExportJob.status</code></td>
+<td>union</td>
+<td>是</td>
+<td>The status of an export job<br>示例: <code>{"type":"running"}</code></td>
+</tr>
+<tr>
+<td><code>ExportJob.status.running</code></td>
+<td>object</td>
+<td>否</td>
+<td>The export job is currently running</td>
+</tr>
+<tr>
+<td><code>ExportJob.status.failed</code></td>
+<td>object</td>
+<td>否</td>
+<td>The export job failed</td>
+</tr>
+<tr>
+<td><code>ExportJob.status.failed.errorMessage</code></td>
+<td>string</td>
+<td>是</td>
+<td>The error message explaining why the export failed</td>
+</tr>
+<tr>
+<td><code>ExportJob.status.failed.errorCode</code></td>
+<td>string</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ExportJob.status.failed.errorInstanceId</code></td>
+<td>string</td>
+<td>否</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ExportJob.status.succeeded</code></td>
+<td>object</td>
+<td>否</td>
+<td>The export job succeeded</td>
+</tr>
+<tr>
+<td><code>ExportJob.status.succeeded.fileRid</code></td>
+<td>string</td>
+<td>是</td>
+<td>The File containing the exported content<br>示例: <code>ri.notepad.main.file.cf32c039-353c-4555-9704-eacfdfaa2c1c</code></td>
+</tr>
+</tbody>
+</table>
+<pre><code class="language-json">{
+  &quot;rid&quot;: &quot;ri.notepad.main.export-job.ef32c039-353c-4555-9704-eacfdfaa2c1c&quot;,
+  &quot;status&quot;: {
+    &quot;type&quot;: &quot;running&quot;
+  }
+}
+</code></pre>
+<h2>Error responses</h2>
+<table>
+<thead>
+<tr>
+<th>错误码</th>
+<th>错误名称</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>NOT_FOUND</td>
+<td><code>ExportJobNotFound</code></td>
+<td>The given ExportJob could not be found.</td>
+</tr>
+</tbody>
+</table>
+</body>
+</html>

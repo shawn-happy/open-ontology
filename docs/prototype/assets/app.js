@@ -134,7 +134,8 @@
      */
     mount(cfg) {
       const inSpace = !['home', 'workspace', 'system'].includes(cfg.page);
-      this._lastCfg = cfg; // 空间切换后整页重挂载使用
+      this._lastCfg = cfg; 
+      // 空间切换后整页重挂载使用
       // 空间内页面：面包屑首位动态替换为当前空间名
       const crumbs = (cfg.crumbs || []).slice();
       if (inSpace && WORKSPACES.includes(crumbs[0])) crumbs[0] = WS;
@@ -212,7 +213,8 @@
       WS = name;
       localStorage.setItem('oo-ws', WS);
       toast('已切换到空间：' + WS);
-      this.mount(this._lastCfg); // 重挂载以刷新下拉选中态
+      this.mount(this._lastCfg); 
+      // 重挂载以刷新下拉选中态
     },
 
     /** 从工作空间列表进入某个空间 */

@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pipeline Builder</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Pipeline Builder</h1>
+<p>Pipeline Builder is Foundry's primary application for data integration. You can use Pipeline Builder to build data integration pipelines that transform raw data sources into clean outputs ready for further analysis.</p>
+<p>With Pipeline Builder and a robust backend model, users who code and users who do not code can collaborate jointly on a pipeline workflow. Pipeline Builder leverages both Spark and Flink as part of its architecture while incorporating a variety of advanced features supported by Palantir-developed custom libraries and services. Instead of writing code that requires lengthy health checks, Pipeline Builder integrates various programming languages beneath a streamlined builder point-and-click interface through which users apply data transforms without the need for specialized programming language knowledge.</p>
+<p>Pipeline Builder uses a next-generation data transformation backend specifically designed to act as an intermediary between logic creation and execution. As users describe the pipeline they want to build, the backend writes transform code and performs checks on pipeline integrity, identifying refactoring errors and offering solutions to ensure a healthy build. With the backend acting as a middle layer between logic creation and execution, builders can solve schema problems before a pipeline is built and save time previously spent on computation and code checks.</p>
+<p><img alt="Screenshot of a Pipeline" src="../../_resources/foundry/pipeline-builder/pipe-overview@2x.png" /></p>
+<h2>Features</h2>
+<p>Pipeline Builder includes features focusing on comprehensive pipeline creation, maintenance, and control.</p>
+<ul>
+<li>
+<p><strong>Intuitive user interface:</strong> Users write pipelines using graph and form-based interfaces that provide feedback, including join keys and column casting suggestions.</p>
+</li>
+<li>
+<p><strong>Type-safe functions:</strong> Functions are strongly typed and can flag errors immediately instead of at build time.</p>
+</li>
+<li>
+<p><strong>Strict output checks:</strong> If the expected output checks are not met, builds are prevented to avoid unintentional downstream breaks.</p>
+</li>
+<li>
+<p><strong>Automatic build path pruning:</strong> Pipeline Builder will prune transform paths that are not connected to outputs to avoid unnecessary computation in builds.</p>
+</li>
+<li>
+<p><strong>Abstract implementation details:</strong> Users focus on describing their end-to-end pipeline and desired outputs. Builds, syncs, and other orchestrations are handled automatically by the Pipeline Builder backend.</p>
+</li>
+<li>
+<p><strong>Independent pipeline logic:</strong> Pipeline Builder can connect to different logic execution engines, including Spark, Flink, Azure instances, and more.</p>
+</li>
+<li>
+<p><strong>Reusability:</strong> Use <a href="https://www.palantir.com/docs/foundry/pipeline-builder/subgraphs/">subgraphs</a> to extract and reuse pipeline logic as reusable blocks.</p>
+</li>
+<li>
+<p><strong>Full version control:</strong> Users can draft a pipeline separately, collaborate on one pipeline, or revert to previous versions.</p>
+</li>
+<li>
+<p><strong>Media processing transformations:</strong> Users can pass media sets as transform inputs within their pipeline.</p>
+</li>
+<li>
+<p><strong>Large Language Models (LLMs):</strong> Use LLMs and AIP to transform your data. Use the <a href="https://www.palantir.com/docs/foundry/pipeline-builder/evaluation-suite/">LLM evaluation suite</a> to test your LLM transforms before deployment.</p>
+</li>
+<li>
+<p><strong>Trained models:</strong> Import machine learning models to generate predictions within your pipeline.</p>
+</li>
+<li>
+<p><strong>Model Studio integration:</strong> Open datasets directly in Model Studio for model training using the <strong>Train in Model Studio</strong> action.</p>
+</li>
+<li>
+<p><strong>Geospatial transformations:</strong> Use Pipeline Builder to load, transform, and yield different forms of geospatial data.</p>
+</li>
+<li>
+<p><strong>Faster pipelines:</strong> Build faster batch and incremental pipelines powered by DataFusion that significantly improve execution speed, especially for pipelines that typically run in under 15 minutes. Learn how to <a href="https://www.palantir.com/docs/foundry/building-pipelines/create-faster-pipeline-pb/">create a faster pipeline</a>.</p>
+</li>
+<li>
+<p><strong>Streaming capability:</strong> Pipeline Builder offers the ability to write pipelines that execute with real-time latencies. This feature is not available on all Foundry environments. Contact your Palantir representative if your workflow requires the availability of streaming pipelines.</p>
+</li>
+<li>
+<p><strong>External pipelines:</strong> Push down compute to external systems such as Databricks and Snowflake using <a href="https://www.palantir.com/docs/foundry/building-pipelines/create-external-pipeline-pb/">external pipelines</a>. External pipelines require <a href="https://www.palantir.com/docs/foundry/data-integration/virtual-tables/">virtual table</a> inputs and outputs from the same source as your compute.</p>
+</li>
+</ul>
+<h2>Workflow</h2>
+<p>Pipeline Builder follows a workflow comprising the following steps from importing data to delivering a healthy build.</p>
+<ul>
+<li><strong>Inputs:</strong> Add a new data source or add additional datasets.</li>
+<li><strong>Transform:</strong> Transform, join, or union data towards the desired output.</li>
+<li><strong>Preview:</strong> After applying transformations, preview the output.</li>
+<li><strong>Deliver:</strong> Once the pipeline is complete, build the pipeline outputs.</li>
+<li><strong>Outputs:</strong> Add an object type, link type, or dataset output for your pipeline.</li>
+</ul>
+<p><img alt="Screenshot of a pipeline" src="../../_resources/foundry/pipeline-builder/overview-flowchart@2x.png" /></p>
+<p>When visualized on a Pipeline Builder graph, this is how the steps might be demonstrated:</p>
+<p><img alt="Screenshot of a pipeline with separated columns indicating different steps" src="../../_resources/foundry/pipeline-builder/workflow-graph@2x.png" /></p>
+<p>Learn how to <a href="https://www.palantir.com/docs/foundry/building-pipelines/create-batch-pipeline-pb/">create a simple batch pipeline</a>, <a href="https://www.palantir.com/docs/foundry/building-pipelines/create-external-pipeline-pb/">create an external pipeline</a>, or learn more about the <a href="https://www.palantir.com/docs/foundry/pipeline-builder/core-concepts/">core concepts</a> of building and managing pipelines in Pipeline Builder. To prepare unstructured text for embeddings and semantic search, learn how to <a href="https://www.palantir.com/docs/foundry/ontology/document-processing/#chunking">chunk text with the Chunk string board</a>.</p>
+<p>:::callout{theme="success" title="Palantir Learning portal"}
+Try to build out your first pipeline in a course on <a href="https://learn.palantir.com/deep-dive-building-your-first-pipeline">learn.palantir.com â</a>.
+:::</p>
+<p>:::callout{theme="neutral" title="Tips and tricks"}
+For guidance on working faster, improving performance, and organizing pipelines, see <a href="https://www.palantir.com/docs/foundry/pipeline-builder/tips-and-tricks/">Pipeline Builder tips and tricks</a>.
+:::</p>
+</body>
+</html>

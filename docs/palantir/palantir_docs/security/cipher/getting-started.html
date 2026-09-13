@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Getting started</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Getting started</h1>
+<p>This guide includes the following sections:</p>
+<ul>
+<li><a href="#create-a-cipher-channel">Create a Cipher Channel</a></li>
+<li><a href="#issue-a-license">Issue a License</a></li>
+<li><a href="#walkthrough-guide">Walkthrough Guide</a></li>
+</ul>
+<h2>Create a Cipher Channel</h2>
+<p>When creating a Cipher Channel you will first be asked to choose a cryptographic algorithm before creating a secret. There are two ways to create a new Cipher Channel:</p>
+<h3>Option 1: Create a Cipher Channel through the platform filesystem</h3>
+<p>Navigate to the Project of your choice and create a new Cipher Channel by selecting <strong>+ New</strong> &gt; <strong>Cipher Channel</strong>. Select the algorithm of your choice; we recommend AES_SIV (AES-256-SIV) to perform joins on encrypted values.</p>
+<p><img src="../../_resources/external-8e2623e1fca8.png" alt="Channel action" width="450"></p>
+<p>:::callout{theme="neutral"}
+If you do not have the ability to create a Cipher Channel in your Foundry filesystem, contact your Palantir representative for assistance.
+:::</p>
+<h3>Option 2: Create a Cipher Channel through the Cipher application</h3>
+<p>Navigate to the left side of the panel and look for Cipher under <strong>Platform Apps</strong> &gt; <strong>Data Governance</strong>, and follow the same instructions as under Option 1.</p>
+<p><img src="../../_resources/external-c724b958d5d2.png" alt="Channel Dialog" width="450"></p>
+<h3>How to choose your cryptographic algorithm</h3>
+<p>The on-screen guide will walk you through the process of creating a Cipher Channel with your desired protocols. The following are additional details that may assist you in deciding which configuration to choose from for your use case:</p>
+<ul>
+<li><strong>Algorithm:</strong> Cipher currently supports the following algorithms:</li>
+<li>Text-based: AES_GCM_SIV Probabilistic Encryption Algorithm, AES_SIV (AES-256-SIV) Deterministic Encryption Algorithm, SHA-256 Hashing Algorithm (with a pepper), and SHA-512 Hashing Algorithm (with a pepper).</li>
+<li>Image-based: <a href="https://www.palantir.com/docs/foundry/cipher/visual-obfuscation/">Visual Obfuscation Image Scrambling</a>.</li>
+</ul>
+<p>The key difference between hashing and encryption is that <strong>encrypted</strong> values can be decrypted if a user has proper permissions, while <strong>hashed</strong> values cannot be de-obfuscated or re-identified through a cryptographic operation. If your use case requires re-identification, we recommend using encryption.</p>
+<p>The key difference between probabilistic and deterministic encryption is the following:</p>
+<ul>
+<li><strong>Probabilistic encryption:</strong> The same input will always lead to a different output.</li>
+<li><strong>Deterministic encryption:</strong> The same input will always lead to the same output.</li>
+<li><strong>Hashing:</strong> Always deterministic.</li>
+</ul>
+<p>The Visual Obfuscation Image Scrambling algorithm is deterministic and reversible.</p>
+<p>Some considerations that should be taken into account when choosing between deterministic and probabilistic algorithms are:</p>
+<ul>
+<li>If you need to perform joins or aggregations on encrypted data, you need a deterministic algorithm.</li>
+<li>If the data you want to encrypt has low cardinality or well-known statistical distribution, you may want to choose a probabilistic algorithm in order to limit the risk of dictionary or statistical attacks against the encrypted data.</li>
+</ul>
+<h3>How to Configure your Cryptosystem Keys</h3>
+<p>The on-screen guide will walk you through the process of configuring your cryptosystem. Depending on which cryptographic algorithm you previously chose, you will have different secret formats to choose from to protect your sensitive data.</p>
+<ul>
+<li><strong>Secrets:</strong></li>
+<li><strong>Encryption:</strong> There are two key retrieval methods that allow you to derive a key from your secret:<ul>
+<li>Stretching key derivation (Recommended): The Cipher service will derive a key from your secret by applying a method that traditionally strengthens the key. Note that you can randomly generate a secret by clicking on the key button.</li>
+<li>Single key: This methodology does not include derivation functions. We recommend using this if you already have a well-designed AES_SIV key that you would like to use as the key itself. This should be inputted as a base64-encoded string of length 64.</li>
+</ul>
+</li>
+<li><strong>Hashing:</strong> Hash secret creation:<ul>
+<li>We recommend creating a hash secret yourself by running a command in your terminal (minimum 14 characters and randomly generated).</li>
+<li>Alternatively, you can randomly generate a secret by clicking on the key button.</li>
+</ul>
+</li>
+<li><strong>Visual Obfuscation:</strong> Image scrambling seed:<ul>
+<li>Provide a long, random number that will be used as a seed to generate the sequence to rearrange and modify the pixels in the image.</li>
+</ul>
+</li>
+</ul>
+<p>Clicking on <strong>Create cipher channel</strong> will conclude the Cipher Channel creation process.</p>
+<h2>Issue a License</h2>
+<p>To issue Cipher Licenses, navigate to a Cipher Channel and click on the <strong>Create New Cipher License</strong> button.</p>
+<p><img alt="Issue a Cipher License" src="../../_resources/foundry/cipher/license_permit_types.png" /></p>
+<p>:::callout{theme="warning"}
+To grant a user access to the operations permitted by a Cipher License, give them View access to the License.
+:::</p>
+<p>You can choose between three types of Licenses:</p>
+<ul>
+<li><a href="#operational-user-license">Operational User License</a></li>
+<li><a href="#data-manager-license">Data Manager License</a></li>
+<li><a href="#admin-license">Admin License</a></li>
+</ul>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>Operational User License</th>
+<th>Data Manager License</th>
+<th>Admin License</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Auditable at the cell level</td>
+<td>â</td>
+<td>â</td>
+<td>â</td>
+</tr>
+<tr>
+<td>Can enforce a rate limit</td>
+<td>â</td>
+<td>â</td>
+<td>â</td>
+</tr>
+<tr>
+<td>Used to encrypt/decrypt <a href="https://www.palantir.com/docs/foundry/cipher/apply-operations/">entire columns</a></td>
+<td>â</td>
+<td>â</td>
+<td>â</td>
+</tr>
+<tr>
+<td>Effectively grants access to cryptographic keys</td>
+<td>â</td>
+<td>â</td>
+<td>â ï¸</td>
+</tr>
+<tr>
+<td><strong>Usable in</strong></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Object Layer (Workshop, Object Explorer, ...)</td>
+<td>â</td>
+<td>â</td>
+<td>â</td>
+</tr>
+<tr>
+<td>Functions (see <a href="#bypass-checkpoints">bypassing checkpoints</a>)</td>
+<td>â</td>
+<td>â</td>
+<td>â</td>
+</tr>
+<tr>
+<td>Pipeline Builder</td>
+<td>â</td>
+<td>â</td>
+<td>â</td>
+</tr>
+<tr>
+<td>Contour</td>
+<td>â</td>
+<td>â</td>
+<td>â</td>
+</tr>
+<tr>
+<td>Code Authoring</td>
+<td>â</td>
+<td>â</td>
+<td>â</td>
+</tr>
+</tbody>
+</table>
+<h3>Operational User License</h3>
+<p>An <strong>Operational User License</strong> (formerly "Frontend License") enables Foundry users to encrypt or decrypt individual values.</p>
+<p>The two configurable permissions for Operational User Licenses are:</p>
+<ul>
+<li><strong>Encryption/hashing of individual values:</strong> Single-value encryption or hashing through the Foundry applications. You can set a rate limit counter for this operation.</li>
+<li><strong>Decryption of individual values:</strong> Single-value decryption through the Foundry applications. You can set a rate limit counter for this operation. This configuration can be helpful to allow users to view specific encrypted values through frontends such as <a href="https://www.palantir.com/docs/foundry/cipher/decrypt-individual-values/">Workshop and Object Explorer</a>.</li>
+</ul>
+<p>:::callout{theme="neutral"}
+A rate limit is an optional configuration which indicates the number of single-value cryptographic operations an individual is allowed in the configured time. Should a user exceed the limit, they will be blocked until the period resets.
+:::</p>
+<p>:::callout{theme="neutral"}
+Operations performed using an Operational User License are fully auditable.
+:::</p>
+<h4>Bypass checkpoints</h4>
+<p>Allowing a license to bypass <a href="https://www.palantir.com/docs/foundry/checkpoints/overview/">checkpoints</a> means the license can be used in places where checkpoints cannot be shown, such as <a href="https://www.palantir.com/docs/foundry/cipher/ciphertext-in-functions-and-actions/">Functions</a> or a direct API call. Use of this license is still auditable at the cell level and rate-limited.</p>
+<h3>Data Manager License</h3>
+<p>A <strong>Data Manager License</strong> (formerly "High Trust License") enables Foundry users to encrypt or decrypt <strong>entire columns of datasets</strong> using tools such as Pipeline Builder and Contour. This configuration can be helpful for users who benefit from point-and-click tools, as well as users with strict security concerns. Learn more about <a href="https://www.palantir.com/docs/foundry/cipher/apply-operations/#pipeline-builder">using Cipher in Pipeline Builder</a>.</p>
+<p>The two configurable permissions for Data Manager Licenses are:</p>
+<ul>
+<li><strong>Column-level encryption/hashing:</strong> Encrypting or hashing of dataset columns through tools such as Pipeline Builder and Contour.</li>
+<li><strong>Column-level decryption:</strong> Decrypting of dataset columns through tools such as Pipeline Builder and Contour.</li>
+</ul>
+<h3>Admin License</h3>
+<p>An <strong>Admin License</strong> (formerly "Transforms License") enables Foundry users to encrypt or decrypt entire columns of datasets in Code Repositories and grants them access to the cryptographic keys.</p>
+<p>:::callout{theme="warning"}
+Allowing operations in Transforms effectively grants users access to the cryptographic keys. Ensure that access to this License is only granted to users with elevated permissions.
+:::</p>
+<p>The two configurable permissions for Admin Licenses are:</p>
+<ul>
+<li><strong>Encryption/hashing Admin:</strong> Encryption or hashing of dataset columns in Code Repositories and encryption key access.</li>
+<li><strong>Decryption Admin:</strong> Decryption of dataset columns in Code Repositories and decryption key access.</li>
+</ul>
+<h2>Walkthrough Guide</h2>
+<p>Once you have familiarized yourself with the steps above, refer to this tutorial to walk you through the process on how to use the Cipher application to perform encryption actions.</p>
+<p>:::callout{theme="neutral"}
+This tutorial uses notional employee data. All information shared in this documentation such as but not limited to images and accompanying datasets are notional.
+:::</p>
+<h3>Steps to reproduce</h3>
+<p>Before you begin, download the <a href="/docs/resources/foundry/cipher/employee_data.csv">notional employee dataset</a> and <a href="https://www.palantir.com/docs/foundry/compass/manually-upload-data/">upload it to Foundry</a>.</p>
+<ol>
+<li><strong><a href="#create-a-cipher-channel">Create a Cipher Channel</a></strong> in your landing Project.</li>
+<li><strong><a href="#data-manager-license">Create a Data Manager License</a></strong> with an encryption permit.</li>
+<li><strong>Encrypt the sensitive column with Pipeline Builder:</strong> Create a new pipeline and select <strong>+ New</strong> &gt; <strong>Pipeline</strong> in the upper-right corner to import the employee dataset to Pipeline Builder. Then, choose the <code>Cipher encrypt</code> transform using the Data Manager License you just created and apply it on the <code>Employee_name</code> column of the dataset. The column should now be encrypted. Once encryption is complete, you can add an <code>Object type</code> pipeline output with your dataset and use <code>Employee_number</code> as the primary key and title. (Learn more about <a href="https://www.palantir.com/docs/foundry/pipeline-builder/overview/">Pipeline Builder</a>)</li>
+</ol>
+<p><img alt="Encrypting a column using Pipeline Builder" src="../../_resources/foundry/cipher/end_state_builder.png" /></p>
+<ol start="4">
+<li><strong>Add Object Output:</strong> Navigate to <strong>Output settings</strong> on the rotary icon under <code>Pipeline outputs</code>. Select the <code>Target ontology</code> and the <code>Output folder</code> and <strong>Save</strong>. Upon accessing any object within this dataset, you will notice the set of values you previously encrypted is now rendered inaccessible and cannot be viewed. The next step will provide instructions on how to decrypt these values.</li>
+</ol>
+<p><img alt="Configuring Ciphertext property type" src="../../_resources/foundry/cipher/employee_object_view.png" /></p>
+<ol start="5">
+<li><strong>Create an Operational User License:</strong> Return to your Cipher Channel and create a new <a href="#operational-user-license">Operational User License</a> with a decryption permit. This license will allow you to perform decryptions on objects. Performing the same actions as above, you should now be able to decrypt the value of the object.</li>
+</ol>
+<p><img alt="Workflow of a decryption request with Cipher" src="../../_resources/foundry/cipher/decryption_request.gif" /></p>
+</body>
+</html>

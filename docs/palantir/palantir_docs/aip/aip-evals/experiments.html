@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Run experiments</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Run experiments</h1>
+<p>Systematically testing different combinations of multiple parameter values is an important part of evaluating and optimizing LLM-backed functions. You may want to determine which models perform best while minimizing costs, or which prompts yield the best results.</p>
+<p>Experiments allow you to optimize the performance and cost of your tested functions. You can define parameter values for AIP Evals to test in all possible combinations using grid search in separate evaluation suite runs. Afterwards, you can analyze the experiment results to identify the parameter values that performed best.</p>
+<p><img alt="A diagram explaining the experiments process." src="../../_resources/foundry/aip-evals/aip-evals-experiments-illustration.png" /></p>
+<h2>Set up experiments</h2>
+<h3>Prepare your function</h3>
+<p>For this example, we have a <a href="https://www.palantir.com/docs/foundry/logic/overview/">Logic function</a> that summarizes an article, and we want to determine what model and prompt combination performs best. Note that experiments are not limited to Logic functions.</p>
+<p>First, we need to parameterize both the model and prompt. This means adding them as inputs and using them somewhere in the Logic function. In this case, we want to experiment with subtle differences in our prompt phrasing to see which one produces the best summaries. We will use <code>extraPromptContext</code> to append our original prompt with additional context.</p>
+<p><img alt="Adding a model as an optional input and extraPromptContext as a required input to a Logic function." src="../../_resources/foundry/aip-evals/aip-evals-logic-inputs-setup.png" /></p>
+<p>For models, we suggest changing the variable from <code>Required</code> to <code>Optional</code>. You will also need to configure each <strong>Use LLM</strong> block to use the model variable. You can do this by selecting the model selector in a UseLLM block and navigating to the model variable under the <strong>Registered</strong> tab.</p>
+<p><img alt="The model selector in a UseLLM block, displaying the model variable under the &quot;Registered&quot; tab." src="../../_resources/foundry/aip-evals/aip-evals-model-block-setup.png" /></p>
+<h3>Enable experiments</h3>
+<p>After parameterizing your Logic function, enable experiments by turning on the toggle in the <strong>Run configuration</strong> dialog.</p>
+<p><img alt="Enabling the &quot;Experiments&quot; toggle in the &quot;Run configuration&quot; dialog." src="../../_resources/foundry/aip-evals/aip-evals-enable-experiments.png" /></p>
+<h3>Define your experiment</h3>
+<p>You can name your experiment to help you easily locate results later. Next, add <strong>Experiment parameters</strong>. These are the parameters you want to test with different values. For each parameter, you can specify multiple value options to explore in your experiment. This will override any existing values that were configured per test in your evaluation suite.</p>
+<p><img alt="The &quot;Run configuration&quot; dialog with inputs for the experiment name and parameters. " src="../../_resources/foundry/aip-evals/aip-evals-define-experiment.png" /></p>
+<p>At the bottom of the section, you can see how many evaluation runs will occur and open a preview to see all of the parameter combinations that will be tested in your experiment using grid search.</p>
+<p><img alt="A preview of the total evaluation runs." src="../../_resources/foundry/aip-evals/aip-evals-experiment-preview.png" /></p>
+<h2>Run the experiment</h2>
+<p>To run the experiment, close the dialog and select the <strong>Run experiment</strong> option.</p>
+<p><img src="../../_resources/external-ef9d2c7e64be.png" alt='The "Run experiment" option shown below evaluation test cases.' width=500></p>
+<h2>View and analyze experiment results</h2>
+<p>When the experiment is complete, select the <strong>Results</strong> option at the bottom of the side panel. This will take you to the AIP Evals application, where you will be able to analyze the results.</p>
+<p>:::callout{theme="neutral"}
+The <strong>Most recent run</strong> card in AIP Logic only shows results from the last evaluation run in the set (in this case, run 6 of 6). For a complete view of your results, we recommend accessing them through AIP Evals.
+:::</p>
+<p><img src="../../_resources/external-815e06c2e2f8.png" alt='The "Experiment complete" notification, with a link to see experiment results.' width=500></p>
+<h3>Compare runs</h3>
+<p>In AIP Evals, single evaluation runs and experiment runs can be viewed under the <strong>Results &gt; Runs</strong> tab. When coming from the <strong>Results</strong> in AIP Logic (shown above), the <strong>Runs</strong> table will be automatically filtered down to the experiment that just ran.</p>
+<p><img alt="The &quot;Runs&quot; table in Evals, filtered down to the latest experiment." src="../../_resources/foundry/aip-evals/aip-evals-runs-table-experiment.png" /></p>
+<p>The <strong>Group by</strong> option allows you to select a column in the table to group runs by and view aggregate metrics for each group. For example, we can group by model to easily compare how each model performed across all metrics.</p>
+<p><img alt="Grouping by model to view aggregate metrics." src="../../_resources/foundry/aip-evals/aip-evals-runs-table-group-by.png" /></p>
+<p>Use the far right column icon in the table header to control which columns are shown in the table.</p>
+<h3>Compare test cases</h3>
+<p>You can select up to 4 runs from the <strong>Runs</strong> table to compare, then select the <strong>View test cases</strong> option or the <strong>Test cases</strong> sub-tab to continue drilling down into your results.</p>
+<p><img alt="The &quot;View test cases&quot; option." src="../../_resources/foundry/aip-evals/aip-evals-view-test-cases.png" /></p>
+<p>Test case comparisons are useful for debugging how test case outputs and metrics compare across runs, and the possible performance and cost tradeoffs between different parameters. You can hover over the selected run to see the specific parameter values that were used, or find them in the table.</p>
+<p><img alt="Experiment metadata seen when hovering over the model prompt experiment tag." src="../../_resources/foundry/aip-evals/aip-evals-test-cases-table-metadata.png" /></p>
+<p>You can change the way rows are displayed by grouping related test cases and/or iterations together.</p>
+<ul>
+<li><strong>Group test cases:</strong> Combines all instances of the same test case across multiple runs into a single row rather than displaying each instance in a separate row.</li>
+<li><strong>Group iterations:</strong> Collapses all iterations into a single selector rather than showing each iteration in a single row.</li>
+</ul>
+<p>The column selector can be used to hide and show columns in a way that is meaningful to you. For example, if you want a data-dense view of your metrics, you can choose to hide columns containing inputs and function outputs.</p>
+<p><img alt="Hide and show columns in test cases table." src="../../_resources/foundry/aip-evals/aip-evals-test-cases-table-columns.png" /></p>
+<h3>Debug test cases</h3>
+<p>When hovering over a row, an <strong>Open</strong> option will be displayed, allowing you to drill down even further to understand and debug the execution of the test case.</p>
+<p><img alt="The &quot;Open&quot; option that is displayed in a row on hover." src="../../_resources/foundry/aip-evals/aip-evals-test-cases-table-hover.png" /></p>
+<p>This will open a drawer that displays inputs, outputs, and logs for both the function execution and any evaluators on the suite.</p>
+<p>Note that the comparison views will depend on how you have grouped the table. When comparison runs are shown as separate rows, the debugger will only be shown for the run on the row that was selected.</p>
+<p><img alt="The test case debugger." src="../../_resources/foundry/aip-evals/aip-evals-debugger-drawer.png" /></p>
+</body>
+</html>

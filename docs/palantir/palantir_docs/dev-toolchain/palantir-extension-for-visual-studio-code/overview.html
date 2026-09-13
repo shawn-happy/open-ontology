@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Palantir extension for Visual Studio Code</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Palantir extension for Visual Studio Code</h1>
+<p>:::callout{theme="neutral"}
+VS Code workspaces and the Palantir extension for Visual Studio Code are not affiliated with or endorsed by Microsoft.
+:::</p>
+<p>The Palantir extension for Visual Studio Code aims to integrate many features you see in <a href="https://www.palantir.com/docs/foundry/code-repositories/overview/">Code Repositories</a> with VS Code. The extension's features are currently focused on Python transforms.</p>
+<h2>Access the extension</h2>
+<p>The Palantir extension for VS Code can be used either as part of a VS Code workspace in the Palantir platform, or as a downloadable extension for your local version of VS Code.</p>
+<p>For guidance on choosing between these options, review our documentation on <a href="https://www.palantir.com/docs/foundry/vs-code/local-vs-workspace-guide/">choosing between local development and VS Code workspaces</a>.</p>
+<h3>From a VS Code workspace</h3>
+<p>The Palantir extension is available by default in VS Code workspaces. Review the <a href="https://www.palantir.com/docs/foundry/vs-code/overview/">VS Code workspaces documentation</a> to learn more.</p>
+<p><img alt="The &quot;Preview&quot; section in VS Code Workspaces." src="../../_resources/foundry/palantir-extension-for-visual-studio-code/vscode-transforms-preview.png" /></p>
+<h3>Locally</h3>
+<p>The Palantir extension can also be used in local development, and is the endorsed method for local development for Python transforms.</p>
+<p>:::callout{theme="warning"}
+You may not have the required permissions to work with the extension locally even if it is available on your enrollment. A platform administrator is required to enable local extension use, and they can grant user access through <a href="https://www.palantir.com/docs/foundry/code-repositories/configure-repositories-in-control-panel/">Control Panel settings</a>. <br><br>
+In order to preview locally, users must have the above Control Panel settings enabled and have <code>downloader</code> permissions on the preview inputs, which are <code>s3-proxy:datasets-read</code> and <code>api:datasets-read</code>. These are privileged operations that allow users to download entire datasets locally, and should be granted with care. In cases where users cannot be granted this permission, the VS Code developer experience is still available through <a href="https://www.palantir.com/docs/foundry/vs-code/overview/">Code Workspaces</a>, which guarantee strict data control.
+:::</p>
+<h4>1. Download the Palantir extension</h4>
+<ol>
+<li>Navigate to VS Code Workspaces, then select the settings icon next to the <strong>VS Code</strong> button in the upper right corner of your screen.</li>
+<li>Choose <strong>Local VS Code</strong> from the dropdown menu to change the default button language.</li>
+<li>Select the updated <strong>Local VS Code</strong> button and follow the instructions in the pop-up window to download the extension.</li>
+</ol>
+<p>Note: You only need to download the extension if you have never installed it before.</p>
+<p><img alt="The &quot;Open in VS Code&quot; button inside Code Repositories." src="../../_resources/foundry/palantir-extension-for-visual-studio-code/vscode_locally.png" /></p>
+<p><img alt="The dialog to download the extension or open in Code Repositories." src="../../_resources/foundry/palantir-extension-for-visual-studio-code/work_locally_dialog.png" /></p>
+<p>:::callout{theme="warning"}
+The Palantir extension for Visual Studio code is not yet available in the Visual Studio Code Marketplace. You can only download the extension from the Palantir platform at this time.
+:::</p>
+<h4>2. Install the extension</h4>
+<p>Install the extension by performing one of the following steps:</p>
+<ul>
+<li>Drag and drop the VSIX file into the VS Code's <strong>Extensions</strong> sidebar, or</li>
+<li>Use the command <code>Extensions: Install from VSIX...</code></li>
+</ul>
+<h4>3. Open a Palantir code repository</h4>
+<p>Once the Palantir extension is installed, you should see the Palantir logo on the VS Code sidebar. From the sidebar, you can do one of the following:</p>
+<ul>
+<li>Open a Palantir repository that you already cloned, or</li>
+<li>Select <strong>Clone a repository</strong> to clone a new Palantir repository. To do this, open a Palantir repository and copy the git remote URL link.</li>
+</ul>
+<p><a href="https://www.palantir.com/docs/foundry/palantir-extension-for-visual-studio-code/extension-features/">Review other features of the Palantir extension for Visual Studio Code</a>.</p>
+</body>
+</html>

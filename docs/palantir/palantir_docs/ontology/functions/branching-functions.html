@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Branching functions</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Branching functions</h1>
+<p>You can develop, publish, and consume functions on a global branch. This is currently supported for TypeScript v1, TypeScript v2, and AIP Logic functions.</p>
+<p>:::callout{theme="warning"}
+You cannot modify Python functions on a branch. To test one before merging into <code>main</code>, reference a specific function version on the branch. The function code can use only schemas that exist on <code>main</code>.
+:::</p>
+<h2>Developing functions</h2>
+<p>:::callout{theme="neutral"}
+To use Global Branching for TypeScript v1, upgrade your repository template to version <code>0.903.0</code> or higher of the <code>functions-typescript</code> child template or higher. Review <a href="https://www.palantir.com/docs/foundry/code-repositories/repository-upgrades/#manual-branch-upgrade">the documentation on repository upgrades</a> for instructions.
+:::</p>
+<p>:::callout{theme="neutral"}
+To use Global Branching for TypeScript v2, upgrade your repository template to version <code>0.1299.0</code> or higher of the <code>typescript-functions</code> parent template or higher and enable a <a href="https://www.palantir.com/docs/foundry/functions/local-sdks/">local Ontology SDK</a>.
+:::</p>
+<p>You can develop a function that depends on changes made to resources on your global branch, such as newly created or modified ontology entities.</p>
+<p><img alt="Developing a new function on a branch." src="../../_resources/foundry/functions/branch-function.png" /></p>
+<p>When you are ready, publish your function with a <strong>version target</strong> â the stable version published to <code>main</code> when the global branch merges. During development on your branch, the function is published as unstable preview versions.</p>
+<p><img alt="Publishing functions on a branch." src="../../_resources/foundry/functions/branch-function-publish.png" /></p>
+<p>Once you have successfully published your function on the branch, you can use the new function version on your branch in Workshop, AIP Logic, and function-backed actions. This function version is labeled with the <code>Branched pre-release</code> tag. Note that functions published on your branch will not be accessible from other branches, including <code>main</code>.</p>
+<p><img alt="Using a branched function in Workshop." src="../../_resources/foundry/functions/branch-function-backed-variable.png" /></p>
+<p><img alt="Using a branched function in actions." src="../../_resources/foundry/functions/branch-function-backed-action.png" /></p>
+<p>:::callout{theme="neutral"}
+It is currently not possible to depend on branched versions of query functions in TypeScript v1 repositories.
+:::</p>
+<p>As you continue developing on your branch, you can continue publishing function versions to the same version target. As long as your version target remains the same, any resource using your function will automatically pull the latest published version. This lets you iterate quickly without manually updating function references after each publish.</p>
+<p>If the version target on the branch changes, you must update all dependents of the function that were using the old version on the branch to use the new version target. This will also be displayed as a <a href="https://www.palantir.com/docs/foundry/global-branching/core-concepts/#checks">check</a>.</p>
+<h2>Conflict resolution and rebasing functions</h2>
+<p>When developing on a branch, you will not automatically receive newer function versions published to <code>main</code>. This prevents main development from disrupting your branch work. If newer versions are available on <code>main</code>, you will see notifications in function version selectors and Ontology Manager. You can then rebase your function versions to pull in all newer versions from <code>main</code>.</p>
+<p><img alt="Rebasing functions dialog." src="../../_resources/foundry/functions/rebasing-functions.png" /></p>
+<p>If your version target gets published to <code>main</code> while you are developing, you must select a new version target before merging. Once you do, update any dependents to use the new version target.</p>
+<h2>Merging</h2>
+<p>When merging your global branch, modified functions will be published on <code>main</code> with the stable version target. Resources using the version published on your branch will automatically start using the new stable version that was published on <code>main</code> as part of the merge.</p>
+<p>:::callout{theme="warning"}
+Foundry only merges your version target into <code>main</code> and does not merge other versions published on the branch. Those versions will not exist on <code>main</code> after your branch merges.
+:::</p>
+</body>
+</html>

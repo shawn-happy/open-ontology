@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AVEVA PI System (formerly OSIsoft PI)</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>AVEVA PI System (formerly OSIsoft PI)</h1>
+<p>Connect Foundry to Aveva PI System (formerly known as OSIsoft PI Server) to read data.</p>
+<h2>Supported capabilities</h2>
+<table>
+<thead>
+<tr>
+<th>Capability</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Exploration</td>
+<td>ð¡ Beta</td>
+</tr>
+<tr>
+<td>Bulk import</td>
+<td>ð¡ Beta</td>
+</tr>
+<tr>
+<td>Incremental</td>
+<td>ð¡ Beta</td>
+</tr>
+<tr>
+<td>Streaming</td>
+<td>ð¡ Beta</td>
+</tr>
+<tr>
+<td>Export tasks</td>
+<td>ð¡ Beta</td>
+</tr>
+</tbody>
+</table>
+<h2>Interfacing</h2>
+<p>This connector leverages the <a href="https://docs.aveva.com/bundle/pi-web-api-reference/page/help/getting-started.html">PI Web API â</a>.</p>
+<h2>Setup</h2>
+<ol>
+<li>Open the <a href="https://www.palantir.com/docs/foundry/data-connection/overview/">Data Connection</a> application and select <strong>+ New Source</strong> in the upper right corner of the screen.</li>
+<li>Select <strong>AVEVA PI</strong> from the available connector types.</li>
+<li>Follow the additional configuration prompts to continue the setup of your connector using the information in the sections below.</li>
+</ol>
+<p>Learn more about <a href="https://www.palantir.com/docs/foundry/data-connection/set-up-source/">setting up a connector</a> in Foundry.</p>
+<h2>Authentication</h2>
+<p>You can authenticate to PI System in the following ways:</p>
+<ol>
+<li><strong>Username and password:</strong> Provide a username and password. We recommend the use of service credentials rather than individual user credentials.</li>
+<li><strong>Kerberos:</strong> Provide the Kerberos configuration. (Only available if connecting <a href="https://www.palantir.com/docs/foundry/data-connection/set-up-agent/">through an intermediary agent</a>)</li>
+</ol>
+<h2>Networking</h2>
+<p>The connector (for instance, the agent when connecting through an agent) needs to have access to the Web API of the PI server. This is usually a connection over HTTPS (default port 443) to the provided URL.</p>
+<h2>Data model</h2>
+<p>The PI System connector works through the <a href="https://docs.aveva.com/bundle/pi-web-api-reference/page/help.html">web API â</a> and follows the concepts of <a href="https://docs.aveva.com/bundle/pi-web-api-reference/page/help/getting-started.html#d472e893">streams and values â</a>, unifying the data retrieval from <a href="https://docs.aveva.com/bundle/pi-web-api-reference/page/help/controllers/attribute.html">attributes â</a> with a data reference and <a href="https://docs.aveva.com/bundle/pi-server-s-da-admin/page/1020357.html">PI points â</a>. Each row in the target dataset will be a value with metadata (name, path, webID, and so on) from the associated stream.</p>
+<p>Additionally, the PI System connector's use of the web API means that the value of an attribute backed by static input (as opposed to backed by tag data) cannot be retrieve through streaming or bulk retrieval with temporal value target, but can be retrieved via a latest value bulk sync.</p>
+<p>You can choose from four different target location types to specify which stream should be synced:</p>
+<ul>
+<li><strong>Attribute filter:</strong> A dynamic filter crawling through the <a href="https://www.aveva.com/en/perspectives/blog/easy-as-pi-asset-framework/">Asset Framework â</a> hierarchy from a provided path and filtering on additional patterns.</li>
+<li><strong>Tag name filter:</strong> A dynamic filter on <a href="https://docs.aveva.com/bundle/pi-server-s-da-admin/page/1020357.html">PI Point â</a> names on a specific <a href="https://docs.aveva.com/bundle/pi-web-api-reference/page/help/controllers/dataserver.html">Data Server â</a>.</li>
+<li><strong>Tag names list:</strong> A static list of <a href="https://docs.aveva.com/bundle/pi-server-s-da-admin/page/1020357.html">PI Point â</a> identified by their names on a specific <a href="https://docs.aveva.com/bundle/pi-web-api-reference/page/help/controllers/dataserver.html">Data Server â</a>.</li>
+<li><strong>WebIDs list:</strong> A static list of <a href="https://docs.aveva.com/bundle/pi-web-api-reference/page/help/topics/webid.html">WebIDs â</a> that can reference either <a href="https://docs.aveva.com/bundle/pi-web-api-reference/page/help/controllers/attribute.html">attributes â</a> or <a href="https://docs.aveva.com/bundle/pi-server-s-da-admin/page/1020357.html">PI Points â</a>.</li>
+</ul>
+<h2>Batch functionalities</h2>
+<h3>Incremental behavior</h3>
+<p>Incremental configuration is available when retrieving values over an absolute or relative time window. When enabled, the system saves the latest timestamp for each unique WebID after each run. In future runs, the system uses this saved timestamp as a starting point. Data with timestamps between the saved timestamp and the start time of the current run are considered overlapping and will be excluded from processing.</p>
+<p><img alt="Batch incremental configuration options." src="../../_resources/foundry/available-connectors/pi-batch-incremental.png" /></p>
+<h3>File partitioning</h3>
+<p>You can set a partition configuration when retrieving values from an absolute or relative time window. When <strong>Set partition configuration</strong> is enabled, the PI System retrieves data within the configured window and sequentially writes the data to disk to avoid eclipsing runtime memory.</p>
+<p><img alt="Batch partition configuration options." src="../../_resources/foundry/available-connectors/pi-batch-partition.png" /></p>
+<h3>Web ID caching</h3>
+<p>As described in the <a href="#data-model">data model</a> above, the first step is to resolve <a href="https://docs.aveva.com/bundle/pi-web-api-reference/page/help/topics/webid.html">WebIDs â</a>. This operation can be time consuming and repetitive if there were no changes on the PI server side. To speed up recurrent syncs, users can enable WebID caching to store resolved WebIDs and potentially re-use this cache on their next run.</p>
+<p>There are two mechanisms to keep the cache up-to-date:</p>
+<ul>
+<li>Invalidate the cache on any sync configuration.</li>
+<li>An optional expiration delay, after which the cache should be considered outdated.</li>
+</ul>
+<p><img alt="Batch WebIDs cache configuration options." src="../../_resources/foundry/available-connectors/pi-batch-cache.png" /></p>
+<h2>Streaming functionalities</h2>
+<p>Streaming syncs use <a href="https://docs.aveva.com/bundle/pi-web-api/page/1023111.html">channels â</a> to get timely updates from the server.</p>
+<h3>Liveness check</h3>
+<p>In order to confirm that the connection with the server is still active, the connector performs a liveness check on a regular basis to verify that an actual message or an empty message sent by the server (a "heartbeat") has been received recently. This allows the stream to be restarted, otherwise a new connection must be established if the previous one was silently closed.</p>
+<h3>Web ID cache and target re-evaluation</h3>
+<p>On initial start, the connector will resolve WebIDs and store them in a cache. This cache will be used at restart in order to quickly restore the connection to the server. This cache is also re-evaluated periodically to get an up-to-date list of WebIDs. Users can disable this periodic re-evaluation or change its frequency.</p>
+<p><img alt="Streaming WebIDs cache re-evaluation configuration options." src="../../_resources/foundry/available-connectors/pi-streaming-cache-recompute.png" /></p>
+<h3>Backlog configuration</h3>
+<p>Streams can stop and restart for multiple reasons, such as agent restart, lost connections, and manual cancellation. In these cases, there may be a small period of time before the connection is re-established. To avoid data gaps, users can enable a backlog to capture any data that was missed during this gap.</p>
+<p><img alt="Streaming backlog configuration options." src="../../_resources/foundry/available-connectors/pi-streaming-backlog.png" /></p>
+<h2>PI connector vs. REST API connector</h2>
+<p>While the REST API connector may offer more flexibility in some cases, below are some advantages of using the PI connector.</p>
+<ul>
+<li>
+<p><strong>User-friendly interface:</strong> The PI connector offers a point-and-click interface that only requires knowledge of PI concepts. In contrast, the REST API connector requires knowledge of the web API, different endpoints, and query formats to retrieve data for external transforms or regular syncs.</p>
+</li>
+<li>
+<p><strong>Ready-to-use data:</strong> PI connector syncs output tabular data that is already parsed and ready to use. The REST API outputs a JSON object that needs to be to parsed before use in downstream transforms. This requires additional knowledge of the response format.</p>
+</li>
+<li>
+<p><strong>Streaming syncs:</strong> The PI connector allows users to set up streaming syncs, which is not possible with the REST API.</p>
+</li>
+<li>
+<p><strong>"Smart" out-of-the-box functionality:</strong> As described in the <a href="#batch-functionalities">batch functionalities</a> section, the functionalities included in the PI connector allow users to perform operations that would otherwise require complex orchestration.
+  The PI connector implicitly provides functionalities that can help users avoid common pitfalls, allowing for several levels of pagination and bucketing to efficiently and dynamically retrieve data. This is valuable for retrieving high volumes of data without hitting API rate limits, and is especially useful considering that the REST API's batch endpoint is likely to hit rate limits and silently fail.</p>
+</li>
+</ul>
+</body>
+</html>

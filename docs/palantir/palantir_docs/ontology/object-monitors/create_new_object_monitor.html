@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Create a new object monitor</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Create a new object monitor</h1>
+<p>:::callout{theme="warning"}
+Object Monitors are superseded by <a href="https://www.palantir.com/docs/foundry/automate/overview/">Automate</a>. Automate is a fully backward-compatible product that offers a single entry point forÂ all business automationÂ in the platform.
+:::</p>
+<p>:::callout{theme="neutral"}
+This tutorial assumes you already have data integrated into your Foundry Ontology. If you need to do this first, learn how to <a href="https://www.palantir.com/docs/foundry/ontology/overview/">create your Ontology</a> in the documentation.
+:::</p>
+<h2>Create from Object Explorer</h2>
+<p>Monitors can be created in Object Explorer after saving an exploration by clicking <strong>Monitor</strong> in the upper right of your screen. An exploration can be saved by clicking <strong>Save</strong> in the exploration view and selecting a Project or folder destination.</p>
+<p><img src="../../_resources/external-f5e351eee664.png" alt="save_exploration_tooltip" width="400"/></p>
+<h3>Create an object monitor</h3>
+<p>After saving the exploration, click <strong>Monitor</strong> to open a view showing all object monitors using this exploration as an input. In newly created explorations, this list is empty.</p>
+<p><img src="../../_resources/external-1ee904d19897.png" alt="add_new_monitor_popover_zero_state" width="400"/></p>
+<p>Click <strong>Add new Monitor</strong> to open a simplified setup view for a new monitor.</p>
+<p><img src="../../_resources/external-2a3cb7cfce30.png" alt="create_new_monitor_object_explorer_view" width="400"/></p>
+<p>Add a monitor name, optional description, and monitor <a href="https://www.palantir.com/docs/foundry/object-monitors/condition/">condition</a>.</p>
+<p><img src="../../_resources/external-14f012d1366d.png" alt="condition_dropdown_create_new_monitor_object_explorer_view" width="400"/></p>
+<p>:::callout{theme="neutral"}
+Advanced conditions containing nested sub-conditions cannot be configured from this view. Instead, they must be created and modified from the Object Monitors application.
+:::</p>
+<p>You may also optionally change the default save location from <strong>Private</strong> to a Public project. If you plan to have additional subscribers, we recommend storing the saved exploration and monitor in a shared Project.</p>
+<p><img src="../../_resources/external-7651d1c39961.png" alt="monitor_save_location_dialog" width="400"/></p>
+<p>After entering the required information and clicking save, you will return to the list of monitors for the exploration. This list will now contain the newly created monitor.</p>
+<p><img src="../../_resources/external-cb61be0deb51.png" alt="after_creation_monitor_list_object_explorer" width="400"/></p>
+<h3>After saving</h3>
+<p>Additional options are available once a monitor has been saved.</p>
+<p>Metadata about the monitor, including its save location, creation time, and last updated time, are shown in the <strong>Details</strong> tab. This tab also displays the <a href="https://www.palantir.com/docs/foundry/object-monitors/monitor/#expiration">expiration date</a> and allows you to extend the expiration three months into the future.</p>
+<p><img src="../../_resources/external-76b972fa3d17.png" alt="object_explorer_monitor_details_tab" width="400"/></p>
+<p>Subscribers may be added or removed from the <strong>Subscribers</strong> tab, and notifications can be enabled or disabled per subscriber.</p>
+<p><img src="../../_resources/external-76e784805f00.png" alt="object_explorer_monitor_subscribers_tab" width="400"/></p>
+<p>Actions may be optionally configured from the <strong>Actions</strong> tab.</p>
+<p>Learn more about <a href="https://www.palantir.com/docs/foundry/object-monitors/actions/">configuring Actions</a> with Object Monitors.</p>
+<p><img src="../../_resources/external-4cf03bba1438.png" alt="object_explorer_monitor_actions_tab" width="400"/></p>
+<p>The quick actions dropdown provides options for disabling or muting the monitor and an option to delete the monitor by moving it to the trash.</p>
+<p><img src="../../_resources/external-f9780b971d5b.png" alt="object_explorer_monitor_quick_actions_popover" width="400"/></p>
+<h2>Create from Object Monitors application</h2>
+<p>The Object Monitors application shows an overview of all available monitors across all Projects for a given user. Follow these steps to create a new monitor in the application interface.</p>
+<p><img src="../../_resources/external-49f6ebbde235.png" alt="management_application_overview"/></p>
+<ol>
+<li>Create a new monitor by clicking <strong>Add Monitor</strong> in the upper right corner.</li>
+</ol>
+<p><img src="../../_resources/external-f4ea9dc3a2f6.png" alt="management_app_create_new_monitor_zero_state"/></p>
+<ol start="2">
+<li>Select a save location for the new monitor. For monitors that will have multiple subscribers, we recommend storing them in a shared Project.</li>
+</ol>
+<p><img src="../../_resources/external-d0fba575f7b3.png" alt="management_app_change_save_location"/></p>
+<ol start="3">
+<li>Provide the full condition configuration. Configuration options vary depending on if you choose to use <a href="https://www.palantir.com/docs/foundry/object-monitors/condition/#event">event</a> or <a href="https://www.palantir.com/docs/foundry/object-monitors/condition/#threshold">threshold</a> conditions. The monitor <a href="https://www.palantir.com/docs/foundry/object-monitors/input/">inputs</a> must use existing saved explorations created in Object Explorer. If the required input exploration does not exist, <a href="https://www.palantir.com/docs/foundry/object-explorer/save-explorations/">create it</a> in Object Explorer and then return to this step.</li>
+</ol>
+<p><img src="../../_resources/external-3223bc99bfd3.png" alt="management_app_threshold_condition_tab"/></p>
+<p><img src="../../_resources/external-3bd92822b2b2.png" alt="management_app_event_condition_tab"/></p>
+<p>Additional subscribers may be added from the <strong>Subscribers</strong> tab.</p>
+<p><img src="../../_resources/external-53f40aa4e5e5.png" alt="management_app_subscriber_tab"/></p>
+<ol start="4">
+<li>Click <strong>Save</strong> to store and enable your new monitor.</li>
+</ol>
+</body>
+</html>

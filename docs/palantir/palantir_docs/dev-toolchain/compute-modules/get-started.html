@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Getting started</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Getting started</h1>
+<p>To get started with compute modules, you can use your preferred developer environment. In a few minutes, you will be able to create and deploy a compute module and test it in Foundry.</p>
+<p>In Foundry, choose a folder and select <strong>+ New &gt; Compute Module</strong>, then follow the steps in the dialog to start with an empty compute-module backed function or pipeline. Follow the documentation below for next steps depending on your execution mode, or, for a more seamless experience, select the <strong>Documentation</strong> tab within your compute module to follow along with in-platform guidance.</p>
+<h2>Build a compute module-backed function</h2>
+<p>Compute modules support multiple languages through open-source SDKs. Choose the language that best fits your team and use case:</p>
+<ul>
+<li><strong>Python:</strong> Use the <a href="https://github.com/palantir/python-compute-module">open-source Python library â</a>.</li>
+<li><strong>Java:</strong> Use the <a href="https://github.com/palantir/java-compute-module">open-source Java library â</a> with the <code>com.palantir.computemodules:lib</code> dependency.</li>
+<li><strong>Node.js:</strong> Use the <a href="https://github.com/palantir/typescript-compute-module">open-source TypeScript library â</a>.</li>
+</ul>
+<p>:::callout{theme="neutral"}
+Review the following SDK guides for detailed API documentation, authentication patterns, type systems, and code examples:</p>
+<ul>
+<li><a href="https://www.palantir.com/docs/foundry/compute-modules/python-sdk/">Python SDK</a>: Includes <code>@function</code> decorator, typed functions, streaming, authentication, OSDK integration, and logging</li>
+<li><a href="https://www.palantir.com/docs/foundry/compute-modules/java-sdk/">Java SDK</a>: Includes <code>ComputeModule</code> builder, type definitions, authentication, OSDK integration, and logging</li>
+<li><a href="https://www.palantir.com/docs/foundry/compute-modules/typescript-sdk/">TypeScript/Node.js SDK</a>: Includes function registration, TypeBox schema definitions, streaming, and SLS logging
+:::</li>
+</ul>
+<p>If you prefer to create your own client or implement your compute module in another language not supported by the SDKs, review the documentation on how to implement the <a href="https://www.palantir.com/docs/foundry/compute-modules/advanced-custom-client/">custom compute module client</a>.</p>
+<p><strong>Prerequisites:</strong></p>
+<ul>
+<li>Install <a href="https://www.palantir.com/docs/foundry/compute-modules/containers/#get-started-with-docker">Docker Desktop</a></li>
+<li>Install one of the following:</li>
+<li>Python 3.9 or higher</li>
+<li>Java 21 or higher</li>
+<li>Node.js 18 or higher</li>
+</ul>
+<h3>Write the compute module locally</h3>
+<ol>
+<li>Begin by creating a new directory for your compute module.</li>
+<li>Create a file called <code>Dockerfile</code> in the directory.</li>
+<li>Copy and paste the following into the <code>Dockerfile</code>:</li>
+</ol>
+<p>```dockerfile tab="Python"</p>
+<h1>Change the platform based on your Foundry resource queue</h1>
+<p>FROM --platform=linux/amd64 python:3.12</p>
+<p>COPY requirements.txt .
+RUN pip install -r requirements.txt
+COPY src .</p>
+<h1>USER is required to be non-root and numeric for running compute modules in Foundry</h1>
+<p>USER 5000
+CMD ["python", "app.py"]</p>
+<pre><code>
+```dockerfile tab=&quot;Java&quot;
+# Build stage
+FROM --platform=linux/amd64 gradle:jdk21 AS build
+COPY . /home/gradle/src
+WORKDIR /home/gradle/src
+RUN gradle shadowJar --no-daemon
+
+# Run stage
+FROM --platform=linux/amd64 eclipse-temurin:21-jre-alpine
+
+RUN mkdir /app
+COPY --from=build /home/gradle/src/build/libs/*.jar /app/app.jar
+
+# USER is required to be non-root and numeric for running compute modules in Foundry
+USER 5000
+CMD [&quot;java&quot;, &quot;-jar&quot;, &quot;/app/app.jar&quot;]
+</code></pre>
+<p>```dockerfile tab="Node.js"</p>
+<h1>Change the platform based on your Foundry resource queue</h1>
+<p>FROM --platform=linux/amd64 node:18-alpine</p>
+<p>WORKDIR /app
+COPY package.json package-lock.json ./
+RUN npm ci --production
+COPY src .</p>
+<h1>USER is required to be non-root and numeric for running compute modules in Foundry</h1>
+<p>USER 5000
+CMD ["node", "index.js"]</p>
+<pre><code>
+4. Create the dependency file for your language:
+
+```text tab=&quot;Python&quot;
+# requirements.txt
+foundry-compute-modules
+</code></pre>
+<p>```groovy tab="Java"
+// build.gradle
+plugins {
+    id 'java'
+    id 'com.gradleup.shadow' version '9.4.1'
+}</p>
+<p>repositories {
+    mavenCentral()
+}</p>
+<p>dependencies {
+    implementation 'com.palantir.computemodules:lib:0.6.0'
+}</p>
+<p>jar {
+    manifest {
+        attributes 'Main-Class': 'com.example.App'
+    }
+}</p>
+<pre><code>
+```json tab=&quot;Node.js&quot;
+{
+  &quot;name&quot;: &quot;my-compute-module&quot;,
+  &quot;version&quot;: &quot;1.0.0&quot;,
+  &quot;dependencies&quot;: {
+    &quot;@palantir/compute-module&quot;: &quot;^0.2.12&quot;
+  }
+}
+</code></pre>
+<ol start="5">
+<li>Create the directory structure for your application code:</li>
+</ol>
+<p>```text tab="Python"
+MyComputeModule
+âââ Dockerfile
+âââ requirements.txt
+âââ src
+    âââ app.py</p>
+<pre><code>
+```text tab=&quot;Java&quot;
+MyComputeModule
+âââ Dockerfile
+âââ build.gradle
+âââ src
+    âââ main
+        âââ java
+            âââ com
+                âââ example
+                    âââ App.java
+</code></pre>
+<p>```text tab="Node.js"
+MyComputeModule
+âââ Dockerfile
+âââ package.json
+âââ src
+    âââ index.js</p>
+<pre><code>
+6. Inside your application file, copy and paste the following code:
+
+```python tab=&quot;Python&quot;
+from compute_modules.annotations import function
+
+@function
+def add(context, event):
+    return str(event['x'] + event['y'])
+
+@function
+def hello(context, event):
+    return 'Hello' + event['name']
+</code></pre>
+<p>```java tab="Java"
+package com.example;</p>
+<p>import com.palantir.computemodules.ComputeModule;
+import com.palantir.computemodules.functions.Context;</p>
+<p>public class App {
+    public static void main(String[] args) {
+        ComputeModule.builder()
+            .add(App::add, AddEvent.class, Integer.class, "add")
+            .add(App::hello, HelloEvent.class, String.class, "hello")
+            .build()
+            .start();
+    }</p>
+<pre><code>record AddEvent(int x, int y) {}
+record HelloEvent(String name) {}
+
+static Integer add(Context context, AddEvent event) {
+    return event.x() + event.y();
+}
+
+static String hello(Context context, HelloEvent event) {
+    return "Hello, " + event.name();
+}
+</code></pre>
+<p>}</p>
+<pre><code>
+```javascript tab=&quot;Node.js&quot;
+const { ComputeModule } = require(&quot;@palantir/compute-module&quot;);
+
+const computeModule = new ComputeModule();
+
+computeModule.register(&quot;add&quot;, (context, event) =&gt; {
+    return String(event.x + event.y);
+});
+
+computeModule.register(&quot;hello&quot;, (context, event) =&gt; {
+    return &quot;Hello&quot; + event.name;
+});
+
+computeModule.start();
+</code></pre>
+<p>:::callout{theme="neutral"}
+Learn how to add type inference and <a href="https://www.palantir.com/docs/foundry/compute-modules/functions/#automatic-function-schema-inference">automatically register a compute module function with the function registry</a>.
+:::</p>
+<p>:::callout{theme="neutral" title="Typed Python example"}
+For production use, consider using typed inputs and outputs with the Python SDK. This enables automatic schema inference and function registration:</p>
+<pre><code class="language-python">from dataclasses import dataclass
+from typing import TypedDict
+from compute_modules.annotations import function
+
+class HelloInput(TypedDict):
+    planet: str
+
+@dataclass
+class AddPayload:
+    x: int
+    y: int
+
+@function
+def hello(context, event: HelloInput) -&gt; str:
+    return &quot;Hello &quot; + event[&quot;planet&quot;] + &quot;!&quot;
+
+@function
+def add(context, event: AddPayload) -&gt; int:
+    return event.x + event.y
+</code></pre>
+<p>Review the documentation on <a href="https://www.palantir.com/docs/foundry/compute-modules/functions/#automatic-function-schema-inference">automatic function schema inference</a> for more details on supported type patterns.
+:::</p>
+<h3>Understand your function code</h3>
+<p>When working with compute module functions, your function will always receive two parameters: <strong>event objects</strong> and <strong>context objects</strong>.</p>
+<p><strong>Context object:</strong> An object parameter containing metadata and credentials that your function may need. Examples include user tokens, source credentials, and other necessary data. For example, if your function needs to call the OSDK to get an Ontology object, the context object includes the necessary token for the user to access that Ontology object.</p>
+<p><strong>Event object:</strong> An object parameter containing the data that your function will process. Includes all parameters passed to the function, such as <code>x</code> and <code>y</code> in the <code>add</code> function, and <code>name</code> in the <code>hello</code> function. In Python, this is a <code>dict</code>; in Java, this is a JSON node object; in Node.js, this is a plain JavaScript object.</p>
+<p>:::callout{theme="warning"}
+If you use static typing for the event/return object, the library will convert the payload/result into that statically-typed object. Review documentation on <a href="https://www.palantir.com/docs/foundry/compute-modules/functions/#automatic-function-schema-inference">automatic function schema inference</a> for more information.
+:::</p>
+<p>:::callout{theme="warning"}
+The function result will be wired as a JSON blob, so be sure the function is able to be serialized into JSON.
+:::</p>
+<h3>Create your first container</h3>
+<p>Now, you can publish your code to Foundry using an Artifact repository, which will be used to store your Docker images.</p>
+<ol>
+<li>Create or select an Artifact repository to publish your code to Foundry. To do this, navigate to the <strong>Documentation</strong> tab of your compute module. Then, find the corresponding in-platform documentation section to this external documentation page: <strong>Build a compute module-backed function &gt; Create your first container</strong>. There, you can <strong>Create or select repository</strong>.</li>
+<li>On the next page, select the dropdown menu to choose <strong>Publish to DOCKER</strong> and follow the instructions on the page to push your code.</li>
+<li>In the <strong>Configure</strong> tab of your compute module, select <strong>Add Container</strong>. Then, select your Artifact repository and the image you pushed.</li>
+<li>Select <strong>Update configuration</strong> to save your edits.</li>
+<li>Once the configuration is updated, you can start the compute module from the <strong>Overview</strong> page, test it using the bottom <strong>Query</strong> panel, and view the logs.</li>
+</ol>
+<h2>Build using Code Repositories</h2>
+<p>As an alternative to developing locally, you can build a Python compute module directly within the Foundry platform using Code Repositories. This approach provides an integrated development experience with built-in version control, dependency management, and container image publishing.</p>
+<h3>Prerequisites</h3>
+<ul>
+<li>Understand <a href="https://www.palantir.com/docs/foundry/compute-modules/execution-modes/#functions-execution-mode">function execution mode</a> and its configuration.</li>
+<li>Familiarity with <a href="https://www.palantir.com/docs/foundry/code-repositories/overview/">Code Repositories</a>.</li>
+</ul>
+<h3>Create a Python compute module code repository</h3>
+<ol>
+<li>In Foundry, navigate to a folder and select <strong>+ New &gt; Code Repository</strong>.</li>
+<li>Select <strong>Python Compute Module</strong> as the repository type.</li>
+<li>Name your repository and select <strong>Create</strong>.</li>
+</ol>
+<p>The code repository will be pre-configured with the necessary project structure for a compute module, including a <code>src/</code> directory and default configuration files.</p>
+<h3>Write functions in your code repository</h3>
+<p>Inside the <code>src/</code> directory, open the <code>app.py</code> file and define your functions using the <code>@function</code> decorator:</p>
+<pre><code class="language-python">from compute_modules.annotations import function
+
+@function
+def add(context, event):
+    return str(event['x'] + event['y'])
+
+@function
+def hello(context, event):
+    return 'Hello ' + event['name']
+</code></pre>
+<p>For typed inputs and outputs that enable automatic schema inference, use <code>TypedDict</code> or <code>dataclass</code> types as described in the <a href="https://www.palantir.com/docs/foundry/compute-modules/functions/#automatic-function-schema-inference">automatic function schema inference</a> documentation.</p>
+<h3>Add Python libraries</h3>
+<p>You can add Python libraries to your compute module code repository in two ways:</p>
+<ul>
+<li><strong>Using the Settings panel:</strong> Navigate to <strong>Settings &gt; Libraries</strong> in your code repository and add the libraries you need.</li>
+<li><strong>Using <code>meta.yaml</code>:</strong> Add dependencies directly in the <code>meta.yaml</code> configuration file in your repository root.</li>
+</ul>
+<p><img alt="The Libraries panel in a Python Code Repository for adding dependencies." src="../../_resources/foundry/compute-modules/python-add-library.png" /></p>
+<p><img alt="The meta.yaml configuration file showing Python library dependency declarations." src="../../_resources/foundry/compute-modules/python-requirements-yaml.png" /></p>
+<h3>Tag a version</h3>
+<p>Once your code is ready, tag a version in your code repository to create an image:</p>
+<ol>
+<li>Select <strong>Tag version</strong> from the repository toolbar.</li>
+<li>Enter a version number (for example, <code>0.0.1</code>).</li>
+<li>Select <strong>Tag</strong> to create the version.</li>
+</ol>
+<p><img alt="The tag version interface for creating a versioned container image from a Code Repository." src="../../_resources/foundry/compute-modules/tag-and-release-version.png" /></p>
+<p>This creates a container image that can be linked to your compute module.</p>
+<h3>Link the image to your compute module</h3>
+<ol>
+<li>Navigate to the <strong>Configure</strong> tab of your compute module.</li>
+<li>Select <strong>Add Container</strong>.</li>
+<li>Select your code repository and the tagged version you created.</li>
+<li>Select <strong>Update configuration</strong> to save your edits.</li>
+</ol>
+<h3>Import functions</h3>
+<p>After the compute module is running, you can import your functions:</p>
+<ol>
+<li>Navigate to the <strong>Functions</strong> tab in the Compute Module application.</li>
+<li>Select <strong>Import</strong> to view the list of detected functions from your running compute module.</li>
+<li>Select the functions you want to register and confirm the import.</li>
+</ol>
+<p>Your functions are now available to use across the Foundry platform, including in <a href="https://www.palantir.com/docs/foundry/workshop/overview/">Workshop</a> and <a href="https://www.palantir.com/docs/foundry/slate/overview/">Slate</a> applications.</p>
+<h2>Build a compute module-backed pipeline</h2>
+<p>Compute modules can operate as a connector between inputs and outputs of a data pipeline in a containerized environment. In this example, you will build a simple use case with streaming datasets as inputs and outputs to the compute module, define a function that doubles the input data, and write it to the output dataset. You will use notional data to simulate a working data pipeline.</p>
+<h3>Prerequisites</h3>
+<ul>
+<li>Understand <a href="https://www.palantir.com/docs/foundry/compute-modules/execution-modes/#pipeline-execution-mode">pipeline execution mode</a> and its configuration.</li>
+<li>Set up an <a href="https://www.palantir.com/docs/foundry/compute-modules/execution-modes/#add-inputs-and-outputs">input and output stream</a>.</li>
+<li>Install <a href="https://www.palantir.com/docs/foundry/compute-modules/containers/#get-started-with-docker">Docker Desktop</a>.</li>
+<li>Install Python 3.9 or higher</li>
+</ul>
+<h3>Write the compute module to your local machine</h3>
+<ol>
+<li>Create a new directory for your compute module.</li>
+<li>Create a file called <code>Dockerfile</code> in the directory.</li>
+<li>Copy and paste the following into the <code>Dockerfile</code>:</li>
+</ol>
+<pre><code># Change the platform based on your Foundry resource queue
+FROM --platform=linux/amd64 python:3.12
+
+COPY requirements.txt .
+RUN pip install -r requirements.txt
+COPY src .
+
+# USER is required to be non-root and numeric for running compute modules in Foundry
+USER 5000
+CMD [&quot;python&quot;, &quot;app.py&quot;]
+</code></pre>
+<ol start="4">
+<li>Create a new file called <code>requirements.txt</code>. Store your dependencies for your Python application in this file. For example:</li>
+</ol>
+<pre><code>requests == 2.31.0
+</code></pre>
+<ol start="5">
+<li>Create a new subdirectory called <code>src</code>. This is where you will put your Python application.</li>
+<li>Inside the <code>src</code> directory, create a file called <code>app.py</code>.</li>
+<li>Your directory should now look like the following:</li>
+</ol>
+<pre><code>MyComputeModule
+âââ Dockerfile
+âââ requirements.txt
+âââ src
+    âââ app.py
+</code></pre>
+<ol start="8">
+<li>Add the following code to <code>app.py</code>. This complete example reads from an input stream, doubles the values, writes to an output stream, and repeats every 60 seconds:</li>
+</ol>
+<pre><code class="language-python">import os
+import json
+import time
+import requests
+
+# Read the bearer token for input and output access
+with open(os.environ['BUILD2_TOKEN']) as f:
+    bearer_token = f.read()
+
+# Read input and output resource information
+with open(os.environ['RESOURCE_ALIAS_MAP']) as f:
+    resource_alias_map = json.load(f)
+
+input_info = resource_alias_map['identifier you put in the config']
+output_info = resource_alias_map['identifier you put in the config']
+
+input_rid = input_info['rid']
+input_branch = input_info['branch'] or &quot;master&quot;
+output_rid = output_info['rid']
+output_branch = output_info['branch'] or &quot;master&quot;
+
+FOUNDRY_URL = &quot;yourenrollment.palantirfoundry.com&quot;
+
+def get_stream_latest_records():
+    url = f&quot;https://{FOUNDRY_URL}/stream-proxy/api/streams/{input_rid}/branches/{input_branch}/records&quot;
+    response = requests.get(url, headers={&quot;Authorization&quot;: f&quot;Bearer {bearer_token}&quot;})
+    return response.json()
+
+def process_record(record):
+    # Assume input stream has schema 'x': Integer
+    x = record['value']['x']
+    # Assume output stream has schema 'twice_x': Integer
+    return {'twice_x': x * 2}
+
+def put_record_to_stream(record):
+    url = f&quot;https://{FOUNDRY_URL}/stream-proxy/api/streams/{output_rid}/branches/{output_branch}/jsonRecord&quot;
+    requests.post(url, json=record, headers={&quot;Authorization&quot;: f&quot;Bearer {bearer_token}&quot;})
+
+# Run the pipeline autonomously
+while True:
+    records = get_stream_latest_records()
+    processed_records = list(map(process_record, records))
+    [put_record_to_stream(record) for record in processed_records]
+    time.sleep(60)
+</code></pre>
+<h3>Deploy your compute module</h3>
+<ol>
+<li>Build a Docker image and publish it to the <a href="https://www.palantir.com/docs/foundry/code-repositories/publish-artifact/">Artifact repository</a>.</li>
+<li>Finally, deploy the compute module using pipeline execution mode after selecting the relevant container image.</li>
+</ol>
+<p>You can now view the results streamed live in the output dataset.</p>
+<h3>Understand your pipeline code</h3>
+<p>To interact with inputs and outputs, we provide a <a href="https://www.palantir.com/docs/foundry/compute-modules/execution-modes/#pipeline-execution-mode">bearer token and input/output information</a>.</p>
+<p>You can then write code to interact with the inputs and outputs and perform computations. The code snippets provide a simple example of pipelining two stream datasets:</p>
+<ul>
+<li>It reads the latest records from the input stream dataset using the bearer token and input info by calling the <code>stream-proxy</code> service.</li>
+<li>It then performs computations (in the above example, doubling the data). The data format depends on your own input data.</li>
+<li>Next, it writes results to the output stream dataset using the bearer token and output info.</li>
+<li>Finally, as you cannot query a pipeline mode compute module, the code runs the pipeline autonomously at the end of the script, which will be executed on container start.</li>
+</ul>
+<h3>Create your first container</h3>
+<p>Now, you can publish your code to Foundry using an Artifact repository, which will be used to store your Docker images.</p>
+<ol>
+<li>Create or select an Artifact repository to publish your code to Foundry. To do this, navigate to the <strong>Documentation</strong> tab of your compute module. Then, find the corresponding in-platform documentation section to this external documentation page: <strong>Build a compute module-backed function &gt; Create your first container</strong>. There, you can <strong>Create or select repository</strong>.</li>
+<li>On the next page, select the dropdown menu to choose <strong>Publish to DOCKER</strong> and follow the instructions on the page to push your code.</li>
+<li>In the <strong>Configure</strong> tab of your compute module, select <strong>Add Container</strong>. Then, select your Artifact repository and the image you pushed.</li>
+<li>Select <strong>Update configuration</strong> to save your edits.</li>
+<li>Once the configuration is updated, you can start the compute module from the <strong>Overview</strong> page, test it using the bottom <strong>Query</strong> panel, and view the logs.</li>
+</ol>
+</body>
+</html>

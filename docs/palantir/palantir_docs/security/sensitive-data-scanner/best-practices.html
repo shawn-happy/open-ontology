@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Best practices</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Best practices</h1>
+<p>Sensitive Data Scanner (SDS) automates a configurable integration of many of Foundry's most powerful capabilities (such as Markings), so should be used by those with some baseline proficiency of Foundry. The following are a set of best practices and guidelines to have in mind when using the tool.</p>
+<h2>Optimizing compute</h2>
+<p>As SDS can be configured to scan across an entire <a href="https://www.palantir.com/docs/foundry/security/orgs-and-spaces/#spaces">space</a>, concerns about the compute cost / time of each one-time or recurring scan may arise. There are two factors to consider when thinking about compute time: the number of datasets, and the type of match condition.
+We have provided scan optimization guidelines for both of these factors below:</p>
+<h3>(A) Optimize the number of datasets scanned:</h3>
+<ul>
+<li>Scan only where data enters the platform (also known as <a href="https://www.palantir.com/docs/foundry/sensitive-data-scanner/create-a-sensitive-data-scan/#scan-strategy">"boundary" datasets</a>).</li>
+<li><a href="https://www.palantir.com/docs/foundry/sensitive-data-scanner/create-a-sensitive-data-scan/#excluded-datasets-and-folders">Exclude entire subfolders</a> from being scanned, if sensitivity of content is already known.</li>
+<li><a href="https://www.palantir.com/docs/foundry/sensitive-data-scanner/create-a-sensitive-data-scan/#included-and-excluded-markings">Exclude datasets with certain markings</a> from being scanned, if, for example, they have a PII or PHI marking indicating the presence of sensitive data.</li>
+</ul>
+<p><img alt="Screenshot of Scan filters in Sensitive Data Scanner" src="../../_resources/foundry/sensitive-data-scanner/sds_config_guideline.png" /></p>
+<h3>(B) Optimize the match condition applied to each scan</h3>
+<p>Running a content-based regex search over the entire dataset is exhaustive and often resource-intensive. SDS optimizes compute by biasing toward checking the schema for column names prior to performing a content-based regex search. In practice, this means that SDS prevents builds if there is no possibility of a match based on columns when using either of the following regex match conditions:</p>
+<ul>
+<li>Match column name only</li>
+<li>Match both column name and content</li>
+</ul>
+<p>For scans that use language model match conditions, consider using a <a href="https://www.palantir.com/docs/foundry/sensitive-data-scanner/create-a-sensitive-data-scan/#row-selection-strategy">row subset</a> while tuning prompts or when exhaustive coverage is not required. Use <strong>Scan all rows</strong> when you need complete detection before applying <a href="https://www.palantir.com/docs/foundry/sensitive-data-scanner/create-match-actions/">match actions</a>.</p>
+<h2>Markings</h2>
+<p>The provision of access to a Marking is binary (all-or-nothing). Regardless of role, a user cannot access a resource unless they satisfy all Marking requirements. <a href="https://www.palantir.com/docs/foundry/security/markings/">Learn more about Markings</a>.
+When a scan finds matching datasets, it applies markings automatically. Mistakenly using restrictive markings can block users from essential workflows and be hard to fix. Users should be careful and limit the match action's scope to a specific subset.</p>
+<p><img alt="Screenshot of selected match actions including an access restriction warning" src="../../_resources/foundry/sensitive-data-scanner/sds_warning.png" /></p>
+<h2>Permission Model in Sensitive Data Scanner</h2>
+<p>Sensitive Data Scanner finds and protects sensitive data in Foundry. Permissions are carefully set so a user can only do what they are allowed to with SDS without exceeding their individual permissions on the resource. Data Governance Officers can monitor the whole organization's data without needing risky Owner permissions on every resource.</p>
+<p>This following section presents the two ways a user can interact with Foundry resources using SDS:</p>
+<ol>
+<li>Through specific <a href="https://www.palantir.com/docs/foundry/security/projects-and-roles/">Space Roles</a></li>
+<li>By being designated as the <a href="https://www.palantir.com/docs/foundry/security/data-protection-and-governance/">Data Governance Officer</a> of an organization, and having Viewer role on the space</li>
+</ol>
+<table>
+<thead>
+<tr>
+<th>Action</th>
+<th style="text-align: left;">Data Governance Officer + Space Viewer</th>
+<th style="text-align: center;">Space Owner</th>
+<th style="text-align: center;">Space Editor</th>
+<th style="text-align: center;">Space Viewer (Only)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Configure MC &amp; MA</td>
+<td style="text-align: left;">âï¸</td>
+<td style="text-align: center;">âï¸</td>
+<td style="text-align: center;"></td>
+<td style="text-align: center;"></td>
+</tr>
+<tr>
+<td>Manage recurring scans</td>
+<td style="text-align: left;">âï¸</td>
+<td style="text-align: center;">âï¸</td>
+<td style="text-align: center;"></td>
+<td style="text-align: center;"></td>
+</tr>
+<tr>
+<td>Run sensitive data scans</td>
+<td style="text-align: left;">âï¸</td>
+<td style="text-align: center;">âï¸</td>
+<td style="text-align: center;"></td>
+<td style="text-align: center;"></td>
+</tr>
+<tr>
+<td>Cancel sensitive data scans</td>
+<td style="text-align: left;">âï¸</td>
+<td style="text-align: center;">âï¸</td>
+<td style="text-align: center;"></td>
+<td style="text-align: center;"></td>
+</tr>
+<tr>
+<td>View sensitive data scan status</td>
+<td style="text-align: left;">âï¸</td>
+<td style="text-align: center;">âï¸</td>
+<td style="text-align: center;">âï¸</td>
+<td style="text-align: center;">âï¸</td>
+</tr>
+<tr>
+<td>View MC / MA</td>
+<td style="text-align: left;">âï¸</td>
+<td style="text-align: center;">âï¸</td>
+<td style="text-align: center;">âï¸</td>
+<td style="text-align: center;">âï¸</td>
+</tr>
+</tbody>
+</table>
+<p>As a resource Owner, a user has full control over SDS scanning and can manage interactions with the resource, including configuring settings and canceling scans. Editors can only request SDS interactions based on the Owner's preferences - such as running a scan with pre-configured match conditions, while Viewers can only see SDS outcomes. However, a "Data Governance Officer" role grants scanning privileges like a Space Owner.</p>
+</body>
+</html>

@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Architecture examples</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Architecture examples</h1>
+<h2>Foundry worker with direct connection policies</h2>
+<p>:::callout{theme="neutral"}
+This type of connection can also be referred to as a "direct connection".
+:::</p>
+<p>Foundry worker with direct connection policies is the recommended default for accessing external systems that accept inbound traffic from Foundry, such as REST APIs and cloud/SaaS systems.</p>
+<p>In this scenario, data connections run in an isolated compute container called a <a href="https://www.palantir.com/docs/foundry/data-connection/core-concepts/#foundry-worker">Foundry worker</a>, which handles authenticated encrypted network requests.
+The external system must accept inbound traffic from Foundry. Network egress from Foundry is managed and administered in-platform via <a href="https://www.palantir.com/docs/foundry/administration/configure-egress/#direct-connection-egress-policies">direct connection egress policies</a>.</p>
+<p>External system credentials are stored with AES-256-GCM server-side encryption and can only be decrypted by containers triggered by authorized users.</p>
+<p>To create a direct connection, follow instructions about <a href="https://www.palantir.com/docs/foundry/data-connection/set-up-source/">setting up a source</a>.</p>
+<p><img alt="Architecture diagram of direct connection." src="../../_resources/foundry/data-connection/direct-connection-architecture.png" /></p>
+<h2>Foundry worker with agent proxy policy</h2>
+<p>:::callout{theme="neutral"}
+This type of connection can also be referred to as an "agent proxy" or an "agent thin mode" connection.
+:::</p>
+<p>Foundry worker with agent proxy policies is the recommended architecture to access external systems hosted on private networks. It requires the use of a <a href="https://www.palantir.com/docs/foundry/data-connection/core-concepts/#agents">data connection agent</a>.</p>
+<p>In this scenario, the agent acts as a simple network tunnel without performing any data processing itself.</p>
+<p>The agent initiates a network request with Foundry to establish a websocket connection. <a href="https://www.palantir.com/docs/foundry/data-connection/agent-proxy/#security-controls-specific-to-agent-proxy">Learn more about network controls available on agents.</a></p>
+<p>All data connection and computation capabilities are executed by a <a href="https://www.palantir.com/docs/foundry/data-connection/core-concepts/#foundry-worker">Foundry worker</a>, an isolated container with scalable compute resources that processes data and communicates with external systems via the provided websocket.</p>
+<p>The ability to use the agent as a proxy is granularly managed and administered in-platform via <a href="https://www.palantir.com/docs/foundry/administration/configure-egress/#agent-proxy-egress-policies">agent proxy egress policies</a>.</p>
+<p>Multiple agents can be used to load balance workloads across multiple external systems.</p>
+<p>Like <a href="#foundry-worker-with-direct-connection-policies">direct connections</a>, external system credentials are stored using AES-256-GCM server-side encryption and can only be decrypted by the container triggered by authorized users.</p>
+<p>To create an agent-proxy connection, you will need to:</p>
+<ul>
+<li><a href="https://www.palantir.com/docs/foundry/data-connection/set-up-agent/">Set up an agent.</a></li>
+<li>Create one or many <a href="https://www.palantir.com/docs/foundry/administration/configure-egress/#agent-proxy-egress-policies">agent proxy policies</a>.</li>
+<li><a href="https://www.palantir.com/docs/foundry/data-connection/set-up-direct-connection/">Set up a Foundry worker source</a> using the policies above.</li>
+</ul>
+<p><img alt="Architecture diagram of agent proxy connection." src="../../_resources/foundry/data-connection/agent-proxy-architecture.png" /></p>
+<h2>Legacy architecture: Agent worker</h2>
+<p>:::callout{theme="warning" title="Legacy"}
+Agent worker is in the <a href="https://www.palantir.com/docs/foundry/platform-overview/development-life-cycle/">legacy</a> phase of development. We recommend <a href="#foundry-worker-with-agent-proxy-policy">Foundry worker with agent proxy</a> for on-premise and privately hosted systems. See <a href="https://www.palantir.com/docs/foundry/data-connection/foundry-worker-vs-agent-worker/">Foundry worker vs. agent worker</a> for the comparison.
+:::</p>
+<p>:::callout{theme="neutral"}
+This type of connection can also be referred to as "agent thick mode".
+:::</p>
+<p>Agent worker connection is the historical architecture used to access external systems hosted on private networks from Foundry. It requires the use of a <a href="https://www.palantir.com/docs/foundry/data-connection/core-concepts/#agents">data connection agent</a>. <a href="https://www.palantir.com/docs/foundry/data-connection/agent-worker/#known-limitations">Learn more about agent worker known limitations.</a></p>
+<p>To migrate an existing agent worker source to a Foundry worker, follow the <a href="https://www.palantir.com/docs/foundry/data-connection/foundry-worker-vs-agent-worker/#switch-source-from-agent-worker-to-foundry-worker">migration guide</a>.</p>
+<p>In this scenario, the agent constantly polls Foundry via unidirectional outbound connections secured by HTTPS for new tasks to execute. Once received, the task is executed by the agent itself, also called <a href="https://www.palantir.com/docs/foundry/data-connection/core-concepts/#agent-worker">agent worker</a> and results are sent to Foundry over that same unidirectional connection. All the networking configuration required for the agent to be able to communicate with internal source systems is <a href="https://www.palantir.com/docs/foundry/data-connection/set-up-agent/#configure-agent-network-access">configured on the agent host itself</a>.</p>
+<p>External system credentials are stored on the platform using AES-128-GCM encryption with keys stored on the agent. During capability execution, the agent retrieves encrypted credentials from Foundry, decrypts them locally, and uses them for queries. Decrypted credentials are automatically deleted from memory after execution.</p>
+<p>To create an agent worker connection, you will need to:</p>
+<ul>
+<li><a href="https://www.palantir.com/docs/foundry/data-connection/set-up-agent/">Set up an agent.</a></li>
+<li>Configure it to be an <a href="https://www.palantir.com/docs/foundry/data-connection/agent-worker/">agent worker</a>.</li>
+<li><a href="https://www.palantir.com/docs/foundry/data-connection/set-up-source/">Set up an agent worker source</a> and assign it that agent.</li>
+</ul>
+<p><img alt="Architecture diagram of agent worker." src="../../_resources/foundry/data-connection/agent-worker-architecture.png" /></p>
+<h2>Summary</h2>
+<table>
+<thead>
+<tr>
+<th style="text-align: center;">Type of connection</th>
+<th style="text-align: center;">Capability execution</th>
+<th style="text-align: center;">Networking</th>
+<th style="text-align: center;">System credentials</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center;"><a href="#foundry-worker-with-direct-connection-policies">Direct connection</a></td>
+<td style="text-align: center;">In Foundry</td>
+<td style="text-align: center;">Direct from Foundry to source systems.</td>
+<td style="text-align: center;">Stored encrypted in platform with encryption keys in platform.</td>
+</tr>
+<tr>
+<td style="text-align: center;"><a href="#foundry-worker-with-agent-proxy-policy">Agent proxy</a></td>
+<td style="text-align: center;">In Foundry</td>
+<td style="text-align: center;">Outbound connection from agent to Foundry to establish a websocket and proxy traffic.</td>
+<td style="text-align: center;">Stored encrypted in platform with encryption keys in platform.</td>
+</tr>
+<tr>
+<td style="text-align: center;"><a href="#legacy-architecture-agent-worker">Agent worker (legacy)</a></td>
+<td style="text-align: center;">On agent host</td>
+<td style="text-align: center;">Outbound connection from agent to Foundry to poll tasks. Inbound connection from agent to source systems.</td>
+<td style="text-align: center;">Stored encrypted in platform with encryption keys on agent.</td>
+</tr>
+</tbody>
+</table>
+</body>
+</html>

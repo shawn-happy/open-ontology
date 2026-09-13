@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Syntax cheat sheet</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Syntax cheat sheet</h1>
+<p>A quick reference guide to the most commonly used patterns and functions in Java Spark SQL.</p>
+<p>See the <a href="https://spark.apache.org/docs/latest/api/java/">Java Spark Official Documentation â</a> for additional information on Java Spark.</p>
+<h2>Common Patterns</h2>
+<h4>Logging Output</h4>
+<pre><code class="language-java">import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+public class MyClass {
+    private static final Logger LOG = LoggerFactory.getLogger(MyClass.class);
+    LOG.info(&quot;example log output&quot;);
+}
+</code></pre>
+<h4>Importing Datasets, Rows, Functions, and Types</h4>
+<pre><code class="language-java">import org.apache.spark.sql.Dataset;
+import org.apache.spark.sql.Row;
+import static org.apache.spark.sql.functions.*;
+import org.apache.spark.sql.types.DataTypes;
+</code></pre>
+<h4>Filtering</h4>
+<pre><code class="language-java">// Filter on equals condition
+df = df.filter(col(&quot;is_adult&quot;).equalTo(&quot;Y&quot;));
+
+// Filter on &gt;, &lt;, &gt;=, &lt;= condition
+df = df.filter(col(&quot;age&quot;).gt(25));
+df = df.filter(col(&quot;age&quot;).lt(25));
+df = df.filter(col(&quot;age&quot;).geq(25));
+df = df.filter(col(&quot;age&quot;).leq(25));
+
+// Multiple conditions
+df = df.filter(col(&quot;age&quot;).gt(25).and(col(&quot;is_adult&quot;).equalTo(&quot;Y&quot;)));
+
+// Compare against a list of allowed values
+df = df.filter(col(&quot;first_name&quot;).isin(List.of(3, 4, 7)));
+
+// Sort results
+df = df.orderBy(col(&quot;age&quot;).asc());
+df = df.orderBy(col(&quot;age&quot;).desc());
+</code></pre>
+<h4>Joins</h4>
+<pre><code class="language-java">// Left join in another dataset
+df = df.join(personLookupTable, col(&quot;person_id&quot;), &quot;left&quot;);
+
+// Left anti-join in another dataset (return unmatched rows in left dataframe)
+df = df.join(personLookupTable, col(&quot;person_id&quot;), &quot;leftanti&quot;);
+
+// Match on different columns in left &amp; right datasets
+df = df.join(otherTable, col(&quot;id&quot;).equalTo(col(&quot;person_id&quot;)), &quot;left&quot;);
+
+// Match on multiple columns
+df = df.join(otherTable, col(&quot;first_name&quot;).equalTo(col(&quot;name&quot;)).and(
+             col(&quot;last_name&quot;).equalTo(col(&quot;family_name&quot;))), &quot;left&quot;);
+
+// Useful for one-liner lookup code joins
+public Dataset&lt;Row&gt; lookupAndReplace(Dataset&lt;Row&gt; df1, Dataset&lt;Row&gt; df2,
+    String df1Key, String df2Key, String df2Value) {
+
+    return df1.join(df2.select(col(df2Key), col(df2Value)),
+                    col(df1Key).equalTo(col(df2Key)), &quot;left&quot;)
+              .withColumn(df1Key, coalesce(col(df2Value), col(df1Key)))
+              .drop(df2Key, df2Value);
+}
+
+Dataset&lt;Row&gt; df = lookupAndReplace(people, payCodes, id, payCodeId, payCodeDesc);
+</code></pre>
+<h4>Column Operations</h4>
+<pre><code class="language-java">// Add a new static column
+df = df.withColumn(&quot;status&quot;, lit(&quot;PASS&quot;));
+
+// Construct a new dynamic column
+df = df.withColumn(&quot;full_name&quot;, when(
+    (col(&quot;fname&quot;).isNotNull().or(col(&quot;lname&quot;).isNotNull())),
+    concat_ws(&quot; &quot;, col(&quot;fname&quot;), col(&quot;lname&quot;)))
+    .otherwise(lit(null)));
+
+// Pick which columns to keep, optionally rename some
+df = df.select(
+    col(&quot;name&quot;),
+    col(&quot;age&quot;),
+    col(&quot;dob&quot;).alias(&quot;date_of_birth&quot;)
+);
+
+// Remove columns
+df = df.drop(&quot;mod_dt&quot;, &quot;mod_username&quot;);
+
+// Rename a column
+df = df.withColumnRenamed(&quot;dob&quot;, &quot;date_of_birth&quot;);
+
+// Keep all the columns which also occur in another dataset
+import org.apache.spark.sql.Column;
+import scala.collection.JavaConversions;
+
+List&lt;Column&gt; columnsToSelect = new ArrayList&lt;Column&gt;();
+List&lt;String&gt; df2Columns = Arrays.asList(df2.columns());
+for (String c : df.columns()) {
+  if (df2Columns.contains(c)) {
+    columnsToSelect.add(col(c));
+  }
+}
+df = df.select(JavaConversions.asScalaBuffer(columnsToSelect));
+
+// Batch Rename/Clean Columns
+for (String c : df.columns()) {
+  df = df.withColumnRenamed(c, c.toLowerCase().replace(&quot; &quot;, &quot;_&quot;).replace(&quot;-&quot;, &quot;_&quot;));
+}
+</code></pre>
+<h4>Casting &amp; Coalescing Null Values &amp; Duplicates</h4>
+<pre><code class="language-java">import org.apache.spark.sql.types.DataTypes;
+
+// Cast a column to a different type (both ways equivalent)
+df = df.withColumn(&quot;price&quot;, col(&quot;price&quot;).cast(DataTypes.DoubleType));
+df = df.withColumn(&quot;price&quot;, col(&quot;price&quot;).cast(&quot;double&quot;));
+
+// Create an all null column and cast to specific type
+df = df.withColumn(&quot;name&quot;, lit(null).cast(DataTypes.StringType));
+df = df.withColumn(&quot;name&quot;, lit(null).cast(&quot;string&quot;));
+
+// Replace all nulls with a specific value
+df = df.na().fill(ImmutableMap.of(&quot;first_name&quot;, &quot;Tom&quot;, &quot;age&quot;, 0));
+
+// Take the first value that is not null
+df = df.withColumn(&quot;last_name&quot;, coalesce(col(&quot;last_name&quot;), col(&quot;surname&quot;), lit(&quot;N/A&quot;)));
+
+// Drop duplicate rows in a dataset (same as distinct())
+df = df.dropDuplicates()
+
+// Drop duplicate rows, but consider only specific columns
+df = df.dropDuplicates(&quot;name&quot;, &quot;height&quot;);
+</code></pre>
+<h2>String Operations</h2>
+<h4>String Filters</h4>
+<pre><code class="language-java">// Contains - col.contains(string)
+df = df.filter(col(&quot;name&quot;).contains(&quot;o&quot;));
+
+//Starts With - col.startsWith(string)
+df = df.filter(col(&quot;name&quot;).startsWith(&quot;Al&quot;));
+
+// Ends With - col.endsWith(string)
+df = df.filter(col(&quot;name&quot;).endsWith(&quot;ice&quot;));
+
+// Is Null - col.isNull()
+df = df.filter(col(&quot;is_adult&quot;).isNull());
+
+// Is Not Null - col.isNotNull()
+df = df.filter(col(&quot;first_name&quot;).isNotNull());
+
+// Like - col.like(string_with_sql_wildcards)
+df = df.filter(col(&quot;name&quot;).like(&quot;Al%&quot;));
+
+// Regex Like - col.rlike(regex)
+df = df.filter(col(&quot;name&quot;).rlike(&quot;[A-Z]*ice$&quot;));
+
+// Is In List - col.isin(Object... values)
+df = df.filter(col(&quot;name&quot;).isin(&quot;Bob&quot;, &quot;Mike&quot;));
+</code></pre>
+<h4>String Functions</h4>
+<pre><code class="language-java">// Substring - col.substr(startPos, length) (1-based indexing)
+df = df.withColumn(&quot;short_id&quot;, col(&quot;id&quot;).substr(1, 10));
+
+// Trim - trim(col)
+df = df.withColumn(&quot;name&quot;, trim(col(&quot;name&quot;)));
+
+// Left Pad - lpad(col, len, pad)
+// Right Pad - rpad(col, len, pad)
+df = df.withColumn(&quot;id&quot;, lpad(col(&quot;id&quot;), 4, &quot;0&quot;));
+
+// Left Trim - ltrim(col)
+// Right Trim - rtrim(col)
+df = df.withColumn(&quot;id&quot;, ltrim(col(&quot;id&quot;)));
+
+// Concatenate - concat(Column... cols) (null if any column null)
+df = df.withColumn(&quot;full_name&quot;, concat(col(&quot;fname&quot;), lit(&quot; &quot;), col(&quot;lname&quot;)));
+
+// Concatenate with Delimiter - concat_ws(delim, Column... cols) (ignores nulls)
+df = df.withColumn(&quot;full_name&quot;, concat_ws(&quot;-&quot;, &quot;fname&quot;, &quot;lname&quot;));
+
+// Regex Replace - regexp_replace(col, pattern, replacement)
+df = df.withColumn(&quot;id&quot;, regexp_replace(col(&quot;id&quot;), &quot;0F1(.*)&quot;, &quot;1F1-$1&quot;));
+
+// Regex Extract - regexp_extract(str, pattern, idx)
+df = df.withColumn(&quot;id&quot;, regexp_extract(col(&quot;id&quot;), &quot;[0-9]*&quot;, 0));
+</code></pre>
+<h2>Number Operations</h2>
+<pre><code class="language-java">// Round - round(col, scale=0)
+df = df.withColumn(&quot;price&quot;, round(col(&quot;price&quot;), 0));
+
+// Floor - floor(col)
+df = df.withColumn(&quot;price&quot;, floor(col(&quot;price&quot;)));
+
+// Ceiling - ceil(col)
+df = df.withColumn(&quot;price&quot;, ceil(col(&quot;price&quot;)));
+
+// Absolute Value - abs(col)
+df = df.withColumn(&quot;price&quot;, abs(col(&quot;price&quot;)));
+
+// X raised to power Y âÂ pow(X, Y)
+df = df.withColumn(&quot;exponential_growth&quot;, pow(col(&quot;x&quot;), 2.0));
+
+// Select smallest value out of multiple columns âÂ least(Column... cols)
+df = df.withColumn(&quot;least&quot;, least(col(&quot;subtotal&quot;), col(&quot;total&quot;)));
+
+// Select largest value out of multiple columns âÂ greatest(Column... cols)
+df = df.withColumn(&quot;greatest&quot;, greatest(col(&quot;subtotal&quot;), col(&quot;total&quot;)));
+</code></pre>
+<h2>Date &amp; Timestamp Operations</h2>
+<pre><code class="language-java">// Convert a string of known format to a date (excludes time information)
+df = df.withColumn(&quot;date_of_birth&quot;, to_date(col(&quot;date_of_birth&quot;), &quot;yyyy-MM-dd&quot;));
+
+// Convert a string of known format to a timestamp (includes time information)
+df = df.withColumn(&quot;time_of_birth&quot;, to_timestamp(col(&quot;time_of_birth&quot;), &quot;yyyy-MM-dd HH:mm:ss&quot;));
+
+// Get year from date:       year(col)
+// Get month from date:      month(col)
+// Get day from date:        dayofmonth(col)
+// Get hour from date:       hour(col)
+// Get minute from date:     minute(col)
+// Get second from date:     second(col)
+df = df.filter(year(col(&quot;date_of_birth&quot;)).equalTo(&quot;2017&quot;));
+
+// Add &amp; subtract days
+df = df.withColumn(&quot;three_days_after&quot;, date_add(col(&quot;date_of_birth&quot;), 3));
+df = df.withColumn(&quot;three_days_before&quot;, date_sub(col(&quot;date_of_birth&quot;), 3));
+
+// Add &amp; subtract months
+df = df.withColumn(&quot;next_month&quot;, add_months(col(&quot;date_of_birth&quot;), 1));
+df = df.withColumn(&quot;previous_month&quot;, add_months(col(&quot;date_of_birth&quot;), -1));
+
+// Get number of days between two dates
+df = df.withColumn(&quot;days_between&quot;, datediff(col(&quot;end&quot;), col(&quot;start&quot;)));
+
+// Get number of months between two dates
+df = df.withColumn(&quot;months_between&quot;, months_between(col(&quot;end&quot;), col(&quot;start&quot;)));
+
+// Keep only rows where date_of_birth is between 2017-05-10 and 2018-07-21
+df = df.filter(
+    (col(&quot;date_of_birth&quot;).geq(&quot;2017-05-10&quot;)).and(
+    (col(&quot;date_of_birth&quot;).leq(&quot;2018-07-21&quot;)))
+);
+</code></pre>
+<h2>Array and Struct Operations</h2>
+<pre><code class="language-java">// Array or Struct column from existing columns
+df = df.withColumn(&quot;guardians&quot;, array(col(&quot;guardian_1&quot;), col(&quot;guardian_2&quot;)));
+df = df.withColumn(&quot;properties&quot;, struct(col(&quot;hair_color&quot;), col(&quot;eye_color&quot;)));
+
+// Extract from Array or Struct column by index or key (null if invalid)
+df = df.withColumn(&quot;primary_guardian&quot;, col(&quot;guardians&quot;).getItem(0));
+df = df.withColumn(&quot;hair_color&quot;, col(&quot;properties&quot;).getItem(&quot;hair_color&quot;));
+
+// Explode Array or Struct column into multiple rows
+df = df.select(col(&quot;child_name&quot;), explode(col(&quot;guardians&quot;)));
+df = df.select(col(&quot;child_name&quot;), explode(col(&quot;properties&quot;)));
+
+// Explode Struct column into multiple columns
+df = df.select(col(&quot;child_name&quot;), col(&quot;properties.*&quot;));
+</code></pre>
+<h2>Aggregation Operations</h2>
+<pre><code class="language-java">// Row Count:                count(col), countDistinct(col)
+// Sum of Rows in Group:     sum(col)
+// Mean of Rows in Group:    mean(col)
+// Max of Rows in Group:     max(col)
+// Min of Rows in Group:     min(col)
+// First Row in Group:       first(col, ignoreNulls)
+
+df = df.groupBy(col(&quot;address&quot;)).agg(
+  count(col(&quot;uuid&quot;)).alias(&quot;num_residents&quot;),
+  max(col(&quot;age&quot;)).alias(&quot;oldest_age&quot;),
+  first(col(&quot;city&quot;), true).alias(&quot;city&quot;)
+);
+
+// Collect a Set of all Rows in Group:       collect_set(col)
+// Collect a List of all Rows in Group:      collect_list(col)
+df = df.groupBy(col(&quot;address&quot;)).agg(collect_set(&quot;name&quot;).alias(&quot;resident_names&quot;));
+</code></pre>
+<h2>Advanced Operations</h2>
+<h4>Repartitioning</h4>
+<pre><code class="language-java">// Repartition â df.repartition(num_output_partitions)
+df = df.repartition(1);
+</code></pre>
+<h4>UDFs (User Defined Functions)</h4>
+<pre><code class="language-java">import org.apache.spark.sql.expressions.UserDefinedFunction;
+import org.apache.spark.sql.types.DecimalType;
+import static org.apache.spark.sql.functions.col;
+import static org.apache.spark.sql.functions.udf;
+import java.math.BigDecimal;
+
+/**
+ * The following example creates a java UDF which adds two columns of Spark type &quot;Decimal&quot;.
+ * Spark represents DecimalType with java.math.BigDecimal, hence why we use this class.
+ * Other Spark types will be represented by other Java types as defined in https://spark.apache.org/docs/3.0.0/sql-ref-datatypes.html
+ */
+
+public final class HighLevelAutoTransform {
+    @Compute
+    @Output(&quot;...&quot;)
+    public Dataset&lt;Row&gt; myComputeFunction(@Input(&quot;...&quot;) Dataset&lt;Row&gt; df) {
+        UserDefinedFunction addsUDF = udf((BigDecimal i, BigDecimal j) -&gt; {
+            if (i == null || j == null) { // always handle null cases
+                return null;
+            }
+
+            return i.add(j);
+        }, new DecimalType()); // this is the Spark data type of the result of the UDF
+
+        return df.withColumn(&quot;a_plus_b&quot;, addsUDF.apply(col(&quot;a&quot;), col(&quot;b&quot;)));
+    }
+}
+</code></pre>
+</body>
+</html>

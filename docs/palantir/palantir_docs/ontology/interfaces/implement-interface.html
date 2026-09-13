@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Implement an interface</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Implement an interface</h1>
+<p>Once defined, an interface can be implemented by any object type that conforms to the interface definition. This means that object types must have properties that satisfy the interface's required properties, links that satisfy all required link type constraints, and action types that satisfy all required action type constraints defined on the interface.</p>
+<p>Implementing an interface with an object type indicates that that object type is a concrete instance of the interface within the Ontology. This declaration facilitates additional functionality on the object type, namely:</p>
+<ul>
+<li>Object Set Service searches against the interface will return matching objects of the implementing object type.</li>
+<li>Objects of the implementing object type can be interacted with using both their local API names when typed as the concrete object type and the interface API names for properties and links when typed as the interface type.</li>
+</ul>
+<p>In short, implementing an interface allows application consumers to interact with any and all implementing objects through the interface definition. This allows application code to be written using the interface as an API layer instead of requiring the application to support every implementing object type individually. Additionally, by using the interface as an application API layer, new object types can be added to the application by having them implement the application interface without requiring code changes to explicitly support the new object type.</p>
+<h2>How to implement an interface in Ontology Manager</h2>
+<p>Follow the steps below to implement an interface with an object type.</p>
+<h3>1. Select your interface and object type</h3>
+<p>First, navigate to the object type in Ontology Manager and open the <strong>Interfaces</strong> tab. Select <strong>+ Implement new interface</strong> in the top right corner of the page.</p>
+<p><img src="../../_resources/external-d321bfd9f9e9.png" alt="Implement an interface from an object type." width="800" /></p>
+<p>In the dialog that appears, select the interface to implement.</p>
+<p><img src="../../_resources/external-43c06909573d.png" alt="Select interface to implement." width="800" /></p>
+<p>Alternatively, navigate to the interface overview page and select <strong>+ New</strong> in the <strong>Implementations</strong> section.</p>
+<p><img src="../../_resources/external-ea67694ee1d5.png" alt="Implement an interface from the interface overview." width="800" /></p>
+<p>Then, select the object type to implement the interface.</p>
+<p><img src="../../_resources/external-00fd01d5ca67.png" alt="Select interface to implement." width="800" /></p>
+<h3>2. Map local properties</h3>
+<p>To implement an interface, an object type must declare a mapping of existing object properties onto the required interface properties. If an interface property is marked as <strong>optional</strong>, mapping may be skipped.</p>
+<p><img src="../../_resources/external-9a03f5b7e216.png" alt="Map properties between the interface and the implementing object type." width="800" /></p>
+<h3>3. Map link type constraints</h3>
+<p>If any required <a href="https://www.palantir.com/docs/foundry/interfaces/interface-link-types-overview/">link type constraints</a> are declared on the interface, you must select a link type on the object type that satisfies each required link type constraint. You can also optionally provide a link mapping for any non-required link type constraints. You can choose an existing link type or create a new one to satisfy each constraint.</p>
+<p><img src="../../_resources/external-1473499436fb.png" alt="Map link types to fulfill link type constraints." width="800" /></p>
+<h3>4. Map action type constraints</h3>
+<p>If any required <a href="https://www.palantir.com/docs/foundry/interfaces/interface-action-type-constraints/">action type constraints</a> are declared on the interface, you must select an action type on the object type that satisfies each required action type constraint. You can also optionally provide an action mapping for any non-required action type constraints.</p>
+<p>After the interface implementation is created, configure parameter mappings from the object type's <strong>Interfaces</strong> tab. You must map any required parameter constraints to compatible required parameters on the concrete action type before saving changes to the Ontology.</p>
+<h3>5. Save changes</h3>
+<p>Select <strong>Save</strong> to make the changes to your Ontology.</p>
+<h2>How to implement an interface in Pipeline Builder</h2>
+<p>Follow the steps below to implement an interface on an <a href="https://www.palantir.com/docs/foundry/pipeline-builder/outputs-add-ontology-output/#add-an-object-type-output">object type output</a> in Pipeline Builder.</p>
+<h3>1. Open output type configuration</h3>
+<p>Select the object type output on which you would like to implement an interface, then select the <strong>Edit</strong> option.</p>
+<p><img src="../../_resources/external-62cf3731a2cd.png" alt="Edit object type output." width="800" /></p>
+<h3>2. Select the interface to implement</h3>
+<p>Select <strong>Implement interface</strong>.</p>
+<p><img src="../../_resources/external-475e4cd43dff.png" alt="Select Implement interface." width="800" /></p>
+<p>Then, select the interface to implement and choose <strong>Implement and go to mapping</strong>.</p>
+<p><img src="../../_resources/external-d2a5b624ea08.png" alt="Interface selection and go to mapping." width="800" /></p>
+<h3>3. Map local properties</h3>
+<p>To implement an interface, an object type must contain the interface's shared properties <strong>or</strong> declare a mapping of existing object properties onto the interface shared properties. Shared properties that are present on both the interface and object type will be automatically mapped. Any shared properties that are not on the object type will require you to manually input a mapping to satisfy the interface definition.</p>
+<p><img src="../../_resources/external-32bd2c5111ad.png" alt="Map local properties." width="800" /></p>
+<h3>4. Review implemented interfaces</h3>
+<p>You can view the interfaces implemented by this object type output from the output type configuration panel.</p>
+<p><img src="../../_resources/external-60517949a472.png" alt="Review implemented interfaces." width="800" /></p>
+<p>:::callout{theme="neutral"}
+Pipeline Builder does not currently support link type constraint or action type constraint mapping when implementing an interface. If your interface contains required link type constraints or required action type constraints, you must implement the interface through Ontology Manager.
+:::</p>
+</body>
+</html>

@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>REST</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>REST</h1>
+<p>Foundry can integrate with external systems that expose a REST (representational state transfer) API. You may need to use a different approach depending on whether you are syncing, exporting, or interactively calling REST APIs. On this page you can find several connection options for secure and efficient integration with REST APIs.</p>
+<h2>REST API source</h2>
+<p>The REST API source may be used for workflows requiring interactive HTTP requests to external systems directly from Foundry applications via Actions. For example, you can create a Workshop application with a button that uses a webhook to calls a REST endpoint when clicked, connecting that application to existing workflows and source systems.</p>
+<p>Webhooks to HTTP endpoints should use the REST API source type in Data Connection. You will need to configure the base URL, authentication, and an optional port.</p>
+<table>
+<thead>
+<tr>
+<th>Option</th>
+<th>Required</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Domain</td>
+<td>Yes</td>
+<td>At least one domain must be specified.</td>
+</tr>
+<tr>
+<td>Authentication</td>
+<td>Yes</td>
+<td>For each domain, the authentication must be specified. Options include <code>None</code>, <code>Basic</code>, <code>Bearer Token</code>, and <code>API Key</code>.</td>
+</tr>
+<tr>
+<td>Port</td>
+<td>No</td>
+<td>A port may be optionally specified. By default, all REST webhooks use HTTPS on port 443. To connect to a system that listens on a different port, specify a non-default port (for example, <code>8443</code>).</td>
+</tr>
+<tr>
+<td>Request Options</td>
+<td>No</td>
+<td>When selecting <code>API Key</code> authentication, you may choose whether you want to pass the API Key as a query param or header in the webhook requests.</td>
+</tr>
+</tbody>
+</table>
+<p>The example configuration below shows how to configure a connection to <code>https://my-domain.com</code> using bearer token authentication.</p>
+<p><img src="../../_resources/external-cb7487a8dfa1.png" alt="New webhook" width="500" /></p>
+<p>:::callout{theme="warning"}
+The REST API source type does not support other capabilities such as syncs or exports. The legacy <code>magritte-rest-v2</code> source type is no longer recommended for Webhooks workflows. Syncs and exports to REST APIs should use external transforms.
+:::</p>
+<p><a href="https://www.palantir.com/docs/foundry/data-connection/webhooks-overview/">Learn more about Webhooks in Foundry.</a></p>
+<h2>External transforms in Code Repositories</h2>
+<p>Use <a href="https://www.palantir.com/docs/foundry/data-connection/external-transforms/">external transforms</a> to configure syncs and exports that require you to call REST APIs. Simply import a source in a <a href="https://www.palantir.com/docs/foundry/transforms-python/overview/">Python Code Repository</a> and write custom logic to query the API.</p>
+<p>:::callout{theme="success"}
+You can use external transforms to access REST API sources inaccessible over the internet when using a <a href="https://www.palantir.com/docs/foundry/data-connection/architecture/#foundry-worker-with-agent-proxy-policy">Foundry worker with agent egress policies</a>.
+:::</p>
+<p><a href="https://www.palantir.com/docs/foundry/data-connection/external-transforms/">Learn more about calling APIs from code repositories.</a></p>
+<h3>Examples</h3>
+<p>The examples below show common patterns of complex external transforms.</p>
+<h4>OAuth Client Credentials grant</h4>
+<p>The <a href="https://datatracker.ietf.org/doc/html/rfc6749#section-4.4">OAuth Client Credentials grant â</a> is a common authentication pattern for non-interactive, service-to-service REST API calls. The client exchanges a <code>client_id</code> and <code>client_secret</code> at the OAuth2 server's token endpoint for a short-lived access token, then includes that token as a bearer token in the <code>Authorization</code> header of every subsequent request to the resource API.</p>
+<p>Before writing the transform, configure the REST API source with the OAuth2 token endpoint domain and the resource API domain, and store the <code>client_id</code> and <code>client_secret</code> as <a href="https://www.palantir.com/docs/foundry/data-connection/external-transforms/#access-source-attributes-and-credentials">additional secrets</a> on the source. Do not hard-code secrets in your transform.</p>
+<p>The request to the token endpoint must use the <code>application/x-www-form-urlencoded</code> content type with at least the following parameters:</p>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>grant_type</code></td>
+<td><code>client_credentials</code></td>
+</tr>
+<tr>
+<td><code>client_id</code></td>
+<td>The application client ID</td>
+</tr>
+<tr>
+<td><code>client_secret</code></td>
+<td>The application client secret</td>
+</tr>
+<tr>
+<td><code>scope</code></td>
+<td>Space-separated list of required scopes</td>
+</tr>
+</tbody>
+</table>
+<p>Once you have an access token, include it in the <code>Authorization</code> header of every request to the resource API:</p>
+<pre><code>Authorization: Bearer &lt;access_token&gt;
+</code></pre>
+<p>Many APIs return results in pages. A common pattern uses a <code>nextPageToken</code> field in the response to indicate there are more results; your transform should loop until no <code>nextPageToken</code> is returned.</p>
+<p>:::callout{theme="warning"}
+Access tokens expire. If your transform runs for a long time, you may need to request a new token partway through execution. Check the <code>expires_in</code> field from the token response to determine when the token will expire.
+:::</p>
+<h5>Basic <code>client_id</code>/<code>client_secret</code> example</h5>
+<p>The following example requests an access token and calls a paginated resource API. It uses generic placeholders so that it can be adapted to any OAuth2-protected REST API.</p>
+<pre><code class="language-python">import logging
+
+import pandas as pd
+from transforms.api import Output, transform_pandas
+from transforms.external.systems import external_systems, Source, ResolvedSource
+
+logger = logging.getLogger(__name__)
+
+
+@external_systems(
+    api_source=Source(&quot;&lt;source_rid&gt;&quot;)
+)
+@transform_pandas(
+    Output(&quot;&lt;output_dataset_rid&gt;&quot;),
+)
+def compute(api_source: ResolvedSource) -&gt; pd.DataFrame:
+    base_url = api_source.get_https_connection().url
+    client = api_source.get_https_connection().get_client()
+
+    client_id = api_source.get_secret(&quot;additionalSecretClientId&quot;)
+    client_secret = api_source.get_secret(&quot;additionalSecretClientSecret&quot;)
+
+    token_response = client.post(
+        base_url + &quot;/oauth/token&quot;,
+        data={
+            &quot;grant_type&quot;: &quot;client_credentials&quot;,
+            &quot;client_id&quot;: client_id,
+            &quot;client_secret&quot;: client_secret,
+            &quot;scope&quot;: &quot;&lt;space-separated-scopes&gt;&quot;,
+        },
+        headers={&quot;Content-Type&quot;: &quot;application/x-www-form-urlencoded&quot;},
+    )
+    token_response.raise_for_status()
+    access_token = token_response.json()[&quot;access_token&quot;]
+
+    auth_headers = {&quot;Authorization&quot;: f&quot;Bearer {access_token}&quot;}
+
+    results = []
+    page_token = None
+    while True:
+        params = {&quot;pageSize&quot;: 100}
+        if page_token:
+            params[&quot;pageToken&quot;] = page_token
+
+        response = client.get(
+            base_url + &quot;/api/v1/&lt;resource&gt;&quot;,
+            headers=auth_headers,
+            params=params,
+        )
+        response.raise_for_status()
+        body = response.json()
+
+        results.extend(body.get(&quot;data&quot;, []))
+
+        page_token = body.get(&quot;nextPageToken&quot;)
+        if not page_token:
+            break
+
+        logger.info(f&quot;Fetched {len(results)} items so far, continuing to next page.&quot;)
+
+    return pd.DataFrame(results)
+</code></pre>
+<p>To adapt this pattern, replace the token endpoint path, the resource URL, and the <code>scope</code> values with those required by the target API. Some OAuth2 servers require additional parameters such as <code>audience</code> or <code>resource</code> â add them to the <code>data</code> dictionary of the token request.</p>
+<p>If the target API is the Foundry API itself (a Foundry-to-Foundry call from a transform), see <a href="https://www.palantir.com/docs/foundry/available-connectors/foundry/#call-the-foundry-api-from-code">Call the Foundry API from code</a> for the Foundry-specific token endpoint, scopes, and setup steps.</p>
+<h5>JWT client-assertion variant (NetSuite)</h5>
+<p>Some OAuth2 servers â including NetSuite â require the client to authenticate with a signed JWT client assertion instead of a plain <code>client_secret</code>. The following example updates account names in NetSuite from an input dataset of accounts, using the <a href="https://system.netsuite.com/help/helpcenter/en_US/APIs/REST_API_Browser/record/v1/2025.1/index.html#tag-account"><code>POST /account</code> â</a> endpoint. To enable the grant type, the <code>client_id</code>, <code>certificate_id</code>, and <code>certificate_private_key</code> are added to the source as <a href="https://www.palantir.com/docs/foundry/data-connection/external-transforms/#access-source-attributes-and-credentials">additional secrets</a>.</p>
+<pre><code class="language-python">from transforms.api import (
+    transform,
+    Output,
+    Input,
+    TransformInput,
+    TransformOutput,
+    TransformContext,
+)
+from transforms.external.systems import external_systems, Source, ResolvedSource
+import datetime
+import jwt
+from urllib.parse import urljoin
+import logging
+
+logger = logging.getLogger(__name__)
+
+@external_systems(
+    netsuite_rest_source=Source(&quot;&lt;source_rid&gt;&quot;)
+)
+@transform(
+    output=Output(&quot;&lt;dataset_rid&gt;&quot;),
+    account_updates=Input(&quot;&lt;dataset_rid&gt;&quot;),  # Dataset with schema [account_id: String, account_name: String]
+)
+def update_account_names(
+    netsuite_rest_source: ResolvedSource,
+    account_updates: TransformInput,
+    output: TransformOutput,
+    ctx: TransformContext,
+):
+    # --- Set up connections and secrets ---
+    base_url = netsuite_rest_source.get_https_connection().url
+    client = netsuite_rest_source.get_https_connection().get_client()
+    client_id = netsuite_rest_source.get_secret(&quot;additionalSecretClientId&quot;)
+    certificate_id = netsuite_rest_source.get_secret(&quot;additionalSecretCertificateId&quot;)
+    certificate_private_key = netsuite_rest_source.get_secret(&quot;additionalSecretPrivateCertificate&quot;)
+
+    # --- Helper: Make JWT token ---
+    def make_jwt_token(
+        url, client_id, certificate_id, certificate_private_key, lifetime_in_minutes=59
+    ):
+        current_timestamp = datetime.datetime.now()
+        expiration = current_timestamp + datetime.timedelta(minutes=lifetime_in_minutes)
+
+        payload = {
+            &quot;iss&quot;: client_id,
+            &quot;scope&quot;: &quot;rest_webservices&quot;,
+            &quot;aud&quot;: url,
+            &quot;iat&quot;: current_timestamp,
+            &quot;exp&quot;: expiration,
+        }
+
+        additional_headers = {
+            &quot;kid&quot;: certificate_id,
+        }
+
+        return jwt.encode(
+            payload,
+            certificate_private_key,
+            algorithm=&quot;ES256&quot;,
+            headers=additional_headers,
+        )
+
+    # --- Helper: Get OAuth2 access token ---
+    def get_oauth2_access_token():
+        url = urljoin(base_url, &quot;/services/rest/auth/oauth2/v1/token&quot;)
+        payload = {
+            &quot;grant_type&quot;: &quot;client_credentials&quot;,
+            &quot;client_assertion_type&quot;: &quot;urn:ietf:params:oauth:client-assertion-type:jwt-bearer&quot;,
+            &quot;client_assertion&quot;: make_jwt_token(
+                url,
+                client_id,
+                certificate_id,
+                certificate_private_key,
+            ),
+        }
+        headers = {&quot;Content-Type&quot;: &quot;application/x-www-form-urlencoded&quot;}
+        response = client.post(url, data=payload, headers=headers)
+        return response.json()[&quot;access_token&quot;]
+
+    # --- Prepare data for update ---
+    account_update_data = [
+        {
+            &quot;account_id&quot;: row.account_id,
+            &quot;payload&quot;: f'{{&quot;acctName&quot;: &quot;{row.account_name}&quot;}}',
+        }
+        for row in account_updates.dataframe().collect()
+    ]
+
+    # --- Update accounts ---
+    token = get_oauth2_access_token()
+    headers = {
+        &quot;Content-Type&quot;: &quot;application/json&quot;,
+        &quot;Authorization&quot;: f&quot;Bearer {token}&quot;,
+    }
+
+    responses = []
+    for account in account_update_data:
+        account_id = account[&quot;account_id&quot;]
+        payload = account[&quot;payload&quot;]
+        logger.info(f&quot;Updating account: {account_id} with payload {payload}&quot;)
+        url = urljoin(base_url, f&quot;/services/rest/record/v1/account/{account_id}&quot;)
+        response = client.patch(url, data=payload, headers=headers)
+        responses.append(
+            {
+                &quot;account_id&quot;: account_id,
+                &quot;response_status&quot;: response.status_code,
+                &quot;response&quot;: response.text,
+            }
+        )
+
+    output.write_dataframe(ctx.spark_session.createDataFrame(responses))
+</code></pre>
+<h4>Use self-signed server certificates</h4>
+<p>On-premise systems sometimes use self-signed server certificates that must be added to the source for the connection to be trusted. These certificates are typically added automatically to the <a href="https://www.palantir.com/docs/foundry/data-connection/external-transforms/#use-the-built-in-http-client">built-in HTTPS client</a> provided in external transforms. However, some Python clients might rely on the <code>REQUESTS_CA_BUNDLE</code> environment variable. In these cases, you will need to override the variable.</p>
+<p>The example below demonstrates how to override the <code>REQUESTS_CA_BUNDLE</code> to read data from an on-premise SharePoint source using the <a href="https://pypi.org/project/Office365-REST-Python-Client/">Python client for SharePoint â</a> <code>Office365-REST-Python-Client</code>, which is a required step to use the client.</p>
+<pre><code class="language-python">from pyspark.sql import DataFrame
+from transforms.api import Output, transform, lightweight
+from transforms.external.systems import external_systems, Source
+import pandas as pd
+import polars as pl
+import tempfile
+import os
+from office365.sharepoint.client_context import ClientContext
+
+@lightweight
+@external_systems(
+    sharepoint_rest=Source(&quot;&lt;source_rid&gt;&quot;)
+)
+@transform(
+    output=Output(&quot;&lt;dataset_rid&gt;&quot;),
+)
+def compute(ctx,  output, sharepoint_rest) -&gt; DataFrame:
+
+    # 1. Add custom certificates to default certificates environment variable
+    cert_file = tempfile.NamedTemporaryFile(delete=False)
+    with open(cert_file.name, 'w') as tmp_f:
+        with open(os.environ.get(&quot;REQUESTS_CA_BUNDLE&quot;), 'r') as ca_f:
+            with open(sharepoint_rest.server_certificates_bundle_path, 'r') as source_ca_f:
+                tmp_f.write(ca_f.read())
+                tmp_f.write(source_ca_f.read())
+    cert_file.close()
+
+    os.environ[&quot;REQUESTS_CA_BUNDLE&quot;] = cert_file.name # the REQUESTS_CA_BUNDLE now contains the source self-signed certificate
+
+
+    # 2. Connect to Sharepoint using client certificate authentication.
+    client = ClientContext(&quot;&lt;sharepoint_url&gt;&quot;).with_client_certificate(
+        tenant=&quot;&lt;tenant_id&gt;&quot;,
+        client_id=&quot;&lt;client_id&gt;&quot;,
+        thumbprint=&quot;&lt;thumbprint&gt;&quot;,
+        private_key=sharepoint_rest.get_secret(&quot;additionalSecretPrivateKey&quot;),
+        passphrase=sharepoint_rest.get_secret(&quot;additionalSecretPrivateKeyPassphrase&quot;), # optional, if the private key is password encrypted
+    )
+
+    # 3. Grab web title and return it as DataFrame
+    current_web = client.web
+    client.load(current_web)
+    client.execute_query()
+
+    data = [{&quot;web_title&quot;: current_web.properties['Title']}]
+    output.write_table(pl.from_pandas(pd.DataFrame.from_records(data)))
+</code></pre>
+<h2>Foundry REST API</h2>
+<p>For cases where you want to build applications on top of the Foundry platform, use the Foundry REST API. The Foundry API uses the OAuth 2.0 protocol for authentication, primarily uses JSON requests and responses, and provides support for Ontology and Modeling resources.</p>
+<p><a href="https://www.palantir.com/docs/foundry/api/general/overview/introduction/">Learn more about the Foundry API.</a></p>
+</body>
+</html>

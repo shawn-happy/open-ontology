@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Spark sidecar transforms</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Spark sidecar transforms</h1>
+<p>:::callout{theme="warning" title="Prerequisites"}
+The following documentation assumes the following prerequisite working knowledge:</p>
+<ol>
+<li><a href="https://docs.docker.com/get-started/">Containerized infrastructure and concepts like container images â</a></li>
+<li><a href="https://www.palantir.com/docs/foundry/transforms-python-spark/pyspark-overview/">PySpark transforms</a>
+:::</li>
+</ol>
+<p>Spark sidecar transforms allows you to deploy containerized code while leveraging the existing infrastructure provided by Spark and transforms.</p>
+<p>Containerizing code allows you to package any code and any dependencies to run in Foundry. The containerization workflow is integrated with transforms, meaning scheduling, branching, and data health are all seamlessly integrated. Since containerized logic runs alongside Spark executors, you can scale your containerized logic with your input data.</p>
+<p>In short, any logic that <a href="https://www.palantir.com/docs/foundry/transforms-container/container-overview/#image-requirements">can run in a container</a> can be used to process, generate, or consume data in Foundry.</p>
+<p>If you are familiar with containerization concepts, use the sections below to learn more about using the Spark sidecar transforms:</p>
+<ul>
+<li><a href="#architecture">Architecture</a></li>
+<li><a href="#build-an-image">Build an image</a></li>
+<li><a href="#push-an-image">Push an image</a></li>
+<li><a href="#write-a-spark-sidecar-transform">Write a Spark sidecar transform</a></li>
+</ul>
+<p><a href="https://www.palantir.com/docs/foundry/transforms-container/container-overview/">Learn more about containerization in Foundry.</a></p>
+<h2>Architecture</h2>
+<p>Transforms in Foundry can send data to and from datasets using a Spark driver to distribute processing across multiple executors, as shown in the diagram below:</p>
+<p><img alt="Spark Sidecar Transforms - No Container" src="../../_resources/foundry/transforms-container/spark-sidecar-none.png" /></p>
+<p>Annotating a transform using the <code>@sidecar</code> decorator (provided in the <code>transforms-sidecar</code> library) allows you to specify exactly one container that launches alongside each executor in a PySpark transform. The user-provided container, made with custom logic and running with each executor, is called the sidecar container.</p>
+<p>In a simple use case with one executor, the data flow would look like the following:</p>
+<p><img alt="Spark sidecar transforms, single container" src="../../_resources/foundry/transforms-container/spark-sidecar-single.png" /></p>
+<p>If you write a transform that partitions an input dataset across many executors, the data flow would look like this:</p>
+<p><img alt="Spark sidecar transforms, multiple container" src="../../_resources/foundry/transforms-container/spark-sidecar-multi.png" /></p>
+<p>The interface between each executor and the sidecar container is a shared volume, or a directory, to communicate information such as the following:</p>
+<ul>
+<li>When to begin execution of containerized logic</li>
+<li>What input data to process in the container</li>
+<li>What output data to pull out of the container</li>
+<li>When to end execution of the containerized logic</li>
+</ul>
+<p>These shared volumes are specified using the <code>Volume</code> argument to the <code>@sidecar</code> decorator and will be subfolders within the path <code>/opt/palantir/sidecars/shared-volumes/</code>.</p>
+<p>The next sections will guide you through preparing for and writing your Spark sidecar transforms.</p>
+<h2>Build an image</h2>
+<p>To build an image compatible with Spark sidecar transforms, the image must meet the <a href="https://www.palantir.com/docs/foundry/transforms-container/container-overview/#image-requirements">image requirements</a>. The image must also include the critical components described below and included in the example Docker image. To build this example image, you will need the Python script <a href="#entrypoint"><code>entrypoint.py</code></a>.</p>
+<p>You will need Docker installed on your local computer and must have access to the <code>docker</code> CLI command (<a href="https://docs.docker.com/engine/reference/commandline/cli/">official documentation â</a>).</p>
+<h2>Push an image</h2>
+<p>To push an image, create a new Artifacts repository and follow the instructions to tag and push your image to the relevant Docker repository.</p>
+<ol>
+<li><a href="https://www.palantir.com/docs/foundry/code-repositories/create-artifact-repository/">Create an Artifacts repository.</a></li>
+</ol>
+<p><img alt="Create Artifacts repository" src="../../_resources/foundry/transforms-container/screenshot-create-artifacts-repo.png" /></p>
+<ol start="2">
+<li>Change the type to <code>Docker</code>.</li>
+</ol>
+<p><img alt="Docker Artifacts repository" src="../../_resources/foundry/transforms-container/screenshot-docker-artifacts-repo.png" /></p>
+<ol start="3">
+<li>Follow the on-screen instructions to generate a token.</li>
+<li>Build your example image with the following command pattern: <code>docker build . --tag &lt;container_registry&gt;/&lt;image_name&gt;:&lt;image_tag&gt; --platform linux/amd64</code> where the following is true:
+   * <code>container_registry</code> represents the address of your Foundry instance container registry, which you can locate as part of the last command in the instructions for pushing a Docker image to an Artifact repository.
+   * <code>image_name</code> and <code>image_tag</code> are at your discretion. This example uses <code>simple_example:0.0.1</code>.</li>
+<li>Copy and paste the instructions from the Artifacts repository to push the locally built image. Ensure that you replace the <code>&lt;image_name&gt;:&lt;image_version&gt;</code> in the last command with the <code>image_name</code> and <code>image_version</code> used in the image building step above.</li>
+</ol>
+<h2>Write a Spark sidecar transform</h2>
+<ol>
+<li><a href="https://www.palantir.com/docs/foundry/transforms-python/getting-started/#set-up-a-python-code-repository">Create a Python data transform repository</a> in the Code Repositories application.</li>
+<li>Under the <strong>Libraries</strong> tab on the left, add <code>transforms-sidecar</code> and commit the change.</li>
+<li>Under <strong>Settings &gt; Libraries</strong>, add your Artifact repository.</li>
+<li>Author the transform.</li>
+</ol>
+<h2>Example 1: Sidecar running as a server</h2>
+<h3>Dockerfile</h3>
+<p>In a folder on your local computer, add the following contents to a file called <code>Dockerfile</code>:</p>
+<pre><code class="language-dockerfile"># Use the official Python image from the Docker Hub
+FROM python:3.8-slim
+
+# Set the working directory
+WORKDIR /usr/src/app
+
+# Copy application dependency manifest
+COPY requirements.txt ./
+
+# Install application dependencies
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copy the application code
+COPY . .
+
+# Expose the port the app runs on
+EXPOSE 1234
+
+# Run the application
+CMD [&quot;python&quot;, &quot;app.py&quot;]
+
+USER 1234
+</code></pre>
+<p>In the same folder, add a new file called <code>requirements.txt</code> and list the required Python dependencies:</p>
+<pre><code>flask
+</code></pre>
+<h3>Server logic</h3>
+<p>In the same local folder as your <code>Dockerfile</code>, copy the following code snippet into a file named <code>app.py</code>.</p>
+<pre><code class="language-python">from flask import Flask
+
+app = Flask(__name__)
+
+@app.route('/hello')
+def hello():
+    return 'Hello World'
+
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=1234)
+</code></pre>
+<h3>Server logic</h3>
+<p>In your Foundry Python code repository, write the following example transform to call the <code>/hello</code> endpoint on the sidecar and save the response to the output:</p>
+<pre><code class="language-python">import requests
+
+from transforms.api import Output, transform_df
+from transforms.sidecar import sidecar
+
+
+@sidecar(image='simple-example', tag='0.0.1')
+@transform_df(
+    Output(&quot;&lt;output dataset rid&gt;&quot;),
+)
+def compute(ctx):
+    response = requests.get('http://localhost:1234/hello')
+
+    data = [(response.text,)]
+
+    columns = [&quot;response_text&quot;]
+    return ctx.spark_session.createDataFrame(data, columns)
+
+</code></pre>
+<h2>Example 2: Sidecar wrapping a CLI</h2>
+<h3>Dockerfile</h3>
+<p>In a folder on your local computer, add the following contents to a file called <code>Dockerfile</code>:</p>
+<pre><code class="language-dockerfile">FROM fedora:38
+
+ADD entrypoint.py /usr/bin/entrypoint
+RUN chmod +x /usr/bin/entrypoint
+
+RUN mkdir -p /opt/palantir/sidecars/shared-volumes/shared/
+RUN chown 5001 /opt/palantir/sidecars/shared-volumes/shared/
+ENV SHARED_DIR=/opt/palantir/sidecars/shared-volumes/shared
+
+USER 5001
+
+ENTRYPOINT entrypoint -c &quot;dd if=$SHARED_DIR/infile.csv of=$SHARED_DIR/outfile.csv&quot;
+</code></pre>
+<h4>Customized Dockerfile</h4>
+<p>You can build your own Dockerfile, as above, but make sure to cover the following:</p>
+<ul>
+<li>
+<p>Specify a <strong>numeric non-root user</strong> on line 10. This is one of the <a href="https://www.palantir.com/docs/foundry/transforms-container/container-overview/#image-requirements">image requirements</a> and helps to maintain a proper security posture where containers are not given privileged execution.</p>
+</li>
+<li>
+<p>Place the <strong>creation of a shared volume</strong> on lines 6-8. As discussed in the <a href="#architecture">architecture section</a> above, shared volumes that are subdirectories within <code>/opt/palantir/sidecars/shared-volumes/</code> are the primary method in which the input data and output data are shared from the PySpark transform to the sidecar container.</p>
+</li>
+<li>
+<p>Line 6 creates the directory.</p>
+</li>
+<li>Line 7 ensures the directory is permissioned to the created user.</li>
+<li>
+<p>Line 8 stores the path to this shared directory as an environment variable for reference elsewhere.</p>
+</li>
+<li>
+<p><strong>Add a simple <code>entrypoint</code> script to the container</strong> on line 3 and set as the <code>ENTRYPOINT</code> on line 12. This step is critical, as Spark sidecar transforms do not natively instruct the sidecar container to wait for input data to be available before the container launches. Additionally, sidecar transforms do not tell the container to stay alive and wait for the output data to be copied off. The provided <code>entrypoint</code> script uses Python to tell the container to wait for a <code>start_flag</code> file to be written to the shared volume before the specified logic executes. When the specified logic finishes, it writes a <code>done_flag</code> to the same directory. The container will wait for a <code>close_flag</code> to be written to the shared volume before it will stop itself and be automatically cleaned up.</p>
+</li>
+</ul>
+<p>As shown in the example above, the containerized logic uses the POSIX Disk Dump (dd) utility to copy and input CSV files from the shared directory to an output file stored in the same directory. This âcommandâ, which is passed into the <code>entrypoint</code> script, could be any logic that can execute in the container.</p>
+<h3>Entrypoint</h3>
+<p>In the same local folder as your <code>Dockerfile</code>, copy the following code snippet into a file named <code>entrypoint.py</code>.</p>
+<pre><code class="language-python">#!/usr/bin/env python3
+
+import os
+import time
+import subprocess
+from datetime import datetime
+
+import argparse
+
+parser = argparse.ArgumentParser()
+parser.add_argument(&quot;-c&quot;, &quot;--command&quot;, type=str, help=&quot;model command to execute&quot;)
+args = parser.parse_args()
+the_command = args.command.split(&quot; &quot;)
+
+
+def run_process(exe):
+    &quot;Define a function for running commands and capturing stdout line by line&quot;
+    p = subprocess.Popen(exe, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+    return iter(p.stdout.readline, b&quot;&quot;)
+
+
+start_flag_fname = &quot;/opt/palantir/sidecars/shared-volumes/shared/start_flag&quot;
+done_flag_fname = &quot;/opt/palantir/sidecars/shared-volumes/shared/done_flag&quot;
+close_flag_fname = &quot;/opt/palantir/sidecars/shared-volumes/shared/close_flag&quot;
+
+# Wait for start flag
+print(f&quot;{datetime.utcnow().isoformat()}: waiting for start flag&quot;)
+while not os.path.exists(start_flag_fname):
+    time.sleep(1)
+print(f&quot;{datetime.utcnow().isoformat()}: start flag detected&quot;)
+
+# Execute model, logging output to file
+with open(&quot;/opt/palantir/sidecars/shared-volumes/shared/logfile&quot;, &quot;w&quot;) as logfile:
+    for item in run_process(the_command):
+        my_string = f&quot;{datetime.utcnow().isoformat()}: {item}&quot;
+        print(my_string)
+        logfile.write(my_string)
+        logfile.flush()
+print(f&quot;{datetime.utcnow().isoformat()}: execution finished writing output file&quot;)
+
+# Write out the done flag
+open(done_flag_fname, &quot;w&quot;)
+print(f&quot;{datetime.utcnow().isoformat()}: done flag file written&quot;)
+
+# Wait for close flag before allowing the script to finish
+while not os.path.exists(close_flag_fname):
+    time.sleep(1)
+print(f&quot;{datetime.utcnow().isoformat()}: close flag detected. shutting down&quot;)
+
+</code></pre>
+<p>The following examples will review the key information required to get started with sidecar transforms. Both examples use the same utilities file found <a href="#example-utilities">here</a> that you can add to your code repository and import as shown below.</p>
+<h3>Example 1: Single execution</h3>
+<p>The transform below imports the <code>@sidecar</code> decorator and the <code>Volume</code> primitive from the <code>transforms-sidecar</code> library.
+The transform uses both items for annotation so that one instance of the <code>simple-example:0.0.1</code> container is launched with each executor. Each executor/sidecar pair will have a shared volume at <code>/opt/palantir/sidecars/shared-volumes/shared</code>.</p>
+<p>This first example launches one instance of the container with one executor and follows the architecture shown in the image below:</p>
+<p><img alt="Spark Sidecar Transforms - Single Container" src="../../_resources/foundry/transforms-container/spark-sidecar-single.png" /></p>
+<p>The transform then uses the utility function <code>lanch_udf_once</code> to launch one instance of the <code>user_defined_function</code>. That user-defined function will run on one executor and communicate with one instance of the sidecar container. The user-defined function will invoke the imported utility functions to do the following:</p>
+<ul>
+<li>Copy the input files to the shared directory so they are accessible to the sidecar container.</li>
+<li>Copy the start flag so the sidecar container knows to execute.</li>
+<li>Wait for the containerized logic to finish.</li>
+<li>Copy out the files created by the containerized logic.</li>
+<li>Copy a close flag so the container can stop and be cleaned up.</li>
+</ul>
+<pre><code class="language-python">from transforms.api import transform, Input, Output
+from transforms.sidecar import sidecar, Volume
+from myproject.datasets.utils import copy_files_to_shared_directory, copy_start_flag, wait_for_done_flag
+from myproject.datasets.utils import copy_output_files, copy_close_flag, launch_udf_once
+
+
+@sidecar(image='simple-example', tag='0.0.1', volumes=[Volume(&quot;shared&quot;)])
+@transform(
+    output=Output(&quot;&lt;output dataset rid&gt;&quot;),
+    source=Input(&quot;&lt;input dataset rid&gt;&quot;),
+)
+def compute(output, source, ctx):
+    def user_defined_function(row):
+        # Copy files from source to shared directory.
+        copy_files_to_shared_directory(source)
+        # Send the start flag so the container knows it has all the input files
+        copy_start_flag()
+        # Iterate till the stop flag is written or we hit the max time limit
+        wait_for_done_flag()
+        # Copy out output files from the container to an output dataset
+        output_fnames = [
+            &quot;start_flag&quot;,
+            &quot;outfile.csv&quot;,
+            &quot;logfile&quot;,
+            &quot;done_flag&quot;,
+        ]
+        copy_output_files(output, output_fnames)
+        # Write the close flag so the container knows you have extracted the data
+        copy_close_flag()
+        # The user defined function must return something
+        return (row.ExecutionID, &quot;success&quot;)
+    # This spawns one task, which maps to one executor, and launches one &quot;sidecar container&quot;
+    launch_udf_once(ctx, user_defined_function)
+
+</code></pre>
+<h3>Example 2: Parallel execution</h3>
+<p>This example launches many instances of the sidecar container, each processing a subset of the input data. The information is then collected and saved to output datasets. This example more closely resembles the architecture shown below:</p>
+<p><img alt="Spark Sidecar Transforms - Multi Container" src="../../_resources/foundry/transforms-container/spark-sidecar-multi.png" /></p>
+<p>The following transform uses different utility functions to partition the input data and send individual files to each container, performing the same execution on different chunks of input data. The utility functions are written to save the output files as both individual files and as a tabular output dataset.</p>
+<p>You will see the same parameters configured for the <code>@sidecar</code> decorator and <code>Volume</code> specification, as in Example 1.</p>
+<p>An <code>@configure</code> flag is set to ensure that only one task launches per executor and that exactly four total executors can launch. This configuration, combined with the fact that the input dataset has exactly four rows of data and the input repartition is set to <code>4</code>, means that four instances of the user-defined function will launch on four executors. Therefore, exactly four instances of the sidecar container will launch and process their segment of the input data.</p>
+<p>Ensure that your repository has the two Spark profiles imported under <strong>Settings &gt; Spark</strong>.</p>
+<pre><code class="language-python">from transforms.api import transform, Input, Output, configure
+from transforms.sidecar import sidecar, Volume
+import uuid
+from myproject.datasets.utils import copy_start_flag, wait_for_done_flag, copy_close_flag
+from myproject.datasets.utils import write_this_row_as_a_csv_with_one_row
+from myproject.datasets.utils import copy_output_files_with_prefix, copy_out_a_row_from_the_output_csv
+
+
+@configure([&quot;EXECUTOR_CORES_EXTRA_SMALL&quot;, &quot;NUM_EXECUTORS_4&quot;])
+@sidecar(image='simple-example', tag='0.0.1', volumes=[Volume(&quot;shared&quot;)])
+@transform(
+    output=Output(&quot;&lt;first output dataset rid&gt;&quot;),
+    output_rows=Output(&quot;&lt;second output dataset rid&gt;&quot;),
+    source=Input(&quot;&lt;input dataset rid&gt;&quot;),
+)
+def compute(output, output_rows, source, ctx):
+
+    def user_defined_function(row):
+        # Copy files from source to shared directory
+        write_this_row_as_a_csv_with_one_row(row)
+
+        # Send the start flag so the container knows it has all the input files.
+        copy_start_flag()
+
+        # Iterate until the stop flag is written or you hit the maximum time limit.
+        wait_for_done_flag()
+
+        # Copy output files from the container to the output datasets
+        output_fnames = [
+            &quot;start_flag&quot;,
+            &quot;infile.csv&quot;,
+            &quot;outfile.csv&quot;,
+            &quot;logfile&quot;,
+            &quot;done_flag&quot;,
+        ]
+        random_unique_prefix = f'{uuid.uuid4()}'[:8]
+        copy_output_files_with_prefix(output, output_fnames, random_unique_prefix)
+
+        outdata1, outdata2, outdata3 = copy_out_a_row_from_the_output_csv()
+
+        # Write the close flag so the container knows you have extracted the data.
+        copy_close_flag()
+
+        # The user-defined function must return something.
+        return (row.data1, row.data2, row.data3, &quot;success&quot;, outdata1, outdata2, outdata3)
+
+    results = source.dataframe().repartition(4).rdd.map(user_defined_function)
+    columns = [&quot;data1&quot;, &quot;data2&quot;, &quot;data3&quot;, &quot;success&quot;, &quot;outdata1&quot;, &quot;outdata2&quot;, &quot;outdata3&quot;]
+    output_rows.write_dataframe(results.toDF(columns))
+</code></pre>
+<h3>Example utilities</h3>
+<p>utils.py</p>
+<pre><code class="language-python">import os
+import shutil
+import time
+import csv
+import pyspark.sql.types as T
+
+VOLUME_PATH = &quot;/opt/palantir/sidecars/shared-volumes/shared&quot;
+MAX_RUN_MINUTES = 10
+
+
+def write_this_row_as_a_csv_with_one_row(row):
+    in_path = &quot;/opt/palantir/sidecars/shared-volumes/shared/infile.csv&quot;
+    with open(in_path, 'w', newline='') as csvfile:
+        writer = csv.writer(csvfile, delimiter=',')
+        writer.writerow(['data1', 'data2', 'data3'])
+        writer.writerow([row.data1, row.data2, row.data3])
+
+
+def copy_out_a_row_from_the_output_csv():
+    out_path = &quot;/opt/palantir/sidecars/shared-volumes/shared/outfile.csv&quot;
+    with open(out_path, newline='') as csvfile:
+        reader = csv.reader(csvfile, delimiter=',', quotechar='|')
+        values = &quot;&quot;, &quot;&quot;, &quot;&quot;
+        for myrow in reader:
+            values = myrow[0], myrow[1], myrow[2]
+        return values
+
+
+def copy_output_files_with_prefix(output, output_fnames, prefix):
+    for file_path in output_fnames:
+        output_fs = output.filesystem()
+        out_path = os.path.join(VOLUME_PATH, file_path)
+        try:
+            with open(out_path, &quot;rb&quot;) as shared_file:
+                with output_fs.open(f'{prefix}_{file_path}', &quot;wb&quot;) as output_file:
+                    shutil.copyfileobj(shared_file, output_file)
+        except FileNotFoundError as err:
+            print(err)
+
+
+def copy_files_to_shared_directory(source):
+    source_fs = source.filesystem()
+    for item in source_fs.ls():
+        file_path = item.path
+        with source_fs.open(file_path, &quot;rb&quot;) as source_file:
+            dest_path = os.path.join(VOLUME_PATH, file_path)
+            with open(dest_path, &quot;wb&quot;) as shared_file:
+                shutil.copyfileobj(source_file, shared_file)
+
+
+def copy_start_flag():
+    open(os.path.join(VOLUME_PATH, 'start_flag'), 'w')
+    time.sleep(1)
+
+
+def wait_for_done_flag():
+    i = 0
+    while i &lt; 60 * MAX_RUN_MINUTES and not os.path.exists(os.path.join(VOLUME_PATH, 'done_flag')):
+        i += 1
+        time.sleep(1)
+
+
+def copy_output_files(output, output_fnames):
+    for file_path in output_fnames:
+        output_fs = output.filesystem()
+        out_path = os.path.join(VOLUME_PATH, file_path)
+        try:
+            with open(out_path, &quot;rb&quot;) as shared_file:
+                with output_fs.open(file_path, &quot;wb&quot;) as output_file:
+                    shutil.copyfileobj(shared_file, output_file)
+        except FileNotFoundError as err:
+            print(err)
+
+
+def copy_close_flag():
+    time.sleep(5)
+    open(os.path.join(VOLUME_PATH, 'close_flag'), 'w')  # send the close flag
+
+
+def launch_udf_once(ctx, user_defined_function):
+    # Using a dataframe with a single row, launch user_defined_function once on that row
+    schema = T.StructType([T.StructField(&quot;ExecutionID&quot;, T.IntegerType())])
+    ctx.spark_session.createDataFrame([{&quot;ExecutionID&quot;: 1}], schema=schema).rdd.foreach(user_defined_function)
+
+</code></pre>
+<h2>Resource profiles</h2>
+<p>The <code>@sidecar</code> decorator supports a <code>resource_profile</code> parameter that allows you to specify the computational resources allocated to each sidecar container. This parameter controls the CPU, memory, and GPU resources available to your containerized workload.</p>
+<h3>Available resource profiles</h3>
+<p>The following resource profiles are available:</p>
+<table>
+<thead>
+<tr>
+<th>Profile</th>
+<th>CPU Cores</th>
+<th>Memory</th>
+<th>GPU</th>
+<th>Shared Memory</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>SMALL_CPU_SMALL_MEMORY</code></td>
+<td>1</td>
+<td>3GB</td>
+<td>None</td>
+<td>None</td>
+</tr>
+<tr>
+<td><code>MEDIUM_CPU_MEDIUM_MEMORY</code></td>
+<td>2</td>
+<td>6GB</td>
+<td>None</td>
+<td>None</td>
+</tr>
+<tr>
+<td><code>MEDIUM_CPU_MEDIUM_MEMORY_SMALL_SHARED_MEMORY</code></td>
+<td>2</td>
+<td>6GB</td>
+<td>None</td>
+<td>2GB</td>
+</tr>
+<tr>
+<td><code>LARGE_CPU_LARGE_MEMORY</code></td>
+<td>4</td>
+<td>13GB</td>
+<td>None</td>
+<td>None</td>
+</tr>
+<tr>
+<td><code>LARGE_CPU_LARGE_MEMORY_GPU_ENABLED</code></td>
+<td>4</td>
+<td>13GB</td>
+<td>1x NVIDIA</td>
+<td>None</td>
+</tr>
+<tr>
+<td><code>X_LARGE_CPU_X_LARGE_MEMORY</code></td>
+<td>8</td>
+<td>27GB</td>
+<td>None</td>
+<td>None</td>
+</tr>
+<tr>
+<td><code>X_LARGE_CPU_X_LARGE_MEMORY_GPU_ENABLED</code></td>
+<td>8</td>
+<td>27GB</td>
+<td>1x NVIDIA</td>
+<td>None</td>
+</tr>
+<tr>
+<td><code>XX_LARGE_CPU_XX_LARGE_MEMORY</code></td>
+<td>16</td>
+<td>54GB</td>
+<td>None</td>
+<td>None</td>
+</tr>
+</tbody>
+</table>
+</body>
+</html>

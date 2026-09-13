@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Direct datasources \[Beta]</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Direct datasources [Beta]</h1>
+<p>:::callout{theme="neutral" title="Beta"}
+Direct datasources are in the <a href="https://www.palantir.com/docs/foundry/platform-overview/development-life-cycle/">beta</a> phase of development and may not be available on your enrollment. Functionality may change during active development.
+:::</p>
+<p>Direct datasources provide low-latency writes into the Ontology, including <a href="https://www.palantir.com/docs/foundry/object-edits/overview/">edits</a> on object types backed by stream-based data. They allow data applications to write directly to the Ontology. Currently, only Pipeline Builder is a supported writer application.</p>
+<p>Direct datasources trade throughput for more robust Ontology writing capabilities, including user edits on streams and time-based ordering. They work best for workflows that require low-latency for both data and edits, such as edits on streaming object types, or batch object types with small, frequent incremental builds where the end-to-end indexing latency from a source transaction to an object appearing in the Ontology is unacceptable.</p>
+<h2>Configure a direct datasource</h2>
+<p>Direct datasources are currently configured only in Pipeline Builder. Review the guidance in the <a href="https://www.palantir.com/docs/foundry/pipeline-builder/outputs-add-ontology-output/#enable-direct-datasources-beta">Pipeline Builder documentation</a> for more information.</p>
+<p>Once deployed, the object type appears in <a href="https://www.palantir.com/docs/foundry/ontology-manager/overview/">Ontology Manager</a>, and its objects are viewable in <a href="https://www.palantir.com/docs/foundry/insight/overview/">Insight</a> and <a href="https://www.palantir.com/docs/foundry/object-explorer/overview/">Object Explorer</a>.</p>
+<h2>Source timestamp property</h2>
+<p>You can optionally configure a <strong>source timestamp property</strong> to enable time-based ordering. The source timestamp property is a user-supplied timestamp property that should represent the time an object was created or updated. Its value is used to drop out-of-order direct writes. If a write for an object arrives with a source timestamp value earlier than the object's existing value, the write is dropped.</p>
+<p>Time-based ordering only applies to writes submitted after the source timestamp property is configured. To resolve out-of-order writes that were ingested before the source timestamp property was configured, replay the upstream pipeline.</p>
+<p>:::callout{theme="warning"}
+Replaying a pipeline resets the object view, which removes all existing objects. Account for this before replaying.
+:::</p>
+<p>A source timestamp property can only be configured if the object type already has a timestamp property defined.</p>
+<p>To configure a source timestamp property:</p>
+<ol>
+<li>In <a href="https://www.palantir.com/docs/foundry/ontology-manager/overview/">Ontology Manager</a>, navigate to the <strong>Datasources</strong> tab of the object type.</li>
+<li>In the <strong>Direct writes</strong> section, find <strong>Source timestamp</strong>.</li>
+<li>For <strong>Timestamp property</strong>, select an existing timestamp property from the dropdown menu. To remove the configuration, select the <strong>x</strong> icon next to the selected property.</li>
+</ol>
+<p><img alt="The Source timestamp section of the Direct writes panel in the Datasources tab of a direct datasource object type in Ontology Manager." src="../../_resources/foundry/object-indexing/direct-datasource-source-timestamp.png" /></p>
+<h2>Debugging</h2>
+<h3>Navigate between a direct datasource writer and its object type</h3>
+<p>You can view the Pipeline Builder pipeline that wrote the edits to the Ontology for the direct datasource in the  <strong>Datasources</strong> tab in Ontology Manager. Select the pipeline to navigate to it in Pipeline Builder.</p>
+<p>Currently, only Pipeline Builder is a supported writer application.</p>
+<p><img alt="The Direct writers section of the Datasources tab for an object type in Ontology Manager." src="../../_resources/foundry/object-indexing/direct-datasource-direct-writers.png" /></p>
+<h3>Liveness</h3>
+<p>Data liveness is shown in the <strong>Datasources</strong> tab under <strong>Object Storage v2</strong>. Liveness helps you determine the freshness of the current object view:</p>
+<ul>
+<li><strong>Data:</strong> The last direct write that was written to the Ontology.</li>
+<li><strong>Schema</strong> Whether the current schema is up-to-date.</li>
+<li><strong>Latest edit:</strong> The last edit that was written to the Ontology. If no edit has been written for the object type, this field is not displayed.</li>
+</ul>
+<p><img alt="The Object Storage v2 section in the Datasources tab of an object type in Ontology Manager." src="../../_resources/foundry/object-indexing/direct-datasource-liveness.png" /></p>
+<h3>Stream metrics</h3>
+<p>You can view stream metrics for the writing job orchestrated by Pipeline Builder, or for the currently running job, in <a href="https://www.palantir.com/docs/foundry/ontology-manager/overview/">Ontology Manager</a>. Navigate to <strong>Object Storage v2</strong> of the <strong>Datasources</strong> tab of an object type, then select the direct datasource node in the live pipeline.</p>
+<ul>
+<li>Select the <strong>View metrics</strong> banner to view logging, job history, and other metrics for the Flink streaming job.</li>
+<li>To view information about the currently running job, select the ellipses on <strong>Latest job</strong>, then <strong>View job details</strong>.</li>
+</ul>
+<p><img alt="The Live pipeline section of the Datasources tab of an object type in Ontology Manager, displaying a pipeline with the direct datasource and when the latest job occurred." src="../../_resources/foundry/object-indexing/direct-datasource-metrics.png" /></p>
+<h3>Logging</h3>
+<p>Viewing logs for direct writes can be particularly useful when debugging missing objects or invalid writes. If invalid direct writes are detected, a banner will appear in the <strong>Datasources</strong> tab. These invalid writes are dropped and will not appear in the Ontology.</p>
+<p>To debug invalid writes:</p>
+<ol>
+<li>Navigate to the <strong>Datasources</strong> tab and locate the warning banner.</li>
+<li>Select <strong>View logs</strong> on the banner to see which primary keys were dropped, and why.</li>
+</ol>
+<p><img alt="The invalid records banner shown on the Datasources tab in Ontology Manager." src="../../_resources/foundry/object-indexing/direct-datasource-logging.png" /></p>
+<p>Writes are usually rejected because of failed data validations. Correct the data shape upstream in the pipeline, then replay the pipeline. Once the view is reset and writes are valid again, the banner clears. If you cannot determine the cause of rejected writes, contact Palantir Support.</p>
+<p>:::callout{theme="warning"}
+Replaying a pipeline resets the object view, which removes all existing objects. Account for this before replaying.
+:::</p>
+<h2>FAQ</h2>
+<h3>After I deploy the pipeline, the streaming job consistently fails before it can start. Is this expected?</h3>
+<p>Yes. The job can fail before submission on first deployment, or when replaying the pipeline with reset outputs, because the Funnel setup process can cause a timeout. If the job exceeds its retry limit, rebuild the failed job. When replaying, you do not need to deploy with replay again; triggering another replay starts another round of setup by Funnel, which can cause another timeout.</p>
+<h3>I replayed my streaming pipeline and now all of my objects are missing. Why is this happening?</h3>
+<p>This is a current limitation of direct datasources. The existing object view is wiped completely to serve the new view immediately. Because the swap is instant, the new view is not yet fully populated, so the object view can be incomplete or empty. Background replays to address this limitation are in development.</p>
+<h3>I am missing objects that I expect to exist in the Ontology. How can I debug this?</h3>
+<p>First, check <a href="#liveness">data liveness</a>. If the <strong>Data</strong> liveness is stale (30 minutes old, for example), the source stream likely stopped. Check the <a href="#stream-metrics">stream metrics</a> or the current job.</p>
+<p>If <strong>Data</strong> is up to date, invalid writes were most likely rejected by Funnel. A banner also appears in Ontology Manager under the <strong>Datasources</strong> tab to indicate rejected writes. See <a href="#logging">Logging</a> for remediation steps.</p>
+<p>In some cases, <strong>Data</strong> can be stale <strong>and</strong> be missing because of invalid writes, this means all writes after a certain point in time were rejected.</p>
+</body>
+</html>
