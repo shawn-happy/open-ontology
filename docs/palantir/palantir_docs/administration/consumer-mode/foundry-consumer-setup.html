@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Configure Foundry for consumer mode</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Configure Foundry for consumer mode</h1>
+<p>Before building consumer-facing applications, you must first configure Foundry to support <a href="https://www.palantir.com/docs/foundry/consumer-mode/overview/">consumer mode</a>. This page guides you through the requirements to properly configure consumer mode in Foundry.</p>
+<p>:::callout{theme="neutral"}
+This setup is only required when using Foundry user permissions and authentication. If you are using a client credentials flow in your consumer application, you can skip this section.
+:::</p>
+<h2>Prerequisites</h2>
+<p>Before configuring Foundry, ensure you have the following:</p>
+<ul>
+<li><strong>Enrollment Administrator</strong> permission to create organizations, update authentication providers, and manage permissions configuration.</li>
+<li>Access to <strong>Control Panel</strong> for platform configuration.</li>
+<li>Understanding of your consumer authentication requirements.</li>
+</ul>
+<h2>Step 1: Create a consumer organization</h2>
+<p>First, create a dedicated organization for consumer users that is isolated from internal platform users.</p>
+<p><img alt="The Organization management extension showing the first step within the create organization helper." src="../../_resources/foundry/consumer-mode/create-organization.png" /></p>
+<ol>
+<li>Navigate to <strong>Control Panel &gt; <a href="https://www.palantir.com/docs/foundry/administration/enrollments-and-organizations-access/">Organization management</a></strong>.</li>
+<li>Select <strong>Create organization</strong>.</li>
+<li>Configure the following organization settings:
+   * <strong>Name:</strong> Add a descriptive name for your consumer organization (for example, "Customer Portal Users").
+   * <strong>Organization administrator:</strong> Assign an appropriate admin user or group.
+   * <strong>Collaboration:</strong> Add your <strong>internal organization</strong> to allow discovery of your organization's Roles. Ensure all boxes are unchecked to prevent cross-organization user and group discovery.
+   * <strong>Private space:</strong> Choose  <code>No</code> for consumer organizations.</li>
+</ol>
+<p>Note that enrollments are limited to five organizations by default.</p>
+<h2>Step 2: Disable member discovery</h2>
+<p>Next, configure your consumer organization to prevent users from discovering other users and groups within the organization, providing additional privacy and security isolation.</p>
+<p><img alt="The Manage member discovery extension showing the discoverability toggles in the disabled position." src="../../_resources/foundry/consumer-mode/manage-member-discovery.png" /></p>
+<ol>
+<li>Navigate to <strong>Control Panel &gt; Organization management</strong>.</li>
+<li>Find your consumer organization and select <strong>Actions &gt; Manage member discovery</strong>.</li>
+<li>Configure the following member discovery settings:
+   * <strong>Discover users:</strong> Disable this setting to prevent users in this organization from discovering other users in the same organization.
+   * <strong>Discover groups:</strong> Disable this setting to prevent users in this organization from discovering groups in the organization.</li>
+</ol>
+<p>Learn more about <a href="https://www.palantir.com/docs/foundry/security/cross-organization-collaboration/">cross-organization collaboration</a> and <a href="https://www.palantir.com/docs/foundry/administration/configure-user-and-group-visibility/">member discovery</a>.</p>
+<p>In some B2B cases, user or group discovery within a consumer organization is expected for collaborative Foundry capabilities, like the <a href="https://www.palantir.com/docs/foundry/workshop/widgets-comments/">Workshop comments widget</a>. In such cases, you may ignore this step and elect to leave user and/or group discovery enabled.</p>
+<h2>Step 3: Configure the authentication provider and triaging rules</h2>
+<p>The next step in configuring consumer mode is to set up an authentication provider that automatically assigns consumer users to your consumer organization.</p>
+<p><img alt="The providers tab within the Authentication extension." src="../../_resources/foundry/consumer-mode/authentication-providers.png" /></p>
+<h3>Create or update the authentication provider</h3>
+<ol>
+<li>Navigate to <strong>Control Panel &gt; <a href="https://www.palantir.com/docs/foundry/authentication/overview/">Authentication</a></strong>, then choose the <strong>Providers</strong> tab.</li>
+<li>Select <strong>Add provider</strong> to configure a new authentication provider, or select an existing provider to edit.</li>
+<li>Configure the following provider settings:
+   * <strong>Provider type:</strong> Choose <a href="https://www.palantir.com/docs/foundry/authentication/saml-getting-started/">SAML</a> or <a href="https://www.palantir.com/docs/foundry/authentication/oidc-getting-started/">OIDC</a> based on your requirements.
+   * <strong>Provider configuration:</strong> Complete authentication provider details according to your IDP.
+   * <strong>Egress policies:</strong> Add required egress policies for authentication.
+   * <strong>Multi-factor authentication:</strong> Enable if required by your security policies.</li>
+</ol>
+<h3>Set up organization triaging rules</h3>
+<ol>
+<li>In the authentication provider settings, configure the <strong><a href="https://www.palantir.com/docs/foundry/authentication/org-assignment/">Organization assignment</a></strong>.</li>
+<li>Select an automatic assignment rule to direct users to your consumer organization.
+   * <strong>Default organization:</strong> All users given the default organization.
+   * <strong>Advanced rule creation:</strong> Configure rules based on email domain, group membership, or other attributes. If none of the criteria match, the default organization will serve as fallback.</li>
+</ol>
+<p><img alt="The organization triaging rules for the selected provider within the Authentication extension." src="../../_resources/foundry/consumer-mode/organization-triaging.png" /></p>
+<h2>Step 4: Create rule-based consumer group</h2>
+<p>Create a group that aligns with your consumer organization for consistent permission management. After this step, you should have one or more automatically updating groups to permission all your consumer users. If all users belong to a single organization, you must create a single rule-based group for the organization; if users belong to multiple organizations, create a rule-based group for each organization.</p>
+<p><img alt="The configuration for Rule-based group assignment within the Authentication extension." src="../../_resources/foundry/consumer-mode/rule-based-groups.png" /></p>
+<ol>
+<li>From your authentication provider page in Control Panel, select <strong><a href="https://www.palantir.com/docs/foundry/authentication/group-assignment/">Group assignment</a></strong>.</li>
+<li>Select <strong>+ Add rule</strong>.</li>
+<li>From the <strong>Select group...</strong> dropdown menu, choose <strong>+ Create new rule-based group</strong> and configure the following:
+   * <strong>Name:</strong> Match your consumer organization (for example, "Consumer Portal Users").
+   * <strong>Description:</strong> Add a description, such as "Contains all members from {your consumer} organization".
+   * <strong>Organization:</strong> Select the related consumer organization.</li>
+<li>Configure the rule parameters to match your organization assignment rules.</li>
+<li>Repeat steps 2 through 4 for each consumer organization.</li>
+</ol>
+<h3>Consumer Builder and Administrator groups</h3>
+<p>For ease of permissions management when building and managing consumer applications, we recommend designating both a "Builder" and "Administrator" group. Create these groups in your identify provider if managing groups outside Foundry, or refer to our <a href="https://www.palantir.com/docs/foundry/platform-security-management/manage-groups/">managing groups documentation</a> for creating the groups within Foundry.</p>
+<h2>Step 5: Configure a consumer role set</h2>
+<p>Configure a role set that provide appropriate permissions for consumer users.</p>
+<p><img alt="The create role set dialog in Platform settings with proposed consumer defaults." src="../../_resources/foundry/consumer-mode/create-role-set.png" /></p>
+<ol>
+<li>Select your user image in the bottom left of your screen and select <strong>Settings &gt; <a href="https://www.palantir.com/docs/foundry/platform-security-management/manage-roles/">Roles</a></strong>.</li>
+<li>Select <strong>Create role set</strong>.
+   * <strong>Name:</strong> Add a descriptive name for a consumer role set (for example, <code>Consumer roles</code>).
+   * <strong>Description:</strong> "Roles with reduced operations for consumer applications".
+   * <strong>Copy roles from:</strong> Project defaults
+   * <strong>Organization:</strong> Your <strong>internal organization</strong></li>
+<li>In your new role set, select <strong>New role</strong> and add the following details to create your <code>Consumer</code> role:</li>
+</ol>
+<p><img alt="The new role dialog with proposed consumer role defaults." src="../../_resources/foundry/consumer-mode/create-consumer-role.png" /></p>
+<ul>
+<li><strong>Name:</strong> "Consumer"</li>
+<li><strong>Description:</strong> "Basic permissions for consumer application users."</li>
+<li><strong>Includes:</strong> Leave this optional section empty.</li>
+</ul>
+<p>After creating the new <code>Consumer</code> role, add the following operations to the role:</p>
+<ul>
+<li><code>carbon:view-workspace</code></li>
+<li><code>eddie:view-aip-logic</code></li>
+<li><code>foundry:read-data</code></li>
+<li><code>function-executor:execute-function</code></li>
+<li><code>function-registry:read-contract</code></li>
+<li><code>function-registry:read-function</code></li>
+<li><code>hubble:object-view:view</code></li>
+<li><code>lime:search</code></li>
+<li><code>object-set-service:read-versioned-object-set</code></li>
+<li><code>objects:read-data</code></li>
+<li><code>ontology:view-action-type</code></li>
+<li><code>ontology:view-datasource</code></li>
+<li><code>ontology:view-object-type</code></li>
+<li><code>ontology:view-relation</code></li>
+<li><code>salt:blobster:read</code></li>
+<li><code>slate:run-query-v2</code></li>
+<li><code>slate:view-document</code></li>
+<li><code>slate:view-stylesheet</code></li>
+<li><code>third-party-application:view-application-website</code></li>
+<li><code>workshop-server:view-module</code></li>
+</ul>
+<p>Depending on the specific workflow, additional operations may be required. Review our documentation on <a href="https://www.palantir.com/docs/foundry/platform-security-management/manage-roles/#understanding-roles-and-operations">understanding roles and operations</a> for more details.</p>
+<h2>Step 6: Create a consumer space</h2>
+<p>Consumer spaces provide isolation and access control. After this step, you should have a dedicated space where consumer users can access projects.</p>
+<p><img alt="The create space dialog within the Space management extension." src="../../_resources/foundry/consumer-mode/create-space.png" /></p>
+<ol>
+<li>Navigate to <strong>Control Panel â <a href="https://www.palantir.com/docs/foundry/administration/configure-workspaces/">Spaces</a></strong>.</li>
+<li>Select <strong>Create space</strong>.</li>
+<li>Configure the following space settings:</li>
+</ol>
+<ul>
+<li><strong>Name:</strong> Add a descriptive name for the consumer space.</li>
+<li><strong>Access requirements:</strong></li>
+<li>Set the <strong>internal organization</strong> as an access requirement.</li>
+<li>Set the <strong>consumer organization</strong> as an access requirement.</li>
+<li><strong>Default permissions:</strong> Configure appropriate default permissions for consumer users.</li>
+</ul>
+<h2>Step 7: Create a consumer project template</h2>
+<p>Create a project template that automatically configures appropriate roles for consumer projects, ensuring consistent project creation.</p>
+<p><img alt="The create project template dialog within the Project template extension." src="../../_resources/foundry/consumer-mode/create-project-template.png" /></p>
+<ol>
+<li>Navigate to <strong>Control Panel &gt; <a href="https://www.palantir.com/docs/foundry/platform-security-management/manage-project-templates/">Project templates</a></strong>.</li>
+<li>Select <strong>Create template</strong>.</li>
+<li>Configure the following template settings:</li>
+</ol>
+<ul>
+<li><strong>Template name:</strong> "Consumer Application Template"</li>
+<li><strong>Template description:</strong> "Project template for consumer-facing applications"</li>
+<li><strong>Template Variables:</strong> Keep the default <code>Name</code> variable.</li>
+<li><strong>Project information:</strong></li>
+<li><strong>Organizations:</strong> Choose <strong>Selected on project creation</strong>.</li>
+<li><strong>Project roles:</strong><ul>
+<li><strong>Default role:</strong> Select your <code>Consumer</code> role.</li>
+<li><strong>Existing user and groups:</strong> Add your <strong>Builder</strong> and <strong>Administrator</strong> groups, and grant the following roles to the relevant group:</li>
+<li>The "Builder" group has the <code>Editor</code> role.</li>
+<li>The "Admin" group has the <code>Owner</code> role.</li>
+</ul>
+</li>
+</ul>
+<h2>Step 8: (Optional) Configure a consumer domain</h2>
+<p>Set up a custom domain configured for consumer access with automatic authentication redirect enabled.</p>
+<h3>Create a custom domain</h3>
+<p>Navigate to <strong>Control Panel &gt; Domains &amp; certificates</strong>, then follow our <a href="https://www.palantir.com/docs/foundry/administration/configure-domains-and-certificates/">documentation guidance</a> to create a custom domain for consumer use.</p>
+<h3>Configure a default authentication provider</h3>
+<ol>
+<li>Navigate to <strong>Control Panel &gt; Authentication &gt; <a href="https://www.palantir.com/docs/foundry/authentication/host-settings/">Hosts</a></strong>.</li>
+<li>Find your custom domain, then select <strong>Actions &gt; Manage</strong>.</li>
+<li>Configure <strong>Default provider</strong> for the host to immediately redirect from the login page.</li>
+</ol>
+<p><img alt="The Default provider setting for a host within the hosts tab in the Authentication extension." src="../../_resources/foundry/consumer-mode/default-authentication-provider.png" /></p>
+<p>:::callout{theme="warning" title="Multiple IDPs configuration"}
+When multiple IDPs are configured for a single domain, use the realm parameter to specify the provider:
+<code>https://consumer.yourdomain.com/workspace/application/[rid]?_realm=auth0-realm-id</code> <br><br>
+You can find the realm ID <strong>Control Panel &gt; Authentication &gt; [Provider Name] &gt; Advanced Settings &gt; Realm</strong>.
+:::</p>
+<h2>Step 9: Configure platform access restrictions</h2>
+<p>Prevent consumer users from accessing the broader Foundry platform and ensure they only have access to applications needed for their consumer experience.</p>
+<p><img alt="The Foundry platform access dialog within the Application access extension showing configuration where only builder and administrator users have platform access." src="../../_resources/foundry/consumer-mode/platform-access-restrictions.png" /></p>
+<ol>
+<li>Navigate to <strong>Control Panel &gt; <a href="https://www.palantir.com/docs/foundry/administration/configure-application-access/">Application access</a></strong>.</li>
+<li>Select <strong>Foundry Platform</strong>, then <strong>Manage</strong>.</li>
+<li>Configure the following restrictions for your consumer organization:
+   * <strong>Disable platform access</strong> for consumer organization members using the rule-based group.
+   * <strong>Disable applications</strong> if they are not needed for consumer use:<ul>
+<li>Workshop</li>
+<li>Slate</li>
+<li>AIP Threads</li>
+<li>Carbon</li>
+</ul>
+</li>
+</ol>
+<h2>Step 10: Configure a default consumer application</h2>
+<p>Build a consumer application, and set up automatic redirection to the application on login.</p>
+<p><img alt="The home page URL tab within the Platform experience extension that shows a relative url as the organization default." src="../../_resources/foundry/consumer-mode/platform-experience-home-page.png" /></p>
+<ol>
+<li>Navigate to <strong>Control Panel &gt; <a href="https://www.palantir.com/docs/foundry/administration/configure-platform-experience/">Platform experience</a></strong>.</li>
+<li>Select your consumer organization.</li>
+<li>Configure the following default application settings:
+   * <strong>Home page URL:</strong> Add the URL of the consumer application that users should be redirected to after login. Examples:<ul>
+<li>For Workshop modules: <code>/module/view/latest/{module-rid}</code></li>
+<li>For Slate dashboards: <code>/slate/app/{dashboard-rid-or-permalink}</code></li>
+<li>For Carbon workspaces: <code>/carbon/{workspace-rid}</code></li>
+<li><strong>Languages:</strong> Configure available languages for your consumer users with browser language preferences support.</li>
+<li><strong>Platform title:</strong> Replace default "Palantir" branding with your organization's name.</li>
+<li><strong>Platform version:</strong> Set the default platform version (<code>stable</code>, <code>beta</code>, or <code>prior</code>), and configure version switcher access.</li>
+<li><strong>Static banner:</strong> Add organization-specific messaging or announcements.</li>
+</ul>
+</li>
+</ol>
+<p>Your Foundry platform is now configured for consumer mode.</p>
+<h2>Verify consumer mode configuration</h2>
+<p>After configuring consumer mode for Foundry, verify your set up using the following validation process:</p>
+<ol>
+<li>
+<p><strong>Create a project in the consumer space</strong> using the consumer project template:
+   * Navigate to your consumer space.
+   * Create a new project using the "Consumer Template".
+   * Verify that role assignments are applied automatically.</p>
+</li>
+<li>
+<p><strong>Create a temporary resource</strong>, such as a Workshop application, for permissions validation:
+   * In the consumer project, create a simple Workshop application.
+   * Configure basic functionality to test access permissions.
+   * Note the application URL for testing.</p>
+</li>
+<li>
+<p><strong>Create a consumer user</strong> in the consumer IDP and log in to Foundry:
+   * Create a test user account in your consumer identity provider.
+   * Verify the user is automatically assigned to the consumer organization.
+   * Test login flow and confirm automatic redirect to the consumer application.</p>
+</li>
+<li>
+<p><strong>Switch back to your user</strong> and use the <strong>Check Access</strong> panel:
+   * Navigate to the consumer project's file view.
+   * Use the <strong>Check access</strong> tab in the project <strong>Access</strong> settings to validate permissions:</p>
+<ul>
+<li>Confirm the consumer user has access to the consumer project.</li>
+<li>Verify the consumer user does NOT have access to internal projects.</li>
+<li>Check that role assignments are working correctly.</li>
+</ul>
+</li>
+</ol>
+<h2>Troubleshooting</h2>
+<h3>The organization assignment is not working</h3>
+<ul>
+<li><strong>Check triaging rules</strong> in the authentication provider configuration.</li>
+<li><strong>Verify group membership</strong> criteria are correctly configured.</li>
+<li><strong>Review user attributes</strong> being passed from your IDP.</li>
+</ul>
+<h3>Authentication redirects are not working</h3>
+<ul>
+<li><strong>Verify domain configuration</strong> and DNS setup.</li>
+<li><strong>Check default provider</strong> settings for your domain.</li>
+<li><strong>Review CORS and CSP</strong> configuration if using custom domains.</li>
+</ul>
+<h3>Role permissions are too restrictive/permissive</h3>
+<ul>
+<li><strong>Review role definitions</strong> and adjust permissions as needed.</li>
+<li><strong>Test with consumer users</strong> to ensure applications function correctly.</li>
+</ul>
+<h2>Next steps</h2>
+<p>Once your Foundry consumer mode setup is complete, proceed with setting up your specific consumer application type:</p>
+<ol>
+<li><strong><a href="https://www.palantir.com/docs/foundry/consumer-mode/workspace-application-setup/">In-platform application</a>:</strong> Quickly build low-code Workshop, Slate, or Carbon applications.</li>
+<li><strong><a href="https://www.palantir.com/docs/foundry/consumer-mode/oauth-application-setup/">OAuth application</a>:</strong> Build OSDK applications hosted in Foundry.</li>
+<li><strong><a href="https://www.palantir.com/docs/foundry/consumer-mode/client-credentials-setup/">Client credentials application</a></strong> Create externally hosted applications with service-to-service authentication.</li>
+</ol>
+</body>
+</html>

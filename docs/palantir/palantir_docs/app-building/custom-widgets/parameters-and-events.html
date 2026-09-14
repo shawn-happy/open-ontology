@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Parameters and events</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Parameters and events</h1>
+<p>Parameters and events are the primary mechanisms for widgets to interact with host applications like Workshop. Parameters allow host applications to pass data into the widget, while events enable widgets to communicate back to the host application.</p>
+<p>When developing custom widgets, you define parameters to allow users to configure widget behavior and interact with the host application, and you define events to enable two-way communication. This page explains the available parameter types, their formatting requirements, and how to use events.</p>
+<p>:::callout{theme="neutral" title="Constraints"}
+Widget configuration files have a limit of 50 parameters and 50 events. Parameter and event IDs must be in <code>camelCase</code> format.
+:::</p>
+<h2>Parameters</h2>
+<p>Parameters allow widgets to share state with the host application. They can be defined as primitive types, arrays of primitive types, and object set types.</p>
+<h3>Parameter types</h3>
+<table>
+<thead>
+<tr>
+<th>Type</th>
+<th>Description</th>
+<th>Format</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>boolean</code></td>
+<td>Boolean values (true/false)</td>
+<td>Boolean</td>
+<td><code>true</code> or <code>false</code></td>
+</tr>
+<tr>
+<td><code>date</code></td>
+<td>Calendar date</td>
+<td>ISO 8601 format: <code>YYYY-MM-DD</code></td>
+<td><code>"2023-12-31"</code></td>
+</tr>
+<tr>
+<td><code>number</code></td>
+<td>Numeric values</td>
+<td>Number</td>
+<td><code>42</code> or <code>3.14159</code></td>
+</tr>
+<tr>
+<td><code>string</code></td>
+<td>Text values</td>
+<td>String</td>
+<td><code>"Hello World"</code></td>
+</tr>
+<tr>
+<td><code>timestamp</code></td>
+<td>Date and time with timezone</td>
+<td>ISO 8601 format: <code>YYYY-MM-DDThh:mm:ss.sssZ</code></td>
+<td><code>"2023-12-31T23:59:59.999Z"</code></td>
+</tr>
+<tr>
+<td><code>objectSet</code></td>
+<td>Object set</td>
+<td>Object set RID</td>
+<td><code>ri.object-set.main.temporary-object-set.2af08bf0-3feb-416e-9e34-ad604940581b</code></td>
+</tr>
+<tr>
+<td><code>scenario</code></td>
+<td>Ontology scenario reference</td>
+<td>Scenario RID</td>
+<td><code>ri.actions..scenario.2af08bf0-3feb-416e-9e34-ad604940581b</code></td>
+</tr>
+</tbody>
+</table>
+<p>Object set parameters allow you to pass a set of objects between a custom widget and its host application. An object set may contain zero or more objects, either as a fixed list or as a set of filters applied to an object type or interface. An object set parameter should be defined in the widget configuration file with an object type or interface from an Ontology SDK (OSDK).</p>
+<p>Scenario parameters allow you to pass an <a href="https://www.palantir.com/docs/foundry/ontology/osdk-scenario/">Ontology scenario</a> between a custom widget and its host application. The value of a scenario parameter is a scenario reference (RID). Your widget can use this RID with the OSDK to read objects and apply actions within the scenario's isolated sandbox.</p>
+<p>:::callout{theme="neutral"}
+Scenario parameters are only available for <a href="https://www.palantir.com/docs/foundry/ontology/overview-ontology-scenario/">Ontology Scenarios</a>.
+:::</p>
+<h4>Unavailable parameter types</h4>
+<p>Types such as object set filters and structs are currently unsupported as first-class parameter types for custom widgets.</p>
+<h3>Usage in parameter definitions</h3>
+<p>When defining parameters in your widget configuration file, use the appropriate type designation:</p>
+<p>```TypeScript tab="parameter-examples.ts"
+{
+  parameters: {
+    // Primitive parameter example
+    startDate: {
+      type: "date",
+      displayName: "Start Date"
+    },
+    // Array parameter example
+    tags: {
+      type: "array",
+      subType: "string",
+      displayName: "Tags"
+    },
+    // Object set parameter example
+    flights: {
+      type: "objectSet",
+      allowedType: Flight,
+      displayName: "Flights"
+    }
+  }
+}</p>
+<pre><code>
+## Events
+
+Events allow widgets to communicate with the host application (such as Workshop) and trigger side effects or update parameters. Events can be defined in your widget configuration file alongside parameters.
+
+### Defining events
+
+Events are defined in the widget configuration file with the following structure:
+
+```TypeScript tab=&quot;events-definition.ts&quot;
+{
+  events: {
+    myEventId: {
+      displayName: &quot;Human-readable event name&quot;,
+      parameterUpdateIds: [&quot;parameter1&quot;, &quot;parameter2&quot;],
+    },
+  },
+}
+</code></pre>
+<p>The <code>parameterUpdateIds</code> field specifies which parameters can be updated when this event is triggered.</p>
+<h2>Parameter and event binding in Workshop</h2>
+<p>In Workshop, widget parameters can be bound to Workshop variables, and widget events can be bound to Workshop events in the Widget setup panel. This allows for two-way communication:</p>
+<ol>
+<li>Workshop can pass data to widgets through parameter bindings, and a widget can update these parameters by emitting events.</li>
+<li>Workshop events can also be bound to widget events in order to trigger side-effects in Workshop.</li>
+</ol>
+<h2>Examples</h2>
+<p>Below are complete examples showing both the widget configuration and usage in React.</p>
+<h3>Primitive parameters and events</h3>
+<p>First, define parameters and events in your configuration file:</p>
+<p>```TypeScript tab="simpleCounter.config.ts"
+import { defineConfig } from "@osdk/widget.client";</p>
+<p>export default defineConfig({
+  id: "simpleCounter",
+  name: "Simple Counter",
+  description: "A minimal counter example",
+  type: "workshop",
+  parameters: {
+    name: {
+      displayName: "Name",
+      type: "string",
+    },
+    count: {
+      displayName: "Count",
+      type: "number",
+    },
+  },
+  events: {
+    updateCount: {
+      displayName: "Update Count",
+      parameterUpdateIds: ["count"],
+    },
+  },
+});</p>
+<pre><code>
+Then, use these parameters and events in your widget component:
+
+```TypeScript tab=&quot;Widget.tsx&quot;
+import { useFoundryWidgetContext } from &quot;@osdk/widget.client-react&quot;;
+import React, { useCallback } from &quot;react&quot;;
+import type SimpleCounterConfig from &quot;./simpleCounter.config.js&quot;;
+
+const useWidgetContext = useFoundryWidgetContext.withTypes&lt;typeof SimpleCounterConfig&gt;();
+
+export const Widget = () =&gt; {
+  const { parameters, emitEvent } = useWidgetContext();
+
+  const name = parameters.values.name ?? &quot;World&quot;;
+  const count = parameters.values.count ?? 0;
+
+  const increment = useCallback(() =&gt; {
+    emitEvent(&quot;updateCount&quot;, {
+      parameterUpdates: { count: count + 1 },
+    });
+  }, [emitEvent, count]);
+
+  return (
+    &lt;div&gt;
+      &lt;h1&gt;Hello, {name}!&lt;/h1&gt;
+      &lt;p&gt;Count: {count}&lt;/p&gt;
+      &lt;button onClick={increment}&gt;Increment&lt;/button&gt;
+    &lt;/div&gt;
+  );
+};
+</code></pre>
+<h3>Object set parameter</h3>
+<p>First, define parameters and events in your configuration file:</p>
+<p>```TypeScript tab="flights.config.ts"
+import { Flight } from "@custom-widget/sdk";
+import { defineConfig } from "@osdk/widget.client";</p>
+<p>export default defineConfig({
+  id: "flights",
+  name: "Flights Example",
+  description: "An example with flights",
+  type: "workshop",
+  parameters: {
+    flights: {
+      displayName: "Flights",
+      allowedType: Flight,
+      type: "objectSet",
+    },
+  },
+  events: {},
+});</p>
+<pre><code>
+When using an object set parameter, an OSDK client must be passed into the `FoundryWidget` component. To use the `useObjectSet` hook from `@osdk/react` for data fetching, you must also wrap your widget with `OsdkProvider2`. This provider enables the experimental React hooks that offer automatic caching, loading states, and real-time updates:
+
+```TypeScript tab=&quot;main.tsx&quot;
+import { FoundryWidget } from &quot;@osdk/widget.client-react&quot;;
+import { OsdkProvider2 } from &quot;@osdk/react/experimental&quot;;
+import { createRoot } from &quot;react-dom/client&quot;;
+import FlightsConfig from &quot;./flights.config.js&quot;;
+import { client } from &quot;./client.js&quot;;
+import { Widget } from &quot;./Widget.js&quot;;
+
+const root = document.getElementById(&quot;root&quot;)!;
+
+createRoot(root).render(
+  &lt;FoundryWidget config={FlightsConfig} client={client}&gt;
+    &lt;OsdkProvider2 client={client}&gt;
+      &lt;Widget /&gt;
+    &lt;/OsdkProvider2&gt;
+  &lt;/FoundryWidget&gt;
+);
+</code></pre>
+<p>Then, use these parameters and events in your widget component. Since <code>useObjectSet</code> cannot be called with a <code>null</code> or <code>undefined</code> object set, the pattern below uses a separate component that only renders once the object set is available:</p>
+<p>```TypeScript tab="Widget.tsx"
+import { Flight } from "@custom-widget/sdk";
+import type { ObjectSet } from "@osdk/api";
+import { useObjectSet } from "@osdk/react/experimental";
+import { useFoundryWidgetContext } from "@osdk/widget.client-react";
+import React from "react";
+import type FlightsConfig from "./flights.config.js";</p>
+<p>const useWidgetContext = useFoundryWidgetContext.withTypes<typeof FlightsConfig>();</p>
+<p>export const Widget = () =&gt; {
+  const { parameters } = useWidgetContext();</p>
+<p>const flightsParam = parameters.values.flights;</p>
+<p>if (flightsParam == null) {
+    return <div>Select an object set</div>;
+  }</p>
+<p>return <FlightsView objectSet={flightsParam.objectSet} />;
+};</p>
+<p>const FlightsView = ({ objectSet }: { objectSet: ObjectSet<Flight> }) =&gt; {
+  const { data: flights, isLoading, error } = useObjectSet(objectSet);</p>
+<p>if (isLoading) {
+    return <div>Loading flights...</div>;
+  }</p>
+<p>if (error) {
+    return <div>Error loading flights</div>;
+  }</p>
+<p>return (
+    <div>
+      <p>Flights: {flights?.map(f =&gt; ...)}</p>
+    </div>
+  );
+};</p>
+<pre><code>
+The value of an object set parameter contains an object set RID as well as an instantiated OSDK object set for convenience. When the object set definition changes, or data is invalidated in the host application, the object set RID and instantiated OSDK object set in the parameter value will update.
+
+:::callout{theme=&quot;neutral&quot; title=&quot;Learn more about @osdk/react&quot;}
+For more information on `useObjectSet` and other React hooks for querying, actions, and caching, see the [official @osdk/react documentation â](https://palantir.github.io/osdk-ts/react/getting-started).
+:::
+
+### Update an object set parameter
+
+You can update an object set parameter by emitting an event using an OSDK `ObjectSet` to update the parameter.
+
+First, define the event in your configuration file with the object set parameter in `parameterUpdateIds`.
+
+```TypeScript tab=&quot;flights.config.ts&quot;
+import { Flight } from &quot;@custom-widget/sdk&quot;;
+import { defineConfig } from &quot;@osdk/widget.client&quot;;
+
+export default defineConfig({
+  id: &quot;flights&quot;,
+  name: &quot;Flights Example&quot;,
+  description: &quot;An example with flights&quot;,
+  type: &quot;workshop&quot;,
+  parameters: {
+    flights: {
+      displayName: &quot;Flights&quot;,
+      allowedType: Flight,
+      type: &quot;objectSet&quot;,
+    },
+  },
+  events: {
+    updateFlights: {
+      displayName: &quot;Update Flights&quot;,
+      parameterUpdateIds: [&quot;flights&quot;],
+    },
+  },
+});
+</code></pre>
+<p>Then, use <code>emitEvent</code> to update the object set parameter with a new <code>ObjectSet</code>.</p>
+<p>```TypeScript tab="Widget.tsx"
+import { Flight } from "@custom-widget/sdk";
+import { useFoundryWidgetContext } from "@osdk/widget.client-react";
+import React, { useCallback } from "react";
+import { client } from "./client.js";
+import type FlightsConfig from "./flights.config.js";</p>
+<p>const useWidgetContext = useFoundryWidgetContext.withTypes<typeof FlightsConfig>();</p>
+<p>export const Widget = () =&gt; {
+  const { parameters, emitEvent } = useWidgetContext();</p>
+<p>const filterToLongFlights = useCallback(() =&gt; {
+    const longFlights = client(Flight).where({
+      duration: { $gt: 500 },
+    });</p>
+<pre><code>emitEvent("updateFlights", {
+  parameterUpdates: { flights: longFlights },
+});
+</code></pre>
+<p>}, [emitEvent]);</p>
+<p>return (
+    <div>
+      <button onClick={filterToLongFlights}>Show Long Flights</button>
+    </div>
+  );
+};
+```</p>
+<p>:::callout{theme="note" title="Behavior and limitations"}
+The SDK creates a temporary object set from your <code>ObjectSet</code> definition and sends the resulting RID to the host application. If the same event is emitted multiple times in quick succession, only the last call will be sent. Earlier calls are discarded to prevent race conditions. <br><br>
+Errors during object set creation, such as network failures, are not surfaced to the caller.
+:::</p>
+<p>:::callout{theme="note" title="Refreshing object set data after actions"}
+If your widget uses OSDK to apply Ontology actions that modify data in an object set parameter, you can enable automatic data refresh. See <a href="https://www.palantir.com/docs/foundry/custom-widgets/use-osdk/#refresh-host-data-on-action">Refresh host data on action</a> for details.
+:::</p>
+</body>
+</html>

@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Getting started</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Getting started</h1>
+<p>:::callout{theme="neutral"}
+The application previously known as Workflow Builder is now called Workflow Lineage.
+:::</p>
+<p>Use <code>Cmd+I</code> (macOS) or <code>Ctrl+I</code> (Windows) to view a graph of the objects, actions, and functions that back your resource. In AI FDE, use the Workflow Lineage button in the chat outline header to open resources from the current conversation. You can also use <strong>Open in Workflow Lineage</strong>, commonly found under <strong>File</strong> or <strong>Actions</strong>, in the following applications:</p>
+<p><img alt="Example Workflow Lineage graph with split screen." src="../../_resources/foundry/workflow-lineage/workflow-lineage-navigation.png" /></p>
+<p>The following applications support these features:</p>
+<ul>
+<li>Workshop</li>
+<li>Objects in Ontology Manager</li>
+<li>Function repositories</li>
+<li>Quiver dashboards</li>
+<li>Machinery</li>
+<li>Slate</li>
+<li>Chatbot Studio</li>
+<li>Automate</li>
+<li>Third-party applications</li>
+<li>Gaia maps</li>
+<li>AI FDE</li>
+<li>Developer Console (Keyboard shortcut only)</li>
+<li>DevOps Resources Overview (Keyboard shortcut only)</li>
+<li>Marketplace (Keyboard shortcut only, in a draft resource's overview tab.)</li>
+<li>Notepad (Navigation option only)</li>
+<li>Object types in Pipeline Builder (Navigation option only)</li>
+</ul>
+<p>When you open an object type, action type, function, or Logic function from Ontology Manager, Workflow Lineage automatically displays its upstream and downstream nodes.</p>
+<p>:::callout{theme="neutral"}
+When opening Workshop modules or third-party applications, Workflow Lineage limits the automatic expansion of dependencies to approximately 800 nodes. This prevents performance issues that could occur when thousands of nodes are automatically added to the graph. You can still manually expand additional nodes as needed by selecting nodes and using the dependency expansion icons.
+:::</p>
+<p>:::callout{theme="neutral"}
+To view all keyboard shortcuts, select <strong>Help &gt; View hotkeys</strong> or see the <a href="https://www.palantir.com/docs/foundry/workflow-lineage/keyboard-shortcuts/">keyboard shortcuts</a> documentation.
+:::</p>
+<h2>Global Branching support</h2>
+<p>Workflow Lineage supports <a href="https://www.palantir.com/docs/foundry/global-branching/overview/">Global Branching</a>, allowing you to inspect, edit, and validate workflow resources on a branch before merging changes into <code>main</code>. When working on a global branch, you can open Workflow Lineage from branch-aware entry points including the AI FDE panel, the global branch bottom bar, the branch page, and the proposal page. You can also use the <code>Cmd+I</code> (macOS) or <code>Ctrl+I</code> (Windows) shortcut from supported resources on a branch to open Workflow Lineage in the same branch context.</p>
+<p><a href="https://www.palantir.com/docs/foundry/workflow-lineage/branching-workflow-lineage/">Learn more about Branching in Workflow Lineage.</a></p>
+<h2>Generate graphs with AI FDE</h2>
+<p>You can use AI FDE to visualize dependencies or create annotated Workflow Lineage graphs.</p>
+<p>There are two ways to generate a lineage graph with AI FDE:</p>
+<ul>
+<li><strong>Quick view:</strong> Press <code>Cmd+I</code> (macOS) or <code>Ctrl+I</code> (Windows) in the AI FDE window to generate a graph of all resources in your current chat context.</li>
+<li><strong>Custom graph:</strong> Ask AI FDE what you want to see: specific resources, downstream dependencies, or a slice of your workflow. AI FDE builds a lineage graph for the request and can annotate it with text nodes that describe your workflow.</li>
+</ul>
+<h2>Interface</h2>
+<p>Workflow Lineage's interface consists of the two main components, as seen in the following notional screenshot:</p>
+<ol>
+<li><strong>Graph panel:</strong> An interactive graphical view of the entities backing your workflow and the relationships between them.</li>
+<li><strong>Workshop panel:</strong> An interactive view of the selected Workshop applications.</li>
+</ol>
+<p><img alt="Example open in Workflow Lineage buttons from other applications." src="../../_resources/foundry/workflow-lineage/workflow-lineage-with-numbers.png" /></p>
+<h3>Graph panel</h3>
+<p>When you select nodes on the graph panel, you can see the corresponding Workshop components highlighted on the Workshop panel. This makes it easy to see the exact places that are using specific nodes and can help show you where specific objects are being used.</p>
+<p><img src="../../_resources/external-f89a7f87538c.png" alt="Example Workflow Lineage node on graph." width="500"></p>
+<p>When you select a specific node on the graph, you can use the <strong>Pin</strong> option to pin it to the left sidebar or view more details about the node.</p>
+<p><img src="../../_resources/external-e67360cebf91.png" alt="Example Workflow Lineage node on graph." width="300"></p>
+<p>When you select a node, <strong>Open in new tab</strong> appears to the right. Select it to open the resource in its native application. This option is available for functions, object types, action types, Workshop modules, Slate applications, AIP Agents, Notepads, Machines, interfaces, object views, Ontology SDKs, Gaia Maps, and language models.</p>
+<p>To see all linked dependencies for a particular node, select the icon corresponding to the input type you want to see on the graph.</p>
+<p>Use the expand buttons in the top toolbar to expand selected nodes one step upstream or downstream instead of right-clicking each node.</p>
+<p>You can view the icons of each node type in the legend at the top right of the graph panel. Object type nodes are represented using the icon specified in the Ontology.</p>
+<p>You can adjust node widths for each workflow graph to display longer node names.</p>
+<p>In the example below, we want to see the nine actions dependent on the <code>Outage Alert</code> object. Select the same icon location inline on the object to show and hide those dependencies from view.</p>
+<p><img src="../../_resources/external-a1cd3eab6d64.png" alt="Example object with actions expanded out." width="450"></p>
+<h3>Filter trashed resources</h3>
+<p>Use the trash icon in the toolbar to remove trashed resources from the graph and exclude them from node connections. Select the icon again to restore the trashed resources.</p>
+<h3>Search by resource identifier</h3>
+<p>Paste a resource identifier (RID) into the search sidebar to search the graph. Supported resource types include object types, action types, interfaces, type groups, functions, AIP Logic, and language models. Workflow Lineage highlights matching resources on the graph.</p>
+<h3>Search by property name</h3>
+<p>When you search for a property display name, Workflow Lineage highlights object types that contain a property with that name.</p>
+<h3>Add resources to the graph</h3>
+<p>You can add resources to your Workflow Lineage graph in several ways:</p>
+<ul>
+<li><strong>Add individual resources:</strong> Use the file search to find specific resources and add them to your graph one at a time.</li>
+<li><strong>Add all resources from a folder or project:</strong> When using file search to find resources, a button appears next to folders and projects in the file explorer that lets you add every supported resource from that location as nodes on your graph.</li>
+</ul>
+<p>To add all resources from a folder or project:</p>
+<ol>
+<li>Open the file search in Workflow Lineage.</li>
+<li>Navigate to the folder or project containing your resources.</li>
+<li>Select the button next to the folder or project name to add all supported resources from that location to your graph.</li>
+</ol>
+<h3>View selection details</h3>
+<p>Review details of a specific node by selecting the node and then opening the selection details panel on the left side of the screen. Details displayed vary depending on the type of node selected. The following is a list of sample details that can be found for each resource:</p>
+<ul>
+<li><strong>Objects:</strong> A list of properties and where those properties are used throughout the workflow (see property provenance linked below), linkages, backing data source, and so on.</li>
+<li><strong>Object links:</strong> Resource usage by objects, functions, actions, Workshop applications, and more.</li>
+<li><strong>Functions:</strong> Inputs, outputs, dependencies, repository, ontology binding, and other relevant metadata.</li>
+<li><strong>Actions:</strong> API, RID, input data, Ontology edits, and submission criteria.</li>
+<li><strong>AIP Logic functions:</strong> Dependencies, automations, and metadata about creation details.</li>
+<li><strong>Language models:</strong> Model descriptions and metadata on model creator and context windows.</li>
+<li><strong>Workshop applications:</strong> Metadata about creation and action, function, and object dependencies.</li>
+<li><strong>Custom widgets:</strong> Workshop applications that use the custom widget.</li>
+<li><strong>Interfaces:</strong> Properties defined on the interface, the object types that implement the interface, and the interfaces it extends from.</li>
+<li><strong>Geospatial maps:</strong> Connection buttons on nodes such as object types that provide access to geospatial map nodes and their relationships with other Ontology resources.</li>
+<li><strong>Workbench boards:</strong> How Workbench boards relate to other resources in your workflow.</li>
+<li><strong>Vertex graphs:</strong> Graph metadata, dependencies, and navigation options.</li>
+<li><strong>Vertex graph templates:</strong> Template metadata, dependencies, and navigation options.</li>
+<li><strong>SDK nodes (TypeScript v2 and Python):</strong> Relationships between objects registered to an SDK and the functions that depend on it. Select the object type and function buttons on an SDK node to explore these relationships.</li>
+</ul>
+<p>When you select multiple nodes, use the <strong>Selection details</strong> panel to filter the selection. The histogram groups nodes by their action rules.</p>
+<p><img src="../../_resources/external-0155cb1545b0.png" alt="Sample **Selection details** tab on the Workflow Lineage graph." width="450"></p>
+<h3>Support for multiple ontologies</h3>
+<p>The Workflow Lineage graph displays resources from all relevant ontologies, allowing you to visualize cross-ontology relationships.</p>
+<p>All color modes apply to resources from other ontologies. In the default color mode, cross-ontology resources display with a gray header. A warning icon appears in the upper right corner of nodes belonging to a different ontology.</p>
+<p>:::callout{theme="neutral"}
+Action type nodes and object nodes will have limited functionality when you select an ontology different from their own. For example, you can only perform bulk updates on function-backed actions within the currently selected ontology.
+:::</p>
+<p><img src="../../_resources/external-d18a1737a584.png" alt="A Workflow Lineage graph with objects and actions from multiple ontologies." width="450"></p>
+<p>If multiple ontologies are present, a warning icon will also appear next to the blue cube in the upper right corner of the graph. Though you can only select one ontology at a time, you can view the ontologies present in your graph and switch between them by selecting the cube icon.</p>
+<p><img src="../../_resources/external-2b25dd1f5dbb.png" alt="The BD Architecture ontology is selected, but there are other nodes that are from another ontology." width="450"></p>
+<h3>Additional details</h3>
+<p>For <strong>Functions</strong>, you can view the code when you select the node. This includes the objects from which your function reads and a description of the logic. You can also <a href="https://www.palantir.com/docs/foundry/workflow-lineage/refactor-and-understand-workflows/#function-backed-automation-upgrades">bulk upgrade functions used in Workshop applications and automations</a>.</p>
+<p>When viewing a function execution, select the link icon on the right side of the <strong>Run history</strong> panel to copy a link to the function trace.</p>
+<p><img alt="Example function code." src="../../_resources/foundry/workflow-lineage/workflow-lineage-function-panel.png" /></p>
+<p>For <strong>Actions</strong>, you can view the action function code, the action log, and the option to <a href="https://www.palantir.com/docs/foundry/workflow-lineage/refactor-and-understand-workflows/#property-provenance">upgrade the action</a>. You can also <a href="https://www.palantir.com/docs/foundry/workflow-lineage/manage-security/#bulk-update-action-submission-criteria">bulk update the submission criteria on actions</a> and <a href="https://www.palantir.com/docs/foundry/workflow-lineage/refactor-and-understand-workflows/#bulk-delete-objects-and-actions">bulk delete actions and objects</a>.</p>
+<p><img alt="Example action log." src="../../_resources/foundry/workflow-lineage/workflow-lineage-action-logs.png" /></p>
+<p>For <strong>objects</strong>, you can view a preview of the object data. You can also <a href="https://www.palantir.com/docs/foundry/workflow-lineage/refactor-and-understand-workflows/#bulk-delete-objects-and-actions">bulk delete actions and objects</a>.</p>
+<p>:::callout{theme="warning"}
+By default, the lines denoting object links and objects that are inputs to actions are not shown on the graph. To see these relationships, select the object nodes. You can use <code>Cmd+A</code> (macOS) or <code>Ctrl+A</code> (Windows) to select all nodes.
+:::</p>
+<p><img alt="Example object view." src="../../_resources/foundry/workflow-lineage/workflow-lineage-objects.png" /></p>
+<p>You can also view object links under the <strong>Links</strong> section of the <strong>Selection details</strong> panel. Hover over each object link to show a preview of all usages.</p>
+<p><img alt="Hover over an object link to preview usage." src="../../_resources/foundry/workflow-lineage/object-links.png" /></p>
+<p>Select the link to view full details. If the link is being edited, a pen icon will appear next to the corresponding usage.</p>
+<p><img alt="Example of an object link being edited." src="../../_resources/foundry/workflow-lineage/object-links-edit.png" /></p>
+<p>These links will also show up as dependencies in downstream resources.</p>
+<p><img alt="Example of object links in a Workshop application." src="../../_resources/foundry/workflow-lineage/object-links-workshop.png" /></p>
+<p>For <strong>Automations</strong>, you can view property usages and dependencies in the <strong>Selection details</strong> sidebar. Under <strong>Condition ontology dependencies</strong>, you can see a breakdown of the specific object properties on which the automate's condition depends. Hover over the number to view the exact property.</p>
+<p><img alt="Example Automation view for Condition ontology dependencies." src="../../_resources/foundry/workflow-lineage/automate-properties-used.png" /></p>
+<p>You can also toggle the purple lightning bolt button at the top left of the graph to view the actions and functions that trigger the automation.</p>
+<p><img alt="Example Automation view with the lightning bolt disabled." src="../../_resources/foundry/workflow-lineage/automate-before-lightning.png" /></p>
+<p><img alt="Example Automation view with the lightning bolt enabled." src="../../_resources/foundry/workflow-lineage/automate-after-lightning.png" /></p>
+<p>If you have an automation that triggers when a property is a specific value, Workflow Lineage will find the actions or functions that edit that property to that value and link them to the automation.</p>
+<p><img alt="A function that triggers an automation property is linked on the Workflow Lineage graph." src="../../_resources/foundry/workflow-lineage/automate-static-property.png" /></p>
+<h3>Workshop panel</h3>
+<p>On the Workshop panel, you can select different components and view the corresponding nodes highlighted on the Workflow Lineage graph.</p>
+<p>At the bottom of the Workshop panel, the <strong>Entities</strong> section shows all backing objects and actions used in the application. When you select a specific entity, you can view exactly where the entity is used throughout the Workshop application.</p>
+<p>If you have multiple Workshop applications on your graph, you can use the dropdown menu at the top to toggle between Workshop application views.</p>
+<p><img alt="Example Workflow Lineage workshop panel with multiple workshops in the dropdown menu." src="../../_resources/foundry/workflow-lineage/workflow-lineage-workshop-dropdown.png" /></p>
+<p>To reopen the Workshop panel, select any Workshop application on the graph and press <code>I</code>, or double-click on the node.</p>
+<h3>Bottom panel</h3>
+<p>The bottom panel displays function upgrade, model usage, and submission criteria upgrade panels even when no nodes are selected. For instructions, see <a href="https://www.palantir.com/docs/foundry/workflow-lineage/refactor-and-understand-workflows/#bulk-function-backed-resource-upgrades">Perform refactors and understand your workflows</a>.</p>
+<h4>Weekly usage metrics</h4>
+<p>You can view weekly usage metrics for Workshop applications by selecting Workshop nodes on the graph and navigating to the <strong>Weekly Usage</strong> bottom panel. This panel displays the total views or unique users for all selected Workshop modules. The metrics are visualized using dynamic clustered bar charts, where each Workshop module is represented week by week.</p>
+<h2>Color legend options</h2>
+<p>Workflow Lineage provides a color legend for managing security and viewing application metadata. Use the toggle button to show or hide the legend.</p>
+<p>Examples of color legends are below:</p>
+<p><img alt="Example Workflow Lineage graph with custom colors." src="../../_resources/foundry/workflow-lineage/workflow-lineage-colors.png" /></p>
+<h3>General</h3>
+<ul>
+<li><strong>Node type:</strong> Shows the type of resource that each node represents on your graph.</li>
+<li><strong>Custom color:</strong> Adds colors into the legend by right-clicking nodes to create a new color group, selecting an existing one, or dragging colors from the legend onto nodes.</li>
+</ul>
+<h3>Permissions</h3>
+<p><img alt="Example Workflow Lineage graph with custom colors." src="../../_resources/foundry/workflow-lineage/colors-permission.png" /></p>
+<ul>
+<li><strong>Ontology permissions:</strong> Shows whether the specified user can view or edit entity definitions, and whether they can view object data or execute actions. Review the <a href="https://www.palantir.com/docs/foundry/workflow-lineage/manage-security/">managing security</a> documentation for debugging action submission permissions.</li>
+<li><strong>Resource permissions:</strong> Shows a breakdown for the selected user: whether they are an owner, viewer, editor, discoverer, or have no access to the resource itself. Review the <a href="https://www.palantir.com/docs/foundry/workflow-lineage/manage-security/">managing security</a> documentation.</li>
+</ul>
+<h3>Health</h3>
+<ul>
+<li><strong>Failure rate:</strong> Applies color to action, function, and AIP Logic nodes based on the proportion of runs that failed over a selected time window. Review the <a href="https://www.palantir.com/docs/foundry/aip-observability/metrics/#failure-rate-color-mode-in-workflow-lineage">failure rate color mode</a> documentation for more information.</li>
+<li><strong>Monitoring status:</strong> Applies color to nodes based on the highest severity of any firing monitor targeting that resource. Review the <a href="https://www.palantir.com/docs/foundry/monitoring-views/overview/#monitoring-status-in-workflow-lineage">monitoring status in Workflow Lineage</a> documentation for more information.</li>
+</ul>
+<h3>Usage</h3>
+<p><img alt="A Workflow Lineage graph with Usages colors." src="../../_resources/foundry/workflow-lineage/colors-usages.png" /></p>
+<ul>
+<li><strong>Usages:</strong> Applies color to Workshop applications based on how many views that application had over the past four weeks, in both view and edit mode.</li>
+<li><strong>Failure rate:</strong> Applies color to resources based on their failure rate.</li>
+<li><strong>Out of date functions:</strong> Review the <a href="https://www.palantir.com/docs/foundry/workflow-lineage/refactor-and-understand-workflows/#function-backed-action-upgrades">action-backed function upgrades</a> section.</li>
+<li><strong>Application views:</strong> Applies color to Workshop applications based on how many views that application had over the past four weeks, in both view and edit mode.</li>
+<li><strong>Model usage:</strong> Review the <a href="https://www.palantir.com/docs/foundry/workflow-lineage/aip-usage-observability/#aip-usage-metrics">AIP usage metrics</a> section.</li>
+<li><strong>Object Storage indexing status:</strong> Applies color to object type nodes based on Object Storage v2 indexing status, with color intensity indicating how recently the indexing event occurred. Each object type node displays a timestamp showing when the most recent indexing event took place.</li>
+<li><strong>Ontology status:</strong> Applies color to nodes based on <code>Active</code>, <code>Experimental</code>, <code>Deprecated</code>, <code>Example</code>, and <code>Promoted</code> statuses.</li>
+<li><strong>Action rule:</strong> Applies color to nodes based on whether it runs a function, creates, modifies, or deletes objects, or does a combination of any of the above.</li>
+<li><strong>Automation expiration:</strong> Applies color to automation nodes based on their expiration date.</li>
+<li><strong>Last modified:</strong> Applies color to nodes based on their last modified date.</li>
+<li><strong>Last reindexed:</strong> Applies color to object nodes based on when they were last reindexed in Object Storage v2. Categories distinguish objects reindexed within the past day, week, month, or year from objects that failed reindexing or have not been indexed. The exact reindex date appears beneath each node.</li>
+</ul>
+<h3>Monitoring</h3>
+<ul>
+<li><strong>Monitoring status:</strong> Applies color to nodes based on the maximum severity of their firing monitors. Nodes are marked as healthy if all monitors are passing. The visualization also highlights which nodes are eligible for monitoring but do not have monitoring configured.</li>
+</ul>
+<h3>Organization</h3>
+<p><img alt="A Workflow Lineage graph with folder colors." src="../../_resources/foundry/workflow-lineage/colors-folder.png" /></p>
+<ul>
+<li><strong>Folder:</strong> Applies color to nodes based on the folder each node lives in.</li>
+<li><strong>Project:</strong> Applies color to nodes based on the project each node lives in.</li>
+<li><strong>Portfolio:</strong> Applies color to nodes based on the portfolio each node lives in.</li>
+<li><strong>Functions repository:</strong> Applies color to function nodes based on the functions repository each node lives in.</li>
+</ul>
+<h2>Text nodes</h2>
+<p>Use text nodes to document or call attention to details in your graph. Text nodes support <a href="https://www.markdownguide.org/cheat-sheet/">Markdown syntax â</a> and custom colors. Layout options do not affect text nodes, and text nodes are not attached to other nodes. Because text nodes render in the background, you can use them to organize graph nodes into sections without obscuring them.</p>
+<p><img alt="Text button in the top left of the Workflow Lineage graph." src="../../_resources/foundry/workflow-lineage/text-node-add.png" /></p>
+<ol>
+<li>Select <strong>Text</strong> in the top-left of the graph.</li>
+<li>Double-click the text node, then add Markdown text. Workflow Lineage saves changes as you type.</li>
+<li>To exit edit mode, use <code>Cmd+Enter</code> (macOS), <code>Ctrl+Enter</code> (Windows), or <code>Escape</code>. You can also select outside the text node. If you want to discard your changes and revert to the previous version, use the discard option available while editing.</li>
+</ol>
+<p>To color a text node, right-click and select <strong>Color nodes</strong>. Choose a color or add a new color.</p>
+<p><img alt="The &quot;Color nodes&quot; menu option to color the text node." src="../../_resources/foundry/workflow-lineage/text-node-new-color.png" /></p>
+<p>You can also resize text nodes using the three lines in the bottom right corner. If the length of your text is greater than the length of the text node, the node will automatically become scrollable.</p>
+<p><img alt="A text node that can be expanded and scrollable." src="../../_resources/foundry/workflow-lineage/text-node-expand.png" /></p>
+<p><a href="https://www.palantir.com/docs/foundry/workflow-lineage/refactor-and-understand-workflows/">Learn more about understanding workflows in Workflow Lineage.</a></p>
+<h2>Presentation mode</h2>
+<p>Use presentation mode to create and organize visual snapshots, or frames, of your graph.</p>
+<p><img alt="The &quot;Edit presentation frames&quot; button in Workflow Lineage." src="../../_resources/foundry/workflow-lineage/presentation-button.png" /></p>
+<p>:::callout{theme="neutral"}
+You must save your graph before you can use the presentation tool.
+:::</p>
+<p>To create a frame, adjust your graph to capture the desired configuration. This can include the arrangement of nodes, node colors, color mode, and zoom level. Once you are satisfied with the current view, select <strong>Save state as new frame</strong>.</p>
+<p><img alt="The Presentation frame pop up." src="../../_resources/foundry/workflow-lineage/presentation-save-frame.png" /></p>
+<p>Workflow Lineage gives each frame a default name, such as <code>Frame (1)</code> or <code>Frame (2)</code>, based on the number of frames in your presentation. To rename a frame, select the pencil icon next to the frame name and enter a title.</p>
+<p><img alt="The frame dropdown and edit button." src="../../_resources/foundry/workflow-lineage/presentation-frame-1.png" /></p>
+<p>You can reorder frames by dragging them into your preferred sequence.</p>
+<p>:::callout{theme="warning"}
+Reordering frames is not available when working on a branch.
+:::</p>
+<p>You cannot edit the contents of an existing frame. To update a frame, adjust the graph, save the state as a new frame, and delete the old frame. To delete a frame, open the frame dropdown, hover over the frame, then select the red trash icon.</p>
+<p><img alt="The delete button on a frame." src="../../_resources/foundry/workflow-lineage/presentation-delete.png" /></p>
+<p>Presentation mode captures only the graph interface. Saved frames do not include the Workshop side panel or the bottom and left side panels. Use <code>,</code> and <code>.</code> to move backward and forward through your presentation frames.</p>
+<p><img alt="The hotkey information on the presentation frame arrows." src="../../_resources/foundry/workflow-lineage/presentation-hot-key.png" /></p>
+<p>:::callout{theme="neutral"}
+Tip: Use text nodes in your presentation frames. This allows you to guide viewers through each step of your workflow with custom notes or explanations.
+:::</p>
+</body>
+</html>

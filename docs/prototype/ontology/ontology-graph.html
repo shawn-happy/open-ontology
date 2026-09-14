@@ -4,6 +4,13 @@
 <meta charset="UTF-8" />
 <title>本体图谱 · Open Ontology</title>
 <link rel="stylesheet" href="../assets/style.css" />
+<style>
+.check-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.check-grid label { display: flex; align-items: center; gap: 8px; font-size: 13px; cursor: pointer; }
+.tree-ops { display: none; gap: 2px; }
+.tree-node:hover .tree-ops { display: inline-flex; }
+.tree-ops .btn-link { padding: 0 3px; }
+</style>
 </head>
 <body>
 <div id="root"></div>
@@ -18,6 +25,7 @@
   <div class="drawer-b">
     <div class="tabs" data-group="cls">
       <div class="tab active" data-pane="base" data-group="cls">基本信息</div>
+      <div class="tab" data-pane="iface" data-group="cls">接口</div>
       <div class="tab" data-pane="props" data-group="cls">属性管理 <span class="cnt">9</span></div>
       <div class="tab" data-pane="mapping" data-group="cls">数据映射</div>
       <div class="tab" data-pane="data" data-group="cls">对象数据查询</div>
@@ -38,6 +46,11 @@
         <dt>描述</dt><dd>产线设备实体，关联工艺、物料与质量检测数据。</dd>
       </dl>
       <div class="flex mt16"><button class="btn btn-sm" onclick="toast('保存为新版本草稿')">另存新版本</button><button class="btn btn-sm btn-primary" onclick="toast('已提交发布审批')">提交发布</button></div>
+    </div>
+
+    <!-- 接口（类=实现映射 / 接口=属性定义，openClass 时动态渲染） -->
+    <div class="tab-pane" data-group="cls" data-pane="iface">
+      <div id="ifacePane"></div>
     </div>
 
     <!-- 属性管理 -->
@@ -101,6 +114,84 @@
   </div>
 </div>
 
+<!-- 类目新增/编辑 -->
+<div class="mask" id="catModal" data-close-mask>
+  <div class="modal sm">
+    <div class="modal-h"><span id="catModalTitle">新增类目</span><span class="x" onclick="App.closeModal('catModal')">×</span></div>
+    <div class="modal-b">
+      <div class="form-item"><label><span class="req">*</span>类目名称</label><input type="text" id="catName" placeholder="如：供应链域" /></div>
+      <div class="form-item">
+        <label>上级类目</label><select id="catParent"></select>
+        <div class="tip" id="catParentTip" style="display:none">该类目包含子类目，上级不可修改。</div>
+      </div>
+    </div>
+    <div class="modal-f"><button class="btn" onclick="App.closeModal('catModal')">取消</button><button class="btn btn-primary" onclick="saveCat()">确定</button></div>
+  </div>
+</div>
+
+<!-- 新建类型（类 / 接口 / 枚举类，对标 Palantir：无抽象类，类间不继承） -->
+<div class="mask" id="classModal" data-close-mask>
+  <div class="modal">
+    <div class="modal-h"><span id="classModalTitle">新建类型</span><span class="x" onclick="App.closeModal('classModal')">×</span></div>
+    <div class="modal-b">
+      <div class="form-row">
+        <div class="form-item"><label><span class="req">*</span>显示名</label><input type="text" id="ncName" placeholder="如：供应商" /></div>
+        <div class="form-item"><label><span class="req">*</span>API 名称</label><input type="text" id="ncApi" placeholder="如：Supplier" /><div class="tip">PascalCase，空间内唯一，创建后不可修改</div></div>
+      </div>
+      <div class="form-row">
+        <div class="form-item"><label><span class="req">*</span>类型</label><select id="ncKind" onchange="ncKindChange()"><option>类</option><option>接口</option><option>枚举类</option></select></div>
+        <div class="form-item"><label><span class="req">*</span>所属类目</label><select id="ncCat"></select></div>
+      </div>
+      <div id="ncSecCls">
+        <div class="form-row">
+          <div class="form-item"><label>主键属性</label><input type="text" id="ncPk" value="id" /><div class="tip">API 名称，默认 id</div></div>
+          <div class="form-item"><label>标题属性</label><input type="text" id="ncTitle" placeholder="如：name" /></div>
+        </div>
+        <div class="form-item"><label>主数据集</label><input type="text" id="ncDs" placeholder="如：doris.supplier_master" /><div class="tip">留空则按约定生成 doris.{api 小写}，可在类详情「数据映射」中调整</div></div>
+      </div>
+      <div class="form-item" id="ncSecEnum" style="display:none">
+        <label>枚举值</label><textarea id="ncEnum" rows="4" placeholder="每行一个，如：&#10;CNC&#10;注塑机&#10;SMT"></textarea>
+        <div class="tip">枚举类不可实例化，每行生成一个枚举选项，可在「枚举类」页面维护。</div>
+      </div>
+      <div class="form-item" id="ncSecIface">
+        <label>实现接口（implements）</label>
+        <div class="check-grid" id="ncIfaces"></div>
+        <div class="tip">对标 Palantir：实现接口需将本地属性映射到接口必需属性（可选属性可跳过），并满足链接与动作类型约束。</div>
+      </div>
+      <div class="form-item" id="ncSecExt" style="display:none">
+        <label>继承接口（extends）</label>
+        <div class="check-grid" id="ncExts"></div>
+        <div class="tip">对标 Palantir：接口可继承多个其他接口，自动获得其共享属性、链接类型约束与动作类型约束；接口为抽象类型，不可实例化、无主数据集。</div>
+      </div>
+      <div class="form-item" id="ncSecIfaceProps" style="display:none">
+        <div class="tip">对标 Palantir：接口属性无需在创建时定义，创建后可在详情抽屉「接口」Tab 中继续添加（本地定义或关联共享属性）。</div>
+      </div>
+      <div class="form-item"><label>描述</label><textarea id="ncDesc" rows="2" placeholder="类的业务含义说明"></textarea></div>
+      <div class="tip">提交后生成草稿 v1，可在类详情中继续配置属性、数据映射并提交发布。</div>
+    </div>
+    <div class="modal-f"><button class="btn" onclick="App.closeModal('classModal')">取消</button><button class="btn btn-primary" onclick="saveClass()">创建</button></div>
+  </div>
+</div>
+
+<!-- 接口属性 新增/编辑 -->
+<div class="mask" id="ifPropModal" data-close-mask>
+  <div class="modal sm">
+    <div class="modal-h"><span id="ifPropModalTitle">添加接口属性</span><span class="x" onclick="App.closeModal('ifPropModal')">×</span></div>
+    <div class="modal-b">
+      <div class="form-row">
+        <div class="form-item"><label><span class="req">*</span>显示名</label><input type="text" id="ipmName" placeholder="如：资产编号" /></div>
+        <div class="form-item"><label><span class="req">*</span>API 名称</label><input type="text" id="ipmApi" placeholder="如：asset_no" /></div>
+      </div>
+      <div class="form-row">
+        <div class="form-item"><label>基础类型</label><select id="ipmType"></select></div>
+        <div class="form-item"><label>映射要求</label><select id="ipmReq"><option>必需</option><option>可选</option></select></div>
+      </div>
+      <div class="tip">必需：实现该接口的类必须映射本地属性；可选：可跳过映射。接口已发布后新增「必需」属性属 Breaking Change，需同步更新全部实现。</div>
+    </div>
+    <div class="modal-f"><button class="btn" onclick="App.closeModal('ifPropModal')">取消</button><button class="btn btn-primary" onclick="saveIfProp()">确定</button></div>
+  </div>
+</div>
+
 <script src="../assets/app.js"></script>
 <script>
 const pRows = [
@@ -115,72 +206,69 @@ const pRows = [
   ['单位成本','unit_cost','Decimal','控制属性','<span class="badge b-gray">否</span>','权限控制','<button class="btn-link btn-sm">编辑</button>'],
 ].map(r => `<tr><td><b>${r[0]}</b></td><td class="mono">${r[1]}</td><td class="mono fs12">${r[2]}</td><td>${r[3]}</td><td>${r[4]}</td><td class="fs12 text-2">${r[5]}</td><td class="actions-cell">${r[6]}<button class="btn-link btn-sm btn-danger">删除</button></td></tr>`).join('');
 
-const classes = [
-  ['设备', 'Equipment', '类', '类', 'primary', 12, 'v3 已发布'],
-  ['工艺', 'Process', '类', '类', 'primary', 8, 'v2 已发布'],
-  ['物料', 'Material', '类', '类', 'primary', 10, 'v3 已发布'],
-  ['质检报告', 'QualityReport', '类', '类', 'primary', 7, 'v1 已发布'],
-  ['资产', 'Asset', '接口', '接口', 'purple', 4, 'v1 已发布'],
-  ['可追溯对象', 'Traceable', '接口', '接口', 'purple', 2, 'v1 已发布'],
-  ['生产单元', 'ProductionUnit', '抽象类', '抽象类', 'cyan', 3, 'v1 已发布'],
-  ['设备类型', 'EquipmentType', '枚举类', '枚举类', 'orange', 8, 'v1 已发布'],
+/* ---------- 数据（声明需在 App.mount 之前，避免 TDZ 错误） ---------- */
+const KIND_STYLE = { '类': 'primary', '接口': 'purple', '枚举类': 'orange' };
+
+let CATS = [
+  { id: 'c1', name: '生产域', parent: null },
+  { id: 'c2', name: '质量域', parent: null },
+  { id: 'c3', name: '资产域', parent: null },
+  { id: 'c4', name: '基础类型', parent: null },
 ];
+let catSeq = 5;
+let catEditId = null; // 当前编辑的类目 id，null = 新增
+
+let classes = [
+  { name: '设备', api: 'Equipment', kind: '类', cat: 'c1', props: 12, status: 'v3 已发布', ds: 'doris.equipment_master' },
+  { name: '工艺', api: 'Process', kind: '类', cat: 'c1', props: 8, status: 'v2 已发布', ds: 'doris.process_master' },
+  { name: '物料', api: 'Material', kind: '类', cat: 'c1', props: 10, status: 'v3 已发布', ds: 'doris.material_master' },
+  { name: '生产单元', api: 'ProductionUnit', kind: '接口', cat: 'c1', props: 1, status: 'v1 已发布', ds: '—（接口不可实例化）',
+    ifProps: [{ name: '单元名称', api: 'unitName', type: 'String', req: '必需' }] },
+  { name: '质检报告', api: 'QualityReport', kind: '类', cat: 'c2', props: 7, status: 'v1 已发布', ds: 'doris.quality_report' },
+  { name: '资产', api: 'Asset', kind: '接口', cat: 'c3', props: 2, status: 'v1 已发布', ds: '—',
+    ifProps: [{ name: '资产编号', api: 'asset_no', type: 'String', req: '必需' }, { name: '责任人', api: 'owner', type: 'String', req: '可选' }] },
+  { name: '可追溯对象', api: 'Traceable', kind: '接口', cat: 'c3', props: 1, status: 'v1 已发布', ds: '—',
+    ifProps: [{ name: '追溯码', api: 'trace_id', type: 'String', req: '必需' }] },
+  { name: '设备类型', api: 'EquipmentType', kind: '枚举类', cat: 'c4', props: 8, status: 'v1 已发布', ds: '—（内置枚举）' },
+];
+
+const clsFilter = { cat: null, kw: '', kind: '', status: '' };
+let curClass = null;   // 当前抽屉打开的类/接口
+let ifPropEditIdx = null; // 正在编辑的接口属性下标，null = 新增
 
 App.mount({
   page: 'ontology-graph',
   crumbs: ['智能制造空间', '本体资产管理', '本体图谱'],
   title: '本体图谱',
-  desc: '管理类 / 接口 / 抽象类 / 枚举类，及其属性、数据映射与对象数据查询。参考 Palantir Foundry Object Types。',
+  desc: '管理类 / 接口 / 枚举类，及其属性、数据映射与对象数据查询。对标 Palantir：类间不继承，抽象复用仅通过接口（extends / implements）。',
   actions: `
     <div class="btn-group">
       <button class="btn btn-sm on" onclick="viewToggle(this,'list')">列表视图</button>
       <button class="btn btn-sm" onclick="viewToggle(this,'graph')">图谱视图</button>
     </div>
     <button class="btn" onclick="toast('导入本体定义（OWL / JSON）')">导入</button>
-    <button class="btn btn-primary" onclick="toast('新建本体类向导')">+ 新建类</button>`,
+    <button class="btn btn-primary" onclick="openClassModal()">+ 新建类型</button>`,
   content: `
   <!-- 列表视图 -->
   <div id="view-list">
     <div class="row">
       <div class="card" style="width:250px;flex-shrink:0;">
-        <div class="card-h"><h3>类目树</h3></div>
-        <div class="card-b">
-          <div class="tree">
-            <div class="tree-node sel">◈ 全部（8）</div>
-            <div class="tree-children">
-              <div class="tree-node">生产域（4）</div>
-              <div class="tree-node">质量域（1）</div>
-              <div class="tree-node">资产域（2）</div>
-              <div class="tree-node">基础类型（1）</div>
-            </div>
-          </div>
-        </div>
+        <div class="card-h"><h3>类目树</h3><div class="right"><button class="btn-link btn-sm" onclick="openCatModal()">＋ 新增类目</button></div></div>
+        <div class="card-b"><div class="tree" id="catTree"></div></div>
       </div>
       <div class="card col">
         <div class="card-h">
-          <input class="search" type="text" placeholder="搜索类名 / API 名称…" />
+          <input class="search" id="clsKw" type="text" placeholder="搜索类名 / API 名称…" />
           <div class="right">
-            <select><option>全部类型</option><option>类</option><option>接口</option><option>抽象类</option><option>枚举类</option></select>
-            <select><option>全部状态</option><option>已发布</option><option>草稿</option></select>
+            <select id="clsKind"><option value="">全部类型</option><option>类</option><option>接口</option><option>枚举类</option></select>
+            <select id="clsStatus"><option value="">全部状态</option><option>已发布</option><option>草稿</option></select>
           </div>
         </div>
         <table class="table">
-          <tr><th>显示名</th><th>API 名称</th><th>类型</th><th>属性数</th><th>状态</th><th>主数据集</th><th class="actions-cell">操作</th></tr>
-          ${classes.map(c => `
-          <tr>
-            <td><b>${c[0]}</b></td><td class="mono">${c[1]}</td>
-            <td><span class="badge b-${c[4]} no-dot">${c[2]}</span></td>
-            <td>${c[5]}</td>
-            <td><span class="badge b-green no-dot">${c[6]}</span></td>
-            <td class="mono fs12">${c[1]==='Equipment' ? 'doris.equipment_master' : c[1]==='Process' ? 'doris.process_master' : c[1]==='EquipmentType' ? '—（内置枚举）' : 'doris.' + c[1].toLowerCase()}</td>
-            <td class="actions-cell">
-              <button class="btn-link btn-sm" onclick="openClass('${c[0]}','${c[1]}','${c[2]}')">详情</button>
-              <button class="btn-link btn-sm" onclick="toast('定位到图谱视图')">查看图谱</button>
-              <button class="btn-link btn-sm btn-danger" onclick="toast('删除需先解除关联')">删除</button>
-            </td>
-          </tr>`).join('')}
+          <tr><th>显示名</th><th>API 名称</th><th>类型</th><th>所属类目</th><th>属性数</th><th>状态</th><th>主数据集</th><th class="actions-cell">操作</th></tr>
+          <tbody id="clsRows"></tbody>
         </table>
-        <div class="pager">共 8 个类<span style="flex:1"></span><span class="pg">‹</span><span class="pg cur">1</span><span class="pg">›</span></div>
+        <div class="pager"><span id="clsCount">共 8 个类</span><span style="flex:1"></span><span class="pg">‹</span><span class="pg cur">1</span><span class="pg">›</span></div>
       </div>
     </div>
   </div>
@@ -215,7 +303,7 @@ App.mount({
             <g class="g-node" transform="translate(600,40)"><rect width="130" height="46" rx="8"/><text x="12" y="20">物料 Material</text><text class="sub" x="12" y="36">10 属性 · v3</text></g>
             <g class="g-node" transform="translate(250,270)"><rect width="150" height="52" rx="8"/><text x="12" y="22">质检报告 QualityReport</text><text class="sub" x="12" y="38">7 属性 · v1</text></g>
             <g class="g-node enum" transform="translate(70,330)"><rect width="150" height="46" rx="8"/><text x="12" y="20">«enum» EquipmentType</text><text class="sub" x="12" y="36">CNC / 注塑机 / SMT …</text></g>
-            <g class="g-node iface" transform="translate(600,300)"><rect width="150" height="46" rx="8"/><text x="12" y="20">«abstract» ProductionUnit</text><text class="sub" x="12" y="36">产线 / 车间公共抽象</text></g>
+            <g class="g-node iface" transform="translate(600,300)"><rect width="150" height="46" rx="8"/><text x="12" y="20">«interface» ProductionUnit</text><text class="sub" x="12" y="36">产线 / 车间公共能力</text></g>
           </svg>
         </div>
       </div>
@@ -225,14 +313,21 @@ App.mount({
   onMount() {
     window.openClass = openClass;
     document.getElementById('propRows').innerHTML = pRows;
+    document.getElementById('clsKw').addEventListener('input', (e) => { clsFilter.kw = e.target.value.trim(); renderClasses(); });
+    document.getElementById('clsKind').addEventListener('change', (e) => { clsFilter.kind = e.target.value; renderClasses(); });
+    document.getElementById('clsStatus').addEventListener('change', (e) => { clsFilter.status = e.target.value; renderClasses(); });
+    renderTree();
+    renderClasses();
   },
 });
 
 function openClass(name, api, kind) {
+  curClass = classes.find(c => c.api === api) || null;
   document.getElementById('drawerClassName').textContent = name;
   document.getElementById('ddName').textContent = name;
   document.getElementById('ddApi').textContent = api;
   document.getElementById('drawerClassKind').textContent = kind + ' Type';
+  renderIfacePane();
   App.openDrawer('classDrawer');
 }
 function viewToggle(btn, v) {
@@ -240,6 +335,286 @@ function viewToggle(btn, v) {
   btn.classList.add('on');
   document.getElementById('view-list').style.display = v === 'list' ? '' : 'none';
   document.getElementById('view-graph').style.display = v === 'graph' ? '' : 'none';
+}
+
+/* ---------- 类目树 ---------- */
+function catById(id) { return CATS.find(c => c.id === id); }
+function catName(id) { const c = catById(id); return c ? c.name : '—'; }
+function catDescIds(id) {
+  const ids = [id];
+  CATS.filter(c => c.parent === id).forEach(c => ids.push(...catDescIds(c.id)));
+  return ids;
+}
+function catCount(id) { const ids = catDescIds(id); return classes.filter(c => ids.includes(c.cat)).length; }
+
+function catNode(c) {
+  const kids = CATS.filter(x => x.parent === c.id);
+  return `<div class="tree-node ${clsFilter.cat === c.id ? 'sel' : ''}" onclick="selectCat('${c.id}')">
+      <span style="flex:1">◆ ${c.name}（${catCount(c.id)}）</span>
+      <span class="tree-ops" onclick="event.stopPropagation()">
+        <button class="btn-link btn-sm" title="新增子类目" onclick="openCatModal(null, '${c.id}')">＋</button>
+        <button class="btn-link btn-sm" title="编辑类目" onclick="openCatModal('${c.id}')">✎</button>
+        <button class="btn-link btn-sm btn-danger" title="删除类目" onclick="delCat('${c.id}')">×</button>
+      </span>
+    </div>` + (kids.length ? `<div class="tree-children">${kids.map(catNode).join('')}</div>` : '');
+}
+
+function renderTree() {
+  document.getElementById('catTree').innerHTML =
+    `<div class="tree-node ${clsFilter.cat === null ? 'sel' : ''}" onclick="selectCat(null)">◈ 全部（${classes.length}）</div>
+     <div class="tree-children">${CATS.filter(c => !c.parent).map(catNode).join('')}</div>`;
+}
+
+function selectCat(id) { clsFilter.cat = id; renderTree(); renderClasses(); }
+
+function openCatModal(id, parentId) {
+  catEditId = id || null;
+  const editing = catById(id);
+  document.getElementById('catModalTitle').textContent = editing ? '编辑类目' : '新增类目';
+  document.getElementById('catName').value = editing ? editing.name : '';
+  const sel = document.getElementById('catParent');
+  const hasKids = editing && CATS.some(c => c.parent === editing.id);
+  sel.innerHTML = `<option value="">顶级类目</option>` +
+    CATS.filter(c => !c.parent && c.id !== id).map(c => `<option value="${c.id}">${c.name}</option>`).join('');
+  sel.disabled = !!hasKids || (!editing && !!parentId);
+  sel.value = editing ? (editing.parent || '') : (parentId || '');
+  document.getElementById('catParentTip').style.display = hasKids ? '' : 'none';
+  App.openModal('catModal');
+}
+
+function saveCat() {
+  const name = document.getElementById('catName').value.trim();
+  if (!name) { toast('请输入类目名称'); return; }
+  if (CATS.some(c => c.name === name && c.id !== catEditId)) { toast('类目名称已存在'); return; }
+  if (catEditId) {
+    const editing = catById(catEditId);
+    const sel = document.getElementById('catParent');
+    editing.name = name;
+    if (!sel.disabled) editing.parent = sel.value || null;
+    toast('类目已更新');
+  } else {
+    const parent = document.getElementById('catParent').value || null;
+    CATS.push({ id: 'c' + catSeq++, name, parent });
+    toast(`类目「${name}」已创建`);
+  }
+  App.closeModal('catModal');
+  renderTree();
+  renderClasses();
+}
+
+function delCat(id) {
+  const c = catById(id);
+  if (!c) return;
+  if (CATS.some(x => x.parent === id)) { toast('请先删除该类目下的子类目'); return; }
+  const cnt = catCount(id);
+  if (cnt > 0) { toast(`该类目下仍有 ${cnt} 个类，请先移动或删除`); return; }
+  if (!confirm(`确定删除类目「${c.name}」？`)) return;
+  CATS = CATS.filter(x => x.id !== id);
+  if (clsFilter.cat === id) clsFilter.cat = null;
+  toast('类目已删除');
+  renderTree();
+  renderClasses();
+}
+
+/* ---------- 类列表（类目 + 关键字 + 类型 + 状态 过滤） ---------- */
+function filteredClasses() {
+  let list = classes.slice();
+  if (clsFilter.cat) {
+    const ids = catDescIds(clsFilter.cat);
+    list = list.filter(c => ids.includes(c.cat));
+  }
+  if (clsFilter.kw) {
+    const k = clsFilter.kw.toLowerCase();
+    list = list.filter(c => c.name.toLowerCase().includes(k) || c.api.toLowerCase().includes(k));
+  }
+  if (clsFilter.kind) list = list.filter(c => c.kind === clsFilter.kind);
+  if (clsFilter.status) list = list.filter(c => c.status.includes(clsFilter.status));
+  return list;
+}
+
+function renderClasses() {
+  const list = filteredClasses();
+  document.getElementById('clsRows').innerHTML = list.map(c => `
+    <tr>
+      <td><b>${c.name}</b></td><td class="mono">${c.api}</td>
+      <td><span class="badge b-${KIND_STYLE[c.kind]} no-dot">${c.kind}</span></td>
+      <td>${catName(c.cat)}</td>
+      <td>${c.props}</td>
+      <td><span class="badge ${c.status.includes('草稿') ? 'b-orange' : 'b-green'} no-dot">${c.status}</span></td>
+      <td class="mono fs12">${c.ds}</td>
+      <td class="actions-cell">
+        <button class="btn-link btn-sm" onclick="openClass('${c.name}','${c.api}','${c.kind}')">详情</button>
+        <button class="btn-link btn-sm" onclick="toast('定位到图谱视图')">查看图谱</button>
+        <button class="btn-link btn-sm btn-danger" onclick="delClass('${c.api}')">删除</button>
+      </td>
+    </tr>`).join('') || `<tr><td colspan="8" style="text-align:center;color:var(--text-3);padding:24px;">暂无符合条件的类</td></tr>`;
+  document.getElementById('clsCount').textContent = `共 ${list.length} 个类`;
+}
+
+function delClass(api) {
+  const c = classes.find(x => x.api === api);
+  if (!c) return;
+  if (!confirm(`删除类「${c.name}」需先解除其关联关系，确定继续？`)) return;
+  classes = classes.filter(x => x.api !== api);
+  toast(`类「${c.name}」已删除`);
+  renderTree();
+  renderClasses();
+}
+
+/* ---------- 新建类表单 ---------- */
+function openClassModal() {
+  ['ncName', 'ncApi', 'ncTitle', 'ncDs', 'ncEnum', 'ncDesc'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('ncKind').value = '类';
+  document.getElementById('ncPk').value = 'id';
+  // 所属类目下拉：顶级类目 + 缩进的子类目
+  let opts = '';
+  CATS.filter(c => !c.parent).forEach(top => {
+    opts += `<option value="${top.id}">${top.name}</option>`;
+    CATS.filter(x => x.parent === top.id).forEach(sub => opts += `<option value="${sub.id}">　${sub.name}</option>`);
+  });
+  const catSel = document.getElementById('ncCat');
+  catSel.innerHTML = opts || '<option value="">请先创建类目</option>';
+  catSel.value = clsFilter.cat || '';
+  if (!catSel.value && catSel.options.length) catSel.value = catSel.options[0].value;
+  // 实现接口（类 implements）/ 继承接口（接口 extends）：候选均来自已有接口
+  const ifaces = classes.filter(c => c.kind === '接口');
+  const ifaceCbs = ifaces.map(i => `<label><input type="checkbox" class="nc-iface" value="${i.api}" /> ${i.name}（${i.api}）</label>`).join('');
+  document.getElementById('ncIfaces').innerHTML = ifaceCbs || '<span class="fs12 text-2">暂无可用接口</span>';
+  document.getElementById('ncExts').innerHTML = ifaceCbs
+    ? ifaces.map(i => `<label><input type="checkbox" class="nc-ext" value="${i.api}" /> ${i.name}（${i.api}）</label>`).join('')
+    : '<span class="fs12 text-2">暂无可继承接口</span>';
+  ncKindChange();
+  App.openModal('classModal');
+}
+
+function ncKindChange() {
+  const k = document.getElementById('ncKind').value;
+  document.getElementById('ncSecCls').style.display = k === '类' ? '' : 'none';
+  document.getElementById('ncSecEnum').style.display = k === '枚举类' ? '' : 'none';
+  document.getElementById('ncSecIface').style.display = k === '类' ? '' : 'none';
+  document.getElementById('ncSecExt').style.display = k === '接口' ? '' : 'none';
+  document.getElementById('ncSecIfaceProps').style.display = k === '接口' ? '' : 'none';
+}
+
+function saveClass() {
+  const val = id => document.getElementById(id).value.trim();
+  const name = val('ncName'), api = val('ncApi'), kind = document.getElementById('ncKind').value;
+  const cat = document.getElementById('ncCat').value;
+  if (!name || !api) { toast('请填写显示名与 API 名称'); return; }
+  if (!cat) { toast('请选择所属类目'); return; }
+  if (classes.some(c => c.api.toLowerCase() === api.toLowerCase())) { toast(`API 名称「${api}」已存在`); return; }
+  if (kind === '枚举类' && !val('ncEnum')) { toast('枚举类请至少填写一个枚举值'); return; }
+  const impl = [...document.querySelectorAll('.nc-iface:checked')].map(cb => cb.value);
+  const ext = [...document.querySelectorAll('.nc-ext:checked')].map(cb => cb.value);
+  const ds = kind === '类' ? (val('ncDs') || 'doris.' + api.toLowerCase()) : '—（不可实例化）';
+  // 对标 Palantir：接口属性无需创建时定义，创建后在详情抽屉「接口」Tab 中维护
+  classes.push({ name, api, kind, cat, props: 0, status: 'v1 草稿', ds, impl, ext, ifProps: [] });
+  clsFilter.cat = cat;
+  App.closeModal('classModal');
+  renderTree();
+  renderClasses();
+  let extra = '';
+  if (impl.length) extra += '，实现接口：' + impl.join(' / ');
+  if (ext.length) extra += '，继承接口：' + ext.join(' / ');
+  toast(`${kind}「${name}」已创建为草稿 v1${extra}`);
+}
+
+/* ---------- 详情抽屉「接口」Tab ---------- */
+const IFACE_PROP_TYPES = ['String', 'Integer', 'Double', 'Decimal', 'Boolean', 'Date', 'Timestamp'];
+
+function renderIfacePane() {
+  const pane = document.getElementById('ifacePane');
+  if (!curClass) { pane.innerHTML = ''; return; }
+  // 类：展示实现映射（属性 / 链接约束 / 动作约束）
+  if (curClass.kind !== '接口') {
+    pane.innerHTML = `
+      <div class="tip mt16 text-2">对标 Palantir：实现接口需完成属性映射、链接类型约束与动作类型约束映射；标记为可选的项可跳过映射，接口属性本身不落数据集，值来自实现类的本地属性。</div>
+      <div class="flex mt8">
+        <span class="tag blue">Asset（资产）</span>
+        <span class="badge b-green no-dot">实现校验通过</span>
+        <span style="flex:1"></span>
+        <button class="btn btn-sm" onclick="toast('选择要实现的接口')">+ 实现新接口</button>
+      </div>
+      <h4 style="margin:14px 0 6px;">属性映射</h4>
+      <table class="table">
+        <tr><th>接口属性</th><th>基础类型</th><th>必需</th><th>映射到本地属性</th><th>状态</th><th class="actions-cell">操作</th></tr>
+        <tr><td class="mono">asset_no</td><td class="mono">String</td><td><span class="badge b-red no-dot">必需</span></td><td class="mono">asset_no</td><td><span class="badge b-green no-dot">已映射</span></td><td class="actions-cell"><button class="btn-link btn-sm">编辑</button></td></tr>
+        <tr><td class="mono">owner</td><td class="mono">String</td><td><span class="badge b-gray no-dot">可选</span></td><td class="text-2">—（已跳过）</td><td><span class="badge b-gray no-dot">未映射</span></td><td class="actions-cell"><button class="btn-link btn-sm">映射</button></td></tr>
+      </table>
+      <h4 style="margin:14px 0 6px;">链接类型约束</h4>
+      <table class="table">
+        <tr><th>约束</th><th>必需</th><th>满足方式（链接类型）</th><th>状态</th><th class="actions-cell">操作</th></tr>
+        <tr><td class="mono">located_in → Location</td><td><span class="badge b-red no-dot">必需</span></td><td class="mono">belongs_to_line</td><td><span class="badge b-green no-dot">已满足</span></td><td class="actions-cell"><button class="btn-link btn-sm">编辑</button></td></tr>
+      </table>
+      <h4 style="margin:14px 0 6px;">动作类型约束</h4>
+      <table class="table">
+        <tr><th>约束</th><th>必需</th><th>满足方式（动作类型）</th><th>状态</th><th class="actions-cell">操作</th></tr>
+        <tr><td class="mono">decommission_asset</td><td><span class="badge b-gray no-dot">可选</span></td><td class="mono">设备下线</td><td><span class="badge b-green no-dot">已满足</span></td><td class="actions-cell"><button class="btn-link btn-sm">编辑</button></td></tr>
+      </table>`;
+    return;
+  }
+  // 接口：接口属性定义（对标 Palantir Interface Properties）
+  const props = curClass.ifProps || [];
+  const reqCnt = props.filter(p => p.req === '必需').length;
+  pane.innerHTML = `
+    <div class="tip mt16 text-2">对标 Palantir：接口属性可本地定义（推荐）或引用共享属性；「必需」属性的实现类必须映射本地属性，「可选」可跳过。接口属性不落数据集，值来自实现类。</div>
+    <div class="flex mt8">
+      ${(curClass.ext || []).map(e => `<span class="tag blue">extends: ${e}</span>`).join('')}
+      <span style="flex:1"></span>
+      <button class="btn btn-sm" onclick="toast('关联共享属性')">+ 关联共享属性</button>
+      <button class="btn btn-sm btn-primary" onclick="openIfPropModal()">+ 添加接口属性</button>
+    </div>
+    <table class="table mt8">
+      <tr><th>显示名</th><th>API 名称</th><th>基础类型</th><th>映射要求</th><th class="actions-cell">操作</th></tr>
+      ${props.map((p, i) => `
+      <tr>
+        <td><b>${p.name}</b></td><td class="mono">${p.api}</td><td class="mono">${p.type}</td>
+        <td>${p.req === '必需' ? '<span class="badge b-red no-dot">必需</span>' : '<span class="badge b-gray no-dot">可选</span>'}</td>
+        <td class="actions-cell">
+          <button class="btn-link btn-sm" onclick="openIfPropModal(${i})">编辑</button>
+          <button class="btn-link btn-sm btn-danger" onclick="delIfProp(${i})">删除</button>
+        </td>
+      </tr>`).join('') || '<tr><td colspan="5" style="text-align:center;color:var(--text-3);padding:24px;">暂无接口属性，点击右上角「添加接口属性」</td></tr>'}
+    </table>
+    ${props.length ? `<div class="result-meta"><span>必需 ${reqCnt} 项 · 可选 ${props.length - reqCnt} 项</span></div>` : ''}
+    <div class="tip mt8">已发布接口后续新增「必需」属性属 Breaking Change，需在同一本体变更中更新全部实现类。</div>`;
+}
+
+function openIfPropModal(idx) {
+  ifPropEditIdx = (idx === undefined || idx === null) ? null : idx;
+  const p = ifPropEditIdx !== null ? (curClass.ifProps || [])[ifPropEditIdx] : null;
+  document.getElementById('ifPropModalTitle').textContent = p ? '编辑接口属性' : '添加接口属性';
+  document.getElementById('ipmName').value = p ? p.name : '';
+  document.getElementById('ipmApi').value = p ? p.api : '';
+  document.getElementById('ipmType').innerHTML = IFACE_PROP_TYPES.map(t => `<option ${t === (p ? p.type : 'String') ? 'selected' : ''}>${t}</option>`).join('');
+  document.getElementById('ipmReq').value = p ? p.req : '必需';
+  App.openModal('ifPropModal');
+}
+
+function saveIfProp() {
+  const name = document.getElementById('ipmName').value.trim();
+  const api = document.getElementById('ipmApi').value.trim();
+  if (!name || !api) { toast('请填写显示名与 API 名称'); return; }
+  const props = curClass.ifProps || (curClass.ifProps = []);
+  if (props.some((p, i) => i !== ifPropEditIdx && p.api.toLowerCase() === api.toLowerCase())) { toast('接口属性 API 名称重复'); return; }
+  const p = { name, api, type: document.getElementById('ipmType').value, req: document.getElementById('ipmReq').value };
+  if (ifPropEditIdx !== null) props[ifPropEditIdx] = p; else props.push(p);
+  curClass.props = props.length;
+  App.closeModal('ifPropModal');
+  renderIfacePane();
+  renderClasses();
+  toast(`接口属性「${name}」已保存`);
+}
+
+function delIfProp(idx) {
+  const p = (curClass.ifProps || [])[idx];
+  if (!p) return;
+  if (!confirm(`确定删除接口属性「${p.name}」？删除后需同步更新实现类的属性映射。`)) return;
+  curClass.ifProps.splice(idx, 1);
+  curClass.props = curClass.ifProps.length;
+  renderIfacePane();
+  renderClasses();
+  toast(`接口属性「${p.name}」已删除`);
 }
 </script>
 </body>

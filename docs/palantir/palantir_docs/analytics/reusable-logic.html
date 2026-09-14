@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Reusable logic</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../index.html">返回目录</a></div>
+<h1>Reusable logic</h1>
+<p>In analytical applications, you can choose to save pieces of logic for reuse by other users. This can be helpful to limit duplicative work, reduce time-to-value, and to allow users to leverage logic created by domain experts or more technical collaborators.</p>
+<h2>Contour</h2>
+<p>In Contour, you can <a href="https://www.palantir.com/docs/foundry/contour/expressions-overview/">save expressions</a> to easily reuse logic across analyses and paths, as well as share logic with others. Saved expressions can be used to create or replace columns or to perform aggregates. <a href="https://www.palantir.com/docs/foundry/contour/overview/">Learn more about Contour.</a></p>
+<p><img alt="Example screenshot of Contour saved expressions" src="../_resources/foundry/analytics/contour-saved-expression.png" /></p>
+<h2>Quiver</h2>
+<p>A <a href="https://www.palantir.com/docs/foundry/quiver/visual-functions-overview/">visual function</a> in Quiver consists of one or more Quiver cards that load, combine, and transform data. Visual functions automatically apply a set of logical steps to data inputs within a Quiver analysis, and can be used by others in their analyses. <a href="https://www.palantir.com/docs/foundry/quiver/overview/">Learn more about Quiver.</a></p>
+<p><img alt="Example screenshot of Quiver visual functions" src="../_resources/foundry/analytics/quiver-visual-function.gif" /></p>
+<h2>Code Workbook</h2>
+<p>By abstracting code away behind a simple form-based interface, Code Workbook templates provide a lightweight way for highly technical users to collaborate with users who may be less comfortable writing code. Values selected by users are substituted into a template, which can then be run like any other transform in the workbook. Any transform that can be created with code, such as Matplotlib or Plotly visualizations, can be built with code templates. <a href="https://www.palantir.com/docs/foundry/code-workbook/overview/">Learn more about Code Workbook.</a></p>
+<p><img alt="Example screenshot of Code Workbook templates" src="../_resources/foundry/analytics/code-workbook-templates.png" /></p>
+</body>
+</html>

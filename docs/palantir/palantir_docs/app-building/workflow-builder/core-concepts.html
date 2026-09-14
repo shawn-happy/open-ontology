@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Core concepts</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Core concepts</h1>
+<h2>Interface</h2>
+<p>Workflow Builder is organized into three areas: the <strong>graph</strong>, <strong>side panel</strong>, and <strong>bottom panel</strong>.</p>
+<p><img alt="The Workflow Builder interface." src="../../_resources/foundry/workflow-builder/workflow-builder-interface.png" /></p>
+<ol>
+<li>
+<p><strong>Graph:</strong> The graph is the central canvas where you build your workflow. Each logical component is a <a href="#node-types">node</a>, and the connections between nodes define the order in which they run and how objects flow from one to the next. You can have multiple workflows within one Workflow Builder graph.</p>
+</li>
+<li>
+<p><strong>Side panel:</strong> The side panel provides the following features:
+   * <strong>Workflow overview:</strong> A high-level summary of the workflow, including its nodes and general logical paths.
+   * <strong>Reusable parameters:</strong> Saved parameter values you can reference across the workflow so you do not have to re-enter them each time.
+   * <strong>Preview:</strong> Run the workflow against sample inputs to verify behavior before deploying. See <a href="#previews">Previews</a>.
+   * <strong>Workflow execution:</strong> Trigger and monitor the live execution of workflows.
+   * <strong>Run history:</strong> A record of past executions, including their inputs, outputs, and status. You can also send any previous run into a preview using the <strong>Send to preview</strong> button. <br><br>
+     <img alt="The Send to preview button in the Run history tab." src="../../_resources/foundry/workflow-builder/workflow-builder-send-to-preview.png" /> <br><br>
+   * <strong>Version history:</strong> A log of changes to the workflow over time where you can review or revert to earlier versions.</p>
+</li>
+<li>
+<p><strong>Bottom panel:</strong> The bottom panel includes the following features:
+   * <strong>Workflow objects:</strong> View a table of the objects in your workflows. You can filter the objects and choose which property types to display. <br><br>
+     <img alt="Filtering objects in the Workflow Objects tab." src="../../_resources/foundry/workflow-builder/workflow-builder-filter-objects.png" /> <br><br>
+   * <strong>Object watchlists:</strong> Track objects as they move through a customizable watchlist to test, debug, and monitor your workflows in production.</p>
+</li>
+</ol>
+<h2>Node types</h2>
+<p>Build workflows in Workflow Builder by placing nodes on the graph and connecting them in sequence. The node types are <strong>trigger</strong>, <strong>compute</strong>, <strong>use LLM</strong>, <strong>fork</strong>, <strong>effect</strong>, <strong>loop</strong>, and <strong>subgraph</strong>. Add nodes to the graph by selecting the icons at the top of the bottom panel. You can also select a node currently on the graph and choose from the list in the menu.</p>
+<h3>Trigger</h3>
+<p>A <strong>trigger</strong> node is what starts the workflow. You can customize a trigger to activate either on a specific time schedule or when an Ontology object changes.</p>
+<p><img alt="A trigger node in a Workflow Builder graph." src="../../_resources/foundry/workflow-builder/workflow-builder-trigger.png" /></p>
+<h3>Compute</h3>
+<p>Use a <strong>compute</strong> node to either run an existing function or build a new transform without needing to input code.</p>
+<p>To run an existing function, select <strong>Run a function</strong> from the dropdown menu in the top right corner of the panel.</p>
+<p><img alt="A compute node running a function." src="../../_resources/foundry/workflow-builder/workflow-builder-compute-function.png" /></p>
+<p>To build a new transform without code input, select <strong>Build a transform</strong> from the dropdown menu instead.</p>
+<p><img alt="A compute node building a transform." src="../../_resources/foundry/workflow-builder/workflow-builder-compute.png" /></p>
+<h3>Use LLM</h3>
+<p>The <strong>use LLM</strong> node offers a convenient way to execute large language models (LLMs) in your workflows.</p>
+<p><img alt="A use LLM node in Workflow Builder." src="../../_resources/foundry/workflow-builder/workflow-builder-use-llm.png" /></p>
+<p>You can also call Ontology tools for the model to use when completing a task. Tools are external functionalities or APIs that can be used by a large language model (LLM) to perform specific actions or retrieve information, such as actions, object queries, or functions.</p>
+<p>Select the tool icon on the right to get started.</p>
+<p><img alt="The Add tool option for the use LLM node." src="../../_resources/foundry/workflow-builder/workflow-builder-use-llm-tools.png" /></p>
+<h3>Fork</h3>
+<p>Use the <strong>fork</strong> node to branch the workflow into multiple paths based on a condition, so different cases follow different logic. Each fork node has an associated <strong>after fork</strong> node, which lets you specify logic to run after all forked cases are complete. The after fork node is always tied to its fork node and cannot be edited or moved on its own.</p>
+<p><img alt="A fork node in Workflow Builder." src="../../_resources/foundry/workflow-builder/workflow-builder-fork.png" /></p>
+<p>Forks can be nested inside other forks and loops.</p>
+<h3>Effect</h3>
+<p>Use the effect node to call an action or do nothing. Actions can include editing an Ontology object or sending a notification.</p>
+<p><img alt="An effect node in Workflow Builder." src="../../_resources/foundry/workflow-builder/workflow-builder-effect-node.png" /></p>
+<p>Use the <strong>Do nothing</strong> option for branches in a fork node that do not require any action. This makes it easy to see which route was taken when previewing your workflow.</p>
+<h3>Subgraph</h3>
+<p>A subgraph lets you group a set of nodes into a reusable unit. This makes it possible to build complex workflows by combining regular nodes with subgraph nodes. To create a subgraph, choose the <strong>Subgraph</strong> option at the top of the page.</p>
+<p>Building a subgraph works the same way as building any other workflow that starts with a trigger. However, instead of a standard <strong>Trigger</strong> node, you start with a <strong>Subgraph</strong> node.</p>
+<p><img alt="Configuring a subgraph node in Workflow Builder." src="../../_resources/foundry/workflow-builder/workflow-builder-create-subgraph.png" /></p>
+<p>To use an existing subgraph, select the <strong>Call subgraph</strong> node option when adding a node to your graph.</p>
+<p><img alt="The option to call a subgraph when selecting a node in the graph." src="../../_resources/foundry/workflow-builder/workflow-builder-call-subgraph.png" /></p>
+<p>Subgraphs currently cannot be reused across different Workflow Builder graphs. However, you can copy and paste a subgraph directly, or copy and paste a workflow that uses a subgraph. When pasting a workflow, the subgraph is automatically added to your new Workflow Builder graph.</p>
+<h3>Loop</h3>
+<p>Use a <strong>loop</strong> node to iterate over a list of elements, such as an object set. For each loop node you must define the following:</p>
+<ul>
+<li><strong>Element variable name:</strong> Represents a single item in the list, used within the loop.</li>
+<li><strong>Index variable name:</strong> The index of the current item. The index starts at 0.</li>
+</ul>
+<p>Every loop node has an associated <strong>after loop</strong> node, which lets you specify logic to run after all iterations are complete. The after loop node is always tied to its loop node and cannot be edited or moved on its own.</p>
+<p><img alt="Loop node example in Workflow Builder." src="../../_resources/foundry/workflow-builder/workflow-builder-loop-node.png" /></p>
+<p>Loops can be nested inside other loops and forks.</p>
+<h2>Previews</h2>
+<p>After building a workflow, you can test it end to end before publishing. Conduct previews from the side panel, without leaving the graph.</p>
+<p><img alt="Example of a Workflow Builder preview." src="../../_resources/foundry/workflow-builder/workflow-builder-error-run.png" /></p>
+<h3>Start preview</h3>
+<p>Select <strong>+ Add</strong> on the workflow you want to preview, then choose the inputs to run against. You can select multiple real objects and run them through the workflow at the same time, and you can run as many tests in parallel as you want.</p>
+<p><img alt="Running multiple previews in Workflow Builder." src="../../_resources/foundry/workflow-builder/workflow-builder-preview-panel.png" /></p>
+<h3>Watch the preview path</h3>
+<p>A preview run lets you watch each object move through the graph and view the exact path it takes, including which branch it follows at a fork.</p>
+<p>Previews are live; once started, a run automatically re-executes as you edit the graph, so you can view the effect of each change immediately.</p>
+<h3>Stop preview mode</h3>
+<p>To leave preview mode, select the <strong>pause</strong> icon at the top of the graph or in the side panel, or <strong>Stop all</strong> at the top of the side panel.</p>
+<p><img alt="The pause and stop buttons for previews in Workflow Builder." src="../../_resources/foundry/workflow-builder/workflow-builder-preview-stop.png" /></p>
+<h3>View selected node values</h3>
+<p>You can inspect what happens at each node. To view a node's value, hover over the node in the side panel.</p>
+<p><img alt="Example of a node value within a preview." src="../../_resources/foundry/workflow-builder/workflow-builder-intermediate-value.png" /></p>
+<p>Because previews operate on real objects, you can confirm a workflow behaves as expected against actual data before you publish it.</p>
+<h3>View preview outputs and edits</h3>
+<p>When a preview completes, the execution path automatically collapses to reveal the <strong>Outputs</strong> section, which lists every object that was created, edited, or deleted. Expand any row to view the object's exact values.</p>
+<p><img alt="Example of preview outputs in Workflow Builder." src="../../_resources/foundry/workflow-builder/workflow-builder-test-run-outputs.png" /></p>
+</body>
+</html>

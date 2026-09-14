@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Workshop integration</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Workshop integration</h1>
+<p>You can integrate Walkthroughs with Workshop modules to enable more interactivity for end users.</p>
+<h2>Use Workshop modules in Walkthroughs</h2>
+<ol>
+<li>In a Walkthrough module, navigate to the step that will include a Walkthrough.</li>
+</ol>
+<p><img alt="Navigate to step" src="../../_resources/foundry/walkthroughs/navigate-to-step.png" /></p>
+<ol start="2">
+<li>Add a resource to this step and select a Workshop module to add.</li>
+</ol>
+<p><img alt="Add resource to step" src="../../_resources/foundry/walkthroughs/add-resource.png" /></p>
+<ol start="3">
+<li>Once the Workshop module is added, a <strong>Configure module state</strong> button will appear on the Workshop card. This button will take you to the Workshop configuration dialog.</li>
+</ol>
+<p><img alt="Workshop linked in step" src="../../_resources/foundry/walkthroughs/workshop-linked-in-step.png" /></p>
+<h2>Highlight Workshop widgets</h2>
+<p>Walkthrough builders can highlight specific parts of a Workshop module when an end user is in a walkthrough. By highlighting Workshop widgets, end users can easily identify and focus on key elements of the Workshop module.</p>
+<ol>
+<li>Open the Workshop configuration dialog of the step's linked Workshop module to be highlighted.</li>
+<li>Use the <strong>Select widgets</strong> button to enter widget selection mode.</li>
+</ol>
+<p><img alt="Workshop configuration dialog" src="../../_resources/foundry/walkthroughs/workshop-configuration-dialog.png" /></p>
+<ol start="3">
+<li>While in widget selection mode, select the widgets to highlight in the walkthrough. Widgets can be deselected by clicking on them again or by using the <strong>Clear all</strong> button.</li>
+</ol>
+<p><img alt="Widget selection mode" src="../../_resources/foundry/walkthroughs/widget-selection-mode.png" /></p>
+<ol start="4">
+<li>When a user is in the walkthrough, the selected widgets will now be highlighted on that step.</li>
+</ol>
+<p><img alt="Navigate to step" src="../../_resources/foundry/walkthroughs/view-highlighted-walkthrough.png" /></p>
+<p>:::callout{theme="neutral"}
+Only top-level widget highlighting is currently supported. This means that sections or subcomponents (such as individual buttons or tabs) cannot be directly highlighted.
+:::</p>
+</body>
+</html>

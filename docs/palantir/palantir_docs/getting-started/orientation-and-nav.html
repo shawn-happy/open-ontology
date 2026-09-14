@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Orientation and navigation</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../index.html">返回目录</a></div>
+<h1>Orientation and navigation</h1>
+<p>You can think of the Palantir platform as an operating system for the data in your organization. This page provides information about how to navigate and find the tools and resources required to work effectively in this operating system.</p>
+<p>This page provides information about the <strong><a href="#workspace-navigation-sidebar">workspace navigation sidebar</a></strong> that serves as a home base for moving around the platform and the <strong><a href="#search">search</a></strong> feature for locating resources or data of interest. You will also learn about the <a href="#support">support</a> options available to you while working in the platform. Finally, your <a href="#account">Palantir account settings</a> will allow you to configure your public user and platform settings.</p>
+<h2>Workspace navigation sidebar</h2>
+<p>The sidebar is your constant companion in the platform and the starting point for navigation. Open and collapse the sidebar with the icon in the upper right or with the keyboard shortcut <code>Cmd+O</code> (macOS) or <code>Ctrl+O</code> (Windows).</p>
+<p>The sidebar has five primary sections that allow you to navigate to different features and tools within the platform:</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><img src="../_resources/external-9f2905d38f11.png" alt="Navigation sidebar with numbered legend." width="250" /></td>
+<td><strong>â  Home:</strong> Return to your organization's landing page<br><strong>â  Search...:</strong> Open the Quicksearch dialog<br><strong>â  Notifications:</strong> View platform and application notifications<br><strong>â  What's New:</strong> Read product announcements and release notes in the platform<br><br><strong>â¡ Recent:</strong> Quickly navigate to recently accessed resources<br><strong>â¡ Files:</strong> Jump to the Projects landing page, powered by Compass<br><strong>â¡ Applications:</strong> Find and access all platform applications using this portal<br><br><strong>â¢ Applications (Favorited):</strong> Find applications you have previously added a star to. Organize and access your favorite applications<br><br><strong>â£ Files (Favorited):</strong> Find files you have previously added a star to. Organize and access your favorite resources and objects<br><br><strong>â¤ AIP Assist:</strong> LLM-powered assistant for getting help<br><strong>â¤ Support:</strong> Access Palantir documentation, training resources, and help<br><strong>â¤ Account:</strong> Find account details and review permissions and groups<br><strong>â¤ Other Workspaces:</strong> Access custom Workspaces and the Control Panel (availability depends on permissions)</td>
+</tr>
+</tbody>
+</table>
+<h2>AIP Assist</h2>
+<p>We recommend <strong>AIP Assist</strong>, Palantir's LLM-powered assistant, as your first stop in getting help regarding the Palantir platform. AIP Assist can answer questions about the platform in multiple languages and can provide guidance about how to use the platform, including tutorials.</p>
+<p>You can access AIP Assist from the lower-right corner of the sidebar or by using the keyboard shortcut <code>Cmd+U</code> (macOS) or <code>Ctrl+U</code> (Windows).</p>
+<p>AIP Assist is "context-aware" in that it can detect which application you are currently working in, but AIP Assist does not have access to any of the data you are working with.</p>
+<h2>Home</h2>
+<p>New Palantir enrollments come with a default home page that helps users orient themselves and learn about the platform. Administrators or builders can also create custom landing pages for various user groups on the platform. Some enrollments may use a completely customized home page, while others may use standard components to provide access to frequently-used parts of the platform.</p>
+<p>While most home pages focus on navigation, you may also find announcements about the platform, starting points for common workflows within your organization, or links to custom documentation on the landing page.</p>
+<p><img alt="Example of a platform home page." src="../_resources/foundry/getting-started/homepage.png" /></p>
+<h2>Search</h2>
+<p>Search, also known as <a href="https://www.palantir.com/docs/foundry/compass/quicksearch/">Quicksearch</a>, is a tool for navigation and discovery of elements in the platform. Search is made of two parts:</p>
+<ol>
+<li><strong>Jump-to mode:</strong> Provides a short list of personalized results to directly navigate users to the main types of available content: platform applications, custom applications, objects, datasets, and other resources.</li>
+<li><strong>Full results mode:</strong> Designed to help users find content and discover what exists in the platform. Users can perform searches of platform apps, objects, datasets, and other files with advanced filters, rich metadata, and a ranking algorithm to highlight the most relevant results.</li>
+</ol>
+<p>:::callout{theme="neutral"}
+To open Quicksearch, select <strong>Search...</strong> in the navigation sidebar, or use <code>â + J</code> (macOS) or <code>Ctrl+J</code> (Windows).
+:::</p>
+<h2>Notifications</h2>
+<p>The Notifications panel collects notices from across the platform, ordered from newest to oldest. Most notifications include links to navigate directly to the relevant resources. Some, such as access requests, can be responded to inline without needing to navigate to another page.</p>
+<p><img src="../_resources/external-b4acab8efed0.png" alt="Notifications panel." width="500"></p>
+<p>By default, notifications are delivered both within the platform in the Notifications panel and by email. Under the <strong>See all</strong> link, notifications are grouped by type for easier navigation. The notification <strong>Settings</strong> give you granular control over global and per-notification-type delivery preferences. If notifications are unread, the bell icon will have a small, yellow badge. If a notification occurs while you are using the platform, a small pop-up in the lower left corner will briefly show the message.</p>
+<h2>Recent</h2>
+<p>The Recent panel simply lists the last 20 resources you have opened or interacted with. Between <strong>Favorites</strong> and <strong>Recent,</strong> it is possible to quickly navigate between primary resources in use for any project without needing to return to <strong>Search</strong> or browse through the Project folder structure.</p>
+<p><img src="../_resources/external-e029d8a34003.png" alt="Recent panel." width="350" /></p>
+<h2>Files</h2>
+<p><a href="https://www.palantir.com/docs/foundry/compass/overview/">Files, powered by the Compass application</a> takes you to the landing page for the Project folder structure, where you can access top-level <strong>Portfolios</strong>, <strong>Projects</strong>, <strong>Your files</strong>, and <strong>Shared with you</strong> shortcuts. You will learn more about Projects in the next step of this guide.</p>
+<h2>Applications portal</h2>
+<p>The <a href="https://www.palantir.com/docs/foundry/app-building/curating-apps/">Applications portal</a> is a tool for finding and accessing all apps in the platform, including both platform apps and custom promoted applications.</p>
+<p><img alt="Applications portal screenshot." src="../_resources/foundry/getting-started/apps-portal.png" /></p>
+<h2>Favorites</h2>
+<p>The <strong>Favorites</strong> section of the sidebar keeps links to specific applications, resources, and individual objects for quick navigation. Use <code>Ctrl + Click</code> on Windows or <code>Cmd + Click</code> on macOS to open a favorited resource in a new browser tab.</p>
+<p>When you first use the platform, your <strong>Favorites</strong> section is empty and only <strong>Applications</strong> will show in the sidebar. Hover over the <strong>Applications</strong> header and select <strong>View all</strong> to see all the different applications in the platform.</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><img src="../_resources/external-1bb2df7efd15.png" alt="favorite-area" width="300" /></td>
+<td><img src="../_resources/external-504d74aac1cc.png" alt="manage-favorites" width="450" /></td>
+</tr>
+</tbody>
+</table>
+<p>In this view, you will see suggested applications and resources based on your recent usage. We will cover which applications we recommend <a href="https://www.palantir.com/docs/foundry/getting-started/next-steps-by-role/">based on your role</a> later in this guide. To learn more, consider looking at the <a href="https://www.palantir.com/docs/foundry/getting-started/application-reference/">application reference</a>.</p>
+<h3>Promoted applications</h3>
+<p>From the Applications portal, you can pin useful applications to mark them as "promoted" for easier access on screen. From the portal, find your desired application and select the star icon on the portal (see left), or find the <strong>Promoted apps</strong> heading on the left sidebar and use the <strong>â Add</strong> option. Promoted apps appear under a dedicated section for quick access (see right).</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><img src="../_resources/external-49de033c4fa1.png" alt="Promoted Apps Star Icon" width="300"/></td>
+<td><img src="../_resources/external-4014cd0d9da7.png" alt="Promoted App Sidebar Popover" width="500"/></td>
+</tr>
+</tbody>
+</table>
+<h3>Favorites</h3>
+<p>You can add and remove favorites with the star icon while navigating the folder structure or from within an open resource in a Palantir platform application.</p>
+<p><img src="../_resources/external-ddeea841cfda.png" alt="Favorited resource with a star." width="450" /></p>
+<p><img src="../_resources/external-327eb9e01dbb.png" alt="Favorite resource while in Palantir platform application." width="450" /></p>
+<p>Think of favorites as shortcuts that you can add and remove to keep frequently used resources close at hand.</p>
+<h3>Favorite objects, object types, and object type groups</h3>
+<p><a href="https://www.palantir.com/docs/foundry/object-explorer/overview/"><strong>Object Explorer</strong></a> is an application you can use to explore objects and links in the platform. When you navigate to an individual object view, you can select the star next to its title to save it as a favorite. This will add the object to your sidebar.</p>
+<p><img src="../_resources/external-c4323e35e345.png" alt="A favorited object, as indicated by a highlighted star next to it." width="200" /></p>
+<h2>Support</h2>
+<p>Palantir has a wide range of capabilities, features, and components available for your use cases and workflows. To help you understand how the platform can best serve your needs, the <strong>Support</strong> panel is a starting point for learning more and getting answers to your questions. From here, you can access:</p>
+<ul>
+<li><strong>Ask AIP Assist:</strong> Ask AIP questions.</li>
+<li><strong>Training:</strong> Learn about the platform through the Training application, in conjunction with the <a href="https://learn.palantir.com/">Palantir Learning portal â</a>.</li>
+<li><strong>Explore Examples:</strong> Find motivation from an existing use case solution.</li>
+<li><strong>Platform documentation:</strong> Review documentation.</li>
+<li><strong>Report issue:</strong> Submit a platform issue to the Issues application.</li>
+<li><strong>View support tickets:</strong> View existing tickets.</li>
+<li><strong>Platform updates:</strong> In-platform announcements and release notes.</li>
+<li><strong>Status page:</strong> Access your Palantir platform's status page (where enabled).</li>
+<li><strong>About:</strong> License information.</li>
+</ul>
+<p>The <a href="https://www.palantir.com/customer-success-services/">Palantir Customer Success Services team â</a> offers support, training, and consultation services to help you and your organization get the most out of the platform. If included in your agreement, you can contact the team with questions using the <strong>Report issue</strong> option to create a support ticket in the <strong>Issues</strong> application.</p>
+<p><a href="https://www.palantir.com/docs/foundry/getting-help/overview/">Review the documentation on getting help.</a></p>
+<h2>Account</h2>
+<p>Select <strong>Account</strong> in the Account panel to bring up your account overview. Here, you can select your name to see your <strong>User ID</strong> and permission <strong>Groups</strong>, navigate to <strong>Settings</strong> to edit your user and platform settings, change platform language, log out, and more.</p>
+<p>You can customize your profile with a profile image and additional information to be stored in the platform for viewing by users in your organization. This information will appear when other users hover over your name in Projects and resources. Adding distinguishing information is helpful for operational workflows that rely on assigning work or sharing resources, especially in cases where you share the same name with another coworker.</p>
+<p>Within <strong>Settings</strong>, the <strong>Notifications</strong> section is a control center for changing notification delivery settings.</p>
+<h2>Other workspaces</h2>
+<p>The main platform workspace is defined by the Workspace sidebar that we have been exploring. You can access other workspaces by selecting <strong>Open other workspaces</strong>.</p>
+<h3>Control Panel</h3>
+<p>Administrators can access the <strong>Control Panel</strong> workspace for managing an enrollment. See the <a href="https://www.palantir.com/docs/foundry/administration/overview/">Administration documentation</a> for further resources.</p>
+<h3>Carbon Workspaces</h3>
+<p>Application builders can use <strong>Carbon</strong> to create curated, custom workspaces for their end users. A wide range of applications can be combined to provide a tailored experience.</p>
+</body>
+</html>

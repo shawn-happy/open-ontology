@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Getting started</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Getting started</h1>
+<p>To get started, create an Autopilot workbench from one of the following entry points:</p>
+<ul>
+<li><strong>Directly in Autopilot:</strong> Open Autopilot from the application portal and select object types (optionally selecting the related automations to import), or select automations directly.</li>
+<li><strong>From an <a href="https://www.palantir.com/docs/foundry/automate/overview/">automation</a>:</strong> On the overview page for an automation, select <strong>Open in Autopilot</strong> in the <strong>Actions</strong> menu.</li>
+</ul>
+<h2>Set up your Autopilot workbench</h2>
+<p>Autopilot automatically generates an initial workbench for you based on the starting object types or automations you have selected. <a href="#understand-alerts">Alerts at the top</a> of your workbench guide you through steps to configure a complete system view.</p>
+<h3>Workbench configuration</h3>
+<ol>
+<li><strong>Review and add automations:</strong> When you open your workbench, Autopilot will alert you to automations related to your workflow that are not yet included in your workbench. Follow the prompts to add relevant automations for a complete system view.</li>
+<li><strong>Customize states:</strong> Autopilot infers and automatically generates states (columns in your Kanban board) based on automations in your workbench. You can also add and manually define your own states.
+   * In the <strong>States</strong> sidebar, drag states to reorganize the Kanban board. <br><br>
+     <img alt="The &quot;States&quot; sidebar in Autopilot." src="../../_resources/foundry/autopilot/autopilot_states_sidebar_ia.png" /> <br><br></li>
+<li><strong>Enable <a href="https://www.palantir.com/docs/foundry/automate/history-visibility-and-scope/">project-scoped mode</a> for full visibility:</strong> For the most comprehensive view of your automation system, enable project-scoped mode on your automations. This setting allows all workbench users to view automation execution events and discover dependencies between automations.</li>
+</ol>
+<p>:::callout{theme="warning"}
+Project-scoped mode expands permissions so that automation relationships are visible to all users in the project. Autopilot may not be able to infer relationships for user-scoped automations owned by another user.
+:::</p>
+<ol start="4">
+<li><strong>Enable edit history tracking for object types:</strong> Enable edit history for your object types to track changes and view detailed object histories within Autopilot.</li>
+<li><strong>Ensure automations have run at least once:</strong> Autopilot relies on historical executions to discover relationships between automations; if an automation has never run or the automation is scheduled, Autopilot cannot infer the dependent automations in a process.</li>
+<li><strong>Enable trace logs per resource:</strong> Trace logs show detailed execution for each automation run. Contact your enrollment administrator to enable logs.</li>
+</ol>
+<p>:::callout{theme="neutral"}
+For more granular logs, consider using <code>console</code> in your TypeScript functions or <code>import logging</code> in your Python functions.
+:::</p>
+<ol start="7">
+<li><strong>Configure object card properties and object previews:</strong> Define which object properties appear on Kanban cards, set conditional formatting for properties, and customize object views in Ontology Manager. Autopilot will render the panel object view for an object in the sidebar, when available. View the Autopilot <a href="https://www.palantir.com/docs/foundry/autopilot/integrations/">integrations documentation</a> for more details on working with Ontology Manager.</li>
+</ol>
+<h3>Understand alerts</h3>
+<p>Autopilot continually analyzes your workflow and displays alerts for recommended configuration steps. These alerts help you:</p>
+<ul>
+<li><strong>Complete your workflow view:</strong> Identify and add automations related to your workflow that are not yet included in your workbench.</li>
+<li><strong>Improve observability:</strong> Enable settings like project-scoped mode, edit history tracking, and trace logs that enhance Autopilot's ability to show execution details and relationships.</li>
+<li><strong>Resolve configuration issues:</strong> Address any missing permissions or settings that prevent Autopilot from displaying complete workflow information.</li>
+</ul>
+<p><img alt="A list of alerts in Autopilot." src="../../_resources/foundry/autopilot/autopilot_top_level_alerts_ia.png" /></p>
+</body>
+</html>

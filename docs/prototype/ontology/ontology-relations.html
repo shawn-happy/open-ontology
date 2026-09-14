@@ -127,8 +127,11 @@ oo:uses <span class="kw">a</span> owl:ObjectProperty ;
     rdfs:range oo:Process ;
     owl:inverseOf oo:used_by .
 
+oo:Asset <span class="kw">a</span> oo:Interface ;
+    rdfs:label <span class="str">"资产（接口，可被多类实现）"</span>@zh .
+
 oo:Equipment <span class="kw">a</span> owl:Class ;
-    rdfs:subClassOf oo:ProductionUnit , oo:Asset ;
+    oo:implements oo:Asset ;
     rdfs:label <span class="str">"设备"</span>@zh .</div>
           <div class="result-meta"><span>实体数 42</span><span>谓词数 17</span><span><span class="badge b-green">OWL 语法校验通过</span></span></div>
         </div>

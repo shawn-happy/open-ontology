@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Manage security</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Manage security</h1>
+<p>Workflow Lineage includes tools to help you understand and manage the security policies and submission criteria in your workflow.</p>
+<h2>View permissions with color coding</h2>
+<p>The color legend in Workflow Lineage shows both <strong>Ontology permissions</strong> and <strong>Resource permissions</strong>.</p>
+<p><img alt="Color legend showing Ontology and Resource permissions in Workflow Lineage." src="../../_resources/foundry/workflow-lineage/security-permissions-coloring.png" /></p>
+<p>There are two types of <strong>Ontology permissions:</strong></p>
+<ul>
+<li><strong>Definition:</strong> Whether the specified user can view or edit entity definitions.</li>
+<li><strong>Data and execution:</strong> Whether the specified user can view object data or execute actions.</li>
+</ul>
+<p><strong>Resource permissions</strong> show a breakdown for that particular user: whether they are an owner, viewer, editor, discoverer, or have no access to the resource itself.</p>
+<p>To check the access permissions of a specific user, enter their username into the <strong>View as</strong> dropdown menu for a preview.</p>
+<h2>Remove nodes that failed to load</h2>
+<p>When nodes fail to load, select <strong>Remove failed nodes</strong> in the toolbar to remove them from the graph.</p>
+<h2>Debug why a user cannot submit an action</h2>
+<p>If you want to understand why someone cannot submit an action, use <strong>Debug permissions</strong> within the Ontology permissions color mode.</p>
+<ol>
+<li>Select <strong>Debug permissions</strong> to open the left side panel. Alternatively, select your action first, then open the <strong>Selection details</strong> side panel to reach the same view.</li>
+<li>Under <strong>Check action submission</strong>, select the user in question.</li>
+<li>Review the breakdown of what is required to submit the selected action.</li>
+</ol>
+<p><img alt="Debug permissions panel showing check action submission results." src="../../_resources/foundry/workflow-lineage/security-check-action-submission.png" /></p>
+<p>In the example above, the user can view the action type but does not satisfy the submission criteria.</p>
+<h2>Highlight matching submission criteria</h2>
+<p>You can view the submission criteria for a selected action, and highlight all other actions on the graph that match those criteria.</p>
+<p>To do this:</p>
+<ol>
+<li>Select an action on your graph.</li>
+<li>Open the <strong>Selection details</strong> side panel.</li>
+<li>Select <strong>Highlight matching actions</strong> underneath <strong>Submission criteria</strong>.</li>
+<li>View which actions match. When you are finished, select <strong>Exit highlight mode</strong>.</li>
+</ol>
+<p><img alt="Selection details panel showing submission criteria for the selected action." src="../../_resources/foundry/workflow-lineage/security-submission-criteria.png" /></p>
+<h2>Bulk update action submission criteria</h2>
+<p>After seeing the highlighted matching submission criteria, you can also bulk update action submission criteria to match the submission criteria of a source action. From the Workflow Lineage graph, select the actions you wish to update. Then, navigate to <strong>Update submission criteria</strong> from the bottom panel.</p>
+<p><img alt="Example of upgrading functions for a particular Workshop application." src="../../_resources/foundry/workflow-lineage/workflow-lineage-update-submission-crit.png" /></p>
+<p>On the left side of the panel, select the source action with submission criteria that you want applied to the other actions. The submission criteria of the source action can be viewed under the selected source action.</p>
+<p>When completed, select the blue <strong>Update x actions</strong> button where <strong>x</strong> is the number of actions that will be updated. You can choose how to apply the changes:</p>
+<ul>
+<li><strong>Create a new branch:</strong> Start a new branch to isolate your changes before merging to production.</li>
+<li><strong>Upgrade directly on Main:</strong> Apply changes immediately to the main branch without creating a branch or proposal.</li>
+<li><strong>Apply to an existing branch:</strong> If you have a branch selected in the top bar, apply the changes to that branch.</li>
+</ul>
+<h2>Bulk update ontology roles on resources</h2>
+<p>You can also bulk edit <a href="https://www.palantir.com/docs/foundry/object-permissioning/ontology-permissions-legacy/#ontology-roles">ontology role permissions</a> on objects and actions by following the steps below:</p>
+<ol>
+<li>Navigate to a resource and right-click on it, then select <strong>Edit permissions</strong> from the context menu.</li>
+</ol>
+<p><img alt="The Edit permissions option in the dropdown menu." src="../../_resources/foundry/workflow-lineage/ontology-roles-edit-permissions.png" /></p>
+<p>This will bring you to the <strong>Edit ontology resource permissions</strong> window, displaying the selected resources.</p>
+<p><img alt="The Edit ontology resource permissions dialog." src="../../_resources/foundry/workflow-lineage/ontology-roles-window.png" /></p>
+<ol start="2">
+<li>In the <strong>Ontology roles to grant</strong> section, search for the group that you want to add. After selecting the role, you should see it displayed next to the selected group.</li>
+</ol>
+<p><img alt="Example Workflow Lineage with model usage coloring." src="../../_resources/foundry/workflow-lineage/ontology-roles-add.png" /></p>
+<ol start="3">
+<li>
+<p>Confirm the action by selecting <strong>Grant roles</strong> in the bottom right. A dialog will appear with the prompt, <code>Are you sure you want to share these resources?</code>.</p>
+</li>
+<li>
+<p>Select <strong>Yes, share</strong> to proceed. Note that this action is immediate and cannot be undone.</p>
+</li>
+</ol>
+<p><img alt="Example Workflow Lineage with model usage coloring." src="../../_resources/foundry/workflow-lineage/ontology-roles-confirm.png" /></p>
+<h2>View matching object security policies</h2>
+<p>You can view an object's security policies, as well as see all other objects that match or partially match those policies.</p>
+<ol>
+<li>Select an object on your graph.</li>
+<li>Open the <strong>Selection details</strong> side panel and go to the <strong>Security policy</strong> section.</li>
+<li>To view the granular policy, hover over <strong>Granular policy</strong>.</li>
+</ol>
+<p><img alt="View matching granular security policies on objects in Workflow Lineage." src="../../_resources/foundry/workflow-lineage/security-granular-policy.png" /></p>
+<p>To see which objects on your graph fully or partially match your selected object's security policy go to the <strong>Security policy</strong> section in the <strong>Selection details</strong> side panel.</p>
+<ol>
+<li>Select <strong>Highlight matching actions</strong> underneath <strong>Security policy</strong>.</li>
+<li>View which actions match. When you are finished, select <strong>Exit highlight mode</strong>.</li>
+</ol>
+</body>
+</html>

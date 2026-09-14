@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Perform refactors and understand your workflows</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Perform refactors and understand your workflows</h1>
+<p>:::callout{theme="neutral"}
+The application previously known as Workflow Builder is now called Workflow Lineage.
+:::</p>
+<p>To start using Workflow Lineage, open a Workshop application or functions repository and use the keyboard shortcut <code>Cmd+I</code> (macOS) or <code>Ctrl+I</code> (Windows) to view the relevant Workflow Lineage graph depicting the objects, actions, and functions that back the application.</p>
+<p>You can also open Workflow Lineage and add resources to the graph, including searchable Vertex graphs and Vertex graph templates.</p>
+<p>In file search, use the button next to a folder or project to add all supported resources from that location to the graph.</p>
+<p>You can also use AI FDE to generate Workflow Lineage graphs. Press <code>Cmd+I</code> (macOS) or <code>Ctrl+I</code> (Windows) in AI FDE to graph all resources in the current chat context. You can also ask AI FDE to graph specific resources, downstream dependencies, or a slice of your workflow and annotate the graph with text nodes.</p>
+<p>:::callout{theme="neutral"}
+Workflow Lineage supports <a href="https://www.palantir.com/docs/foundry/global-branching/overview/">Global Branching</a>, allowing you to perform refactors and understand workflows on a branch before merging changes into <code>main</code>. For details on branch-aware entry points and capabilities, see <a href="https://www.palantir.com/docs/foundry/workflow-lineage/branching-workflow-lineage/">Branching in Workflow Lineage</a>.
+:::</p>
+<p><img alt="Empty Workflow Lineage graph." src="../../_resources/foundry/workflow-lineage/workflow-lineage-empty.png" /></p>
+<p>To help you understand and easily perform refactors in your workflow, Workflow Lineage provides a simple way for you to understand attached properties, update outdated variables and action-backed functions, or bulk edit submission criteria on actions.</p>
+<h2>Filter trashed resources</h2>
+<p>Use the trash icon in the toolbar to remove trashed resources from the graph and exclude them from node connections. Select the icon again to restore the trashed resources.</p>
+<h2>Property provenance</h2>
+<p>You can track the usage of each property within any object throughout your entire workflow. Select the object on the graph, and view the <strong>Selection details</strong> panel on the left to see where each property is being used.</p>
+<p>The number shown next to each property refers to the amount of functions, actions, linkages, Workshop applications, and more depending on the context.</p>
+<p><img src="../../_resources/external-37f29d685b1a.png" alt="Example Workflow Lineage object and its property provenance." width="450"></p>
+<h2>Filter selections by rule type</h2>
+<p>When you select multiple nodes, use the <strong>Selection details</strong> panel to filter by rule type. The histogram groups nodes by action rules, such as create object or run function.</p>
+<h2>Bulk function-backed resource upgrades</h2>
+<p>To upgrade code functions or AIP Logic functions used in actions, automations, or Workshop applications, add these function-backed resources to the graph and find the relevant upgrade tab in the bottom panel.</p>
+<p>Function upgrade, model usage, and submission criteria upgrade panels appear in the bottom bar even when no nodes are selected.</p>
+<p>To identify outdated function-backed resources, navigate to the color legend. From there, select the <strong>Out-of-date functions</strong> option. This action will highlight all the outdated functions in red, giving you a clear visual indication. Next, choose the specific resources for which you want to upgrade the backing function. Upon selection, any outdated resources related to the function will appear in the panel located at the bottom of the screen for further action.</p>
+<p><img alt="Example of upgrading actions." src="../../_resources/foundry/workflow-lineage/workflow-lineage-upgrade-functions.png" /></p>
+<p>To select the desired version of the functions to be upgraded, choose <strong>Select versions...</strong> in the selected bottom panel tab. This will open a pop-up window where you can select the desired version for each function repository as well as the version for all functions created by AIP Logic or compute modules. If no version is specified, the repository's latest version will automatically be selected.</p>
+<p><img alt="Example of upgrading functions for a particular Workshop application." src="../../_resources/foundry/workflow-lineage/workflow-lineage-workshop-select-function-versions.png" /></p>
+<p>There are a few different status types you may see when upgrading functions:</p>
+<ul>
+<li><strong>Green:</strong> Function can be successfully updated.</li>
+<li><strong>Gray:</strong> Function is already up-to-date.</li>
+<li><strong>Yellow:</strong> Function upgrade would cause a breaking change.</li>
+<li><strong>Red:</strong> Function upgrade has errors, such as permission issues or functions not found.</li>
+</ul>
+<p><img alt="Example of function upgrade status." src="../../_resources/foundry/workflow-lineage/workflow-lineage-workshop-upgrades-status.png" /></p>
+<p>For function-backed automations and Workshop applications, there are two upgrade options:</p>
+<ul>
+<li><strong>All or nothing:</strong> Upgrade the functions in the resource only if all can upgrade without breaking changes. If there are any breaking changes, nothing will be upgraded.</li>
+<li><strong>Partial:</strong> Upgrade only the functions without breaking changes. Functions that would cause breaking changes will not be upgraded.</li>
+</ul>
+<p><img alt="Example of upgrade options." src="../../_resources/foundry/workflow-lineage/workflow-lineage-upgrade-options.png" /></p>
+<h3>Function-backed action upgrades</h3>
+<p>To upgrade functions used in actions, open <strong>Update actions</strong> on the bottom panel.</p>
+<p>:::callout{theme="warning"}
+If an action is configured with an action log and the new function version edits a new object type, that action cannot be updated in Workflow Lineage and must be upgraded in Ontology Manager.
+:::</p>
+<p>When upgrading, you can choose how to apply your changes:</p>
+<ul>
+<li><strong>Create a new branch:</strong> Create a new global branch to isolate your changes before merging to production.</li>
+<li><strong>Upgrade directly on Main:</strong> Apply changes immediately to the main branch.</li>
+<li><strong>Apply to an existing branch:</strong> Apply changes to a branch you have already selected in the top bar.</li>
+</ul>
+<p><img alt="Example of upgrading actions in Ontology Manager." src="../../_resources/foundry/workflow-lineage/workflow-lineage-action-upgrades-oma.png" /></p>
+<h3>Function-backed automation upgrades</h3>
+<p>To upgrade functions used in automations, open <strong>Update Automations</strong> on the bottom panel.</p>
+<p><img alt="Update Automations panel." src="../../_resources/foundry/workflow-lineage/workflow-lineage-automation-upgrade-panel.png" /></p>
+<p>When you select the blue <strong>Upgrade</strong> option to upgrade your automation functions to the target versions, a pop-up will appear listing which automations will be upgraded.</p>
+<p><img alt="Example of upgrading functions for automations." src="../../_resources/foundry/workflow-lineage/workflow-lineage-automation-upgrade-dialog.png" /></p>
+<p>Select <strong>Upgrade</strong> for the changes to go into effect. A list of successfully upgraded automations and automations that failed to upgrade will appear on the pop-up.</p>
+<p><img alt="Example of upgrade confirmation dialog for automations." src="../../_resources/foundry/workflow-lineage/workflow-lineage-automation-upgrade-confirmation.png" /></p>
+<h3>Function-backed Workshop application upgrades</h3>
+<p>To upgrade functions used in Workshop applications, open <strong>Update Workshop applications</strong> on the bottom panel.</p>
+<p><img alt="Example of upgrading functions for a particular Workshop." src="../../_resources/foundry/workflow-lineage/workflow-lineage-workshop-upgrade.png" /></p>
+<p>When you select the blue <strong>Upgrade</strong> option to upgrade your Workshop module functions to the target versions, a pop-up will appear listing which Workshop modules will be upgraded.</p>
+<p><img alt="Example of upgrading functions for a particular Workshop application." src="../../_resources/foundry/workflow-lineage/workflow-lineage-workshop-upgrade-window.png" /></p>
+<p>Select <strong>Upgrade</strong> for the changes to go into effect. The successfully upgraded Workshop application will appear on the pop-up.</p>
+<p><img alt="Example of a successful function upgrade for a Workshop application." src="../../_resources/foundry/workflow-lineage/workflow-lineage-successful-upgrade.png" /></p>
+<p>You also have the choice of bulk publishing the Workshop after the functions are updated. Learn how in the documentation on <a href="#bulk-publish-workshop-applications">bulk-publishing Workshop applications</a>.</p>
+<h2>Convert function nodes to AIP Logic nodes</h2>
+<p>When a function node is backed by AIP Logic, you can convert it to an AIP Logic node from the graph. After conversion, you can use features available only for AIP Logic nodes, such as bulk model replacement.</p>
+<p>To convert a function node to an AIP Logic node:</p>
+<ol>
+<li>Select the function node on the graph that is backed by AIP Logic.</li>
+<li>Right-click to open the node action menu.</li>
+<li>Select the option to convert the node to an AIP Logic node.</li>
+</ol>
+<p>After conversion, the node appears as an AIP Logic node on the graph and supports <a href="#bulk-replace-models">bulk model replacement</a>.</p>
+<h2>Bulk publish Workshop applications</h2>
+<p>Workshop applications can be configured to always publish the latest version; Workshop applications that do not automatically publish the latest version can be "bulk published", which will update all selected applications at once. To bulk publish Workshop applications, select the Workshop nodes, then right-click and select <strong>Publish [number of] Workshop modules</strong>.</p>
+<p><img alt="Dialog after right clicking on Workshop nodes." src="../../_resources/foundry/workflow-lineage/workflow-lineage-publish-rc.png" /></p>
+<p>Publishing multiple Workshop modules at once will open a window displaying which of your Workshop applications are already on the latest version. If a Workshop application has a blue checkmark with either <strong>Latest published</strong> or <strong>Published</strong> next to it, the workshop is already on the latest version.</p>
+<p>Specifically:</p>
+<ul>
+<li><strong>Latest published</strong> means that Workshop always automatically publishes the latest version. This is a setting that can be toggled in the Workshop application.</li>
+<li><strong>Published</strong> means that Workshop does not automatically publish the latest version, but the application currently has the latest version published.</li>
+</ul>
+<p>For Workshop applications that are not <strong>Published</strong> or <strong>Latest published</strong>, you can select which applications you want to publish to the latest version and then select <strong>Publish [number of] entities</strong>.</p>
+<p><img alt="Example of publishing a Workshop module to its latest version." src="../../_resources/foundry/workflow-lineage/workflow-lineage-publish-workshop-modules.png" /></p>
+<p>You can also bulk publish Workshop modules after updating functions in Workflow Lineage. To do so, after updating the functions, select <strong>Continue to publish</strong>.</p>
+<p><img alt="Example of a successful bulk function upgrade for Workshop modules." src="../../_resources/foundry/workflow-lineage/workflow-lineage-continue-to-publish.png" /></p>
+<p>This will bring you to a page with all the Workshop modules that are not yet published to their latest version. Confirm that you want to publish the latest version for these modules and select <strong>Publish [number of] entities</strong>.</p>
+<p><img alt="Example of the publish Workshop modules window after successfully upgrading functions in Workshop." src="../../_resources/foundry/workflow-lineage/workflow-lineage-publish-workshop.png" /></p>
+<p>Once this has been done successfully, select <strong>Finish</strong>.</p>
+<p><img alt="Example of successfully publishing Workshop applications." src="../../_resources/foundry/workflow-lineage/workflow-lineage-success-publish.png" /></p>
+<h2>Bulk replace models</h2>
+<p>You can replace a model used by multiple AIP Logic functions in a single action from Workflow Lineage instead of opening each function and updating the model individually. This is useful when migrating off a <a href="https://www.palantir.com/docs/foundry/model-catalog/model-deprecation/">deprecated model</a> or evaluating a new model across a workflow.</p>
+<p>Language model nodes include both Palantir-provided and registered models. Both types appear in the graph, search, dependency, details, usage, folder, and permission views with their name, icon, lifecycle state, and dependencies. In the model selector, you can search and paginate each type independently.</p>
+<p>:::callout{theme="neutral"}
+Bulk model replacement in Workflow Lineage supports AIP Logic nodes only. Model replacement is disabled when either the source or target model is a registered model.
+:::</p>
+<p>To replace a model across multiple AIP Logic functions:</p>
+<ol>
+<li>Open your workflow in Workflow Lineage.</li>
+<li>Select the language model node you want to replace on the graph.</li>
+<li>Add the AIP Logic nodes you want to update to the graph if they are not already present. Select the AIP Logic icon on the model node to filter nodes that consume the selected model directly on the graph. AIP Logic nodes that are not on the graph will not appear in the <strong>Replace model</strong> tab. <br><br>
+   <img alt="A language model node selected on a Workflow Lineage graph alongside the AIP Logic nodes that consume it." src="../../_resources/foundry/workflow-lineage/workflow-lineage-bulk-model-select.png" /> <br><br></li>
+<li>Open the <strong>Replace model</strong> tab in the bottom panel. The source model appears on the left, and the AIP Logic functions that use it appear under <strong>Used in</strong> on the right.</li>
+<li>Select the replacement model under <strong>Replace with</strong>.</li>
+<li>Use the checkboxes in the <strong>Used in</strong> list to deselect any AIP Logic functions you want to exclude from the model replacement. <br><br>
+   <img alt="The Replace model tab in Workflow Lineage with a source model, a replacement model selected under Replace with, and Logic functions selected from the Used in list." src="../../_resources/foundry/workflow-lineage/workflow-lineage-bulk-model-upgrade.png" /> <br><br></li>
+<li>Select <strong>Replace model</strong>.</li>
+</ol>
+<h3>Considerations when replacing models in bulk</h3>
+<ul>
+<li>Workflow Lineage skips AIP Logic functions you are not able to edit.</li>
+<li>Workflow Lineage applies the changes directly to the affected AIP Logic functions. There is no proposal or review step.</li>
+<li>Graph connections may take a moment to refresh after a successful replacement.</li>
+<li>Replacement models must be <a href="https://www.palantir.com/docs/foundry/model-catalog/overview/">Palantir-provided</a>.</li>
+<li>Model replacement is disabled when either the source or target model is a registered model.</li>
+</ul>
+<h2>Bulk delete objects and actions</h2>
+<p>To bulk delete objects and actions, select the nodes on the graph, right click, and select <strong>Delete resources</strong>.</p>
+<p><img alt="Example of the Delete resources option." src="../../_resources/foundry/workflow-lineage/workflow-lineage-bulk-delete.png" /></p>
+<p>This will prompt you to create a proposal. You will also see the number of link types associated with the objects being deleted. These links will also be included in the deletion proposal.</p>
+<p><img alt="Example of the Bulk Delete proposal window." src="../../_resources/foundry/workflow-lineage/workflow-lineage-bulk-delete-proposal.png" /></p>
+<p>Follow the prompt in Ontology Manager to merge the proposal.</p>
+<p><img alt="Example of the Bulk Delete ontology proposal." src="../../_resources/foundry/workflow-lineage/workflow-lineage-deletion-proposal.png" /></p>
+<h2>Bulk move resources</h2>
+<p>You can move multiple Compass resources to other projects or folders from Workflow Lineage.</p>
+<p>To bulk move resources:</p>
+<ol>
+<li>Select the resources you want to move on the graph.</li>
+<li>Right-click and select <strong>Move resources</strong>.</li>
+<li>Review <strong>Resources to move</strong> and <strong>Skipped</strong>, including the reason each skipped resource cannot be moved.</li>
+<li>Select <strong>Next</strong>.</li>
+<li>Choose the destination project or folder to move the eligible resources.</li>
+</ol>
+<h2>Marketplace products</h2>
+<p>The <strong>Marketplace products</strong> sidebar helps you inspect and confirm that Marketplace products have the right inputs, no resources are missing, and all resources are in the expected packages. This feature is especially helpful for packages you created that are publishing elsewhere.</p>
+<p><img alt="The Marketplace product sidebar in Workflow Lineage." src="../../_resources/foundry/workflow-lineage/marketplace-products-sidebar.png" /></p>
+<p>Navigate to the <strong>Marketplace products</strong> sidebar and choose your store in the dropdown menu. Note that the sidebar will only search local stores and not remote stores.</p>
+<p>Select <strong>Add a product</strong> to add the products you wish to inspect, and add all corresponding nodes on the graph by selecting <strong>Add all nodes to graph</strong>.</p>
+<p><img alt="Chosen products from the Marketplace store in the sidebar." src="../../_resources/foundry/workflow-lineage/marketplace-products.png" /></p>
+<p>A Workflow Lineage graph will populate, colored by which package the resources are in and whether the resources are inputs to a specific package.</p>
+<p>In the example below, the function <code>upsertTierListRank</code> is listed as an input; however, the function should be packaged because it is used in an action that is packaged. Additionally, the <strong>[Log] Upsert Rank</strong> object ended up in <strong>Tier List Functions &amp; Actions</strong>  instead of the <strong>Tier List Objects</strong>. A flag also shows that the model GPT-4o is required to use the logic function.</p>
+<p><img alt="The Marketplace products displayed on a Workflow Lineage graph." src="../../_resources/foundry/workflow-lineage/marketplace-graph.png" /></p>
+<p>On the left panel, a list of expected new inputs to your package is displayed. In the example below, the <strong>Email</strong> object feeds into the <strong>Set Fruit Images</strong> Workshop module, so it should be included in future packages.</p>
+<p><img alt="The Email object is an expected new input to your Marketplace package." src="../../_resources/foundry/workflow-lineage/marketplace-expected-new-inputs.png" /></p>
+<p>The color legend will also show package overlaps with the <strong>Multiple packages</strong> key.</p>
+<p><img alt="Package overlaps are displayed in red with the Multiple packages key." src="../../_resources/foundry/workflow-lineage/marketplace-multiple-packages.png" /></p>
+<h2>Additional workflow updates</h2>
+<p>You can also update workflow security in Workflow Lineage. See how to <a href="https://www.palantir.com/docs/foundry/workflow-lineage/manage-security/#bulk-update-ontology-roles-on-resources">bulk update Ontology roles on workflow resources</a> and <a href="https://www.palantir.com/docs/foundry/workflow-lineage/manage-security/#bulk-update-action-submission-criteria">action submission criteria</a>.</p>
+</body>
+</html>

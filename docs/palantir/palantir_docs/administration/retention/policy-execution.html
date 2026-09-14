@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Retention policy execution</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Retention policy execution</h1>
+<p>To execute the configured policies, all datasets are continuously evaluated in a loop. For each dataset, each policy is tested on all its transactions to determine which transactions need to be deleted. Depending on the number of datasets in an environment, this loop can take up to a few days to complete.</p>
+<h2>Transaction-level marking</h2>
+<p>Retention policies mark transactions for deletion at the transaction level, and evaluate each branch of a dataset independently. By default, the latest view on any branch will not be marked for deletion. A view starts at the first transaction on a branch; a later <code>SNAPSHOT</code> transaction starts a new view, and every transaction after that <code>SNAPSHOT</code> belongs to the new latest view. If a policy runs on a branch and a transaction falls within that branch's latest view, it cannot be marked for deletion on that branch.</p>
+<h3>Demonstration</h3>
+<p>As a single transaction can exist on multiple branches, the same transaction can simultaneously be in the latest view on one branch and outside it on another. Consider the following history, where branch <code>xyz</code> forks from <code>abc</code> at <code>T2</code>:</p>
+<ul>
+<li>Branch <code>abc</code>: <code>T1</code> (<code>APPEND</code>) â <code>T2</code> (<code>APPEND</code>) â <code>T3</code> (<code>SNAPSHOT</code>) â <code>T4</code> (<code>APPEND</code>)</li>
+<li>Branch <code>xyz</code>: <code>T1</code> (<code>APPEND</code>) â <code>T2</code> (<code>APPEND</code>) â <code>T5</code> (<code>APPEND</code>)</li>
+</ul>
+<p>On branch <code>abc</code>, the latest view starts at <code>T3</code>, so <code>T1</code> and <code>T2</code> are outside the latest view and are eligible to be marked. On branch <code>xyz</code>, there is no <code>SNAPSHOT</code>, so the latest view starts at <code>T1</code> and contains every transaction â <code>T1</code> and <code>T2</code> are protected there. A retention policy running on <code>abc</code> would not mark <code>T1</code> or <code>T2</code>, because the same transactions are still in <code>xyz</code>'s latest view.</p>
+<p>:::callout{theme="danger" title="Data loss risk with latest view deletion"}
+You can override the default behavior by enabling the <strong>Allow deletion from latest view</strong> option in the <strong>Advanced options</strong> section of a retention policy. However, enabling this option may result in the deletion of current data that is still in use, and may cause incremental builds to fail. If you are using Python transforms with incremental pipelines, you must set the <code>allow_retention=True</code> parameter on the <a href="https://www.palantir.com/docs/foundry/transforms-python/incremental-usage/#inputs-with-deletions-coming-from-retention"><code>@incremental()</code> decorator</a> to prevent retention-related deletions from triggering a snapshot run.
+:::</p>
+<p>Learn more about configuring the <a href="https://www.palantir.com/docs/foundry/retention/manage-retention-policies/#latest-view-transaction-deletion">latest view transaction deletion</a> flag.</p>
+<p>If multiple policies would select the same transactions, the first policy executed will just delete the transactions in question and any subsequent policies will ignore them.</p>
+<h2>Mark and sweep</h2>
+<p>When a policy determines that a transaction should be deleted, it is first marked for deletion. Marking a transaction conveys that the data in the transaction may be deleted at any point, and so should not be read.</p>
+<p>A marked transaction is indicated by the message "This transaction has been scheduled for deletion." visible in the dataset history page when a specific transaction is selected.</p>
+<p>After a certain duration (usually 7 days, but this may vary) from the time of marking, a transaction will be swept. At this point, the data in the transaction will be deleted and cannot be recovered.</p>
+<p>A swept transaction is indicated by the message "Transaction data has been deleted." visible in the dataset history page when the specific transaction is selected.</p>
+<p>As a marked but unswept transaction still contains data, it is possible to unmark a given transaction in the event that it was incorrectly marked. To do so, first amend the policy or policies that mistakenly marked the transaction. Then, contact your Palantir representative within 7 days to assist with unmarking the transaction as the data will not be recoverable outside of this timeframe.</p>
+</body>
+</html>

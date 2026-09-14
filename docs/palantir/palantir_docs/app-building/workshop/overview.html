@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Workshop</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Workshop</h1>
+<p><strong>Workshop</strong> enables application builders to create interactive and high-quality applications for operational users.</p>
+<p><img alt="example workshop module" src="../../_resources/foundry/workshop/object-apps-workshop-module.png" /></p>
+<p>Workshop follows three key principles:</p>
+<ul>
+<li>
+<p><strong>Object data</strong></p>
+</li>
+<li>
+<p>Workshop reduces the barrier to entry for application builders by using the Object layer as the primary building block. All data in a Workshop Application is read from the Object Data Layer, allowing application creators to take advantage of rich characteristics such as links between object types. Workshop leverages <a href="https://www.palantir.com/docs/foundry/workshop/actions-use/">Actions</a> for writeback to object data, <a href="https://www.palantir.com/docs/foundry/workshop/functions-use/">Functions</a> for business logic on object data, and <a href="https://www.palantir.com/docs/foundry/workshop/derived-properties/">Derived properties</a> for runtime-calculated values based on linked objects and aggregations.</p>
+</li>
+<li><strong>Consistent design</strong></li>
+<li>All Workshop components follow a unified design system and are built to interact cleanly, have a consistent look and feel, and provide a high-quality end-user experience.</li>
+<li><strong>Interactivity and complexity</strong></li>
+<li>Applications built in Workshop are more dynamic and interactive than typical dashboards created in other point-and-click tools. By leveraging high-quality <a href="https://www.palantir.com/docs/foundry/workshop/concepts-layouts/">Layouts</a> and an easy-to-use but sophisticated <a href="https://www.palantir.com/docs/foundry/workshop/concepts-events/">Events system</a>, Workshop applications aim to be as user-friendly and high-quality as custom React applications.</li>
+</ul>
+<p>Workshop is a flexible application builder that supports a wide range of possible use cases. Some common application patterns supported by Workshop include:</p>
+<ul>
+<li><strong>Inbox Alert and Task Management</strong></li>
+<li>Inboxes are commonly used to enable operational users to triage, prioritize and complete tasks. For instance, you might use a Workshop application to categorize new incoming warranty claims, or to triage and investigate alerts.</li>
+<li><strong>Common Operational Pictures (COPs)</strong></li>
+<li>A common operational picture (COP) is a display of relevant operational information shared across multiple organizations to facilitate awareness and collaboration. For example, you might build a Workshop application to serve as an âon-the-wallâ, big-screen view of the current situation, containing a map, relevant statistics and charts, ways to filter or drill down on data, and connections to other views or workflows.</li>
+</ul>
+<h2>Cross-application interactivity</h2>
+<p>Workshop supports data sharing across applications. Use <a href="https://www.palantir.com/docs/foundry/workshop/drag-and-drop/">drag and drop</a> and the <a href="https://www.palantir.com/docs/foundry/workshop/widgets-app-pairing/">App Pairing widget</a> to integrate your Workshop module with other Palantir applications. Use <a href="https://www.palantir.com/docs/foundry/workshop/commands/">Commands</a> to execute actions and operations across applications.</p>
+<p><a href="https://www.palantir.com/docs/foundry/cross-app-interactivity/overview/">Learn more about cross-application interactivity.</a></p>
+<p>:::callout{theme="success" title="Palantir Learning portal"}
+Try our <a href="https://learn.palantir.com/deep-dive-building-your-first-application">"Deep dive: Building your first application" course on learn.palantir.com â</a>.
+:::</p>
+</body>
+</html>

@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Workflow Lineage</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Workflow Lineage</h1>
+<p>:::callout{theme="neutral"}
+The application previously known as Workflow Builder is now called Workflow Lineage.
+:::</p>
+<p>Workflow Lineage provides an interactive workspace for understanding and managing applications and their underlying processes.</p>
+<p><img alt="Workflow Lineage is an interactive workspace for understanding and managing applications." src="../../_resources/foundry/workflow-lineage/workflow-lineage-overview.png" /></p>
+<p>With Workflow Lineage, you can perform the following:</p>
+<ul>
+<li>Explore workflows to see details about objects, actions, functions, interfaces, custom widgets, applications, Palantir-provided and registered language models, and resources such as Workbench boards and Gaia Maps, including:</li>
+<li>API names</li>
+<li>Inputs</li>
+<li>Ontology edits</li>
+<li>Submission criteria</li>
+<li>
+<p>Code snippets</p>
+</li>
+<li>
+<p>View model lifecycle stages, such as experimental, deprecated, or sunset, directly in search results.</p>
+</li>
+<li>
+<p>For a specific column in an object, view all usages downstream including dependent actions and Workshop applications.</p>
+</li>
+<li>
+<p>View weekly usage metrics for Workshop applications, including total and unique views.</p>
+</li>
+<li>
+<p>Use the color legend to view metadata about your workflow organized by category, including node types, permissions, usage metrics such as application views and last reindexed status, and organizational structure.</p>
+</li>
+<li>
+<p>Use presentation mode to create and organize visual snapshots of your workflow graph.</p>
+</li>
+<li>
+<p>Bulk select actions to update the actions to a specific version simultaneously.</p>
+</li>
+<li>
+<p><a href="https://www.palantir.com/docs/foundry/workflow-lineage/refactor-and-understand-workflows/#bulk-replace-models">Bulk replace models</a> across multiple AIP Logic functions to migrate off deprecated models or evaluate new models across a workflow.</p>
+</li>
+<li>
+<p>Update submission criteria directly without creating a proposal.</p>
+</li>
+<li>
+<p>Work on <a href="https://www.palantir.com/docs/foundry/global-branching/overview/">global branches</a> to inspect, edit, and validate workflow resources before merging changes into <code>main</code>. Learn more about <a href="https://www.palantir.com/docs/foundry/workflow-lineage/branching-workflow-lineage/">Branching in Workflow Lineage</a>.</p>
+</li>
+<li>
+<p><a href="https://www.palantir.com/docs/foundry/aip-observability/log-search/">Search service logs</a> produced by a resource to investigate recurring errors or intermittent issues.</p>
+</li>
+<li>
+<p>Visualize cross-ontology relationships by displaying resources from multiple ontologies on a single graph.</p>
+</li>
+</ul>
+<p>Workflow Lineage is particularly suitable for the following users:</p>
+<ul>
+<li>Application builders that are creating, debugging or maintaining workflows. The graph of provenance, deeper property and workshop widget/variable provenance, and upgrade tooling are all helpful when making changes to or extending a workflow.</li>
+<li>New builders that want to learn from existing workflows to answer the question âWhat parts of the Ontology are used in this workflow, and how?"</li>
+<li>Users that are presenting existing workflows: The graph provides a high-level overview of the Ontological resources used which can be a helpful presentation and teaching tool when sharing workflows with others.</li>
+</ul>
+<p>:::callout{theme="neutral"}
+To enable Workflow Lineage, contact your platform administrator to <a href="https://www.palantir.com/docs/foundry/administration/configure-application-access/">modify application access</a> in Control Panel.
+:::</p>
+<h2>When to use Workflow Lineage</h2>
+<p>The intent of Workflow Lineage is to help understand, manage, and debug workflows. Workflows typically span a spread of ontology resources and often flow into an application. As such, Workflow Lineage is complementary to <a href="https://www.palantir.com/docs/foundry/pipeline-builder/overview/">Pipeline Builder</a> and <a href="https://www.palantir.com/docs/foundry/data-lineage/overview/">Data Lineage</a>:</p>
+<ul>
+<li>Pipeline Builder: Integrating data from raw sources into the Ontology.</li>
+<li>Workflow Lineage: Management of workflows built on top of the Ontology.</li>
+<li>Data Lineage: An end-to-end view of data flowing from source, to Ontology, through to workflow.</li>
+</ul>
+<p>For example, to review the schedules for data flowing into an object type, right-click the object type in Workflow Lineage and open it in Data Lineage. You can also open Pipeline Builder object types in Workflow Lineage from Pipeline Builder.</p>
+<p><a href="https://www.palantir.com/docs/foundry/workflow-lineage/getting-started/">Learn how to get started with Workflow Lineage.</a></p>
+<h2>Access control</h2>
+<p>You can control which users in your organization have access to Workflow Lineage in Control Panel.</p>
+<p><img alt="Control Panel application view with All Settings tab selected." src="../../_resources/foundry/workflow-lineage/workflow-lineage-control-panel-settings.png" /></p>
+<p>On the <strong>Application settings</strong> tab of <strong>Application access</strong>, navigate to the <strong>Ontology</strong> section. Select <strong>Manage</strong> to the right of the Workflow Lineage entry.</p>
+<p><img alt="Control Panel application access view with Ontology section Settings tab selected." src="../../_resources/foundry/workflow-lineage/workflow-lineage-control-panel.png" /></p>
+<p>Select <strong>Manage</strong> to open up a window where you can configure your enrollment's preferences.</p>
+<p><img alt="Request application access change window in Control Panel for Workflow Lineage." src="../../_resources/foundry/workflow-lineage/workflow-lineage-control-panel-request-access.png" /></p>
+</body>
+</html>

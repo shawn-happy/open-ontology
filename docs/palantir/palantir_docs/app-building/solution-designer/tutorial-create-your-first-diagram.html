@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tutorial: Create your first diagram</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Tutorial: Create your first diagram</h1>
+<p>In this tutorial, you will create a simple diagram representing a common data integration pattern. The pattern includes connecting to an external system, transforming data, building an ontology, and creating a user-facing application.</p>
+<p>By the end of this tutorial, you will know how to:</p>
+<ul>
+<li>Add component nodes to your diagram.</li>
+<li>Create connections between nodes.</li>
+<li>Group related nodes together.</li>
+<li>Save your diagram.</li>
+</ul>
+<h2>Create a new diagram</h2>
+<ol>
+<li>Navigate to Solution Designer in your Foundry enrollment.</li>
+<li>Select <strong>New diagram</strong> from the home screen.</li>
+<li>An empty canvas opens where you can start building your diagram by adding nodes, loading a graph from <a href="https://www.palantir.com/docs/foundry/data-lineage/overview/">Data Lineage</a>, or exploring reference examples.</li>
+</ol>
+<h3>Add your first nodes</h3>
+<p>Follow the instructions in the sections below to build a diagram that shows data flowing from an external system through Foundry and into a Workshop application.</p>
+<h4>Add an external system node</h4>
+<ol>
+<li>Select the <strong>Component</strong> button in the upper left toolbar or press <code>Cmd/Ctrl + B</code> to open the component search and selection modal.</li>
+<li>Select <strong>External system</strong> from the left panel in the component search and selection modal.</li>
+<li>Choose the relevant <strong>External system</strong> type, such as <strong>Data Store</strong> or <strong>File Store</strong>, and the node appears on your canvas.</li>
+</ol>
+<h4>Add a data sourcing node and connect it to your external system node</h4>
+<p>Next, add a node to represent how Foundry connects to the external system.</p>
+<ol>
+<li>Open the component search and selection modal (<code>Cmd/Ctrl + B</code>).</li>
+<li>Search for and add a <strong>Data sourcing</strong> node, such as <strong>Data Connector</strong> or <strong>Data Connection Agent</strong>.</li>
+<li>Hover over the <strong>External system</strong> node's right connection handle.</li>
+<li>Click and drag to the <strong>Data sourcing</strong> node's left connection handle.</li>
+</ol>
+<h4>Complete the data flow</h4>
+<p>Continue building the diagram by adding the following nodes in sequence:</p>
+<ol>
+<li><strong>Dataset:</strong> Open the component search and selection modal, search for and select <strong>Dataset</strong>.</li>
+<li><strong>Pipeline Builder:</strong> Add a <strong>Pipeline Builder</strong> node to represent data transformation.</li>
+<li><strong>Dataset:</strong> Add another <strong>Dataset</strong> node to represent the transformed data.</li>
+<li><strong>Object type:</strong> Select the <strong>Resource</strong> button in the top left toolbar, choose <strong>New object node</strong>, and select an object type from your ontology. You can also create a generic object node <em>not</em> linked to an existing object type if you prefer.</li>
+<li><strong>Workshop:</strong> Add a <strong>Workshop</strong> node to represent the user-facing application.</li>
+<li><strong>User group:</strong> Add a <strong>User Group</strong> node to represent a group of users and tasks they need to perform.</li>
+</ol>
+<p><img alt="Your first diagram in Solution Designer." src="../../_resources/foundry/solution-designer/first-diagram.png" /></p>
+<p>Your diagram now shows a complete data integration and application workflow.</p>
+<h3>Group related nodes</h3>
+<p>To organize your diagram, group the data transformation components together.</p>
+<h4>Create a group</h4>
+<ol>
+<li>Hold <code>Cmd</code> (macOS) or <code>Ctrl</code> (Windows) and select the <strong>Pipeline Builder</strong> node.</li>
+<li>Continue holding <code>Cmd</code>/<code>Ctrl</code> and select the <strong>Dataset</strong> node immediately after <strong>Pipeline Builder</strong>, which represents transformed data.</li>
+<li>Validate that both nodes display highlighted borders, indicating they have been selected.</li>
+<li>Select the <strong>Group</strong> button to the left of <strong>Add Text node</strong> in the diagram toolbar.</li>
+<li>A group container is created around the two selected nodes.</li>
+</ol>
+<h4>Name the group</h4>
+<ol>
+<li>Select the newly created <strong>Group</strong> on your canvas.</li>
+<li>Choose the default <strong>Group</strong> label to provide the group with a descriptive name, such as <code>Data Transformation</code>.</li>
+<li>Select anywhere on your canvas outside the group's borders and <strong>Save</strong> your changes.</li>
+</ol>
+<p>Your diagram now has a logical grouping that makes it easier to understand your workflow's architecture.</p>
+<h3>Add descriptions and context</h3>
+<h4>Add node descriptions</h4>
+<p>You can add notes to individual nodes to document their purpose:</p>
+<ol>
+<li>Select the <strong>Pipeline Builder</strong> node.</li>
+<li>Choose <strong>Enter description...</strong> and add a description, such as: <code>Cleanses and transforms raw data into business-ready datasets</code>.</li>
+<li>Repeat this process for other key nodes in your diagram.</li>
+</ol>
+<h4>Add a text node for comments</h4>
+<p>To add general comments to your diagram:</p>
+<ol>
+<li>Select the <strong>Add Text node</strong> button in the upper left toolbar, and a text node appears on your canvas.</li>
+<li>Select <strong>Double click to edit</strong> to edit the text.</li>
+<li>Enter a description of your diagram, such as: <code>This diagram represents our core data integration pattern for external vendor data</code>.</li>
+<li>Select and drag the text node to position it near the top of your diagram.</li>
+</ol>
+<h3>Save your diagram</h3>
+<p>Now that your diagram is complete, save it to the Foundry filesystem:</p>
+<ol>
+<li>Select <strong>Save</strong> in Solution Designer header.</li>
+<li>A <strong>Save</strong> modal renders if this is your first save, where you can enter a <strong>File name</strong>, such as <code>First Diagram</code>, and choose a save <strong>Location</strong>.</li>
+<li>Select <strong>Save</strong> to complete the save process.</li>
+</ol>
+<p><img alt="Completed diagram in Solution Designer." src="../../_resources/foundry/solution-designer/completed-diagram.png" /></p>
+<p>Your diagram is now saved and will auto-save as you make future changes. Select <strong>Draft saved</strong> from the file header to view a modal with additional information about your auto-saved draft.</p>
+<h2>Next steps</h2>
+<p>Now that you have created your first Solution Designer diagram, continue exploring its features and capabilities by:</p>
+<ul>
+<li><strong>Exploring reference patterns:</strong> Select <strong>Reference Diagrams</strong> in the navigation bar on the left side of your screen to browse pre-built industry and technical patterns.</li>
+<li><strong>Linking resources:</strong> Select nodes in your diagram and use the <strong>Link resource</strong> button in the node toolbar to connect them to actual Foundry datasets, pipelines, or applications.</li>
+<li><strong>Using AIP Architect:</strong> Try <a href="https://www.palantir.com/docs/foundry/solution-designer/aip-architect/">AIP Architect</a> to generate workflow plans based on your requirements.</li>
+<li><strong>Reviewing your diagram:</strong> Use <a href="https://www.palantir.com/docs/foundry/solution-designer/aip-critic/">AIP Critic</a> to get AI-powered feedback on your architecture.</li>
+<li><strong>Customizing your diagram's view:</strong> Open <a href="https://www.palantir.com/docs/foundry/solution-designer/navigation/#configure-your-diagrams-settings"><strong>Graph Settings</strong></a> to experiment with different display options, such as icons-only mode or edge animation.</li>
+</ul>
+<p>For more details on diagram features and capabilities, see <a href="https://www.palantir.com/docs/foundry/solution-designer/diagrams/">Diagrams</a>.</p>
+<h2>Tips</h2>
+<ul>
+<li><strong>Start conceptually:</strong> Begin with high-level components and refine later. You do not need to specify exact datasets or pipelines in your first draft.</li>
+<li><strong>Use groups liberally:</strong> Group nodes by function (for example, "Data Ingestion", "Processing Layer", "Application Layer") to make complex diagrams easier to navigate.</li>
+<li><strong>Leverage patterns:</strong> Browse the reference architecture library for proven patterns that match your use case. You can load a pattern and customize it rather than starting from scratch.</li>
+<li><strong>Iterate with feedback:</strong> Use AIP Critic to validate your design, then refine based on suggestions.</li>
+<li><strong>Think about layers:</strong> Organize your diagram in logical layers from left to right (data sources â ingestion â processing â ontology â applications â users) for easy comprehension.</li>
+</ul>
+</body>
+</html>

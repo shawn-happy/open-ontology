@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Resource Management</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Resource Management</h1>
+<p><strong>Resource Management</strong> helps users understand the following:</p>
+<ul>
+<li>Shared Foundry compute usage</li>
+<li>The cost of Foundry compute usage</li>
+<li>Billing</li>
+</ul>
+<p><img alt="Overview tab of Resource Management application" src="../../_resources/foundry/resource-management/overview.png" /></p>
+<p>The application targets two primary workflows:</p>
+<ul>
+<li><a href="#usage-visibility">Usage visibility</a> workflows allow users to see an overview of how Foundry usage resources are spent across their Projects.</li>
+<li>Resource allocation workflows allow administrators to define how Projects should consume shared resources and, if desired, to place limits on that consumption.</li>
+</ul>
+<h2>Usage visibility</h2>
+<p>Users can monitor and analyze resource usage using visibility tooling in Resource Management.</p>
+<p>In Foundry, all items that can consume discretionary resources are created in a Project. Resource usage for each of these items is accrued to its parent Project. In turn, Projects belong to a usage account.</p>
+<p>Usage accounts are a way of grouping related Projects into semantically meaningful groups for better analysis and usage monitoring. By default, enrollments have two usage accounts:</p>
+<ul>
+<li>The <em>default</em> account contains all regular Projects.</li>
+<li>The <em>user folders</em> account contains all user home folders and cannot be modified.</li>
+</ul>
+<p>Administrators are free to create new usage accounts and triage Projects in any way that helps them reason about resource consumption. For example, it may be helpful to categorize Projects in terms of department, business unit, or Organization. The usage account of a Project is specified at Project creation time but can always be changed later by an administrator.</p>
+<p>Foundry usage is accrued in different ways depending on the workload or application. For example, running a data transformation incurs a <em>compute</em> cost (the cost of servers doing a distributed computation) and a <em>storage</em> cost (the long-term storage cost for the resulting data).</p>
+<h3>Conceptual hierarchy</h3>
+<p><img alt="A diagram showing the conceptual hierarchy of resource usage. " src="../../_resources/foundry/resource-management/conceptual-hierarchy.png" /></p>
+</body>
+</html>

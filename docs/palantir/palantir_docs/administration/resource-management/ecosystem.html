@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ecosystem</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Ecosystem</h1>
+<p>Before getting started with resource management in Foundry, review the following concepts to understand the ecosystem of resource access and user enrollments.</p>
+<p><img alt="Diagram of the resource management ecosystem." src="../../_resources/foundry/resource-management/ecosystem.png" /></p>
+<ul>
+<li><strong>Enrollment:</strong> An enrollment is the primary identity of your Organization and establishes your company's identity with Foundry services and the Foundry platform.</li>
+<li><strong>Organization:</strong> Organizations are access requirements applied to Projects that enforce strict silos between groups of users and resources. Every user is a member of one Organization, but can be a guest member of multiple Organizations. <a href="https://www.palantir.com/docs/foundry/security/orgs-and-spaces/#organizations">Learn more about Organizations</a>.</li>
+<li><strong>Project:</strong> A Project is a collaborative space that brings together users, files, and folders for a particular purpose. Projects are the primary security boundary in Foundry and can be thought of as buckets of shared work. <a href="https://www.palantir.com/docs/foundry/security/projects-and-roles/">Learn more about Projects</a>.</li>
+<li><strong>Resource:</strong> There are two potential uses of the term "resource" when working with Foundry. Service-level resources like CPU cores, virtual machines, and databases power the computation and data processing on the Foundry platform. Foundry resources sit above the service-level resources and include data concepts and structures such as Projects, workbooks, ontologies, and datasets. Most Foundry resources incur some form of service-level resource usage when users interact with them (e.g. by rebuilding a dataset).</li>
+<li><strong>Ontology and Ontology resources:</strong> The Foundry Ontology is an Organizationâs digital twin; the Ontology integrates an Organization's digital assets into a coherent whole. Ontology resources, namely object types and link types, are the building blocks, or "primitives", of an Ontology. Ontology usage is attributed to the project of each object's input datasource. <a href="https://www.palantir.com/docs/foundry/ontology/overview/">Learn more about the Ontology.</a></li>
+<li><strong>Usage account:</strong> A usage account combines and reports the usage incurred in a group of one or more Projects, typically for accounting purposes.</li>
+<li>A usage account is associated with exactly one Enrollment.</li>
+<li>Usage accounts are <em>exclusive</em>: Every Project must belong to exactly one usage account.</li>
+<li>Usage accounts can be marked with one or more Organizations. These Organizations must be a part of the same Enrollment.</li>
+<li>Projects can be transferred between usage accounts.</li>
+<li>Usage accounts with associated Projects cannot be deleted.</li>
+<li><strong>Project label:</strong> A project label supports grouping Projects for ad-hoc usage analysis.</li>
+<li>Project labels are not <em>exclusive</em>: a Project can be included in any number of project labels, and a project label can contain any number of Projects.</li>
+<li><strong>User:</strong> A user is an individual who has been authenticated and has access to Foundry. As users interact with the platform, they incur usage that can be tracked within the Resource Management app. <a href="https://www.palantir.com/docs/foundry/security/users-and-groups/#users">Learn more about users</a>.</li>
+</ul>
+</body>
+</html>

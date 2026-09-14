@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Translation, localization (l10n), and internationalization (i18n)</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Translation, localization (l10n), and internationalization (i18n)</h1>
+<p>Application builders can now provide translations for supported string types used within a Workshop application through the Translations feature. This feature allows for the localization (l10n) and internationalization (i18n) of Workshop applications into various languages manually or with the help of AIP for enabled enrollments. Viewers will then be presented with a translated view of the module in their browser's locale if the Workshop application has been translated into that language using this feature.</p>
+<p><img alt="A preview of the Workshop application while configuring the translation strings." src="../../_resources/foundry/workshop/translations-preview.png" /></p>
+<p>To turn on the feature, navigate to the <strong>Settings</strong> tab in edit mode and toggle on <strong>Translations</strong> in the <strong>Advanced functionalities</strong> section. Once enabled, a new <strong>Translations</strong> tab will appear where application builders may configure translations for their module.</p>
+<p><img src="../../_resources/external-3f10bf29d258.png" alt="Translations toggle in enabled position." width="200"></p>
+<h2>Translatable content</h2>
+<p>The following content in a Workshop application can be translated:</p>
+<ul>
+<li>Module header <strong>Title</strong></li>
+<li>Section header <strong>Title(s)</strong> and <strong>Tabs</strong></li>
+<li>Static text from widgets such as:</li>
+<li>Tabs widget <strong>Label</strong></li>
+<li>Button Group widget <strong>Text</strong> and <strong>Description</strong></li>
+<li>Metric Card widget <strong>Label</strong> and <strong>Description</strong></li>
+<li>Markdown widget <strong>Content</strong></li>
+<li>Object Table and Object List widget <strong>Column Titles</strong></li>
+<li>Pivot Table widget <strong>Aggregation Titles</strong></li>
+<li>Filter List widget <strong>Section Titles</strong></li>
+</ul>
+<h2>Translation methods</h2>
+<p>Translation of valid strings within a Workshop application may be done either manually by application builders or automatically-generated using AIP for enrollments with custom workflows enabled.</p>
+<h3>Manual translation</h3>
+<p>Strings within the module may be manually translated by application builders. On selection of a target language, each translatable string detected within the module will be displayed with an input field to manually enter translations. Once translations are added, they can be previewed directly within the module for immediate review.</p>
+<h3>Automatic translation with AIP</h3>
+<p>Strings within the module can also be translated with AIP. Use of AIP to translate strings requires configuring <a href="https://www.palantir.com/docs/foundry/aip/enable-aip-features/#aip-and-capabilities-for-custom-workflows">AIP capabilities for custom workflows</a>.</p>
+<p>In order to provide AIP with the necessary context to perform string translations, the module's starting language must be defined, and a target language must be set. The <strong>Translate</strong> option marked with the purple AIP icon can then be used to automatically translate all detected strings eligible for translation in the module using AIP. Translations can be immediately previewed in the module for review and manual edits where necessary.</p>
+<p><img src="../../_resources/external-77bf17781ec6.png" alt="Translations configuration panel." width="500"></p>
+<p>Once satisfied with the translations, the translations may then be <strong>Marked as complete</strong> essentially marking these strings as reviewed to application builders. Any new or modified strings detected in the module, for example, on the addition of a new button or on edit of a section header's title, will appear in the <strong>To translate</strong> section, separating them from the already-translated and reviewed strings.</p>
+<p><img alt="Translations that have been marked as reviewed." src="../../_resources/foundry/workshop/translations-reviewed.png" /></p>
+<h2>Preview translations</h2>
+<p>Translated text may be previewed directly in the module in edit mode by navigating to the <strong>Translations</strong> tab and selecting the configured language of choice.</p>
+<p><img src="../../_resources/external-bb7c83918cd2.png" alt="Translations configuration panel." width="300"></p>
+</body>
+</html>

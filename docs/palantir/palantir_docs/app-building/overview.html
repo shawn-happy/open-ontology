@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Use case development</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../index.html">返回目录</a></div>
+<p><img alt="Application building header image." src="../_resources/foundry/app-building/4-Apps.svg" /></p>
+<h1>Use case development</h1>
+<p>The Palantir platform was designed to empower a diverse community of builders with a collection of powerful tools for use case development, including application building tools, workflow building tools, integrated <a href="https://www.palantir.com/docs/foundry/app-building/analytics-operations/">analytics tools</a>, and <a href="https://www.palantir.com/docs/foundry/dev-toolchain/overview/">developer tools</a>. Each of these leverages the power of Foundryâs core security, lineage, data, and compute primitives, allowing teams to focus on delivering operational capability rather than managing infrastructure. Each tool in the Palantir platform is designed to continuously and safely enrich a consistent set of data and logical assets contained within the <a href="https://www.palantir.com/docs/foundry/ontology/overview/">Ontology</a>. This enables knowledge to compound as operational workflows are scaled out across the enterprise.</p>
+<p>:::callout{theme="success" title="Palantir Learning portal"}
+Understand scoping use cases for Foundry and AIP at <a href="https://learn.palantir.com/scoping-use-cases-for-foundry-aip">learn.palantir.com â</a>.
+:::</p>
+<h2>Application building</h2>
+<p>The Palantir platform offers several ways to build applications, suited to different needs:</p>
+<ul>
+<li><a href="#workshop">Workshop</a> is a no-code, object-oriented builder for operational applications, and is the fastest way to turn objects, links, and actions into an interactive workflow.</li>
+<li><a href="https://www.palantir.com/docs/foundry/ontology-sdk-react-applications/overview/">OSDK React applications</a> let you build completely custom user interfaces with React, powered by the <a href="#developer-toolchain">Ontology SDK (OSDK)</a>, when you need an experience beyond what Foundry's built-in tools offer. <a href="https://www.palantir.com/docs/foundry/pilot/overview/">Pilot</a> provides a streamlined, AI-powered way to build these OSDK applications from a natural-language prompt.</li>
+<li><a href="https://www.palantir.com/docs/foundry/custom-widgets/overview/">Custom widgets</a> let technical builders extend Workshop with custom frontend code, adding tailored functionality without building a standalone application from scratch.</li>
+<li><a href="#slate">Slate</a> is a low-code, drag-and-drop builder for operational applications, interactive dashboards, and custom landing pages, with optional customization using HTML, CSS, and JavaScript.</li>
+<li><a href="#code-workspaces-applications">Code Workspaces applications</a> let you build and publish interactive Streamlit, Dash, and ShinyÂ® applications from third-party IDEs, backed by Foundry data and governance.</li>
+</ul>
+<h3>Workshop</h3>
+<p><strong>Workshop</strong> is a flexible, object-oriented application building tool. Workshop leverages the semantic primitives (such as objects and links) and the kinetic primitives (such as actions and functions) within the <a href="https://www.palantir.com/docs/foundry/ontology/overview/">Ontology</a> to enable the rapid delivery of interactive web and mobile applications. The application building experience in Workshop empowers users to create powerful applications out of no-code, low-code, and code-based widgets. No technical expertise is required to start building with widgets and weaving objects, links, and actions together into user-driven workflows that go <a href="https://www.palantir.com/docs/foundry/app-building/operational-apps/">far beyond dashboards</a> or passive visualizations. Meanwhile, code-based enrichment with <a href="https://www.palantir.com/docs/foundry/functions/overview/">functions</a> can be seamlessly embedded within Workshop widgets to allow for complex interactions, cascading processes, and complex data capture. When a workflow needs functionality beyond the built-in widgets, you can extend a Workshop application with <a href="#custom-widgets">custom widgets</a> to add tailored, code-based components without leaving Workshop.</p>
+<p><a href="https://www.palantir.com/docs/foundry/workshop/overview/">Learn more about Workshop.</a></p>
+<h3>OSDK React applications</h3>
+<p><strong>OSDK React applications</strong> let you build completely customizable user interfaces using <a href="https://react.dev/">React â</a>, powered by the <a href="https://www.palantir.com/docs/foundry/ontology-sdk/overview/">Ontology SDK (OSDK)</a> and created through <a href="https://www.palantir.com/docs/foundry/developer-console/overview/">Developer Console</a>. By treating Foundry as your backend, you can combine the React ecosystem with the Ontology's high-scale queries, edits, and granular governance controls to securely deliver bespoke applications. To build an OSDK React application without starting from code, <a href="https://www.palantir.com/docs/foundry/pilot/overview/">Pilot</a> offers a streamlined, AI-powered experience that generates the Ontology entities, design, and frontend from a natural-language prompt and guides you through deployment.</p>
+<p><a href="https://www.palantir.com/docs/foundry/ontology-sdk-react-applications/overview/">Learn more about OSDK React applications.</a></p>
+<h3>Custom widgets</h3>
+<p><strong>Custom widgets</strong> allow technical builders to securely extend Workshop applications with custom frontend code. Rather than building a standalone application from scratch, you can implement functionality that is not available out of the box, such as bespoke visualizations or discipline-specific views of Ontology objects, and embed them directly within a Workshop module. You can also embed a single, full-page custom widget within Workshop to bring the flexibility of custom code to the Workshop framework.</p>
+<p><a href="https://www.palantir.com/docs/foundry/custom-widgets/overview/">Learn more about custom widgets.</a></p>
+<h3>Slate</h3>
+<p><strong>Slate</strong> provides builders with a flexible set of tools to quickly create operational applications and interactive dashboards. Slate enables application developers to construct dynamic and responsive applications with a drag-and-drop interface, reducing development time and cost. Slate includes capabilities that are seamlessly integrated with the Foundry Ontology, but also enables developers to fully customize applications using HTML, CSS, and JavaScript.</p>
+<p><a href="https://www.palantir.com/docs/foundry/slate/overview/">Learn more about Slate.</a></p>
+<h3>Code Workspaces applications</h3>
+<p><strong>Code Workspaces applications</strong> let you build and publish interactive web applications, using <a href="https://streamlit.io/">Streamlit â</a> or <a href="https://plotly.com/dash/">Dash â</a> for Python and <a href="https://shiny.rstudio.com/">ShinyÂ® â</a> for R, directly from third-party IDEs in <a href="https://www.palantir.com/docs/foundry/code-workspaces/overview/">Code Workspaces</a>. Data scientists and developers can turn analyses into operational applications on Foundry data, hosted in Foundry containers with the platform's version control, branching, and data governance built in.</p>
+<p><a href="https://www.palantir.com/docs/foundry/code-workspaces/overview/">Learn more about Code Workspaces.</a></p>
+<h2>Workflow building and management</h2>
+<p>The primary workflow building and management tools in the Palantir platform are <a href="#workflow-lineage">Workflow Lineage</a>, <a href="#automate">Automate</a>, <a href="#solution-designer">Solution Designer</a>, and <a href="#use-cases">Use Cases</a>.</p>
+<h3>Workflow Lineage</h3>
+<p><strong>Workflow Lineage</strong> provides an interactive workspace for understanding and managing applications and their underlying processes. With Workflow Lineage, you can explore workflows and view details on objects, actions, functions, large language models, and applications. Workflow Lineage is particularly useful for application builders that are creating, debugging or maintaining workflows. The graph of provenance, deeper property and workshop widget/variable provenance, and upgrade tooling are all helpful when making changes to or extending a workflow.</p>
+<h3>Automate</h3>
+<p><strong>Automate</strong> gives you a single entry point for setting up and executing all business automation in the platform. The Automate application allows users to define conditions and effects; conditions are checked continuously, and effects are executed automatically when the specified conditions were met.</p>
+<p><a href="https://www.palantir.com/docs/foundry/automate/overview/">Learn more about Automate.</a></p>
+<h3>Carbon</h3>
+<p><strong>Carbon</strong> enables the configuration of tailored platform experiences, known as workspaces, for specific user groups. Carbon can provide a focused experience for less technical users that need to carry out critical operational workflows. Each Carbon workspace is a curated collection of applications and resources that can be configured to optimize a given set of operational, end-user workflows. For example, an aircraft parts maintenance workspace might consist of a Workshop application containing a dynamically updated list of parts requiring maintenance, along with Ontology-driven Actions for triaging each part; another application that is used to investigate each part's maintenance issue; and a Quiver analysis showing maintenance trends over time. Carbon allows the rich tapestry of Foundry applications and analytical capabilities to be integrated into focused, operational experiences.</p>
+<p><a href="https://www.palantir.com/docs/foundry/carbon/overview/">Learn more about Carbon.</a></p>
+<h3>Solution Designer</h3>
+<p><strong>Solution Designer</strong> is an interactive tool for creating architectural representations of solutions built using the Palantir platform, including representations for first and third-party integration points, links to platform resources, on-demand access to documentation and best practices, and more.</p>
+<p><a href="https://www.palantir.com/docs/foundry/solution-designer/overview/">Learn more about Solution Designer.</a></p>
+<h3>Use Cases</h3>
+<p>The Use Cases application allows builders to organize their work within a single operational interface. By combining the file system view with an ontology management view, developers can access a curated view focused on the work for which they are responsible.</p>
+<p><a href="https://www.palantir.com/docs/foundry/use-cases/use-case-overview/">Learn more about the Use Cases application.</a></p>
+<h2>Developer toolchain</h2>
+<p>The Palantir <a href="https://www.palantir.com/docs/foundry/dev-toolchain/overview/">developer toolchain</a> enables you to build your own applications on top of the Palantir platform using your own tools.</p>
+<p>The centerpiece of the Palantir developer toolchain is the <a href="https://www.palantir.com/docs/foundry/ontology-sdk/overview/">Ontology SDK (OSDK)</a> generated in <a href="https://www.palantir.com/docs/foundry/developer-console/overview/">Developer Console</a>. The Ontology SDK is created either as an npm package for TypeScript or as a pip or Conda package for Python, and it only contains a pre-selected subset of your Ontology. The SDK lets you access object types, apply actions to update data in the Ontology, call functions, and run AIP Logic functions for <a href="https://www.palantir.com/docs/foundry/aip/enable-aip-features/">AIP-enabled</a> enrollments. The Developer Console also includes Ontology-specific documentation for the entities chosen for your application. Applications use the OAuth flow as a public or confidential client to access the data.</p>
+<p><a href="https://www.palantir.com/docs/foundry/ontology-sdk/overview/">Learn more about Ontology SDK.</a></p>
+<p>You can also work directly with Foundry's <a href="https://www.palantir.com/docs/foundry/api/general/overview/introduction/">REST APIs</a> to query objects, apply actions, and call functions against the Ontology from any language or runtime for applications built entirely outside of Foundry.</p>
+</body>
+</html>

@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Walkthrough types</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Walkthrough types</h1>
+<p>The Walkthroughs application offers two types of walkthroughs to support different onboarding workflows.</p>
+<h2>Configure a walkthrough</h2>
+<p>In the Walkthrough configuration page, you can switch between the available multiple and single resource Walkthrough types.</p>
+<p>:::callout{theme="neutral"}
+When you switch types, the primary resource for a step may change. After switching, verify that each stepâs primary resource is correct.
+:::</p>
+<h2>Multiple resource walkthroughs</h2>
+<p>This is the default walkthrough type. Each step has its own primary resource that can be configured to help navigate users through Foundry.</p>
+<p><img alt="The option to choose a multiple resource walkthrough." src="../../_resources/foundry/walkthroughs/multiple-resources-walkthrough.png" /></p>
+<p>You should use this type for walkthroughs that have multiple different resources across steps. If there is a primary resource in a step, Walkthroughs will always navigate the user to that resource. For example, if you have a workflow that requires users to create an action type and then edit a Workshop module, you should use a multiple resources walkthrough.</p>
+<p><img alt="An example of a multiple resource walkthrough, using a Support Ticket workflow." src="../../_resources/foundry/walkthroughs/multiple-resources-walkthrough-example.png" /></p>
+<h2>Single resource walkthroughs</h2>
+<p>Single resource walkthroughs stay focused on one primary application or resource across all steps, removing repetitive setup and keeping context consistent for users.</p>
+<p>You should use this type for walkthroughs or guides that are centered on a single application, Carbon workspace, or other resource.</p>
+<p><img alt="The option to create a single resource walkthrough, using a Support Ticket Portal resource." src="../../_resources/foundry/walkthroughs/single-resource-walkthrough.png" /></p>
+<p>Single resource walkthroughs have a few key differences in behavior compared with multiple resource walkthroughs:</p>
+<ul>
+<li>Auto-navigation is disabled between steps unless the active step has a configured URL suffix.</li>
+<li>In a singleâresource walkthrough, the <strong>Files</strong> tab and resources used in each step are hidden from users.</li>
+<li>Walkthroughs centered on a single Foundry application appear in the Walkthroughs sidebar when the user opens that application.</li>
+</ul>
+<p>When switching to single resource walkthroughs, the primary resource of the walkthrough is automatically added as the primary resource of each step.</p>
+<p>Although secondary resources are hidden in single resource walkthroughs, you can still use them to configure the primary resource. For example, to highlight Workshop modules within a Carbon workspace, add the modules as secondary resources and configure highlighting on them. When Workshop is open within the Carbon workspace, its widgets will be highlighted. You may also use the secondary resource configuration to configure behavior for iframed resources.</p>
+<p><img alt="An example of a single resource walkthrough centered on a Support Ticket Portal resource." src="../../_resources/foundry/walkthroughs/single-resources-walkthrough-example.png" /></p>
+<h2>Walkthrough type feature comparison</h2>
+<table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>Multiple resource type</th>
+<th>Single resource type</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Auto-navigation between steps</td>
+<td>â</td>
+<td>Only with URL suffix</td>
+</tr>
+<tr>
+<td>Files tab visible</td>
+<td>â</td>
+<td>â</td>
+</tr>
+<tr>
+<td>Per-step resources</td>
+<td>â</td>
+<td>â</td>
+</tr>
+<tr>
+<td>Best for</td>
+<td>Cross-platform workflows</td>
+<td>Application-specific training</td>
+</tr>
+</tbody>
+</table>
+</body>
+</html>

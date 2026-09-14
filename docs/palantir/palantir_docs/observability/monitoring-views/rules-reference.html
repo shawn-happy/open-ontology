@@ -1,0 +1,1610 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Monitoring rules reference</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Monitoring rules reference</h1>
+<p>Monitoring rules are configured on a per-resource basis, with rules for the following resources:</p>
+<ul>
+<li><a href="#agent-rules">Agents</a></li>
+<li><a href="#schedule-rules">Schedules</a></li>
+<li><a href="#object-and-link-rules">Objects and links</a></li>
+<li><a href="#streaming-dataset-rules">Streaming datasets</a></li>
+<li><a href="#live-deployment-rules">Live deployments</a></li>
+<li><a href="#time-series-sync-rules">Time series syncs</a></li>
+<li><a href="#geotemporal-observation-rules">Geotemporal observations</a></li>
+<li><a href="#automation-rules">Automations</a></li>
+<li><a href="#dataset-rules">Datasets</a></li>
+<li><a href="#function-rules">Functions</a></li>
+<li><a href="#action-rules">Actions</a></li>
+</ul>
+<p>Most monitoring rules contain a configurable field called <strong>Alert severity</strong>, which is the severity granted to an alert when its condition is triggered. Some rules have a fixed severity, as noted in the tables below. Monitoring views can be configured to only send alerts that meet or exceed a certain severity.</p>
+<table>
+<thead>
+<tr>
+<th>Rule component</th>
+<th>Description</th>
+<th>Example options</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Alert severity</strong></td>
+<td><a href="https://www.palantir.com/docs/foundry/monitoring-views/overview/#configure-monitors"><strong>Severity</strong></a> of monitoring report condition</td>
+<td>Low, Medium, High</td>
+</tr>
+</tbody>
+</table>
+<h2>Agent rules</h2>
+<table>
+<thead>
+<tr>
+<th>Rule</th>
+<th>Configuration</th>
+<th>Conditions</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="#agent-last-heartbeat-time"><strong>Agent last heartbeat time</strong></a></td>
+<td>Configurable</td>
+<td>Single condition</td>
+</tr>
+<tr>
+<td><a href="#agent-manager-last-heartbeat-time"><strong>Agent manager last heartbeat time</strong></a></td>
+<td>Configurable</td>
+<td>Single condition</td>
+</tr>
+<tr>
+<td><a href="#agent-manager-version-stale-time"><strong>Agent manager version stale time</strong></a></td>
+<td>Configurable</td>
+<td>Single condition</td>
+</tr>
+<tr>
+<td><a href="#agent-version-stale-time"><strong>Agent version stale time</strong></a></td>
+<td>Configurable</td>
+<td>Single condition</td>
+</tr>
+<tr>
+<td><a href="#high-cpu-utilization"><strong>High CPU utilization</strong></a></td>
+<td>Configurable</td>
+<td>Single condition</td>
+</tr>
+<tr>
+<td><a href="#jvm-heap-usage-is-close-to-the-limit"><strong>JVM heap usage is close to the limit</strong></a></td>
+<td>Configurable</td>
+<td>Single condition</td>
+</tr>
+<tr>
+<td><a href="#low-disk-space"><strong>Low disk space</strong></a></td>
+<td>Configurable</td>
+<td>Single condition</td>
+</tr>
+<tr>
+<td><a href="#time-until-earliest-keystore-certificate-expires"><strong>Time until earliest keystore certificate expires</strong></a></td>
+<td>Configurable</td>
+<td>Single condition</td>
+</tr>
+<tr>
+<td><a href="#time-until-earliest-truststore-certificate-expires"><strong>Time until earliest truststore certificate expires</strong></a></td>
+<td>Configurable</td>
+<td>Single condition</td>
+</tr>
+<tr>
+<td><a href="#queue-size"><strong>Queue size</strong></a></td>
+<td>Configurable</td>
+<td>Single condition</td>
+</tr>
+</tbody>
+</table>
+<h3>Agent last heartbeat time</h3>
+<p>Alerts when the agent bootstrapper's last heartbeat is older than a set threshold.</p>
+<table>
+<thead>
+<tr>
+<th>Rule component</th>
+<th>Description</th>
+<th>Example options</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>If value is greater than</strong></td>
+<td>Amount of time elapsed since the last heartbeat received from the agent bootstrapper</td>
+<td>10 minutes</td>
+</tr>
+</tbody>
+</table>
+<p><strong>We recommend setting this monitor value to 10 minutes.</strong></p>
+<h3>Agent manager last heartbeat time</h3>
+<p>Alerts when the agent manager's last heartbeat is older than a set threshold.</p>
+<table>
+<thead>
+<tr>
+<th>Rule component</th>
+<th>Description</th>
+<th>Example options</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>If value is greater than</strong></td>
+<td>Amount of time elapsed since the last heartbeat received from the agent manager</td>
+<td>10 minutes</td>
+</tr>
+</tbody>
+</table>
+<h3>Agent manager version stale time</h3>
+<p>Alerts when the agent bootstrapper version has not been upgraded since a set threshold.</p>
+<table>
+<thead>
+<tr>
+<th>Rule component</th>
+<th>Description</th>
+<th>Example options</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>If value is greater than</strong></td>
+<td>Amount of time elapsed since the agent manager has been on an old version</td>
+<td>10 days</td>
+</tr>
+</tbody>
+</table>
+<p><strong>We recommend setting this monitor value to 10 days.</strong></p>
+<h3>Agent version stale time</h3>
+<p>Alerts when the agent version has not been upgraded since a set threshold.</p>
+<table>
+<thead>
+<tr>
+<th>Rule component</th>
+<th>Description</th>
+<th>Example options</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>If value is greater than</strong></td>
+<td>Amount of time elapsed since the agent has been on an older version</td>
+<td>10 days</td>
+</tr>
+</tbody>
+</table>
+<p><strong>We recommend setting this monitor value to 10 days.</strong></p>
+<h3>High CPU utilization</h3>
+<p>Alerts when the agent CPU utilization exceeds a set threshold.</p>
+<table>
+<thead>
+<tr>
+<th>Rule component</th>
+<th>Description</th>
+<th>Example options</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>If value is greater than</strong></td>
+<td>Percentage of CPU utilization</td>
+<td>80</td>
+</tr>
+</tbody>
+</table>
+<p><strong>We recommend setting this monitor value to 80 (%).</strong></p>
+<h3>JVM heap usage is close to the limit</h3>
+<p>Alerts when the JVM heap usage exceeds a set threshold.</p>
+<table>
+<thead>
+<tr>
+<th>Rule component</th>
+<th>Description</th>
+<th>Example options</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>If value is greater than</strong></td>
+<td>Percentage of JVM heap used / JVM heap available</td>
+<td>70</td>
+</tr>
+</tbody>
+</table>
+<p><strong>We recommend setting this monitor value to 70 (%).</strong></p>
+<h3>Low disk space</h3>
+<p>Alerts when the available disk space drops below a set threshold.</p>
+<table>
+<thead>
+<tr>
+<th>Rule component</th>
+<th>Description</th>
+<th>Example options</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>If value is less than</strong></td>
+<td>Available disk space</td>
+<td>10GB</td>
+</tr>
+</tbody>
+</table>
+<p><strong>We recommend setting this monitor value to 10GB.</strong></p>
+<h3>Time until earliest keystore certificate expires</h3>
+<p>Alerts when a certificate in the agent's keystore will expire within a set threshold.</p>
+<table>
+<thead>
+<tr>
+<th>Rule component</th>
+<th>Description</th>
+<th>Example options</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>If value is less than</strong></td>
+<td>Amount of time until a certificate expires</td>
+<td>10 days</td>
+</tr>
+</tbody>
+</table>
+<p>** We recommend setting this monitor value to medium severity at less than 30 days and high severity at less than 10 days.**</p>
+<h3>Time until earliest truststore certificate expires</h3>
+<p>Alerts when a certificate in the agent's truststore will expire within a set threshold.</p>
+<table>
+<thead>
+<tr>
+<th>Rule component</th>
+<th>Description</th>
+<th>Example options</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>If value is less than</strong></td>
+<td>Amount of time until a certificate expires</td>
+<td>10 days</td>
+</tr>
+</tbody>
+</table>
+<p><strong>We recommend setting this monitor value to medium severity at less than 30 days and high severity at less than 10 days.</strong></p>
+<h3>Queue size</h3>
+<p>Alerts when the number of jobs queued on an agent exceeds a set threshold.</p>
+<table>
+<thead>
+<tr>
+<th>Rule component</th>
+<th>Description</th>
+<th>Example options</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>If value is greater than</strong></td>
+<td>The number of jobs in the agent's job queue</td>
+<td>70</td>
+</tr>
+</tbody>
+</table>
+<p><strong>We recommend setting this monitor value to 70 (jobs).</strong></p>
+<h2>Schedule rules</h2>
+<table>
+<thead>
+<tr>
+<th>Rule</th>
+<th>Configuration</th>
+<th>Conditions</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="#consecutive-schedule-failures"><strong>Consecutive schedule failures</strong></a></td>
+<td>Configurable</td>
+<td>Single condition</td>
+</tr>
+<tr>
+<td><a href="#schedule-duration"><strong>Schedule duration</strong></a></td>
+<td>Configurable</td>
+<td>Single condition</td>
+</tr>
+</tbody>
+</table>
+<h3>Consecutive schedule failures</h3>
+<p>Alerts when the number of consecutive schedule failures meets or exceeds a set threshold. This does not count schedule runs that result in a cancelled build.</p>
+<table>
+<thead>
+<tr>
+<th>Rule component</th>
+<th>Description</th>
+<th>Example options</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>If value is greater than or equal to</strong></td>
+<td>Threshold of consecutive schedule failures</td>
+<td>1</td>
+</tr>
+</tbody>
+</table>
+<p>The default behavior for this monitor is to alert with medium severity at one failure and high severity at three failures, though these thresholds are highly dependent on the frequency and stability of the schedules that are included in the monitoring rule's scope.</p>
+<h3>Schedule duration</h3>
+<p>Alerts when a schedule is running longer than a set threshold.</p>
+<table>
+<thead>
+<tr>
+<th>Rule component</th>
+<th>Description</th>
+<th>Example options</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>If value is greater than or equal to</strong></td>
+<td>The duration of the schedule</td>
+<td>2 hours</td>
+</tr>
+<tr>
+<td>This monitor is typically used on highly critical schedules to quickly inform whether or not the schedule will complete in the expected time. Due to the variable nature of schedules, this monitor is often schedule-scoped.</td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h2>Object and link rules</h2>
+<p>:::callout{theme="neutral"}
+A <em>user-caused failure</em> is a job failure that results from a problem with the configuration or input data, such as an invalid schema, a malformed row, or insufficient permissions. These failures are distinguished from transient or infrastructure-related failures, which are not surfaced by these alerts because they are typically resolved automatically by retries.
+:::</p>
+<table>
+<thead>
+<tr>
+<th>Rule</th>
+<th>Configuration</th>
+<th>Conditions</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="#changelog-jobs-failing"><strong>Changelog jobs failing</strong></a></td>
+<td>Configurable</td>
+<td>Single condition</td>
+</tr>
+<tr>
+<td><a href="#merge-changes-job-failing"><strong>Merge changes job failing</strong></a></td>
+<td>Configurable</td>
+<td>Single condition</td>
+</tr>
+<tr>
+<td><a href="#sync-jobs-failing"><strong>Sync jobs failing</strong></a></td>
+<td>Fixed high severity</td>
+<td>Single condition</td>
+</tr>
+<tr>
+<td><a href="#scroll-job-failing-on-pipeline"><strong>Scroll job failing on pipeline</strong></a></td>
+<td>Configurable</td>
+<td>Single condition</td>
+</tr>
+<tr>
+<td><a href="#sync-propagation-delay"><strong>Sync propagation delay</strong></a></td>
+<td>Configurable</td>
+<td>Single condition</td>
+</tr>
+<tr>
+<td><a href="#liveness-time-since-last-successful-checkpoint-objects-and-links"><strong>Liveness: Time since last successful checkpoint</strong></a></td>
+<td>Configurable</td>
+<td>Single condition</td>
+</tr>
+<tr>
+<td><a href="#invalid-stream-records-detected"><strong>Invalid stream records detected</strong></a></td>
+<td>Fixed high severity</td>
+<td>Single condition</td>
+</tr>
+<tr>
+<td><a href="#invalid-direct-write-records-detected"><strong>Invalid direct write records detected</strong></a></td>
+<td>Fixed high severity</td>
+<td>Single condition</td>
+</tr>
+</tbody>
+</table>
+<h3>Changelog jobs failing</h3>
+<p>Alerts when the <a href="https://www.palantir.com/docs/foundry/object-indexing/funnel-batch-pipelines/#changelog">"changelog" job</a> for the object or link is failing on either the <a href="https://www.palantir.com/docs/foundry/object-indexing/funnel-batch-pipelines/#live-pipelines">active pipeline</a> or the <a href="https://www.palantir.com/docs/foundry/object-indexing/funnel-batch-pipelines/#replacement-pipelines">replacement pipeline</a>. Only alerts on user-caused failures.</p>
+<table>
+<thead>
+<tr>
+<th>Rule component</th>
+<th>Description</th>
+<th>Example options</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>If value is greater than or equal to</strong></td>
+<td>Threshold of consecutive user-caused changelog job failures</td>
+<td>1</td>
+</tr>
+</tbody>
+</table>
+<p>The default behavior for this monitor is to alert with medium severity at one failure and high severity at three failures.</p>
+<h3>Merge changes job failing</h3>
+<p>Alerts when the <a href="https://www.palantir.com/docs/foundry/object-indexing/funnel-batch-pipelines/#merge-changes">"merge changes" job</a> for the object or link is failing on either the <a href="https://www.palantir.com/docs/foundry/object-indexing/funnel-batch-pipelines/#live-pipelines">active pipeline</a> or the <a href="https://www.palantir.com/docs/foundry/object-indexing/funnel-batch-pipelines/#replacement-pipelines">replacement pipeline</a>. Only alerts on user-caused failures.</p>
+<table>
+<thead>
+<tr>
+<th>Rule component</th>
+<th>Description</th>
+<th>Example options</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>If value is greater than or equal to</strong></td>
+<td>Threshold of consecutive user-caused merge job failures</td>
+<td>1</td>
+</tr>
+</tbody>
+</table>
+<p>The default behavior for this monitor is to alert with medium severity at one failure and high severity at three failures.</p>
+<h3>Sync jobs failing</h3>
+<p>Alerts with high severity when a foreground <a href="https://www.palantir.com/docs/foundry/object-indexing/funnel-batch-pipelines/#indexing">sync job</a> for the object or link fails terminally on either the <a href="https://www.palantir.com/docs/foundry/object-indexing/funnel-batch-pipelines/#live-pipelines">active pipeline</a> or the <a href="https://www.palantir.com/docs/foundry/object-indexing/funnel-batch-pipelines/#replacement-pipelines">replacement pipeline</a>. A terminal failure means that the job will not be retried, either because the failure is not retryable or because the job encountered too many unrecoverable errors. This rule is non-configurable.</p>
+<h3>Scroll job failing on pipeline</h3>
+<p>Alerts when the <a href="https://www.palantir.com/docs/foundry/object-indexing/funnel-streaming-pipelines/#configuring-streaming-object-types">"scroll" job</a> for the object or link's active or replacement pipeline is failing. Scroll jobs are responsible for streaming data from the backing datasource to the object databases.</p>
+<table>
+<thead>
+<tr>
+<th>Rule component</th>
+<th>Description</th>
+<th>Example options</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>If value is greater than or equal to</strong></td>
+<td>Threshold of consecutive scroll job failures</td>
+<td>3</td>
+</tr>
+</tbody>
+</table>
+<p>The default behavior for this monitor is to alert with low severity at one failure, medium severity at three failures, and high severity at seven failures, and these values are configurable.</p>
+<h3>Sync propagation delay</h3>
+<p>Alerts when a dataset backing the object has a transaction with a sync time that exceeds a set threshold.</p>
+<table>
+<thead>
+<tr>
+<th>Rule component</th>
+<th>Description</th>
+<th>Example options</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>If value is greater than or equal to</strong></td>
+<td>Threshold of time taken to sync a transaction</td>
+<td>1 day</td>
+</tr>
+</tbody>
+</table>
+<h3>Liveness: Time since last successful checkpoint (objects and links)</h3>
+<p>Alerts if a stream backing the object or link has not completed a checkpoint within the configured threshold. This rule detects streams that are not running and streams that are failing to checkpoint. The default threshold is 2 minutes at high severity.</p>
+<table>
+<thead>
+<tr>
+<th>Rule component</th>
+<th>Description</th>
+<th>Example options</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>If value is greater than or equal to</strong></td>
+<td>Threshold of time elapsed since the last successful checkpoint</td>
+<td>2 minutes</td>
+</tr>
+</tbody>
+</table>
+<h3>Invalid stream records detected</h3>
+<p>Alerts when records in an input stream contain format violations. The scroll job ignores these records. This rule is non-configurable, alerting with high severity when the number of ignored rows is greater than or equal to one.</p>
+<h3>Invalid direct write records detected</h3>
+<p>Alerts when direct-write records are rejected because of validation failures. This rule is non-configurable, alerting with high severity when the number of rejected records is greater than or equal to one.</p>
+<h2>Streaming dataset rules</h2>
+<h3>Derived stream monitors</h3>
+<table>
+<thead>
+<tr>
+<th>Rule</th>
+<th>Configuration</th>
+<th>Conditions</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="#last-checkpoint-duration"><strong>Last checkpoint duration</strong></a></td>
+<td>Configurable</td>
+<td>Single condition</td>
+</tr>
+<tr>
+<td><a href="#liveness-time-since-last-successful-checkpoint"><strong>Liveness: Time since last successful checkpoint</strong></a></td>
+<td>Configurable</td>
+<td>Single condition</td>
+</tr>
+<tr>
+<td><a href="#consecutive-checkpoint-failures"><strong>Consecutive checkpoint failures</strong></a></td>
+<td>Configurable</td>
+<td>Single condition</td>
+</tr>
+<tr>
+<td><a href="#checkpoint-trigger-failure-rate"><strong>Checkpoint trigger failure rate</strong></a></td>
+<td>Configurable</td>
+<td>Single condition</td>
+</tr>
+<tr>
+<td><a href="#total-lag"><strong>Total lag</strong></a></td>
+<td>Configurable</td>
+<td>Single condition</td>
+</tr>
+<tr>
+<td><a href="#total-lag-v2"><strong>Total lag V2</strong></a></td>
+<td>Configurable</td>
+<td>Single condition</td>
+</tr>
+<tr>
+<td><a href="#sustained-lag"><strong>Sustained lag</strong></a></td>
+<td>Configurable</td>
+<td>Single condition</td>
+</tr>
+<tr>
+<td><a href="#checkpoint-size"><strong>Checkpoint size</strong></a></td>
+<td>Configurable</td>
+<td>Single condition</td>
+</tr>
+<tr>
+<td><a href="#total-throughput"><strong>Total throughput</strong></a></td>
+<td>Configurable</td>
+<td>Single condition</td>
+</tr>
+<tr>
+<td><a href="#total-throughput-v2-less-than"><strong>Total throughput V2 (less than)</strong></a></td>
+<td>Configurable</td>
+<td>Single condition</td>
+</tr>
+<tr>
+<td><a href="#total-throughput-v2-greater-than"><strong>Total throughput V2 (greater than)</strong></a></td>
+<td>Configurable</td>
+<td>Single condition</td>
+</tr>
+<tr>
+<td><a href="#job-manager-cpu-usage"><strong>Job Manager CPU usage</strong></a></td>
+<td>Configurable</td>
+<td>Single condition</td>
+</tr>
+<tr>
+<td><a href="#job-manager-memory-usage"><strong>Job Manager memory usage</strong></a></td>
+<td>Configurable</td>
+<td>Single condition</td>
+</tr>
+<tr>
+<td><a href="#task-manager-cpu-usage"><strong>Task Manager CPU usage</strong></a></td>
+<td>Configurable</td>
+<td>Single condition</td>
+</tr>
+<tr>
+<td><a href="#task-manager-memory-usage"><strong>Task Manager memory usage</strong></a></td>
+<td>Configurable</td>
+<td>Single condition</td>
+</tr>
+</tbody>
+</table>
+<h4>Last checkpoint duration</h4>
+<p>Alerts if the last checkpoint took more time than the configured threshold to complete.</p>
+<table>
+<thead>
+<tr>
+<th>Rule component</th>
+<th>Description</th>
+<th>Example options</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>If value is greater than</strong></td>
+<td>Threshold of time taken to checkpoint</td>
+<td>7 minutes</td>
+</tr>
+</tbody>
+</table>
+<h4>Liveness: Time since last successful checkpoint</h4>
+<p>Alerts if the stream has not completed a checkpoint since the configured threshold. The default threshold configuration is 5 minutes. This monitor encompasses streams that are not running as well as streams failing a checkpoint.</p>
+<table>
+<thead>
+<tr>
+<th>Rule component</th>
+<th>Description</th>
+<th>Example options</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>If value is greater than or equal to</strong></td>
+<td>Threshold of time elapsed since last checkpoint</td>
+<td>5 minutes</td>
+</tr>
+</tbody>
+</table>
+<h4>Consecutive checkpoint failures</h4>
+<p>Alerts when the number of consecutive checkpoint failures meets or exceeds the configured threshold. The default high-severity threshold is five failures.</p>
+<table>
+<thead>
+<tr>
+<th>Rule component</th>
+<th>Description</th>
+<th>Example options</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>If value is greater than or equal to</strong></td>
+<td>Threshold of consecutive checkpoint failures</td>
+<td>5</td>
+</tr>
+</tbody>
+</table>
+<h4>Checkpoint trigger failure rate</h4>
+<p>Alerts when the number of checkpoint trigger failures over a configured window exceeds the specified threshold.</p>
+<table>
+<thead>
+<tr>
+<th>Rule component</th>
+<th>Description</th>
+<th>Example options</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>If value is greater than</strong></td>
+<td>Threshold of checkpoint trigger failures</td>
+<td>0</td>
+</tr>
+<tr>
+<td><strong>Time window</strong></td>
+<td>The time period to count checkpoint trigger failures in</td>
+<td>5 minutes</td>
+</tr>
+</tbody>
+</table>
+<h4>Total lag</h4>
+<p>Alerts if a stream's lag (total unprocessed upstream records) exceeds the set threshold.</p>
+<table>
+<thead>
+<tr>
+<th>Rule component</th>
+<th>Description</th>
+<th>Example options</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>If value is greater than</strong></td>
+<td>Threshold of unprocessed upstream records</td>
+<td>1000</td>
+</tr>
+</tbody>
+</table>
+<p>This monitor indicates that streaming transforms are taking too long to run, or there is a problem with the streaming transforms infrastructure.</p>
+<h4>Total lag V2</h4>
+<p>Alerts when the total number of unprocessed records from streaming inputs meets or exceeds the configured threshold throughout a 5-minute window. The default high-severity threshold is 1,000 records.</p>
+<table>
+<thead>
+<tr>
+<th>Rule component</th>
+<th>Description</th>
+<th>Example options</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>If value is greater than or equal to</strong></td>
+<td>Threshold of unprocessed records</td>
+<td>1,000</td>
+</tr>
+</tbody>
+</table>
+<h4>Sustained lag</h4>
+<p>Alerts when the total number of unprocessed records stays at or above the configured threshold for the entire configured window. You can configure a window from 2 minutes through 1 hour; the default is 5 minutes.</p>
+<table>
+<thead>
+<tr>
+<th>Rule component</th>
+<th>Description</th>
+<th>Example options</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>If value is greater than or equal to</strong></td>
+<td>Threshold of unprocessed records</td>
+<td>1,000</td>
+</tr>
+<tr>
+<td><strong>Time window</strong></td>
+<td>Time during which lag must remain above the threshold</td>
+<td>5 minutes</td>
+</tr>
+</tbody>
+</table>
+<h4>Checkpoint size</h4>
+<p>Alerts when the latest checkpoint size exceeds the configured threshold.</p>
+<table>
+<thead>
+<tr>
+<th>Rule component</th>
+<th>Description</th>
+<th>Example options</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>If value is greater than</strong></td>
+<td>Threshold of checkpoint size, in bytes</td>
+<td>100 bytes</td>
+</tr>
+</tbody>
+</table>
+<h4>Total throughput</h4>
+<p>Alerts if a stream's throughput (records processed per checkpoints) falls below the set threshold.</p>
+<table>
+<thead>
+<tr>
+<th>Rule component</th>
+<th>Description</th>
+<th>Example options</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>If value is less than</strong></td>
+<td>Threshold of records processed per checkpoint</td>
+<td>100</td>
+</tr>
+</tbody>
+</table>
+<p>This monitor indicates that streaming transforms are taking too long to run, or there is a problem with the streaming transforms infrastructure.</p>
+<h4>Total throughput V2 (less than)</h4>
+<p>Alerts when the number of records processed per checkpoint from streaming inputs stays below the configured threshold throughout a 5-minute window.</p>
+<table>
+<thead>
+<tr>
+<th>Rule component</th>
+<th>Description</th>
+<th>Example options</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>If value is less than</strong></td>
+<td>Threshold of records processed per checkpoint</td>
+<td>100</td>
+</tr>
+</tbody>
+</table>
+<h4>Total throughput V2 (greater than)</h4>
+<p>Alerts when the number of records processed per checkpoint from streaming inputs stays above the configured threshold throughout a 5-minute window.</p>
+<table>
+<thead>
+<tr>
+<th>Rule component</th>
+<th>Description</th>
+<th>Example options</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>If value is greater than</strong></td>
+<td>Threshold of records processed per checkpoint</td>
+<td>100</td>
+</tr>
+</tbody>
+</table>
+<h4>Job Manager CPU usage</h4>
+<p>Alerts when Job Manager CPU utilization exceeds the configured threshold.</p>
+<table>
+<thead>
+<tr>
+<th>Rule component</th>
+<th>Description</th>
+<th>Example options</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>If value is greater than</strong></td>
+<td>Threshold of Job Manager CPU utilization</td>
+<td>80%</td>
+</tr>
+</tbody>
+</table>
+<h4>Job Manager memory usage</h4>
+<p>Alerts when Job Manager memory utilization exceeds the configured threshold.</p>
+<table>
+<thead>
+<tr>
+<th>Rule component</th>
+<th>Description</th>
+<th>Example options</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>If value is greater than</strong></td>
+<td>Threshold of Job Manager memory utilization</td>
+<td>80%</td>
+</tr>
+</tbody>
+</table>
+<h4>Task Manager CPU usage</h4>
+<p>Alerts when CPU utilization for a Task Manager meets or exceeds the configured threshold throughout a 10-minute window.</p>
+<table>
+<thead>
+<tr>
+<th>Rule component</th>
+<th>Description</th>
+<th>Example options</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>If value is greater than or equal to</strong></td>
+<td>Threshold of Task Manager CPU utilization</td>
+<td>80%</td>
+</tr>
+</tbody>
+</table>
+<h4>Task Manager memory usage</h4>
+<p>Alerts when memory utilization for a Task Manager meets or exceeds the configured threshold throughout a 10-minute window.</p>
+<table>
+<thead>
+<tr>
+<th>Rule component</th>
+<th>Description</th>
+<th>Example options</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>If value is greater than or equal to</strong></td>
+<td>Threshold of Task Manager memory utilization</td>
+<td>80%</td>
+</tr>
+</tbody>
+</table>
+<h3>Ingest stream monitors</h3>
+<table>
+<thead>
+<tr>
+<th>Rule</th>
+<th>Configuration</th>
+<th>Conditions</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="#records-ingested-over-selected-window"><strong>Records ingested over selected window</strong></a></td>
+<td>Configurable</td>
+<td>Single condition</td>
+</tr>
+<tr>
+<td><a href="#total-throughput-less-than-or-equal-to"><strong>Total throughput (less than or equal to)</strong></a></td>
+<td>Configurable</td>
+<td>Single condition</td>
+</tr>
+<tr>
+<td><a href="#total-throughput-greater-than-or-equal-to"><strong>Total throughput (greater than or equal to)</strong></a></td>
+<td>Configurable</td>
+<td>Single condition</td>
+</tr>
+<tr>
+<td><a href="#high-source-staleness"><strong>High source staleness</strong></a></td>
+<td>Configurable</td>
+<td>Single condition</td>
+</tr>
+</tbody>
+</table>
+<h4>Records ingested over selected window</h4>
+<p>Alerts if the number of records ingested into the raw stream's live view over the selected time window was less than or equal to the configured threshold. Available windows are 5 minutes, 30 minutes, 1 hour, 4 hours, and 1 day.</p>
+<table>
+<thead>
+<tr>
+<th>Rule component</th>
+<th>Description</th>
+<th>Example options</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>If value is less than or equal to</strong></td>
+<td>Threshold of ingested records per unit time</td>
+<td>100</td>
+</tr>
+</tbody>
+</table>
+<h4>Total throughput (less than or equal to)</h4>
+<p>Alerts when the number of records processed per second stays at or below the configured threshold throughout a 5-minute window.</p>
+<table>
+<thead>
+<tr>
+<th>Rule component</th>
+<th>Description</th>
+<th>Example options</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>If value is less than or equal to</strong></td>
+<td>Threshold of records processed per second</td>
+<td>100</td>
+</tr>
+</tbody>
+</table>
+<h4>Total throughput (greater than or equal to)</h4>
+<p>Alerts when the number of records processed per second stays at or above the configured threshold throughout a 5-minute window.</p>
+<table>
+<thead>
+<tr>
+<th>Rule component</th>
+<th>Description</th>
+<th>Example options</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>If value is greater than or equal to</strong></td>
+<td>Threshold of records processed per second</td>
+<td>100</td>
+</tr>
+</tbody>
+</table>
+<h4>High source staleness</h4>
+<p>Alerts when source data staleness exceeds the configured threshold. This rule is available only when latency sampling is enabled and the data connection task supplies a source timestamp.</p>
+<table>
+<thead>
+<tr>
+<th>Rule component</th>
+<th>Description</th>
+<th>Example options</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>If value is greater than</strong></td>
+<td>Threshold of source data staleness</td>
+<td>20 seconds</td>
+</tr>
+</tbody>
+</table>
+<h2>Live deployment rules</h2>
+<table>
+<thead>
+<tr>
+<th>Rule</th>
+<th>Configuration</th>
+<th>Conditions</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="#live-deployment-heartbeat"><strong>Live deployment heartbeat</strong></a></td>
+<td>Configurable</td>
+<td>Single condition</td>
+</tr>
+</tbody>
+</table>
+<h3>Live deployment heartbeat</h3>
+<p>Alerts when deployment has not emitted a heartbeat for more than one minute.</p>
+<table>
+<thead>
+<tr>
+<th>Rule component</th>
+<th>Description</th>
+<th>Example options</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>If value is greater than or equal to</strong></td>
+<td>Threshold of time elapsed since last heartbeat</td>
+<td>1 minute</td>
+</tr>
+</tbody>
+</table>
+<h2>Time series sync rules</h2>
+<table>
+<thead>
+<tr>
+<th>Rule</th>
+<th>Configuration</th>
+<th>Conditions</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="#points-written-by-the-time-series-sync-over-last-5-or-30-minutes"><strong>Points written by the time series sync over last 5 or 30 minutes</strong></a></td>
+<td>Configurable</td>
+<td>Single condition</td>
+</tr>
+<tr>
+<td><a href="#time-series-stream-liveness-time-since-last-successful-checkpoint"><strong>Time series stream liveness: Time since last successful checkpoint</strong></a></td>
+<td>Configurable</td>
+<td>Single condition</td>
+</tr>
+</tbody>
+</table>
+<h3>Points written by the time series sync over last 5 or 30 minutes</h3>
+<p>Alerts if the number of points written by the time series sync over the last 5 or 30 minute window was less than or equal to the configured threshold.</p>
+<table>
+<thead>
+<tr>
+<th>Rule component</th>
+<th>Description</th>
+<th>Example options</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>If value is less than or equal to</strong></td>
+<td>Threshold of points written per unit time</td>
+<td>100</td>
+</tr>
+</tbody>
+</table>
+<h3>Time series stream liveness: Time since last successful checkpoint</h3>
+<p>Alerts if the streaming time series sync has not completed a checkpoint since the configured threshold. The default high-severity threshold is 2 minutes.</p>
+<table>
+<thead>
+<tr>
+<th>Rule component</th>
+<th>Description</th>
+<th>Example options</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>If value is greater than or equal to</strong></td>
+<td>Threshold of time elapsed since the last successful checkpoint</td>
+<td>2 minutes</td>
+</tr>
+</tbody>
+</table>
+<h2>Dataset rules</h2>
+<table>
+<thead>
+<tr>
+<th>Rule</th>
+<th>Configuration</th>
+<th>Conditions</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="#time-since-job-last-succeeded"><strong>Time since job last succeeded</strong></a></td>
+<td>Configurable</td>
+<td>Single condition</td>
+</tr>
+</tbody>
+</table>
+<h3>Time since job last succeeded</h3>
+<p>Alerts when a job on a dataset has not succeeded within a specified time threshold. Unlike the "Time since last updated" health check, the following conditions count as a passing status for the monitor:</p>
+<ul>
+<li>The job succeeded, but the transaction was aborted</li>
+<li>The job succeeded, but no new data was added</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>Rule component</th>
+<th>Description</th>
+<th>Example options</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>If value is greater than or equal to</strong></td>
+<td>Amount of time elapsed since a job last succeeded</td>
+<td>1 day</td>
+</tr>
+</tbody>
+</table>
+<p><strong>We recommend setting this monitor value based on your dataset's expected update frequency. For daily updates, set it to 1 day.</strong></p>
+<h2>Geotemporal observation rules</h2>
+<table>
+<thead>
+<tr>
+<th>Rule</th>
+<th>Configuration</th>
+<th>Conditions</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="#geotemporal-observations-sent-over-last-5-or-30-minutes"><strong>Geotemporal observations sent over last 5 or 30 minutes</strong></a></td>
+<td>Configurable</td>
+<td>Single condition</td>
+</tr>
+</tbody>
+</table>
+<h3>Geotemporal observations sent over last 5 or 30 minutes</h3>
+<p>Alerts if the number of geotemporal observations sent over the last 5 or 30 minute window was less than or equal to the configured threshold.</p>
+<table>
+<thead>
+<tr>
+<th>Rule component</th>
+<th>Description</th>
+<th>Example options</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>If value is less than or equal to</strong></td>
+<td>Threshold of geotemporal observations sent per unit time</td>
+<td>100</td>
+</tr>
+</tbody>
+</table>
+<h2>Automation rules</h2>
+<p>The following rules apply to both automations and time series streaming automations.</p>
+<table>
+<thead>
+<tr>
+<th>Rule</th>
+<th>Configuration</th>
+<th>Conditions</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="#automation-has-no-new-evaluations"><strong>Automation has no new evaluations</strong></a></td>
+<td>Configurable</td>
+<td>Single condition</td>
+</tr>
+<tr>
+<td><a href="#automation-has-no-new-triggers"><strong>Automation has no new triggers</strong></a></td>
+<td>Configurable</td>
+<td>Single condition</td>
+</tr>
+<tr>
+<td><a href="#automation-has-been-disabled-by-the-system"><strong>Automation has been disabled by the system</strong></a></td>
+<td>Fixed high severity</td>
+<td>Single condition</td>
+</tr>
+<tr>
+<td><a href="#automation-had-repeated-execution-failures-in-a-window"><strong>Automation had repeated execution failures in a window</strong></a></td>
+<td>Configurable</td>
+<td>Single condition</td>
+</tr>
+<tr>
+<td><a href="#automation-had-repeated-evaluation-failures-in-a-window"><strong>Automation had repeated evaluation failures in a window</strong></a></td>
+<td>Configurable</td>
+<td>Single condition</td>
+</tr>
+<tr>
+<td><a href="#automation-had-a-high-number-of-effect-execution-failures-in-a-window"><strong>Automation had a high number of effect execution failures in a window</strong></a></td>
+<td>Configurable</td>
+<td>Single condition</td>
+</tr>
+</tbody>
+</table>
+<h3>Automation has no new evaluations</h3>
+<p>Alerts if there has been no new evaluation since the configured threshold. Use this rule to detect performance degradation in an automation that should have been evaluated but did not. This rule does not alert when the automation has not been triggered.</p>
+<table>
+<thead>
+<tr>
+<th>Rule component</th>
+<th>Description</th>
+<th>Example options</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>If value is greater than or equal to</strong></td>
+<td>Threshold of time elapsed since last automation evaluation</td>
+<td>1 hour</td>
+</tr>
+</tbody>
+</table>
+<h3>Automation has no new triggers</h3>
+<p>Alerts if there have been no new monitor triggers within the configured threshold. Use this rule to detect when an automation is not being triggered as expected.</p>
+<table>
+<thead>
+<tr>
+<th>Rule component</th>
+<th>Description</th>
+<th>Example options</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>If value is greater than or equal to</strong></td>
+<td>Threshold of time elapsed since last automation trigger</td>
+<td>1 day</td>
+</tr>
+</tbody>
+</table>
+<h3>Automation has been disabled by the system</h3>
+<p>Alerts if an automation was disabled by the system due to reaching limits or triggering cycles. This rule is non-configurable, alerting with high severity when the automation is disabled.</p>
+<h3>Automation had repeated execution failures in a window</h3>
+<p>Alerts when the number of failed automation executions in the window exceeds the configured threshold. Use this rule to surface automations that keep running and failing rather than ones the system has already disabled.</p>
+<table>
+<thead>
+<tr>
+<th>Rule component</th>
+<th>Description</th>
+<th>Example options</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>If value is greater than</strong></td>
+<td>Threshold of number of failed executions</td>
+<td>0</td>
+</tr>
+<tr>
+<td><strong>Time window</strong></td>
+<td>The time period to count failed executions in</td>
+<td>1 hour</td>
+</tr>
+</tbody>
+</table>
+<h3>Automation had repeated evaluation failures in a window</h3>
+<p>Alerts when the number of failed automation evaluations in the window exceeds the configured threshold. Use this rule to catch automations whose trigger conditions fail to evaluate, separately from failures that occur during execution.</p>
+<table>
+<thead>
+<tr>
+<th>Rule component</th>
+<th>Description</th>
+<th>Example options</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>If value is greater than</strong></td>
+<td>Threshold of number of failed evaluations</td>
+<td>0</td>
+</tr>
+<tr>
+<td><strong>Time window</strong></td>
+<td>The time period to count failed evaluations in</td>
+<td>1 hour</td>
+</tr>
+</tbody>
+</table>
+<h3>Automation had a high number of effect execution failures in a window</h3>
+<p>Alerts when the number of failed effect executions in the window exceeds the configured threshold. Effects are the downstream actions or notifications the automation runs. Use this rule to catch automations whose effects fail even when their triggers and evaluations succeed.</p>
+<table>
+<thead>
+<tr>
+<th>Rule component</th>
+<th>Description</th>
+<th>Example options</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>If value is greater than</strong></td>
+<td>Threshold of number of failed effect executions</td>
+<td>0</td>
+</tr>
+<tr>
+<td><strong>Time window</strong></td>
+<td>The time period to count failed effect executions in</td>
+<td>1 hour</td>
+</tr>
+</tbody>
+</table>
+<h2>Function rules</h2>
+<p>Function executions can fail for a variety of reasons. For a full list of failure types, see <a href="https://www.palantir.com/docs/foundry/functions/function-metrics/#function-failure-types">function failure types</a>.</p>
+<table>
+<thead>
+<tr>
+<th>Rule</th>
+<th>Configuration</th>
+<th>Conditions</th>
+<th>Failure types included</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="#function-duration-p95"><strong>Function duration p95</strong></a></td>
+<td>Configurable</td>
+<td>Single condition</td>
+<td>Not applicable</td>
+</tr>
+<tr>
+<td><a href="#number-of-function-failures-in-window"><strong>Number of function failures in window</strong></a></td>
+<td>Configurable</td>
+<td>Single condition</td>
+<td>All</td>
+</tr>
+<tr>
+<td><a href="#number-of-user-facing-function-failures-in-window"><strong>Number of user-facing function failures in window</strong></a></td>
+<td>Configurable</td>
+<td>Single condition</td>
+<td>User-facing only</td>
+</tr>
+<tr>
+<td><a href="#number-of-non-user-facing-function-failures-in-window"><strong>Number of non-user-facing function failures in window</strong></a></td>
+<td>Configurable</td>
+<td>Single condition</td>
+<td>All except user-facing</td>
+</tr>
+<tr>
+<td><a href="#function-failure-rate-in-window"><strong>Function failure rate in window</strong></a></td>
+<td>Configurable</td>
+<td>Composite (<code>AND</code>)</td>
+<td>All</td>
+</tr>
+<tr>
+<td><a href="#non-user-facing-function-failure-rate-in-window"><strong>Non-user-facing function failure rate in window</strong></a></td>
+<td>Configurable</td>
+<td>Composite (<code>AND</code>)</td>
+<td>All except user-facing</td>
+</tr>
+</tbody>
+</table>
+<p>Composite rules combine a failure-percentage threshold with a minimum run-count threshold. The rule triggers only when both conditions reach a configured severity, which prevents alerts based on too little data.</p>
+<h3>Function duration p95</h3>
+<p>Alerts when the p95 function duration exceeds the specified thresholds. The p95 is measured over a sliding window of recent data.</p>
+<table>
+<thead>
+<tr>
+<th>Rule component</th>
+<th>Description</th>
+<th>Example options</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>If value is greater than</strong></td>
+<td>Threshold of duration</td>
+<td>10s</td>
+</tr>
+</tbody>
+</table>
+<h3>Number of function failures in window</h3>
+<p>Alerts when the total number of failed executions of a function in the given window exceeds a given threshold. This rule tracks <a href="#function-rules">all failure types</a>, including both user-facing and non-user-facing errors.</p>
+<table>
+<thead>
+<tr>
+<th>Rule component</th>
+<th>Description</th>
+<th>Example options</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>If value is greater than</strong></td>
+<td>Threshold of number of failures</td>
+<td>0</td>
+</tr>
+<tr>
+<td><strong>Time window</strong></td>
+<td>The time period to count failures in</td>
+<td>1 hour</td>
+</tr>
+</tbody>
+</table>
+<h3>Number of user-facing function failures in window</h3>
+<p>Alerts when the number of user-facing function failures over a given window exceeds the specified thresholds. This rule tracks only <a href="#function-rules">user-facing errors</a> thrown by function code.</p>
+<table>
+<thead>
+<tr>
+<th>Rule component</th>
+<th>Description</th>
+<th>Example options</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>If value is greater than</strong></td>
+<td>Threshold of number of failures</td>
+<td>0</td>
+</tr>
+<tr>
+<td><strong>Time window</strong></td>
+<td>The time period to count failures in</td>
+<td>1 hour</td>
+</tr>
+</tbody>
+</table>
+<h3>Number of non-user-facing function failures in window</h3>
+<p>Alerts when the number of function failures over a given window exceeds the specified thresholds, excluding user-facing errors thrown by function code. This rule is useful for monitoring infrastructure and system-level failures without noise from expected user input errors.</p>
+<table>
+<thead>
+<tr>
+<th>Rule component</th>
+<th>Description</th>
+<th>Example options</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>If value is greater than</strong></td>
+<td>Threshold of number of failures</td>
+<td>0</td>
+</tr>
+<tr>
+<td><strong>Time window</strong></td>
+<td>The time period to count failures in</td>
+<td>1 hour</td>
+</tr>
+</tbody>
+</table>
+<h3>Function failure rate in window</h3>
+<p>Alerts when both the percentage of function runs that fail and the total number of runs exceed the specified thresholds over a given window. The total run count condition prevents the rule from triggering on low-traffic functions.</p>
+<table>
+<thead>
+<tr>
+<th>Rule component</th>
+<th>Description</th>
+<th>Example options</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Failure percentage (%) is greater than</strong></td>
+<td>Threshold for the percentage of runs that fail, from 0 through 100</td>
+<td>10</td>
+</tr>
+<tr>
+<td><strong>Total run count is greater than</strong></td>
+<td>Minimum number of runs required before the rule triggers</td>
+<td>10</td>
+</tr>
+<tr>
+<td><strong>Time window</strong></td>
+<td>The time period used to calculate both conditions</td>
+<td>5 minutes</td>
+</tr>
+</tbody>
+</table>
+<h3>Non-user-facing function failure rate in window</h3>
+<p>Alerts when both the percentage of function runs that fail with non-user-facing errors and the total number of runs exceed the specified thresholds over a given window. This rule excludes user-facing errors thrown by function code. The total run count condition prevents the rule from triggering on low-traffic functions.</p>
+<table>
+<thead>
+<tr>
+<th>Rule component</th>
+<th>Description</th>
+<th>Example options</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Failure percentage (%) is greater than</strong></td>
+<td>Threshold for the percentage of runs that fail with non-user-facing errors, from 0 through 100</td>
+<td>10</td>
+</tr>
+<tr>
+<td><strong>Total run count is greater than</strong></td>
+<td>Minimum number of runs required before the rule triggers</td>
+<td>10</td>
+</tr>
+<tr>
+<td><strong>Time window</strong></td>
+<td>The time period used to calculate both conditions</td>
+<td>5 minutes</td>
+</tr>
+</tbody>
+</table>
+<h2>Action rules</h2>
+<p>Action executions can fail for a variety of reasons. For a full list of failure types, see <a href="https://www.palantir.com/docs/foundry/action-types/action-metrics/#action-failure-types">action failure types</a>.</p>
+<table>
+<thead>
+<tr>
+<th>Rule</th>
+<th>Configuration</th>
+<th>Conditions</th>
+<th>Failure types included</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="#action-duration-p95"><strong>Action duration p95</strong></a></td>
+<td>Configurable</td>
+<td>Single condition</td>
+<td>Not applicable</td>
+</tr>
+<tr>
+<td><a href="#number-of-action-failures-in-window"><strong>Number of action failures in window</strong></a></td>
+<td>Configurable</td>
+<td>Single condition</td>
+<td>All</td>
+</tr>
+<tr>
+<td><a href="#number-of-non-user-facing-action-failures-in-window"><strong>Number of non-user-facing action failures in window</strong></a></td>
+<td>Configurable</td>
+<td>Single condition</td>
+<td>All except user-facing function failures</td>
+</tr>
+</tbody>
+</table>
+<h3>Action duration p95</h3>
+<p>Alerts when the p95 action duration exceeds the specified thresholds. The p95 is measured over a sliding window of recent data.</p>
+<table>
+<thead>
+<tr>
+<th>Rule component</th>
+<th>Description</th>
+<th>Example options</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>If value is greater than</strong></td>
+<td>Threshold of duration</td>
+<td>10s</td>
+</tr>
+</tbody>
+</table>
+<h3>Number of action failures in window</h3>
+<p>Alerts when the total number of failed executions of an action in the given window exceeds a given threshold. This rule tracks <a href="#action-rules">all failure types</a>, including both user-facing and non-user-facing errors.</p>
+<table>
+<thead>
+<tr>
+<th>Rule component</th>
+<th>Description</th>
+<th>Example options</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>If value is greater than</strong></td>
+<td>Threshold of number of failures</td>
+<td>0</td>
+</tr>
+<tr>
+<td><strong>Time window</strong></td>
+<td>The time period to count failures in</td>
+<td>1 hour</td>
+</tr>
+</tbody>
+</table>
+<h3>Number of non-user-facing action failures in window</h3>
+<p>Alerts when the number of action failures over a given window exceeds the specified thresholds, excluding failures caused by user-facing errors thrown by function-backed action code. This rule is useful for monitoring infrastructure and system-level failures without noise from expected user input errors.</p>
+<p>This rule tracks <a href="#action-rules">all failure types</a> <em>except</em> user-facing function failures thrown by function code and displayed to users.</p>
+<table>
+<thead>
+<tr>
+<th>Rule component</th>
+<th>Description</th>
+<th>Example options</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>If value is greater than</strong></td>
+<td>Threshold of number of failures</td>
+<td>0</td>
+</tr>
+<tr>
+<td><strong>Time window</strong></td>
+<td>The time period to count failures in</td>
+<td>1 hour</td>
+</tr>
+</tbody>
+</table>
+</body>
+</html>

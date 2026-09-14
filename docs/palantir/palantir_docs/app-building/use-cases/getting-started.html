@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Getting started</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Getting started</h1>
+<h2>Build a new use case</h2>
+<p>In this tutorial, we will use the Use Cases application to create a new use case with a variety of application and Ontology resources. We can then navigate to applications like Workshop and Ontology Manager directly from the use case overview page, as well as add additional applications.</p>
+<h2>Part 1: Create a use case</h2>
+<p>First, we need to access the Use Cases application.</p>
+<p>When logged into Foundry, access the Use Cases app from the left-side navigation bar under <strong>Platform Apps</strong>. If the application is not visible, select <strong>View all</strong> and find <strong>Use Cases</strong> under the <strong>Operational applications</strong> section of the <strong>Platform apps</strong> search window that appears.</p>
+<p>You will now be on the home page of the Use Cases app. This page will be empty if you have not yet created a use case.</p>
+<p>In the right side of the <strong>All use cases</strong> section, click <strong>+ Create new</strong>. This will open the <strong>Create use case</strong> modal. Add the use case name and description. In our example, the use case name is âFlight alert use caseâ, and the description is âUse case for managing flight alerts and updating schedules."</p>
+<p><img alt="Create use case modal" src="../../_resources/foundry/use-cases/create-use-case.png" /></p>
+<p>In this tutorial, we will create a new backing Project in the filesystem. Click <strong>+ Create new</strong> in the bottom right corner to open the <strong>Create new project</strong> modal that will allow you to add a new Project to your Foundry filesystem. Add a name, optional description, and <a href="https://www.palantir.com/docs/foundry/platform-security-management/manage-orgs-and-spaces/#spaces">space</a> for your Project.</p>
+<p>Your space will determine the default Organization and role for users in your Organization. In our example, our Project is named âFlight Alert Projectâ with the description âBacking Project for Flight Alert use caseâ. Our space is <code>Palantir</code>, our Organization is <code>Palantir</code>, and the default role is <code>Viewer</code>.</p>
+<p><img alt="Create new Project modal" src="../../_resources/foundry/use-cases/create-new-project.png" /></p>
+<p>Select <strong>Create</strong> to create the new Project and return to the <strong>Create use case</strong> modal. Select <strong>Create</strong> again to create your use case and enter the <a href="https://www.palantir.com/docs/foundry/use-cases/use-case-overview/">use case overview</a> page.</p>
+<p>Learn more about <a href="https://www.palantir.com/docs/foundry/security/orgs-and-spaces/">Organizations</a>, <a href="https://www.palantir.com/docs/foundry/security/projects-and-roles/">roles</a>, and other <a href="https://www.palantir.com/docs/foundry/security/overview/#platform-security">platform security</a> concepts.</p>
+<h2>Part 2: Edit metadata</h2>
+<p>After creating your use case and backing Project, you can modify the metadata that helps define your use case. This metadata includes the use case name, description, owners, and status.</p>
+<p>At this point, your use case overview should look like this:</p>
+<p><img alt="An example use case overview page in an empty state" src="../../_resources/foundry/use-cases/use-case-overview-empty.png" /></p>
+<p>Note that you will be the technical owner of the use case by default. In our example, we are using a <code>test</code> user.</p>
+<h3>Name</h3>
+<p>If you want to change the name of your use case, you can do so from the use case overview page. Click on the use case name at the top of the page and edit within the text field.</p>
+<p><img alt="Rename the name of your use case" src="../../_resources/foundry/use-cases/rename-use-case.png" /></p>
+<h3>Description</h3>
+<p>You can easily change the description of your use case by clicking on the description and editing within the text field.</p>
+<p><img alt="Modify use case description text" src="../../_resources/foundry/use-cases/modify-use-case-description.png" /></p>
+<h3>Owners</h3>
+<p>There are two types of owners that you can assign to your use case: <strong>Technical</strong> and <strong>Business</strong>.</p>
+<ul>
+<li><strong>Technical owner:</strong> The technical owner is generally the application builder who is responsible for using Foundry resources to create application outputs for the use case.</li>
+<li>You are the default technical owner of your use case.</li>
+<li><strong>Business owner:</strong> The business owner is typically a user who tracks workflow progress and financial details of a use case.</li>
+<li>There is no default user assigned as a business owner to your use case.</li>
+</ul>
+<p>To change the owners of your use case, hover over the name or empty field and click on the pencil icon. This will open a search dropdown where you can scroll through or search for available users. As we do not yet have a business owner for our use case, we will assign one now.</p>
+<p><img alt="Use case with only a technical owner assigned" src="../../_resources/foundry/use-cases/use-case-tech-owner.png" /></p>
+<p>We added user <code>test2</code> to be the business owner of our use case.</p>
+<p><img alt="Use case with both a technical and business owner assigned" src="../../_resources/foundry/use-cases/use-case-business-owner.png" /></p>
+<h3>Status</h3>
+<p>You can assign your use case a status relevant to its operation status:</p>
+<ul>
+<li><strong>Active:</strong> Published and operating within your Foundry instance.</li>
+<li><strong>Experimental:</strong> In-progress and not actively published.</li>
+<li><strong>Deprecated:</strong> No longer in operation.</li>
+</ul>
+<p>Change the status of your use case from <code>Experimental</code> to <code>Active</code>. Click on the status dropdown, choose <code>Active</code>, then click <strong>Change status</strong>.</p>
+<p><img alt="Choice of status labels for use case metadata" src="../../_resources/foundry/use-cases/use-case-statuses.png" /></p>
+<h2>Part 3: Add resources</h2>
+<p>Now that we have created a new use case with a backing Project, we can begin adding application resources. Start by creating a new Workshop module.</p>
+<p>From your use case overview page, find the <strong>Applications</strong> section in the middle and click <strong>+ Add new application</strong>. Choose the Workshop option, then click <strong>Create</strong>.</p>
+<p><img alt="Create new application modal" src="../../_resources/foundry/use-cases/create-new-application.png" /></p>
+<p>The new workshop module will be created and opened. From here, you can name the module and choose from various widgets to configure and use. Learn more about <a href="https://www.palantir.com/docs/foundry/workshop/overview/">creating interactive modules</a> in Workshop.</p>
+<p>You can <a href="https://www.palantir.com/docs/foundry/use-cases/navigation/#navigation-between-foundry-applications">navigate back</a> to the use case by clicking the top left header of the Workshop module name.</p>
+</body>
+</html>

@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AIP Critic</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>AIP Critic</h1>
+<p>AIP Critic is an AI-powered diagram review and analysis tool that helps you evaluate your solution architecture through an interactive conversation. AIP Critic examines your diagram, organizes it into logical sections, and answers questions about your architecture's design, implementation approach, and potential improvements. Within Solution Designer, AIP Critic provides a chat-based interface where you can ask questions about your diagram and receive contextual guidance. The tool automatically analyzes your diagram's structure, categorizes components, and offers insights based on Palantir platform best practices.</p>
+<h2>When to use AIP Critic</h2>
+<p>Use AIP Critic to:</p>
+<ul>
+<li>Validate your architecture design and identify potential issues.</li>
+<li>Get suggestions for alternative approaches or improvements.</li>
+<li>Understand how different components interact in your solution.</li>
+<li>Generate implementation recommendations based on your diagram.</li>
+</ul>
+<h2>Open AIP Critic</h2>
+<p>To open AIP Critic, select the <strong>AIP Critic</strong> icon in your Solution Designer diagram's toolbar. The AIP Critic panel opens on the left side of your workspace.</p>
+<p><img alt="Critic icon in the Solution Designer toolbar." src="../../_resources/foundry/solution-designer/aip-critic-toolbar-icon.png" /></p>
+<h2>Diagram organization</h2>
+<p>AIP Critic automatically organizes the nodes in your diagram into the following sections:</p>
+<ul>
+<li><strong>External Systems:</strong> Third-party systems, databases, or data sources outside of Foundry.</li>
+<li><strong>Data Sourcing:</strong> Components that bring data into Foundry, such as sources created in <a href="https://www.palantir.com/docs/foundry/data-connection/overview/">Data Connection</a> or manual file uploads.</li>
+<li><strong>Data Processing:</strong> Transformations, pipelines, and data preparation components.</li>
+<li><strong>Modeling:</strong> Machine learning models, predictions, and optimization components.</li>
+<li><strong>Ontology:</strong> Object types, link types, actions, interfaces, and the semantic data model.</li>
+<li><strong>Analytics:</strong> Dashboards, reports, and analytical applications.</li>
+<li><strong>Application Building:</strong> Workshop applications, Slate, and other user-facing interfaces.</li>
+<li><strong>Platform Management:</strong> Administration, governance, and platform configuration tools.</li>
+<li><strong>Custom Components:</strong> Any other components that do not fit the above categories.</li>
+</ul>
+<p>This organization helps AIP Critic provide context-aware responses and suggested questions relevant to each part of your architecture.</p>
+<h2>Ask AIP Critic questions</h2>
+<p>You can ask AIP Critic questions about your diagram in natural language. Type your question in the text input at the bottom of the AIP Critic panel and press <code>Enter</code> on your keyboard or select <strong>Send</strong>.</p>
+<p>Example questions you might ask:</p>
+<ul>
+<li>"What are the potential bottlenecks in this data pipeline?"</li>
+<li>"How can the performance of this workflow be improved?"</li>
+<li>"What best practices should be followed for this architecture?"</li>
+<li>"Are there any missing components to consider?"</li>
+<li>"How should data quality issues be handled in this design?"</li>
+</ul>
+<p>AIP Critic will analyze your diagram and provide a response based on the components, connections, and overall structure of your solution architecture.</p>
+<h2>Drill-down conversations</h2>
+<p>After receiving a response from AIP Critic, you can drill down into specific parts of the answer by asking follow-up questions. AIP Critic maintains the context of the conversation, allowing you to explore topics in greater depth.</p>
+<p>To drill down on a response, review the initial response from AIP Critic and type a follow-up question that references or expands on the previous response. AIP Critic will provide additional details while maintaining the conversation context.</p>
+<p>Drill-down conversations allow you to:</p>
+<ul>
+<li>Request clarification on specific points.</li>
+<li>Explore alternatives to suggested approaches.</li>
+<li>Ask for implementation details or examples.</li>
+<li>Investigate trade-offs between different options.</li>
+</ul>
+<h2>Generate implementation plan</h2>
+<p>AIP Critic can generate a structured implementation plan based on your architecture diagram. The implementation plan dialog provides a step-by-step breakdown of how to build your solution, including:</p>
+<ul>
+<li><strong>Phases and tasks:</strong> Organized steps for implementing each component in your diagram.</li>
+<li><strong>Dependencies:</strong> Which components need to be built before others.</li>
+<li><strong>Best practices:</strong> Recommended approaches for each implementation step.</li>
+<li><strong>Resource estimates:</strong> Approximate effort or complexity for each phase.</li>
+</ul>
+<p>To generate an implementation plan, select <strong>Generate implementation plan</strong> at the bottom of the AIP Critic panel. AIP Critic analyzes your diagram and creates a structured plan before opening the implementation plan dialog, displaying the plan with collapsible sections for each phase. Review the plan, expand sections to see details, and use it as a guide for building your solution.</p>
+<p><img alt="Implementation plan dialog generated by AIP Critic." src="../../_resources/foundry/solution-designer/aip-critic-implementation-plan.png" /></p>
+<p>The implementation plan can be referenced alongside your diagram as you build, helping ensure you follow best practices and build components in the correct order. Additionally, you can use <a href="https://www.palantir.com/docs/foundry/ai-fde/overview/">AI FDE</a> to accelerate the actual construction of resources in your architecture. You can also export the implementation plan as a PDF for documentation or sharing with your team.</p>
+<h2>Review persistence</h2>
+<p>Your conversation with AIP Critic is automatically saved with your diagram. When you close and reopen a saved diagram, your previous conversation history will be restored, allowing you to continue the review where you left off.</p>
+<h2>Best practices</h2>
+<p>When using AIP Critic, consider the following best practices:</p>
+<ul>
+<li><strong>Start with broad questions:</strong> Begin with high-level questions about your overall architecture before diving into specific details.</li>
+<li><strong>Provide context:</strong> If your diagram represents a specific use case or has unique requirements, mention this in your questions.</li>
+<li><strong>Iterate on designs:</strong> Use AIP Critic's feedback to refine your diagram, then ask follow-up questions about the updated design.</li>
+<li><strong>Document decisions:</strong> Export implementation plans as PDF documents to preserve architectural decision records.</li>
+<li><strong>Combine with AIP Architect:</strong> Use <a href="https://www.palantir.com/docs/foundry/solution-designer/aip-architect/">AIP Architect</a> to generate initial workflow plans, then use AIP Critic to review and refine them.</li>
+</ul>
+</body>
+</html>

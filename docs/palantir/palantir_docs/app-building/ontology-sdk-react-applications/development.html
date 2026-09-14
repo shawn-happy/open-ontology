@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Development environment</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Development environment</h1>
+<p>This page will walk you through the development workflow when using an in-platform VS Code workspace to build OSDK React applications.</p>
+<h2>Get started</h2>
+<p>To enable development in your code environment, you will need to <a href="https://www.palantir.com/docs/foundry/developer-console/create-application/">set up your Developer Console</a>. During the setup process, you must select <strong>Create client-facing application</strong> to enable creation of code repositories from Developer Console.</p>
+<p><img alt="Create a client-facing application from Developer Console" src="../../_resources/foundry/ontology-sdk-react-applications/create-client-facing-application.png" /></p>
+<p>To use a VS Code workspace, open Developer Console and select <strong>Create code repository</strong> under the <strong>Code Repository</strong> section in the left side panel. This action will bootstrap your repository with the default React template. You can then select <strong>Open in VS Code</strong> to launch an in-platform workspace.</p>
+<p><img alt="Create a code repository in a VS Code Workspace from Developer Console" src="../../_resources/foundry/ontology-sdk-react-applications/dev-console-create-code-repo.png" /></p>
+<p>The repository template will include a basic React application integrated with authorization and the Ontology SDK.</p>
+<h2>Development lifecycle</h2>
+<p>Once the VS Code Workspace is launched, you should see the code editor on the left and a live preview of your application on the right. You can start editing your code as if working in a local environment.</p>
+<p><img alt="The VS Code Workspace landing page." src="../../_resources/foundry/ontology-sdk-react-applications/vscode-landing-page.png" /></p>
+<h3>Edit</h3>
+<p>You can now start building your React application. Be sure to edit and test your code after writing, then use git commands or the VS Code interface to commit and push your changes to make them visible to other developers in your project. In the terminal, run <code>npm run lint</code>, <code>npm run test</code>, and <code>npm run build</code> to ensure that checks will succeed.</p>
+<p>You can also refer to the <strong>Ontology</strong> tab in the left side panel to view generated documentation and code snippets for your OSDK and return to Developer Console.</p>
+<p><img alt="The available options in the &quot;Ontology&quot; tab in a VS Code workspace." src="../../_resources/foundry/ontology-sdk-react-applications/code-workspaces-ontology-sidepanel.png" /></p>
+<h3>Deploy</h3>
+<p>To deploy a React application, you must first cut a release. This is commonly done with the <code>git tag</code> command, where you can set the version number and then push it to your repository:</p>
+<pre><code class="language-bash">git tag &lt;x.y.z&gt;
+git push origin &lt;x.y.z&gt;
+</code></pre>
+<p>Alternatively, you can cut a release from within the Code Repositories interface by selecting <strong>Open in Code Repositories</strong> from the top right corner of the screen. Navigate to the <strong>Version control</strong> tab, then open the <strong>Tags and releases</strong> section to view previous releases and cut a new release.</p>
+<p><img alt="The &quot;Tags and releases&quot; section of the &quot;Version control&quot; tab in Code Repositories." src="../../_resources/foundry/ontology-sdk-react-applications/code-repositories-tags-and-releases.png" /></p>
+<p>Once the release passes checks, you will be able to view your application in Developer Console.</p>
+<p><img alt="Code Repositories checks &amp; Developer Console website hosting" src="../../_resources/foundry/ontology-sdk-react-applications/checks-and-website-hosting.png" /></p>
+<h2>Content Security Policy</h2>
+<p>By default, we apply a restrictive Content Security Policy (CSP). This means a request to non-Foundry URIs will fail and must be explicitly allowed.</p>
+<p>To detect a CSP error, use the <code>F12</code> key and review logs inside the console. If you have CSP failures, you will see errors similar to those shown below:</p>
+<p><img alt="An example CSP error in a console." src="../../_resources/foundry/ontology-sdk-react-applications/console-csp-error.png" /></p>
+<p>You can apply a temporary CSP to your VS Code workspace. For security reasons, this CSP will not apply to other users of this workspace and will expire when the workspace is paused or restarted.</p>
+<p><img alt="The workflow to add a CSP to a VS Code workspace." src="../../_resources/foundry/ontology-sdk-react-applications/code-workspaces-csp-workflow.png" /></p>
+<p>After testing your application inside the VS Code workspace, ensure that the CSP is updated for your Developer Console application.</p>
+<p><img alt="The CSP configuration screen for Developer Console." src="../../_resources/foundry/ontology-sdk-react-applications/dev-console-csp-configuration.png" /></p>
+<h2>Development tips</h2>
+<h3>To Do application tutorial</h3>
+<p>If you are new to Developer Console and OSDK, we recommend following one of our tutorials to get started. Navigate to the <strong>Build with AIP</strong> application in your enrollment and install one of our example workflows.</p>
+<p><img alt="Available To Do application tutorials in Build with AIP." src="../../_resources/foundry/ontology-sdk-react-applications/build-with-aip-todo-application.png" /></p>
+<h3>Progressive Web Application (PWA)</h3>
+<p>For an optimized editing experience, you can choose to install your workspace as a Progressive Web Application (PWA). A PWA will accept some commonly used shortcuts, such as <code>Cmd+W</code> (macOS) to close a tab.</p>
+<p><img alt="Pop-up messages to install and open a PWA application." src="../../_resources/foundry/ontology-sdk-react-applications/pwa-popup.png" /></p>
+<p><img alt="An example PWA application in VS Code Workspaces." src="../../_resources/foundry/ontology-sdk-react-applications/pwa-application.png" /></p>
+<h3>Zen mode</h3>
+<p>For a nearly native VS Code experience, we recommend using Zen mode. Select <strong>View &gt; Activate Zen mode</strong> to enable. Zen mode will hide the platform interface and make VS Code take up the entire browser window. To exit Zen mode, hover over the three dots <strong>...</strong> in the top center of your screen.</p>
+<p><img alt="The option to use zen mode and a view of how it looks in the platform." src="../../_resources/foundry/ontology-sdk-react-applications/code-workspaces-zen-mode.png" /></p>
+<h3>Local development</h3>
+<p>Instead of working inside the platform, you can work locally on your machine in the following ways:</p>
+<ul>
+<li>Navigate to your repository in the Code Repositories application, then select <strong>Work locally</strong> in the top right corner of your screen to clone your repository and export the <code>FOUNDRY_TOKEN</code> to your local environment. <br><br>
+  <img alt="The option to work locally from Code Repositories." src="../../_resources/foundry/ontology-sdk-react-applications/code-repositories-work-locally.png" /> <br><br></li>
+</ul>
+<p>Refer to the <code>readme.md</code> file in the repository for more information.</p>
+<p>:::callout{theme="neutral"}
+You can store your repository outside the Palantir platform while still using the Developer Console to deploy the application. Learn more in our documentation on <a href="https://www.palantir.com/docs/foundry/developer-console/deploy-custom-application-on-foundry/">deploying an Ontology SDK application on Foundry</a>.
+:::</p>
+<h3>PR preview [Beta]</h3>
+<p>:::callout{theme="warning"}
+PR preview for React applications is in the <a href="https://www.palantir.com/docs/foundry/platform-overview/development-life-cycle/">beta</a> phase of development and may not be available on your enrollment. Functionality may change during active development.
+:::</p>
+<p>To add efficiency and easier collaboration to your projects, you can access a PR preview of changes to your React application before pushing updates. A PR (pull request) preview provides a working version of your React application based on the code committed in your pull request. You can preview any proposed changes to your application before it is merged into your main branch and production state, making it easier for you to check for any undesirable outcomes and verify user-facing workflows before changes make their way to production. Previously, builders, designers, and other members of an application team would need to create a development environment to view changes. The PR preview feature removes this requirement, allowing for quicker verification of production changes in design and functionality and a more efficient, collaborative process.</p>
+<p>The PR preview feature is available for any OSDK React application that is hosted in a Foundry code repository using the Developer Console <a href="https://www.palantir.com/docs/foundry/developer-console/deploy-custom-application-on-foundry/">web hosting capability</a>.</p>
+<p>Follow the steps below to get started with PR previews:</p>
+<ol>
+<li>
+<p>First, generate an application in Developer Console.</p>
+</li>
+<li>
+<p>Then, configure website hosting for that application. <br><br>
+   <img alt="The website hosting configuration page in Developer Console." src="../../_resources/foundry/ontology-sdk-react-applications/dev-console-web-hosting.png" /> <br><br></p>
+</li>
+<li>
+<p>Choose to use a <a href="https://www.palantir.com/docs/foundry/vs-code/overview/">VS Code workspace</a> to take advantage of the developer features available in the <a href="https://www.palantir.com/docs/foundry/palantir-extension-for-visual-studio-code/overview/">Palantir extension for Visual Studio Code</a>. You can also open your application code in <a href="https://www.palantir.com/docs/foundry/code-repositories/overview/">Code Repositories</a>. From either environment, you can create branches in your repository, implement code changes with commits, and push updates. You can use the following terminal commands or your environment interface to make changes:</p>
+</li>
+<li>Create a new branch: <code>git checkout -b myFeatureBranch main</code></li>
+<li>Implement your code changes and commit your work: <code>git commit -am "implement UI change to show PR Preview"</code></li>
+<li>
+<p>Push your changes to the code repository: <code>git push --set-upstream origin myFeatureBranch</code></p>
+</li>
+<li>
+<p>Once you make your desired changes and all checks are complete, return to Code Repositories if you were working in a VS Code workspace.</p>
+</li>
+<li>
+<p>Navigate to the <strong>Version control</strong> tab at the top of the screen and choose <strong>Pull Requests</strong>.</p>
+</li>
+<li>
+<p>Choose the pull request you would like to preview, then select <strong>Preview</strong> in the lower right corner to open a preview version of your React application. <br><br>
+   <img alt="A pull request in Code Repositories with the option to view a preview of the changes." src="../../_resources/foundry/ontology-sdk-react-applications/code-repositories-pr-preview-link.png" /> <br><br></p>
+</li>
+</ol>
+<p>You can also find a PR preview link for every commit on your branch by navigating to the <strong>Commits</strong> tab of the pull request. Note that PR previews are only available within seven days of the creation of the pull request. After seven days, the preview will expire.</p>
+<h4>Preview permissions</h4>
+<p>To access the PR preview feature for React applications, users must have proper permissions for the application from Developer Console. To manage these permissions, open your application in Developer Console, then navigate to <strong>Sharing</strong> in the left sidebar.</p>
+<p>To make changes, create pull requests for the application code, and share PR preview with other users, you must have either <code>Owner</code> or <code>Editor</code> permissions. To share a PR preview with a user without granting permissions to edit your application code or configurations, add them as a <code>Viewer</code> under <strong>Share hosted website</strong>.</p>
+<p><img alt="The permissions configuration page in Developer Console with the option to grant users access to view PR previews." src="../../_resources/foundry/ontology-sdk-react-applications/dev-console-web-sharing-permissions.png" /></p>
+</body>
+</html>

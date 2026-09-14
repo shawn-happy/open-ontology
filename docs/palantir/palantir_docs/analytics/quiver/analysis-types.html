@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Analysis types</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Analysis types</h1>
+<p>When creating a new analysis, you can choose between three analysis types, each designed for different use cases and levels of complexity. All three types support saving and sharing analyses as resources.</p>
+<h2>Comparison</h2>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>Quiver analysis</th>
+<th>Time series analysis</th>
+<th>Object set path analysis</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Analytical flexibility</td>
+<td>High</td>
+<td>Low</td>
+<td>Low</td>
+</tr>
+<tr>
+<td>Available data</td>
+<td>All</td>
+<td>Time series</td>
+<td>Objects</td>
+</tr>
+<tr>
+<td>Complexity</td>
+<td>Medium</td>
+<td>Low</td>
+<td>Low</td>
+</tr>
+<tr>
+<td>Dashboard building</td>
+<td>Yes</td>
+<td>No</td>
+<td>No</td>
+</tr>
+<tr>
+<td>Convert to Quiver</td>
+<td>â</td>
+<td>Yes</td>
+<td>Yes</td>
+</tr>
+</tbody>
+</table>
+<p>:::callout{theme="neutral"}
+Time series analysis and object set path analysis resources can be converted to a Quiver analysis using the <strong>Open in Quiver</strong> option. This creates a new Quiver analysis with the same data and configuration. Note that Quiver analyses cannot be converted to the simplified analysis types, and changes made to the new Quiver analysis will not be reflected in the original object set path or time series analysis.
+:::</p>
+<h2>Quiver analysis</h2>
+<p><a href="https://www.palantir.com/docs/foundry/quiver/overview/">Quiver analyses</a> provide a robust suite of analytical capabilities, including support for both object and time series data, a comprehensive library of <a href="https://www.palantir.com/docs/foundry/quiver/cards-index/">cards</a> for data transformation and visualization, and the ability to create interactive <a href="https://www.palantir.com/docs/foundry/quiver/dashboards-overview/">dashboards</a>.</p>
+<p>Key features include:</p>
+<ul>
+<li>Visualizing, filtering, and transforming object and time series data without code</li>
+<li>Parameterizing analyses to easily switch between different views of the data and results</li>
+<li>Creating interactive dashboards that you can embed in operational applications such as <a href="https://www.palantir.com/docs/foundry/workshop/overview/">Workshop</a></li>
+<li>Embedding charts in reporting applications such as <a href="https://www.palantir.com/docs/foundry/notepad/overview/">Notepad</a></li>
+<li>Using <a href="https://www.palantir.com/docs/foundry/quiver/cards-transform-table/">transform tables</a> and <a href="https://www.palantir.com/docs/foundry/quiver/cards-index-datasets/">datasets</a> for more advanced transformations and aggregations</li>
+</ul>
+<p>We recommend a quiver analysis when:</p>
+<ul>
+<li>You need more advanced analytical operations such as Ontology SQL, transform tables, or datasets.</li>
+<li>You want to build interactive dashboards to share with others.</li>
+<li>You are working with both object and time series data in a single analysis.</li>
+<li>You need to parameterize your analysis for different views of the data.</li>
+</ul>
+<p><a href="https://www.palantir.com/docs/foundry/quiver/getting-started/">Learn how to get started with a new Quiver analysis.</a></p>
+<h2>Time series analysis</h2>
+<p>A time series analysis provides a streamlined interface focused on ad-hoc time series analysis. It is designed for users who want to quickly visualize and compare time series data without the full complexity of a Quiver analysis.</p>
+<p>Key features include:</p>
+<ul>
+<li>Adding time series data from the Ontology</li>
+<li>Performing time series operations such as union, formula, filter, and more</li>
+<li>Visualizing event sets from linked objects or conditions</li>
+<li>Quickly switching underlying data to compare values starting from different root objects</li>
+</ul>
+<p>We recommend a time series analysis when:</p>
+<ul>
+<li>You are working exclusively with time series data.</li>
+<li>You want to quickly visualize and compare multiple time series.</li>
+<li>You do not need to build a dashboard from your analysis.</li>
+<li>You want to build an on-rails environment for operational users to perform time series analysis in a <a href="https://www.palantir.com/docs/foundry/workshop/overview/">Workshop</a> application.</li>
+</ul>
+<p><a href="https://www.palantir.com/docs/foundry/workshop/widget-time-series-analysis/">Learn more about time series analyses.</a></p>
+<h2>Object set path analysis</h2>
+<p>An object set path analysis provides a streamlined interface for investigating object data through a sequence of cards that filter, transform, and visualize an input object set. It is designed for users who want to perform simple, ad-hoc analysis on object data without the full complexity of a Quiver analysis.</p>
+<p>Key features include:</p>
+<ul>
+<li>Filtering object sets based on object properties and linked objects</li>
+<li>Visualizing data with bar charts, line charts, pie charts, heat grids, and waterfall plots</li>
+<li>Displaying object data in tables and singular property value cards</li>
+<li>Exploring linked object relationships</li>
+</ul>
+<p>We recommend an object set path analysis when:</p>
+<ul>
+<li>You are working exclusively with object data.</li>
+<li>You want to quickly filter, aggregate, and visualize an object set.</li>
+<li>You do not need to build a dashboard from your analysis.</li>
+<li>You want to build an on-rails environment for operational users to perform object set analysis in a <a href="https://www.palantir.com/docs/foundry/workshop/overview/">Workshop</a> application.</li>
+</ul>
+<p><a href="https://www.palantir.com/docs/foundry/workshop/widget-free-form-analysis/">Learn more about object set path analyses.</a></p>
+</body>
+</html>

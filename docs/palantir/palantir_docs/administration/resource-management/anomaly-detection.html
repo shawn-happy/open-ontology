@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Anomaly detection</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Anomaly detection</h1>
+<p>:::callout{theme="neutral"}
+The Resource Management anomaly detection functionality is only available for customers who have an <strong>active usage-based contract</strong> with Palantir.
+:::</p>
+<p><strong>Anomaly detection</strong> in Resource Management proactively notifies users of anomalous resource usage patterns. An anomaly detector consists of the following:</p>
+<ul>
+<li><strong>Scope:</strong> The entity to be monitored. See the <a href="#scopes">Scopes</a> section below for more details.</li>
+<li><strong>Strategy:</strong> A method of detecting anomalies. Each strategy has a unique configuration.</li>
+<li><strong>Anomalies:</strong> Events that were considered anomalous by the selected strategy.</li>
+<li><strong>Subscribers</strong> The groups/users who will be notified when an anomaly is detected.</li>
+</ul>
+<p>Users create anomaly detectors; each anomaly detector relies on a <strong>scope</strong> and <strong>strategy</strong> to detect <strong>anomalies</strong> and notify its <strong>subscribers</strong>.</p>
+<p>:::callout{theme="warning"}
+Due to expected latency in measuring usage, an anomaly could be detected after it has occurred (for example, configuring a strategy that detects when usage exceeds 70% of the moving average may result in an anomaly detected at 75%). In some rare cases, this latency could take up to 26 hours.
+:::</p>
+<h2>Scopes</h2>
+<p>Anomaly detectors are currently designed to monitor <strong>all usage</strong> for an enrollment. In the future, they will also be equipped to work with <strong>usage accounts</strong>.</p>
+<h2>Strategies</h2>
+<p>Anomaly detectors currently support 2 different strategies:</p>
+<ul>
+<li><strong>Deviation from the moving average:</strong> Notifies subscribers when usage exceeds or falls below the moving average; this strategy can highlight temporal increases and decreases in usage.</li>
+<li><strong>Zero usage:</strong> Notifies subscribers when usage is nearly zero for some extended period of time; this strategy can indicate a major issue, such as a data pipeline failure.</li>
+</ul>
+<h2>Permissions</h2>
+<p>To use anomaly detection, one or more of the following roles are required:</p>
+<ul>
+<li><code>Enrollment administrator</code>: View, create, edit, and delete anomaly detectors.</li>
+<li><code>Resource management administrator</code>: View, create, edit, and delete anomaly detectors.</li>
+<li><code>Resource management viewer</code>: View anomaly detectors.</li>
+</ul>
+<p>Roles are granted through the <a href="https://www.palantir.com/docs/foundry/administration/enrollments-and-organizations-permissions/"><strong>Enrollment permissions</strong> page</a> in Control Panel.</p>
+<h2>View all anomaly detectors</h2>
+<p>In Resource Management, select <strong>Anomaly detectors</strong> in the left sidebar. This will display a list of all anomaly detectors available in your enrollment. Select a single anomaly detector to view its anomalies and details. Regular observation can be helpful to learn how often anomalies are detected and whether the detector provides useful signal.</p>
+<p><img alt="View all anomaly detectors" src="../../_resources/foundry/resource-management/all-detectors.png" /></p>
+<h2>Create an anomaly detector</h2>
+<p>To create an anomaly detector, select the <strong>New</strong> button while viewing all anomaly detectors. Select a scope, configure a strategy, and specify the subscribers. Then, select <strong>Create detector</strong>.</p>
+<p><img alt="Create an anomaly detector" src="../../_resources/foundry/resource-management/create-detector.png" /></p>
+<h2>Delete an anomaly detector</h2>
+<p>:::callout{theme="danger"}
+Deleting an anomaly detector also deletes its anomalies and unsubscribes all subscribers. This action cannot be undone.
+:::</p>
+<p>While viewing a single anomaly detector, select the actions menu at the top right, and select <strong>Delete</strong>. When the warning dialog appears, select <strong>Delete detector</strong>.</p>
+</body>
+</html>

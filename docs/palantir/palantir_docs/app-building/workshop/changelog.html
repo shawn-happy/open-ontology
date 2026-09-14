@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Changelog panel in Workshop</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Changelog panel in Workshop</h1>
+<p>The Workshop Changelog Panel allows builders to visualize changes between module versions. This is useful for tracking modifications made over time and identifying which change potentially caused an issue when debugging problems with the module.</p>
+<h3>Understanding the changelog</h3>
+<p>If changes exist for the selected module versions, the panel will be populated with changelog nodes. There are 5 different types of changes:</p>
+<ul>
+<li><strong>Changed:</strong> A node has been modified (for example, the text on a button changed).</li>
+<li><strong>Addition:</strong> A node was added to the module.</li>
+<li><strong>Deletion:</strong> A node was removed from the module.</li>
+<li><strong>Moved:</strong> The node was relocated (for example, moved from page 1 to page 2).</li>
+<li><strong>Made unused:</strong> A widget was deleted but not removed from the module, moving it to <code>unused widgets</code>.</li>
+</ul>
+<p><img alt="Changelog Node Types" src="../../_resources/foundry/workshop/changelog_node_types.png" /></p>
+<p>The image above conveys the following:</p>
+<ul>
+<li>Metric Card A was edited.</li>
+<li>Metric Card B was added to the module.</li>
+<li>Metric Card C was made unused.</li>
+<li>Metric Card D was removed from the module.</li>
+</ul>
+<p>You can inspect the change node further by opening the JSON diff. Here, you can see the exact changes made to the node. In the screenshot below, we can see the variable value changed from <code>Hello</code> to <code>Hello world</code> and the variable name changed from <code>var1</code> to <code>hello world</code>.</p>
+<p><img alt="Changelog Variable Change" src="../../_resources/foundry/workshop/changelog_variable_change.png" /></p>
+<p>Additionally, the Changelog Panel displays a visual hierarchy of changes. In the example below, we can infer from the hierarchy that the <code>Metric card container</code> section contains the <code>Metric card A</code> widget, and both were modified. Furthermore, we see <code>Metric card A value</code> is used within <code>Metric card A</code> and was added to the module.</p>
+<p><img alt="Changelog Nesting" src="../../_resources/foundry/workshop/changelog_nesting.png" /></p>
+<h3>Module selection</h3>
+<p>There are two options for selecting module versions:</p>
+<ul>
+<li>
+<p><strong>Range selection:</strong> Choose a start and end version to see the changes between the two. For example, you can select <code>0.1.0</code> and <code>0.4.0</code> to see the changes between version <code>0.1.0</code> and <code>0.4.0</code>.</p>
+</li>
+<li>
+<p><strong>Single selection:</strong> Single selection allows you to see the changes in a specific module version compared to the previous version. For example, if you select version <code>0.5.0</code>, the changelog will populate with the changes between <code>0.4.0</code> and <code>0.5.0</code>.</p>
+</li>
+</ul>
+<h3>Using the Changelog panel during rebasing</h3>
+<p>When rebasing is required before merging changes from a branch into <code>main</code>, the Changelog panel displays a visual notification dot and provides an option to begin the rebase.</p>
+<p>If you need to incorporate changes from <code>main</code>, follow the <a href="https://www.palantir.com/docs/foundry/workshop/branching-integration/#rebasing-and-conflict-resolution">rebasing and conflict resolution visual guide</a> to review diff icons, compare branch configurations, and resolve conflicts.</p>
+<p>During rebasing, the Changelog panel depicts changes being applied from your branch to the latest <code>main</code> version of the module and highlights merge conflicts. A change is marked as a conflict when it was modified both on <code>main</code> and on your branch. Common examples include:</p>
+<ul>
+<li>A widget or variable was modified on both <code>main</code> and your branch.</li>
+<li>A section was deleted on <code>main</code> and edited on the branch.</li>
+<li>A widget was moved from location <code>A</code> to <code>B</code> on <code>main</code> and from <code>A</code> to <code>C</code> on your branch.</li>
+</ul>
+<p>While resolving conflicts, you can switch the module between three states to evaluate outcomes in real time:</p>
+<ul>
+<li><strong>Latest main:</strong> The configuration as it appears on <code>main</code>.</li>
+<li><strong>Current branch:</strong> The configuration as it appears on your branch.</li>
+<li><strong>Current session:</strong> Changes you make after beginning the rebase to reconcile differences.</li>
+</ul>
+<p>Once conflicts are resolved and you are satisfied with the module, save to finish rebasing. You can then safely merge your branch into <code>main</code>.</p>
+</body>
+</html>

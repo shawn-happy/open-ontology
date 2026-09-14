@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Alerting workflow</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Alerting workflow</h1>
+<p>Whether it is detecting fraud or <a href="https://www.palantir.com/docs/foundry/use-case-examples/improving-retention-and-collection-performance-through-intelligent-repricing/">surfacing revenue opportunities</a>, alerting workflows automatically surface issues to be reviewed by an end user, which they can make a decision on at a click of a button. These workflows enable teams to focus their attention on resolving the most pressing issues at hand rather than spending their time manually piecing data together.</p>
+<p>Foundryâs <a href="https://www.palantir.com/docs/foundry/data-connection/overview/">Data Connection</a> and <a href="https://www.palantir.com/docs/foundry/ontology/overview/">Ontology</a> allow organizations to implement this pattern in days instead of months and continue to implement, customize, and maintain it safely and efficiently.</p>
+<h2>Solution</h2>
+<p>Alerting workflows are designed to automatically surface alerts (updates, issues, opportunities, etc.) for a user to review and make a decision on. Typically, the user is presented with prioritized alerts and relevant data associated with the alerts, which they will review to make a decision. Their decision is recorded using buttons that record their decision (write back) to Foundry data and sometimes production systems, if appropriate.</p>
+<p>Using fraud detection as an example, users may receive a list of most to least likely fraud alerts to review. Clicking on an alert shows all the supporting information, based on which users can use a simple button to indicate if it is fraud or not.</p>
+<p>Alerting frameworks are great solutions for users who spend significant time sifting through various data sources and manually piecing together data points to identify issues, with the end goal of making a decision about the issue found. Sometimes the end users have basic SQL queries that surface a portion of these issues, or the users do not sift through data at all since the work is too complex.</p>
+<p>Alerts can be used for use cases from detecting fraud to <a href="https://www.palantir.com/docs/foundry/use-case-examples/improving-retention-and-collection-performance-through-intelligent-repricing/">surfacing revenue opportunities</a>. The alerts can be generated through a data pipeline, a machine learning model, Foundry Rules, or any combination of these.</p>
+<h2>Key elements</h2>
+<p><img alt="Alerting Cycle" src="../../_resources/foundry/use-case-patterns/image-alerting.jpg" /></p>
+<h3>User interfaces</h3>
+<p>The following is a list of interfaces related to the alerting workflow.</p>
+<h4>Alerting interface</h4>
+<p>The Alerting Interface is the main application users will leverage. From this interface, end users see all their alerts, the data relevant to helping them make a decision about the alert, and buttons they can use to record their decision.</p>
+<p>An example interface is shown below, with the most frequently used components. This interface is typically built in <a href="https://www.palantir.com/docs/foundry/workshop/overview/">Workshop</a>.</p>
+<p><img alt="Alert Interface" src="../../_resources/foundry/use-case-patterns/image-alertinginterface.jpg" /></p>
+<p>For example in fraud detection, the filters may be a fraud likelihood score, a specific type of fraud, etc. The alerts themselves are cases of fraud, and the relevant data may include historical payments and users profiles. The buttons typically might include Fraud/No Fraud, and prompt the user for an explanation.</p>
+<p>Related products:</p>
+<ul>
+<li><a href="https://www.palantir.com/docs/foundry/workshop/overview/">Workshop</a></li>
+<li><a href="https://www.palantir.com/docs/foundry/action-types/overview/">Foundry Actions</a></li>
+<li><a href="https://www.palantir.com/docs/foundry/functions/overview/">Functions on Objects</a></li>
+</ul>
+<h4>Impact Tracker</h4>
+<p>The Impact Tracker shows production and operations metrics associated with the Alerting Interface. The Tracker is typically used by managers to review metrics such as how many alerts have been resolved, what decisions are commonly being made in the Alert Interface, how close they are to reaching their target KPIs, etc.</p>
+<p>An example Tracker is shown below, with the most frequently used components. This interface may be built in <a href="https://www.palantir.com/docs/foundry/quiver/overview/">Quiver</a> or <a href="https://www.palantir.com/docs/foundry/workshop/overview/">Workshop</a>.</p>
+<p><img alt="Impact Tracker" src="../../_resources/foundry/use-case-patterns/image-impacttracker.jpg" /></p>
+<p>In fraud detection, this Impact tracker might show the percentage of fraud/non-fraud cases reviewed, key drivers and explanations of fraud populated by the users, the dollar impact saved by detecting early fraud, time to decision, etc.</p>
+<p>Related products:</p>
+<ul>
+<li><a href="https://www.palantir.com/docs/foundry/workshop/overview/">Workshop</a></li>
+<li><a href="https://www.palantir.com/docs/foundry/quiver/overview/">Quiver</a></li>
+<li><a href="https://www.palantir.com/docs/foundry/action-types/overview/">Foundry Actions</a></li>
+<li><a href="https://www.palantir.com/docs/foundry/functions/overview/">Functions on Objects</a></li>
+</ul>
+<h4>(Optional) Foundry Rules</h4>
+<p><a href="https://www.palantir.com/docs/foundry/foundry-rules/overview/">Foundry Rules</a> is a Foundry application that allows any user, regardless of coding background, to create and maintain rules on data using a user-friendly point-and-click interface for defining the criteria for any number of alerts. Each rule defined creates a type of alert. Implementation of Foundry Rules is detailed in the <a href="#alert-automation">alert automation section</a> below.</p>
+<p>Related products:</p>
+<ul>
+<li><a href="https://www.palantir.com/docs/foundry/foundry-rules/overview/">Foundry Rules</a></li>
+</ul>
+<h3>Ontology</h3>
+<p>The following is a list of Ontology-related concepts that relate to the set-up of an alerting workflow.</p>
+<h4>Objects</h4>
+<p>The Alerting workflow will typically include an object type for the trigger (such as a customer, a financial transaction, a manufacturing process, or a service type) and a specific alert object that it is linked to (such as a potential fraud alert, revenue opportunity tied to a service type, or a process optimization opportunity tied to a manufacturing process).</p>
+<p>Related products:</p>
+<ul>
+<li><a href="https://www.palantir.com/docs/foundry/ontology/overview/">Ontology</a></li>
+<li><a href="https://www.palantir.com/docs/foundry/object-views/overview/">Object Explorer</a></li>
+</ul>
+<h4>Actions</h4>
+<p>Actions are the crux of this workflow, as they record the end userâs decision. From the userâs perspective, these are buttons they click on. In the back-end, the buttons are powered by <a href="https://www.palantir.com/docs/foundry/ontology/overview/">Ontology</a> Actions that are configured to record what decision the user made. Typical Action fields include:</p>
+<ul>
+<li>The user ID</li>
+<li>The decision timestamp</li>
+<li>The alert object on which the decision was made</li>
+<li>The decision itself (True/False, Accept/Reject, etc.)</li>
+<li>(Option) An explanation for the decision (helpful for reviewing in the tracker)</li>
+</ul>
+<p>In fraud detection, the actions would record if the case is determined to be fraud or not, the user who made the decision, when they made the decision, why they made that decision (the explanation), and the specific case ID reviewed.</p>
+<p>Related products:</p>
+<ul>
+<li><a href="https://www.palantir.com/docs/foundry/action-types/overview/">Foundry Actions</a></li>
+</ul>
+<h4>Writeback</h4>
+<p>Writeback is the Foundry term for recording a decision. Documentation can be found on the Writeback page. In essence, a copy of the alert object baking dataset is made through the <a href="https://www.palantir.com/docs/foundry/ontology/overview/">Ontology</a> application. Actions will record the fields defined in the Actions section in the copied (writeback) dataset. In fraud detection, the actions taken on a specific case would then update the ontology and associated datasets to account for the decisions taken (such as by setting whether alert identified fraud and the explanation of the results of the investigation).</p>
+<p>In addition to writing back to Foundry, it is common to also write back to production systems such as SAP, Oracle, etc. This typically involves setting up a direct connection to the production system with read and write permissions and feeding the results of the writeback dataset through the connection. Speak with your Palantir team for more details.</p>
+<p>Related products:</p>
+<ul>
+<li><a href="https://www.palantir.com/docs/foundry/ontology/overview/">Ontology</a></li>
+<li><a href="https://www.palantir.com/docs/foundry/object-views/overview/">Object Explorer</a></li>
+<li><a href="https://www.palantir.com/docs/foundry/action-types/overview/">Foundry Actions</a></li>
+</ul>
+<h3>Alert automation</h3>
+<p>The following are Foundry topics related to automating alerts.</p>
+<h4>Foundry Rules</h4>
+<p>Foundry Rules is a set of components that allow users to create and maintain rules on data, regardless of their coding background or ability. Foundry Rules can be used to define various different types of alerts based on any desired condition. The output of Foundry Rules can then be converted into alert objects.</p>
+<p>An example of the Foundry Rules interface is shown below.</p>
+<p><img alt="Rules Editor Annotated" src="../../_resources/foundry/use-case-patterns/image-rules_editor_annotated.jpg" /></p>
+<p>In fraud detection, some customers choose to use Foundry Rules to define a type of fraudulent activity and surface all the relevant cases where that applies. For example, a rule might be: whenever a customer has a charge over $10k or whenever a customer has two consecutive charges in the same day in two different cities.</p>
+<p>Related products:</p>
+<ul>
+<li><a href="https://www.palantir.com/docs/foundry/foundry-rules/overview/">Foundry Rules</a></li>
+</ul>
+<h4>Data pipeline</h4>
+<p>At times, logic for creating alerts may be very prescriptive and involve complex rules that are best suited for coding in a data pipeline.</p>
+<p>For example, an insurance company must pay claims according to the contract rates with a healthcare provider, which are reflected in their system as a set of codes. When the contract is renegotiated, a new set of codes should be recorded for the new timespan. In this case, it would be best to encode all the logic for determining which codes should be applied when, and create a proposal object in Foundry where the suggestion is to split the timespan with the new set of codes from the renegotiated contract.</p>
+<p>Related products:</p>
+<ul>
+<li><a href="https://www.palantir.com/docs/foundry/code-repositories/overview/">Code Repositories</a></li>
+<li><a href="https://www.palantir.com/docs/foundry/code-workbook/overview/">Code Workbook</a></li>
+</ul>
+<h2>Requirements</h2>
+<p>Regardless of the pattern used, the underlying data foundation is constructed from pipelines and syncs to external source systems.</p>
+<h3>Data Integration Pipelines</h3>
+<p>Data integration pipelines, written in a variety of languages including SQL, Python, and Java, are used to integrate datasources into the subject matter Ontology.</p>
+<h3>Data connectors</h3>
+<p>Foundry can <a href="https://www.palantir.com/docs/foundry/data-connection/overview/">sync data from a wide array of sources</a>, including FTP, JDBC, REST API, and S3. Syncing data from a variety of sources and compiling the most complete source of truth possible is key to enabling the highest value decisions.</p>
+<h2>Use cases implementing patterns</h2>
+<ul>
+<li><a href="https://www.palantir.com/docs/foundry/use-case-examples/effectively-adjusting-sales-and-marketing-pipelines-on-the-fly/">Effectively adjusting sales and marketing pipelines on the fly</a></li>
+<li><a href="https://www.palantir.com/docs/foundry/use-case-examples/optimize-claims-reduce-spend-through-warranty-analytics/">Optimize claims &amp; reduce spend through warranty analytics</a></li>
+<li><a href="https://www.palantir.com/docs/foundry/use-case-examples/preventing-transformer-failure-via-alerting-and-investigation-support/">Preventing transformer failure via alerting and investigation support</a></li>
+<li><a href="https://www.palantir.com/docs/foundry/use-case-examples/public-safety-power-shutoff-psps-scoping/">Public safety power shutoff (PSPS) scoping </a></li>
+<li><a href="https://www.palantir.com/docs/foundry/use-case-examples/reducing-cost-from-health-network-providers-through-alerting-and-understanding-provider-performance/">Reducing cost from health network providers through alerting and understanding provider performance</a></li>
+<li><a href="https://www.palantir.com/docs/foundry/use-case-examples/reducing-over-and-under-payments-to-health-care-providers/">Reducing over- and under-payments to health care providers</a></li>
+<li><a href="https://www.palantir.com/docs/foundry/use-case-examples/responding-to-global-security-incidents-via-an-integrated-alerting-and-triaging-application/">Responding to global security incidents via an integrated alerting and triaging application</a></li>
+</ul>
+<p>Want more information on this use case pattern or looking to implement something similar? <a href="https://www.palantir.com/contact/get-started/">Get started with Palantir â</a>.</p>
+</body>
+</html>

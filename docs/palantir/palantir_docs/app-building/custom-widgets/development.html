@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Develop and preview a widget set</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Develop and preview a widget set</h1>
+<p>Use dev mode to preview unpublished widget code in Foundry while you develop. Dev mode replaces the published assets for your user account only, so other users continue to see the published version.</p>
+<p>This page explains how to start a development server, connect it to your widget set, and confirm that Foundry is displaying your changes.</p>
+<h2>Before you begin</h2>
+<p>You need a widget set and its source code. If you have not created one, follow <a href="https://www.palantir.com/docs/foundry/custom-widgets/create/">Create a widget set</a> first.</p>
+<p>Choose where you want to run the development server:</p>
+<table>
+<thead>
+<tr>
+<th>Development environment</th>
+<th>Setup</th>
+<th>Command</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Local machine</td>
+<td>Clone the widget set's code repository and create a user-generated token.</td>
+<td><code>npm run dev</code></td>
+</tr>
+<tr>
+<td>VS Code Workspaces</td>
+<td>Open the widget set's code repository in a workspace. Authentication is managed by Foundry.</td>
+<td><code>npm run dev:remote</code></td>
+</tr>
+</tbody>
+</table>
+<p>:::callout{theme="neutral" title="Preview a new widget in Workshop"}
+You can preview an unpublished widget in the custom widgets playground and in Code Workspaces. In Workshop however, you still need to <a href="https://www.palantir.com/docs/foundry/custom-widgets/publish/">publish it</a> once before being able to select it. After the first publication, dev mode can be used in Workshop similar to the custom widgets playground and Code Workspaces.
+:::</p>
+<h2>Start a development session</h2>
+<h3>Develop on your local machine</h3>
+<ol>
+<li>
+<p>Clone the widget set's code repository. For a Foundry Code Repository, follow the <strong>Work locally</strong> instructions in VS Code Workspaces or the Code Repositories application.</p>
+</li>
+<li>
+<p>Create a <a href="https://www.palantir.com/docs/foundry/platform-security-third-party/user-generated-tokens/">user-generated token</a>.</p>
+</li>
+<li>
+<p>In a terminal, set the <code>FOUNDRY_TOKEN</code> environment variable. Replace <code>&lt;token&gt;</code> with your token.</p>
+</li>
+</ol>
+<p><code>bash
+   export FOUNDRY_TOKEN=&lt;token&gt;</code></p>
+<ol start="4">
+<li>From the project directory, install the project dependencies.</li>
+</ol>
+<p><code>bash
+   npm install</code></p>
+<ol start="5">
+<li>Start the local development server.</li>
+</ol>
+<p><code>bash
+   npm run dev</code></p>
+<ol start="6">
+<li>
+<p>Keep the development server running and open the setup link printed in the terminal. The link connects the server to your widget set and opens the widget set overview page.</p>
+</li>
+<li>
+<p>Select a widget to open it in the custom widgets playground.</p>
+</li>
+<li>
+<p>Edit and save a source file. The playground updates with your development version.</p>
+</li>
+</ol>
+<p><img alt="The npm run dev command and dev mode setup link in the terminal." src="../../_resources/foundry/custom-widgets/npm-run-dev.png" /></p>
+<p>If the widget does not update, first confirm that the terminal still shows a running development server and that you opened the most recent setup link.</p>
+<h3>Develop in a VS Code workspace</h3>
+<ol>
+<li>
+<p>Open the widget set's code repository in a VS Code workspace.</p>
+</li>
+<li>
+<p>Wait for the workspace to start. The development server starts automatically for widget set templates.</p>
+</li>
+<li>
+<p>If the server is not running, start it from the project directory.</p>
+</li>
+</ol>
+<p><code>bash
+   npm run dev:remote</code></p>
+<ol start="4">
+<li>
+<p>In the VS Code preview panel, select the widget that you want to preview.</p>
+</li>
+<li>
+<p>Edit and save a source file. The preview panel updates with your development version.</p>
+</li>
+</ol>
+<p><img alt="A widget running from a development server in VS Code Workspaces." src="../../_resources/foundry/custom-widgets/vscode-workspaces-dev-mode.png" /></p>
+<p>The same workspace development server can provide overrides to the custom widgets playground and Workshop. You do not need to run a second server.</p>
+<h2>Confirm that dev mode is active</h2>
+<p>Dev mode controls show which version of a widget you are viewing:</p>
+<table>
+<thead>
+<tr>
+<th>State</th>
+<th>Version displayed</th>
+<th>What to do</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Disabled</strong></td>
+<td>Published version</td>
+<td>Start a development session and enable dev mode to preview changes.</td>
+</tr>
+<tr>
+<td><strong>Enabled</strong></td>
+<td>Development version</td>
+<td>Continue editing. The control identifies the source as localhost or a VS Code workspace.</td>
+</tr>
+<tr>
+<td><strong>Enabled (inactive)</strong></td>
+<td>Published version</td>
+<td>Nothing, if you are not developing the widget you are viewing. Otherwise, confirm that the development server is running and contains the widget, and then reapply dev mode.</td>
+</tr>
+<tr>
+<td><strong>Paused</strong></td>
+<td>Published version</td>
+<td>Resume dev mode when you want to return to the development version.</td>
+</tr>
+</tbody>
+</table>
+<h3>Start dev mode</h3>
+<p>When dev mode is disabled, the <strong>Start dev mode</strong> control is displayed. Start your development server before selecting the control so that dev mode can find the widget overrides.</p>
+<p><img src="../../_resources/external-15432e9b1626.png" alt="The Start dev mode control is displayed when dev mode is disabled." width=350 /></p>
+<h3>Understand an inactive session</h3>
+<p>An inactive session means that your development server has no overrides for the widget you are viewing. This state does not always need to be resolved. For example, dev mode reports an inactive session when you open a widget from a different widget set to compare it, or when you view a Workshop application in which you are developing only some of the custom widgets. In these cases, the published version is the version you expect to see.</p>
+<p>If you do intend to develop the widget you are viewing, start the development server, confirm that it includes the widget, and then reapply dev mode.</p>
+<p><img src="../../_resources/external-72999df02a62.png" alt="The dev mode menu reports that no widget overrides are configured for an inactive session." width=350 /></p>
+<h3>Resume or stop a paused session</h3>
+<p>Select <strong>Resume</strong> to display the development version again. Select <strong>Stop</strong> to end the dev mode session and continue using the published version.</p>
+<p><img src="../../_resources/external-34686be1ec87.png" alt="The dev mode menu provides controls to resume or stop a paused session." width=350 /></p>
+<h3>Identify the development source</h3>
+<p>An active local session identifies localhost as its source:</p>
+<p><img src="../../_resources/external-b279d3d9129c.png" alt="Dev mode is enabled and using a development server on localhost." width=350 /></p>
+<p>An active VS Code Workspaces session identifies the workspace as its source:</p>
+<p><img src="../../_resources/external-744a5dbec8bc.png" alt="Dev mode is enabled and using a development server in VS Code Workspaces." width=350 /></p>
+<p>Dev mode is personal and temporary. It does not change what other users see, and it expires after 24 hours.</p>
+<h2>Choose a preview environment</h2>
+<p>After dev mode is active, use the environment that matches what you need to test:</p>
+<table>
+<thead>
+<tr>
+<th>Preview environment</th>
+<th>Use it to</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Custom widgets playground</td>
+<td>Test one widget in different dimensions, change parameter values, and inspect emitted events and parameter updates.</td>
+</tr>
+<tr>
+<td>Workshop</td>
+<td>Test the widget with its Workshop parameter bindings, events, surrounding components, and application layout.</td>
+</tr>
+<tr>
+<td>VS Code preview panel</td>
+<td>Preview a widget without leaving your development workspace.</td>
+</tr>
+</tbody>
+</table>
+<p>The playground displays controls for parameters and a message log for events:</p>
+<p><img alt="A widget in dev mode in the custom widgets playground." src="../../_resources/foundry/custom-widgets/playground-dev-mode.png" /></p>
+<p>Workshop displays the development version in the application where you use the widget:</p>
+<p><img alt="A widget in dev mode in Workshop." src="../../_resources/foundry/custom-widgets/workshop-dev-mode.png" /></p>
+<h2>Preview different types of changes</h2>
+<p>Dev mode handles source code and widget configuration changes differently:</p>
+<table>
+<thead>
+<tr>
+<th>Change</th>
+<th>How to preview it</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Component code or styles</td>
+<td>Save the file. The widget updates automatically while the development server is running.</td>
+</tr>
+<tr>
+<td>Parameters or events in a widget configuration file</td>
+<td>Save the file, and then reapply dev mode. For a local server, open the setup link from the terminal again. In VS Code Workspaces, refresh the preview panel.</td>
+</tr>
+</tbody>
+</table>
+<h3>Add or modify parameters and events</h3>
+<p>Widget templates define parameters and events in a configuration file such as <code>main.config.ts</code>. The following example defines three parameters and two events:</p>
+<p>```ts tab="main.config.ts"
+import { defineConfig } from "@osdk/widget.client";</p>
+<p>export default defineConfig({
+  id: "<Widget ID>", // The unique identifier of the widget within your project
+  name: "<Widget Name>", // A user friendly name for your widget
+  description: "<Widget Description>", // A user friendly description of your widget
+  type: "workshop",
+  parameters: {
+    headerText: {
+      displayName: "Widget title",
+      type: "string",
+    },
+    showWarning: {
+      displayName: "Show warning callout",
+      type: "boolean",
+    },
+    todoItems: {
+      displayName: "Todo items",
+      type: "array",
+      subType: "string",
+    },
+  },
+  events: {
+    updateHeader: {
+      displayName: "Update header",
+      parameterUpdateIds: ["headerText"],
+    },
+    updateTodoItems: {
+      displayName: "Update todo items",
+      parameterUpdateIds: ["todoItems"],
+    },
+  },
+});
+```</p>
+<p>Dev mode can preview parameter and event changes with <code>@osdk/widget.vite-plugin</code> version <code>3.34.0</code> or later. For supported types and examples of reading parameters and emitting events from a widget, see <a href="https://www.palantir.com/docs/foundry/custom-widgets/parameters-and-events/">Parameters and events</a>.</p>
+<h2>Understand runtime limitations</h2>
+<h3>Browser storage</h3>
+<p>The custom widgets runtime does not support browser APIs that persist data, including:</p>
+<ul>
+<li><a href="https://developer.mozilla.org/en-US/docs/Web/API/Web_Storage_API">Web Storage API â</a> (<code>localStorage</code> and <code>sessionStorage</code>)</li>
+<li><a href="https://developer.mozilla.org/en-US/docs/Web/API/IndexedDB_API">IndexedDB API â</a></li>
+</ul>
+<p>To share state between widgets, use parameters configured through the host application, such as Workshop variables. To persist state, use saved states for Workshop variables or write data to the Ontology.</p>
+<h3>Widget state in Workshop</h3>
+<p>By default, Workshop unmounts custom widgets when their containing layout is hidden. This discards state held in the widget's iframe. To preserve local state across navigation, configure <a href="https://www.palantir.com/docs/foundry/workshop/widget-display-optimization/">widget display optimization</a> to keep the widget mounted.</p>
+<h3>Network requests</h3>
+<p>The custom widgets runtime uses a restrictive content security policy that you cannot configure. The runtime blocks external requests and does not support non-Ontology APIs. To access an external service, use a Foundry resource that wraps the request, such as a function or webhook.</p>
+<h2>Theming</h2>
+<p>You can use CSS media queries and JavaScript to detect the parent application's color scheme. For implementation details and examples, see <a href="https://www.palantir.com/docs/foundry/custom-widgets/dark-theme/">Dark theme support</a>.</p>
+<h2>Troubleshooting</h2>
+<p>For help with browser crashes, performance problems, or unexpected behavior while developing custom widgets, see <a href="https://www.palantir.com/docs/foundry/custom-widgets/troubleshooting/">Troubleshooting</a>.</p>
+</body>
+</html>

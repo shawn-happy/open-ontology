@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Monitoring views</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Monitoring views</h1>
+<p>Monitoring at scale reduces the time required to monitor Foundry resources by introducing enhanced capabilities. Monitoring views are a collection of monitoring rules and health checks.</p>
+<p>Monitoring views offer expanded functionality beyond what is available in check groups and we recommend <a href="#upgrade-an-existing-check-group-to-a-monitoring-view">upgrading all existing check groups</a> to monitoring views.</p>
+<p>With monitoring views, you can monitor the following resource types:</p>
+<table>
+<thead>
+<tr>
+<th>Resource type</th>
+<th style="text-align: center;">Supported scope</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="https://www.palantir.com/docs/foundry/monitoring-views/rules-reference/#agent-rules">Agent</a></td>
+<td style="text-align: center;">Single, Project</td>
+</tr>
+<tr>
+<td><a href="https://www.palantir.com/docs/foundry/monitoring-views/rules-reference/#object-and-link-rules">Object type</a></td>
+<td style="text-align: center;">Single, Project</td>
+</tr>
+<tr>
+<td><a href="https://www.palantir.com/docs/foundry/monitoring-views/rules-reference/#object-and-link-rules">Link type</a></td>
+<td style="text-align: center;">Single, Project</td>
+</tr>
+<tr>
+<td><a href="https://www.palantir.com/docs/foundry/monitoring-views/rules-reference/#schedule-rules">Schedule</a></td>
+<td style="text-align: center;">Single, Project</td>
+</tr>
+<tr>
+<td><a href="https://www.palantir.com/docs/foundry/monitoring-views/rules-reference/#streaming-dataset-rules">Streaming dataset</a></td>
+<td style="text-align: center;">Single, Folder, Project</td>
+</tr>
+<tr>
+<td><a href="https://www.palantir.com/docs/foundry/monitoring-views/rules-reference/#live-deployment-rules">Live deployment</a></td>
+<td style="text-align: center;">Project</td>
+</tr>
+<tr>
+<td><a href="https://www.palantir.com/docs/foundry/monitoring-views/rules-reference/#time-series-sync-rules">Time series sync</a></td>
+<td style="text-align: center;">Single</td>
+</tr>
+<tr>
+<td><a href="https://www.palantir.com/docs/foundry/monitoring-views/rules-reference/#geotemporal-observation-rules">Geotemporal observation</a></td>
+<td style="text-align: center;">Single</td>
+</tr>
+<tr>
+<td><a href="https://www.palantir.com/docs/foundry/monitoring-views/rules-reference/#automation-rules">Automation</a></td>
+<td style="text-align: center;">Single, Project</td>
+</tr>
+<tr>
+<td><a href="https://www.palantir.com/docs/foundry/monitoring-views/rules-reference/#dataset-rules">Dataset</a></td>
+<td style="text-align: center;">Single, Folder, Project</td>
+</tr>
+<tr>
+<td><a href="https://www.palantir.com/docs/foundry/monitoring-views/rules-reference/#function-rules">Function</a></td>
+<td style="text-align: center;">Single, Project, Workflow Lineage, Workshop, OSDK application</td>
+</tr>
+<tr>
+<td><a href="https://www.palantir.com/docs/foundry/monitoring-views/rules-reference/#action-rules">Action type</a></td>
+<td style="text-align: center;">Single, Project, Workflow Lineage, Workshop, OSDK application</td>
+</tr>
+</tbody>
+</table>
+<p>If you need detailed content and schema validation, consider using <a href="https://www.palantir.com/docs/foundry/health-checks/overview/">health checks</a>.</p>
+<p>:::callout{theme="neutral"}
+To use project scope with ontology resources, you will need to first <a href="https://www.palantir.com/docs/foundry/ontology-manager/migrate-to-project-based-permissions/">migrate your ontology to project-based permissions</a>.
+:::</p>
+<h2>Create a new monitoring view</h2>
+<p>To create a new monitoring view, navigate to the <strong>Monitoring View</strong> tab in the top right corner of the <strong>Data Health</strong> application and select <strong>New monitoring view</strong>.</p>
+<h3>Add a monitoring rule</h3>
+<p>In your new monitoring view, you can <strong>Add monitoring rules</strong> on the <strong>Manage monitors</strong> tab. First, select the resource type you are looking to monitor and then select a scope.</p>
+<p>With a <strong>static</strong> scope, you select a specific resource to monitor. With a <strong>dynamic</strong> scope, the monitor automatically updates as resources are added or removed, without requiring manual changes. Dynamic scopes include <strong>Folder</strong>, <strong>Project</strong>, <strong>Workflow Lineage</strong>, <strong>Workshop</strong>, and <strong>OSDK application</strong>, though availability varies by resource type. See the <a href="#monitoring-views">supported scope table</a> for details.</p>
+<p>Some monitoring rules have multiple conditions joined by <code>AND</code>. For these composite rules, configure a threshold for each condition at every alert severity. The rule triggers only when all conditions reach that severity. If the conditions reach different severities, the rule triggers at the lowest severity reached by all conditions.</p>
+<p><img alt="Data Health application showing the monitoring rule creation wizard with dynamic scope options for action types." src="../../_resources/foundry/monitoring-views/data-health-add-monitoring-rule.png" /></p>
+<p>:::callout{theme="neutral"}
+You must have <code>Viewer</code> permission on the resources to monitor them. To <a href="#subscribe-to-alerts">receive alerts</a> triggered by monitoring rules, you must have <code>Viewer</code> permission on the resources and the monitoring view.
+:::</p>
+<p>Additionally, you can <a href="https://www.palantir.com/docs/foundry/monitoring-views/rules-reference/">review the Monitoring rules resource reference</a>.</p>
+<h3>Configure monitors</h3>
+<p>Monitors are set on the metrics emitted by a resource. As you set up your monitors, we suggest certain configurations based on Foundryâs standards for health. However, you can change the values or choose to only monitor certain metrics. You can also determine the level of severity for the alert: low, medium, and high.</p>
+<h3>Edit monitors</h3>
+<p>You can edit your monitors by selecting from the list of monitors and choosing <strong>Edit</strong> on the side panel that appears.</p>
+<h3>Add a health check</h3>
+<p>You can add existing health checks to a monitoring view from the <strong>Data Health</strong> application:</p>
+<ol>
+<li>Select <strong>Add health check</strong> in the top-right corner of the <strong>Data Health</strong> application.</li>
+<li>In the resource selection dialog, select multiple datasets and choose the existing health checks you want to add to the monitoring view.</li>
+<li>The selected health checks are grouped in the monitoring view.</li>
+</ol>
+<p>:::callout{theme="neutral"}
+This dialog adds existing health checks to a monitoring view. To bulk-create new health checks across multiple datasets, refer to <a href="https://www.palantir.com/docs/foundry/health-checks/overview/#add-new-health-checks-to-multiple-datasets">bulk adding health checks</a>.
+:::</p>
+<h2>Set up and manage alert notifications</h2>
+<p>Once you have configured your monitoring rules, you will need to set up how and where alerts are delivered when issues are detected.</p>
+<h3>Subscribe to alerts</h3>
+<p>To subscribe to alerts, navigate to the <strong>Manage subscriptions</strong> tab where all the subscribed users are listed. You can add users and user groups, and configure their alerts based on severity. When a monitor rule triggers an alert, the user subscribed to the monitoring view containing that alert will be notified via email and Foundry notifications. Note that you must have <code>Viewer</code> permission on the resources and the monitoring view to be able to receive alerts.</p>
+<h3>Integrate with external systems</h3>
+<p>You can send alerts to external systems such as PagerDuty or Slack with built-in integrations or by using a webhook to hit arbitrary REST endpoints. Learn more about <a href="https://www.palantir.com/docs/foundry/monitoring-views/external-systems/">sending alerts to external systems</a>.</p>
+<h2>Troubleshoot alerts</h2>
+<p>On the <strong>Troubleshoot alerts</strong> tab, you can review your alerts by alert name, resource, failure reason, and the time of reported alert. Additionally, you can <strong>view options</strong>, <strong>group by project</strong>, or <strong>filter by type</strong> (for checks only).</p>
+<p><img alt="Troubleshoot alerts in one place, using the Data Health application." src="../../_resources/foundry/monitoring-views/troubleshoot-alerts.png" /></p>
+<p>For individual monitor rules, you can open the <a href="https://www.palantir.com/docs/foundry/monitoring-views/alert-debug-page/">alert debug page</a> to view detailed metrics, alert history, and diagnostic information.</p>
+<h3>Snooze alerts after they fire</h3>
+<p>You can snooze an individual alert after it fires for both health checks and monitors to temporarily suppress notifications. To snooze an alert, select it from the <strong>Troubleshoot alerts</strong> panel and choose <strong>Snooze</strong> from the toolbar displayed in the bottom of your screen. Additionally, you can select the bell icon in the <strong>About</strong> tab of the <strong>Context Panel</strong> that renders after you select the alert. Configure a suspension duration and provide a reason for snoozing before selecting <strong>Snooze</strong>.</p>
+<p><img alt="Snooze fired alerts in the Troubleshoot alerts tab." src="../../_resources/foundry/monitoring-views/snooze-monitor-alert.png" /></p>
+<p>Snoozed alerts contain an inline bell icon tag that displays who snoozed the alert, when, and why upon hover. Use the <strong>Hide snoozed alerts</strong> toggle in the top right to hide snoozed alerts from view. Once hidden, a banner in the footer of the <strong>Troubleshoot alerts</strong> panel displays the number of currently snoozed alerts.</p>
+<p><img alt="Hover details for snoozed alerts in the Troubleshoot alerts tab." src="../../_resources/foundry/monitoring-views/snooze-monitor-alert-hover-details.png" /></p>
+<p>To resume an alert's notifications, select <strong>Unsnooze</strong> from the toolbar at the bottom of your screen or wait for the snooze duration to expire.</p>
+<p>:::callout{theme="neutral"}
+Unlike health check alerts, snoozed monitor alerts remain snoozed even if they re-fire. You must wait for the snooze to expire or manually un-snooze to resume notifications.
+:::</p>
+<h3>Snooze monitor rules</h3>
+<p>In addition to snoozing individual alerts, you can snooze an entire monitor rule to silence alerts across all targets within that rule's scope at once. This is particularly useful when you are aware of a known issue and want to suppress all alerts tied to a particular rule in a single action.</p>
+<p>To snooze a monitor rule, navigate to the <strong>Manage monitors</strong> tab in your monitoring view, select the rule you want to snooze, and choose <strong>Snooze</strong> from the available actions.</p>
+<p>:::callout{theme="warning"}
+When you snooze a monitor rule, any existing target-level snoozes for that rule will be replaced by the new rule-level snooze.
+:::</p>
+<h3>Navigate to resource lineage from an alert</h3>
+<p>From an alert on the <strong>Troubleshoot alerts</strong> tab or the <a href="https://www.palantir.com/docs/foundry/monitoring-views/alert-debug-page/">alert debug page</a>, you can navigate directly to the resource's lineage view.</p>
+<ul>
+<li>Datasets, schedules, and object types will open in Data Lineage.</li>
+<li>Functions, action types, and automations will open in Workflow Lineage with the <strong>Run history</strong> tab selected.</li>
+</ul>
+<p><img alt="Run history button for an action type in the Troubleshoot alerts tab." src="../../_resources/foundry/monitoring-views/run-history-redirect.png" /></p>
+<p>For function and action type monitoring rules, pre-filters are automatically applied to the run history based on the monitor rule type to surface the most relevant executions.</p>
+<table>
+<thead>
+<tr>
+<th>Rule type</th>
+<th>Run time range</th>
+<th>Status</th>
+<th>Timestamp range</th>
+<th>Failure reason</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Duration p95</strong></td>
+<td>Set to the monitor's threshold value, showing only executions that exceeded the threshold.</td>
+<td>â</td>
+<td>â</td>
+<td>â</td>
+</tr>
+<tr>
+<td><strong>Number of failures in window</strong></td>
+<td>â</td>
+<td>Set to <strong>Failed</strong></td>
+<td>Start of the monitor's time window at the time the alert fired.</td>
+<td>â</td>
+</tr>
+<tr>
+<td><strong>Number of user-facing failures in window</strong></td>
+<td>â</td>
+<td>Set to <strong>Failed</strong></td>
+<td>Start of the monitor's time window at the time the alert fired.</td>
+<td>Set to <strong>User facing error</strong></td>
+</tr>
+</tbody>
+</table>
+<p>:::callout{theme="neutral"}
+Pre-filtered run history navigation is currently available for function and action type resources only.
+:::</p>
+<h2>Monitoring status in Workflow Lineage</h2>
+<p>While monitoring alerts inform you that a specific monitor is firing, you can also view monitoring coverage across a whole workflow. To do this, open the workflow as a graph in <a href="https://www.palantir.com/docs/foundry/workflow-lineage/overview/">Workflow Lineage</a>, select the color legend, and choose <strong>Monitoring status</strong> under <strong>Health</strong>. Each node is colored by the highest severity among the monitors currently firing against that resource.</p>
+<p><img alt="A Workflow Lineage graph colored by monitoring status, with the legend showing a count for each status." src="../../_resources/foundry/monitoring-views/workflow-lineage-monitoring-status.png" /></p>
+<h3>Monitoring status legend keys</h3>
+<table>
+<thead>
+<tr>
+<th>Legend key</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>All monitors healthy</code></td>
+<td>The resource has monitors, and none of them are firing.</td>
+</tr>
+<tr>
+<td><code>Low severity</code></td>
+<td>The highest firing severity on the resource is <code>Low</code>.</td>
+</tr>
+<tr>
+<td><code>Medium severity</code></td>
+<td>The highest firing severity on the resource is <code>Medium</code>.</td>
+</tr>
+<tr>
+<td><code>High severity</code></td>
+<td>The highest firing severity on the resource is <code>High</code>.</td>
+</tr>
+<tr>
+<td><code>No monitors configured</code></td>
+<td>The resource can be monitored, but no monitoring rules target it.</td>
+</tr>
+<tr>
+<td><code>Not applicable</code></td>
+<td>The resource cannot be the target of a monitoring rule.</td>
+</tr>
+</tbody>
+</table>
+<p>Severity levels are the same <code>Low</code>, <code>Medium</code>, and <code>High</code> levels you set when you <a href="#configure-monitors">configure monitors</a>. Use <code>No monitors configured</code> to find gaps in coverage; a node with that key is a resource in your workflow that no monitoring view is watching.</p>
+<h3>How status is determined</h3>
+<p>Three behaviors are worth understanding when reading the colors:</p>
+<ul>
+<li>Only firing monitors affect the color. A resource with several monitors takes on the highest-severity level among those currently firing.</li>
+<li>A monitoring rule that has not yet computed its status for the first time is treated as healthy, so a newly created rule will not color its target until it has run.</li>
+<li>AIP Logic nodes take the status of their backing function. A monitor set on the function colors the Logic node that uses it.</li>
+</ul>
+<p>:::callout{theme="neutral"}
+Monitoring status is based on the highest severity alert in the monitoring views you have access to. A resource may have additional alerts that are not visible to you.
+:::</p>
+<p>The monitoring status color mode requires monitoring views to be available on your enrollment. If they are not available, the option does not appear in the Workflow Lineage color legend.</p>
+<h2>Upgrade an existing check group to a monitoring view</h2>
+<p>To upgrade an <a href="https://www.palantir.com/docs/foundry/monitoring-views/check-groups/">existing check group</a>, open your check group in the <strong>Data Health</strong> application. In the top banner, select <strong>Upgrade to monitoring view</strong>.</p>
+<p>You can create a new monitoring view or move all the checks to an existing monitoring view.</p>
+<p>:::callout{theme="neutral"}
+* Monitoring views are filesystem resources. If you are creating a new monitoring view, be sure to store it in a project accessible to potential subscribers.
+* After upgrading your check group, checks will continue to be supported exactly as they are now. There are no changes to email digest, alerting, subscriptions, or any other workflow related to health checks.
+* Each check group can be linked to a single monitoring view and vice versa; therefore, you can only upgrade one check group to a single existing monitoring view, or create a new monitoring view if a suitable one does not exist.
+:::</p>
+</body>
+</html>

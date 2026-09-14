@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Organization assignment</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Organization assignment</h1>
+<p>Users are assigned their primary Organization upon login. A user's primary Organization is determined in the Organization assignment section of the identity provider integration used to log in. If you have configured provider groups in the identity provider integration, these groups will be marked with one or more Organizations based on that section as well.</p>
+<h2>Default Organization or advanced rules</h2>
+<p>In most cases, all users logging in via a given identity provider integration should be assigned to a single Organization. This is achieved by selecting the <strong>Default Organization</strong> option. Provider groups, if configured, will also be marked with the same Organization as users.</p>
+<p>Advanced rule creation can be used for more complex situations. It allows you to define a series of rules to assign the right Organization with an optional fallback. You can manage the rules for users and for provider groups separately.</p>
+<p><img alt="Advanced rules selected" src="../../_resources/foundry/authentication/advanced-rules-selected.png" /></p>
+<p>Open the advanced rules editor by clicking <strong>Manage</strong> for either user or group rules.</p>
+<h3>Define Organization assignment rules</h3>
+<p>On the provider management page, expand the <strong>Organization assignment</strong> section. This allows you to determine which Organizations your users will be a member of when they log in.</p>
+<p>For a simple SAML 2.0 integration, choose <strong>Default Organization</strong> and select your Organization in the dropdown, then save.</p>
+<p><img alt="Org assignment" src="../../_resources/foundry/authentication/authentication-org-assignment.png" /></p>
+<h3>User rules</h3>
+<p>Organization assignment rules for users are configured by writing conditions that match a userâs attributes, internal groups, or provider groups. We strongly recommend using user attributes and/or provider group conditions rather than internal group conditions.</p>
+<p><img alt="Advanced user rules editor" src="../../_resources/foundry/authentication/advanced-user-rules.png" /></p>
+<p>Before saving, you can validate these rules against an existing user. The test panel shows which rule the user matches and the organization to which they would be assigned. Note that only users who have logged in with this provider can be used for testing.</p>
+<p><img alt="Test user rules" src="../../_resources/foundry/authentication/organization-assignment-testing.png" /></p>
+<h3>Group rules</h3>
+<p>Organization assignment rules for groups are configured by writing conditions that match on a groupâs name. The group can be assigned to one or more organizations.</p>
+<p>As the matching criteria uses regex, ensure special characters are escaped in the condition.</p>
+<p><img alt="Advanced group rules editor" src="../../_resources/foundry/authentication/advanced-group-rules.png" /></p>
+<h2>No organization</h2>
+<p>If a user is assigned <code>No organization</code> (either via the default Organization functionality or by applying advanced rules), then they will be blocked from logging in.</p>
+<p>If a provider group is assigned <code>No organization</code> (either via the <strong>Default organization</strong> or <strong>Advanced rule creation</strong> options), then the group will be assigned to the organization of the most recent member to log in.</p>
+<p>:::callout{theme="neutral" title="Multipass group AUM rules"}
+Certain historical identity provider integrations may be using a legacy implementation called Multipass Group AUM rules for assigning users &amp; provider groups to organizations. If organization assignment is not configured in Control Panel, then these rules continue to apply. However, <strong>Multipass Group AUM rules will be ignored if organization assignment is configured in Control Panel</strong>. Contact your Palantir representative if you are unsure whether this applies to your configuration.
+:::</p>
+<p>To complete setup, <a href="https://www.palantir.com/docs/foundry/authentication/test-provider-integration/">enable and test your identity provider integration</a>.</p>
+</body>
+</html>

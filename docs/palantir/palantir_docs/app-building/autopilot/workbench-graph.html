@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dependency graph view</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Dependency graph view</h1>
+<p>Autopilot's graph view displays the complete dependency graph of your automation system, showing all automations, actions, functions, logic functions, and their relationships. This view helps you understand the architecture of your workflow, identify dependencies, and troubleshoot issues across your automation system.</p>
+<p>The dependency graph is composed of nodes and edges:</p>
+<ul>
+<li><strong>Nodes:</strong> Represent automations (composed of actions and logic) and Workshop applications (also composed of actions). Together, these show both automated and human-driven components of your workflow.</li>
+<li><strong>Edges:</strong> Show dependencies and execution flow between nodes.</li>
+</ul>
+<p><img alt="Dependency graph view in Autopilot." src="../../_resources/foundry/autopilot/autopilot_graph_view_ia.png" /></p>
+<h2>Human vs. automation components</h2>
+<p>The graph distinguishes between human-driven and automated components of your workflow:</p>
+<ul>
+<li><strong>Workshop nodes:</strong> Human actions and Workshop applications appear as distinct nodes on the graph.</li>
+<li><strong>Transition breakdown:</strong> View which state transitions are driven by human actions rather than automation.</li>
+<li><strong>Collaboration patterns:</strong> Understand where humans and automation interact in your workflow.</li>
+</ul>
+<h2>Historical object paths</h2>
+<p>View the historical path of an object as it moves through your workflow over time. When you select an object, you can display its path on the graph to view the following:</p>
+<ul>
+<li>The states the object has passed through</li>
+<li>The automations that processed the object at each stage</li>
+<li>The sequence and timing of state transitions</li>
+</ul>
+<h2>Liveness indicators</h2>
+<p>When automations are actively executing, the graph displays real-time indicators:</p>
+<ul>
+<li><strong>Animated dotted lines:</strong> Active processing appears as animated dotted lines on the edges connecting to the states where objects are currently being processed.</li>
+<li><strong>Node highlights:</strong> Automations that are currently running are highlighted on the graph.</li>
+</ul>
+<p>These indicators provide immediate visibility into system activity and help you monitor automation execution in real time.</p>
+<p><img alt="Example liveness indicators on the dependency graph." src="../../_resources/foundry/autopilot/autopilot_graph_liveness_ia.png" /></p>
+<h2>Resource activity panel</h2>
+<p>View the Ontology writes made by any resource in your workbench. Select a resource on the graph â such as an Automate, a Workshop application, or an AIP chatbot â to open the Resource activity panel and view the creations, deletions, and modifications it performed against object types. The panel requires edit history to be enabled on the relevant object types. If edit history is not enabled, activity for that object type will not appear in the panel.</p>
+<p>As with the Object History side panel, you can drill into each write to view the specific properties that were changed, the attributed user, and the associated trace.</p>
+<p><img alt="Resource activity in the side panel." src="../../_resources/foundry/autopilot/autopilot_resource_activity_panel.png" /></p>
+<h2>Graph controls and navigation</h2>
+<p>Use the graph controls toolbar and navigation features to explore your workflow:</p>
+<ul>
+<li><strong>Auto-layout:</strong> Automatically organize nodes to minimize edge crossings and improve readability.</li>
+<li><strong>Edge styling:</strong> Choose between orthogonal (right-angled) or curved edges.</li>
+<li><strong>Expand all nodes:</strong> Expand all collapsed sections of the graph to view the full workflow structure. When you expand nodes, you can see fallback effects configured in your automations. <br><br>
+  <img alt="Expanded node details in the dependency graph view." src="../../_resources/foundry/autopilot/autopilot_expanded_graph_node.png" /> <br><br></li>
+<li><strong>Select nodes:</strong> Select any node to view details in the right side panel.</li>
+<li><strong>Remove nodes:</strong> Choose a node, then select <strong>Remove from workbench</strong> to remove it from your graph view.</li>
+</ul>
+</body>
+</html>

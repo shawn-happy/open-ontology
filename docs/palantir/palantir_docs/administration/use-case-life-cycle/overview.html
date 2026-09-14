@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Use case lifecycle</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Use case lifecycle</h1>
+<p>A use case is a <strong>time-bound</strong> effort by a <strong>dedicated team</strong> to deliver <strong>new capabilities</strong> on the platform for a set of <strong>users</strong>.</p>
+<p>A use case is not âintegrate source system Xâ or âapply ML technique Yâ. Instead, a <strong>use case</strong> focuses on the <em>capabilities</em> we need to provide to our users, rather than the implementation details along the way. Framing development work as a use case forces us to confront the value proposition of our project immediately. Whose work life will improve as a result of this new capability? And what can we measure to know whether we have succeeded?</p>
+<p>Along the way to building our use case, we will unlock many of the compounding features of Foundry, such as:</p>
+<ul>
+<li><strong>enriching data</strong> through integration, data science techniques, and business logic;</li>
+<li>structuring a flexible, re-usable <strong>data asset</strong> as a digital twin of our organization and business processes;</li>
+<li>and creating <strong>re-usable user interfaces</strong> that close the operational loop by capturing decisions as data.</li>
+</ul>
+<p>Holding our use case(s) and their outcomes as guides, we stay connected to real-world value, even as we get into the complexity of specific implementations throughout Foundry.</p>
+<h2>Starting a use case</h2>
+<p>The craft of developing a use case on Foundry involves decomposing the <strong>functional requirements</strong> of the outcomes and choosing the implementation pattern(s) for each component.</p>
+<p>The solution design process described below is an approach to this challenge. It focuses on distilling the use case requirements into a format that informs decisions about interface implementation and data enrichment. These decisions in turn inform the ontology design, which acts as the use case API and abstracts pipeline implementation details from the end user interactions.</p>
+<p>In this way, the solution design framework encourages a holistic approach as depicted in the image below:</p>
+<p><img alt="data-model" src="../../_resources/foundry/use-case-life-cycle/data-model.png" /></p>
+<p>Breaking the solution design into buckets around <strong>transforming</strong>, <strong>structuring</strong>, and <strong>interacting</strong> with use case data pivots the development process from purely user-centric requirements into platform-centric components. With this framework, we can then look at:</p>
+<ul>
+<li>Blueprints for commonly encountered patterns,</li>
+<li>Flags that indicate additional development complexity, and</li>
+<li>The default choice between available options and considerations for choosing alternatives.</li>
+</ul>
+<p>We can also judge tradeoffs between development complexity and strict adherence to business requirements. Working through the solution design framework should make it possible to reevaluate priorities.</p>
+<p>For example, suppose the original business requirement is to render a specific chart and include some specific form input, which may require odd ontology configurations and significant development effort in <a href="https://www.palantir.com/docs/foundry/slate/overview/"><strong>Slate</strong></a>. If instead we created these functionally-equivalent visualizations and Actions (meet the functional requirement), then we can use Workshop at 1/10th the investment in front-end development and keep a cleaner ontology data structure.</p>
+<p>The next section covers capturing a use case description and distilling these functional requirements.</p>
+</body>
+</html>

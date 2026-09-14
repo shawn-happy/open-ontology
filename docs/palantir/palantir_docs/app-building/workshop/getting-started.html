@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Getting started</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Getting started</h1>
+<p>:::callout{theme="neutral"}
+Note that this tutorial is intended as an illustrative example. Since the Foundry Ontology is customized to your needs and data, you may not have access to the same ontology resources to complete the tutorial as written.
+:::</p>
+<p>This tutorial is intended for new Workshop builders and walks through the configuration of a simple Workshop module. Concepts covered below will include creating a new module, configuring widgets like the Object Table, Filter List, and Object View, and enabling writeback through an Action-backed Button Group widget.</p>
+<p>In this example storyline, our aim is to build a âFlight Alert Inboxâ that surfaces potential flight delays and cancellations and presents a user with options to easily understand and take action on these alerts. Our target user is an airline supervisor who needs to track these alerts in real time, prioritize which alerts require response next, and resolve alerts quickly.</p>
+<p>The image below shows the end result of this tutorial:</p>
+<p><img alt="Screenshot of an example Flight Alert Inbox Workshop module" src="../../_resources/foundry/workshop/workshop_getting_started_step_6.png" /></p>
+<p>:::callout{theme="success" title="Palantir Learning portal"}
+Get started and build your first application with the course on <a href="https://learn.palantir.com/deep-dive-building-your-first-application">learn.palantir.com â</a>.
+:::</p>
+<h2>Part I: Initial setup</h2>
+<ol>
+<li>To create a new module, open <strong>Projects &amp; Files</strong> from the left workspace navigation panel, then find your desired Project or folder. Once there, select <strong>New &gt; Workshop module</strong> in the top right to create a new module within the current Project or folder. The new module will inherit the permission of the Project or folder in which it is created.</li>
+<li>The module resource name will appear in the top left; by default, the name will have the format âNew module (2022-04-08 15:16:23)â. We can select this default to enter a more descriptive and memorable resource name. In this case, we will name the module âFlight Inbox Tutorial.â After this change, our screen should resemble the following:</li>
+</ol>
+<p><img alt="Screenshot of Workshop module named &quot;Flight Inbox Tutorial&quot;" src="../../_resources/foundry/workshop/workshop_getting_started_step_1.png" /></p>
+<h2>Part II: Configure your initial view</h2>
+<p>Add and configure an Object Table widget for the <code>Flight Alert</code> objects:</p>
+<ol>
+<li>On the right side of your module layout, select <strong>Add widget</strong>, then select the <strong>Object table</strong> widget from the widget selector that appears.</li>
+<li>In the configuration panel for the <strong>Object table 1</strong> widget, use the <strong>Object set</strong> dropdown menu to define the data that will be displayed in this widget. In the dropdown menu, select <strong>+ New object set variable</strong>, and in the variable definition popover that appears, choose the <strong>Starting object set</strong> dropdown menu and select <strong>[Example Data] Flight Alert</strong>. If you cannot find <strong>[Example Data] Flight Alert</strong>, contact Palantir Support.</li>
+<li>Return to the main configuration panel for the <strong>Object table 1</strong> widget, and look for the <strong>Column Configuration</strong> section to select <strong>Add all properties</strong>. This will populate the Object Table widget with a column for each property of the <strong>[Example Data] Flight Alert</strong> object type. You can also configure specific columns with the <strong>+ Add column</strong> button if desired.</li>
+<li>Under <strong>Columns</strong>, adjust the column order as you like and remove any undesired properties. For example, drag the <strong>Flight Date</strong> column to the top of the list so it displays as the first column after the object title in the object table.</li>
+<li>Scroll down in the configuration panel to the <strong>Default sort(s)</strong> section, and select the <strong>Flight Date</strong> property to sort by.</li>
+</ol>
+<p><img alt="Screenshot of Workshop module with &quot;Object table 1&quot; added to the right side of the module layout" src="../../_resources/foundry/workshop/workshop_getting_started_step_2.png" /></p>
+<h2>Part III: Configure filtering</h2>
+<p>To configure filtering, first add and configure a Filter List widget for <code>Flight Alert</code> objects:</p>
+<ol>
+<li>
+<p>On the left side of your module layout, select <strong>Add widget</strong>, then choose the <strong>Filter list</strong> widget from the selector that appears.</p>
+</li>
+<li>
+<p>In the configuration panel for the <strong>Filter list 1</strong> widget, select the <strong>Object set</strong> dropdown menu to define the data that will be displayed. Again, select <strong>+ New object set variable</strong>, and in the variable definition popover that appears, choose the <strong>Starting object set</strong> dropdown menu then <strong>[Example Data] Flight Alert</strong>. You must define a new object set variable to back the Filter List widget so that the filter does not limit the base object set that backs the widget.</p>
+</li>
+<li>
+<p>Return to the main configuration panel for the <strong>Filter list 1</strong> widget, and look for the <strong>Filters Configuration</strong> section to use the <strong>+ Add filter</strong> button to add filters for the following properties: <strong>Status</strong>, <strong>Priority</strong>, and <strong>Flight Date</strong>.</p>
+</li>
+<li>
+<p>In the Filter List configuration, set <strong>Layout configuration</strong> to <strong>vertical</strong> to display filters in a stacked list. For a more compact experience, you can instead choose <strong>Pills</strong>, which displays filters as interactive pills that open a popover for configuration.</p>
+</li>
+<li>
+<p>At the bottom of this configuration panel, switch on the toggle to <strong>Allow users to add and remove filters</strong>.</p>
+</li>
+</ol>
+<p>Next, modify the Object Table widget to accept the filter criteria output from our Filter List widget:</p>
+<ol>
+<li>Select the Object Table widget to show its configuration panel on the right side of the screen.</li>
+<li>Within the configuration panel, select <strong>Object set</strong>. In the variable definition popover that appears, choose the <strong>Filter...</strong> â <strong>Using a variable</strong> option and select the <strong>Filter list 1 Filter output</strong> variable.</li>
+<li>Test that filtering works by toggling on a filter in the panel (for example, by filtering to Alert Type of <strong>Priority: Medium</strong>). You should notice the filter applied to your Object Table.</li>
+</ol>
+<p>:::callout{theme="neutral"}
+The <strong>Filter list 1 Filter output</strong> is an object set filter variable. You can set default filters and, if needed, enable filter value extraction to reuse selected values elsewhere in your module. For more information, see the documentation on <a href="https://www.palantir.com/docs/foundry/workshop/object-set-filter-variables/">object set filter variables</a>.
+:::</p>
+<p><img alt="Screenshot of Workshop module with &quot;Filter list 1&quot; added to the left side of the module layout" src="../../_resources/foundry/workshop/workshop_getting_started_step_3.png" /></p>
+<h2>Part IV: Configure a collapsible panel for the Object View</h2>
+<p>Add and configure an Object View widget for the active object in the Object Table widget.</p>
+<ol>
+<li>
+<p>Select the section surrounding the object title on the right side of the screen and note the <strong>Section toolbar</strong> that appears at the top of your module. Choose the <strong>Add</strong> â <strong>Right</strong> option to add a new section to the right of the Object Table widget.</p>
+</li>
+<li>
+<p>Select the new section that appeared. Within the <strong>Section configuration panel</strong> on the right, toggle on the options for <strong>Section Header</strong> and <strong>Collapsible</strong>. Also, set the column width to an <strong>Absolute</strong> pixel size of <code>500</code>.</p>
+</li>
+<li>
+<p>Next, select <strong>+ Add widget</strong> within this section, then select the <strong>Object View</strong> widget from the selector that appears.</p>
+</li>
+<li>
+<p>In the configuration panel, open the <strong>Object to display</strong> option and choose the <strong>Object Table 1 Active Object</strong> variable that is an output from the Object Table widget.</p>
+</li>
+<li>
+<p>In the Object View <strong>Display &amp; formatting</strong> settings, set <strong>Form factor</strong> to <strong>full</strong>. Since the section already has a header configured, you can optionally toggle <strong>Hide header</strong> to avoid displaying both the section header and the widget header. If you choose the <strong>Panel</strong> form factor instead, set <strong>Panel behavior</strong> to <strong>Object instance</strong> so the panel displays the active object from the Object Table.</p>
+</li>
+</ol>
+<p><img alt="Screenshot of Workshop module with &quot;Object view 1&quot; added to the right side of the module layout" src="../../_resources/foundry/workshop/workshop_getting_started_step_4.png" /></p>
+<h2>Part V: Enable writeback with Actions</h2>
+<p>:::callout{theme="neutral"}
+The below section assumes that the <strong>[Example Data] De-escalate Flight Alert</strong> action type has already been created. For details on how to create a new action type, see the <a href="https://www.palantir.com/docs/foundry/workshop/actions-use/">documentation on how to use Actions in Workshop</a>.
+:::</p>
+<p>Now, add and configure a Resolve Alert button to allow users to write back to the Flight Alert data when they resolve an issue.</p>
+<ol>
+<li>Select the section header above the newly configured Object View header. Choose the plus sign (<strong>+</strong>) on the right, then select the <strong>Button Group</strong> widget from the selector that appears.</li>
+<li>Next, configure the title and styling of the button. Under the <strong>Button Configuration</strong> header, select the first button, named <strong>Button 1</strong> by default. Within the button configuration, change <strong>Text</strong> to <code>Resolve Alert</code>, change <strong>Intent</strong> to <code>Success</code>, and change <strong>Left icon</strong> to <code>Small tick</code>.</li>
+<li>We then configure the action type we want to trigger when the button is selected by a user. In the same <strong>Item</strong> block, change the <strong>On click</strong> setting to <strong>Action</strong>, and use the <strong>Select an action...</strong> dropdown menu to choose the <code>[Example Data] De-escalate Flight Alert</code> Action. In the <strong>Parameter Defaults</strong> section that appears, we can configure the default input parameters for this Action. For the <strong>[Example Data] Flight Alert</strong> parameter, choose the <strong>Object table 1 Action object</strong> variable that we also use to back the Object View widget. Leave the <strong>Comment</strong> variable without a default so that a user can manually enter how they resolved this flight alert.</li>
+<li>Under the <strong>[Example Data] Flight Alert</strong> parameter configuration, select <strong>Hidden</strong> for the <strong>Visibility in form</strong> value. This will prevent the <code>Alert</code> object from appearing in the form that is shown to the user after interacting with the <code>Resolve Alert</code> button.</li>
+</ol>
+<p><img alt="Screenshot of configuring a Button Group widget to trigger an Action to resolve a Flight Alert" src="../../_resources/foundry/workshop/workshop_getting_started_step_5.png" /></p>
+<h2>Part VI: Polish your inbox and add headers</h2>
+<p>We can now configure the overall header of our module.</p>
+<ol>
+<li>Select the currently unconfigured header at the top of our module. In the configuration panel that appears on the right, change the <strong>Icon</strong> to an <strong>Airplane</strong> with a color of <strong>Red 3</strong>. In the same configuration panel, set the <strong>Title</strong> input to <code>Flight Alert Inbox</code>.</li>
+<li>Finally, configure the section headers. To configure the section headers of our filter, object table, and object view sections, select the header of each. Then, use the configuration panel on the right to configure the <strong>Title</strong> under the <strong>Section</strong> configuration (such as âFiltersâ) and choose a Blueprint icon (such as âfilterâ) to display in each section header. Your end result should look like the inbox seen below and at the top of this tutorial.</li>
+</ol>
+<p><img alt="Screenshot of an example Flight Alert Inbox Workshop module" src="../../_resources/foundry/workshop/workshop_getting_started_step_6.png" /></p>
+</body>
+</html>

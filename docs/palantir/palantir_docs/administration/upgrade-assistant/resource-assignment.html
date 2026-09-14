@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Resource assignment</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Resource assignment</h1>
+<p>Resources can be assigned to groups or individual users. Notifications are sent to users as individuals or as members of groups (using group membership to determine if any resources are assigned to a given user).</p>
+<p>In most cases, resources are assigned directly by Upgrade Assistant relying on <em>heuristics</em> based on the <a href="https://www.palantir.com/docs/foundry/upgrade-assistant/resource-type/"><strong>type of the resource</strong></a> to figure out the right person or group to assign. The remainder of this page describes the various assignment heuristics used by Upgrade Assistant.</p>
+<p>Alternatively, the responsible parties for implementing changes in the platform can directly assign resources to groups or users. In this case, Upgrade Assistant simply records the assignment.</p>
+<p>In all cases, resources can only be assigned to a maximum of 100 groups or users at a time.</p>
+<h2>Assignment heuristics for Compass resources</h2>
+<p>:::callout{theme="neutral"}
+Learn more about how to identify <a href="https://www.palantir.com/docs/foundry/upgrade-assistant/resource-type/#compass-resources">Compass resources</a>.
+:::</p>
+<p>Compass resources are assigned based on the <a href="https://www.palantir.com/docs/foundry/compass/move-and-share-resources/">Project</a> to which they belong.
+If possible, the resource is assigned to the Project's <a href="https://www.palantir.com/docs/foundry/platform-security-management/manage-groups/#set-contact-details"><strong>point of contact</strong></a>. If no specified contact can be found, the resource will be assigned to users and groups with <code>Owner</code> role on the Project.</p>
+<h3>Best practices for Compass resource assignment</h3>
+<ul>
+<li>Ensure that the Projectâs point of contact is set and reflects the actual ownership of the Project.</li>
+<li>The point of contact can act as a dispatcher to reassign resources based on their knowledge of the business.</li>
+<li>If a point of contact is unavailable, consider reviewing the groups or users with the <code>Owner</code> role on the Project. If possible, reduce the <code>Owner</code> to a focused set of users.</li>
+</ul>
+<h2>Assignment heuristics for enrollments</h2>
+<p>:::callout{theme="neutral"}
+Learn more about how to identify <a href="https://www.palantir.com/docs/foundry/upgrade-assistant/resource-type/#enrollment-resources">enrollment resources</a>.
+:::</p>
+<p>Resources are assigned to users who are <a href="https://www.palantir.com/docs/foundry/upgrade-assistant/technical-maintenance-operators/">Maintenance Operators</a>. These users have the <code>OPERATOR-VIEW-PROGRESS</code> operation on the relevant organization. This operation is displayed in Control Panel as <strong>View progress in Upgrade Assistant</strong>, and is granted by default to certain roles such as <a href="https://www.palantir.com/docs/foundry/administration/enrollments-and-organizations-permissions/#technical-compliance-officer-role"><strong>Technical Compliance Officer</strong></a>. If no such user can be found, the resource will be assigned to the <strong>Organization Administrator</strong>.</p>
+<h3>Best practices for enrollment resource assignment</h3>
+<ul>
+<li>Ensure that the <strong>Technical Compliance Officer</strong> role has a reasonable number of users who are familiar with Upgrade Assistant.</li>
+</ul>
+<h2>Assignment heuristics for other resources</h2>
+<p>:::callout{theme="neutral"}
+Learn how to identify <a href="https://www.palantir.com/docs/foundry/upgrade-assistant/resource-type/#other-resources">other resources</a>.
+:::</p>
+<p>Object type resources are assigned to users who have the editor or owner role on the given object type. Restricted object types are assigned to the users who additionally are editors or owners of the backing dataset(s).</p>
+<p>Other types of resources, such as Compass <a href="https://www.palantir.com/docs/foundry/security/orgs-and-spaces/#spaces">spaces</a>, link types, action types, or schedules, have no default heuristics. For these resources, Upgrade Assistant relies on the service reporting affected resources to provide assignment information.</p>
+<h2>"Needs triage" assignment heuristic</h2>
+<p>In some cases, resources may be assigned to <a href="https://www.palantir.com/docs/foundry/upgrade-assistant/technical-maintenance-operators/">Maintenance Operators</a> with the assignment reason listed as "Needs triage." This assignment heuristic is applied in cases where standard heuristics are not sufficient.</p>
+<p>In particular, "needs triage" is used when:</p>
+<ul>
+<li>Standard heuristics have <strong>not identified any assignees</strong>. For example, if there are no users identified as project point of contact or project owners.</li>
+<li>Standard heuristics have identified <strong>too many assignees</strong>. For example, if the resource's project is owned by a group containing 1000 users and there is no point of contact listed.</li>
+</ul>
+<p>In these cases, the resource is assigned to maintenance operators for triage and appropriate reassignment to the relevant users.</p>
+</body>
+</html>

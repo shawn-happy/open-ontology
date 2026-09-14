@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Authentication</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../index.html">返回目录</a></div>
+<h1>Authentication</h1>
+<p>There are two options for authentication on the Palantir platform. Enrollment administrators can integrate an existing identity provider, or you can use Palantirâs self-service passwordless identity provider for AIP Developer Tier and AIP Bootcamp enrollments.</p>
+<p><a href="https://www.palantir.com/docs/foundry/getting-started/login/">Learn more about logging in to a Palantir enrollment.</a></p>
+<h2>Your own identity provider</h2>
+<p>The Palantir platform can integrate seamlessly with your existing identity provider, allowing full end-to-end access administration and management through your existing system. Review the <a href="https://www.palantir.com/docs/foundry/authentication/overview/">administration documentation</a> for detailed instructions on how to configure your identity provider for use with the Palantir platform.</p>
+<h2>Palantir self-service user directory</h2>
+<p>In some scenarios, your enrollment may be automatically configured with a built-in identity provider. Palantir's self-service user directory is <strong>passwordless</strong>, leveraging FIDO2 passkeys to offer unparalleled security and a seamless user experience.</p>
+<p>If you signed up for a new enrollment with the Palantir self-service user directory, you will receive an email with the subject "Set up your Palantir account and log in" shortly after signing up. After <a href="https://www.palantir.com/docs/foundry/getting-started/login/#set-up-and-configure-a-passkey">completing the instructions to set up your account</a>, you can invite additional users to your enrollment in Control Panel by navigating to <strong>Authentication &gt; Palantir self-service user directory</strong>. Then, select <strong>Manage users</strong>.</p>
+<p>We recommend that you configure more than one <a href="https://www.palantir.com/docs/foundry/administration/enrollments-and-organizations-permissions/">enrollment administrator</a> to assist with account recovery as a backup.</p>
+<h3>What are passkeys?</h3>
+<p>FIDO2 (Fast IDentity Online) passkeys are a passwordless login method that use cryptography and a device's built-in security features, such as facial recognition, to verify your identity. A passkey is not the same as a password, and you do not need to remember it or enter it into a login form. Instead, your device will verify your identity using security features such as biometrics, and provide a private cryptographic key to authenticate you, allowing you to log in. Passkeys eliminate the need to remember complex passwords and allow you to sign in with your fingerprint, face scan, security key, or password manager.</p>
+<h3>How do passkeys work?</h3>
+<p>A FIDO2 passkey is a physical security key or a platform authenticator, such as a biometric device or a smartphone, that can be used for passwordless authentication. Devices such as smartphones generate a unique pair of public and private keys for each service or application. The public key is registered with the service, and the private key remains securely stored on the device.</p>
+<p>When you use a FIDO2 passkey for authentication, the service will send a challenge to your device. The device will sign the challenge using the private key and send the signed response back to the service. The service then verifies the response using the public key to confirm your identity.</p>
+<p>Passkeys provide several benefits:</p>
+<ul>
+<li><strong>Strong security:</strong> Public-key cryptography provides a high level of security, and since the private key never leaves the device, it is less vulnerable to attacks.</li>
+<li><strong>Passwordless authentication:</strong> FIDO2 passkeys eliminate the need for passwords, making authentication more convenient and reducing the risk of phishing and other password-related attacks.</li>
+<li><strong>Privacy:</strong> The unique key pairs generated for each service ensure that your authentication information cannot be used to track your activities across different services.</li>
+<li><strong>Ease of use:</strong> Passkeys provide a simple, user-friendly authentication experience that requires only a single action, such as inserting the security key or using a biometric device such as a fingerprint or face scan.</li>
+</ul>
+<p>For detailed instructions on logging in with a passkey, review the <a href="https://www.palantir.com/docs/foundry/getting-started/login/">login documentation</a>.</p>
+</body>
+</html>

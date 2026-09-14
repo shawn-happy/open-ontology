@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Getting started</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Getting started</h1>
+<p>The following tutorial explains how you can use Quiver to analyze objects and time series data from the <a href="https://www.palantir.com/docs/foundry/ontology/overview/">Ontology</a>.</p>
+<h2>Create a Quiver analysis</h2>
+<p>To create a new Quiver analysis, expand the Foundry sidebar to the left, then select <strong>View all</strong> in the Applications section. You will find Quiver under the <strong>Analytics &amp; Operations</strong> section.</p>
+<p><img alt="Create Quiver analysis from Foundry navigation bar." src="../../_resources/foundry/quiver/getting-started-create-quiver-analysis.png" /></p>
+<p>From there, start a new analysis by selecting <strong>+New Analysis</strong>, then choose a folder for the new analysis and select <strong>Save</strong>. You can also open an existing analysis or create a <a href="https://www.palantir.com/docs/foundry/quiver/analysis-types/">different analysis type</a>.</p>
+<p><img alt="Create a Quiver analysis by providing name and save location." src="../../_resources/foundry/quiver/getting-started-create-analysis-types.png" /></p>
+<p>:::callout{theme="success" title="Palantir Learning portal"}
+Jump into data analysis in Quiver immediately by taking the relevant course on <a href="https://learn.palantir.com/deep-dive-data-analysis-in-quiver">learn.palantir.com â</a>.
+:::</p>
+<h2>Add objects data</h2>
+<p>Once you have created a new analysis, you can start adding some objects data. Add initial data by selecting <strong>+Add data to analysis</strong> in the center of the screen. You can add additional data at any time from the <strong>Add data</strong> section of the <a href="https://www.palantir.com/docs/foundry/quiver/analysis-toolbars/#analysis-top-bar">analysis top bar</a>.</p>
+<p><img alt="Add data to Quiver analysis from analysis top bar." src="../../_resources/foundry/quiver/getting-started-add-data.png" /></p>
+<p>Selecting <strong>+Add data to analysis</strong> will open Quiver's <a href="https://www.palantir.com/docs/foundry/quiver/analysis-toolbars/#search-bar">search bar</a> to explore the Ontology for object types. Select an object type to add it to your analysis. After adding your object type, select <strong>X</strong> in the top right corner to close the search bar. You should now have an object set card in your analysis, which shows a table preview of the objects inside of the set and a count of all objects in the top right.</p>
+<p>In the example below, we search for objects related to "nyc" and add the <code>NYC Buildings</code> object type.</p>
+<p><img alt="Add objects data to your analysis." src="../../_resources/foundry/quiver/getting-started-adding-objects.gif" /></p>
+<h3>Filter objects</h3>
+<p>Next, filter the objects using object properties with a <a href="https://www.palantir.com/docs/foundry/quiver/objects-filter/">filter object set</a> card. Hover over the object set card added in the previous step to display the <a href="https://www.palantir.com/docs/foundry/quiver/analysis-toolbars/#next-actions-menu">next actions menu</a> below the card. Then, select <strong>Filter &gt; Filter object set</strong> to add the new card.</p>
+<p>In the example below, we filter to only include buildings constructed between 2010 and 2020 that are of type <code>building</code> or <code>garage</code>.</p>
+<p><img alt="Filter objects using the filter object set card." src="../../_resources/foundry/quiver/getting-started-filter-objects.gif" /></p>
+<h3>Build a chart</h3>
+<p>Next, visualize your filtered objects by creating a bar chart. Hover over your filter object set card to display the next actions menu below the card. Then, select <strong>Visualize &gt; Bar chart</strong> to create a bar chart. Configure the bar chart using the editor panel on the right. Specify a <strong>Group by</strong> configuration to define the bar chart categories, then configure additional settings such as the data series metric or segmentation. You can also edit various display options from the <strong>Display</strong> tab.</p>
+<p>In the example below, we create a bar chart showing the average roof height grouped by <code>Building Type</code>. We then segment this by the <code>Year Constructed</code>. Lastly, we format the chart, changing the orientation to <strong>Vertical</strong> and the segmentation display to <strong>Grouped</strong>. In our new chart, we can see that from the years 2010 to 2020 the average roof height for buildings in New York steadily increased, while the average roof height for garages slowly trended down.</p>
+<p><img alt="Create a bar chart from the filter object set card." src="../../_resources/foundry/quiver/getting-started-create-chart.gif" /></p>
+<p>You now have a complete analysis with filtered objects and a customized chart.</p>
+<h2>Add time series data</h2>
+<p>In Foundry, <a href="https://www.palantir.com/docs/foundry/time-series/time-series-overview/">time series</a> are stored as <a href="https://www.palantir.com/docs/foundry/time-series/time-series-properties/">time series properties</a> in the Ontology. You can add time series properties to your Quiver analysis by selecting <strong>Time Series</strong> in the <strong>Add data</strong> section of the <a href="https://www.palantir.com/docs/foundry/quiver/analysis-toolbars/#analysis-top-bar">analysis top bar</a>. This will open a time series search bar, allowing you to browse objects with time series and add their time series properties to your analysis.</p>
+<p>In the example below, we search the <code>Weather stations</code> object type for "newark", then add the <code>Temperature</code> time series property for <code>Newark Liberty International</code> airport. After closing the search bar, this data was added in a  <a href="https://www.palantir.com/docs/foundry/quiver/timeseries-visualize/">time series chart</a> with the temperature plot. Finally, we click and drag on the time series chart to make a time range selection, then select <strong>Zoom to selection</strong> to navigate to the most recent time range of data.</p>
+<p><img alt="Add time series data to an analysis." src="../../_resources/foundry/quiver/getting-started-adding-time-series.gif" /></p>
+<h3>Derive time series</h3>
+<p>You can derive a new time series from your original time series by applying a <a href="https://www.palantir.com/docs/foundry/quiver/timeseries-transform/">time series transformation</a>. First, hover over your time series chart to display the next actions menu below. Select <strong>Add plot</strong> to browse the list of possible transformations. Choose a transform to add a new time series plot to your chart. You can then configure this plot using the editor panel on the right.</p>
+<p>In the example below, we transform our input temperature time series by using the <strong>Rolling aggregate</strong> plot to derive a 30 day rolling average.</p>
+<p><img alt="Derive a new time series from your original with the rolling aggregate plot." src="../../_resources/foundry/quiver/getting-started-build-time-series.gif" /></p>
+<h3>Format time series</h3>
+<p>Now, you can visually distinguish your derived plot from your original plot by adding formatting configurations from the <strong>Display</strong> tab in the editor panel. Time series plots have various display options such as color, line width, gradient shading, and point style. After adding display configuration, you can move the derived plot to its own chart. Move plots between charts by dragging their legend items or by using the <strong>Move plot</strong> section in the next actions menu.</p>
+<p>In the example below, we make the rolling average's plot line thicker, show a gradient, and change the color to purple. We then move it to its own chart by dragging its legend item out onto the analysis canvas.</p>
+<p><img alt="Format a time series plot and move it to a separate chart." src="../../_resources/foundry/quiver/getting-started-display-time-series.gif" /></p>
+<p>You now have a complete time series analysis with transformed and formatted time series. Next, <a href="https://www.palantir.com/docs/foundry/quiver/timeseries-search-anomalies/">look for anomalies</a> in your time series using the <a href="https://www.palantir.com/docs/foundry/quiver/card-time-series-search/">time series search</a> card, or create a <a href="https://www.palantir.com/docs/foundry/quiver/dashboards-overview/">dashboard</a> to share your analysis.</p>
+</body>
+</html>

@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Add a new custom docs bundle</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Add a new custom docs bundle</h1>
+<p>In-platform custom documentation is structured as "bundles", where a "bundle" is a grouped set of documentation pages that are published together and navigationally linked. Each bundle must have, at minimum, an overview page (<code>overview.md</code>) to serve as a landing page for users navigating to the bundle from the custom documentation home page, as well as an ordering file (<code>ordering.md</code>) that specifies the structure of pages in the bundle.</p>
+<h2>Create a new bundle</h2>
+<p>All documentation files should be stored in a custom docs repository's <code>docs</code> folder. If you do not yet have a custom docs repository, follow the instructions to <a href="https://www.palantir.com/docs/foundry/custom-docs/create-custom-docs-repository/">create a new custom docs repository</a>.</p>
+<p><img alt="Screenshot showing &quot;docs&quot; folder in Code Repositories." src="../../_resources/foundry/custom-docs/setup-docs-folder.png" /></p>
+<p>To add a new bundle to a custom docs repository, create a new folder in the <code>docs</code> folder with a name that is representative of your documentation bundle's intended contents (such as <code>inventory-management-application</code>). Note that folder file names must be unique and cannot contain spaces. The folder will be used as the product ID for the bundle.</p>
+<p>Within the new folder for a bundle:</p>
+<ul>
+<li>Create a file called <code>overview.md</code>. See the <a href="#example-overviewmd">example below</a> for more details.</li>
+<li>In the <code>overview.md</code>, declare a name for the product bundle using the <code>@name</code> annotation. This will be displayed as the name of the documentation bundle in the user-facing in-platform custom docs.</li>
+<li>In the <code>overview.md</code>, provide a short description for the product using the <code>@description</code> annotation.</li>
+<li>Include some introductory text in the <code>overview.md</code> to orient the reader and provide context around the core purpose or workflows of the product.</li>
+<li>Create a file called <code>ordering.md</code> and use this file to declare the structure of your content. Note that the <code>overview.md</code> does not appear in the <code>ordering.md</code> since <code>overview.md</code> must exist by default. See the documentation on <a href="https://www.palantir.com/docs/foundry/custom-docs/custom-docs-bundle-structure/">structuring your docs bundle</a> for more details.</li>
+</ul>
+<p>:::callout{theme="neutral"}
+The name and description specified with the <code>@name</code> and <code>@description</code> annotations will appear in the list of documentation bundles on the in-platform custom documentation homepage at <code>&lt;your-enrollment&gt;/workspace/documentation</code>.
+:::</p>
+<p><img alt="Screenshot showing &quot;overview.md&quot; in the custom docs folder in Code Repositories." src="../../_resources/foundry/custom-docs/setup-overview-page.png" /></p>
+<h2>Example <code>overview.md</code></h2>
+<p>Below is an example of an <code>overview.md</code> for Contour. Note that this example <code>overview.md</code> contains a <code>@name</code>, a short <code>@description</code>, and introductory text about the product.</p>
+<pre><code class="language-markdown">@name Contour
+@description Point-and-click data analysis at scale
+
+Contour provides a point-and-click user interface to perform data analysis on tables at scale. These analyses can be used to create interactive [dashboards](@contour/dashboards-overview) that allow others to explore and investigate the data in a guided, structured way.
+
+## Key features
+
+Contour enables you to:
+
+* Visualize, filter, and transform data without code.
+* Organize complex analyses into analytical paths.
+* Parameterize analyses to easily switch between different views of the data and results.
+* Create interactive dashboards to share findings.
+* Save analysis results as a new dataset for use in other Foundry tools.
+* Leverage Contour's [expression language](@contour/expressions-overview) for more advanced transformations and aggregations.
+
+## When to use Contour
+
+Contour is a good fit for analytical use cases where:
+
+* **Some or all of the data you want to use is not mapped in the Ontology.** In general, we recommend using the [Ontology layer](@ontology/overview) whenever possible, but there are some cases where this may not be appropriate (such as a one-time upload that will not be cleaned or reused).
+* **You need to operate on a very large dataset.** For instance, performing joins on over 100,000 objects or aggregations on over 50,000 rows.
+* **You want to share your analysis results as a new dataset for use in other Foundry tools.** [Learn more about saving results as a dataset.](@analytics/datasets-object-sets)
+
+</code></pre>
+</body>
+</html>

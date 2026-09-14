@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ignoring resources</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Ignoring resources</h1>
+<p>Upgrade Assistant can be configured to ignore resources; ignored resources are excluded from a campaign.</p>
+<p><img alt="img" src="../../_resources/foundry/upgrade-assistant/ignore-resource.png" /></p>
+<p>There are two primary consequences of ignoring a resource:</p>
+<ol>
+<li>When Upgrade Assistant tracks progress, an ignored resource will be counted as if action had been taken for that resource, even if no action has been taken. This counting is intended to ensure that the progress percentage accurately reflects the resources which still require action.</li>
+<li>Notifications will not be sent for ignored resources.</li>
+</ol>
+<p>:::callout{theme="warning" title="Warning"}
+If a resource is ignored in Upgrade Assistant, it is unlikely that any action will be taken on the resource as part of the campaign. Therefore, it is likely that an ignored resource will stop working after the campaign's due date, which may cause further issues.
+:::</p>
+<p>Ignoring a resource is an action that applies to all users viewing the ignored resource. You should only ignore a resource if you are sure that no action should be taken for the resource in the campaign.</p>
+</body>
+</html>

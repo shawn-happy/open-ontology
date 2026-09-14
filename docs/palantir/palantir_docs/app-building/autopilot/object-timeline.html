@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Object timeline</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Object timeline</h1>
+<p>The object timeline view displays the full change history of a single object in chronological order, attributing each change to the agent or human that made it. This view helps you trace an edit back to the execution that produced it, review the token usage and runtime behind it, and identify steps to optimize.</p>
+<p><img alt="Object timeline view in Autopilot." src="../../_resources/foundry/autopilot/aip_autopilot_object_timeline.png" /></p>
+<p>To access the object timeline, do one of the following:</p>
+<ul>
+<li>In <a href="https://www.palantir.com/docs/foundry/autopilot/overview/">Autopilot</a>, switch from the <a href="https://www.palantir.com/docs/foundry/autopilot/workbench-graph/">graph view</a> to the object timeline.</li>
+</ul>
+<p><img src="../../_resources/external-bf6bbc46de8e.png" alt="Object timeline from Autopilot." width="500" /></p>
+<ul>
+<li>In <a href="https://www.palantir.com/docs/foundry/object-explorer/overview/">Object Explorer</a>, choose <strong>More</strong> on an object view if edit history is turned on for your object.</li>
+</ul>
+<p><img src="../../_resources/external-840de50501a5.png" alt="Object timeline from Object Explorer." width="500" /></p>
+<h2>Review object activity</h2>
+<p>The object timeline shows edits performed by agents or humans with full attribution for each change. You can:</p>
+<ul>
+<li>See which agents or humans acted on an object.</li>
+<li>Monitor token usage, agentic coverage, and runtime.</li>
+<li>Trace an edit back to the execution that produced it.</li>
+</ul>
+<h2>Review summary metrics</h2>
+<p>Summary metrics for the object give you a starting point for optimization:</p>
+<ul>
+<li><strong>Total token usage:</strong> The number of tokens consumed across all executions.</li>
+<li><strong>Total runtime:</strong> The length of time from the first to the last execution.</li>
+<li><strong>Waiting time:</strong> The amount of time spent waiting for human input, shown in the same cell as total runtime.</li>
+<li><strong>Agentic coverage:</strong> How much of the object's history was driven by agents versus humans.</li>
+</ul>
+<h2>Optimize your workflow</h2>
+<p>Use the timeline and the summary metrics to find where your workflow spends the most time and tokens:</p>
+<ul>
+<li><strong>Token usage per step</strong> lets you quickly identify which steps consume the most, so you know where to focus, whether that is refining your prompt or switching models.</li>
+<li><strong>At-a-glance time breakdown</strong> helps you spot where you are losing time in the run, so you can identify manual steps that could be automated to cut down overall workflow duration.</li>
+</ul>
+<h2>Explore the timeline</h2>
+<p>Each row in the timeline represents an agent or human that acted on the object:</p>
+<ul>
+<li><strong>Bars:</strong> Represent executions.</li>
+<li><strong>Diamond markers:</strong> Represent edits made to the object in the Ontology through an action.</li>
+</ul>
+<p>The rows and markers are displayed together chronologically, showing how different actors worked on the same object over time. The timeline also helps you identify overlapping activity and understand when one execution picked up from another.</p>
+<p><img alt="Object timeline view with executions in Autopilot." src="../../_resources/foundry/autopilot/autopilot_object_timeline_executions.png" /></p>
+<p>Select a bar or diamond marker to open a side panel with details about the selected activity, including:</p>
+<ul>
+<li>Execution metrics, such as token usage, runtime, and cost.</li>
+<li>The edits made to the object.</li>
+<li>The execution responsible for each edit.</li>
+</ul>
+<p>Use the side panel to trace an object edit back to the execution and investigate the activity contributing to the object's overall runtime and cost.</p>
+</body>
+</html>

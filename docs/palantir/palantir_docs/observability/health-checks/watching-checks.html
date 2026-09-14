@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Watching checks</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Watching checks</h1>
+<p>:::callout{theme="success" title="Tip"}
+Instead of watching individual checks, you can create and subscribe to a <a href="https://www.palantir.com/docs/foundry/monitoring-views/overview/">monitoring view</a>.
+:::</p>
+<p>You can <strong>watch</strong> checks to be alerted when they fail. You can watch an individual check by expanding it and selecting the <strong>Watch</strong> button:</p>
+<p><img src="../../_resources/external-48e88738027e.png" width=350 alt="You can choose to watch alerts and choose whether to be alerted for all failures, only critical, or turn alerts off." /></p>
+<p><img alt="Watching Individual Checks" src="../../_resources/foundry/health-checks/watching-individual-checks.png" /></p>
+<p>According to the configuration in the <a href="https://www.palantir.com/docs/foundry/health-checks/checks-reference/"><strong>Rule Section</strong></a> of the check:</p>
+<ul>
+<li><strong>Nothing</strong> will never notify you of a failure, regardless of severity.</li>
+<li><strong>All failures</strong> will notify you of any failures (both <code>Moderate</code> and <code>Critical</code>).</li>
+<li><strong>Only critical</strong> will <em>only</em> notify you of any <code>Critical</code> failures.</li>
+</ul>
+<p>:::callout{theme="neutral"}
+We recommend setting different thresholds for Moderate and Critical checks. Ideally Critical alerts should have looser bounds (e.g. Build duration check fails Moderately if build takes 5 mins and Critically if it takes 10 mins).
+:::</p>
+<h2>Watching all checks on a dataset</h2>
+<p>You can also take any of the above actions on all checks on a dataset by using the <strong>Watch All</strong> button:</p>
+<p><img alt="Watching All Checks" src="../../_resources/foundry/health-checks/watching-all-checks.png" /></p>
+<h2>Pausing and removing checks</h2>
+<p>You can also pause or delete a check by expanding it and clicking the <strong>More</strong> button.</p>
+<ul>
+<li><strong>Pausing</strong> a check will temporarily snooze its alerts for all watching/subscribed users.</li>
+<li><strong>Deleting</strong> a check will permanently remove its configuration and schedule and it will need to be recreated if you want to watch it.</li>
+</ul>
+</body>
+</html>

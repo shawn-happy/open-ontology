@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Group assignment</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Group assignment</h1>
+<p>As part of setting up an authentication provider, administrators can define rule based groups. Membership to a rule based group is automatically assigned based on rules evaluated at login. These rules can be configured for each authentication provider. To set up rule based groups, navigate to <strong>Control Panel &gt; Authentication &gt; Authentication provider &gt; Manage group assignment</strong> to use the group assignment editor.</p>
+<p><img alt="The group assignment option in the assignment rules menu." src="../../_resources/foundry/authentication/group-triaging.png" /></p>
+<h2>Defining rule based groups</h2>
+<h3>Rules</h3>
+<p>Group assignment rules contain one or more <code>AND</code> conditions that are evaluated against user attributes or provider groups. For each rule, users who match all conditions will be assigned membership to the specified rule based group. Administrators can specify <code>OR</code> conditions by defining separate assignment rules applied to the same group.</p>
+<p>Conditions use regular expression (regex) patterns for matching. Three matching options are provided:</p>
+<ul>
+<li>Includes pattern matching: The pattern matches at least one of a user's provider groups or one value in a user's array-type attribute.</li>
+<li>Does not include pattern matching: The pattern does not match any of a userâs provider groups or does not match any of the values in a userâs array-type attribute.</li>
+<li>Is equal to pattern matching: The pattern matches a user's string type attribute.</li>
+</ul>
+<p><img alt="A sample rule definition using pattern matching." src="../../_resources/foundry/authentication/rule-based-groups-rules.png" /></p>
+<h3>Groups</h3>
+<p>Foundry uses three types of <a href="https://www.palantir.com/docs/foundry/platform-security-management/manage-groups/">user groups</a> across the platform:</p>
+<ol>
+<li>Rule based groups: UsedÂ for administrator defined rules applied during login.</li>
+<li><a href="https://www.palantir.com/docs/foundry/platform-security-management/manage-groups/#group-internal-realms">Internal groups</a>: Manually assigned in Foundry, and can contain users and other external, rule based, or internal groups.</li>
+<li><a href="https://www.palantir.com/docs/foundry/authentication/saml-getting-started/#provider-groups">External groups</a>: Also called provider groups, these groups are defined externally, typically by an identity provider. These groups are ingested at user login.</li>
+</ol>
+<p>Of these three group types, only rule based group membership can be defined in Foundry using the automated rules discussed here.</p>
+<p><img alt="A list of groups and their types." src="../../_resources/foundry/authentication/group-types.png" /></p>
+<p>Rule based groups help guarantee legibility and consistency in group membership, so we recommend rule based groups over internal groups where possible. Internal groups make sense in cases of temporary access, provisional cohort creation, or specific onboarding or revocation requirements that cannot be met by an external identity provider. Because access in these cases requires a human-in-the-loop, the attribute and group conditions used by rule based groups will likely be insufficient to determine access.</p>
+<p><img alt="A sample group and its group assignment rules." src="../../_resources/foundry/authentication/managing-rbgs.png" /></p>
+<h2>Validation and testing</h2>
+<ul>
+<li>Navigate to <strong>Control Panel &gt; Authentication &gt; Authentication provider &gt; Manage group assignment &gt; Test rules</strong> to validate rules against an existing user. This will show which rule(s) the user matches and the group(s) they will be assigned to at their next login. Note that only users who have already logged in with this provider can be simulated in the <strong>Test rules</strong> panel.</li>
+<li>Rules are applied when a user logs in, regardless of whether they are an existing or new user. Rules <em>do not run retroactively</em> upon saving.</li>
+<li>Regular expression correctness is a common point of failure when defining rule based groups. Non-matching patterns have a tendency to fail quietly while causing unanticipated user assignment. Common causes include:</li>
+<li>Partial patterns: A pattern must match a provider group name or attribute value in full, not in part. The pattern <code>admin</code> does not match the group <code>admin-users</code>. Use <code>admin.*</code> instead.</li>
+<li>Unescaped special characters: An unescaped <code>.</code> matches any character, so the pattern <code>team.a</code> also matches <code>team-a</code>. Escape special characters that you want to match literally, as in <code>team\.a</code>.</li>
+<li>Unexpected capitalization: Matching is case-sensitive. Add <code>(?i)</code> to the start of a pattern to make it case-insensitive, so that <code>(?i)admin.*</code> matches both <code>Admin-Users</code> and <code>admin-users</code>.</li>
+<li>Inverted conditions: A condition that uses does not include pattern matching is satisfied when its pattern matches none of a userâs provider groups or attribute values, so a typo stops the condition from excluding anyone and assigns the group to every user who meets the ruleâs other conditions.</li>
+</ul>
+<p><img alt="The Test rules interface when validating rules against an existing user" src="../../_resources/foundry/authentication/rule-based-group-testing.png" /></p>
+<h2>Migrating to rule based groups from group AUM</h2>
+<p>Some Foundry authentication setups use a legacy tool for automated user assignment called group asynchronous user manager (AUM). Group AUM does not have a user interface, it is configured by Palantir representatives at the direction of customer administrators.</p>
+<p>Rule based groups cannot be used for customer enrollments that have group AUM enabled. In the future, group AUM rules will be automatically migrated to rule based group rules.</p>
+</body>
+</html>

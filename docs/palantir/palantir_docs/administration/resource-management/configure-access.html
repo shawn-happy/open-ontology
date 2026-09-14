@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Configure access</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Configure access</h1>
+<p>By default, users do not have access to Resource Management, with the exception of <a href="#project-usage">project usage</a>. Access is managed through Control Panel <a href="https://www.palantir.com/docs/foundry/administration/enrollments-and-organizations-permissions/">enrollment permissions</a> and <a href="https://www.palantir.com/docs/foundry/administration/configure-workspaces/">workspaces</a>, and both must be configured for a user to have access.</p>
+<p>There are two <a href="https://www.palantir.com/docs/foundry/administration/enrollments-and-organizations-permissions/#roles">roles</a> in enrollment permissions that control access to Resource Management: <strong>Resource management viewer</strong> and <strong>Resource management administrator</strong>.</p>
+<ul>
+<li><strong>Resource management viewer</strong> allows users to view usage and resource allocation.</li>
+<li><strong>Resource management administrator</strong> additionally allows users to change resource allocation by creating <a href="https://www.palantir.com/docs/foundry/resource-management/resource-queues/#create-resource-queues">Resource Queues</a> and allocating projects to <a href="https://www.palantir.com/docs/foundry/resource-management/ecosystem/">usage accounts</a>.</li>
+</ul>
+<p>For more details on the associated workflows, view details on the roles in Control Panel. A user needs to have one of these roles in order to view usage data in Resource Management.</p>
+<p>Resource Management is part of the <strong>Support</strong> workspace in the <strong>Application access</strong> page of Control Panel. A user must have access to the <strong>Resource management</strong> application in this workspace to successfully view or use the application.</p>
+<h2>Project usage</h2>
+<p>Access to the <a href="https://www.palantir.com/docs/foundry/resource-management/project-usage/"><strong>Project usage</strong></a> page is governed by the security operation "View project usage in Resource Management", with identifier <code>usage-aggregator:view-project-usage</code>.</p>
+<p>By default, this operation is granted to users with the <code>Owner</code> role on the project, but administrators can configure access by <a href="https://www.palantir.com/docs/foundry/platform-security-management/manage-roles/">managing roles</a> in Foundry Settings.</p>
+</body>
+</html>

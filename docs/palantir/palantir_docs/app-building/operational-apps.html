@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>What is an operational application?</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../index.html">返回目录</a></div>
+<h1>What is an operational application?</h1>
+<p>At Palantir, we frequently refer to workflows and applications as being "operational." An <strong>operational application</strong> is a user interface designed to improve organizational decision-making. A traditional dashboard or report delivers read-only information and stops there; an operational application enriches this information with simulations and actions to ensure human users can make optimal decisions with ease.</p>
+<p>An <strong>operational application</strong> is a user interface designed to improve organizational decision-making. A traditional dashboard or report delivers read-only information and stops there; an operational application enriches this information with simulations and actions to ensure human users can make optimal decisions with ease.
+Generally, workflows that drive decision-making are far more likely to gain user adoption and promote organizational outcomes than those that only present information. The guide below describes what makes applications operational and how to use Foundry's application-building capabilities to create them in practice.</p>
+<h2>Beyond the dashboard: Elevating an idea into an operational application</h2>
+<p>Most application ideas begin as something read-only: a chart, a summary table, or a report that a team checks regularly. This is a useful starting point, but it leaves the most valuable step to the user, who must interpret the information, decide what to do, and then take action with another tool. An operational application closes that gap. You can elevate almost any read-only idea by working through the following steps.</p>
+<h3>1. Start with the decision, not the screen</h3>
+<p>Before building anything, name the decision or decisions the application exists to support. Ask what choice the user is there to make, what information they need to make it well, and what happens once they decide on a course of action. Anchoring on the decision keeps the application focused on organizational outcomes and clarifies downstream design choices.</p>
+<h3>2. Surface the right information at the right time</h3>
+<p>Once you know the decision, identify what information the user must have to make it. Because operational applications read live from the <a href="https://www.palantir.com/docs/foundry/ontology/overview/">Ontology</a>, you can surface the current state of the world at the moment a decision needs attention rather than a stale snapshot. Show only the objects, links, and properties that matter to the decision, along with context needed to act, and leave other information out. This focus gives the application a clear purpose rather than presenting the entire contents of a source system in an information-dense, hard-to-navigate interface.</p>
+<h3>3. Test the impact of a decision before committing</h3>
+<p>A true operational application does not only present a decision; it lets users explore the consequences of that decision before they commit to it. Using <a href="https://www.palantir.com/docs/foundry/ontology/overview-ontology-scenario/">scenarios</a>, a user can fork the Ontology, apply one or more <a href="https://www.palantir.com/docs/foundry/action-types/overview/">actions</a>, and see how the world would look under each option without writing anything back to the live system. When a scenario incorporates <a href="https://www.palantir.com/docs/foundry/ontology/models/">models</a>, a simulation can predict complex downstream effects and allow the user to weigh tradeoffs and compare competing plans of action. This approach of combining human expertise with high-quality data and rigorous modeling can achieve better organizational outcomes than acting on intuition or unverified assumptions alone.</p>
+<h3>4. Turn information into action</h3>
+<p>The defining feature of an operational application is that the user can make a business-critical decision <em>within that same application</em> rather than in another tool. In the Ontology, <a href="https://www.palantir.com/docs/foundry/action-types/overview/">actions</a> are the governed mechanism that makes this possible: they define how users write their decisions back into the system. Action <a href="https://www.palantir.com/docs/foundry/action-types/submission-criteria/">submission criteria</a> ensure that the Ontology changes only in accordance with your organization's rules. This framework lets users act on a decision the moment they reach it without the friction of navigating multiple interfaces.</p>
+<h3>5. Close the loop</h3>
+<p>When a user submits an action in Foundry, their decision is committed as an atomic change in the Ontology and is immediately reflected across other applications to every other user. One user's decision is not isolated in a personal spreadsheet or email thread; it immediately becomes part of the shared, real-time view of the world that everyone else uses to make their own decisions. This is one way the Ontology compounds the value of decisions across the organization over time rather than being locked within departmental silos.</p>
+<p>When a user makes a decision via an Ontology action, it can also drive downstream effects:</p>
+<ul>
+<li><a href="https://www.palantir.com/docs/foundry/action-types/side-effects-overview/">Side effects</a> can send notifications, including by email, or trigger events in external systems. For example, <a href="https://www.palantir.com/docs/foundry/action-types/webhooks/">webhooks</a> let an action call external APIs or other Foundry APIs, so a decision captured in Foundry can update a system of record, post a message outside the platform, or kick off another process.</li>
+<li><a href="https://www.palantir.com/docs/foundry/action-types/function-actions-overview/">Function-backed actions</a> let you define action types of arbitrary complexity, using code to determine how objects should change, whether that logic runs as a serverless function or as a <a href="https://www.palantir.com/docs/foundry/compute-modules/overview/">compute module</a>.</li>
+<li><a href="https://www.palantir.com/docs/foundry/action-types/trigger-schedule-build/">Triggering schedule builds</a> allows users to start data integration builds.</li>
+<li><a href="https://www.palantir.com/docs/foundry/automate/overview/">Automate</a> turns a captured decision into ongoing business automation, checking conditions continuously or on a schedule and running effects automatically when those conditions are met. <a href="https://www.palantir.com/docs/foundry/autopilot/overview/">Autopilot</a> then gives teams a control center to visualize, monitor, and troubleshoot these automation workflows at scale.</li>
+<li>Actions can trigger <a href="https://www.palantir.com/docs/foundry/agents/overview/">agents</a> to carry out follow-on work, or route an agent's proposed changes to a person for approval before they are applied, as described in <a href="#extending-the-loop-with-agents">Extending the loop with agents</a> below.</li>
+<li>The <a href="https://www.palantir.com/docs/foundry/action-types/action-log/">action log</a> records every action submission as an object type in the Ontology, turning the history of decisions and their rationale into data you can analyze, audit, and feed into other decision-making workflows.</li>
+</ul>
+<p>The Ontology allows decisions in operational applications to become powerful points of leverage, triggering downstream processes and creating a durable, auditable record of organizational choices. When decisions themselves become part of the Ontology, they can inform future choices and compound into a repeating cycle of increasingly better outcomes.</p>
+<h2>A real-world example</h2>
+<p>Consider a logistics coordinator at a company that delivers parts to automotive assembly plants just in time, where a single late shipment can idle a production line and trigger steep penalties. A shipment of transmission components is delayed by a carrier breakdown and is now at risk of missing the plant's delivery window.</p>
+<h3>With a traditional dashboard</h3>
+<ul>
+<li>The dashboard flags the shipment, but the coordinator must leave it to assemble the picture by hand: a spreadsheet of approved carriers, emails asking about capacity, a separate system for the customer's window and penalty terms, and transit times estimated from memory.</li>
+<li>Under time pressure and with incomplete information, they book a carrier that seems reasonable over the phone.</li>
+<li>The decision lives nowhere others can see: the planning team does not know the route changed, the customer is not notified, and a colleague restarts the same investigation an hour later.</li>
+<li>Nothing is recorded, so the reasoning is lost and cannot be audited or learned from. Tomorrow's process looks exactly like yesterday's process.</li>
+</ul>
+<h3>With an operational application</h3>
+<ul>
+<li>The application opens on the decision itself and surfaces only what it requires, live from the Ontology: the parts on board, the delivery window and penalty clause, the current carrier, and alternative carriers with real-time capacity, cost, and on-time history.</li>
+<li>The coordinator simulates each candidate carrier in a scenario, where models project arrival time, cost, on-time probability, and knock-on effects to other shipments, then commits to the option with the best overall outcome.</li>
+<li>A single action reassigns the carrier, commits the decision to the Ontology, notifies the customer, and updates the planning pipeline at once, without leaving the application.</li>
+<li>Everyone running a parallel process sees it immediately, each in their own application: customer service has the revised estimate and its reason, finance picks up the new cost and the penalty avoided, and the plant's planner adjusts the build schedule. No one had to be notified.</li>
+<li>Every decision and its rationale becomes durable, auditable data. Teams can compare each scenario's expected outcome against what actually happened and close the gap, so each decision makes the next one better.</li>
+</ul>
+<h2>Extending the loop with agents</h2>
+<p>Operational applications only become more important as you develop automated, agentic processes. Deploying <a href="https://www.palantir.com/docs/foundry/agents/overview/">AI agents</a> into workflows does not replace the decision-making loop; it allows human users to operate across a broader decision-making plane. Users apply judgment at critical points that require nuanced human expertise and set high-level direction for agents and agent swarms (groups of agents working in parallel) to carry out routine work that can be automated. The operational application remains essential in this framing: it is the interface where human users review, steer, and approve the work delegated to agentic processes, keeping a person accountable for the decisions that matter most.</p>
+<p>Return to the logistics example. The accumulated record of past decisions is what makes the workflow ready for agents:</p>
+<ul>
+<li>Because that record captures both the quantitative outcomes and the coordinator's qualitative rationale, an agent can take on a subset of the reassignments itself.</li>
+<li>The coordinator sets the criteria for what the agent may handle, such as lower-value shipments on well-traveled routes where one carrier clearly wins on cost, arrival time, and on-time probability. Anything ambiguous or high-stakes is escalated back to a person.</li>
+<li>The coordinator shifts from making every reassignment to supervising the automated ones, using the same application to monitor performance, watch for drift, and adjust guardrails.</li>
+<li>The coordinator still personally handle the difficult, context-heavy rerouting decisions that depend on experience and judgment, and the record continues to compound.</li>
+</ul>
+<h2>Signs you have built a dashboard, not an operational application</h2>
+<p>Use the following checks to assess whether a user interface is an operational application:</p>
+<ul>
+<li><strong>No decision is named:</strong> If you cannot state a specific decision users will be making in the application, it is likely still an informational dashboard.</li>
+<li><strong>Nothing is written back:</strong> If the application only reads data and never captures a decision, it cannot compound value over time. It is using the Ontology like a traditional database, not as a representation of the world.</li>
+<li><strong>The user has to act somewhere else:</strong> If the user gathers information from the application but then has to trigger decisions in another system, the application is not operational.</li>
+<li><strong>Alternatives cannot be compared:</strong> If the user cannot simulate different scenarios and weigh the tradeoffs of different decisions before committing to one, the application forces blind decisions.</li>
+<li><strong>Decisions stay local:</strong> If a captured decision is not reflected back to everyone working with the same data, teams fall out of sync and the decision cannot compound.</li>
+</ul>
+<h2>Building operational applications in Foundry</h2>
+<p>Foundry offers several tools for building operational applications, spanning from no-code options to fully custom processes:</p>
+<ul>
+<li><a href="https://www.palantir.com/docs/foundry/workshop/overview/">Workshop</a>: The primary no-code tool for building object-oriented operational applications, with interactive layouts, events, and widgets that write decisions back to the Ontology.</li>
+<li><a href="https://www.palantir.com/docs/foundry/ontology-sdk-react-applications/overview/">OSDK React applications</a>: Fully custom React interfaces powered by the Ontology SDK for custom experiences beyond Foundry's built-in tools. <a href="https://www.palantir.com/docs/foundry/pilot/overview/">Pilot</a> is a streamlined, AI-powered way to build these OSDK applications from a natural-language prompt.</li>
+<li><a href="https://www.palantir.com/docs/foundry/custom-widgets/overview/">Custom widgets</a>: Extend Workshop with bespoke frontend React code, such as for tailored visualizations, without building a standalone application. Note that you can embed a single, full-page custom widget within a Workshop module to leverage the capabilities of both tools.</li>
+<li><a href="https://www.palantir.com/docs/foundry/slate/overview/">Slate</a>: A builder for custom applications and dashboards using HTML and JavaScript on Ontology data.</li>
+<li><a href="https://www.palantir.com/docs/foundry/code-workspaces/overview/">Code Workspaces applications</a>: Interactive Streamlit, Dash, and ShinyÂ® applications built in your preferred IDE and published on Foundry.</li>
+<li><a href="https://www.palantir.com/docs/foundry/api/ontology-resources/actions/apply-action/">REST APIs</a>: Build applications against the Ontology entirely outside of Foundry's frameworks.</li>
+</ul>
+<p>Get started by building a simple application in <a href="https://www.palantir.com/docs/foundry/workshop/overview/">Workshop</a> to get familiar with application-building principles with the Ontology.</p>
+</body>
+</html>

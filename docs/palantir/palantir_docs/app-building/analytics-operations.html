@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Connecting analytics to operations</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../index.html">返回目录</a></div>
+<h1>Connecting analytics to operations</h1>
+<p>Although Foundry's focus is upon enabling <a href="https://www.palantir.com/docs/foundry/app-building/operational-apps/">operational workflows</a> that capture data back into the system, the results of work done using Foundry's <a href="https://www.palantir.com/docs/foundry/analytics/overview/">analytical capabilities</a> is also a key part of the puzzle. This page covers how analytical tools can be used to deliver value to end users in a cohesive way that empowers decision-making.</p>
+<h2>Dashboards</h2>
+<p>Often, the results of open-ended exploration of data in the Ontology can result in interesting insights that could be useful for other people in your organization. Starting with a set of objects, drilling down into a subset, and exploring properties using charts or linked objects may yield a repeatable workflow that can be combined with other platform capabilities in a valuable way.</p>
+<p><a href="https://www.palantir.com/docs/foundry/quiver/overview/">Quiver</a> is the application used for open-ended analysis on object data in Foundry. Quiver dashboards enable you to create parameterized, curated views that end users can use to explore data in a structured fashion. Once you have published a dashboard, you can use it in operational applications in a few different ways:</p>
+<ul>
+<li>Quiver dashboards can be <a href="https://www.palantir.com/docs/foundry/quiver/dashboards-workshop/">embedded into Workshop applications</a>, allowing you to flexibly show dashboards to users as part of a structured workflow.</li>
+<li>Quiver dashboards can be embedded into <a href="https://www.palantir.com/docs/foundry/quiver/dashboards-carbon/">Carbon</a> so that users can access the template as a tab in their workspace.</li>
+</ul>
+<p>Using this functionality, exploratory analysis can quickly transition from an ad-hoc dashboard or insight to being a core part of an operational workflow.</p>
+<h2>Models</h2>
+<p>Foundry's <a href="https://www.palantir.com/docs/foundry/model-integration/overview/">machine learning</a> capabilities provide a full suite of tools for model development, integration, evaluation, and deployment. Once models have been validated according to organizational criteria, they can be deployed to end users easily.</p>
+<p>Workshop's support for <a href="https://www.palantir.com/docs/foundry/workshop/scenarios-overview/">Scenarios</a> enables the deployment of machine learning directly to end users without requiring any custom development or extensive configuration. Users interact with concepts they are familiar with, while seeing model-backed results in an easy-to-understand form such as a <em>forecast</em> or <em>estimate</em>.</p>
+<p>For more details on tying machine learning to organizational outcomes, refer to <a href="https://www.palantir.com/docs/foundry/ontology/models/">Models in the Ontology</a>.</p>
+</body>
+</html>

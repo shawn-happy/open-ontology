@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Custom docs bundle structure</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Custom docs bundle structure</h1>
+<p>The <code>ordering.md</code> file for a custom documentation bundle determines the structure and organization of pages in the bundle. A <a href="#section-annotations"><strong>section annotation</strong></a> must be specified for each page in a documentation bundle; the <a href="#summary-of-section-annotations">set of available section annotations</a> is predetermined and cannot be altered.</p>
+<h2>File structure</h2>
+<p>Within your documentation repository, the structure of your project might look as follows:</p>
+<pre><code>docs/
+âââ product-A/
+â   âââ concepts
+â       âââ concept-doc.md
+â   âââ tutorials
+â       âââ tutorial-doc.md
+â   âââ ordering.md
+â   âââ overview.md
+âââ product-B/
+    âââ ...
+</code></pre>
+<ul>
+<li>All documentation must be nested under the <code>docs/</code> folder as bundles (such as <code>product-A</code> above).</li>
+<li>These bundle folders map to the set of products that appear on the homepage of the in-platform custom documentation.</li>
+<li>All bundles should contain an <code>ordering.md</code> and <code>overview.md</code> file at the product folder level.</li>
+<li>The actual folders and files nested under each "product" (such as the <code>concepts</code> and <code>tutorials</code> folders in the example above) can be customized for your needs.</li>
+</ul>
+<h2>Table of contents and <code>ordering.md</code></h2>
+<p>Every documentation page in a bundle must be listed in the <code>ordering.md</code> file with a section annotation and the filename (without the <code>.md</code> extension). When the custom documentation service discovers and compiles the documentation, these section annotations are used to construct the left-hand table of contents.</p>
+<h3>Section annotations</h3>
+<p>The in-platform custom documentation has a series of <strong>section annotations</strong> that you can use in the <code>ordering.md</code> file to determine how to organize your content pages.</p>
+<p>The <strong>section annotations</strong> that currently exist are:</p>
+<ul>
+<li><code>@quickstart</code></li>
+<li><code>@howto</code></li>
+<li><code>@tutorial</code></li>
+<li><code>@concept</code></li>
+<li><code>@resource</code></li>
+<li><code>@api</code></li>
+<li><code>@reference</code></li>
+</ul>
+<p>There is no requirement to use every section annotation in a documentation bundle. However, every page in a documentation bundle must have a section annotation.</p>
+<h3>Summary of section annotations</h3>
+<p>The in-platform custom documentation service imposes a standard structure for documentation, enforced by section annotations. Below is a general guideline for the available sections; however, you should feel empowered to use the sections as you see fit.</p>
+<ul>
+<li><strong>Overview:</strong> Generated from <code>overview.md</code>, this is the home page of a custom documentation bundle.</li>
+<li><strong>Quick Starts:</strong> Brief guides to the fundamentals of the product. A first-time user would start here and walk away with enough knowledge to be able to start using the product.</li>
+<li><strong>Concepts:</strong> Core ideas and concepts related to an application/service. This may not necessarily be actionable content, but describes key concepts that may be useful to describe how or why something works the way it does.</li>
+<li><strong>How To:</strong> Guides that help users with common, generic, self-contained tasks.</li>
+<li><strong>Tutorials:</strong> Step-by-step guides that a user can follow to achieve a specific outcome by completing a set of tasks. Tutorials can be used to outline end-to-end workflows and often use notional data to help users follow along.</li>
+<li><strong>References:</strong> Technical references for syntax, types, and other information.</li>
+<li><strong>Resources:</strong> Internal and external resources, such as useful links or FAQs.</li>
+<li><strong>APIs:</strong> API endpoints of the product.</li>
+</ul>
+<h3>Example <code>ordering.md</code></h3>
+<p>Every page in a documentation bundle must be listed in the <code>ordering.md</code> with a section annotation and the filename (without the <code>.md</code> file extension). For example, an ordering file for Contour might look like:</p>
+<pre><code>@quickstart getting-started
+@concept core-concepts
+@resource faq
+@howto boards-add
+@howto boards-filter
+@howto boards-join
+@howto boards-verify-results
+@reference boards-descriptions
+@tutorial boards-map
+</code></pre>
+<p>The order in which the filenames appear in the <code>ordering.md</code> determines the order of the table of contents. The table of contents for the example <code>ordering.md</code> file above will contain a "How Tos" header with "Add boards" (<code>@howto boards-add</code>)  listed first, then "Filter boards" (<code>@howto boards-filter</code>), and so on.</p>
+<h2>Nesting documentation with child pages</h2>
+<p>If you do not want a documentation page to show up at the top level of the table of contents, but instead want the page to be nested underneath another page, you can use child pages. There are two ways to declare child&lt;&gt;parent relationships in the custom documentation:</p>
+<ul>
+<li>[Recommended] <a href="#declare-the-child-on-the-parent-page">Declare the child on the parent page</a></li>
+<li>[Not recommended] <a href="#declare-the-parent-on-the-child-page">Declare the parent on the child page</a></li>
+</ul>
+<h3>Declare the child on the parent page</h3>
+<p>You can nest pages as children of a parent page using the <code>@child</code> annotation on the parent page. This allows you to specify the order in which these child pages appear nested below the parent. For example, we might have <code>example-parent-page.md</code> with the following:</p>
+<pre><code>@title Parent
+
+@child page-one
+@child page-two
+@child page-three
+</code></pre>
+<p>The order of the <code>@child</code> annotations determines the order in which the pages will be listed in the table of contents. Child pages do not need to be included in your <code>ordering.md</code> file. As long as parent pages are listed, the documentation service will publish the child pages.</p>
+<h3>Declare the parent on the child page</h3>
+<p>:::callout{theme="warning"}
+If you are referencing files in the same bundle, you should use <code>@child</code> and not <code>@parent</code>. <code>@child</code> allows you to specify the ordering of the children, so <code>@child</code> is strictly more expressive than <code>@parent</code>. <code>@parent</code> should only be used to add a child to a parent page that is not aware of the childâs existence (for example, adding a custom Contour board as a child under the Contour boards page in a different bundle).
+:::</p>
+<p>If you are writing a page and know that another page will be its parent, you can use the <code>@parent</code> annotation at the top of the file as follows: <code>@parent parent-filename</code>. You only need to use one of <code>@child</code> or <code>@parent</code>; there is no need to use both.</p>
+</body>
+</html>

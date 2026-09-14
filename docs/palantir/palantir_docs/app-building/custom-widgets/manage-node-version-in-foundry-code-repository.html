@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Manage Node.js version in a Foundry code repository</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Manage Node.js version in a Foundry code repository</h1>
+<p>Foundry code repositories support <a href="https://github.com/nvm-sh/nvm">Node Version Manager (nvm) â</a> to manage the Node.js version used in your project and CI. By adding an <code>.nvmrc</code> file to the root of your repository, you can specify which Node.js version your project uses.</p>
+<p>:::callout{theme="neutral"}
+If you do not use nvm, the CI will use the Node.js version specified in <code>.jemma/settings.sh</code> and the Foundry development environment will use version <code>18.20.8</code>.
+:::</p>
+<h2>Add an <code>.nvmrc</code> file</h2>
+<p>To set a Node.js version for your repository, create a file named <code>.nvmrc</code> in the root of your project. This file should contain only the version number of Node.js you want to use, prefixed with <code>v</code>, for example:</p>
+<pre><code>v24.13.0
+</code></pre>
+<p>You can view available Node.js versions by running <code>nvm ls-remote</code> in a terminal within your code repository.</p>
+<h2>Use the specified version</h2>
+<p>After adding the <code>.nvmrc</code> file, run the following command in the terminal to switch to the version defined in the file:</p>
+<pre><code class="language-bash">nvm install
+</code></pre>
+<h2>Configure CI to use the <code>.nvmrc</code> version</h2>
+<p>To ensure your CI builds use the same Node.js version specified in your <code>.nvmrc</code> file, update the <code>.jemma/settings.sh</code> file in your repository.</p>
+<p>Replace the existing <code>NODE_INSTALLATION_VERSION</code> export with the following line, which reads the version directly from your <code>.nvmrc</code> file:</p>
+<pre><code class="language-bash">export NODE_INSTALLATION_VERSION=$(sed 's/^v//' &quot;$(dirname &quot;${BASH_SOURCE[0]}&quot;)/../.nvmrc&quot;)
+</code></pre>
+<p>With this change, you only need to update the <code>.nvmrc</code> file to change the Node.js version for both your Foundry development and CI environments.</p>
+</body>
+</html>

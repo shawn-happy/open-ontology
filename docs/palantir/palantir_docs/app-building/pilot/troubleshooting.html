@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Troubleshooting</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Troubleshooting</h1>
+<p>This page addresses common issues and questions that arise when using Pilot.</p>
+<h2>Seed data and live data</h2>
+<p>Pilot uses two data sources depending on the view:</p>
+<ul>
+<li><strong>Editor view</strong> uses seed data generated inside the Pilot container by default. AI agents never access real enterprise data. This prevents Pilot from hard-coding production values into your application code.</li>
+<li><strong>Deploy view</strong> connects your application to real ontology data. On a deployment branch, ontology schema changes (object types, action types, link types) are scoped to the branch and do not affect <code>Main</code> until you merge. On <code>Main</code>, any actions you perform in the application are live ontology edits that take immediate effect.</li>
+</ul>
+<h2>Permission errors during deployment</h2>
+<p>Deployment requires permissions at the project, organization, and enrollment levels. If you encounter permission errors, verify the following:</p>
+<ul>
+<li>You have at least the <code>Editor</code> role on the Foundry project where Pilot is deploying.</li>
+<li>You have the <code>Third-party application administrator</code> role in Control Panel, which is required to create the Developer Console application and its linked OAuth client.</li>
+<li>An enrollment administrator has approved the subdomain request in <strong>Control Panel</strong> &gt; <strong>Approvals</strong>.</li>
+<li>The project does not have marking restrictions that block dataset creation.</li>
+</ul>
+<p>For a full breakdown of Developer Console permissions, see <a href="https://www.palantir.com/docs/foundry/developer-console/permissions/">Developer Console permissions</a>. If permissions appear correct but errors persist, check the browser console for detailed error messages and share them with your administrator.</p>
+<h2>Access Pilot logs</h2>
+<p>To access Pilot system logs:</p>
+<ol>
+<li>Select the three-dot menu (<strong>...</strong>) next to the tab bar in the content header.</li>
+<li>Select <strong>Pilot logs</strong>.</li>
+</ol>
+<p>The Pilot Logs tab displays real-time container logs. Use these logs to diagnose build errors, dependency installation issues, and runtime problems.</p>
+<h2>Build errors in the Preview tab</h2>
+<p>If the <strong>Preview</strong> tab shows a build error instead of your application:</p>
+<ol>
+<li>Read the error message in the <strong>Preview</strong> tab. Common errors include missing imports, type mismatches, and syntax errors.</li>
+<li>Select <strong>Fix with Pilot</strong> to prompt Pilot to diagnose and resolve the issue automatically.</li>
+<li>If the automatic fix does not resolve the issue, describe the error in the chat panel and ask Pilot to investigate.</li>
+</ol>
+<p>You can also check the <strong>Pilot logs</strong> tab for detailed build output from the development server.</p>
+<h2>Container startup issues</h2>
+<p>After you create a new application, Pilot provisions a container. This process typically takes 30 to 60 seconds. Check the following if the container does not start:</p>
+<ol>
+<li>Check the status monitoring popover by selecting the status indicator in the top-right corner. The <strong>Pilot status</strong> field indicates whether the connection is healthy.</li>
+<li>If the status shows <strong>Disconnected</strong>, try refreshing the page.</li>
+<li>If the container still does not start after refreshing, create a new Pilot application in a fresh session.</li>
+</ol>
+<h2>Unintended edits in deploy view</h2>
+<p>When previewing your application in deploy view on <code>Main</code>, any actions you perform, such as creating, editing, or deleting objects, are live ontology edits that take immediate effect on production data. This is expected behavior, not a bug.</p>
+<p>If you want to test actions without affecting production, preview your application in deploy view on a deployment branch instead. Ontology edits made on a branch are scoped to that branch and do not propagate to <code>Main</code> until you merge.</p>
+<h2>Action references break across environments</h2>
+<p>When you deploy ontology entities from a Pilot branch to <code>Main</code>, action type identifiers (RIDs) may differ between the branch and <code>Main</code>. This can cause reference errors if your application code references branch-specific RIDs.</p>
+<p>To resolve this issue:</p>
+<ol>
+<li>After merging your branch, switch back to <code>Main</code> in Pilot when prompted.</li>
+<li>If errors persist, ask Pilot to update action references to use the <code>Main</code> branch identifiers.</li>
+</ol>
+<h2>Divider element console errors</h2>
+<p>You may see error messages in the browser console referencing "divider" elements with no height. These errors are cosmetic and do not affect application functionality. You can safely ignore them.</p>
+<h2>Dependency installation failures</h2>
+<p>Try the following steps if the status monitoring popover shows that npm dependencies failed to install:</p>
+<ol>
+<li>Select <strong>Fix with Pilot</strong> in the status popover to attempt automatic resolution.</li>
+<li>If the issue persists, check the <strong>Pilot logs</strong> tab for specific error messages.</li>
+<li>Ask Pilot to reinstall dependencies by typing <code>Reinstall npm dependencies</code> in the chat panel.</li>
+</ol>
+<h2>Application does not deploy</h2>
+<p>Follow the steps below if the deployment panel shows that your application is not deployable:</p>
+<ol>
+<li>Open the status monitoring popover and check the <strong>Deployability</strong> status for details.</li>
+<li>Common causes include invalid ontology entities, missing required properties, or unresolved build errors.</li>
+<li>Select <strong>Fix with Pilot</strong> to resolve blocking issues automatically.</li>
+<li>After fixing issues, retry the deployment from the deployment panel.</li>
+</ol>
+<h2>Custom widget preview does not load</h2>
+<p>If the <strong>Preview</strong> tab shows a blocked or empty frame when building a custom widget, the Pilot container origin is likely missing from the Content Security Policy. The widget preview renders in the Workshop widget sandbox, which must allow the container origin in the <code>frame-ancestors</code> directive. An administrator can add the origin in Control Panel. For related widget sandbox settings, see <a href="https://www.palantir.com/docs/foundry/custom-widgets/iframe-attributes/">Enable additional iframe attributes</a>.</p>
+<h2>Custom widget changes not reflected in the preview</h2>
+<p>Changes to a widget's parameters or events are not applied to the running preview until the widget development server reloads. Select <strong>Reload widget dev mode</strong> in the widget preview to apply configuration changes.</p>
+</body>
+</html>

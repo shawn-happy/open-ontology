@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Understand HTTP Error Codes</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Understand HTTP Error Codes</h1>
+<p>The purpose of this guide is to provide basic information for how to respond to an HTTP error code that you encounter while interacting with a web frontend. Although a lot of the techniques are generally applicable across any web interface, we will describe them in the context of using the Palantir platform.</p>
+<!-- TOC -->
+
+<ul>
+<li><a href="#what-are-http-error-codes">What are HTTP error codes?</a></li>
+<li><a href="#client-error">Client error</a></li>
+<li><a href="#400---bad-request">400 - Bad request</a></li>
+<li><a href="#401---unauthorized">401 - Unauthorized</a></li>
+<li><a href="#403---forbidden">403 - Forbidden</a></li>
+<li><a href="#404---not-found">404 - Not found</a></li>
+<li><a href="#server-error-codes">Server error codes</a></li>
+<li><a href="#500---internal-server-error">500 - Internal server error</a></li>
+<li><a href="#502---bad-gateway">502 - Bad gateway</a></li>
+<li><a href="#503---service-unavailable">503 - Service unavailable</a></li>
+<li><a href="#504---gateway-timeout">504 - Gateway timeout</a></li>
+</ul>
+<!-- /TOC -->
+
+<hr />
+<h2>What are HTTP error codes?</h2>
+<p>When you try to open a webpage, your browser makes a series of requests to the server for the content of the page. The intent is that the server receives your requests, examines them to work out what content it should serve you, and then sends a response with the correct content. Your browser then pieces the content together to display the page.</p>
+<p>This guide will dig into the concept of a request later, but here we are focusing on the response. Each response returned by the server will always include a status code. The status code denotes the status of the response the server is giving you. This is represented by a three-digit number, which has a corresponding meaning (usually defined by the Internet Engineering Task Force). You will probably have seen these when pages fail to load - terms such as "404" may be familiar to you. Here, we will dig a little more into what each code means and how you can use that information to find some easy fixes or better errors to report.</p>
+<p>The first digit of the three-digit number that is sent in the response represents the category of status. The important categories for this guide are:</p>
+<ul>
+<li>2xx: If the code begins with a 2, then the request was successful. The full code will usually simply be 200, which represents a generalized successful request and response.</li>
+<li>4xx: If the code begins with a 4, then the request was unsuccessful due to a client error. The client refers to the entity making the request, usually the browser or webpage that you are using at the time. Examples of these codes appear below.</li>
+<li>5xx: If the code begins with a 5, then the request was unsuccessful due to a server error. This usually means your request was well-formed and well-made, but when the server examined it and tried to work out what response to send back, something went wrong. Examples of these codes appear below.</li>
+</ul>
+<p>The following sections cover some actual codes. Note that this list is non-exhaustive, and if you encounter a number not listed here, you can reference the <a href="https://en.wikipedia.org/wiki/List_of_HTTP_status_codes">full list of HTTP status codes â</a>.</p>
+<hr />
+<h2>Client error</h2>
+<h3>400 - Bad request</h3>
+<p>This error message indicates that there was an internal issue with the request you sent to the server. Palantir developers work to ensure this error code is rarely encountered, as the most common cause is a malformed request syntax, which is usually defined in the underlying code. However, one common cause for a "Bad request" error is excessively large requests, where there is too much data in the request for the server to handle.</p>
+<p><a href="#understand-http-error-codes">Return to top</a></p>
+<hr />
+<h3>401 - Unauthorized</h3>
+<p>You will much more commonly see a "403 - Forbidden", in place of "401 - Unauthorized", however they are semantically very similar. Generally, a 401 error means your request was well-formed, but you are not authorized to make it. Where this differs from 403 is that it is usually reserved for when you have attempted to authorize yourself, but the authorization failed, or you have been flagged as "banned".</p>
+<p><a href="#understand-http-error-codes">Return to top</a></p>
+<hr />
+<h3>403 - Forbidden</h3>
+<p>A Forbidden error indicates that you have made a request you are not permitted to make. You may encounter this error in the Palantir platform if there is an ACL (Access Control List) rule that says you are not allowed to access the resource you are trying to access. This may, for example, be some data that your user is not permitted to see, but it also applies to services. If your user is not permitted to access the Data Lineage application, for example, you may see a "403 - Forbidden" when you try to do so.</p>
+<p><a href="#understand-http-error-codes">Return to top</a></p>
+<hr />
+<h3>404 - Not found</h3>
+<p>This error means you have requested something that does not exist. For example, if a specific asset was removed, accessing that asset would be represented as a "404 - Not Found", because the resource you have requested does not exist.</p>
+<hr />
+<h2>Server error codes</h2>
+<h3>500 - Internal server error</h3>
+<p>This error signifies that the server received the request and needed to perform an internal operation to generate the response. However, an internal error occurred within the server during this process.</p>
+<p>For example, suppose your server's job is to take a request containing two numbers, and then divide the first number by the second. In this example, if you send a request to the server with the numbers "8" and "2", it will return a response with status code 200 (success) and the response will contain the answer "4". However, if you send "5" and "0", you may see "500 - Internal Server Error", because when the server tried to compute 5/0, it caused an error internally. In the context of the Palantir platform, this means you need to look at the internals of the service concerned in order to work out what error was occurring internally.</p>
+<p><a href="#understand-http-error-codes">Return to top</a></p>
+<hr />
+<h3>502 - Bad gateway</h3>
+<p>The term "Gateway" refers to the fact that there is an element of "indirection" behind the scenes in the connection between services. Suppose you get this error when trying to open <code>https://foundry.link/workspace/magic-app</code>. What actually happens is that your request hits a single server (the "Gateway" server), and then the gateway server passes your request onward. Notably, magic-app is probably running on a different server than the gateway, so the gateway has to ask that server (called "upstream server") for the response, intending to give that response back to you. This error means that the upstream server gave an invalid response.</p>
+<p><a href="#understand-http-error-codes">Return to top</a></p>
+<hr />
+<h3>503 - Service unavailable</h3>
+<p>This error indicates that the service exists because otherwise a 404 error would have been received. However, the service was unable to process your request, most commonly due to being down or overloaded. For example, if Contour has too many requests and simply cannot handle any further requests, you may get a "503 - Service Unavailable". This could be due to not enough computation resources or due to an internal bug, for example, a memory leak.</p>
+<p><a href="#understand-http-error-codes">Return to top</a></p>
+<hr />
+<h3>504 - Gateway timeout</h3>
+<p>This error is similar to "502 - Bad Gateway", except that the gateway server made a correct request, and did not receive a timely response from the upstream server. This can happen for a variety of reasons, including problems with the network connection, server downtime, or a server overload. When a 504 error occurs, it usually means that the website or web application you are trying to access is temporarily unavailable. It is not typically a problem with your own device or Internet connection.</p>
+<p><a href="#understand-http-error-codes">Return to top</a></p>
+</body>
+</html>

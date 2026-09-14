@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Builds and checks FAQ</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Builds and checks FAQ</h1>
+<p>The following are some frequently asked questions about builds and checks.</p>
+<p>For general information, view our <a href="https://www.palantir.com/docs/foundry/data-integration/builds/">builds</a> and <a href="https://www.palantir.com/docs/foundry/health-checks/overview/">health checks</a> documentation.</p>
+<ul>
+<li><a href="#how-do-i-resolve-general-errors">How do I resolve general errors?</a></li>
+<li><a href="#how-do-i-understand-a-long-or-confusing-error-message">How do I understand a long or confusing error message?</a></li>
+<li><a href="#why-are-my-builds-waiting-for-resources">Why are my builds "waiting for resources"?</a></li>
+<li><a href="#why-are-my-builds-taking-longer-to-run">Why are my builds taking longer to run?</a></li>
+<li><a href="#how-do-i-resolve-imbalanced-skewed-joins">How do I resolve imbalanced (skewed) joins?</a></li>
+<li><a href="#what-does-shrinkwrap-mean-when-referenced-in-an-error-message">What does âshrinkwrapâ mean when referenced in an error message?</a></li>
+<li><a href="#seeing-permission_denied-in-error-message">Seeing âPERMISSION_DENIEDâ in error message</a></li>
+<li><a href="#how-do-i-resolve-the-waiting-for-input-dependencies-to-be-computed-error-message">How do I resolve the âWaiting for input dependencies to be computedâ error message?</a></li>
+<li><a href="#my-ci-job-fails-because-repository-does-not-own-dataset">My CI job fails because repository does not own dataset</a></li>
+<li><a href="#why-are-my-checks-failing-on-timeout">Why are my checks failing on timeout?</a></li>
+</ul>
+<hr />
+<h2>How do I resolve general errors?</h2>
+<p>If you are having trouble debugging build errors, here are a few steps to consider:</p>
+<ol>
+<li>
+<p>Has the build ever succeeded? If so, have you made changes to the logic generating the dataset? Try rolling those changes back; if the build succeeds, you can likely isolate the problem to the new logic. You can also select <strong>Logs</strong> in the <strong>Datasets</strong> pane of the <strong>Builds</strong> application to review build history.</p>
+</li>
+<li>
+<p>Has the underlying data recently changed? You might see this manifest in a few ways:
+   * If the scale of the data has increased dramatically, you might see reduced performance or build failures due to compute resource concerns.
+   * Has the schema of the underlying data changed at all? This can often cause build failures when there is logic that depends on a specific schema. To check, select <strong>Compare</strong> in Build's <strong>Datasets</strong> pane to compare differentials with previous transactions.
+   * Has the logic for any datasets upstream of your failing dataset changed? This might lead to downstream effects of increased data scale or altered schema.</p>
+</li>
+</ol>
+<p><a href="#builds-and-checks-faq">Return to top</a></p>
+<hr />
+<h2>How do I understand a long or confusing error message?</h2>
+<p>Error messages in Foundry can be long and sometimes difficult to understand. If you run into an error message that is hard to action on, try the steps below.</p>
+<ol>
+<li>
+<p>Often, the most helpful piece of an error trace is preceded by a key phrase. Look for some of the below phrases in your error message to find potentially valuable guidance for your troubleshooting. Note that the important parts of the message will often appear towards the bottom:
+   * <code>What went wrong:</code>
+   * <code>Caused by:</code>
+   * <code>Py4JJavaError</code>
+   * <code>UserCodeError</code></p>
+</li>
+<li>
+<p>If your error references an ErrorInstanceID with little other context, escalate the issue to Palantir Support. ErrorInstanceIDs are shown also for a user's logic errors, so be sure to first check whether this may be the cause of your issue.</p>
+</li>
+<li>
+<p>When <a href="https://www.palantir.com/docs/foundry/getting-help/overview/">contacting Support</a>, always include the following:
+   * The full error message you are given
+   * Any troubleshooting steps you have already taken
+   * The exact time (date, time, timezone) you experienced the error</p>
+</li>
+</ol>
+<p><a href="#builds-and-checks-faq">Return to top</a></p>
+<hr />
+<h2>Why are my builds "waiting for resources"?</h2>
+<p>Your build is stuck on "Waiting for resources" for longer than typical and not running. This may be caused by increased activity on the platform at the time you are running your builds. The many builds being run at this time may be using up the available resources on the platform, causing your builds to be queued until other builds finish and free resources up. This behavior is a byproduct of the Spark execution model discussed on <a href="https://www.palantir.com/docs/foundry/code-workbook/transforms-spark/">Spark transforms</a>.</p>
+<p>To troubleshoot, perform the following steps:</p>
+<ul>
+<li>
+<p>Try running your build at times when the platform is less active and see if that helps improve performance. This will help avoid your build getting queued behind other jobs.</p>
+</li>
+<li>
+<p>If you are scheduling jobs, avoid running jobs at common times such as on the hour or at midnight.</p>
+</li>
+</ul>
+<p><a href="#builds-and-checks-faq">Return to top</a></p>
+<p>--</p>
+<h2>Why are my builds taking longer to run?</h2>
+<p>The performance of a build worsening over time can be caused by one or more of the following: 1) a change in the logic of the transform, 2) a change in input data scale, or, 3) increased computational load on the cluster at the time of the build.</p>
+<p>To troubleshoot, perform the following steps:</p>
+<ul>
+<li>Check the logic of your transform - what has changed since this build was last run? Even slight differences in logic can cause discrepancies in build time.</li>
+<li>Check the data scale of the input datasets. If datasets upstream have significantly increased in size, this can cause decreased performance in builds later down the pipeline.</li>
+</ul>
+<p><a href="#builds-and-checks-faq">Return to top</a></p>
+<hr />
+<h2>How do I resolve imbalanced (skewed) joins?</h2>
+<p>Joins that include a large left table with many entries per key and the smaller right table with few entries per key are perfect candidates for a salted join, which evenly distributes data across partitions.</p>
+<p>To troubleshoot, perform the following steps:</p>
+<ul>
+<li>Salted joins operate in Spark by splitting the table with many entries per key into smaller portions while exploding the smaller table into an equivalent number of copies. This results in the same-sized output as a normal join, but with smaller task sizes for the larger table and a decreased risk of OOM errors.</li>
+<li>You salt a join by adding a column of random numbers 0 through N to the left table and making N copies of the right table. If you add your new random column to the join, you reduce the largest bucket to 1/N of its previous size.</li>
+<li>The secret is the <code>EXPLODE</code> function. <code>EXPLODE</code> is a cross-product: <code>SELECT 'a' AS test, EXPLODE(ARRAY(1,2,3,4,5)) AS dummy2</code></li>
+<li>This results in the following:</li>
+</ul>
+<pre><code> test | test2
+----------------
+  a     |  1
+  a     |  2
+  a     |  3
+  a     |  4
+  a     |  5
+</code></pre>
+<ul>
+<li>Suppose you have a misbehaving join like the following:</li>
+</ul>
+<pre><code class="language-sql">SELECT
+left.*, right.*
+FROM
+`/foo/bar/baz` AS left
+JOIN
+`/foo2/bar2/baz2` AS right
+ON
+  left.something = right.something
+</code></pre>
+<ul>
+<li>This join may fail with your build reporting a few tasks taking much longer and shuffling / spilling more data than then other tasks. This is one indication your datasets may be suffering from skew.</li>
+<li>Another way of verifying skew is to open each table in Contour and doing a pivot on the <code>something</code> column and aggregating row count, then joining the left and right table on <code>something</code> and multiplying the aggregate columns. This will output a row count per key of <code>something</code> which is ideally evenly distributed, but when skewed indicates the need for a salted join.</li>
+<li>Consider replacing your code with something like the following:</li>
+</ul>
+<pre><code class="language-sql">SELECT
+    left.*, right.*
+  FROM
+    (SELECT *, FLOOR(RAND() * 8) AS salt FROM `/foo/bar/baz`) AS left
+    JOIN
+    (SELECT *, EXPLODE(ARRAY(0,1,2,3,4,5,6,7)) AS salt FROM `/foo2/bar2/baz2`) AS right
+    ON
+      left.something = right.something AND left.salt = right.salt
+</code></pre>
+<ul>
+<li><strong>Tuning:</strong></li>
+<li>You should make educated guesses to choose the factor to explode by. Powers of 2 are a good way to find the right estimate: 8, 16, 32, and so on.</li>
+<li>You could use Contour to examine the two datasets you are trying to join. Does histogramming the key on which you are joining show that the largest bucket is X times the size of the next largest? Make the <code>explode</code> factor at least X.</li>
+<li>
+<p>A similar approach is to look at the row count per executor as your unsalted job is running.</p>
+</li>
+<li>
+<p>Be aware of the following:</p>
+</li>
+<li>Make sure you do not make off-by-one errors when salting a join. That will make you lose a fraction of your records.</li>
+<li>
+<p><code>CEIL(RAND() * N)</code> gives you integers between 1 and N. <code>FLOOR(RAND() * N)</code> gives you numbers between 0 and N â 1. Make sure you explode the correct set of numbers in your salted join.</p>
+</li>
+<li>
+<p>Overhead from salting</p>
+</li>
+<li>Salting a join does not necessarily make your build faster; it simply makes it more likely to succeed.</li>
+<li>If you salt your joins unnecessarily, you may start seeing declines in performance.</li>
+</ul>
+<p><a href="#builds-and-checks-faq">Return to top</a></p>
+<hr />
+<h2>What does âshrinkwrapâ mean when referenced in an error message?</h2>
+<p>Each repository contains a âshrinkwrapâ file that defines the mapping between each path referenced, the unique ID for the dataset referenced by that path, and the current path for that dataset. This is helpful when a dataset is moved between folders, for instance. The shrinkwrap file in the repository generating that dataset will update; when the build is next run, the dataset is built in the correct location. You might see shrinkwrap errors for a few reasons, such as dataset deletions, renames, or relocations.</p>
+<p>To troubleshoot, review the following considerations and associated actions:</p>
+<ul>
+<li>
+<p>To find the shrinkwrap file for a given repo:</p>
+</li>
+<li>
+<p>Select the gear icon near the top left of the screen.</p>
+</li>
+<li>Toggle on <strong>Show hidden files and folders</strong></li>
+<li>The <code>transforms-shrinkwrap.yml</code> file should show up as below:</li>
+</ul>
+<p><img alt="transforms.shrinkwrap.yml" src="../../_resources/foundry/health-checks/shrinkwrap@2x.png" /></p>
+<ul>
+<li>It may be the case that the dataset referenced in the repository's shrinkwrap file no longer exists. Usually, the shrinkwrap error will tell you which datasets do not exist and where in the repository they are referenced.</li>
+<li>
+<p>Check if any datasets referenced in the repository were moved to the trash and restore them.</p>
+</li>
+<li>
+<p>While you were iterating on your branch, a change may have been merged into <code>master</code> which added a file to the repository and updated the shrinkwrap file. To resolve this, perform the following:</p>
+</li>
+<li>Navigate to the <code>transforms-shrinkwrap.yml</code> file.</li>
+<li>Search for changes that were merged to the repository while you were iterating on your branch.</li>
+<li>Choose to accept only your changes, only the incoming changes, or both.</li>
+<li>You can also delete the shrinkwrap file, and it will be regenerated automatically when the checks run.</li>
+</ul>
+<p><a href="#builds-and-checks-faq">Return to top</a></p>
+<hr />
+<h2>Seeing âPERMISSION_DENIEDâ in error message</h2>
+<p>To run a build, the user who triggers it must have the required permissions. Specifically, the user must be an <code>Editor</code> on the output dataset since running a build is effectively editing the output file.</p>
+<p>An easy way to tell what permissions you have on a given dataset is by pulling up the dataset in Data Lineage, enabling the <strong>Permissions</strong> filter, and selecting <strong>Resource Permissions</strong> to color the nodes.</p>
+<p><a href="#builds-and-checks-faq">Return to top</a></p>
+<hr />
+<h2>How do I resolve the âWaiting for input dependencies to be computedâ error message?</h2>
+<p>This error happens when a dataset failed to build because the schedule that was building it was canceled due to an upstream dataset failing to build.</p>
+<p>To troubleshoot, perform the following steps:</p>
+<ol>
+<li>Head to the build report for the failed build.</li>
+<li>Look for the first dataset in this build that failed.</li>
+<li>Attempt to resolve this error message and re-run the build.</li>
+</ol>
+<p><a href="#builds-and-checks-faq">Return to top</a></p>
+<hr />
+<h2>My CI job fails because repository does not own dataset</h2>
+<p>The dataset you are trying to build believes it is controlled by another repository. You can see which repository a dataset is controlled by in the <strong>Details</strong> tab of the dataset preview page, in the <strong>sourceProvenance</strong> block of the <strong>Job spec</strong> section. This happens when multiple repositories are creating the same output dataset.</p>
+<p>To troubleshoot, perform the following steps:</p>
+<ul>
+<li>If you want to transfer ownership of the dataset to the current repository:
+  1. Delete the datasetâs existing job spec. To do so, open the dataset, go to <strong>Details &gt; Job spec</strong> and select <strong>Edit &gt; Delete</strong>.
+  2. Trigger the CI build from the current repository again.
+  3. Remove the dataset source file from the other repository to prevent confusion in the future.</li>
+<li>If you want to keep the dataset owner as the other repository (the repository the dataset was originally created in):</li>
+<li>Delete the dataset source file in the current repository.</li>
+</ul>
+<p><a href="#builds-and-checks-faq">Return to top</a></p>
+<hr />
+<h2>Why are my checks failing on timeout?</h2>
+<p>Checks can fail on timeout for a variety of reasons, but there are a few common steps you can take that will often unblock you:</p>
+<ol>
+<li>Try re-running your CI check again. Does it consistently fail with the same error?</li>
+<li>Try upgrading your repository and then re-running your CI check. Does it fail with the same error?</li>
+<li>If your CI checks are still failing, select the cog icon at the top of your folder structure and select <strong>Show hidden files</strong>. In the <code>ci.yml</code> add the line <code>ârefresh-dependencies</code>.</li>
+</ol>
+<p><a href="#builds-and-checks-faq">Return to top</a></p>
+</body>
+</html>

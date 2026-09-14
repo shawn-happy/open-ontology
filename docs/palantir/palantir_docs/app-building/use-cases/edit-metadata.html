@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Edit metadata</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Edit metadata</h1>
+<p>After <a href="https://www.palantir.com/docs/foundry/use-cases/getting-started/">creating your use case</a> with an existing or new backing Project, you can modify the metadata that helps define your use case. This metadata can be found in your use case overview page and includes the use case name, description, owners, and status.</p>
+<p><img alt="Example of use case metadata" src="../../_resources/foundry/use-cases/example-use-case-metadata.png" /></p>
+<h2>Name</h2>
+<p>Change the name of your use case by clicking on the use case name at the top of the page and editing within the text field.</p>
+<p><img alt="Rename use case name" src="../../_resources/foundry/use-cases/rename-use-case.png" /></p>
+<h2>Description</h2>
+<p>Change the description of your use case by clicking on the description at the top of the page and editing within the text field.
+As a builder, you can use this field to document the use case, describing its purpose and any relevant information that will help with maintenance over time.</p>
+<p>:::callout{theme="neutral"}
+You can also add a description to each application in the use case by clicking into the application page and editing the description field.
+:::</p>
+<p><img alt="Edit use case description" src="../../_resources/foundry/use-cases/modify-use-case-description.png" /></p>
+<h2>Documentation</h2>
+<p>You can view and edit use case documentation using Markdown language. Expand the documentation section by selecting <strong>Show documentation &gt; Edit</strong>.</p>
+<p><img alt="View use case documentation" src="../../_resources/foundry/use-cases/modify-use-case-documentation-view.png" /></p>
+<p>In the Markdown editor, use the <strong>Write</strong> tab to input or update the use case documentation, and the <strong>Preview</strong> tab to view your changes before saving them.</p>
+<p><img alt="Edit use case documentation" src="../../_resources/foundry/use-cases/modify-use-case-documentation-edit.png" /></p>
+<p>:::callout{theme="neutral"}
+To edit use case documentation, you must have <a href="https://www.palantir.com/docs/foundry/use-cases/permission-use-case/">case editor or owner role</a> and edit rights on the project <a href="https://www.palantir.com/docs/foundry/compass/use-project-navigation-panel/#cover-page">cover page</a> as use case documentation is stored on the backing project cover page.
+:::</p>
+<h2>Owners</h2>
+<p>There are two types of owners that you can assign to your use case: <strong>Technical</strong> and <strong>Business</strong>. Both can be assigned to an individual user or a group.</p>
+<ul>
+<li><strong>Technical owner:</strong> The technical owner is generally the application builder who is developing the use case.</li>
+<li>
+<p>The user who created the use case is the default technical owner of the use case.</p>
+</li>
+<li>
+<p><strong>Business owner:</strong> The business owner is typically a user who tracks workflow progress and financial details of a use case.</p>
+</li>
+<li>There is no default user assigned as a business owner to your use case.</li>
+</ul>
+<p><img alt="Use case with an assigned technical owner" src="../../_resources/foundry/use-cases/use-case-tech-owner.png" /></p>
+<p>To change the owners of your use case, hover over the name or empty field and select the pencil icon. This will open a search dropdown where you can scroll through or search for available users or groups.</p>
+<p><img alt="Use case with both an assigned technical and business owner" src="../../_resources/foundry/use-cases/use-case-business-owner.png" /></p>
+<h2>Status</h2>
+<p>You can assign your use case a status related to its operation status:</p>
+<ul>
+<li><strong>Active:</strong> Published and operating within your Foundry instance.</li>
+<li><strong>Experimental:</strong> In-progress and not actively published.</li>
+<li><strong>Deprecated:</strong> No longer in operation.</li>
+</ul>
+<p>To change the status of our use case from <code>Experimental</code> to <code>Active</code>, select the status dropdown, choose <code>Active</code>, then click <strong>Change status</strong>.</p>
+<p><img alt="Use case statuses" src="../../_resources/foundry/use-cases/use-case-statuses.png" /></p>
+<p>:::callout{theme="neutral"}
+If you change a use case status to <code>Active</code> while the use case has object types or action types in <code>Experimental</code> or <code>Deprecated</code> status, a warning sign will appear near the status dropdown and in the top left sidebar indicating a disparity between resource and use case statuses. We generally do not recommend creating this discrepancy.
+:::</p>
+</body>
+</html>

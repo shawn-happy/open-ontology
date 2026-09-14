@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Intake forms</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Intake forms</h1>
+<p>Platform access is most commonly managed through SAML or OpenID Connect (OIDC) integrations with appropriate identity providers. Information and attributes about users and groups are inherited to the platform through these integrations. In cases where the available identity provider does not provide sufficient information about users that may be required for the effective management of platform access, administrators can set up authentication intake forms to capture, review, and supplement that information.</p>
+<h2>Intake form management</h2>
+<p>Users with permissions to manage an authentication provider integration (<code>Organization administrators</code>, by default) can create, edit, and delete an intake form in <a href="https://www.palantir.com/docs/foundry/authentication/overview/">Control Panel</a>. Navigate to the <strong>Authentication</strong> tab under <strong>Enrollment settings</strong> and select the authentication integration to associate with the intake form.</p>
+<p><img alt="Manage intake forms from the Authentication tab in Control Panel." src="../../_resources/foundry/authentication/intake-form-overview.png" /></p>
+<h3>Form editor</h3>
+<p>Intake forms are created by adding components to capture necessary user attributes and provide context to the reviewer.</p>
+<p>The following components can be captured as a user attribute if configured appropriately:</p>
+<ul>
+<li>Text field</li>
+<li>Dropdown menu</li>
+<li>Multiple select</li>
+<li>Date</li>
+</ul>
+<p><img alt="Screenshot showing intake form configuration management page." src="../../_resources/foundry/authentication/intake-form-editor.png" /></p>
+<p>The <code>File upload</code> and <code>Acknowledgment</code> components cannot be captured as user attributes in an intake form, but they may be useful in providing the reviewer with useful context. For example, an Organization may require users to upload a completed training certificate if they are requesting certain attributes.</p>
+<p>Field configuration in intake forms allows for advanced behavior, such as defining conditional fields. For example, conditional fields for dropdown menus can be configured to only appear for users based on their previous selections.</p>
+<p>You can preview the form once configuration is complete to validate the user experience for the form user.</p>
+<p><img alt="A preview of a configured intake form." src="../../_resources/foundry/authentication/intake-form-preview.png" /></p>
+<h3>Supplemental forms</h3>
+<p>A primary form can be configured to capture required information to review a userâs eligibility for accessing the platform when they first log in.</p>
+<p>Additionally, supplemental forms can be configured if more user information must be captured and reviewed. Users are not required to complete a configured supplemental form at the time of their first log in, but they may be required to do so periodically or following a period of inactivity. For example, platform access may be contingent on the submission of a yearly training certificate or other evidence captured during the completion of the primary intake form.</p>
+<h3>Settings</h3>
+<p>Form settings, such as completion requirements and approval management, can also be configured. By default, <code>Organization administrators</code> can approve all completed entries; an advanced setting can allow for federated approvals to define who is eligible to approve what attributes in addition to <code>Organization administrators</code>.</p>
+<p>If the attributes collected from a user intake form are used by <a href="https://www.palantir.com/docs/foundry/authentication/org-assignment/">Organization assignment rules</a>, the administrator of the Organization to which the user is assigned can approve the relevant intake form entry.</p>
+<p>In the example below, separate "Sales" and "Customer Support" administration groups may be set as reviewers for each attribute.</p>
+<p><img alt="The Settings configuration page for user intake forms in Control Panel." src="../../_resources/foundry/authentication/intake-form-settings.png" /></p>
+<h3>Publishing</h3>
+<p>A configured intake form can be previewed to validate it meets requirements. Once the configuration is finalized, the <code>Organization administrator</code> can then publish the form.</p>
+<h2>Intake form completion</h2>
+<p>When an intake form is first published, all users authenticating through this provider will be required to complete the form at the time of their first login. Once completed, users will not be allowed to access the platform until an eligible user approves their submission. While waiting for review, users may resubmit the form.</p>
+<p><img alt="An example showing how to resubmit a form after submission. " src="../../_resources/foundry/authentication/intake-form-login.gif" /></p>
+<p>Once a userâs intake form is approved, users will not need to complete the form at their next login. They may be required to eventually complete the form again depending on the formâs recurrence <a href="#settings">settings</a> configuration.</p>
+<p>If changes are made to an intake form after it has been published, only new users will be required to complete the updated intake form by default. Authorization will not be removed for users that have already completed the outdated intake form and have been approved prior to the update of the intake form. If the changes to the intake form are considered to be significant enough to require re-authorization of all users, the default behavior can be overwritten at time of re-publication which would lock all existing users out and require the completion and approval of the updated intake form.</p>
+<h2>Intake form review</h2>
+<p>Eligible users can review submitted intake forms by navigating to the <a href="https://www.palantir.com/docs/foundry/administration/control-panel-approvals/"><strong>Approvals</strong> inbox in Control Panel</a> and filtering on <strong>User intake requests</strong>.</p>
+<p><img alt="A review intake form in the Approvals inbox in Control Panel." src="../../_resources/foundry/authentication/intake-form-review.png" /></p>
+<p>Any intake form entries that result in platform access to an <a href="https://www.palantir.com/docs/foundry/security/orgs-and-spaces/">Organization</a> are automatically approved if submitted by <code>Organization administrators</code>.</p>
+</body>
+</html>

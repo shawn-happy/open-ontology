@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>R Filesystem API</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>R Filesystem API</h1>
+<h2>R <code>TransformInput</code> object</h2>
+<p>The interface for low level operations on a Foundry dataset.</p>
+<p><strong><code>spark.df()</code></strong></p>
+<ul>
+<li>Returns a <a href="https://spark.apache.org/docs/latest/api/python/reference/pyspark.sql/api/pyspark.sql.DataFrame.html">pyspark.sql.DataFrame â</a> of the input dataset.</li>
+</ul>
+<p><strong><code>data.frame()</code></strong></p>
+<ul>
+<li>Returns an <a href="https://www.rdocumentation.org/packages/base/versions/3.5.1/topics/data.frame">R data.frame â</a> of the input dataset.</li>
+</ul>
+<p><strong><code>fileSystem()</code></strong></p>
+<ul>
+<li>Returns a <em>FileSystem</em> object for direct <em>FoundryFS</em> access.</li>
+</ul>
+<h2>R <code>TransformOutput</code> object</h2>
+<p>The interface for low level write operations on a Foundry dataset.</p>
+<p><strong><code>write.spark.df</code>(<em>df</em>, <em>partition_cols=NULL</em>, <em>bucket_cols=NULL</em>, <em>bucket_count=NULL</em>, <em>sort_by=NULL</em>)</strong></p>
+<ul>
+<li>
+<p>Write the given <a href="https://spark.apache.org/docs/latest/api/python/reference/pyspark.sql/api/pyspark.sql.DataFrame.html">DataFrame â</a> to the output dataset.</p>
+<p><table>
+<tr>
+    <td><b>Parameters</b></td>
+    <td><ul>
+        <li><b>df</b> (<i><a href="https://spark.apache.org/docs/latest/api/python/reference/pyspark.sql/api/pyspark.sql.DataFrame.html">pyspark.sql.DataFrame</a></i>) â  The PySpark dataframe to write.</li>
+        <li><b>partition_cols</b> (<i>List[str], optional</i>) - Column partitioning to use when writing data.</li>
+        <li><b>bucket_cols</b> (<i>List[str], optional</i>) - The columns by which to bucket the data. Must be specified if bucket_count is given.</li>
+        <li><b>bucket_count</b> (<i>int, optional</i>) â The number of buckets. Must be specified if bucket_cols is given.</li>
+        <li><b>sort_by</b> (<i>List[str], optional</i>) - The columns by which to sort the bucketed data.</li>
+    </ul></td>
+</tr>
+</table></p>
+</li>
+</ul>
+<p><strong><code>write.data.frame</code>(<em>rdf</em>)</strong></p>
+<ul>
+<li>Writes the given <a href="https://www.rdocumentation.org/packages/base/versions/3.5.1/topics/data.frame">R data.frame â</a> to the output dataset.</li>
+</ul>
+<p><strong><code>fileSystem()</code></strong></p>
+<ul>
+<li>Returns a <em>FileSystem</em> object for direct <em>FoundryFS</em> access.</li>
+</ul>
+<h2>R <code>FileSystem</code> object</h2>
+<p><strong><code>ls</code>(<em>glob=NULL</em>, <em>regex='.*'</em>, <em>show_hidden=FALSE</em>)</strong></p>
+<ul>
+<li>
+<p>Lists all files matching the given pattern (either <code>glob</code> or <code>regex</code>), with respect to the root directory of the dataset.</p>
+<p><table>
+<tr>
+    <td><b>Parameters</b></td>
+    <td><ul>
+        <li><b>glob</b> (<i>str</i>, <i>optional</i>) â A unix file matching pattern. Also supports globstar.</li>
+        <li><b>regex</b> (<i>str</i>, <i>optional</i>) â A regex pattern against which to match filenames.</li>
+        <li><b>show_hidden</b> (<i>bool</i>, <i>optional</i>) â Include hidden files, those prefixed with â.â or â_â.</li>
+    </ul></td>
+</tr>
+<tr>
+    <td><b>Returns</b></td>
+    <td>R array of the FileStatus named tuple (path, size, modified) - The logical path, file size (bytes), modified timestamp (ms since January 1, 1970 UTC)</td>
+</tr>
+</table> </p>
+</li>
+</ul>
+<p><strong><code>open</code>(<em>path</em>, <em>open='r'</em>, <em>disk_optimal=FALSE</em>, <em>encoding=default</em>)</strong></p>
+<ul>
+<li>
+<p>Open a FoundryFS file in the given mode.</p>
+<p><table>
+<tr>
+    <td><b>Parameters</b></td>
+    <td><ul>
+        <li><b>path</b> (<i>str</i>) â The logical path of the file in the dataset. (<b>Remote path</b>)</li>
+        <li><b>open</b> (<i>str</i>) - A description of the <a href="https://www.rdocumentation.org/packages/base/versions/3.5.1/topics/connections">mode</a> in which to open the connection.
+        <li><b>disk_optimal</b> (<i>bool</i>, <i>optional</i>) â Controls how FoundryFileSystem handles file i/o.
+        <li><b>encoding</b> (<i>str</i>, <i>optional</i>) - Defaults to the R language default (UTF-8).
+    </ul></td>
+</tr>
+<tr>
+    <td><b>Returns</b></td>
+    <td>An R connection object
+</td>
+</tr>
+</table></p>
+</li>
+</ul>
+<p><strong><code>get_path</code>(<em>path</em>, <em>open='r'</em>, <em>disk_optimal=FALSE</em>, <em>encoding=default</em>)</strong></p>
+<ul>
+<li>
+<p>For a given FoundryFS (remote) path, returns the local temporary path.</p>
+<p><table>
+<tr>
+    <td><b>Parameters</b></td>
+    <td><ul>
+        <li><b>path</b> (<i>str</i>) â The logical path of the file in the dataset. (<b>Remote path</b>)</li>
+        <li><b>open</b> (<i>str</i>) - A description of the <a href="https://www.rdocumentation.org/packages/base/versions/3.5.1/topics/connections">mode</a> in which to open the connection.
+        <li><b>disk_optimal</b> (<i>bool</i>, <i>optional</i>) â Controls how FoundryFileSystem handles file i/o.
+        <li><b>encoding</b> (<i>str</i>, <i>optional</i>) - Defaults to the R language default (UTF-8).
+    </ul></td>
+</tr>
+<tr>
+    <td><b>Returns</b></td>
+    <td><i>str</i>
+</td>
+</tr>
+</table></p>
+</li>
+</ul>
+<p><strong><code>upload</code>(<em>local_path</em>, <em>remote_path</em>)</strong></p>
+<ul>
+<li>
+<p>Upload the file from the local to the remote path. Write only.</p>
+<p><table>
+<tr>
+    <td><b>Parameters</b></td>
+    <td><ul>
+        <li><b>local_path</b> (<i>str</i>) â The local path of the file to upload.</li>
+        <li><b>remote_path</b> (<i>str</i>) - The logical path of the file in the dataset.</li>
+    </ul></td>
+</tr>
+<tr>
+    <td><b>Returns</b></td>
+    <td><i>None</i>
+</td>
+</tr>
+</table></p>
+</li>
+</ul>
+<h2>Advanced topic: <code>disk_optimal</code> setting</h2>
+<p>In the <code>FileSystem</code> methods <code>open()</code> and <code>get_path()</code>, the <code>disk_optimal</code> argument controls how file input and output (i/o) is handled.</p>
+<p>By default, <code>disk_optimal</code> is set to <code>FALSE</code> in both <code>open()</code> and <code>get_path()</code>. In this mode, files are guaranteed to be downloaded before they are accessed.</p>
+<p>If you choose to set <code>disk_optimal</code> to <code>TRUE</code>, files are downloaded simultaneously while the code executes. The temporary local path must be opened via <code>fifo()</code> in order to read correctly. Note that not all libraries support reading this type of file.</p>
+<p>You may choose to set <code>disk_optimal</code> to <code>TRUE</code> when the file you are reading is very large.</p>
+<p>For example, imagine you have a very large txt file and you only want to read the first 10 lines. Use the below code to print only the first 10 lines, without reading the entire file.</p>
+<pre><code class="language-r">disk_optimal_example&lt;- function(large_txt_file) {
+    fs &lt;- large_txt_file$fileSystem()
+
+    ## Open a connection with fifo()
+    ## The text file is titled large_txt_file.txt
+    conn &lt;- fs$open(&quot;large_txt_file.txt&quot;, &quot;r&quot;, disk_optimal = TRUE)
+
+    A &lt;- readLines(conn, n = 10)
+    print(A)
+    return(NULL)    
+}
+</code></pre>
+<p>If you want to use R TransformOutput to write a file and then read it, <code>disk_optimal</code> must be set to false.</p>
+</body>
+</html>

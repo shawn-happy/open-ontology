@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Contour</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Contour</h1>
+<p>Contour provides a point-and-click user interface to perform data analysis on tables at scale. These analyses can be used to create interactive <a href="https://www.palantir.com/docs/foundry/contour/dashboards-overview/">dashboards</a> that allow others to explore and investigate the data in a guided, structured way.</p>
+<p><img alt="contour-overview-image" src="../../_resources/foundry/contour/overview.png" /></p>
+<h2>Key features</h2>
+<p>Contour enables you to:</p>
+<ul>
+<li>Visualize, filter, and transform data without code.</li>
+<li>Organize complex analyses into analytical paths.</li>
+<li>Parameterize analyses to easily switch between different views of the data and results.</li>
+<li>Create interactive dashboards to share findings.</li>
+<li>Save analysis results as a new dataset for use in other Foundry tools.</li>
+<li>Leverage Contour's <a href="https://www.palantir.com/docs/foundry/contour/expressions-overview/">expression language</a> for more advanced transformations and aggregations.</li>
+</ul>
+<h2>When to use Contour</h2>
+<p>Contour is a good fit for analytical use cases where:</p>
+<ul>
+<li><strong>Some or all of the data you want to use is not mapped in the Ontology.</strong> In general, we recommend using the <a href="https://www.palantir.com/docs/foundry/ontology/overview/">Ontology layer</a> whenever possible, but there are some cases where this may not be appropriate (such as a one-time upload that will not be cleaned or reused).</li>
+<li><strong>You need to operate on a very large dataset.</strong> For instance, performing joins on over 100,000 objects or aggregations on over 50,000 rows.</li>
+<li><strong>You want to share your analysis results as a new dataset for use in other Foundry tools.</strong> <a href="https://www.palantir.com/docs/foundry/analytics/datasets-object-sets/">Learn more about saving results as a dataset.</a></li>
+</ul>
+<p><a href="https://www.palantir.com/docs/foundry/analytics/types-of-analysis/">Learn more about other tools available for point-and-click analysis and when to use each.</a></p>
+<p>:::callout{theme="success" title="Palantir Learning portal"}
+For a deep dive into data analysis in Contour, visit <a href="https://learn.palantir.com/deep-dive-data-analysis-in-contour">learn.palantir.com â</a>.
+:::</p>
+</body>
+</html>

@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Investigation and cohorting</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Investigation and cohorting</h1>
+<p>Organizations typically have significant revenue or cost saving opportunities available if they have the tools to look for them, for example, when <a href="https://www.palantir.com/docs/foundry/use-case-examples/preventing-transformer-failure-via-alerting-and-investigation-support/">identifying risks in a power grid</a>, investigating potential fraud, <a href="https://www.palantir.com/docs/foundry/use-case-examples/improving-production-yield-through-standardized-kpi-reporting/">identifying opportunities to improve material yields</a>, or finding the next best sales action. Investigation and Cohorting workflows allow users to create a common operating picture of their organization, combine subject-matter expertise and data analysis to reveal opportunities, and implement real-world solutions.</p>
+<p><img alt="Investigation and Cohorting" src="../../_resources/foundry/use-case-patterns/image-investigation_and_cohorting.jpg" /></p>
+<h2>Solution</h2>
+<p>Investigation and Cohorting workflows are designed to understand and group real-world anomalies or problems in your data that represent revenue or savings opportunities, facilitate drilldowns into the issues, and facilitate remediation. They are used to proactively identify issues or understand relations, following an exploratory approach, in which cohorting logic guides subject-matter expertise from analysts and is used to uncover the anomalies. With the ever-increasing amount of data, the lack of technical skills to handle complex statistical applications often presents an entry barrier for analysts or forces an organization to drastically reduce the complexity of their data.</p>
+<p>These workflows nearly always require a toolset that allows for fast analysis and exploration of large, often isolated, data assets. Results would then need to be stored and reused and typically also need to be reproducible.</p>
+<p>In Foundry, these workflows combine different tools for users with different skillsets, but all rely on the same data asset, the <a href="https://www.palantir.com/docs/foundry/ontology/overview/">Ontology</a>, which models the relevant organizational objects and relations between them. Automated business logic and / or ML Cohorting is applied to provide a starting point for investigations and Foundryâs various analysis tools are used to drill down into the issues. Finally, Ontology writeback is used to update the <a href="https://www.palantir.com/docs/foundry/ontology/overview/">Ontology</a> and external source systems to remediate or action the issue.</p>
+<h2>Key Elements</h2>
+<h3>User Interfaces</h3>
+<p><strong><em>Exploratory Analysis</em></strong></p>
+<p>To investigate your data and test hypothesis, analysts often rely on exploratory analysis. They would start with a top-down approach, taking a high-level look at large datasets, and from there trimming it down by transforming, filtering, or aggregating it to test their hypothesis. For example, in the <a href="https://www.palantir.com/docs/foundry/use-case-examples/improving-production-yield-through-standardized-kpi-reporting/">Material Yield Application</a>, analysts review the worst-performing materials weekly and drill down via <a href="https://www.palantir.com/docs/foundry/contour/overview/">Contour</a> to identify savings opportunities.</p>
+<p>In the past, this method was reserved for highly technical analysts who have the skills to use the tools which can handle large datasets and compare results, which often meant that the process was bottlenecked on a few users and iteration speed was slow.</p>
+<p>In Foundry, users rely on a set of code and no-code tools to analyze any dataset, regardless of its size, in seconds. Not only does it provide a set of tools to visually explore data, thus decreasing the entry barrier, but by leveraging the <a href="https://www.palantir.com/docs/foundry/ontology/overview/">Ontology</a>, it also provides a lot of operational context to the user.</p>
+<p>Related products:</p>
+<ul>
+<li><a href="https://www.palantir.com/docs/foundry/contour/overview/">Contour</a></li>
+<li><a href="https://www.palantir.com/docs/foundry/quiver/overview/">Quiver</a></li>
+<li><a href="https://www.palantir.com/docs/foundry/vertex/overview/">Vertex</a></li>
+</ul>
+<p><strong><em>Case Investigation</em></strong></p>
+<p>Investigations might start as a result from the Alerting Workflow Pattern (e.g. trends or outages in a power grid), a prioritized cohort (e.g. manufacturing processes with the lowest performing yields), or the user looking for an opportunity (e.g. salespeople identifying their next action).</p>
+<p>They either start from a single Object or a small subset of Objects. Investigations are rarely open ended; instead, they most often have a defined goal (e.g. understanding why the source of a customer complaint) and it is the analystsâ task to backtrack the events from the trigger to its root cause.</p>
+<p>Related products:</p>
+<ul>
+<li><a href="https://www.palantir.com/docs/foundry/object-views/overview/">Object Explorer</a></li>
+</ul>
+<p><strong><em>Impact Tracker</em></strong></p>
+<p>Once investigations are finished, a hypothesis has been confirmed, or the analysis has been concluded, an operational decision is taken which triggers a real-world event (e.g. triggering a team to remediate a risky asset).</p>
+<p>Ideally, these real-world events would also reduce the risk of running into the same situation again. If this happens, the decision and action taken become important data assets themselves. Knowing when, where, and why decisions were taken, can in turn be leveraged in future investigations and analysis, allowing analysts to compare different situations over time to increase consistency.</p>
+<p>Related products:</p>
+<ul>
+<li><a href="https://www.palantir.com/docs/foundry/workshop/overview/">Workshop</a></li>
+<li><a href="https://www.palantir.com/docs/foundry/quiver/overview/">Quiver</a></li>
+</ul>
+<h3>(Optional) Automated Clustering</h3>
+<p><strong><em>Manual Rule Creation</em></strong></p>
+<p>Ideally, investigations are triggered proactively. Subject-matter experts may be able to estimate which errors or anomalies might occur at some point and want to monitor the data specifically for these. The thesis can be very specific (in which case they turn to the Alerting Pattern, as in the Asset Failure Operations) use case or loosely (in which case they define KPIs or business logic to look out for in the data, as in the Material Yield Application). At its simplest, the logic follows the steps an analyst would otherwise do manually at the beginning of each investigation or analysis.</p>
+<p>Having a (at least partially) automated approach can also be used to ensure deterministic behavior, which might be required by regulators or be valuable to ensure consistency and reduce the chance of risk.</p>
+<p>Just as in the Alerting Pattern, users can rely on Foundryâs Alert Automation, or use the same tools as in the Investigation and Exploration.</p>
+<p>Related products:</p>
+<ul>
+<li>Foundry Rules</li>
+<li><a href="https://www.palantir.com/docs/foundry/action-types/overview/">Actions</a></li>
+<li><a href="https://www.palantir.com/docs/foundry/workshop/overview/">Workshop</a></li>
+</ul>
+<p><strong><em><a href="https://www.palantir.com/docs/foundry/model-integration/overview/">Foundry ML</a></em></strong></p>
+<p>In some cases, investigations or detecting anomalies in data does not require subject-matter expertise to be applied on a case-by-case basis. When a robust and consistent data asset exists, statistical approaches might be better suited to the problem at hand. For humans, it can be hard to detect complex patterns within large amounts of data, especially when the patterns are constantly changing. With <a href="https://www.palantir.com/docs/foundry/model-integration/overview/">Foundry ML</a>, models can be trained and implemented on top of large datasets. The results (whether clusters or predictions) can then be used just as any other datapoint in the platform, meaning that it can be made part of the ontology and picked up in exploratory analysis or investigations.</p>
+<p>Related products:</p>
+<ul>
+<li><a href="https://www.palantir.com/docs/foundry/model-integration/overview/">Foundry ML</a></li>
+<li><a href="https://www.palantir.com/docs/foundry/code-workbook/overview/">Code Workbook</a></li>
+</ul>
+<h3>Ontology</h3>
+<p>The <a href="https://www.palantir.com/docs/foundry/ontology/overview/">Ontology</a> stores information on how different assets are related to one another (e.g. how shipments, customers, and orders are connected), so that the users ask and answer their questions naturally.</p>
+<p>Objects:</p>
+<ul>
+<li>Cohort</li>
+<li>Rules</li>
+<li>Subject-Matter Context Objects</li>
+</ul>
+<p>Related products:</p>
+<ul>
+<li><a href="https://www.palantir.com/docs/foundry/ontology/overview/">Ontology</a></li>
+<li><a href="https://www.palantir.com/docs/foundry/object-views/overview/">Object Explorer</a></li>
+<li><a href="https://www.palantir.com/docs/foundry/action-types/overview/">Foundry Actions</a></li>
+</ul>
+<h2>Requirements</h2>
+<p>Regardless of the Pattern used, the underlying data foundation is constructed from pipelines and syncs to external source systems.</p>
+<p><strong><em>Data Integration Pipelines</em></strong></p>
+<p>Data integration pipelines, written in a variety of languages including SQL, Python, and Java, are used to integrate datasources into the subject matter ontology.</p>
+<p><strong><em><a href="https://www.palantir.com/docs/foundry/data-connection/overview/">Data Connectors</a></em></strong></p>
+<p>Foundry can sync data from a wide array of sources, including FTP, JDBC, REST API, and S3. Syncing data from a variety of sources and compiling the most complete source of truth possible is key to enabling the highest value decisions.</p>
+<h2>Use cases implementing this pattern</h2>
+<ul>
+<li><a href="https://www.palantir.com/docs/foundry/use-case-examples/improving-production-yield-through-standardized-kpi-reporting/">Improving production yield through standardized KPI reporting</a></li>
+<li><a href="https://www.palantir.com/docs/foundry/use-case-examples/improving-retention-and-collection-performance-through-intelligent-repricing/">Improving retention and collection performance through intelligent repricing</a></li>
+<li><a href="https://www.palantir.com/docs/foundry/use-case-examples/increasing-client-engagement-through-integrated-campaign-management/">Increasing client engagement through integrated campaign management</a></li>
+<li><a href="https://www.palantir.com/docs/foundry/use-case-examples/preventing-transformer-failure-via-alerting-and-investigation-support/">Preventing transformer failure via alerting and investigation support</a></li>
+</ul>
+<p>Want more information on this use case pattern? Looking to implement something similar? <a href="https://www.palantir.com/contact/get-started/">Get started with Palantir. â</a></p>
+</body>
+</html>

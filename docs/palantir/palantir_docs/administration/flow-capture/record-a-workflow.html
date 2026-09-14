@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Record a workflow and edit resources</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Record a workflow and edit resources</h1>
+<p>This page provides instructions on the configuration and steps required to record a workflow.</p>
+<h2>Create a flow capture resource</h2>
+<ol>
+<li>Open the Flow Capture application.</li>
+<li>Select <strong>+ New Flow Capture</strong> in the top right.</li>
+</ol>
+<p><img alt="Create a new flow capture." src="../../_resources/foundry/flow-capture/create-new-flow-capture.png" /></p>
+<ol start="3">
+<li>Choose a file name and location to save your resource in Compass.</li>
+<li>Select <strong>Save</strong> to create the new flow capture resource.</li>
+</ol>
+<h2>Select a system prompt template</h2>
+<p>After saving your resource, you will be redirected to the <strong>Record workflow</strong> page. Under <strong>What are you looking to document?</strong>, choose the template that best matches the documentation you want to generate.</p>
+<p>The following templates are currently available:</p>
+<ul>
+<li><strong>General documentation:</strong> Capture a workflow and translate it into Markdown documentation.</li>
+<li><strong>Report a bug:</strong> Reproduce an issue you found in the platform to provide rich detail for product partners.</li>
+<li><strong>Request a feature:</strong> Point out a shortcoming of the platform and suggest an improvement.</li>
+<li><strong>Provide feedback:</strong> Describe product behavior, functionality, or usability feedback while you use the platform.</li>
+</ul>
+<p>You can change the selected template later if you need to adjust the generation prompt for a different use case.</p>
+<p>:::callout{theme="warning"}
+Before recording, ensure that you understand your organization's data handling policies. Flow Capture will record screenshots and optional audio; you must confirm that the content you record is appropriate for the intended use and is handled according to your security policies.
+:::</p>
+<h2>Prepare to record</h2>
+<ol>
+<li>Select <strong>Record workflow</strong> to open the recorder acknowledgement.</li>
+<li>In the acknowledgement dialog, select the checkbox to confirm the required security settings, and then select <strong>Acknowledge</strong>.</li>
+</ol>
+<h3>Review recorder controls and options</h3>
+<ul>
+<li><strong>Screenshot counter:</strong> Displays the number of captured screenshots in the top left of the recorder overlay.</li>
+<li><strong>Record audio:</strong> Enable this toggle to capture audio that will be transcribed and associated with the recording.</li>
+<li><strong>Auto-screenshot:</strong> When this toggle is enabled, the recorder will automatically capture a screenshot on click while you navigate the platform.</li>
+<li><strong>Size dropdown:</strong> Choose the capture size for screenshots. This dropdown provides the following options to scale the recording frame:</li>
+<li>Full size: Capture at the full resolution of the target page.</li>
+<li>Scaled: Scale the page to fit the recorder viewport.</li>
+<li>Custom: Specify custom dimensions for the capture frame.</li>
+<li><strong>URL field:</strong> Use this to navigate directly to the page you want to capture with the recorder. The URL field only accepts same-domain URLs. The page you navigate to must be on the same Foundry enrollment that Flow Capture is running on.</li>
+</ul>
+<h2>Start recording</h2>
+<ol>
+<li>Enable <strong>Record audio</strong> if you want spoken narration and transcription.</li>
+<li>Enable or disable <strong>Auto-screenshot</strong> depending on whether you want screenshots captured automatically on click.</li>
+<li>Select <strong>Record</strong> to begin capturing your session.</li>
+</ol>
+<h3>Navigate while recording</h3>
+<p>Navigate to the pages you want to document by entering a URL in the recorder URL field, or by browsing in the recorder iframe. Interact with the application as you normally would to demonstrate the workflow you want to document.</p>
+<h3>Capture screenshots manually</h3>
+<p>If <strong>Auto-screenshot</strong> is enabled, screenshots will be taken automatically for every click event, but you may take manual screenshots at any time. Use the <strong>Take screenshot</strong> option in the recorder controls to capture the current view, or use the keyboard shortcut <code>Cmd+Shift+S</code> (macOS) or <code>Ctrl+Shift+S</code> (Windows) to capture a screenshot.</p>
+<h3>Use recording controls during the session</h3>
+<ul>
+<li>Select <strong>Pause</strong> to pause the capture.</li>
+<li>Select <strong>Record</strong> to resume after pausing.</li>
+<li>Select <strong>Discard and exit</strong> to cancel the session and remove any captured media.</li>
+<li>When you have finished capturing the workflow, select <strong>Done</strong>.</li>
+</ul>
+<h2>After recording</h2>
+<p>You can open the flow capture resource in edit mode to review and edit screenshots, transcriptions, and the generated context before generating the final documentation. If recorded, your audio will be transcribed automatically and associated with the captured screenshots.</p>
+<h3>Edit resources</h3>
+<p>Use the edit controls on a flow capture to refine screenshots and transcriptions, and define which artifacts are included in the LLM generation context. Edits are staged until you save them.</p>
+<h3>Add content to LLM context</h3>
+<p>You can add a snapshot or a transcription to the generation context to make it available to the LLM during generation. To do so, hover over the asset you want to add and select <strong>Add to context</strong>.
+You can also import images into Flow Capture by selecting <strong>Upload</strong> in the top right corner of the <strong>Assets</strong> page, and selecting the files you want to upload.</p>
+<h3>Crop images</h3>
+<p>Crop images to focus the reader's attention on relevant UI elements.</p>
+<ol>
+<li>Select the snapshot you want to edit.</li>
+<li>Select <strong>Crop image</strong>.</li>
+<li>Draw the crop region over the image by dragging the selection handles.</li>
+<li>Select <strong>Apply</strong> to accept the crop.</li>
+<li>When you have finished editing, select <strong>Save Edits</strong>, then select <strong>Done</strong> to return to edit mode.</li>
+</ol>
+<h3>Blur images</h3>
+<p>Blur sensitive information before you include screenshots in generated documentation or exports.</p>
+<ol>
+<li>Select the snapshot you want to edit.</li>
+<li>Select <strong>Blur Image</strong>.</li>
+<li>Draw a region to blur by dragging the selection handles.</li>
+<li>Select <strong>Apply</strong> to preview the blur.</li>
+<li>Select <strong>Save Edits</strong>, then select <strong>Done</strong> to return to edit mode.</li>
+</ol>
+<h3>Edit transcriptions</h3>
+<p>You can correct or improve transcriptions before generating documentation.</p>
+<ol>
+<li>Select the transcription text or the pencil icon to open the <strong>Edit transcription</strong> dialog.</li>
+<li>Edit the text in the <strong>Audio transcription</strong> field.</li>
+<li>To regenerate the transcription automatically, select <strong>Regenerate</strong>.</li>
+<li>Select <strong>Save</strong> and close the dialog to return to edit mode.</li>
+<li>Select <strong>Cancel</strong> to close the dialog without saving.</li>
+</ol>
+<h3>Delete or restore images and audio</h3>
+<p>You can remove images or audio files from a flow capture. Deleted items remain recoverable until you save your changes by selecting <strong>Save</strong> in the edit toolbar.</p>
+<ol>
+<li>Hover over the image or audio card to reveal the delete icon.</li>
+<li>Select the delete icon to mark the item as deleted.</li>
+<li>To restore a deleted item before saving your edits, select <strong>Restore snapshot</strong>.</li>
+<li>After selecting <strong>Save</strong>, deleted images and audio will be permanently removed.</li>
+</ol>
+</body>
+</html>

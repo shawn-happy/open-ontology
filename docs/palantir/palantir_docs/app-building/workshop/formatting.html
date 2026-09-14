@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Formatting</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Formatting</h1>
+<p>Workshop offers many formatting options across widgets that help users style their displays. In this section, we walk through two of these options: value formatting and conditional formatting.</p>
+<h2>Value formatting</h2>
+<p><strong>Value formatting</strong> applies special formatting when rendering values in user-facing applications, making raw values more display-friendly. In Workshop, value formatting can be used to render values when setting up time series property columns in the Object Table widget and time series property displays in the Metric Card widget. This formatting is local to the Workshop module, and not global to the ontology. <a href="https://www.palantir.com/docs/foundry/object-link-types/value-formatting/">Learn more about setting up value formatting.</a></p>
+<p>Numeric value formatting includes options to control the number of decimals displayed. Use the <strong>Fraction digits</strong> field to set the minimum and maximum digits shown after the decimal point; setting the maximum rounds longer values to that length without changing the underlying data. You can also control significant digits, integer digits, grouping separators, and notation. See <a href="https://www.palantir.com/docs/foundry/object-link-types/value-formatting/#numeric-formatting-options">Add value formatting</a> for the full list of options.</p>
+<p>The example below shows how value formatting is used to style the value displayed in an Object table column named <code>Weekly Cases</code>, that features the weekly number of COVID-19 cases observed in each country.</p>
+<p><img alt="value_formatting" src="../../_resources/foundry/workshop/value_formatting.png" /></p>
+<h2>Conditional formatting</h2>
+<p><strong>Conditional formatting</strong> applies rules to determine how numbers and sparklines are styled. In Workshop, conditional formatting can be used to style time series property columns in the Object Table widget and time series property displays in the Metric Card widget. This formatting is local to the Workshop module, and not global to the ontology. <a href="https://www.palantir.com/docs/foundry/object-link-types/conditional-formatting/">Learn more about setting up conditional formatting.</a></p>
+<p>The example below shows how conditional formatting is used to style the summarized value and the sparkline displayed in an Object table column named <code>Weekly Cases</code>, that features the weekly number of COVID-19 cases observed in each country.</p>
+<p><img alt="object_table_conditional_formatting_example" src="../../_resources/foundry/workshop/object_table_conditional_formatting_example.png" /></p>
+</body>
+</html>

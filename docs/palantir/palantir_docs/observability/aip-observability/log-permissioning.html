@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Log permissions</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Log permissions</h1>
+<p>:::callout{theme="warning"}
+Service and trace logs can contain sensitive content from any data source a workflow reaches, including language model prompts and completions, object property values, and user-supplied inputs. The platform does not propagate markings from the source executor's resource or from any data the execution accessed; only the markings an administrator explicitly applies when enabling log access are enforced on viewers. Enabling log access therefore carries a security risk and should be reviewed against the maximum sensitivity of data the workflow may touch.
+:::</p>
+<h2>Required roles</h2>
+<p>The following table lists the required roles for various operations in Ontology and AIP observability.</p>
+<table>
+<thead>
+<tr>
+<th>Capability</th>
+<th>Required role</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>View <a href="https://www.palantir.com/docs/foundry/aip-observability/metrics/">metrics</a></td>
+<td><code>View</code> permission on the resourceÂ¹</td>
+</tr>
+<tr>
+<td>View <a href="https://www.palantir.com/docs/foundry/aip-observability/run-history/">run history</a></td>
+<td><code>Edit</code> permission on the resourceÂ¹</td>
+</tr>
+<tr>
+<td>View <a href="https://www.palantir.com/docs/foundry/aip-observability/trace-view/">trace</a> and <a href="https://www.palantir.com/docs/foundry/aip-observability/service-logs-and-debugging/">service logs</a>Â²</td>
+<td><code>Edit</code> permission on the resourceÂ¹ + Log access enabledÂ³ + Access to all markings</td>
+</tr>
+<tr>
+<td><a href="https://www.palantir.com/docs/foundry/aip-observability/log-search/">Search logs</a>Â²</td>
+<td><code>Edit</code> permission on the resourceÂ¹ + Log access enabledÂ³ + Access to all markings</td>
+</tr>
+<tr>
+<td><a href="https://www.palantir.com/docs/foundry/administration/configure-logging/#in-platform-log-access-for-ontology-and-aip-workflows">Configure log access</a></td>
+<td><code>Information security officer</code> or <code>Enrollment administrator</code> role</td>
+</tr>
+<tr>
+<td><a href="https://www.palantir.com/docs/foundry/administration/configure-logging/#delete-log-history">Delete logs</a></td>
+<td><code>Information security officer</code> or <code>Enrollment administrator</code> role</td>
+</tr>
+</tbody>
+</table>
+<p>Â¹A Foundry operation backs each capability: <code>foundry-telemetry-service:read-metrics</code> (granted by the <code>Viewer</code> role) for metrics, and <code>foundry-telemetry-service:view-execution-history</code> (granted by the <code>Editor</code> role) for run history and logs. You can grant these operations through a different role using <a href="https://www.palantir.com/docs/foundry/platform-security-management/manage-roles/">custom roles</a>.</p>
+<p>Â²Users always have access to logs for their own executions from the past 24 hours with just the <code>foundry-telemetry-service:view-execution-history</code> operation, independent of log access settings. This exception does not apply on <a href="https://www.palantir.com/docs/foundry/security/classification-based-access-controls/">CBAC stacks</a>, where log access must be enabled to see logs for one's own executions.</p>
+<p>Â³Log access enablement: An administrator must enable log access either on the source executor resource directly (as a resource override) or on the source executor's project (and attributed project if the resource has been moved). See <a href="#log-access-requirements">log access requirements</a> below for full details, and <a href="https://www.palantir.com/docs/foundry/administration/configure-logging/#in-platform-log-access-for-ontology-and-aip-workflows">Configure logging</a> for how to enable it.</p>
+<h2>Log access requirements</h2>
+<p>To view the run history for a resource, you must have <strong>edit</strong> permission on the resource.</p>
+<p>To view the trace and service logs for an execution you did not invoke, you must satisfy all three requirements below. The <strong>log access overview</strong> dialog, described in <a href="#review-log-access-requirements">Review log access requirements</a> below, shows each requirement and whether you currently meet it.</p>
+<ul>
+<li><strong>Role:</strong> You must have <strong>Edit</strong> permission on the source executor. The source executor is the first executable resource in the call chain and can be a function, action, automation, AIP logic, AIP agent, or model live deployment.</li>
+<li><strong>Log access policy:</strong> Log access must be enabled for the source executor, either on its <strong>project</strong> (and its <strong>attributed project</strong> â the project the resource first emitted telemetry under â if the resource has been moved) or through a <strong>resource-level override</strong>. An <code>Information security officer</code> or <code>Enrollment administrator</code> enables this. See <a href="https://www.palantir.com/docs/foundry/administration/configure-logging/#in-platform-log-access-for-ontology-and-aip-workflows">Configure logging</a> for how to enable log access.</li>
+<li><strong>Markings:</strong> You must hold every marking applied to the logs. See <a href="#markings-on-log-content">Markings on log content</a> below.</li>
+</ul>
+<p>Actions are a special case. An action managed by <a href="https://www.palantir.com/docs/foundry/object-permissioning/ontology-permissions-legacy/">legacy Ontology permissions</a> cannot yet be managed at the project level, so enabling log access for it requires a <strong>resource-level override</strong> rather than the project setting, until the action is <a href="https://www.palantir.com/docs/foundry/ontology-manager/migrate-to-project-based-permissions/">migrated to project-based permissions</a>. See <a href="https://www.palantir.com/docs/foundry/administration/configure-logging/#configure-resource-overrides-for-legacy-ontology-permissions">Configure logging</a> for details.</p>
+<h2>Source executor log access status</h2>
+<p>The <strong>Run history</strong> and <strong>Log search</strong> panels in Workflow Lineage display a status tag for the source executor's log access. The tag reflects your current level of access:</p>
+<ul>
+<li><strong>Full log access:</strong> Log access is enabled on the project or through a resource-level override, and you hold the required markings. Logs are visible for all executions originating from the resource.</li>
+<li><strong>User ID secured log access:</strong> Based on your role, you have access to logs from your own executions in the past 24 hours. This applies even when log access is not otherwise enabled (except on CBAC stacks).</li>
+<li><strong>No log access:</strong> Log access is not enabled and you have no other path to the logs.</li>
+</ul>
+<p>When log access is enabled for the project and marking permissions are satisfied, <strong>Source executor log access</strong> will show as enabled. Logs will be visible for all executions originating from the enabled project.</p>
+<p><img alt="Source executor log access status tag showing full log access enabled on the project." src="../../_resources/foundry/aip-observability/log-access-status-tag-source-executor.png" /></p>
+<p>Otherwise, only your own executions from the past 24 hours show logs (except on <a href="https://www.palantir.com/docs/foundry/security/classification-based-access-controls/">CBAC stacks</a>).</p>
+<p><img alt="Source executor log access status tag showing user ID secured access for the past 24 hours." src="../../_resources/foundry/aip-observability/log-access-status-tag-user24.png" /></p>
+<p>:::callout{theme="warning"}
+On <a href="https://www.palantir.com/docs/foundry/security/classification-based-access-controls/">CBAC stacks</a>, this 24-hour access to your own executions' logs is disabled. Log access must be enabled on the source executor's project before users can view trace and service logs or search logs, even for their own executions.
+:::</p>
+<h2>Open the log access overview</h2>
+<p>To check what you need to read logs, open the <strong>Log access overview</strong> dialog from either of these places:</p>
+<ul>
+<li>From the Workflow Lineage graph, select the resource's node and choose <strong>View log access</strong>.</li>
+<li>From the <strong>Run history</strong> or <strong>Log search</strong> panel, select <strong>View log access</strong> in the top right.</li>
+</ul>
+<p><img alt="Workflow Lineage graph node menu showing the View log access option." src="../../_resources/foundry/aip-observability/workflow-lineage-node-view-log-access.png" /></p>
+<p>Viewing the overview requires at least the <code>Viewer</code> role on both the resource and its project.</p>
+<p>If you have the <code>Information security officer</code> or <code>Enrollment administrator</code> role and can manage log access for the resource, the <strong>Run history</strong> and <strong>Log search</strong> panels show <strong>Edit permissions</strong> in place of <strong>View log access</strong>. That menu adds <strong>Configure log access</strong> and <strong>Delete log history</strong>, both covered in <a href="https://www.palantir.com/docs/foundry/administration/configure-logging/#in-platform-log-access-for-ontology-and-aip-workflows">Configure logging</a>.</p>
+<p><img alt="Workflow Lineage showing the Edit permissions control in the Run history panel." src="../../_resources/foundry/aip-observability/workflow-lineage-run-history-edit-permissions.png" /></p>
+<h2>Review log access requirements</h2>
+<p>The <strong>Log access overview</strong> dialog lists the three requirements a viewer must satisfy to see logs.</p>
+<ul>
+<li><strong>Role:</strong> Shows your current role on the resource. If your role does not grant log access, the dialog suggests the least-privileged role that grants log access.</li>
+<li><strong>Log access policy:</strong> Shows whether log access is enabled on the project containing this resource (and attributed project if the resource has been moved), enabled via a resource-level override, or not enabled. If you have the <code>Information security officer</code> or <code>Enrollment administrator</code> role, you can select <strong>Edit</strong> to configure the policy (see <a href="https://www.palantir.com/docs/foundry/administration/configure-logging/#in-platform-log-access-for-ontology-and-aip-workflows">Configure logging</a>).</li>
+<li><strong>Log access markings:</strong> Shows the markings applied to the logs and, if you are missing any, how many.</li>
+</ul>
+<p><img alt="Log access overview dialog showing the role, log access policy, and markings requirements." src="../../_resources/foundry/aip-observability/log-access-overview-requirements.png" /></p>
+<h2>Markings on log content</h2>
+<p>The markings that protect log content are configured explicitly by an administrator when log access is enabled. These are the only markings enforced when a user attempts to view logs.</p>
+<p>Markings are not derived from the source executor's resource, its inputs, or any data the execution accessed. Administrators are responsible for selecting markings that reflect the maximum sensitivity of any data the workflow may touch, as the platform cannot determine the full set of data sources a workflow may reach in advance. Logs enabled without markings are visible to every user who satisfies the role and log access requirements described above.</p>
+<h2>Related documentation</h2>
+<ul>
+<li><a href="https://www.palantir.com/docs/foundry/administration/configure-logging/#in-platform-log-access-for-ontology-and-aip-workflows">Configure logging</a>: Enable and manage in-platform log access</li>
+<li><a href="https://www.palantir.com/docs/foundry/aip-observability/run-history/">Execution history</a>: View available executions</li>
+<li><a href="https://www.palantir.com/docs/foundry/aip-observability/service-logs-and-debugging/">Service logs</a>: Access logs once permissions are configured</li>
+<li><a href="https://www.palantir.com/docs/foundry/aip-observability/log-search/">Log search</a>: Search across logs from all executions for a source executor</li>
+<li><a href="https://www.palantir.com/docs/foundry/aip/aip-security/">AIP security and privacy</a>: Learn about the AIP security model</li>
+</ul>
+</body>
+</html>

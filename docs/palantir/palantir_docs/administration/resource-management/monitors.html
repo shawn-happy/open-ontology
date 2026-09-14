@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Monitors</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Monitors</h1>
+<p>:::callout{theme="warning"}
+Monitors have been deprecated in favor of <a href="https://www.palantir.com/docs/foundry/resource-management/anomaly-detection/">anomaly detection</a>.
+:::</p>
+<p><strong>Monitors</strong> in Resource Management allow users to track usage patterns and spend activity, without needing to monitor the application itself. Subscribers to monitors will receive notifications to take action when estimated usage approaches a budget.</p>
+<p>A monitor has a <strong>scope</strong>, a <strong>trigger</strong>, <strong>events</strong>, and <strong>subscriber(s)</strong>.</p>
+<ul>
+<li><strong>Scope:</strong> The entity to be monitored. See the <a href="#monitor-scopes">Monitor scopes</a> section below for more details.</li>
+<li><strong>Trigger:</strong> The condition required to prompt the monitor.</li>
+<li><strong>Event:</strong> A time when the monitor was triggered.</li>
+<li><strong>Subscriber</strong>(s): The user(s) who will be notified when the monitor is triggered.</li>
+</ul>
+<p>If the <strong>trigger</strong> on the <strong>scope</strong> is fulfilled, an <strong>event</strong> is created and the <strong>subscriber(s)</strong> is/are notified.</p>
+<p>:::callout{theme="warning"}
+Due to expected latency in measuring usage, an event could be triggered after the trigger has been breached (for example, specifying a trigger of 70% may result in an event triggered at 75%). In some rare cases, this latency could take up to 26 hours.
+:::</p>
+<h2>Monitor scopes</h2>
+<p>Monitors are currently designed to track <strong>budgets</strong>. In the future, they will also be equipped to track <strong>enrollments</strong> and <strong>usage accounts</strong>.</p>
+<ul>
+<li><strong>Budgets:</strong> An event is triggered when usage exceeds a percentage of the budget. For periodic budgets, events are triggered once every period (for example, once a month for a monthly budget). If the percentage is updated, it may cause another event to trigger in the same period.</li>
+</ul>
+<h2>Permissions</h2>
+<p>To use monitors, one or more of the following roles are required:</p>
+<ul>
+<li><code>Enrollment administrator</code>: View, create, edit, and delete monitors.</li>
+<li><code>Resource management administrator</code>: View, create, edit, and delete monitors.</li>
+<li><code>Resource management viewer</code>: View monitors.</li>
+</ul>
+<p>Roles are granted through the <a href="https://www.palantir.com/docs/foundry/administration/enrollments-and-organizations-permissions/"><strong>Enrollment permissions</strong> page</a> in Control Panel.</p>
+<h2>View all monitors</h2>
+<p>In Resource Management, select <strong>Monitors</strong> in the left sidebar. This will display a list of all monitors available in your enrollment. Select a single monitor to view its trend, details, and events. Regular observation can be helpful to learn how often a monitor is triggered and whether it provides useful signal.</p>
+<p><img alt="View all monitors" src="../../_resources/foundry/resource-management/all-monitors.png" /></p>
+<h2>Create a monitor</h2>
+<p>You can create a monitor in two ways:</p>
+<ul>
+<li>While viewing all monitors, select the <strong>Create</strong> button.</li>
+<li>While viewing the list of budgets, select the <strong>Actions</strong> button, then select <strong>Monitors</strong>. Doing so displays the list of monitors for the chosen budget. Select <strong>New monitor</strong> to create a new monitor that tracks the chosen budget.</li>
+</ul>
+<p><img alt="Create a monitor" src="../../_resources/foundry/resource-management/create-monitor.png" /></p>
+<p><img alt="Monitor a budget" src="../../_resources/foundry/resource-management/monitor-a-budget.png" /></p>
+<p>Enter the remaining information, then select <strong>Create monitor</strong>. The following details can be specified:</p>
+<ul>
+<li><strong>Scope:</strong> The budget that this monitor will be tracking.</li>
+<li><strong>Name:</strong> The name of this monitor.</li>
+<li><strong>Threshold:</strong> The percentage of the budget at which the monitor will be triggered.</li>
+<li><strong>Subscribers:</strong> The users who will be notified when the monitor is triggered.</li>
+</ul>
+<h2>Delete a monitor</h2>
+<p>:::callout{theme="danger"}
+Deleting a monitor also deletes its events and unsubscribes all subscribers. This action cannot be undone.
+:::</p>
+<p>While viewing a single monitor, select the <strong>Delete</strong> button. When the warning dialog appears, select <strong>Confirm</strong>.</p>
+</body>
+</html>

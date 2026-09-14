@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Observability</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../index.html">返回目录</a></div>
+<h1>Observability</h1>
+<p>The Palantir platform provides built-in tools to monitor the health of your resources, debug issues in development and production, trace execution across services, and analyze telemetry at scale.</p>
+<p><img alt="Searching across logs in Workflow Lineage." src="../_resources/foundry/observability/workflow-lineage-log-search.png" /></p>
+<p><strong><a href="#monitoring">Monitor</a>:</strong> You can use the <a href="https://www.palantir.com/docs/foundry/observability/data-health/">Data Health</a> tool to monitor the platform. With Data Health, you can set up rules and define thresholds for failures, latency and more; configure monitors per resource or at scale across projects; receive alerts through PagerDuty, Slack, webhooks, or Foundry notifications; and view execution counts and P95 latency <a href="https://www.palantir.com/docs/foundry/aip-observability/metrics/">metrics</a> for the last 30 days.</p>
+<p><strong><a href="#debugging">Debug</a>:</strong> The <a href="https://www.palantir.com/docs/foundry/workflow-lineage/overview/">Workflow Lineage</a> tool lets you explore and investigate platform history and logs. You can view seven days of <a href="https://www.palantir.com/docs/foundry/aip-observability/run-history/">execution history</a>, filter by status, user, duration, or version, and pinpoint exactly which executions need attention. Workflow Lineage also enables you to <a href="https://www.palantir.com/docs/foundry/aip-observability/log-search/">search across logs</a> from all executions for a source executor to find specific log messages, errors, or patterns.</p>
+<p><strong><a href="#debugging">Trace</a>:</strong> To visualize the full request journey across functions, actions, and LLM calls, you can use <a href="https://www.palantir.com/docs/foundry/aip-observability/trace-view/">trace views</a>. Trace views enable you to drill into any operation to see duration, inputs, outputs, and errors.</p>
+<p><strong><a href="#log-export">Analyze</a>:</strong> To conduct further analysis on log data, you can <a href="https://www.palantir.com/docs/foundry/administration/configure-logging/">export</a> Foundry logs, metrics, and traces to a streaming dataset to power your own dashboards, pipelines, or custom observability workflows.</p>
+<h2>Monitoring</h2>
+<p>Monitoring tools help you track the health and stability of your resources over time, detect issues proactively, and receive alerts when problems occur.</p>
+<p><a href="https://www.palantir.com/docs/foundry/observability/data-health/">Data Health</a> is the primary application for monitoring the health of your platform resources. Data Health provides two feature sets:</p>
+<ul>
+<li><strong><a href="https://www.palantir.com/docs/foundry/monitoring-views/overview/">Monitoring views</a>:</strong> You can monitor Foundry resources at scale using scope-based monitoring rules across projects, folders, applications, or individual resources.</li>
+<li><strong><a href="https://www.palantir.com/docs/foundry/health-checks/overview/">Health checks</a>:</strong> Detailed health checks can be configured on individual resources, including content and schema validation for datasets, schedules, and tables.</li>
+</ul>
+<p>Both monitoring views and health checks generate alerts when issues are detected. Alerts can be delivered through Foundry notifications or through <a href="https://www.palantir.com/docs/foundry/monitoring-views/external-systems/">external systems</a> such as PagerDuty or Slack.</p>
+<h3>Metrics</h3>
+<p>Foundry provides metrics across multiple resource types to help you monitor health and performance over time.</p>
+<ul>
+<li><strong><a href="https://www.palantir.com/docs/foundry/functions/function-metrics/">Functions</a>, <a href="https://www.palantir.com/docs/foundry/action-types/action-metrics/">actions</a>, and <a href="https://www.palantir.com/docs/foundry/logic/logic-metrics/">AIP Logic</a>:</strong> View near real-time success/failure counts and P95 execution duration over the last 30 days through <a href="https://www.palantir.com/docs/foundry/ontology-manager/overview/">Ontology Manager</a> or <a href="https://www.palantir.com/docs/foundry/workflow-lineage/overview/">Workflow Lineage</a>. You can also embed these metrics directly inside an operational application using the <a href="https://www.palantir.com/docs/foundry/workshop/widgets-observability-chart/">Observability Chart widget</a> in <a href="https://www.palantir.com/docs/foundry/workshop/overview/">Workshop</a> to monitor resource health alongside the rest of a workflow.</li>
+<li><strong>Streams and compute modules:</strong> Access metrics in the <strong>Metrics</strong> tab to monitor the health and stability of long-running compute workloads.</li>
+</ul>
+<p><img alt="Metrics tab." src="../_resources/foundry/observability/metrics-tab.png" /></p>
+<h2>Debugging</h2>
+<p>Debugging tools help you investigate issues during development and in production by providing visibility into execution details, logs, and traces.</p>
+<h3>Ontology and AIP observability</h3>
+<p><a href="https://www.palantir.com/docs/foundry/aip-observability/overview/">Ontology and AIP observability</a> features in <a href="https://www.palantir.com/docs/foundry/workflow-lineage/overview/">Workflow Lineage</a> enable you to gain comprehensive insights into your AIP and Ontology workflow executions. Use Ontology and AIP observability features to understand the performance of your agents, functions, language models, automations, actions, and Ontology.</p>
+<p>Ontology and AIP observability features can be used to gain visibility into <a href="https://www.palantir.com/docs/foundry/aip-observability/metrics/">metrics</a>, <a href="https://www.palantir.com/docs/foundry/aip-observability/run-history/">execution history</a>, <a href="https://www.palantir.com/docs/foundry/aip-observability/trace-view/">distributed tracing</a>, <a href="https://www.palantir.com/docs/foundry/aip-observability/service-logs-and-debugging/">logging</a>, and <a href="https://www.palantir.com/docs/foundry/aip-observability/log-search/">log search</a>.</p>
+<h3>Logs</h3>
+<p>You can view logs from both third-party libraries being used to run your code (such as Kafka when using streams), as well as logs emitted by your code. Logs are available on several types of jobs:</p>
+<ul>
+<li><strong><a href="https://www.palantir.com/docs/foundry/data-integration/builds/#live-logs">Batch and streaming transforms</a>:</strong> Live logs can be viewed on the transform's job report.</li>
+<li><strong><a href="https://www.palantir.com/docs/foundry/compute-modules/overview/">Compute modules</a>:</strong> Logs can be viewed in the Compute Module overview page.</li>
+<li><strong><a href="https://www.palantir.com/docs/foundry/aip-observability/service-logs-and-debugging/">Functions</a>:</strong> Logs can be viewed in Workflow Lineage.</li>
+</ul>
+<p>You can also <a href="https://www.palantir.com/docs/foundry/aip-observability/log-search/">search across logs</a> from all executions for a source executor to find specific log messages, errors, or patterns. A source executor is the first executable resource in the call chain, such as a function, action, automation, AIP Logic, AIP agent, or model live deployment.</p>
+<h2>Log export</h2>
+<p>:::callout{theme="warning"}
+Log exporting may not be available in your enrollment. Contact Palantir Support for more information.
+:::</p>
+<p>To allow for arbitrary processing outside the current capabilities of in-platform tools, you can create a stream in a specified folder containing all telemetry for an organization. This includes logs, metrics, and traces. Data in this stream can be analyzed using Foundry's suite of data analysis tools or <a href="https://www.palantir.com/docs/foundry/data-connection/export-overview/">exported to third-party systems</a>.</p>
+<p><img alt="Log exporting through Control Panel." src="../_resources/foundry/observability/log-exporting.png" /></p>
+<p><a href="https://www.palantir.com/docs/foundry/administration/configure-logging/">Learn more about exporting logs to a stream on the Configure logging page.</a></p>
+</body>
+</html>

@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sending alerts to external systems</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Sending alerts to external systems</h1>
+<p>When monitors fire or resolve, alerts can be sent to subscribed users within Foundry as well as to services external to Foundry. Monitoring views currently support sending alerts to <a href="#pagerduty">PagerDuty</a>, <a href="#slack">Slack</a>, and <a href="#webhooks">webhooks</a>.</p>
+<p>:::callout{theme="neutral"}
+All integrations are configured against a given severity level. Only alerts matching that severity will trigger integration. For example, a PagerDuty integration configured for the <code>MEDIUM</code> severity level will not be triggered when monitors fire at <code>LOW</code> or <code>HIGH</code> severities.
+:::</p>
+<h2>PagerDuty</h2>
+<p>This integration uses the <a href="https://developer.pagerduty.com/api-reference/YXBpOjI3NDgyNjU-pager-duty-v2-events-api">PagerDuty V2 Events API â</a> and usually does not require a service user, emails, or custom allowlisting or egress configuration. A single integration maps all alerts of a given severity within a monitoring view to an Events V2 API integration defined within a PagerDuty service. Note that multiple integrations defined within a monitoring view can map to the same PagerDuty integration key.</p>
+<h3>Create an Events V2 API integration for your PagerDuty service</h3>
+<p>Configure a PagerDuty service with your desired escalation policy, urgency settings, and support hours. On the <strong>Integrations</strong> tab for the service, add a new integration. Select <strong>Events API V2</strong> as the integration type and add the integration; <strong>Events API V2</strong> can usually be found in the <strong>Most popular integrations</strong> section. Once the integration is added, selecting the gear symbol will show its details, including the <strong>Integration Key</strong> needed to <a href="#create-a-new-pagerduty-integration-for-your-monitoring-view">create a new PagerDuty integration for your monitoring view</a>.</p>
+<h3>Create a new PagerDuty integration for your monitoring view</h3>
+<p>Navigate to the <strong>Manage subscriptions</strong> tab for your monitoring view. From the <strong>PagerDuty Notifications</strong> section, select the plus sign (<strong>+</strong>) to create a new PagerDuty integration. You will need to specify a name for the integration, the integration key from when you created the Events V2 API integration, and the severity level. Repeat as needed for each desired severity level.</p>
+<h3>Enable PagerDuty for health checks</h3>
+<p>By default, the monitoring view will produce PagerDuty notifications for monitoring rule alerts and legacy health checks that belong to the check group that was upgraded/linked to the monitoring view. However, monitoring views created before the v1.860.0 release (February 2024) will not produce PagerDuty alerts by default and must be manually enabled.</p>
+<p>To enable this feature, select the <strong>Enable PagerDuty for health checks</strong> checkbox. The following severity mappings will be used:</p>
+<ul>
+<li>Info/low severity health checks will use the <code>LOW</code> severity integrations.</li>
+<li>Moderate/medium severity health checks will use the <code>MEDIUM</code> severity integrations.</li>
+<li>Critical/high severity health checks will use the <code>HIGH</code> severity integrations.</li>
+</ul>
+<h2>Slack</h2>
+<p>This integration can trigger Slack messages in a set of configured channels.</p>
+<h3>Create a Slack source</h3>
+<p>This integration requires a Slack source to be created in Data Connection. This source requires a bearer token to be configured. This bearer token should have the following scopes:</p>
+<ul>
+<li><code>channels:join</code>: Foundry will have the app join the requested channels automatically.</li>
+<li><code>channels:read</code>: This is used to list the available channels.</li>
+<li><code>chat:write</code>: This is used to send messages to the configured channels.</li>
+<li>(optional) <code>groups:read</code>: Required for sending messages to private channels.</li>
+</ul>
+<p>An example way to generate such a token in Slack is:</p>
+<ol>
+<li>Create a new Slack App in your workspace.</li>
+<li>Go to <strong>OAuth &amp; Permissions</strong>.</li>
+<li>Add the above scopes as <strong>Bot Token Scopes</strong>.</li>
+<li>Install the Slack App in your workspace.</li>
+<li>Copy the <strong>Bot User OAuth Token</strong>.</li>
+</ol>
+<p>See <a href="https://api.slack.com/apps">Slack API documentation â</a> for more details.</p>
+<h3>Create a Slack integration for your monitoring view</h3>
+<p>Navigate to the <strong>Manage subscriptions</strong> tab for your monitoring view; in the <strong>Slack</strong> section, use the plus sign (<strong>+</strong>) to create a new Slack integration. Select a configured Slack source. The <strong>Slack Channels</strong> field will then populate a list of available channels to which you can send alerts.</p>
+<p>:::callout{theme="neutral"}
+To configure the integration with private channels, invite the Slack App to the private channel and ensure the <code>groups:read</code> scope has been granted.
+:::</p>
+<p>Configure the severity level, and repeat as necessary for each additional desired severity level.</p>
+<h3>Configure exportable markings for resource name visibility</h3>
+<p>Slack notifications from monitoring views can display human-readable resource names (for example, "Production Sales Dataset") instead of resource identifiers (RIDs like <code>ri.main.dataset.xyz789</code>). This makes alerts easier to understand and helps you quickly assess urgency. Resource names are only shown when security controls permit; specifically, when all <a href="https://www.palantir.com/docs/foundry/security/markings/">Markings</a> on a resource are included in the Slack source's exportable markings configuration.</p>
+<p>:::callout{theme="warning" title="Updated notification format"}
+Slack notification formats have changed to include resource names when security controls allow. If you have bots or automated parsers processing monitoring view notifications from Slack, you may need to update them to handle the new message format.
+:::</p>
+<h4>How resource name visibility works</h4>
+<p>When a monitor fires and sends an alert to Slack, Foundry checks whether the resource's name can be safely shared:</p>
+<ul>
+<li><strong>Resource name shown:</strong> All markings and organizations on the resource are included in the Slack source's exportable markings list.</li>
+<li><strong>RID shown instead:</strong> One or more markings or organizations on the resource are not in the exportable markings list.</li>
+</ul>
+<p>For example, if a dataset named "Customer Revenue Data" has the <code>Confidential</code> marking in the <code>Sales</code> organization:</p>
+<ul>
+<li>If both <code>Confidential</code> and <code>Sales</code> are configured as exportable, Slack shows "Customer Revenue Data".</li>
+<li>If either is missing from exportable markings, Slack shows <code>ri.foundry.main.dataset.abc123</code>.</li>
+</ul>
+<h4>Configure exportable markings for your Slack source</h4>
+<p>To enable resource names in Slack notifications, a user with the <code>Information Security Officer</code> role must configure exportable markings:</p>
+<ol>
+<li>Navigate to the <strong>Data Connection</strong> application.</li>
+<li>Select the Slack source used for monitoring view notifications.</li>
+<li>Select <strong>Connection settings</strong> and navigate to the <strong>Export configuration</strong> tab.</li>
+<li>Toggle on <strong>Enable exports to this source</strong>.</li>
+<li>Add the <a href="https://www.palantir.com/docs/foundry/security/markings/">Markings</a> and organizations that may appear in Slack messages.
+   * You must add both security markings <strong>and</strong> organization markings.
+   * You must have unmarking permission on each marking or organization you add.</li>
+<li>Select <strong>Save</strong> to apply the configuration.</li>
+</ol>
+<h4>Which markings to add</h4>
+<p>Consider adding exportable markings for:</p>
+<ul>
+<li>Markings on datasets and streams monitored by your monitoring views</li>
+<li>Organization markings associated with the projects you are monitoring</li>
+<li>Any markings that appear on resources you want to see friendly names for in Slack</li>
+</ul>
+<p>You can start with less restrictive markings and add more restrictive ones as needed. Remember that if any marking on a resource is not in the exportable list, the RID will be shown instead of the name.</p>
+<p>:::callout{theme="neutral"}
+The <code>Information Security Officer</code> is a default role in Foundry. Users can be granted this role in <a href="https://www.palantir.com/docs/foundry/administration/enrollments-and-organizations-permissions/">Control Panel</a> under <strong>Enrollment permissions</strong>. For more details on how exportable markings work with Data Connection, review the <a href="https://www.palantir.com/docs/foundry/data-connection/export-overview/#enable-exports-for-source">exports documentation</a>.
+:::</p>
+<h2>Webhooks</h2>
+<p>This integration can trigger <a href="https://www.palantir.com/docs/foundry/data-connection/webhooks-reference/">Webhooks</a> configured in Data Connection. Refer to the <a href="https://www.palantir.com/docs/foundry/data-connection/webhooks-reference/">webhooks</a> documentation for how to setup a webhook. To use a webhook integration, the webhook must have a string input parameter known as the <code>Message</code> parameter. This will be filled in with the contents of the notification. The contents are not currently customizable.</p>
+<h3>Create a new Webhook integration for your monitoring view</h3>
+<p>Navigate to the <strong>Manage subscriptions</strong> tab for your monitoring view; in the <strong>Webhooks</strong> section, use the plus sign (<strong>+</strong>) to create a new webhook integration. You will need to first select a webhook before selecting the Message parameter on that webhook and the severity level. Repeat as needed for each desired severity level.</p>
+</body>
+</html>

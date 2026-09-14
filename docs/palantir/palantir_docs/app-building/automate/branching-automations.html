@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Branching automations</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Branching automations</h1>
+<p><a href="https://www.palantir.com/docs/foundry/automate/overview/">Automate</a> integrates with Global Branching to enable safe, isolated development of automations. This documentation covers
+how to work with automations on branches, including adding and modifying resources, cross-application compatibility,
+merge requirements, rebasing, and known limitations.</p>
+<p>For general information on Global Branching concepts and workflows, refer to the <a href="https://www.palantir.com/docs/foundry/global-branching/overview/">Global Branching documentation</a>.</p>
+<h2>Adding, removing, and modifying resources</h2>
+<h3>Add an automation to a branch</h3>
+<p>To add an automation to a branch:</p>
+<ol>
+<li>Navigate to the automation file on a branch or select the designated branch using the branch selector in the top right of the page. From there, select <strong>Add to branch</strong>.</li>
+<li>Make an edit and save the automation file. The automation is now a saved resource on the branch.</li>
+</ol>
+<p><img alt="A branched automation that is not yet on the branch, showing a banner prompting you to add the automation to the current branch to execute on branched data." src="../../_resources/foundry/automate/branching-add-automation-to-branch.png" /></p>
+<h3>Remove an automation from a branch</h3>
+<p>To remove an automation from a branch, use the bottom right sidebar and select <strong>Remove from branch</strong>. Removing the automation from the branch discards all modifications to the branch and stops all effects from executing.</p>
+<p><img alt="The Global Branching proposal page with the resource overflow menu open, showing the Remove from branch option." src="../../_resources/foundry/automate/branching-remove-automation-from-branch.png" /></p>
+<h3>Modify an automation</h3>
+<p>To modify an automation on a branch, make any change and save, just as you would on the main branch.</p>
+<p>:::callout{theme="warning"}
+Modifying the <code>name</code> and <code>description</code> of an automation on a branch also modifies those values on <code>main</code>.
+:::</p>
+<h2>Supported conditions and effects</h2>
+<p>Not all Automate <a href="https://www.palantir.com/docs/foundry/automate/condition-objects/">conditions</a> are currently supported on a branch. When you build an automation on a branch, unsupported conditions are disabled in the condition selector.</p>
+<p>The following conditions are <strong>supported</strong> on a branch:</p>
+<ul>
+<li><a href="https://www.palantir.com/docs/foundry/automate/condition-time/"><strong>Time</strong></a>: Triggers when a specific time is reached; for example, "Every Monday at 9 AM."</li>
+<li><strong><a href="https://www.palantir.com/docs/foundry/automate/condition-objects/#objects-added-to-set">Objects added to set</a>:</strong> Triggers when a new object appears in a predefined object set.</li>
+<li><strong><a href="https://www.palantir.com/docs/foundry/automate/condition-objects/#objects-removed-from-set">Objects removed from set</a>:</strong> Triggers when an object leaves a predefined object set.</li>
+<li><strong><a href="https://www.palantir.com/docs/foundry/automate/condition-objects/#objects-modified-in-set">Objects modified in a set</a>:</strong> Triggers when an object is modified in a predefined object set.</li>
+<li><strong><a href="https://www.palantir.com/docs/foundry/automate/condition-objects/#run-on-all-objects">Run on all objects</a>:</strong> Periodically runs effects on all objects in a given set.</li>
+</ul>
+<p>The following conditions are <strong>not currently supported</strong> on a branch:</p>
+<ul>
+<li><strong>Threshold crossed:</strong> Triggers and remains in the triggering state when a metric threshold is crossed.</li>
+<li><strong>Automation dependency:</strong> Triggers after another automation completes. See <a href="#known-limitations">Known limitations</a>.</li>
+<li><strong>Time series:</strong> Triggers when a time series threshold is crossed.</li>
+<li><strong>Stream</strong> [Beta]: Triggers on any new records in a <a href="https://www.palantir.com/docs/foundry/automate/streaming/">stream</a>.</li>
+<li><strong>Metric changed</strong> [Sunset]: Triggers when an aggregated object set metric increases or decreases.</li>
+</ul>
+<p><img alt="The Add condition selector, showing supported conditions enabled and unsupported conditions disabled with a tooltip explaining that they are not supported on branches." src="../../_resources/foundry/automate/branching-supported-and-unsupported-conditions.png" /></p>
+<p>All Automate <a href="https://www.palantir.com/docs/foundry/automate/effects/">effects</a> are supported on a branch:</p>
+<ul>
+<li><a href="https://www.palantir.com/docs/foundry/automate/effect-actions/"><strong>Action:</strong></a> Executes an action when the condition is met.</li>
+<li><a href="https://www.palantir.com/docs/foundry/automate/effect-logic/"><strong>Logic:</strong></a> Executes an AIP Logic function when the condition is met, then either stages or applies the generated actions.</li>
+<li><strong><a href="https://www.palantir.com/docs/foundry/automate/effect-function/">Function</a> [Beta]:</strong> Executes a function when the condition is met. These functions cannot perform Ontology edits.</li>
+<li><a href="https://www.palantir.com/docs/foundry/automate/effect-notification/"><strong>Notification:</strong></a> Sends a notification to selected recipients, with optional Notepad attachments.</li>
+</ul>
+<h2>Cross-application compatibility</h2>
+<p>Automations reference resources from across the platform including object types, <a href="https://www.palantir.com/docs/foundry/automate/effect-actions/">actions</a>, <a href="https://www.palantir.com/docs/foundry/automate/effect-logic/">AIP Logic functions</a>, and <a href="https://www.palantir.com/docs/foundry/automate/effect-function/">Foundry functions</a>. On a branch, an automation references the branched state of these resources:</p>
+<ul>
+<li><strong>Branched object types and action types:</strong> Automations can reference object types and action types that were created or modified on the same branch.</li>
+<li><strong>Branched function versions:</strong> Automations can reference branched function versions, such as the <code>Branched pre-release</code> version of an AIP Logic or Foundry function.</li>
+<li><strong>Branch-scoped execution:</strong> A branched automation evaluates its conditions and executes its effects on the branch. For the implications of effects running on a branch, see <a href="https://www.palantir.com/docs/foundry/action-types/branching-action-types/#managing-side-effects-on-branches">Managing side effects on branches</a>.</li>
+</ul>
+<h2>Merge requirements</h2>
+<p>Before an automation can be deployed to <code>main</code> from a branch, the following checks must succeed:</p>
+<ul>
+<li><strong>Approvals are satisfied:</strong> All required <a href="https://www.palantir.com/docs/foundry/approvals/overview/">approvals</a> for the automation must be satisfied before the branch can be merged. See <a href="#reviewer-experience">Reviewer experience</a> below.</li>
+<li><strong>Automation is rebased with <code>main</code>:</strong> Before merging, if changes have been made on the <code>main</code> branch of the automation, rebase those changes on your branch.</li>
+<li><strong>Automation is in a valid state:</strong> Automations are continuously evaluated for validity on save, so this check usually passes. However, an automation can become invalid if a resource it depends on, such as an object type, action type, or function, is deleted.</li>
+</ul>
+<h3>Protected automations</h3>
+<p>To guarantee that all edits to an automation go through the branching and review process, you can protect
+the <code>main</code> branch of that automation.</p>
+<p>To protect the automation <code>main</code> branch, navigate to the resource in the file system and select <strong>Branch protection &gt; Protect with project policy</strong>. You can also do this from the main automation view in the top right using the <strong>View details</strong> option.</p>
+<p><img alt="Protect an automation's main branch from the Automate page using the View details button and popover." src="../../_resources/foundry/automate/branching-protect-from-automation-main-page.png" /></p>
+<p>When the <code>main</code> branch of an automation is protected, edits to <code>main</code> require users to go through a global branch on save.</p>
+<p><img alt="When the main branch of an automation is protected, you must make changes on a branch." src="../../_resources/foundry/automate/branching-protected-main-branch-selector.png" /></p>
+<p><img alt="Users must create a new branch to save their changes." src="../../_resources/foundry/automate/branching-save-to-new-branch.png" /></p>
+<h3>Reviewer experience</h3>
+<p>Once a proposal is created, reviewers can be added to the automation in the Global Branching application or via the Approvals banner in Automate. Users added
+as reviewers receive an email requesting their review with a link to the proposal.</p>
+<p>Select <strong>Manage</strong> to add reviewers and view the approval policies that must be satisfied before the proposal can be merged.</p>
+<p><img alt="The Approval policies panel, showing the reviewers required to approve the automation before it can be merged." src="../../_resources/foundry/automate/branching-approvals-overview.png" /></p>
+<p>When an automation has changes awaiting review, a banner at the top of the page displays the number of approvals satisfied.</p>
+<p><img alt="A banner on a branched automation indicating that one of two approvals is satisfied and the changes are awaiting review." src="../../_resources/foundry/automate/branching-approval-banner.png" /></p>
+<p>From there, reviewers can open the review dialog by selecting <strong>Start review</strong> to view a side-by-side comparison of <code>main</code> vs. the branch changes. They can then <strong>approve</strong> or <strong>reject</strong> the changes by selecting the <strong>Your review</strong> option.</p>
+<p><img alt="The Review automation changes dialog, showing a side-by-side comparison of the main branch and current branch with options to approve or reject the changes." src="../../_resources/foundry/automate/branching-review-automation-changes.png" /></p>
+<p>Once all required approvals are satisfied, the changes are approved and the proposal can be merged for this resource.</p>
+<p><img alt="A banner indicating that all required approvals are satisfied and the changes are approved for the automation." src="../../_resources/foundry/automate/branching-approved-automation.png" /></p>
+<h2>Rebasing and conflict resolution</h2>
+<p>Rebasing is required when <code>main</code> has been modified since your branch was created or last rebased.</p>
+<p>A banner appears at the top of the automation prompting you to rebase your branch with the latest changes.</p>
+<p><img alt="A banner on a branched automation indicating that a new version of the automation exists on the main branch, with an option to start a rebase." src="../../_resources/foundry/automate/branching-add-to-branch-banner.png" /></p>
+<p>To rebase your branch, select <strong>Start rebase</strong> in the banner. The <strong>Rebase automation</strong> dialog opens, showing a side-by-side comparison of the main branch and current branch versions.
+Choose whether to keep the <strong>Main branch</strong> or <strong>Current branch</strong> version, then select <strong>Finish rebase</strong> to apply your selections.</p>
+<p><img alt="The Rebase automation dialog, showing a comparison between the main branch and current branch versions with the option to finish the rebase." src="../../_resources/foundry/automate/branching-rebase-automation-changes.png" /></p>
+<p>:::callout{theme="neutral"}
+If both rebasing and approval are required, the rebase dialog is shown first and must be resolved before reviewers can review the changes.
+:::</p>
+<h2>Known limitations</h2>
+<ul>
+<li>Not all conditions are supported on a branch. See <a href="#supported-conditions-and-effects">Supported conditions and effects</a> for the full list.</li>
+<li>Rebasing requires you to choose either the changes from <code>main</code> or the changes on your branch. There is currently no way to resolve diffs at a finer granularity.</li>
+</ul>
+</body>
+</html>

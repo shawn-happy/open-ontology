@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Enable additional iframe attributes</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Enable additional iframe attributes</h1>
+<p>:::callout{theme="neutral"}
+Certain browser permissions, such as camera and microphone access, always require application users to grant permission to Foundry through a browser prompt. Enabling the iframe attributes allows the application to request access, but the user must still grant permission explicitly. Refer to the <a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Guides/Permissions_Policy#relationship_with_the_permissions_api">Permissions Policy documentation â</a> for more information.
+:::</p>
+<p>The custom widgets runtime uses an <a href="https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/iframe"><code>&lt;iframe&gt;</code> â</a> element with restrictive attributes that disallow certain browser features, such as popups and camera access, by default. However, widget developers can enable a subset of attribute values for a custom widget. The application builder must then manually grant permission to the requested attribute values for them to take effect. Often, the widget developer and application builder are the same person. Most widgets do not need to request additional iframe attributes; only request these permissions when your widget requires browser capabilities such as camera access, automatic media playback, or file downloads.</p>
+<h2>Available iframe attributes</h2>
+<p>Widget developers can request enablement of the following iframe attributes:</p>
+<p><a href="https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/iframe#allow"><code>allow</code> â</a> attribute values:</p>
+<ul>
+<li><code>camera</code></li>
+<li><code>microphone</code></li>
+<li><code>autoplay</code></li>
+</ul>
+<p><a href="https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/iframe#sandbox"><code>sandbox</code> â</a> attribute values:</p>
+<ul>
+<li><code>allow-downloads</code></li>
+<li><code>allow-forms</code></li>
+<li><code>allow-popups</code></li>
+</ul>
+<h2>Declare requested iframe attributes</h2>
+<p>Widget developers can declare requested iframe attributes in the <code>permissions</code> field of their custom widget configuration:</p>
+<pre><code class="language-typescript">export default defineConfig({
+    id: &quot;widgetId&quot;,
+    name: &quot;A custom widget&quot;,
+    description: &quot;A widget description&quot;,
+    type: &quot;workshop&quot;,
+    parameters: {},
+    events: {},
+    permissions: [&quot;camera&quot;, &quot;allow-popups&quot;],
+});
+</code></pre>
+<h2>Allow requested iframe attributes in a host application</h2>
+<p>:::callout{theme="neutral"}
+Opting in to certain iframe attributes may require the application builder to acknowledge a <a href="https://www.palantir.com/docs/foundry/checkpoints/overview/">checkpoint</a>.
+:::</p>
+<p>In Workshop, application builders can grant permission to requested iframe attributes when configuring a custom widget. The <strong>Permissions</strong> section, found after the <strong>Parameters</strong> and <strong>Events</strong> sections, displays these settings.</p>
+<p><img alt="The Permissions section when configuring a custom widget in Workshop." src="../../_resources/foundry/custom-widgets/workshop-iframe-attributes.png" /></p>
+<p>During development, you can temporarily permit requested iframe attributes for testing. Use the <a href="https://www.palantir.com/docs/foundry/custom-widgets/development/#choose-a-preview-environment">custom widgets playground</a> or a <a href="https://www.palantir.com/docs/foundry/custom-widgets/development/#develop-in-a-vs-code-workspace">VS Code workspace</a> without explicitly granting the attributes in a host application.</p>
+<h2>Examples</h2>
+<h3>Camera and microphone</h3>
+<p>The following example requires the <code>camera</code> and <code>microphone</code> iframe allow attribute values to be enabled.</p>
+<p>The <a href="https://developer.mozilla.org/en-US/docs/Web/API/MediaDevices/getUserMedia"><code>navigator.mediaDevices.getUserMedia</code> â</a> method may be used to prompt the user for permission to use a media input (the camera and microphone in this example) and returns a <a href="https://developer.mozilla.org/en-US/docs/Web/API/MediaStream"><code>MediaStream</code> â</a> object if successful.</p>
+<pre><code class="language-typescript">const mediaStream = await navigator.mediaDevices.getUserMedia({
+    video: true,
+    audio: true,
+});
+</code></pre>
+<p>Additionally, the <a href="https://developer.mozilla.org/en-US/docs/Web/API/Permissions_API">Permissions API â</a> may be used to query the current status of browser permissions. The returned values may be <code>"granted"</code>, <code>"prompt"</code> or <code>"denied"</code> based on the iframe attributes and user browser prompt status.</p>
+<pre><code class="language-typescript">navigator.permissions.query({ name: &quot;camera&quot; });
+navigator.permissions.query({ name: &quot;microphone&quot; });
+</code></pre>
+<p>The widget developer should ensure that cases where attribute access is not available are gracefully handled.</p>
+<h3>Autoplay</h3>
+<p>The following example requires the <code>autoplay</code> iframe allow attribute value to be enabled.</p>
+<p>The <a href="https://developer.mozilla.org/en-US/docs/Web/Media/Guides/Autoplay#the_autoplay_attribute">autoplay â</a> attribute may be used on an <code>&lt;audio&gt;</code> or <code>&lt;video&gt;</code> element to autoplay media.</p>
+<pre><code class="language-tsx">&lt;video src={myVideoSrc} autoplay controls /&gt;
+</code></pre>
+<h3>Downloads</h3>
+<p>The following examples require the <code>allow-downloads</code> iframe sandbox attribute value to be enabled.</p>
+<h4>Dynamically create a CSV (blob)</h4>
+<p>A <a href="https://developer.mozilla.org/en-US/docs/Web/API/Blob"><code>Blob</code> â</a> can be constructed with the contents of a CSV and downloaded in the browser:</p>
+<pre><code class="language-tsx">&lt;button
+    onClick={() =&gt; {
+        const csv = &quot;a,b,c\n1,2,3&quot;;
+        const blob = new Blob([csv], { type: &quot;text/csv&quot; });
+        const url = URL.createObjectURL(blob);
+        triggerDownload(url, &quot;data.csv&quot;);
+        URL.revokeObjectURL(url);
+    }}
+&gt;
+    Download CSV
+&lt;/button&gt;
+</code></pre>
+<p>The <code>triggerDownload</code> helper function temporarily creates an <code>&lt;a&gt;</code> element to trigger the download:</p>
+<pre><code class="language-typescript">function triggerDownload(url: string, filename: string) {
+    const a = document.createElement(&quot;a&quot;);
+    a.download = filename;
+    a.href = url;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+}
+</code></pre>
+<h4>Download static assets included in widget</h4>
+<p>Two methods are described below for downloading static assets included in a custom widget. Review the <a href="https://vite.dev/guide/assets">Vite Static Asset Handling â</a> documentation for more information.</p>
+<h5>Direct href</h5>
+<p>:::callout{theme="warning"}
+In custom widget dev mode, the dev server provides assets from a different origin (for example, <code>localhost</code>) than the custom widget runtime. This behavior may cause the browser to open a new tab rather than trigger a download. However, when using the custom widget in production, the assets will correctly trigger a download.
+:::</p>
+<p>When using the Vite method to <a href="https://vite.dev/guide/assets#importing-asset-as-url">import a static asset as a URL â</a>, the asset URL may be used directly in an <code>&lt;a&gt;</code> element <code>href</code> attribute together with the <code>download</code> attribute:</p>
+<pre><code class="language-tsx">import imgUrl from &quot;./img.png&quot;;
+
+&lt;a href={imgUrl} download=&quot;img.png&quot; target=&quot;_blank&quot; rel=&quot;noreferrer&quot;&gt;
+    Download
+&lt;/a&gt;;
+</code></pre>
+<p>When using the <a href="https://vite.dev/guide/assets#the-public-directory">Vite public directory â</a>, the assets in the public directory should be referenced using the root absolute path; for example, <code>public/img.png</code> should be referenced as <code>/img.png</code> in code:</p>
+<pre><code class="language-tsx">&lt;a href=&quot;/img.png&quot; download=&quot;img.png&quot; target=&quot;_blank&quot; rel=&quot;noreferrer&quot;&gt;
+    Download
+&lt;/a&gt;
+</code></pre>
+<h5>Alternative fetch blob method</h5>
+<p>An alternative method uses <code>fetch</code>, possibly performs additional processing, then downloads as a <a href="https://developer.mozilla.org/en-US/docs/Web/API/Blob"><code>Blob</code> â</a>, similar to the method for <a href="#dynamically-create-a-csv-blob">dynamically creating a CSV (blob)</a>. An example of additional processing could be to replace values inside the fetched static asset with user provided input.</p>
+<p>When using the Vite method to <a href="https://vite.dev/guide/assets#importing-asset-as-url">import a static asset as a URL â</a> we recommend also enforcing <a href="https://vite.dev/guide/assets#explicit-inline-handling">no inlining â</a> to avoid content security policy (CSP) issues with <code>data:</code> URIs:</p>
+<pre><code class="language-tsx">import imgUrl from &quot;./img.png?no-inline&quot;;
+
+&lt;button
+    onClick={async () =&gt; {
+        const response = await fetch(imgUrl);
+        const blob = await response.blob();
+        // optional: perform additional processing
+        const objectUrl = window.URL.createObjectURL(blob);
+        triggerDownload(objectUrl, filename);
+        window.URL.revokeObjectURL(objectUrl);
+    }}
+&gt;
+    Download
+&lt;/button&gt;;
+</code></pre>
+<p>When using the <a href="https://vite.dev/guide/assets#the-public-directory">Vite public directory â</a>, the assets in the public directory should be referenced using the root absolute path; for example, <code>public/img.png</code> should be referenced as <code>/img.png</code> in code:</p>
+<pre><code class="language-tsx">&lt;button
+    onClick={async () =&gt; {
+        const response = await fetch(&quot;/img.png&quot;);
+        const blob = await response.blob();
+        // optional: perform additional processing
+        const objectUrl = window.URL.createObjectURL(blob);
+        triggerDownload(objectUrl, filename);
+        window.URL.revokeObjectURL(objectUrl);
+    }}
+&gt;
+    Download
+&lt;/button&gt;
+</code></pre>
+<p>The <code>triggerDownload</code> helper function temporarily creates an <code>&lt;a&gt;</code> element to trigger the download:</p>
+<pre><code class="language-typescript">function triggerDownload(url: string, filename: string) {
+    const a = document.createElement(&quot;a&quot;);
+    a.download = filename;
+    a.href = url;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+}
+</code></pre>
+<h3>Open links</h3>
+<p>:::callout{theme="neutral"}
+When developing in Workshop, we recommend creating a <a href="https://www.palantir.com/docs/foundry/custom-widgets/open-url-in-workshop/">Workshop event</a> to open links; this method avoids the need to request additional iframe attributes. Additionally, new tabs or windows opened in the method described below with <code>allow-popups</code> inherit the custom widget's sandbox restrictions which requires extra care. For example, if an opened tab or window needs to download files then <code>allow-downloads</code> must also be enabled for the custom widget.
+:::</p>
+<p>The following example requires the <code>allow-popups</code> iframe sandbox attribute value to be enabled:</p>
+<p>An <code>&lt;a&gt;</code> element can be used with the <code>href</code> and related attributes to open a link in a new tab:</p>
+<pre><code class="language-tsx">&lt;a href=&quot;https://palantir.com/docs&quot; target=&quot;_blank&quot; rel=&quot;noreferrer&quot;&gt;
+    Link
+&lt;/a&gt;
+</code></pre>
+</body>
+</html>

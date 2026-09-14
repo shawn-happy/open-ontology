@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Navigation</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Navigation</h1>
+<p>Solution Designer's interface consists of several key areas outlined in the sections below to help you navigate your diagram:</p>
+<ul>
+<li><a href="#navigation-bar"><strong>Navigation bar</strong> (top of screen):</a> Contains the diagram name, auto-save indicator, <strong>Save</strong> button, <strong>Actions</strong> menu (to import or export a diagram), and undo/redo controls.</li>
+<li><a href="#diagram-toolbar"><strong>Diagram toolbar</strong> (top-left of screen):</a> Contains buttons for adding nodes to your diagram, such as by <strong>Concept</strong>, <strong>Component</strong>, or <strong>Resource</strong>, as well as grouping those nodes or adding descriptive text boxes. If AIP features are enabled, you will also see buttons to use <strong>AIP Generate</strong> and <a href="https://www.palantir.com/docs/foundry/solution-designer/aip-critic/"><strong>AIP Critic</strong></a>.</li>
+<li><strong>Canvas</strong> (center): The main workspace where you build and visualize your diagram. Nodes appear here, and you can drag to pan or zoom with your mouse wheel or track pad.</li>
+<li><strong>Node toolbar</strong> (when viewing a node on your canvas): Appears above any selected node with actions for configuring and managing nodes. See <a href="https://www.palantir.com/docs/foundry/solution-designer/diagrams/#node-toolbar">Diagrams</a> for details.</li>
+<li><strong>Canvas controls</strong> (bottom-left of screen): Provides a toolbar containing zoom, layout, and view controls. See <a href="https://www.palantir.com/docs/foundry/solution-designer/diagrams/#canvas-controls">Diagrams</a> for details.</li>
+<li><a href="#sidebar"><strong>Sidebar</strong> (left side of screen):</a> Contains buttons to view <strong>Diagram Information</strong>, interact with <strong>AIP Architect</strong> or <strong>AIP Critic</strong>, review <strong>Reference Diagrams</strong>, and configure <strong>Graph Settings</strong>.</li>
+</ul>
+<p><img alt="Overview of the Solution Designer interface with navigation bar, toolbars, canvas, and sidebar." src="../../_resources/foundry/solution-designer/interface-overview-full.png" /></p>
+<h2>Navigation bar</h2>
+<p>The navigation bar at the top of Solution Designer provides access to diagram-level operations that enable you to:</p>
+<ul>
+<li>Edit your diagram's name from its file path in the top left.</li>
+<li>View your diagram's auto-save status, such as <code>Up to date with manually saved version</code> or <code>Saved 2m ago</code>.</li>
+<li>Navigate your edit history through the undo and redo buttons.</li>
+<li>Manually save your diagram using the <strong>Save</strong> button.</li>
+<li>Access import and export options and upload images to convert hand-drawn or whiteboard diagrams into editable Solution Designer diagrams using AI vision capabilities through the <strong>Actions</strong> menu.</li>
+</ul>
+<p><img alt="Top navigation bar with diagram controls." src="../../_resources/foundry/solution-designer/navbar-controls.png" /></p>
+<h3>View and revert to previous versions</h3>
+<p>Solution Designer maintains a complete version history of your diagram. Each auto-save and manual save creates a new version with a timestamp.</p>
+<p>To view all diagram versions, select the versions icon, which displays as <strong>v{N}</strong>, in the navigation bar to the left of the auto-save status indicator. This launches the <strong>Versions</strong> modal showing a list of all saved versions, with each version displaying the timestamp of when the version was saved, the user who created the version, and a preview or description of changes made.</p>
+<p>You can restore any prior version by selecting <strong>... &gt; Restore to this version</strong>. Restoring an old version creates a new version and does not delete any versions from the diagram's history.</p>
+<p><img alt="The diagram versions panel showing saved version history." src="../../_resources/foundry/solution-designer/diagram-versions-panel.png" /></p>
+<h3>Actions menu</h3>
+<p>Use the <strong>Actions</strong> menu to import, export, share, or clear a diagram as well as open it in <a href="https://www.palantir.com/docs/foundry/data-lineage/overview/">Data Lineage</a> if it contains resources, such as a dataset or object type.</p>
+<ul>
+<li><strong>Import diagram:</strong> Upload a diagram from a JSON file, image, or import one from Data Lineage.</li>
+<li><strong>Export diagram:</strong> You can save or copy an entire diagram or selected nodes to a JSON file for backup, sharing, or pasting into other tools. Additionally, you can export an entire diagram or selected node as a high-resolution PNG image, which Solution Designer renders at 2x zoom for clarity.</li>
+</ul>
+<p>:::callout{theme="neutral"}
+You must have edit permissions on a diagram to export it, as read-only viewers cannot export diagrams.
+:::</p>
+<h2>Diagram toolbar</h2>
+<p>The diagram toolbar appears at the top-left of the screen and contains buttons for adding nodes to your diagram and accessing Solution Designer's key features:</p>
+<ul>
+<li><strong>AIP Generate</strong> (if AIP is enabled): Start AI-powered workflow planning. See <a href="https://www.palantir.com/docs/foundry/solution-designer/aip-architect/">AIP Architect</a>.</li>
+<li><strong>Concept:</strong> Add abstract concept nodes. See <a href="https://www.palantir.com/docs/foundry/solution-designer/diagrams/#add-concept-nodes">concept nodes</a>.</li>
+<li><strong>Component:</strong> Open the component picker to add platform components (<code>Cmd/Ctrl + B</code>). See <a href="https://www.palantir.com/docs/foundry/solution-designer/diagrams/#add-component-nodes">component nodes</a>.</li>
+<li><strong>Resource:</strong> Add nodes linked to Foundry resources. See <a href="https://www.palantir.com/docs/foundry/solution-designer/diagrams/#add-resource-nodes">resource nodes</a>.</li>
+<li><strong>Group:</strong> Add empty groups to organize nodes. See <a href="https://www.palantir.com/docs/foundry/solution-designer/diagrams/#add-groups">groups</a>.</li>
+<li><strong>Text:</strong> Add text nodes for annotations. See <a href="https://www.palantir.com/docs/foundry/solution-designer/diagrams/#add-text-nodes">Text nodes</a>.</li>
+<li><strong>AIP Critic</strong> (if AIP is enabled): Open the diagram review panel. See <a href="https://www.palantir.com/docs/foundry/solution-designer/aip-critic/">AIP Critic</a>.</li>
+<li><strong>Pan mode toggle:</strong> Switch between edit and read-only pan mode.</li>
+</ul>
+<h2>Sidebar</h2>
+<p>Select an icon in the sidebar on the left side of the screen to display its full view that is both collapsible and resizable. Different buttons open specific panels in the sidebar:</p>
+<ul>
+<li><strong>Diagram Information:</strong> Provides a text input box where you can write a diagram description and renders documentation and tutorial links.</li>
+<li><strong>AIP Architect:</strong> Use AIP Architect to conduct AI-powered workflow planning. See <a href="https://www.palantir.com/docs/foundry/solution-designer/aip-architect/">AIP Architect</a>.</li>
+<li><strong>AIP Critic:</strong> View and interact with the AI-powered diagram review panel. See <a href="https://www.palantir.com/docs/foundry/solution-designer/aip-critic/">AIP Critic</a>.</li>
+<li><strong>Reference Diagrams:</strong> Load and browse Solution Designer's reference architecture library.</li>
+<li><strong>Graph Settings:</strong> View and configure your diagram's settings and display options.</li>
+</ul>
+<p><img alt="The Solution Designer left toolbar with node creation buttons." src="../../_resources/foundry/solution-designer/toolbar-left-side.png" /></p>
+<h3>Reference architecture library</h3>
+<p>The <strong>Reference Diagrams</strong> panel displays the reference architecture library, where you can browse and load pre-built patterns and templates organized by categories (industry patterns, technical patterns, and workflow patterns). Search for patterns by keyword, preview them, and then create a new diagram, add to an existing diagram, or override your current diagram.</p>
+<p><img alt="The reference architecture library open in the Solution Designer sidebar." src="../../_resources/foundry/solution-designer/reference-library-browser-open.png" /></p>
+<h3>Configure your diagram's settings</h3>
+<p>The <strong>Graph Settings</strong> panel enables you to customize how your diagram is displayed and configure Solution Designer features.</p>
+<p>Available settings include options for edge display, canvas view controls (mini-map, background grid, and pan mode), icon display modes, and AIP feature toggles. Settings are saved locally to your diagram.</p>
+<p>For details on specific canvas features like the mini-map and pan controls, see the <a href="https://www.palantir.com/docs/foundry/solution-designer/diagrams/#canvas-controls">canvas controls</a> and <a href="https://www.palantir.com/docs/foundry/solution-designer/diagrams/#pan-and-zoom">pan and zoom</a> documentation.</p>
+<p><img alt="The Solution Designer settings panel with display option toggles." src="../../_resources/foundry/solution-designer/settings-panel.png" /></p>
+<h2>Keyboard shortcuts</h2>
+<p>Solution Designer supports keyboard shortcuts to streamline your workflow.</p>
+<table>
+<thead>
+<tr>
+<th>Shortcut</th>
+<th>Action</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Cmd/Ctrl + B</code></td>
+<td>Open component picker</td>
+</tr>
+<tr>
+<td><code>Shift</code> + click or drag</td>
+<td>Multi-select nodes</td>
+</tr>
+<tr>
+<td><code>Backspace</code> or <code>Delete</code></td>
+<td>Delete selected nodes or connections</td>
+</tr>
+<tr>
+<td><code>Cmd/Ctrl + C</code></td>
+<td>Copy selected nodes to clipboard</td>
+</tr>
+<tr>
+<td><code>Cmd/Ctrl + V</code></td>
+<td>Paste nodes from clipboard</td>
+</tr>
+<tr>
+<td><code>Cmd/Ctrl + Z</code></td>
+<td>Undo last action</td>
+</tr>
+<tr>
+<td><code>Cmd/Ctrl + Y</code> or <code>Cmd/Ctrl + Shift + Z</code></td>
+<td>Redo last action</td>
+</tr>
+</tbody>
+</table>
+<p>These shortcuts allow you to efficiently build and modify diagrams without constantly switching across menus.</p>
+<h2>URL parameters</h2>
+<p>Solution Designer supports URL parameters for specific behaviors:</p>
+<ul>
+<li><strong><code>viewer=true</code>:</strong> Opens the diagram in read-only viewer mode with pan mode automatically enabled. Useful for sharing diagrams with stakeholders who should only view, not edit.</li>
+<li><strong><code>focusRID=&lt;resource-id&gt;</code>:</strong> Automatically centers and zooms to a specific node identified by its resource RID.</li>
+</ul>
+<h3>Example: Create a link to a view-only diagram</h3>
+<pre><code>https://{FOUNDRY_URL}/workspace/solution-designer/&lt;diagram-rid&gt;?viewer=true
+</code></pre>
+<p>This opens the diagram in read-only viewer mode, ideal for presentations or reviews.</p>
+</body>
+</html>

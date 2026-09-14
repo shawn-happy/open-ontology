@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Email suppression management</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Email suppression management</h1>
+<p>Suppression management improves the explainability of email sending failures.
+As described in the <a href="https://www.palantir.com/docs/foundry/email/overview/">overview</a>, email sending may fail for a variety of reasons.
+When these failures are repeated (for example, when the recipient's email server is unavailable), either the platform or the underlying email provider could create a "suppression", a mechanism by which the platform stops sending email to a user until the suppression expires or is manually deleted.</p>
+<p>Suppressions caused by a <code>BOUNCE</code> will be automatically deleted after 14 days, while suppressions caused by user <code>COMPLAINT</code> will require manual intervention to delete.</p>
+<p>We do not recommend deleting suppressions caused by a <code>COMPLAINT</code> without explicit consent from the recipient. Doing so could affect your email sending reputation and negatively impact your email deliverability.</p>
+</body>
+</html>

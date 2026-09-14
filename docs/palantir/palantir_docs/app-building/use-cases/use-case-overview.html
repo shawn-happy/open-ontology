@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Use Cases \[Sunset]</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Use Cases [Sunset]</h1>
+<p>:::callout{theme="warning" title="Sunset"}
+Use Cases is in the <a href="https://www.palantir.com/docs/foundry/platform-overview/development-life-cycle/">sunset</a> phase of development and will be deprecated at a future date. Full support remains available. We recommend using <a href="https://www.palantir.com/docs/foundry/security/portfolios/">Portfolios</a> moving forward for organizing Projects.
+:::</p>
+<h2>What is a use case?</h2>
+<p>The Use Cases application allows builders to organize their work within a single operational interface. By combining the filesystem view with an Ontology management view, developers can access a curated view focused on the work for which they are responsible.</p>
+<p>The Use Cases application can use any project as its backing project, but works best when backed by a workflow Project as part of the <a href="https://www.palantir.com/docs/foundry/building-pipelines/recommended-project-structure/#pipeline-stages">recommended pipeline Project structure</a>. The workflow projects are used to store applications such as those from Workshop and Quiver which are based on Ontology resources.</p>
+<h3>Use case overview page</h3>
+<p><img alt="Example use case overview page" src="../../_resources/foundry/use-cases/use-case-overview.png" /></p>
+<h2>Features</h2>
+<p>The Use Cases applicationâs key features allow users to:</p>
+<ul>
+<li><strong>View all use cases</strong> in your Organization and navigate between them.</li>
+<li><strong>Create new use case</strong> based on a new Project or an existing Project.</li>
+<li><strong>Create new applications</strong> in your use case directly within the interface.</li>
+<li><strong>View all applications</strong> in your use case in a single view.</li>
+<li><strong>View Ontology resources</strong> added to the use case or used by any application in the use case.</li>
+<li><strong>Navigate quickly</strong> between the use case and its connected applications.</li>
+</ul>
+<h2>Users</h2>
+<p>The Use Cases application is ideal for workflow builders working with the Foundry Ontology to create real-world, operational applications. It is particularly useful for builders moving between different Projects to access resources necessary for multiple types of applications.</p>
+<p>If you are new to the Use Cases application, we recommend exploring the following documentation to learn more about <a href="https://www.palantir.com/docs/foundry/use-cases/navigation/">navigating the space</a> and <a href="https://www.palantir.com/docs/foundry/use-cases/getting-started/">getting started</a> with your first use case.</p>
+<h3>All use cases</h3>
+<p>This section shows the full list of your use cases, tagged with <strong>Active</strong>, <strong>Experimental</strong>, and <strong>Deprecated</strong> statuses. Click on a use case to explore more details on its overview page.</p>
+<p>You can also choose to start a new use case from here. Select <strong>+ Create new</strong> to the right of the screen to open the <strong>+ Create use case</strong> modal.</p>
+<p>Learn more about <a href="https://www.palantir.com/docs/foundry/use-cases/getting-started/">creating a use case</a>.</p>
+<h2>Use case interface</h2>
+<p>When you open a use case from the home page, you will find details related to that use case in the <strong>Overview</strong> page and a <strong>section sidebar</strong> to the left that opens pages connected to the sections of the overview. These sidebar sections include:</p>
+<ul>
+<li><a href="#overview">Overview</a></li>
+<li><a href="#what-is-a-use-case">What is a use case?</a><ul>
+<li><a href="#use-case-overview-page">Use case overview page</a></li>
+</ul>
+</li>
+<li><a href="#features">Features</a></li>
+<li><a href="#users">Users</a><ul>
+<li><a href="#all-use-cases">All use cases</a></li>
+</ul>
+</li>
+<li><a href="#use-case-interface">Use case interface</a><ul>
+<li><a href="#overview">Overview</a></li>
+<li><a href="#applications">Applications</a></li>
+<li><a href="#ontology-components">Ontology components</a></li>
+<li><a href="#backing-data">Backing data</a></li>
+<li><a href="#other-resources">Other resources</a></li>
+</ul>
+</li>
+</ul>
+<p><img alt="Use case navigation sidebar" src="../../_resources/foundry/use-cases/use-case-sidebar.png" /></p>
+<h3>Overview</h3>
+<p>In your use case overview, you can find a summary of Foundry resources related to the use case you created. With these resources, you can create workflows based on Ontology entities or application outputs.</p>
+<p>The use case overview also provides quick metadata of your use case, including the description, status, and owners.</p>
+<p><img alt="Use case metadata summary" src="../../_resources/foundry/use-cases/metadata-summary.png" /></p>
+<p>Learn more about <a href="https://www.palantir.com/docs/foundry/use-cases/edit-metadata/">editing metadata</a> for your use case.</p>
+<h3>Applications</h3>
+<p>In the Applications section, you can find the last three applications you edited and a link to a page that lists all connected applications.</p>
+<p><img alt="Application section in the use case overview page" src="../../_resources/foundry/use-cases/applications-overview.png" /></p>
+<p>Click <strong>Create new application</strong> in the upper right of this section in the overview page to open the <strong>Create new application</strong> modal.</p>
+<p><img alt="Create new application modal" src="../../_resources/foundry/use-cases/create-new-application.png" /></p>
+<p>Learn more about <a href="https://www.palantir.com/docs/foundry/use-cases/add-application-resources/">adding applications</a> to your use case.</p>
+<p>You can also click on <strong>Applications</strong> in the sidebar to open the <strong>Applications</strong> page to view a full list of connected applications.</p>
+<p><img alt="Applications page" src="../../_resources/foundry/use-cases/applications-page.png" /></p>
+<h3>Ontology components</h3>
+<p>The Ontology section of your use case overview contains two subsections: <strong>object types</strong> and <strong>action types</strong>.</p>
+<p><img alt="Ontology section in the use case overview page" src="../../_resources/foundry/use-cases/ontology-overview.png" /></p>
+<p><strong>Object types:</strong> The object types in the use case view are either used by various applications in the use case or were added manually to the use case.</p>
+<p><strong>Action types:</strong> The action types in the use case view are either used by various applications in the use case or were added manually to the use case.</p>
+<p>Select <strong>Object types</strong> in the sidebar to open a list of all object types used by applications in the use case or object types that were added manually.</p>
+<p><img alt="Object types page" src="../../_resources/foundry/use-cases/object-types-page.png" /></p>
+<p>Click on <strong>Action types</strong> in the sidebar to view a list of action types used by applications in the use case or action types that were added manually to the use case.</p>
+<p><img alt="Action types page" src="../../_resources/foundry/use-cases/action-types-page.png" /></p>
+<h3>Backing data</h3>
+<p>Select the <strong>Backing data</strong> page from the sidebar to view the full list of data sources by object type. For each object type, you can view the list of input datasources and the writeback dataset, if one exists.</p>
+<p><img alt="Backing data page" src="../../_resources/foundry/use-cases/backing-data-page.png" /></p>
+<h3>Other resources</h3>
+<p>Select <strong>Other resources</strong> on the left sidebar to view a list of all other resources present in the backing Project.</p>
+<p><img alt="Other resources page" src="../../_resources/foundry/use-cases/other-resources-page.png" /></p>
+</body>
+</html>

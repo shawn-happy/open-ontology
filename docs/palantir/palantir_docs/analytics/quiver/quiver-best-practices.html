@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Quiver best practices</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Quiver best practices</h1>
+<p>The following sections document best practices and considerations to keep in mind when using Quiver, particularly for improving performance.</p>
+<h2>Analysis structure</h2>
+<p>Quiver uses <a href="https://www.palantir.com/docs/foundry/quiver/analysis-canvas/">canvases</a> to display and organize the cards in your analysis. Any content in an inactive canvas tab will not be rendered or queried, so consider splitting the analysis into separate canvases if you have a large analysis with many cards. Similarly, any hidden plot will not be queried; you can hide any plots or charts that you might not need to see but are required for the analysis.</p>
+<p>To further reduce compute in your analysis, you can update the <strong>Load settings</strong> found in the <a href="https://www.palantir.com/docs/foundry/quiver/analysis-settings/#global-settings"><strong>Global settings</strong></a> of the analysis to use <strong>Only visible items</strong> instead of <strong>All items</strong>. This change can improve performance for large canvases, but note that cards will load as they become visible. Every time you scroll to a different section of the canvas, you will need to wait for card computations to finish.</p>
+<p>You can easily move cards between canvases through the <strong>Analysis Contents</strong> panel, or you can move a specific card to a different canvas using the <strong>Move to canvas</strong> option in a card's <strong>More actions</strong> menu.</p>
+<p>Additionally, you can duplicate cards or entire canvases to a new analysis.</p>
+<h3>Graph mode</h3>
+<p>In <a href="https://www.palantir.com/docs/foundry/quiver/analysis-graph/">graph mode</a>, cards are only computed when their preview is shown. With the compact node design, previews are only displayed when a node is selected or pinned in the <a href="https://www.palantir.com/docs/foundry/quiver/analysis-graph/#preview-panel">preview panel</a>, rather than rendering for all nodes simultaneously. For large analyses, avoid pinning unnecessary previews to reduce compute costs and time.</p>
+<p>You can further simplify the graph by using <a href="https://www.palantir.com/docs/foundry/quiver/analysis-graph-color-groups/">color groups</a> to organize related nodes and collapse or hide groups that you are not actively working with. The <a href="https://www.palantir.com/docs/foundry/quiver/analysis-graph-organization/#filter-nodes">filtering tools</a> in the <strong>Analysis Contents</strong> panel also allow you to narrow down the visible nodes by type, canvas, dashboard, or function.</p>
+<h2>Transform tables</h2>
+<p>Quiver <a href="https://www.palantir.com/docs/foundry/quiver/cards-transform-table/">transform tables</a> are a powerful feature that allows you to perform a batch analysis on objects or tabular data derived from objects. However, transform tables can require high compute. For this reason, the maximum number of rows allowed is <strong>50,000</strong>. If your input object set is larger, we recommend using a <a href="https://www.palantir.com/docs/foundry/quiver/card-filter-object-set/">filter object set</a> to reduce the number of rows before passing it into the transform table.</p>
+<p>Because transform table computation is performed in the browser, the performance of certain analyses may vary depending on your hardware (memory size, for example).</p>
+<p>Additionally, all transformations in a single transform table are computed sequentially. For example, if you have four numeric formulas, each formula is computed one after the other. This behavior can cause a performance restriction. You can improve performance by parallelizing the computation and dividing the transformations into multiple transform tables.</p>
+<h3>Transform table computation</h3>
+<p>Transform tables are paginated, meaning that only the viewable rows are computed. For example, if you have 50,000 rows in a table but only 100 are in view, the results are only computed over the viewable 100 rows. However, some operations require that the entire table is computed. These operations include any visualizations or charts,  aggregations, and joins.</p>
+<h3>Sparklines</h3>
+<p>When rendered as a sparkline, each time series cell in a table is computed and billed as an independent query. Because of this, applying a time series operation on all rows can lead to high compute costs. For example, if a transform table has a time series aggregation on 100 rows, the required compute would be equivalent to applying an aggregation on 100 quiver plots.</p>
+<p>To improve load performance and reduce costs, you can update the <a href="https://www.palantir.com/docs/foundry/quiver/cards-transform-table/#view-range-options">view range setting</a> of the sparkline to limit the size of the compute. By default, time series sparklines always load the "full extent" of the series, with all data included.</p>
+<h3>Datasets</h3>
+<p>If you are using transform tables without time series or data editing features, consider using <a href="https://www.palantir.com/docs/foundry/quiver/cards-index-datasets/">datasets</a> instead to improve performance. Datasets offload the computation from your browser and can lead to improved performance on operations such as table joins and aggregations. Datasets also do not have a 50,000-row limit, allowing you to easily work with large-scale datasets. You can switch from a dataset to a transform table at any time without losing the inputs and configurations already added. However, note that transform table operations will likely be slower since they are done in the browser.</p>
+<p>You cannot switch from a transform table to a dataset.</p>
+<p>:::callout{theme="neutral"}
+Datasets do not support time series operations; use a transform table if you need to analyze time series data.
+:::</p>
+<h2>Object set search around</h2>
+<p>Quiver allows you to <a href="https://www.palantir.com/docs/foundry/quiver/objects-import-linked/">search around to linked objects</a> from an object set. If your object set is using Object Storage v1 (Phonograph), your input object set must have fewer than 100,000 objects. If your input object set is using Object Storage v2 (OSv2), the resulting linked object set must have fewer than 10 million objects.</p>
+<p>The same restrictions also apply when you are using the <a href="https://www.palantir.com/docs/foundry/quiver/card-filter-object-set/">filter object set card</a> and trying to filter using linked objects.</p>
+<h2>Time series</h2>
+<p>By default, Quiver renders 1,000 buckets per time series to improve performance. If you require a more granular view of the series, you can adjust your axis by <a href="https://www.palantir.com/docs/foundry/quiver/timeseries-visualize/#panning-and-zooming">panning and zooming</a> to the desired time range.</p>
+<p>Some time series might take longer to load due to index <a href="https://www.palantir.com/docs/foundry/time-series/faqs/#why-is-my-time-series-taking-a-long-time-to-load">hydration</a>. However, once a series is hydrated, any subsequent queries will load much faster.</p>
+<p>If you are working with a large time series and want to avoid hydrating the entire series, you should first use the <a href="https://www.palantir.com/docs/foundry/quiver/card-filter-time-series/">filter time series</a> card with an explicit time range filter to reduce the series. Then, compute any future operations on top of that filtered series. This way, the series will only need to be hydrated for the time range you need and not for the full extent.</p>
+<p>Time series card performance depends directly on the number of points in the series; consider using <a href="https://www.palantir.com/docs/foundry/quiver/card-sample/">sample time series</a> to reduce the number of points. Filtering down to a time range will also speed up compute for any future operations. You can also specify a time range when using the <a href="https://www.palantir.com/docs/foundry/quiver/card-time-series-search/">time series search card</a> to speed up performance, since the default search range is for the full series.</p>
+<h3>Point sets</h3>
+<p>The following cards are not bucketed. Instead, all points involved in the series are recomputed every time you run a calculation based on the series:</p>
+<ul>
+<li>Categorical time series</li>
+<li><a href="https://www.palantir.com/docs/foundry/quiver/card-tabular-time-series/">Tabular time series</a></li>
+<li><a href="https://www.palantir.com/docs/foundry/quiver/card-event-indicator-series/">Event indicator series</a></li>
+<li><a href="https://www.palantir.com/docs/foundry/quiver/card-code-function-timeseries/">Code function time series</a></li>
+<li><a href="https://www.palantir.com/docs/foundry/quiver/card-time-series-forecast/">Forecast time series</a></li>
+</ul>
+<p>With large series, analysis performance can quickly degrade. Quiver has a 25,000-point limit for these time series types, but we recommend limiting the series size to improve performance.</p>
+<h3>Streaming</h3>
+<p>Quiver has two time series streaming modes: analysis-wide streaming and individual axis streaming. By default, <a href="https://www.palantir.com/docs/foundry/quiver/analysis-settings/#time-series-axes-and-legends">analysis-wide streaming</a> will be activated when pressing the <strong>Stream</strong> button on an axis. This enables metric cards to update along with the new time series data, but degrades performance due to increased cache clearing. To achieve time series streaming while maintaining optimal performance, enable the <strong>Stream individual axis</strong> setting in the <a href="https://www.palantir.com/docs/foundry/quiver/timeseries-visualize/#time-axis-x-axis-configuration">configuration for each of the time axes</a> in the analysis.</p>
+<h2>Dashboards</h2>
+<p>When embedding Quiver dashboards in other Foundry applications, you should use tabs as much as possible. Just like canvases in a Quiver analysis, content in inactive dashboard tabs will not be rendered or queried. Splitting your dashboard into tabs as much as possible will improve loading time and performance of the dashboard.</p>
+<h3>Notepad integration</h3>
+<p>When embedding multiple charts in a <a href="https://www.palantir.com/docs/foundry/notepad/overview/">Notepad document</a>, use the dashboard widget with the same inputs to reuse the same computation cache and speed up performance.</p>
+</body>
+</html>

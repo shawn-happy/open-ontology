@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Troubleshooting</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Troubleshooting</h1>
+<p>This page provides solutions to common issues you may encounter when using Solution Designer.</p>
+<h2>Auto-save issues</h2>
+<h3>Auto-save repeatedly fails</h3>
+<p>If auto-save repeatedly fails or shows an error state:</p>
+<ul>
+<li><strong>Check permissions:</strong> Verify that you have edit permissions on the diagram resource. Select the resource name in the header to view permissions.</li>
+<li><strong>Manually save:</strong> Try manually saving the diagram by choosing <strong>Save</strong> in the header. If manual save also fails, note the error message and contact your Foundry administrator.</li>
+<li><strong>Check connection:</strong> Ensure you have a stable network connection, as auto-save requires connectivity to the Foundry backend.</li>
+<li><strong>Reload the diagram:</strong> Close and reopen the diagram. Auto-save may recover after a reload.</li>
+<li><strong>Export as backup:</strong> If you cannot save, export the diagram as a JSON file to prevent data loss, then contact your Foundry administrator.</li>
+</ul>
+<h3>Conflict on save</h3>
+<p>If you see a conflict resolution dialog when saving a diagram:</p>
+<ul>
+<li><strong>Check for multiple editors:</strong> Another user may be editing the diagram simultaneously. To avoid conflicts, coordinate with team members before editing shared diagrams.</li>
+<li><strong>Review your changes:</strong> Compare your changes with the version on the server.</li>
+<li><strong>Choose an option:</strong></li>
+<li><strong>Keep your changes:</strong> Overwrite the server version with your changes.</li>
+<li><strong>Keep server changes:</strong> Discard your changes and load the server version.</li>
+<li><strong>Cancel:</strong> Exit the save operation and manually merge changes.</li>
+</ul>
+<h2>AIP features</h2>
+<h3>AIP Architect or AIP Critic is not available</h3>
+<p>If AIP features do not appear in Solution Designer:</p>
+<ul>
+<li><strong>Check AIP status:</strong> AIP features must be <a href="https://www.palantir.com/docs/foundry/aip/enable-aip-features/">enabled for your enrollment</a>. Contact your Foundry administrator to request access.</li>
+<li><strong>Verify model availability:</strong> At least one supported LLM must be configured by your Foundry administrator from <a href="https://www.palantir.com/docs/foundry/model-catalog/overview/">Model Catalog</a>.</li>
+<li><strong>Validate browser compatibility:</strong> Ensure you are using a supported browser. Currently, Chrome, Edge, Firefox, and Safari are supported.</li>
+</ul>
+<h3>Model selection shows no available models</h3>
+<p>If the <strong>AI Model</strong> selection dropdown is empty:</p>
+<ul>
+<li><strong>LLM service may be unavailable:</strong> The language model service may not be configured or may be temporarily unavailable. Contact your Foundry administrator to validate that at least one supported LLM is configured and available.</li>
+<li><strong>Check permissions:</strong> You may not have permissions to access language models. Contact your Foundry administrator.</li>
+</ul>
+<h3>Image-to-diagram conversion is disabled</h3>
+<p>If you cannot upload images to convert to diagrams:</p>
+<ul>
+<li><strong>Ensure you can access a vision-capable model:</strong> Image conversion requires a vision-capable model (such as GPT-4o). Check the <strong>Model</strong> dropdown menu in the <strong>Upload an Image</strong> modal to verify that a vision-capable model is available and selected.</li>
+</ul>
+<h3>AIP Architect suggestions seem inaccurate</h3>
+<p>If AIP Architect suggestions do not match your requirements:</p>
+<ul>
+<li><strong>Refine your workflow summary:</strong> Edit your workflow summary to provide more specific details about your requirements, constraints, or desired approach.</li>
+<li><strong>Try different implementations:</strong> Preview multiple suggested implementation patterns before selecting one.</li>
+<li><strong>Choose a different model:</strong> Some models may produce better results for specific types of workflows.</li>
+<li><strong>Make manual adjustments:</strong> AIP Architect provides a starting point; you should always review and refine generated suggestions based on your specific needs.</li>
+</ul>
+<h2>Export issues</h2>
+<h3>Cannot export diagram</h3>
+<p>If export options are disabled:</p>
+<ul>
+<li><strong>Ensure your diagram is saved:</strong> You must save the diagram before exporting. Select <strong>Save</strong> first.</li>
+<li><strong>Check your edit permissions:</strong> Export functionality requires edit permissions on the diagram resource. Read-only viewers cannot export a diagram.</li>
+<li><strong>Refresh to resolve browser issues:</strong> Try refreshing the page or using a different browser.</li>
+</ul>
+<h3>Exported image quality is poor</h3>
+<p>If your exported PNG file's quality is poor:</p>
+<ul>
+<li><strong>Change the resolution:</strong> Images are automatically exported at 2x zoom for improved clarity. If you need higher resolution, try zooming in on specific parts of the diagram and using the <strong>Export selected nodes</strong> feature.</li>
+<li><strong>Chunk complex diagrams into sections:</strong> Very large diagrams may exceed browser rendering limits. Consider breaking the diagram into smaller sections.</li>
+</ul>
+<h3>PDF export from AIP Critic fails</h3>
+<p>If AIP Critic PDF export fails:</p>
+<ul>
+<li><strong>Check your conversation length:</strong> Very long conversation histories may be too large to export. Try starting a new review conversation for additional topics.</li>
+<li><strong>Reduce strain on your browser's memory:</strong> Solution Designer generates PDFs in your browser. Close other tabs and try again if your browser runs out of memory.</li>
+</ul>
+<h2>Canvas and diagram issues</h2>
+<h3>Nodes or edges disappear</h3>
+<p>If nodes or edges are not visible:</p>
+<ul>
+<li><strong>Adjust your canvas position:</strong> Use the <strong>Fit all nodes into view</strong> button in the canvas toolbar to recenter the view.</li>
+<li><strong>Change your zoom level:</strong> You may be zoomed too far in or out. Adjust zoom or use <strong>Fit all nodes into view</strong>.</li>
+<li><strong>Locate nodes on the mini-map:</strong> Use the mini-map (if enabled in <strong>Graph Settings</strong>) to locate your nodes and navigate to them.</li>
+<li><strong>Undo an accidental node deletion:</strong> If you accidentally delete a node, use <code>Cmd/Ctrl + Z</code> to undo the action.</li>
+</ul>
+<h3>Cannot edit a diagram</h3>
+<p>If you cannot edit nodes or create connections:</p>
+<ul>
+<li><strong>Check if the diagram is locked:</strong> Check if the diagram lock is enabled in the canvas toolbar. Select the lock icon to unlock the diagram, which disables pan mode and returns the diagram to an editable state.</li>
+<li><strong>Verify your permissions:</strong> Verify you have edit permissions on the diagram resource.</li>
+<li><strong>Check if you have a read-only link:</strong> If you accessed the diagram via a read-only link, then you will not be able to edit.</li>
+</ul>
+<h3>Auto-layout produces poor results</h3>
+<p>If the auto-layout feature does not arrange nodes as expected:</p>
+<ul>
+<li><strong>Review your diagram's structure:</strong> Auto-layout works best with tree-like or layered structures. Complex graphs with many cross-connections may require manual layout.</li>
+<li><strong>Group nodes:</strong> Group related nodes before applying auto-layout for better results.</li>
+<li><strong>Make manual adjustments:</strong> Use auto-layout as a starting point, then manually adjust node positions to improve clarity.</li>
+</ul>
+<h2>Loading and importing</h2>
+<h3>Cannot load diagram from filesystem</h3>
+<p>If you cannot load a saved diagram:</p>
+<ul>
+<li><strong>Check your permissions:</strong> Verify you have at least read permissions on the resource.</li>
+</ul>
+<h3>Import diagram from JSON fails</h3>
+<p>If importing a JSON diagram fails:</p>
+<ul>
+<li><strong>Ensure your format is valid:</strong> The JSON must be in the correct Solution Designer format. Ensure the JSON was exported from Solution Designer.</li>
+</ul>
+<h2>Get additional help</h2>
+<p>If you continue to experience issues:</p>
+<ol>
+<li><strong>Check your browser console:</strong> Open your browser's developer console (<code>F12</code> (Windows), <code>Option + Cmd + i</code> (macOS)) and check for error messages. Include these errors when reporting issues to your Foundry administrator.</li>
+<li><strong>Export diagram as backup:</strong> Export your diagram as JSON to prevent data loss.</li>
+<li><strong>Contact support:</strong> Contact your Foundry administrator or Palantir Support with:
+   * A description of the issue.
+   * Steps to reproduce the problem.
+   * Any error messages from the browser console.
+   * The browser and version you are using.
+   * A copy of the diagram JSON if relevant (ensure it contains no sensitive data).</li>
+</ol>
+</body>
+</html>

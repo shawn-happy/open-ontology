@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Trace views</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Trace views</h1>
+<p>The <strong>Trace</strong> view provides a visual timeline of your workflow execution, showing how different services interact and where time is spent. Specifically, a <em>distributed trace</em> is the timeline comprising all of the events between the generation of a request and the receipt of a response; these events can cross process, network and security boundaries. Distributed traces are key to understanding the path a request takes within your application.</p>
+<h2>Permission required</h2>
+<p>To view traces and service logs, an administrator must enable <a href="https://www.palantir.com/docs/foundry/aip-observability/log-permissioning/">log access</a> for the relevant project. Users always have access to logs for their own executions from the past 24 hours, except on <a href="https://www.palantir.com/docs/foundry/security/classification-based-access-controls/">CBAC stacks</a>, where log access must be enabled to view trace and service logs.</p>
+<h2>Key elements of the trace view</h2>
+<p><img alt="Example Workflow Lineage with trace view" src="../../_resources/foundry/aip-observability/workflow-lineage-trace-view.png" /></p>
+<ul>
+<li><strong>Timeline visualization:</strong> Horizontal bars show the duration of each operation.</li>
+<li><strong>Service hierarchy:</strong> Nested spans show parent-child relationships between operations.</li>
+<li><strong>Resource types:</strong> Coloring indicating whether each span was produced from a function, action, automation, model, or LLM call.</li>
+<li><strong>Performance metrics:</strong> Each span displays its execution time.</li>
+</ul>
+<h2>Analyzing trace details</h2>
+<p>You can select any span to see the full <strong>Trace Log Details</strong> for that specific operation.</p>
+<p>Trace details include:</p>
+<ul>
+<li><strong>Operation name:</strong> The specific function, action, language model, automation, model, or inner operation being executed.</li>
+<li><strong>Duration:</strong> Execution time for the operation.</li>
+<li><strong>Input/output data:</strong> For Function execution requests, you can view the parameters passed to and returned from the operation.</li>
+<li><strong>Model interactions:</strong> For LLM calls, you can view the prompt, response, and token usage.</li>
+<li><strong>Error information:</strong> Stack traces and error messages for failed operations.</li>
+<li><strong>Trace identifiers:</strong> <code>foundryTraceId</code>, the Foundry-assigned identifier used to fetch telemetry, and <code>x-b3-traceid</code>, the standard distributed-tracing identifier included in the <strong>tags</strong> field on each service log entry (best-effort; may be absent on logs originating outside Foundry, such as applications built with the Ontology SDK).</li>
+</ul>
+<p><img alt="Example Workflow Lineage with trace log details" src="../../_resources/foundry/aip-observability/workflow-lineage-trace-log-details.png" /></p>
+<h2>Related features</h2>
+<ul>
+<li><a href="https://www.palantir.com/docs/foundry/aip-observability/run-history/">Execution history</a>: View all recent executions before diving into traces.</li>
+<li><a href="https://www.palantir.com/docs/foundry/aip-observability/service-logs-and-debugging/">Service logs</a>: Access detailed log messages for each span.</li>
+<li><a href="https://www.palantir.com/docs/foundry/aip-observability/performance-monitoring-and-optimization/">Performance monitoring</a>: Analyze trace data to identify optimization opportunities.</li>
+</ul>
+</body>
+</html>

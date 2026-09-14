@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Operational process coordination</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Operational process coordination</h1>
+<p>Operational processes at any organization, whether it is ensuring that <a href="https://www.palantir.com/docs/foundry/use-case-examples/improving-invoice-collection-through-intelligent-dispute-resolution/">invoices are handled correctly</a>, <a href="https://www.palantir.com/docs/foundry/use-case-examples/public-safety-power-shutoff-psps-scoping/">power shutoffs are managed to avoid wildfire risk</a>, or R\&amp;D data is managed and leveraged efficiently and safely,  require users to interface with a variety of source systems, resolve any conflicts among them, interact with specialized applications, make operational decisions, and record those decisions to improve the process and feed others downstream.</p>
+<p>Foundryâs <a href="https://www.palantir.com/docs/foundry/data-connection/overview/">Data Connection</a> and <a href="https://www.palantir.com/docs/foundry/ontology/overview/">Ontology</a> allow organizations to implement this pattern in days instead of months and continue to implement, customize, and maintain them safely and efficiently.</p>
+<p><img alt="Operational Process Coordination Pattern" src="../../_resources/foundry/use-case-patterns/image-operational_process_coordination_pattern.jpg" /></p>
+<h2>Solution</h2>
+<p>Consider any critical business process, whether it is ensuring that <a href="https://www.palantir.com/docs/foundry/use-case-examples/improving-invoice-collection-through-intelligent-dispute-resolution/">invoices are handled correctly</a>, <a href="https://www.palantir.com/docs/foundry/use-case-examples/public-safety-power-shutoff-psps-scoping/">power shutoffs are managed to avoid wildfire risk</a>, or R\&amp;D data is managed and leveraged efficiently and safely. These disparate processes all share the same pattern: they require many different users and types of users to interact with a variety of source systems and other users in order to make operational decisions that are critical for the organization. Moreover, these processes evolve over time and the tools used need to evolve with them while remaining secure and maintainable.</p>
+<p>Yet, in practice, these processes are often implemented as custom software that is purpose-built to interact with a particular set of datasources, difficult to manage or update, siloed from other such software, and follows its own security model. Alternatively, the process is managed via spreadsheets and emails, which have technical limitations, are error-prone and insecure, and are difficult to manage and collaborate on.</p>
+<p>In Foundry, organizations instead implement the pattern below to integrate all of the relevant data sources into an ontology, from which <a href="https://www.palantir.com/docs/foundry/workshop/overview/">Workshop</a> apps are used to build custom apps which write back to the ontology and external systems. All of this is governed safely using Foundryâs Platform Security Model (often across multiple organizations such as vendors), and can be easily maintained and improved on via Foundryâs version control systems.</p>
+<h2>Key elements</h2>
+<p><strong><em>Action Inbox</em></strong></p>
+<p>An <strong>Action Inbox</strong> in <a href="https://www.palantir.com/docs/foundry/workshop/overview/">Workshop</a> which allows <strong>different users</strong> to be <strong>assigned tasks</strong>, <strong>view and explore</strong> the key aspects of the ontology, and <strong>take actions to make real-world decisions</strong>.</p>
+<p>For example, in a process for doing <a href="https://www.palantir.com/docs/foundry/use-case-examples/improving-invoice-collection-through-intelligent-dispute-resolution/">Invoice Dispute Resolution</a>, invoices are assigned to users in the correct department, where they review the customer service actions that are taken, see potential causes of injury, and submit a clear explanation for the invoice, which is shared back with the customer downstream of the application.</p>
+<p>Related products:</p>
+<ul>
+<li><a href="https://www.palantir.com/docs/foundry/workshop/overview/">Workshop</a></li>
+<li><a href="https://www.palantir.com/docs/foundry/action-types/overview/">Actions</a></li>
+<li><a href="https://www.palantir.com/docs/foundry/functions/overview/">Functions on Objects</a></li>
+</ul>
+<p><strong><em>Operational Process <a href="https://www.palantir.com/docs/foundry/ontology/overview/">Ontology</a></em></strong></p>
+<p>Underlying the Action Inbox is an <strong><a href="https://www.palantir.com/docs/foundry/ontology/overview/">Ontology</a></strong>, which models the operational process as <strong>objects</strong> with <strong>properties</strong> and <strong>relations. For example:</strong></p>
+<ul>
+<li>Tasks have assignees, creation and assignment times, priorities, and statuses</li>
+<li>Workflows contain tasks and model sequential steps in a process</li>
+</ul>
+<p>Users are available in <a href="https://www.palantir.com/docs/foundry/workshop/overview/">Workshop</a> automatically and do not need to be modeled in the ontology, but can be if it is helpful to associate them with additional properties such as department or location.</p>
+<p>Related products:</p>
+<ul>
+<li><a href="https://www.palantir.com/docs/foundry/ontology/overview/">Ontology</a></li>
+<li><a href="https://www.palantir.com/docs/foundry/object-views/overview/">Object Explorer</a></li>
+</ul>
+<p><strong><em>Subject Matter <a href="https://www.palantir.com/docs/foundry/ontology/overview/">Ontology</a></em></strong></p>
+<p>In addition to the functional ontology for the Action Inbox, there is a <strong>digital twin</strong> of the subject matter, which serves as the <strong>single source of truth</strong> that users reference to make their decisions. The <strong>objects</strong>, <strong>properties</strong>, and <strong>relations</strong> will differ depending on the use case, but are typically shared across many use cases and are visualized within <a href="https://www.palantir.com/docs/foundry/object-views/overview/">Object Explorer</a> views (object-centric), <a href="https://www.palantir.com/docs/foundry/quiver/overview/">Quiver</a> (charting and dashboarding), or <a href="https://www.palantir.com/docs/foundry/vertex/overview/">Vertex</a> (network analysis).</p>
+<p>For example, for Public Safety Power Shutoff (PSPS) Scoping, objects would include assets like transformers and circuits, weather threshold breaches, and grid configurations.</p>
+<p>Related products:</p>
+<ul>
+<li><a href="https://www.palantir.com/docs/foundry/ontology/overview/">Ontology</a></li>
+<li><a href="https://www.palantir.com/docs/foundry/object-views/overview/">Object Explorer</a></li>
+</ul>
+<p><strong><em>Decision writeback</em></strong></p>
+<p>Actions taken in the Action Inbox trigger <strong>writeback</strong> to the process ontology (e.g. creating, updating, or reassigning tasks), but more importantly to the subject matter ontology, where it updates the digital twin and then writes back to <strong>external sources</strong>.</p>
+<p>For example, for Public Safety Power Shutoff (PSPS) Scoping, decisions made in the inbox mark customers (objects in Foundry) as unsuccessfully contacted to be recontacted later as well as push notifications to the external automated message broadcast system.</p>
+<p>Related products:</p>
+<ul>
+<li><a href="https://www.palantir.com/docs/foundry/ontology/overview/">Ontology</a></li>
+</ul>
+<p><strong><em>Business logic and automation</em></strong></p>
+<p>Logic that drives the Action Inbox is often implemented in pipelines, e.g. determining which actions to map to which users or prioritizing which actions to implement first. These often leverage models created and managed in <a href="https://www.palantir.com/docs/foundry/model-integration/overview/">Foundry Machine Learning</a>.</p>
+<p>For example, <a href="https://www.palantir.com/docs/foundry/use-case-examples/improving-invoice-collection-through-intelligent-dispute-resolution/">Invoice Dispute Resolution</a> uses upstream logic to determine which department is best suited to handle a given inquiry.</p>
+<p>Related products:</p>
+<ul>
+<li><a href="https://www.palantir.com/docs/foundry/code-repositories/overview/">Code Repositories</a></li>
+<li><a href="https://www.palantir.com/docs/foundry/code-workbook/overview/">Code Workbook</a></li>
+</ul>
+<h2>Requirements</h2>
+<p>Regardless of the Pattern used, the underlying data foundation is constructed from pipelines and syncs to external source systems.</p>
+<p><strong><em>Data integration pipelines</em></strong></p>
+<p>Data integration pipelines, written in a variety of languages including SQL, Python, and Java, are used to integrate datasources into the subject matter ontology.</p>
+<p><strong><em><a href="https://www.palantir.com/docs/foundry/data-connection/overview/">Data Connectors</a></em></strong></p>
+<p>Foundry can sync data from a wide array of sources, including FTP, JDBC, REST API, and S3. Syncing data from a variety of sources and compiling the most complete source of truth possible is key to enabling the highest value decisions.</p>
+<p><strong><em>(Optional) SAP and Salesforce Connector</em></strong></p>
+<p>Many organizational processes rely on SAP and Salesforce data, and Foundry has out-of-the-box connectors and integration pipelines for both sources that ingest and create ontologies in just a few clicks. <a href="https://www.palantir.com/docs/foundry/use-case-examples/improving-invoice-collection-through-intelligent-dispute-resolution/">Invoice Dispute Resolution</a>, for example, uses both of these sources.</p>
+<h2>Use cases implementing this pattern</h2>
+<ul>
+<li><a href="https://www.palantir.com/docs/foundry/use-case-examples/driving-revenue-through-integrated-pricing/">Driving revenue through integrated pricing</a></li>
+<li><a href="https://www.palantir.com/docs/foundry/use-case-examples/improving-customer-satisfaction-and-retention-through-intelligent-task-management/">Improving customer satisfaction and retention through intelligent task management</a></li>
+<li><a href="https://www.palantir.com/docs/foundry/use-case-examples/improving-invoice-collection-through-intelligent-dispute-resolution/">Improving invoice collection through intelligent dispute resolution</a></li>
+<li><a href="https://www.palantir.com/docs/foundry/use-case-examples/increasing-client-engagement-through-integrated-campaign-management/">Increasing client engagement through integrated campaign management</a></li>
+<li><a href="https://www.palantir.com/docs/foundry/use-case-examples/optimizing-production-with-erp-data-across-the-supply-chain/">Optimizing production with ERP data across the supply chain</a></li>
+<li><a href="https://www.palantir.com/docs/foundry/use-case-examples/public-safety-power-shutoff-psps-scoping/">Public safety power shutoff (PSPS) scoping </a></li>
+<li><a href="https://www.palantir.com/docs/foundry/use-case-examples/reduce-rail-disruptions-through-intelligent-maintenance-prioritization/">Reduce rail disruptions through intelligent maintenance prioritization</a></li>
+<li><a href="https://www.palantir.com/docs/foundry/use-case-examples/reducing-over-and-under-payments-to-health-care-providers/">Reducing over- and under-payments to health care providers</a></li>
+</ul>
+<p>Want more information on this use case pattern? Looking to implement something similar? <a href="https://www.palantir.com/contact/get-started/">Get started with Palantir. â</a></p>
+</body>
+</html>

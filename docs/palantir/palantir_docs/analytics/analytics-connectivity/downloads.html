@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Downloads</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Downloads</h1>
+<p>This page provides download links for the <a href="https://www.palantir.com/docs/foundry/analytics-connectivity/odbc-jdbc-drivers/">ODBC and JDBC drivers for Foundry Datasets</a> and the <a href="https://www.palantir.com/docs/foundry/analytics-connectivity/tableau-overview/">Tableau Connector for Foundry Datasets</a></p>
+<h3>Downloads Available</h3>
+<ul>
+<li><a href="#foundry-datasets-odbc-driver">ODBC Driver</a></li>
+<li><a href="#foundry-datasets-jdbc-driver">JDBC Driver</a></li>
+<li><a href="#foundry-datasets-tableau-connector">Tableau Connector</a></li>
+</ul>
+<h3>Foundry Datasets ODBC driver</h3>
+<p>To install the driver, download the Palantir-signed installer file below and follow the on-screen instructions. Refer to the <a href="https://www.palantir.com/docs/foundry/analytics-connectivity/odbc-jdbc-drivers/#odbc-1">ODBC Setup Guide</a> for further instructions to configure a connection to Foundry.</p>
+<p>Windows 64-bit is supported by this installer. Windows 32-bit, Mac and Linux are not currently supported.</p>
+<p>Download:</p>
+<ul>
+<li><a href="https://www.palantir.com/drivers/artifacts/datasets/odbc/3.41.0/foundry-sql-odbc-driver-3.41.0.exe">Foundry ODBC Driver 3.41.0 (Windows x64) â</a></li>
+</ul>
+<h3>Foundry Datasets JDBC driver</h3>
+<p>To install the driver, download the .jar file below and place it into the relevant directory on your machine as described in the application-specific documentation. Refer to the <a href="https://www.palantir.com/docs/foundry/analytics-connectivity/odbc-jdbc-drivers/#jdbc-1">JDBC Setup Guide</a> for further instructions to configure a connection to Foundry.</p>
+<p>Java 11+ is required.</p>
+<p>Download:</p>
+<ul>
+<li><a href="https://www.palantir.com/drivers/artifacts/datasets/jdbc/3.41.0/foundry-sql-jdbc-driver-3.41.0-withdep.jar">Foundry JDBC Driver 3.41.0 (JRE 11+) â</a></li>
+</ul>
+<h3>Foundry Datasets Tableau Connector (2021.1+)</h3>
+<p>The Foundry Datasets Tableau Connector is a Palantir-signed connector for Tableau, provided here as a Tableau connector (.taco) package file.</p>
+<p>The connector is also available on <a href="https://exchange.tableau.com/products/628">Tableau Exchange â</a>. There is no difference between the version listed on Tableau Exchange and in the link below.</p>
+<p>Download:</p>
+<ul>
+<li><a href="https://www.palantir.com/drivers/artifacts/datasets/tableau/2.6.0/foundry-jdbc-2.6.0.taco">foundry-jdbc-2.6.0.taco â</a></li>
+</ul>
+<h3>Foundry Datasets Tableau Connector</h3>
+<p>Use this version of the connector if your Tableau version is between <code>2019.4</code> and <code>2021.1</code>. This version provides the same functionality as the above version except that only token authentication is supported (OAuth unsupported) and datasets must be loaded via RID/path rather than search.</p>
+<p>Downloads:</p>
+<ul>
+<li><a href="https://www.palantir.com/drivers/artifacts/datasets/tableau/1.2.0/foundry-jdbc-1.2.0.taco">foundry-jdbc-1.2.0.taco â</a></li>
+</ul>
+</body>
+</html>

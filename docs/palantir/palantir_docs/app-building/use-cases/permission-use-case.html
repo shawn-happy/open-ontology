@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Permission a use case</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Permission a use case</h1>
+<p>Use case permissions only manage the permission of <a href="https://www.palantir.com/docs/foundry/use-cases/edit-metadata/">use case metadata</a>.</p>
+<h2>Metadata</h2>
+<p>The permission of the use case metadata is managed through the <strong>Roles</strong> panel. In the use case overview page, select the <strong>...</strong> option in the left sidebar or on the top right side of the overview page and select <strong>Manage permissions</strong>.</p>
+<p><img alt="Manage permissions from use case overview" src="../../_resources/foundry/use-cases/manage-use-case-permissions.png" /></p>
+<p>You can use the <strong>Roles</strong> panel to add or remove users or groups to the use case and assign them either the <code>Use Case Owner</code> or <code>Use Case Editor</code> role.</p>
+<p><img alt="Use the use case Roles panel to add user permissions" src="../../_resources/foundry/use-cases/use-case-roles-panel.png" /></p>
+<p><strong>Use Case Owner:</strong> Users with <code>Use Case Owner</code> permissions can both manage the use case permissions and <a href="https://www.palantir.com/docs/foundry/use-cases/edit-metadata/">edit use case metadata</a>.</p>
+<p><strong>Use Case Editor:</strong> Users with <code>Use Case Editor</code> permissions can only <a href="https://www.palantir.com/docs/foundry/use-cases/edit-metadata/">edit the use case metadata</a>.</p>
+<p>:::callout{theme="neutral"}
+By default, use case metadata is visible to everyone in the Organization, even if the users cannot view or edit the use case resources.
+:::</p>
+<h2>Resources</h2>
+<p>Permissions to the resources included in the use case are managed by the permission on the resource itself or the Project backing the use case. Learn more about managing <a href="https://www.palantir.com/docs/foundry/security/projects-and-roles/">Project</a> and <a href="https://www.palantir.com/docs/foundry/object-permissioning/ontology-permissions/">Ontology resource</a> permissions.</p>
+</body>
+</html>

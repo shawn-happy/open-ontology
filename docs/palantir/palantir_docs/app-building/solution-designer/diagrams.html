@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Diagrams</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Diagrams</h1>
+<p>This page explains how to interact with diagrams in Solution Designer, including adding nodes, creating connections, organizing your diagram, and customizing your view.</p>
+<h2>Add nodes to your diagram</h2>
+<p>Solution Designer provides several ways to add nodes representing platform components, resources, or abstract concepts to your diagram.</p>
+<h3>Add component nodes</h3>
+<p>Component nodes represent specific Palantir platform applications and tools, such as <a href="https://www.palantir.com/docs/foundry/pipeline-builder/overview/">Pipeline Builder</a>, <a href="https://www.palantir.com/docs/foundry/workshop/overview/">Workshop</a>, or <a href="https://www.palantir.com/docs/foundry/contour/overview/">Contour</a>.</p>
+<p>To add a component node:</p>
+<ol>
+<li>Select the <strong>Component</strong> button in the diagram toolbar or press <code>Cmd/Ctrl + B</code>.</li>
+<li>The component picker dialog opens, showing all available platform components organized by category.</li>
+<li>Browse categories on the left or use the search bar at the top to find a specific component.</li>
+<li>Select a component from the list to add it to your canvas.</li>
+</ol>
+<p><img alt="Component picker dialog showing search, categories, and component list." src="../../_resources/foundry/solution-designer/component-picker-dialog.png" /></p>
+<p>After adding a component node, <a href="#configure-nodes">configure additional details</a> that render on your diagram and provide users with additional information about the node's purpose in your depicted workflow.</p>
+<h3>Add resource nodes</h3>
+<p>Resource nodes represent specific Foundry resources linked to your diagram, such as <a href="https://www.palantir.com/docs/foundry/data-integration/datasets/">datasets</a>, <a href="https://www.palantir.com/docs/foundry/object-link-types/object-types-overview/">object types</a>, <a href="https://www.palantir.com/docs/foundry/functions/overview/">functions</a>, or <a href="https://www.palantir.com/docs/foundry/action-types/overview/">actions</a>.</p>
+<p>To add a resource node:</p>
+<ol>
+<li>Select the <strong>Resource</strong> button in the diagram toolbar.</li>
+<li>A dropdown menu appears with four options:
+   * <strong>New file node:</strong> Browse Foundry resources to add
+   * <strong>New object node:</strong> Select an object type from your ontology
+   * <strong>New interface node:</strong> Select an <a href="https://www.palantir.com/docs/foundry/interfaces/interface-overview/">interface</a> from your ontology
+   * <strong>New action node:</strong> Select an action type from your ontology</li>
+<li>Search for and select the resource from the modal that opens, and Solution Designer adds the node to your canvas with a link to the selected resource.</li>
+</ol>
+<p>Resource nodes automatically display the resource name and provide a link to open the resource in its native application.</p>
+<h3>Add concept nodes</h3>
+<p>Concept nodes represent abstract, high-level workflow concepts (such as "Data Sourcing" or "Analytics") that you can later replace with specific implementations. These are primarily used with <a href="https://www.palantir.com/docs/foundry/solution-designer/aip-architect/">AIP Architect</a> for planning workflows.</p>
+<p>To add a concept node, select the <strong>Concept</strong> button in the diagram toolbar before choosing your concept type, such as <strong>Analytics</strong> or <strong>Data Processing</strong>.</p>
+<p>You can convert abstract concept nodes to concrete implementation patterns using <a href="https://www.palantir.com/docs/foundry/solution-designer/aip-architect/">AIP Architect</a>.</p>
+<h3>Add groups</h3>
+<p>Groups allow you to organize related nodes into logical containers.</p>
+<p>To add an empty group, select the <strong>Group</strong> button in the diagram toolbar and drag nodes into the group to add them as members.</p>
+<p>You can also create groups from existing nodes by selecting multiple nodes and using the <strong>Group</strong> action. <a href="#group-nodes">Learn more about creating groups from existing nodes.</a>.</p>
+<h3>Add text nodes</h3>
+<p>Text nodes allow you to add comments, annotations, or documentation directly on your diagram.</p>
+<p>To add a text node, select the <strong>Add Text node</strong> button in the diagram toolbar and choose the text node on the canvas to edit its content.</p>
+<h2>Configure nodes</h2>
+<p>After adding a node to your diagram, you can configure its properties and link it to Foundry resources.</p>
+<h3>Node toolbar</h3>
+<p>When you select a node, a small toolbar appears directly above it. This toolbar is the primary way to interact with and configure nodes. The toolbar contains several buttons arranged horizontally:</p>
+<ul>
+<li><strong>Primary action button:</strong> For nodes linked to resources, this button opens the resource in its native application, such as Pipeline Builder or Workshop. For unlinked nodes, this button allows you to link a resource.</li>
+<li><strong>Link resource:</strong> Associate a Foundry resource with this node by its RID. Select <strong>Link resource</strong> to open a resource picker dialog, then select a dataset, pipeline, application, or other Foundry resource. When linked, the node displays the resource name and provides direct navigation to that resource.</li>
+<li><strong>Actions menu:</strong> Select <strong>...</strong> to access additional node operations:</li>
+<li><strong>Overlap order:</strong> Change how overlapping nodes are layered.</li>
+<li><strong>Group:</strong> Create a new group beginning with the selected node.</li>
+<li><strong>Edit background color:</strong> Customize the node's background color.</li>
+<li><strong>Remove linked resource:</strong> Unlink a Foundry resource from the node.</li>
+<li><strong>Edit tags:</strong> Add or remove tags to categorize nodes by marking, organization, or team.</li>
+<li><strong>Delete:</strong> Remove the node from the diagram.</li>
+</ul>
+<p><img alt="Node toolbar floating above a selected node." src="../../_resources/foundry/solution-designer/node-toolbar-above-node.png" /></p>
+<h3>Customize node appearance</h3>
+<p>You can customize how nodes appear on your diagram:</p>
+<ul>
+<li><strong>Background color:</strong> Right-click on a node and select <strong>Change Bg color</strong> or use the <strong>Actions</strong> menu in the node toolbar.</li>
+<li><strong>Icon:</strong> Change the icon and its color for custom nodes.</li>
+<li><strong>Custom title:</strong> Edit the node title by choosing it directly when the node is selected.</li>
+<li><strong>Resize nodes:</strong> Hover over the corners or edges of a node and drag the resize handles to adjust its size.</li>
+</ul>
+<h3>Node documentation card</h3>
+<p>Each node displays a documentation card at the top-right showing information about the platform component it represents. The card shows:</p>
+<ul>
+<li><strong>Component name and icon:</strong> Identifies the platform component.</li>
+<li><strong>Brief description:</strong> A short summary of what the component does.</li>
+<li><strong>Full description:</strong> An expandable section with additional details about the component's capabilities and use cases, which you can view by selecting <strong>Show more</strong>.</li>
+<li><strong>Documentation link:</strong> Opens the official Foundry documentation for the component in a new tab.</li>
+<li><strong>Ask Assist:</strong> Opens a dialog to ask AIP Assist questions about the component if AIP is enabled.</li>
+</ul>
+<p>To minimize the documentation card, select the minimize button in the top-right corner of the card. A small info icon remains visible, which you can select to re-expand the card.</p>
+<p><img alt="Node showing an expanded documentation card." src="../../_resources/foundry/solution-designer/node-documentation-card.png" /></p>
+<h2>Create connections</h2>
+<p>Connections, or edges, between nodes represent data flow, dependencies, or relationships in your architecture.</p>
+<h3>Connect nodes</h3>
+<p>To create a connection:</p>
+<ol>
+<li>Hover over the node you want to connect from. Small circular handles appear on the left and right edges.</li>
+<li>Select the handle and drag from the <strong>right handle</strong> (output) of the source node.</li>
+<li>Drag your cursor to the <strong>left handle</strong> (input) of the target node.</li>
+<li>Release the mouse button to create the connection.</li>
+</ol>
+<h3>Edit or delete connections</h3>
+<p>To delete a connection:</p>
+<ol>
+<li>Select the connection line on the canvas, which will highlight after selection.</li>
+<li>Press <code>Backspace</code> or <code>Delete</code>.</li>
+</ol>
+<p>Alternatively, right-click on a connection and select <strong>Delete Edge</strong> from the context menu.</p>
+<h3>Connection labels</h3>
+<p>You can add labels to connections to describe the relationship or data flow.</p>
+<p>To add or edit a connection label:</p>
+<ol>
+<li>Select the connection on the canvas.</li>
+<li>Select the label area that appears on the connection.</li>
+<li>Type your label text in the <code>Click to Edit</code> text input box.</li>
+<li>Select anywhere on your canvas outside the label to register your changes before choosing <strong>Save</strong>.</li>
+</ol>
+<p>You can toggle the visibility of all edge labels using the <a href="#canvas-controls">canvas toolbar</a>.</p>
+<h2>Group nodes</h2>
+<p>Grouping related nodes helps organize complex diagrams and creates logical boundaries for different parts of your architecture.</p>
+<h3>Create a group from existing nodes</h3>
+<p>To group existing nodes:</p>
+<ol>
+<li>Select multiple nodes by holding <code>Cmd/Ctrl</code> and selecting each node or by holding <code>Shift</code> and dragging a selection box around the nodes.</li>
+<li>With nodes selected, select the <strong>Group</strong> button in the diagram toolbar or right-click and select <strong>Group</strong>.</li>
+</ol>
+<p>Solution Designer groups the selected nodes in a single container.</p>
+<h3>Manage group membership</h3>
+<p>Follow the actions below to manage group membership after creation.</p>
+<ul>
+<li><strong>Add nodes:</strong> Choose and drag any node from the canvas onto the group. When the node crosses inside the group boundary, release to add it as a member.</li>
+<li><strong>Remove nodes:</strong> Choose and drag a node out of the group boundary. The node is removed from the group but remains on the canvas.</li>
+<li><strong>Move groups:</strong> Choose and drag the group container itself. All member nodes move with it, maintaining their relative positions.</li>
+</ul>
+<p><img alt="Parent group containing nested subgroups." src="../../_resources/foundry/solution-designer/group-with-nodes.png" /></p>
+<h2>Canvas controls</h2>
+<p>The canvas toolbar appears in the bottom-left corner of the canvas and provides tools for navigating and manipulating your diagram. The toolbar contains several icon buttons stacked vertically:</p>
+<ul>
+<li><strong>Zoom in:</strong> Increase zoom level to see more detail.</li>
+<li><strong>Zoom out:</strong> Decrease zoom level to see more of the diagram.</li>
+<li><strong>Fit all nodes into view:</strong> Automatically center and zoom to show the entire diagram.</li>
+<li><strong>Lock diagram:</strong> Enable read-only mode to prevent accidental edits. You can still pan and zoom when locked. Locking a diagram is useful during presentations.</li>
+<li><strong>Hide/show background dots:</strong> Toggle the visibility of the background dot grid.</li>
+<li><strong>Layout nodes automatically:</strong> Automatically arrange nodes in a grid-like structure with even spacing and minimal edge crossings. Useful for organizing messy diagrams.</li>
+<li><strong>Toggle edge flow animation:</strong> Animate edge flow labels on your canvas.</li>
+<li><strong>Hide/Show Edge labels:</strong> Hide or show labels on all connections.</li>
+<li><strong>Hide/Show Edge Validity:</strong> Hide or show edge validity shading.</li>
+<li><strong>Minimize/Maximize node display:</strong> Minimizes information displayed on a node. This is useful for saving space on a large or complex diagram.</li>
+</ul>
+<p><img alt="Canvas toolbar with view and navigation controls." src="../../_resources/foundry/solution-designer/canvas-toolbar.png" /></p>
+<h3>Mini-map</h3>
+<p>The mini-map shows a bird's-eye view of your entire diagram and your current viewport position.</p>
+<p>To enable the mini-map:</p>
+<ol>
+<li>Open the <strong>Settings</strong> panel (see <a href="https://www.palantir.com/docs/foundry/solution-designer/navigation/#configure-your-diagrams-settings">Settings</a>).</li>
+<li>Toggle <strong>Mini-map</strong> to enabled.</li>
+<li>The mini-map appears in the bottom-right corner of the canvas.</li>
+</ol>
+<p>Select the mini-map to jump to different areas of your diagram.</p>
+<h3>Pan and zoom</h3>
+<p>To navigate the canvas:</p>
+<ul>
+<li><strong>Pan:</strong> Select and drag on empty canvas space or enable <strong>Pan mode</strong> in settings to pan without accidentally selecting nodes.</li>
+<li><strong>Zoom:</strong> Use the mouse wheel, touch pad pinch gesture, or the zoom buttons in the canvas toolbar.</li>
+<li><strong>Fit to view:</strong> Select the <strong>Fit all nodes into view</strong> button to center and zoom to show all nodes.</li>
+</ul>
+<h2>Advanced node operations</h2>
+<h3>Side menu</h3>
+<p>When you select a node on the canvas, a side menu panel opens on the right side of the screen, providing additional options for that node.</p>
+<h4>Node traversal</h4>
+<p>For all nodes, the side menu includes a <strong>Node traversal</strong> section that allows you to explore the diagram by navigating through connected nodes:</p>
+<ul>
+<li><strong>View connected nodes:</strong> See a list of all nodes connected to the currently selected node.</li>
+<li><strong>Jump to connected node:</strong> Select any connected node in the list to select and center it on the canvas.</li>
+<li><strong>Understand data flow:</strong> Quickly trace how data moves through your architecture by following node connections.</li>
+</ul>
+<p>Node traversal helps you navigate complex diagrams and understand relationships between components without manually searching.</p>
+<p><img alt="Side menu showing node and object traversal options." src="../../_resources/foundry/solution-designer/side-menu-traversal.png" /></p>
+<h4>Object traversal</h4>
+<p>For nodes linked to ontology object types, the side menu includes an <strong>Object traversal</strong> section that displays the ontology relationships available for that object type:</p>
+<ul>
+<li><strong>View relationships:</strong> See all link types and related object types defined in the ontology.</li>
+<li><strong>Create traversal:</strong> Select specific relationships to automatically generate related object type nodes on the canvas, which mimics the functionality of the <strong>Create traversal</strong> action in the node toolbar.</li>
+<li><strong>Explore ontology structure:</strong> Understand how this object type connects to other parts of your data model.</li>
+</ul>
+<h2>Context menu</h2>
+<p>While the canvas and node toolbars are the primary ways to interact with your diagram, you can also use context menus as an alternative:</p>
+<ul>
+<li><strong>Right-click on a node:</strong> Shows options like <strong>Change Bg color</strong>, <strong>Group</strong> with other selected nodes, and <strong>Delete</strong>.</li>
+<li><strong>Right-click on canvas:</strong> Shows options like <strong>Add Comment</strong>, <strong>Add Empty group</strong>, and <strong>Layout nodes automatically</strong>.</li>
+</ul>
+<p>The context menu provides quick access to common actions, but most operations are more conveniently accessed through the dedicated toolbars.</p>
+</body>
+</html>

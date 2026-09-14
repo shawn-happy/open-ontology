@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Core concepts</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../index.html">返回目录</a></div>
+<h1>Core concepts</h1>
+<p>This page describes the core concepts that underpin Foundry DevOps and Foundry Marketplace. We recommend that you read this page before proceeding since Foundry DevOps and Marketplace use specialized terminology (such as "<a href="#product">product</a>").</p>
+<h2>Product</h2>
+<p>In Foundry DevOps, "products" are collections of Foundry resources that a product builder has made available to install. Builders can create new products in <a href="https://www.palantir.com/docs/foundry/foundry-devops/create-products/">Foundry DevOps</a>.</p>
+<p>Example product types include:</p>
+<ul>
+<li><strong>Ontology:</strong> An instance of the Foundry Ontology, whether a comprehensive standard industry <a href="https://www.palantir.com/docs/foundry/ontology/overview/">ontology</a> or an ontology fragment.</li>
+<li><strong>Use Case:</strong> A use case can be as simple as a single <a href="https://www.palantir.com/docs/foundry/workshop/overview/">Workshop application</a> or could involve a combination of multiple Workshop applications, <a href="https://www.palantir.com/docs/foundry/functions/marketplace-functions/">functions</a>, and <a href="https://www.palantir.com/docs/foundry/carbon/overview/">Carbon workspaces</a>.</li>
+<li><strong>Pipeline:</strong> Pipelines can range from a single data transformation all the way to a group of many transforms and data connections in sequence.</li>
+<li><strong>Modeling:</strong> A containerized executable <a href="https://www.palantir.com/docs/foundry/model-integration/models/">model</a> encapsulating any functional logic, including machine learning, forecasting, optimization, physical models, and business rules.</li>
+</ul>
+<p>Each product has outputs, or <em>content</em>, that are produced when the product is installed. Products may require that installers map <em>inputs</em> in order to produce output content.</p>
+<p>Products are the atomic unit that users can <a href="https://www.palantir.com/docs/foundry/marketplace/browse-products/">browse</a> and <a href="https://www.palantir.com/docs/foundry/marketplace/install-product/">install</a> via the Marketplace storefront.</p>
+<h2>Product version</h2>
+<p>Product builders <a href="https://www.palantir.com/docs/foundry/foundry-devops/create-products/">create</a> and <a href="https://www.palantir.com/docs/foundry/foundry-devops/manage-products/">publish new versions</a> of products every time they want to adjust existing product content or add new product content. When installing, we typically recommend choosing the <a href="https://www.palantir.com/docs/foundry/marketplace/browse-products/#versions">latest product version</a>. When new product versions become available, installers can <a href="https://www.palantir.com/docs/foundry/marketplace/installations/#upgrades">upgrade manually or opt to receive new versions automatically</a>.</p>
+<h2>Store</h2>
+<p>Stores are collections of products; these products typically have a shared purpose. Product builders can <a href="https://www.palantir.com/docs/foundry/foundry-devops/create-products/">publish new products to stores</a>. Stores that appear on your Foundry instance may be local (for instance, produced by a builder within your organization who works on your Foundry instance) or remote (for example, the <em>Foundry Store</em> that is available to all Foundry users and maintained by Palantir).</p>
+<h2>Installation</h2>
+<p>An <a href="https://www.palantir.com/docs/foundry/marketplace/installations/">installation</a> is created when an installer fulfills the required inputs (if any) for a product. Each product can be installed multiple times. Multiple installations are typically created when:</p>
+<ul>
+<li>A product is required for different user groups. For example, you might install a ticket management product across a variety of support teams, using their ticketing data as input.</li>
+<li>You need to create an installation for different development environments. For example, you might install a ticket management product into a pre-production <a href="https://www.palantir.com/docs/foundry/security/orgs-and-spaces/">space</a> and <a href="https://www.palantir.com/docs/foundry/ontologies/ontologies-overview/">ontology</a>, and again into a production space and ontology, each with their own input data and environment-specific settings like <a href="https://www.palantir.com/docs/foundry/marketplace/installations/#installation-settings">release channels and upgrade windows</a>.</li>
+</ul>
+</body>
+</html>

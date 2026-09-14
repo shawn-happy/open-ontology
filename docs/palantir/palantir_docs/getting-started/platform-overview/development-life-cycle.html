@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Development lifecycle</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Development lifecycle</h1>
+<p>At Palantir, we strive to continuously evolve production-grade software to meet the needs of our customers and improve the capabilities we offer. We incorporate cutting-edge technologies and frameworks while remaining grounded in the real-world problems our customers face every day. In practice, this means that Palantir can develop new capabilities in close partnership with customers.</p>
+<p>This page outlines the various development life cycle phases of capabilities in the Palantir platform, including the definitions of these statuses, their availability, support levels, and the expectations we set for those statuses between Palantir and our customers.</p>
+<p>:::callout{theme="warning"}
+While this page explains the typical execution of the product development life cycle at Palantir, some attributes of a life cycle phase may vary based on a given product or feature.
+:::</p>
+<h2>Phases of development: Summary</h2>
+<p>This table provides an overview of the different development statuses and their core attributes. For more information, see the linked detail sections on each status.</p>
+<table>
+<thead>
+<tr>
+<th>Status</th>
+<th>Development</th>
+<th>Availability</th>
+<th>User support</th>
+<th>Public documentation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="#beta">Beta</a>: Early-stage feature with a typically slower rollout</td>
+<td>ð¢ Active</td>
+<td>ð¡ Opt-in availability</td>
+<td>ð¢ Yes</td>
+<td>ð¢ Yes</td>
+</tr>
+<tr>
+<td><a href="#generally-available-ga">Generally available (GA)</a>: Production feature</td>
+<td>ð¢ Active</td>
+<td>ð¢ Broadly available</td>
+<td>ð¢ Yes</td>
+<td>ð¢ Yes</td>
+</tr>
+<tr>
+<td><a href="#legacy">Legacy</a>: Production feature without active development</td>
+<td>ð¡ Critical fixes only</td>
+<td>ð¢ Broadly available *</td>
+<td>ð¢ Yes</td>
+<td>ð¢ Yes</td>
+</tr>
+<tr>
+<td><a href="#sunset">Sunset</a>: Feature slated for deprecation, but no date is scheduled</td>
+<td>ð¡ Critical fixes only</td>
+<td>ð¡ Existing customers only</td>
+<td>ð¢ Yes</td>
+<td>ð¢ Yes</td>
+</tr>
+<tr>
+<td><a href="#planned-deprecation">Planned deprecation</a>: Deprecation date and migration path communicated</td>
+<td>ð¡ Critical fixes only</td>
+<td>ð¡ Existing customers only</td>
+<td>ð¢ Yes</td>
+<td>ð¢ Yes</td>
+</tr>
+<tr>
+<td><a href="#deprecated">Deprecated</a>: Feature is no longer available</td>
+<td>ð´ None</td>
+<td>ð´ None</td>
+<td>ð´ None</td>
+<td>ð´ None</td>
+</tr>
+</tbody>
+</table>
+<p>* Installed but disabled for new customers by default. New customers can enable the feature through Control Panel.</p>
+<h2>Phases of development</h2>
+<h3>Beta</h3>
+<p>Once a feature's purpose and approach has been validated with one or more customer partners, it is made available to a broader group of customers in a <strong>beta</strong> phase.</p>
+<p>The goals of the beta phase are to invest heavily in the long-term maintainability of a feature while measuring overall value and usage. For this reason, beta features may be rolled out slowly to customers to gather feedback during the development process. Sometimes, beta features are available to a wide range of customers; at other times, beta features may be limited to partners with specific business needs or feedback opportunities that advance the development process.</p>
+<p>Beta features are documented publicly to help enable customer partners to use this early-stage functionality, even if the features are not yet available in every enrollment. When a feature is in the beta phase, it will be labeled as such in documentation.</p>
+<p>There is no guarantee that beta features or products will progress to the next stages of development, though the vast majority do move on to general availability.</p>
+<h3>Generally available (GA)</h3>
+<p><strong>Generally available</strong> is the term used to describe the vast majority of features and products in Foundry. GA features are enabled for customers by default and constitute a core part of the platform. When features become GA, other parts of the platform may build on top of them to enable tight-knit integrations.</p>
+<p>In the GA phase, there is a continuous feedback loop between Palantir engineers and the broad set of customers using the feature. Feedback is triaged, prioritized, and fed into Foundry's product roadmap, and updates are delivered to customers rapidly using <a href="https://www.palantir.com/platforms/apollo/">Apollo â</a>, Palantir's platform for continuous delivery.</p>
+<p>Although GA features are widely available, it is possible in some cases that your enrollment may not have every feature enabled as some features have dependencies on specific types of infrastructure or may require specific contractual agreements. For example, some GA features in Foundry are only available in Palantir's managed SaaS environment and are not supported for self-hosted installations. Keep in mind that when a new feature or application is <a href="https://www.palantir.com/docs/foundry/announcements/">announced</a> as generally available, there may be a delay of a week or more before it becomes available within a specific Foundry enrollment.</p>
+<p>Unless otherwise specified, any publicly documented feature is generally available, and you can rely on GA features to be fully supported. The removal of any GA feature from the platform will follow the sunset and planned deprecation processes outlined below.</p>
+<h3>Legacy</h3>
+<p>In the <strong>legacy</strong> phase of development, features and products enter a stage where work is considered complete and no additional feature development is expected.</p>
+<p>Legacy applications are widely installed across the Palantir customer base and available for continued production use. As in GA, products in the legacy status remain fully supported. For new customers, they are typically available on an opt-in basis. Despite legacy features not being actively developed, feedback is still encouraged as it can inform our work on new applications and tools.</p>
+<p>All products and features in the legacy phase will be labeled as such and thoroughly documented publicly. At this point, no deprecation date is planned or expected.</p>
+<h3>Sunset</h3>
+<p>As development progresses, an existing feature or application in Foundry may reach the end of its usefulness or purpose, or it may be superseded by another functionality. The original vision for the feature may be narrower than the problem space it has grown to address, or new tools or features may result in more robust or scalable solutions to a problem. At this point, we start to discourage use of the feature, and new customers will not be able to enable it for use in their enrollment.</p>
+<p>In our public documentation, we will label products that are in the sunset phase and will suggest other tools and applications to replace them. As in GA, products in the sunset phase remain fully supported. Deprecation is planned for the future, but no exact date is confirmed. As soon a deprecation date is identified, the feature will move into the <strong>planned deprecation</strong> phase, with the date and any relevant migration details communicated.</p>
+<h3>Planned deprecation</h3>
+<p>Products entering the <strong>planned deprecation</strong> phase are preparing for retirement from the platform. As products or features enter the planned deprecation phase, Palantir works to provide proactive communication around the scheduled retirement date and any migration steps, if needed. Products in planned deprecation remain fully supported. However, new enrollments will not be able to enable features in planned deprecation.</p>
+<p>In planned deprecation, a feature <em>does</em> have a confirmed deprecation date, and we are in the process of removing the feature and its integrations from our platform. Like products in the sunset phase, we will label products in the planned deprecation in our public documentation and in the platform. Our public documentation will also offer suggestions for workflow migrations that will fit your use case.</p>
+<p>When we move a feature into planned deprecation, you can expect time to migrate your workflows to new tools and applications before the scheduled deprecation date. We will use our platform <a href="https://www.palantir.com/docs/foundry/upgrade-assistant/platform-changes/">Upgrade Assistant</a> to notify administrators of the upcoming deprecation and provide a clear deadline for complying with workflow migrations. For application-level deprecations, the intent to deprecate and the final deprecation notice will be proactively shared with the registered platform administrator's <a href="https://www.palantir.com/docs/foundry/administration/platform-communications/">contact details</a> as well as publicly on theÂ <a href="https://www.palantir.com/docs/foundry/announcements/">Foundry Announcements page</a>. Progress towards feature deprecation is tracked quantitatively to ensure all customers are able to migrate to a replacement before a feature is finally removed from the platform.</p>
+<h3>Deprecated</h3>
+<p>When a product completes the required tasks during the planned deprecation phase, it is considered fully <em>deprecated</em>. In this phase, the feature or product is no longer supported or available in the platform and all customers have been migrated away from relevant workflows. Customers will no longer have access to related API endpoints or other integrations, and support is no longer available. All public documentation of the feature is removed and no longer discoverable.</p>
+</body>
+</html>

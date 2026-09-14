@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>File a support ticket</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>File a support ticket</h1>
+<p>If you were not able to find an appropriate solution to your issue after reviewing the <a href="https://www.palantir.com/docs/foundry/getting-help/overview/#2-search-the-issues-application-and-the-developer-community">available resources</a>, it is time to file a support ticket.</p>
+<p>Filing a ticket ensures your question or request is tracked, prioritized appropriately, and escalated where necessary.</p>
+<p>To make the support process more efficient, follow these steps to compile valuable information for filing a support ticket:</p>
+<!-- TOC -->
+
+<ul>
+<li><a href="#1-create-an-example">1. Create an example</a></li>
+<li><a href="#2-share-relevant-assets">2. Share relevant assets</a></li>
+<li><a href="#3-report-the-issue">3. Report the issue</a></li>
+</ul>
+<!-- /TOC -->
+
+<p>:::callout{theme="neutral" title="Prerequisite"}
+Make sure you have already diagnosed your issue using the steps provided on the <a href="https://www.palantir.com/docs/foundry/getting-help/overview/">Get help page</a>, reviewed the guide on <a href="https://www.palantir.com/docs/foundry/getting-help/debug-using-devtools/">Debug using Chromeâ¢ DevTools</a> and <a href="https://www.palantir.com/docs/foundry/getting-help/http-error-codes/">HTTP error codes</a> before following through with the instructions below.
+:::</p>
+<h2>1. Create an example</h2>
+<p>When asking a question about a problem you encounter, providing clear steps that we can use to reproduce the problem will ensure a speedy resolution. These should be:</p>
+<ul>
+<li><strong>Minimal:</strong> Use as few steps as possible while still producing the problem.</li>
+<li><strong>Complete:</strong> Provide all parts needed to reproduce the problem.</li>
+<li><strong>Verifiable:</strong> Test the workflow you are about to provide to make sure it reproduces the problem.</li>
+</ul>
+<p>A minimal, complete, and verifiable example helps us reproduce the problem outside your environment and in return, makes it easier to get to the root cause of your problem and reach a faster resolution.</p>
+<p>In the Palantir context, such an example can either be a series of steps that reproduces the behavior or a minimal resource that reproduces the issue. Generally, it is useful to include expected behavior versus the observed behavior as part of your example.</p>
+<h3>Tips</h3>
+<p>Here are some tips for creating a minimal, complete, and verifiable example:</p>
+<ul>
+<li>Start by identifying the steps required to reproduce the issue. The more specific and detailed these steps are, the easier it will be for someone else to reproduce the issue.</li>
+<li>Make sure that your example is minimal, meaning that it includes only the bare minimum amount of information needed to reproduce the issue. This will help to narrow down the potential causes of the issue and make it easier to fix.</li>
+<li>Include the expected result of the steps you provided, as well as the actual result. This will help others to understand the problem and determine if they are experiencing the same issue.</li>
+<li>Make sure that your example is complete, meaning that it includes all the information necessary to reproduce the issue. If you leave out any important details, it will be difficult for others to reproduce the issue and help you solve the problem.</li>
+<li>Finally, make sure that your example is verifiable, meaning that others can easily reproduce the issue using the information you provided. If your example is not verifiable, it will be difficult for others to help you fix the problem.</li>
+</ul>
+<h3>Example</h3>
+<p>The following is a historical example of a minimal, complete, and verifiable issue that has been resolved.</p>
+<p>Steps to reproduce the problem at the time:</p>
+<ol>
+<li>Open the Code Repository application.</li>
+<li>Add the Graphframes library using the sidebar.</li>
+<li>Run a check on the repository.</li>
+</ol>
+<p>Expected behavior: The library should be added to the Code Repository without any errors.</p>
+<p>Actual problematic behavior: An error message is displayed, saying "o257.loadClass.: java.lang.ClassNotFoundException:<Class>"</p>
+<p>Additional information:</p>
+<ul>
+<li>Here are the other packages in my profile: Python 3.12.*, etc.</li>
+<li>I have already tried to do x, y, and z.</li>
+<li>There have been no recent changes to this Code Repository other than the addition of this package.</li>
+<li>This appears to affect users of this package.</li>
+</ul>
+<p>This example includes only the bare minimum steps needed to reproduce the issue and does not require any proprietary data. The example is considered complete because it includes all the necessary information, such as the expected and actual behavior, as well as additional context like troubleshooting that has already been conducted. It is verifiable because the error message can be reproduced using the same steps. By providing this information, Support will be able to quickly reproduce the problem and work on resolving it.</p>
+<p>If you are interested in the fix provided for this issue, <a href="https://www.palantir.com/docs/foundry/code-workbook/environment-troubleshooting/#packages-which-require-both-a-conda-package-and-a-jar">review packages which require both a Conda package and a jar</a>.</p>
+<h2>2. Share relevant assets</h2>
+<p>With a verifiable example in text, compile the following additional assets for Support:</p>
+<ul>
+<li>Include any findings from your own investigation as performed in step 1.</li>
+<li>Provide the full text of any build errors or error messages displayed.</li>
+<li>Copy and paste the text of any errorID/errorInstanceID to enable us to do a backend review.</li>
+<li>Where possible and appropriate, share all the relevant resources with Palantir Support.</li>
+<li>The relevant resource(s) (Slate dashboard, Analysis, Code Repository).</li>
+<li>The datasets underlying the resource(s).</li>
+<li>Any upstream datasets that the resource(s) depends on.</li>
+</ul>
+<h2>3. Report the issue</h2>
+<p>To report an issue while in the specified application, navigate to <strong>Support &gt; Report issue</strong> (or <strong>Support &gt; Contact support</strong>) and <a href="https://www.palantir.com/docs/foundry/getting-help/issues/">follow the wizard</a>.</p>
+<p>As an alternative approach, you may also request support from other users in the <a href="https://community.palantir.com/">Palantir Developer Community â</a>.</p>
+<p>When posting on public forums such as the Palantir Developer Community, remember to remove all sensitive data prior to posting.</p>
+<hr />
+<p>Chromeâ¢ is a trademark of Google Inc.</p>
+<p>[1]: Note: AIP feature availability is subject to change and may differ between customers.</p>
+</body>
+</html>

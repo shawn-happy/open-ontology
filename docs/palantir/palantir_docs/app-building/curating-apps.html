@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Curating apps in Applications Portal</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../index.html">返回目录</a></div>
+<h1>Curating apps in Applications Portal</h1>
+<p>Applications Portal is a tool for discovering and accessing all apps in Foundry. This includes both (1) core Foundry platform apps and (2) trusted custom apps that admins promote to Applications Portal.</p>
+<p><img alt="Applications Portal" src="../_resources/foundry/app-building/apps-portal.png" /></p>
+<h3>Navigate to Applications Portal</h3>
+<p>You can open Applications Portal by selecting the <strong>Applications Portal</strong> icon in the left sidebar. You will be able to view any application built in <a href="https://www.palantir.com/docs/foundry/workshop/overview/">Workshop</a>, <a href="https://www.palantir.com/docs/foundry/slate/overview/">Slate</a>, or <a href="https://www.palantir.com/docs/foundry/carbon/overview/">Carbon</a> that you have <a href="#promoted-apps-in-applications-portal">promoted</a>. You will also have quick access to all Foundry platform apps.</p>
+<p>You can "pin" your favorite apps to the left sidebar for easy access. Select the star icon next to the application's name from the Applications Portal or when you are editing the application. Once pinned, a section called <strong>Promoted Apps</strong> will appear in the Foundry sidebar with a list of your favorite promoted apps.</p>
+<p><img src="../_resources/external-f31d9b647f19.png" alt="Sidebar Promoted App" width="300" /></p>
+<p>Permissions for Applications Portal are based on <a href="https://www.palantir.com/docs/foundry/security/projects-and-roles/#request-access-to-a-project">filesystem permissions</a>. If you have the Discoverer role, you will be prompted to <a href="https://www.palantir.com/docs/foundry/security/projects-and-roles/#request-access-to-a-project">request access</a>.</p>
+<p><img alt="Promoted Apps" src="../_resources/foundry/app-building/apps-portal-promoted-apps.png" /></p>
+<h2>Applications Portal modes</h2>
+<p>Applications Portal has two modes of engagement:</p>
+<ul>
+<li>Basic, out-of-the-box: a tool to discover and learn about all Foundry platform apps. No admin work is required. Applications portal is an integral tool in the left sidebar, even without any promoted custom apps.</li>
+<li>Advanced, curation-based: an admin, Palantir representative, or customer governance team promotes all trusted custom apps to Applications Portal.</li>
+</ul>
+<p>:::callout{theme="neutral"}
+There is a single Applications Portal for each enrollment or tenant on a multi-tenant enrollment. The promoted apps that a user can view are limited to the <a href="https://www.palantir.com/docs/foundry/security/orgs-and-spaces/#spaces">spaces</a> that belong to their <a href="https://www.palantir.com/docs/foundry/security/orgs-and-spaces/#organizations">Organization</a>. If you have access to a shared space, you will also see promoted apps from that space.
+:::</p>
+<h2>Promoted apps in Applications Portal</h2>
+<p>A promoted application is an application that was marked by an admin as trusted and production-ready. Every promotion application has the following required metadata that will be displayed in Applications Portal and in the left sidebar:</p>
+<ul>
+<li>Name: this can be different than the resource name</li>
+<li>Icon</li>
+<li>Description (optional)</li>
+<li>Application Owner</li>
+<li>Thumbnail</li>
+<li>Collections and tags: you can use these to categorize promoted apps in different sections and apply filters in Applications Portal. Collections are required, while tags are optional.</li>
+</ul>
+<p>Promoted apps receive the purple checkmark for trusted content, similar to items in the Data Catalog.</p>
+<h3>Permissions for promoting apps to Applications Portal</h3>
+<p>Admins can promote Workshop modules, Slate applications, Carbon workspaces, or external web links to Applications Portal. Permission to promote apps to Applications Portal is granted in <a href="https://www.palantir.com/docs/foundry/administration/control-panel/">Control Panel</a>. You must have either the âOrganization Administratorâ or âUser Experience Administratorâ role. You also must be an editor or owner of an app to be able to promote it.</p>
+<p>Promoted applications appear in Applications Portal for all users with at least the Discoverer role for the application and its space.</p>
+<h3>How to promote apps to Applications Portal</h3>
+<p>The apps promotion UI is available both in Applications Portal and in edit mode of Workshop and Slate (see example below).</p>
+<p>Un-promoting a promoted application is also done using the promotion UI, by selecting the <strong>Unpromote</strong> button at the bottom left.</p>
+<p>You can change the resource that a promotion references to release new applications in a controlled manner.</p>
+<p><img src="../_resources/external-47e16194d493.png" alt="Applications Portal Promotion Workflow" width="300"/></p>
+<h2>Categorization in Applications Portal</h2>
+<p>You can use collections and tags to categorize apps in Applications Portal and apply filters to only view certain apps.</p>
+<p>Permissions to create collections and tags or add them to a promoted app are the same as the permissions to promote to Applications Portal, based on the roles of âOrganization administratorâ and âUser experience administratorâ in Control Panel.</p>
+<h3>Collections</h3>
+<p>Collections are displayed on the left sidebar as titles of sections in Applications Portal. They are used as the top-line category in Applications Portal to curate your experience. Collections are created and managed in the Data Catalog. Once you create a collection, you can add a promoted app to it from Data Catalog and from the filesystem.</p>
+<p>Only collections that have promoted apps linked to them are displayed in Applications Portal, and only if you have access to view/discover these apps. If a collection has no promoted apps linked to it, or if you do not have access to any apps on the collection, it will not be displayed.</p>
+<h3>Tags</h3>
+<p>Tags are displayed as labels on the promoted apps cards and can be filtered from the top right of Applications Portal. You can create and manage tags from the <a href="https://www.palantir.com/docs/foundry/compass/tags/"><strong>Tags</strong> section of Platform Settings</a>. Once they are created, they can be added to a promoted app on the promotion UI, as well as in the filesystem.</p>
+<p>Only tags that have promoted apps linked to them are displayed in Applications Portal as filters, and only if the user has access to view/discover these apps. If a tag is not added to any promoted apps, or if a user has no access to any apps with that tag, it would not be displayed.</p>
+<h3>Managing platform apps in Applications Portal</h3>
+<p>Foundry platform apps are tools like Quiver, Contour, Data Connection, Pipeline Builder, and more. You can configure the option to display or hide platform apps from users in Control Panel under the <strong>Application access</strong> tab. This allows you to show only certain sub-groups of apps in Applications Portal, as well as in the rest of Foundry.</p>
+</body>
+</html>

@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Branching Workshop modules</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Branching Workshop modules</h1>
+<p>Workshop integrates with Global Branching so you can develop modules and their configurations safely and in isolation. This page covers how to work with Workshop modules on branches, including adding resources to a branch, resource protection and approvals, and rebasing and conflict resolution.</p>
+<p>For general information on Global Branching concepts and workflows, refer to the <a href="https://www.palantir.com/docs/foundry/global-branching/overview/">Global Branching documentation</a>.</p>
+<h2>Adding Workshop modules to a branch</h2>
+<p>To add a Workshop module to a branch, use the branch selector to switch to that branch, open the module, then save any changes. The module is now a resource on the branch.</p>
+<p>If your Workshop module contains non-Workshop elements for which Global Branching is not available, such as Quiver dashboards, these elements will not be modifiable on a branch.</p>
+<h2>Resource protection</h2>
+<p>When on the <code>main</code> branch, protected Workshop modules show a <strong>Save to new branch</strong> option instead of <strong>Save and publish</strong>, requiring all changes to be made on a branch rather than directly to <code>main</code>.</p>
+<p><img alt="Save to new branch button." src="../../_resources/foundry/workshop/save-to-new-branch.png" /></p>
+<p>Select <strong>Save to new branch</strong> to open the new-branch dialog. Name the branch and select an ontology for it.</p>
+<p>When you are ready to merge your changes to <code>main</code>, <a href="https://www.palantir.com/docs/foundry/global-branching/core-concepts/#create-and-prepare-a-proposal">create a proposal</a>.</p>
+<h2>Merge requirements</h2>
+<h3>Approval process</h3>
+<p>After a proposal is created, assigned reviewers are notified to review the changes. Navigating to the branched version of the Workshop module directs reviewers to the <a href="https://www.palantir.com/docs/foundry/workshop/changelog/">Changelog</a> tab in Workshop.</p>
+<p>Within the Changelog tab, reviewers can see the changes made to the module. Reviewers can then approve or reject the change by selecting the appropriate <strong>Approve</strong> or <strong>Reject</strong> button on the left panel in the <strong>Review proposed changes</strong> section.</p>
+<p><img alt="Approve Workshop change." src="../../_resources/foundry/workshop/approve-workshop-change.png" /></p>
+<h2>Rebasing and conflict resolution</h2>
+<p>Workshop rebasing enables multiple builders to edit a single module at the same time without needing to worry about overriding each other's changes.</p>
+<p>Before you merge Workshop changes on a branch into <code>main</code>, you must <strong>rebase</strong> if a change occurred on <code>main</code> after the module was saved on a branch.</p>
+<p>The rebasing user interface uses the <a href="https://www.palantir.com/docs/foundry/workshop/changelog/">Changelog panel</a> to depict all changes made in the module.</p>
+<h3>Start the rebase</h3>
+<p>If a rebase is required before merging, the <strong>Changelog</strong> panel displays a notification dot. Select the panel to show an option that begins the rebase.</p>
+<p>:::callout{theme="warning" title="Save before rebasing"}
+Unsaved Workshop edits are not preserved through a rebase. Save your changes to the branch before starting the rebase; any in-progress edits that have not been saved will be lost.
+:::</p>
+<p><img alt="The Changelog panel indicates that the module is out of date and displays the Rebase button." src="../../_resources/foundry/workshop/rebase-changelog-ready.png" /></p>
+<p>Rebasing updates your branch by applying its changes on top of the latest <code>main</code> version. The <code>main</code> branch is not modified until your branch is merged.</p>
+<p>Select <strong>Rebase</strong>, then choose <strong>Start rebasing</strong> to accept non-conflicting changes from <code>main</code> automatically and review conflicting changes manually.</p>
+<p><img alt="The Rebase current branch dialog provides options to start rebasing or reject all changes from main." src="../../_resources/foundry/workshop/rebase-start-dialog.png" /></p>
+<p>To preserve the branch version of the entire module without accepting any changes from <code>main</code>, select <strong>Reject all changes from main</strong>. Use this option only when the branch should replace the version on <code>main</code>. When you merge the branch, its module configuration overrides the changes on <code>main</code>.</p>
+<h3>No conflicts found</h3>
+<p>After initiating a rebase, if the sidebar does not show any explicit conflicts, Workshop automatically accepts the non-conflicting changes from <code>main</code> and combines them with your branch's changes. In this case:</p>
+<ul>
+<li>Review the displayed changes to ensure you are satisfied with the incoming changes from <code>main</code>.</li>
+<li>No manual conflict resolution is needed.</li>
+<li>Save the module to finalize the rebased state and proceed with your merge.</li>
+</ul>
+<h3>Resolve a merge conflict</h3>
+<p>A change is marked as a merge conflict when it is edited on both <code>main</code> and the branch.</p>
+<p>Workshop merges changes to separate configuration fields automatically. For example, if <code>main</code> changes a section title and your branch changes the section color, Workshop preserves both changes. A change is flagged as a merge conflict when the same configuration field, variable definition, or layout position was edited on both <code>main</code> and your branch. For conflicting changes, you must choose a version or manually combine the changes.</p>
+<p>Common examples of merge conflicts include:</p>
+<ul>
+<li>A widget or variable was modified on both <code>main</code> and your branch.</li>
+<li>A section was deleted on <code>main</code> and edited on the branch.</li>
+<li>A widget was moved from location <code>A</code> to <code>B</code> on <code>main</code> and from <code>A</code> to <code>C</code> on your branch.</li>
+</ul>
+<p><img alt="The Changelog panel lists conflicts for a metric card widget and a variable." src="../../_resources/foundry/workshop/rebase-conflict-visual.png" /></p>
+<p>To resolve a merge conflict, switch between three states to test how each option affects the module in real time:</p>
+<ul>
+<li><strong>Latest main:</strong> The configuration as it appears on <code>main</code>.</li>
+<li><strong>Current branch:</strong> The configuration as it appears on your branch.</li>
+<li><strong>Current session:</strong> Edits you make during the rebase, which are useful for combining changes from <code>main</code> with changes from your branch.</li>
+</ul>
+<p>:::callout{theme="neutral" title="Support for granular visual changes"}
+Granular visual changes only appear for widgets, sections, and variables. Layout changes and global module-level changes are only displayed in the Changelog panel.
+:::</p>
+<h4>View widget and section configuration changes</h4>
+<p>Workshop highlights granular changes in the widget and section configuration panels. The change icon indicates how a configuration differs between <code>main</code> and your branch:</p>
+<ul>
+<li><strong>Conflict:</strong> The same property of the same component was edited on both <code>main</code> and your branch.</li>
+<li><strong>Addition:</strong> A property or component was added.</li>
+<li><strong>Modification:</strong> A property or component was edited.</li>
+<li><strong>Deletion:</strong> A property or component was deleted.</li>
+<li><strong>Shift:</strong> A section or widget was moved to a different parent.</li>
+<li><strong>Branch:</strong> A property or component was resolved as branch.</li>
+</ul>
+<p><img alt="The Workshop change icon legend explains conflict, addition, modification, deletion, and shift icons." src="../../_resources/foundry/workshop/rebase-change-icon-legend.png" /></p>
+<p>Select a change icon in the configuration panel to compare the configuration on <code>main</code> with the configuration on your branch. This will expand a side-by-side comparison that will show additional details.</p>
+<p><img alt="The metric card configuration panel highlights changed fields and displays change icons." src="../../_resources/foundry/workshop/rebase-widget-config-changes.png" /></p>
+<p>In the side-by-side comparison, select <strong>Main branch</strong> or <strong>Your branch</strong> to test that configuration in the module. You can then edit the configuration directly to combine changes from both branches. After you choose or create the configuration to keep, select <strong>Resolve</strong>.</p>
+<p><img alt="The Review changes dialog compares the metric card configuration on main with the configuration on the branch." src="../../_resources/foundry/workshop/rebase-widget-side-by-side.png" /></p>
+<h4>View variable definition changes</h4>
+<p>For a variable conflict, select the variable in the <strong>Changelog</strong> panel to open its editor and a side-by-side comparison. Review the complete variable definition and settings for <strong>Main branch</strong> and <strong>Your branch</strong>. You can expand the comparison if you need more space.</p>
+<p>Select either version to test its effect on the module, or edit the variable definition to combine changes from both branches. Then select <strong>Resolve</strong>.</p>
+<p><img alt="The variable editor and Variable definition changes panel compare an object set variable on main with the variable on the branch." src="../../_resources/foundry/workshop/rebase-variable-side-by-side.png" /></p>
+<h3>Finish rebase</h3>
+<p>When you are satisfied with how your module looks and have resolved any merge conflicts, save the module to finish rebasing.</p>
+<p>After this is complete, you can safely merge your Workshop changes from your branch into <code>main</code>.</p>
+<h3>Example</h3>
+<p>In the example below, a merge conflict occurs in a metric card widget during a rebase. The current branch adds a metric named <code>Fiscal Week Revenue</code>, while <code>main</code> adds a metric named <code>Fiscal Week Sales Volume</code>.</p>
+<p><strong>Current branch:</strong></p>
+<p><img alt="The metric card on the current branch includes the Active Campaigns and Fiscal Week Revenue metrics." src="../../_resources/foundry/workshop/rebase-example-branch.png" /></p>
+<p><strong>Main:</strong></p>
+<p><img alt="The metric card on main includes the Active Campaigns and Fiscal Week Sales Volume metrics." src="../../_resources/foundry/workshop/rebase-example-main.png" /></p>
+<p>To keep both metrics, first select <strong>Main branch</strong>, then manually add the <code>Fiscal Week Revenue</code> metric. The comparison changes to <strong>Current session</strong> and shows the combined configuration. Select <strong>Resolve</strong> to keep it.</p>
+<p><img alt="The resolved metric card configuration includes the Active Campaigns, Fiscal Week Sales Volume, and Fiscal Week Revenue metrics." src="../../_resources/foundry/workshop/rebase-example-resolved.png" /></p>
+</body>
+</html>

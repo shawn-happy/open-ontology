@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Create a direct model deployment</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Create a direct model deployment</h1>
+<p>Direct model deployments are live hosted endpoints that immediately connect models to user applications such as <a href="https://www.palantir.com/docs/foundry/workshop/overview/">Workshop</a> and <a href="https://www.palantir.com/docs/foundry/slate/overview/">Slate</a>. Direct model deployments are queried in TypeScript through <a href="https://www.palantir.com/docs/foundry/functions/functions-on-models/">Functions on models</a> or from an external system through a REST API call.</p>
+<p>The following sections explain how to create, configure, and publish a direct model deployment and describe some debugging steps and feature considerations to review before getting started.</p>
+<h2>1. Create a direct model deployment</h2>
+<p>To create and start a direct model deployment, navigate to the <a href="https://www.palantir.com/docs/foundry/model-integration/models/">model</a>. Select <strong>Start Deployment</strong> at the top of a model page under <strong>Live Inference</strong>. Once running, you can interactively test the deployment by selecting <strong>Run</strong>.</p>
+<p><img alt="Create a new direct model deployment in a model." src="../../_resources/foundry/manage-models/model-direct-deployment-start.png" /></p>
+<h2>2. Configure a direct model deployment</h2>
+<p>To configure the resources of a direct model deployment, select the <strong>Configure</strong> button in the top right of the <strong>Live Inference</strong> panel. Direct model deployments can be configured to scale from zero. When the deployment reaches 75% capacity, it will create an additional replica until it reaches the maximum replica count specified in the runtime scaling configuration. This also allows deployments to automatically scale down after 30 minutes without a live request.</p>
+<p><img alt="Configure a direct model deployment in a model" src="../../_resources/foundry/manage-models/configure-modeling-direct-deployment.png" /></p>
+<h2>3. Publish a function for the deployment</h2>
+<p>You can publish a <a href="https://www.palantir.com/docs/foundry/functions/overview/">function</a> for the model, enabling usage of models for live inference in <a href="https://www.palantir.com/docs/foundry/workshop/functions-use/">Workshop</a>, <a href="https://www.palantir.com/docs/foundry/vertex/overview/">Vertex</a>, and other end-user applications.</p>
+<p>To publish a function, select the <strong>+</strong> icon in the model artifact sidebar and provide a function name. You can register one function per branch. This creates a wrapper function with the same input and output API as your model, which can be <a href="https://www.palantir.com/docs/foundry/functions/functions-on-models/">imported and called from a functions repository</a> to add custom business logic.</p>
+<p><img alt="Publish a Function direct model deployment from a model." src="../../_resources/foundry/manage-models/model-deployment-function-publish.png" /></p>
+<p>For details on function behavior, version upgrades, and configuration options, see the <a href="https://www.palantir.com/docs/foundry/model-integration/model-functions-guide/">Model functions developer guide</a>.</p>
+<h2>Automatic upgrades</h2>
+<p>One direct model deployment can be created for each branch of a <a href="https://www.palantir.com/docs/foundry/model-integration/models/">model</a>. When a new model version is published to that branch, the direct model deployment will automatically upgrade to the new endpoint with no downtime. If you do not want automatic upgrades, consider using a <a href="https://www.palantir.com/docs/foundry/manage-models/create-a-model-deployment/">Modeling Objective live deployment</a> and review the <a href="https://www.palantir.com/docs/foundry/manage-models/create-a-model-deployment/#comparison-direct-model-deployments-vs-modeling-objective-live-deployments">differences between a live and a direct deployment described below</a>. If a function was created for the deployment, a new version will automatically be created.</p>
+<h2>Automatic horizontal scaling</h2>
+<p>Direct model deployments are backed by <a href="https://www.palantir.com/docs/foundry/compute-modules/overview/">compute modules</a> and therefore support automatic horizontal scaling between a user-specified minimum and maximum replica range, as <a href="#2-configure-a-direct-model-deployment">detailed above</a>. Modeling Objective live deployments also support configuring a minimum and maximum replica range to automatically scale based on request volume, as described in the <a href="https://www.palantir.com/docs/foundry/manage-models/set-up-live/#resource-configuration">resource configuration section</a>.</p>
+<h2>Configure a schedule override</h2>
+<p>You can schedule overrides for your minimum and maximum replica configuration on specific days and times during the week. This is useful when you expect predictable changes, such as higher traffic during business hours or reduced load on weekends.</p>
+<p>To configure a schedule override:</p>
+<ol>
+<li>Navigate to your direct model deployment's <strong>Live deployment</strong> tab and select the settings icon to the right of <strong>Start deployment</strong> to edit the runtime configuration. <br><br>
+   <img alt="Select the edit runtime configuration button from the Live deployment tab." src="../../_resources/foundry/manage-models/edit-runtime-configuration.png" /> <br><br></li>
+<li>In the <strong>Scaling</strong> section, toggle on <strong>Enable schedule overrides</strong> to render a configuration panel where you schedule the overrides. <br><br>
+   <img alt="Configure schedule overrides in the Runtime configuration modal." src="../../_resources/foundry/manage-models/schedule-overrides.png" /> <br><br></li>
+<li>Configure the following settings for your override:
+   * <strong>Override minimum replicas:</strong> The minimum number of replicas during the scheduled period.
+   * <strong>Override maximum replicas:</strong> The maximum number of replicas during the scheduled period.
+   * <strong>Active on:</strong> The days of the week that the override will be applied.
+   * <strong>Time range:</strong> The start and end time for the override, along with the timezone.</li>
+</ol>
+<p>The default replica configuration applies outside of the configured time periods. Currently, you can only schedule one override.</p>
+<h2>Model API type safety</h2>
+<p>Direct model deployments enforce type safety for all inference requests to ensure the model API type matches the input type. Type safety is respected for all input types, particularly the following:</p>
+<ul>
+<li><strong>Numeric values:</strong> If the API of a model is defined as type <code>int</code>, and a value of 3.6 is passed to the model, the 0.6 will be truncated and the input will be 3.</li>
+<li><strong>Date and timestamps:</strong> Direct model deployments will cast date and timestamp types before being provided to the <code>predict()</code> method. Timestamp fields now expect a string with format ISO 8601.</li>
+<li><strong>Enforced API structure:</strong> Direct model deployments will explicitly require fields marked as required in the model API.</li>
+</ul>
+<p>:::callout{theme="neutral"}
+Model type safety is different from live modeling deployments which do not currently support type casting.
+:::</p>
+<h2>Debug a direct model deployment</h2>
+<p>To view debugging information and logs for your direct model deployment, select the <strong>Deployment health</strong> tab at the top of the model page.  Here you can find the deployment's running build, health information about replicas, logs, and metrics about each replica's state.</p>
+<p><img alt="Debug a direct model deployment from the model artifact page." src="../../_resources/foundry/manage-models/model-deployment-debugging.png" /></p>
+<p>You can also view the call stack of your model inference under the <strong>Run Debug</strong> card.  This allows you to see how long each python function took and where performance improvements can be made.</p>
+<p><strong>Note:</strong> This does not show the call stack in container models, or if an error is thrown during inference.</p>
+<p><img alt="Debug a direct model deployment with &quot;Run Debug&quot;." src="../../_resources/foundry/manage-models/direct-run-debug.png" /></p>
+<h2>Comparison: Direct model deployments vs Modeling Objective live deployments</h2>
+<p>The available features of direct model deployments differ from features of Modeling Objective live deployments. Review the table below for more details.</p>
+<table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>Direct model deployment</th>
+<th>Modeling Objective live deployment</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="#automatic-upgrades">Automatic upgrades</a></td>
+<td>Yes</td>
+<td>No</td>
+</tr>
+<tr>
+<td><a href="#automatic-horizontal-scaling">Automatic scaling</a></td>
+<td>Yes</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><a href="#model-api-type-safety">Type safety</a></td>
+<td>Yes</td>
+<td>No</td>
+</tr>
+<tr>
+<td><a href="#configure-a-schedule-override">Scheduled overrides</a></td>
+<td>Yes</td>
+<td>No</td>
+</tr>
+<tr>
+<td><a href="https://www.palantir.com/docs/foundry/manage-models/live-deployment-reference/">Supported endpoints</a></td>
+<td>Yes (V2 only)</td>
+<td>Yes (both V1 and V2)</td>
+</tr>
+<tr>
+<td><a href="https://www.palantir.com/docs/foundry/manage-models/model-inference-history/">Model inference history</a></td>
+<td>No</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><a href="https://www.palantir.com/docs/foundry/manage-models/set-up-checks/">Pre-release review</a></td>
+<td>No</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><a href="https://www.palantir.com/docs/foundry/evaluate-models/model-evaluation-automatic/">Automatic model evaluation</a></td>
+<td>No</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><a href="https://www.palantir.com/docs/foundry/integrate-models/model-asset-code-repositories/">Trained in Code Repositories</a></td>
+<td>Yes</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><a href="https://www.palantir.com/docs/foundry/model-integration/tutorial-train-jupyter-notebook/">Trained in Code Workspaces</a></td>
+<td>Yes</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><a href="https://www.palantir.com/docs/foundry/integrate-models/container-overview/">Supports container images</a></td>
+<td>Yes</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><a href="https://www.palantir.com/docs/foundry/integrate-models/external-model-connection/">Supports externally-hosted models</a></td>
+<td>No</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><a href="https://www.palantir.com/docs/foundry/integrate-models/model-adapter-api/#api-types">Spark model adapter API type</a></td>
+<td>No</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><a href="https://www.palantir.com/docs/foundry/marketplace/overview/">Marketplace support</a></td>
+<td>No</td>
+<td>No</td>
+</tr>
+</tbody>
+</table>
+</body>
+</html>

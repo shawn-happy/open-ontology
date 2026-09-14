@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Metrics</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Metrics</h1>
+<p>Foundry provides near real-time metrics for functions, actions, and AIP Logic resources. You can access these metrics through <a href="https://www.palantir.com/docs/foundry/ontology-manager/overview/">Ontology Manager</a> or in <a href="https://www.palantir.com/docs/foundry/workflow-lineage/overview/">Workflow Lineage</a> by selecting the resource node for a given execution. These metrics give you visibility into the health and performance of your Ontology and AIP workflows over the last 30 days.</p>
+<h2>Available metrics</h2>
+<p>The following metrics are available for each resource type:</p>
+<ul>
+<li><strong>Success/failure metrics:</strong> Monitor the current status of your executions with success and failure counts. This enables rapid identification of issues and supports proactive troubleshooting.</li>
+</ul>
+<p><img alt="Example of execution metrics for an AIP Logic resource in Workflow Lineage." src="../../_resources/foundry/aip-observability/logic-metric-in-wfl-executions.png" /></p>
+<ul>
+<li><strong>P95 duration metric:</strong> Track the 95th percentile (P95) execution duration. This metric highlights the upper range of execution times, helping you detect performance bottlenecks and optimize workflows.</li>
+</ul>
+<p><img alt="Example of P95 duration metric for an AIP Logic resource in Workflow Lineage." src="../../_resources/foundry/aip-observability/logic-metric-in-wfl-p95.png" /></p>
+<p>All metrics are updated in near real-time using the latest data from the Foundry Telemetry Service (FTS).</p>
+<h2>Resource-specific metrics</h2>
+<p>Each resource type has its own metrics page with details on available failure categories and how to access metrics:</p>
+<ul>
+<li><a href="https://www.palantir.com/docs/foundry/functions/function-metrics/">Function metrics</a></li>
+<li><a href="https://www.palantir.com/docs/foundry/action-types/action-metrics/">Action metrics</a></li>
+<li><a href="https://www.palantir.com/docs/foundry/logic/logic-metrics/">AIP Logic metrics</a></li>
+</ul>
+<h2>Failure rate color mode in Workflow Lineage</h2>
+<p>The resource-specific metrics listed above show whether a single resource is failing, but you can also view how failures are distributed across an entire workflow. To do this, open the workflow as a graph in <a href="https://www.palantir.com/docs/foundry/workflow-lineage/overview/">Workflow Lineage</a>, select the color legend, and choose <strong>Failure rate</strong> under <strong>Health</strong>. Nodes are then colored by the proportion of their runs that failed over a selected time window.</p>
+<p><img alt="A Workflow Lineage graph colored by failure rate, with failed run counts annotated on affected nodes." src="../../_resources/foundry/aip-observability/workflow-lineage-failure-rate.png" /></p>
+<h3>Nodes included in the failure rate color mode</h3>
+<p>The failure rate color mode applies to nodes that report execution metrics: action types, functions, and AIP Logic functions. Nodes that do not execute, such as object types, Workshop applications, language models, and datasets, keep their default color in this mode.</p>
+<p>Automations are not yet supported. They do execute, but they do not report the execution metrics this color mode reads, so they appear as <code>No runs</code> even when they have run.</p>
+<h3>Failure rate legend keys</h3>
+<p>The legend sorts nodes into four failure rate ranges, plus <code>No runs</code> and <code>No permission</code>. The rate is the proportion of executions in the selected time window that failed. Lower bounds are inclusive, so a resource at exactly 5% falls in <code>5-15% failure rate</code>.</p>
+<p><code>No runs</code> covers two cases: the resource had no executions in the selected time window, or the resource is not supported by this color mode.</p>
+<p>Nodes with at least one failed run are annotated with their run counts, in the form <code>12/430 runs failed</code>. This separates a resource that failed 3 of 5 runs from one that failed 300 of 500.</p>
+<h3>Select a time window</h3>
+<p>Use the <strong>Date range</strong> selector in the color legend to set the window over which the failure rate is calculated. The default is <strong>Past 4 hours</strong>, and you can select either a provided duration option or a specific date range.</p>
+<p><img alt="The Date range selector in the Failure rate color legend, showing the available duration options." src="../../_resources/foundry/aip-observability/workflow-lineage-failure-rate-date-range.png" /></p>
+<p>:::callout{theme="neutral"}
+The longest window you can select for the failure rate color mode is one day, which is shorter than the 30-day retention that applies to metrics elsewhere. To review failure counts over a longer period, use the per-resource metrics or <a href="https://www.palantir.com/docs/foundry/aip-observability/run-history/">execution history</a> instead.
+:::</p>
+<p>Coloring refreshes approximately once a minute while the graph is open in a visible tab. If you select a duration such as the past four hours, that window moves forward with each refresh. A specific date range will remain where you set it.</p>
+<h3>Failure rate and permissions</h3>
+<p>Resources you cannot view metrics for are colored with the <code>No permission</code> key rather than being excluded from the graph. This lets you tell the difference between a resource that is healthy and one whose health you cannot see. Viewer <a href="#permissions">permissions</a> are required to view the failure rate color mode.</p>
+<h2>Permissions</h2>
+<p>To view metrics, you must be a <code>viewer</code> on the resource. For more details, see the <a href="https://www.palantir.com/docs/foundry/aip-observability/log-permissioning/">log permissions</a> page.</p>
+<h2>Related resources</h2>
+<ul>
+<li><strong><a href="https://www.palantir.com/docs/foundry/aip-observability/run-history/">Execution history</a>:</strong> View a complete history of executions over the past 30 days.</li>
+<li><strong><a href="https://www.palantir.com/docs/foundry/workshop/widgets-observability-chart/">Observability Chart widget</a>:</strong> Embed metrics in a <a href="https://www.palantir.com/docs/foundry/workshop/overview/">Workshop</a> application to build operational dashboards.</li>
+<li><strong><a href="https://www.palantir.com/docs/foundry/functions/monitoring/">Function monitoring</a>:</strong> Set up alerts for function performance and failure rates.</li>
+<li><strong><a href="https://www.palantir.com/docs/foundry/action-types/monitoring/">Action monitoring</a>:</strong> Configure monitoring rules for action performance and reliability.</li>
+<li><strong><a href="https://www.palantir.com/docs/foundry/workflow-lineage/getting-started/#color-legend-options">Workflow Lineage color legend</a>:</strong> Review the other color modes available for inspecting a workflow graph.</li>
+</ul>
+</body>
+</html>

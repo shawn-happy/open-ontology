@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Data Health</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../index.html">返回目录</a></div>
+<h1>Data Health</h1>
+<p>Data Health is a Foundry application for monitoring the health of your platform resources. Use Data Health to monitor and configure robust alerting for datasets, builds, functions, actions, automates and other resource types. When issues are detected, Data Health notifies you through in-platform notifications, email digests, and integrations with external systems such as PagerDuty and Slack.</p>
+<p><img alt="The Data Health application in Foundry." src="../_resources/foundry/observability/data-health-app.png" /></p>
+<p>You can access Data Health from the Foundry sidebar navigation.</p>
+<h2>Feature areas</h2>
+<p>Data Health provides two primary feature sets for monitoring your resources:</p>
+<ul>
+<li><strong><a href="https://www.palantir.com/docs/foundry/monitoring-views/overview/">Monitoring views</a>:</strong> Monitor resources at scale using scope-based monitoring rules. Monitoring views support a wide range of resource types including datasets, schedules, streaming datasets, agents, object types, and more. Use monitoring views when you need coverage that scales automatically as resources are added.</li>
+<li><strong><a href="https://www.palantir.com/docs/foundry/health-checks/overview/">Health checks</a>:</strong> Configure detailed checks on individual resources, including content and schema validation for datasets. Use health checks when you need fine-grained validation of a specific resource's data quality, agnostic of a workflow.</li>
+</ul>
+<p>For high-level guidance on setting up effective monitoring, review the section on <a href="https://www.palantir.com/docs/foundry/maintaining-pipelines/overview/">maintaining pipelines</a>.</p>
+<h2>When to use each feature</h2>
+<table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>Best for</th>
+<th>Scope</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Monitoring views</strong></td>
+<td>Monitoring many resources across projects with consistent rules</td>
+<td>Project, folder, or single resource</td>
+</tr>
+<tr>
+<td><strong>Health checks</strong></td>
+<td>Detailed content and schema validation on individual datasets and schedules</td>
+<td>Single resource</td>
+</tr>
+</tbody>
+</table>
+<h2>Alerts and notifications</h2>
+<p>Both monitoring views and health checks generate alerts when issues are detected. You can receive alerts in the following ways:</p>
+<ul>
+<li><strong>Foundry notifications:</strong> Subscribe directly to monitoring views or individual health checks to receive in-platform notifications.</li>
+<li><strong>Email digests:</strong> Receive aggregated email notifications on a configurable schedule.</li>
+<li><strong><a href="https://www.palantir.com/docs/foundry/monitoring-views/external-systems/">External systems</a>:</strong> Send alerts to PagerDuty, Slack, or arbitrary REST endpoints through built-in integrations.</li>
+</ul>
+<h2>Accessing health checks on resources</h2>
+<p>You can also access health checks directly from individual resources through the <strong>Health</strong> tab:</p>
+<ul>
+<li><strong>For datasets:</strong> Open a dataset in <a href="https://www.palantir.com/docs/foundry/dataset-preview/overview/">Dataset Preview</a> and navigate to the <strong>Health</strong> tab.</li>
+<li><strong>For schedules:</strong> Open a schedule in <a href="https://www.palantir.com/docs/foundry/data-lineage/overview/">Data Lineage</a> and select <strong>Metrics &gt; Health</strong>.</li>
+</ul>
+<p>In <a href="https://www.palantir.com/docs/foundry/data-lineage/overview/">Data Lineage</a>, you can also color datasets by their health check status and view all health checks in the Data Health tab at the bottom of the page.</p>
+</body>
+</html>

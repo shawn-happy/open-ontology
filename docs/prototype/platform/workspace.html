@@ -59,7 +59,6 @@
     <div class="modal-b">
       <div class="tabs" data-group="mem">
         <div class="tab active" data-pane="user" data-group="mem">用户 <span class="cnt" id="memUserCnt">0</span></div>
-        <div class="tab" data-pane="role" data-group="mem">角色 <span class="cnt">5</span></div>
         <div class="tab" data-pane="dept" data-group="mem">部门 <span class="cnt" id="memDeptCnt">0</span></div>
       </div>
 
@@ -79,15 +78,6 @@
             <div class="tp-list" id="memberList"></div>
           </div>
         </div>
-      </div>
-
-      <!-- 角色：预置空间角色清单 -->
-      <div class="tab-pane" data-group="mem" data-pane="role">
-        <div class="tip mt16 text-2">空间角色为平台预置（不可在此新增），在空间创建时自动初始化，成员可在用户 tab 添加后按需赋予角色。</div>
-        <table class="table mt8">
-          <tr><th>角色</th><th>编码</th></tr>
-          <tbody id="spaceRoleTbody"></tbody>
-        </table>
       </div>
 
       <!-- 部门：部门树穿梭框 -->
@@ -267,22 +257,13 @@ const WS_DEPT_MEMBERS = {
   '质量追溯空间': ['质量分析组'],
 };
 
-// 预置空间角色（不可新增，空间创建时自动初始化）
-const SPACE_ROLES = [
-  { name: '空间管理员', code: 'ws_admin' },
-  { name: '本体建模员', code: 'ont_modeler'},
-  { name: '数据工程师', code: 'data_eng'},
-  { name: '安全审计员', code: 'sec_auditor'},
-  { name: '只读访客', code: 'viewer'},
-];
-
 // 成员弹窗状态：当前空间 / 搜索关键字 / 已选成员与部门 / 穿梭框勾选集合
 let memberState = null;
 
 function wsOpenMember(name) {
   memberState = { ws: name, kw: '', members: [...(WS_MEMBERS[name] || ['张伟'])], deptMembers: [...(WS_DEPT_MEMBERS[name] || [])], sel: { left: new Set(), right: new Set(), dept: new Set(), deptR: new Set() } };
   document.getElementById('memberWsName').textContent = name;
-  renderUserPool(); renderMemberList(); renderDeptPool(); renderDeptMemberList(); renderSpaceRoles();
+  renderUserPool(); renderMemberList(); renderDeptPool(); renderDeptMemberList();
   App.openModal('memberModal');
 }
 
@@ -330,7 +311,7 @@ function memberAdd() {
   if (!s.size) { toast('请先在左侧勾选要添加的用户'); return; }
   s.forEach((a) => { if (!memberState.members.includes(a)) memberState.members.push(a); });
   s.clear(); renderUserPool(); renderMemberList();
-  toast('已添加所选用户（原型演示）');
+  toast('已添加所选用户，默认角色 Reporter，可在「成员管理 → 分配记录」中调整（原型演示）');
 }
 
 function memberRemove() {
@@ -341,13 +322,7 @@ function memberRemove() {
   toast('已移除所选用户（原型演示）');
 }
 
-// 角色 tab：预置空间角色清单（无成员数列，无新增入口）
-function renderSpaceRoles() {
-  document.getElementById('spaceRoleTbody').innerHTML = SPACE_ROLES.map((r) => `
-    <tr>
-      <td><b>${r.name}</b></td><td class="mono">${r.code}</td>
-    </tr>`).join('');
-}
+// 角色：见空间内「成员管理 → 分配记录」（按成员维度展示，支持分配角色）
 
 // 部门 tab：部门树穿梭框（仅部门）
 function renderDeptPool() {
@@ -376,7 +351,7 @@ function deptAdd() {
   if (!s.size) { toast('请先在左侧勾选要关联的部门'); return; }
   s.forEach((d) => { if (!memberState.deptMembers.includes(d)) memberState.deptMembers.push(d); });
   s.clear(); renderDeptPool(); renderDeptMemberList();
-  toast('已关联所选部门（原型演示）');
+  toast('已关联所选部门，部门及其子部门成员将以 Reporter 角色加入空间（原型演示）');
 }
 
 function deptRemove() {

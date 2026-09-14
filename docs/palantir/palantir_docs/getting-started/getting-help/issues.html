@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Issues application</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Issues application</h1>
+<p>The Issues application is a support system that enables users to get help from within the Palantir platform.</p>
+<p>Using the Issues application, you can:</p>
+<ul>
+<li>Ask questions about applications or the platform itself.</li>
+<li>Triage and resolve problems, requests, and questions transparently.</li>
+<li>Report problems on resources from anywhere inside the platform and see which resources have unresolved issues.</li>
+<li>Make requests for integrating more data within the platform.</li>
+</ul>
+<p><img alt="Issues application overview interface" src="../../_resources/foundry/getting-help/issues-app.png" /></p>
+<h2>Access the Issues application</h2>
+<p>From the platform home page:</p>
+<ol>
+<li>On the left navigation bar, select <strong>View all</strong> located to the right of the <strong>Platform Apps</strong> section.</li>
+<li>Select <strong>Issues</strong> from under <strong>Support</strong>.</li>
+</ol>
+<p><img src="../../_resources/external-1f5ea75e0d25.png" alt="Issues application access from the left navigation bar" width="250"></p>
+<h2>Search for issues</h2>
+<p>From the Issues home page, you can filter and search for specific issues to narrow down to issues of interest. By default, you will see the <strong>Open</strong> issues overview page. You may also select <strong>Closed</strong> or <strong>All</strong> to see the respective view.</p>
+<ol>
+<li>Sidebar filtering: The sidebar on the left offers options to filter by:</li>
+</ol>
+<ul>
+<li>Priority</li>
+<li>Assignees</li>
+<li>Reporters</li>
+<li>Mentions</li>
+<li>Labels</li>
+<li>Due date</li>
+<li>Reported on date</li>
+<li>Last updated date</li>
+</ul>
+<ol start="2">
+<li>
+<p>Search issues: This search bar allows you to search through all the user-entered fields, including the <strong>Title</strong> and <strong>Comments</strong>.</p>
+</li>
+<li>
+<p>Select Filters: The select filter option allows you to filter by issues that are related to you (for instance, issues assigned to you, reported by you, or mentioning you). There are multiple ways to sort the issues displayed in the Issues application, including:
+   * Best match
+   * Most recently updated (default)
+   * Least recently updated
+   * Recently created
+   * Oldest created
+   * Highest priority
+   * Lowest priority
+   * Earliest due date
+   * Latest due date</p>
+</li>
+</ol>
+<h2>Report an issue</h2>
+<p>To report an issue, navigate to the <strong>Support</strong> section in your Workspace sidebar and select either <strong>Report issue</strong> or <strong>Contact support</strong>. View existing issues by selecting <strong>View support tickets</strong>.</p>
+<p>Once your issue is created, you will be brought back to the <strong>Issues</strong> overview page where recent issues are listed, which will be reviewed by the relevant assignees. Select it to enter the issue-specific page and add a comment to provide further updates, or edit its status, priority, due date, assignee, inquiry type, (related) application, or label. Otherwise, select <strong>Close issue</strong> if a resolution has been reached.</p>
+<p><img src="../../_resources/external-22ec42a31a81.png" alt="Advanced details prompt in Report an issue" width="800"></p>
+<p><img src="../../_resources/external-3dc5ffdf4f52.png" alt="Advanced details prompt in Report an issue" width="800"></p>
+<p>When creating an issue:</p>
+<ol>
+<li>Select the support type that most accurately reflects your need.</li>
+</ol>
+<p><img src="../../_resources/external-7bf7a9e48907.png" alt="Select a support type." width="800"></p>
+<ol start="2">
+<li>Provide as much information as possible, including a <strong>Title</strong>, <strong>Description</strong>, <strong>Priority</strong>, and any additional details such as <strong>Associated resources</strong> or <strong>Attachments</strong> where relevant. Then, select <strong>Create Issue</strong>.</li>
+</ol>
+<p><img src="../../_resources/external-3fdc724c6165.png" alt="Add additional details." width="800"></p>
+<p>:::callout{theme="neutral"}
+The assignee can only be modified after the creation of the issue, unless the selected <a href="https://www.palantir.com/docs/foundry/administration/configure-support-types/">support type</a> has not been configured with an initial assignee, in which case the reporter is responsible for selecting the appropriate user or group to address their issue.
+:::</p>
+<h2>Issue permissions</h2>
+<p>Issues will generally be accessible to all other users in your Organization. However, if an issue is related to a dataset or resource, access can be controlled with <a href="https://www.palantir.com/docs/foundry/security/projects-and-roles/#roles">roles</a> on the project where the dataset or resource is located. You can control whether a user can see an issue based on the filesystem permissions that user has on the dataset or resource.</p>
+<p><strong>Note:</strong> Creating an issue on a dataset or resource does not grant other users access to that dataset or resource.</p>
+<h3>Collaboration across Organizations</h3>
+<p>Access to an issue is subject to the Organizations associated with it. By default, all issues are associated with the reporter's Organization. When assigning an issue to users or groups outside this Organization, the user updating the issue is able to add an Organization of those associated with the assignees to the issue. Assignees will only be able to view the issue if the issue is associated with an Organization to which they belong (for example, their Organization or an Organization to which they have been granted guest membership). This is also the case when re-assigning the issue.</p>
+<p>When assigning issues to groups, there are no strict guarantees that any individual user of an assigned group will be able to view the issue. This is because individual members of the assigned group may not have access to any of the Organizations associated with the issue.</p>
+<p>:::callout{theme="warning"}
+The association of a group with an Organization does not grant all members of that group access to the Organization. This can only be done through granting guest membership to an Organization. When assigning groups to an issue, you should investigate the permissions of group members to confirm which Organizations (if any) need to be added to the issue to ensure that members have access to respond to the issue.
+:::</p>
+<h2>Comment tags</h2>
+<p>When viewing comments on an issue, you may see colored tags displayed next to the commenter's name. These tags help identify the role or relationship of the commenter to the issue, making it easier to understand who is responding and their context.</p>
+<h3>Available tags</h3>
+<table>
+<thead>
+<tr>
+<th>Tag</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Assignee</strong></td>
+<td>Displayed for users who are assigned to the issue, either directly or through a group assignment.</td>
+</tr>
+<tr>
+<td><strong>Reporter</strong></td>
+<td>Displayed for the user who originally created the issue.</td>
+</tr>
+<tr>
+<td><strong>Automated</strong></td>
+<td>Displayed for auto-generated comments from the system.</td>
+</tr>
+</tbody>
+</table>
+<h3>Tag display rules</h3>
+<ul>
+<li>A single comment can have multiple tags if the commenter has multiple roles. For example, a user who reported an issue and is also assigned to it will see both the <strong>Reporter</strong> and <strong>Assignee</strong> tags.</li>
+<li>Tags are determined automatically based on the commenter's relationship to the issue and cannot be manually assigned or removed.</li>
+</ul>
+</body>
+</html>

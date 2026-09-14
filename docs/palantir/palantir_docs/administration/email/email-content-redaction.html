@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Email redaction</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Email redaction</h1>
+<h2>What is email redaction?</h2>
+<p>The platform supports sending email notifications related to actions taken within the platform. By default, email notifications are automatically scrubbed of any sensitive customer information, instead, only containing a link to the related event within the platform. This email scrubbing is a security feature called <strong>email content redaction</strong> and has controllable properties.</p>
+<p>Email redaction ensures that sensitive information does not leave the Foundry platform. However, after acknowledging the potential risk through an in-platform prompt, you have the following options:</p>
+<ul>
+<li>Disable email redaction for notifications destined to a subset of users in your organization.</li>
+<li>Disable email redaction for notifications destined to specific domains.</li>
+<li>Disable email redaction entirely.</li>
+</ul>
+<p>Below is an example of an unredacted email followed by an example of a redacted email:</p>
+<p><img alt="Complete email" src="../../_resources/foundry/email/email-redaction-complete-email.png" /></p>
+<p><img alt="Redacted email" src="../../_resources/foundry/email/email-redaction-redacted-email.png" /></p>
+<h2>Control email redaction</h2>
+<p>Configure email redaction in the <strong>Content redaction</strong> tab of Control Panel.</p>
+<p>By default, email redaction applies to all notifications destined to all users. Email redaction has two modes of operation: <em>Selected users only</em>, or <em>Everyone in this Organization</em>.</p>
+<p><img alt="Modes" src="../../_resources/foundry/email/email-redaction-modes-screenshot.png" /></p>
+<h3>Selected users only</h3>
+<p>With the <strong>Selected users only</strong> configuration, you must specify the destination domains or user groups that should receive complete, unredacted email notifications. This is the default mode when no users or domains are specified.</p>
+<p>You may specify domains and subdomains that you wish to receive complete, unredacted email notifications. All domains and subdomains must be specified in the <code>@domain.com</code> format.</p>
+<p>Alternatively, you may specify which user groups should receive complete, unredacted email notifications. This provides granular control over when and who should receive email from the Foundry platform containing complete, unredacted data. Any recipient in a specified group will receive complete, unredacted email notifications.</p>
+<p>Domain/subdomain conditions and user group conditions are disjunctive within and across condition types. If both condition types are specified, a user that meets any of the domain/subdomain conditions <em>or</em> any of the user group conditions will receive complete, unredacted email notifications.</p>
+<p>Once your configuration has been made, select <strong>Save Changes</strong> and proceed through the risk acknowledgment prompt.</p>
+<h3>Everyone in this Organization</h3>
+<p>With the <strong>Everyone in this Organization</strong> configuration, email redaction is disabled for all recipients. All users on all domains will receive complete, unredacted email notifications.</p>
+<p>Using this mode is strongly discouraged, as it greatly increases the risks of unintentional data spillage. Depending on an organization's policies and threat model, the risks may be deemed acceptable as a trade-off for user preferences. However, Palantir recommends that you do <em>not</em> use this mode.</p>
+<p>Once your configuration has been made, select <strong>Save Changes</strong> and proceed through the risk acknowledgment prompt.</p>
+<h2>Disable email redaction in action types</h2>
+<p>In certain circumstances, you might require only certain emails to be redacted. To this end, you are able to disable redaction for emails coming from specific action types during action type configuration in Ontology Manager.</p>
+<p>This is a feature that you enable for the whole organization, and, once enabled, authorized users can configure which action types can disable redaction. Authorized users are users with the <code>ontology:override-notification-redaction</code> operation, which is granted by default to users with the <code>ontology:manage-ontology</code> operation.</p>
+<p>To use this feature, you need to first enable <strong>Allow override redaction at the action type level</strong> setting in the <strong>Content redaction</strong> tab of Control Panel.</p>
+<p>For detailed instructions on configuring specific action types after enabling this setting, visit <a href="https://www.palantir.com/docs/foundry/action-types/notifications/#override-and-disable-email-content-redaction">the notification settings in action type documentation page.</a></p>
+</body>
+</html>

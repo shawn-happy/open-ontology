@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Integrated platforms: AIP, Foundry, and Apollo</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../index.html">返回目录</a></div>
+<h1>Integrated platforms: AIP, Foundry, and Apollo</h1>
+<p>The standard Palantir architecture consists of three integrated platforms: AIP, Foundry, and Apollo.</p>
+<p><em>Apollo</em> is the continuous delivery platform that manages the underlying infrastructure that hosts both Foundry and AIP services. Apollo enables the orchestration of thousands of zero-downtime upgrades across hundreds of services and assets every day.</p>
+<p><em>Foundry</em> is the foundational data operations platform, which provides the core capabilities for data management, logic authoring, Ontology development, analytics, and workflow development.</p>
+<p><em>AIP</em> is the generative AI platform, which provides secure connectivity to large language models through the â<em>k</em>-LLMâ paradigm, a development toolchain for building agents and automations, an array of AI-enabled end user applications, a comprehensive Evals framework for governing AI workflows in production, and more.</p>
+<p><img alt="Foundry, AIP, and Apollo make up the Enterprise Operating System." src="../_resources/foundry/architecture-center/platforms-enterprise-os.png" /></p>
+<h2>AIP, Foundry, and Apollo: An Enterprise Operating System</h2>
+<p>The integrated AIP + Foundry + Apollo architecture is designed to function as an Enterprise Operating System.</p>
+<p>When taken together, AIP + Foundry can be conceptually mapped into nine capability sets, as shown in the diagram below:</p>
+<ul>
+<li>The <strong>Ontology Language</strong>, <strong>Ontology Engine</strong>, and <strong>Ontology Toolchain</strong>, which collectively constitute the <a href="https://www.palantir.com/docs/foundry/architecture-center/ontology-system/">Ontology system</a>;</li>
+<li>The <strong>Data Services</strong>, <strong>Logic Services</strong>, and <strong>Workflow Services</strong> that power the Ontology system;</li>
+<li>The <strong>Analytics &amp; Applications</strong>, <strong>Automations</strong>, and a <strong>Product Delivery</strong> toolchain which users can wield to achieve their goals.</li>
+</ul>
+<p>Each of these nine capability sets holistically leverage six mesh-wide components: <strong>Storage</strong>, <strong>Compute</strong>, <strong>Networking</strong>, <strong>Security</strong>, <strong>Governance</strong>, and the <strong>Workspace</strong>. All of these components are powered by Apollo.</p>
+<p>This comprehensive architecture powers AI-enabled care operations at major hospital systems, integrated network planning for major airlines, electric operations and wildfire response for Americaâs largest utilities, full spectrum military operations across the United States and allied nations, and thousands of other use cases. To solve the world's hardest problems, Palantir's customers use the Enterprise Operating System to connect data, analytics, and AI with mission-critical operations.</p>
+<p><img alt="Illustration showing the 9 capability sets and six lateral categories of AIP+Foundry." src="../_resources/foundry/architecture-center/platforms-capability-sets-categories.png" /></p>
+<h2>Unified security architecture</h2>
+<p>A unified security architecture spans all three platforms (AIP, Foundry, and Apollo) in three main spheres: infrastructure security, platform security, and enterprise security.</p>
+<p>At an <em>infrastructure</em> level, every component in the Palantir service mesh operates with zero trust (meaning that all elements are access-gated based on identity, device health, and verification) and with an expectation of hostile attacks and the need for autonomous enforcement (for example, through Apollo-mandated encryption, firewalls, and runtime configurations).</p>
+<p>At a <em>platform</em> level, both Foundry and AIP provide the full range of controls required to enable trustworthy collaboration. These controls include strict enforcement of access scopes for both humans and agents, granular role-based, marking-based, and purpose-based access controls which connect with automated lineage and auditing, and a range of in-platform applications for interdisciplinary teams.</p>
+<p>These foundational controls are extended by <em>enterprise security</em> controls, which enable encryption, audit logging, authorization, and authentication configurations to be deeply integrated with an organizationâs existing identity providers, information security tools, and architectural patterns.</p>
+<p><img alt="Illustration of platform security architecture: enterprise security, platform security, and infrastructure security." src="../_resources/foundry/architecture-center/platforms-security-arch.png" /></p>
+<h2>Extensibility and interoperability</h2>
+<p>The standard AIP + Foundry + Apollo architecture is designed to be extended and deeply integrated with other services and applications.</p>
+<p>On the "tactical" level, Palantir's <a href="https://www.palantir.com/docs/foundry/compute-modules/overview/">Compute Modules</a> framework allows developers to securely bring their own containers (such as containerized LLMs, optimizers, data processing runtimes, or end-to-end applications) into the Apollo-managed mesh.</p>
+<p>A broader example is Palantirâs own defense offerings; their first components were developed before the standard AIP + Foundry + Apollo architecture, but all of the offerings are now completely integrated with the standard architecture. This includes Palantir Gotham's core set of multimodal applications and tools that are powered by the Foundry-managed Ontology.</p>
+<p>Other examples can be seen in the Commercial sector, such as Airbus powering an entire Aviation ecosystem (Skywise) through custom offerings that extend the standard architecture, Fujitsu building and delivering a set of specialized agentic applications that use Foundry and AIPâs developer toolchains; or Andretti Racingâs development of a "RaceOS" which connects real-time car performance into a range of rich, AI-powered applications.</p>
+<p>The diagram below shows how this works for hospitals building applications on top of the Palantir architecture.</p>
+<p><img alt="Illustration of &quot;Palantir for Hospitals&quot; offering." src="../_resources/foundry/architecture-center/platforms-offering-hospitals.png" /></p>
+<p>Below is an illustration of Palantir's "Warp Speed", an operating system for manufacturing.</p>
+<p><img alt="Illustration of &quot;Palantir Warp Speed&quot; offering." src="../_resources/foundry/architecture-center/platforms-offering-warp-speed.png" /></p>
+<p>The defense applications below are built on top of the same core architecture as Palantir's commercial offerings, but specialized for some of the world's most demanding and high-stakes use cases.</p>
+<p><img alt="Illustration of &quot;Palantir Defense&quot; offering." src="../_resources/foundry/architecture-center/platforms-offering-defense.png" /></p>
+<h2>Pursuing alpha</h2>
+<p>The goal of the standard architecture is deliver non-standard results: extreme differentiation through maintainable customization.</p>
+<p>In the best case, a customer organization should be wielding the constellation of Apollo-managed AIP and Foundry services to build the applications, integrations, and fleets of agents that allow them to address their most important problems.</p>
+<p>A successful Palantir deployment is one where the enterprise is pursuing "alpha", in investing parlance; in other words, generating outsized returns by building around their differentiation, infusing their particularities into their ontology, and adapting in real-time to complex operational conditions to pursue their strategic objectives.</p>
+<p>To continue the analogy, the investing concept of "beta" would be the pursuit of low-hanging fruit, like the basic solutions in a one-size-fits-all SaaS deployment. The wide range of capabilities in Palantirâs architecture can support these use cases, but ideally only as byproducts of pursuing alpha.</p>
+<p><img alt="Illustration of how Palantir provides products for &quot;alpha&quot;." src="../_resources/foundry/architecture-center/platforms-products-for-alpha.png" /></p>
+<h2>Forward Deployed Engineering</h2>
+<p>The dynamism of AIP, Foundry, and Apollo collectively reflect a product development paradigm known as Forward Deployed Engineering, which can be thought of as the human equivalent of backpropagation. Palantir engineers are deeply embedded in critical environments around the world, from war zones to factory floors, walking many miles alongside customers, and tirelessly working to build and ship new features. Palantir is driven by the missions of our customers, and at the limit, we see the ambition of every deployment of the standard architecture as becoming the enterpriseâs unique, one-of-one, ever-evolving operating system.</p>
+</body>
+</html>

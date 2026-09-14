@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Core concepts</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Core concepts</h1>
+<p>This page provides an introduction to the core concepts underlying monitoring views.</p>
+<ul>
+<li><strong>Metric:</strong> Resources emit metrics, or logs. Monitors are created on top of these metrics to set a userâs standards of performance on a given resource.</li>
+<li><strong>Resource:</strong> A âthingâ in Foundry that can be monitored, including datasets, agents, schedules, objects, and link types.</li>
+<li><strong>Scope:</strong> A scope is the boundary around the set of resources on which your thresholds are set. Scopes can be static or dynamic:</li>
+<li><strong>Static scopes</strong> monitor a fixed resource that you explicitly select:<ul>
+<li><strong>Single:</strong> The monitor is only applied to that specific resource.</li>
+</ul>
+</li>
+<li><strong>Dynamic scopes</strong> automatically update as resources are added or removed, without requiring manual changes to the monitor:<ul>
+<li><strong>Folder:</strong> The monitor is applied to resources of the specified type in the scoped folder, not including subfolders.</li>
+<li><strong>Project:</strong> The monitor is applied to any resources of the specified type in the project or multiple projects.</li>
+<li><strong>Workflow Lineage:</strong> For function and action type monitors, the monitor is applied to all functions or actions used by a Workflow Lineage.</li>
+<li><strong>Workshop:</strong> For function and action type monitors, the monitor is applied to all functions or actions used by a Workshop application.</li>
+<li><strong>OSDK application:</strong> For function and action type monitors, the monitor is applied to all functions or actions used by an OSDK application.</li>
+</ul>
+</li>
+<li><strong>Monitoring rule:</strong> A threshold or set of thresholds put on the metrics of a resource within a given scope and contain:</li>
+<li>Resource type</li>
+<li>Metric threshold tolerances</li>
+<li>Severity level assignment</li>
+<li><strong>Composite monitoring rule:</strong> A monitoring rule with multiple conditions joined by <code>AND</code>. The rule triggers only when every condition reaches a configured severity. If the conditions reach different severities, the rule triggers at the lowest severity reached by all conditions.</li>
+<li><strong>Monitoring view:</strong> A collection of monitoring rules that a group of subscribers care about.</li>
+<li><strong>Subscriber:</strong> A user subscribed to a monitoring view.</li>
+<li><strong>Alerts:</strong> Notifications that can have low, medium, or high assignments and are sent to subscribers.</li>
+<li><strong>Severity:</strong> A label assigned to a monitoring rule that classifies the urgency of alerts it produces. Monitoring views support three severity levels: <code>LOW</code>, <code>MEDIUM</code>, and <code>HIGH</code>. Severity acts as a routing mechanism: in-Foundry notifications and each <a href="https://www.palantir.com/docs/foundry/monitoring-views/external-systems/">external integration</a> are configured against a specific severity level, and only alerts matching that severity trigger the integration. You can map severity levels to notification channels in whatever way fits your team's workflow â for example, a team running a critical pipeline might route <code>HIGH</code> to an on-call paging tool while sending <code>MEDIUM</code> and <code>LOW</code> to the same review queue, whereas a team monitoring a low-stakes resource might direct all three severities to a single chat channel.</li>
+</ul>
+</body>
+</html>

@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pilot</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Pilot</h1>
+<p>:::callout{theme="neutral" title="Beta"}
+Pilot is in the <a href="https://www.palantir.com/docs/foundry/platform-overview/development-life-cycle/">beta</a> phase of development and may not be available on your enrollment. Functionality may change during active development. To enable Pilot, contact your platform administrator to <a href="https://www.palantir.com/docs/foundry/administration/configure-application-access/">modify application access</a> in Control Panel.
+:::</p>
+<p>Pilot is an AI-powered application builder in Foundry that creates frontends from natural language prompts. You can describe what you want to build, and Pilot automatically generates the <a href="https://www.palantir.com/docs/foundry/ontology/overview/">ontology</a> entities, design specification, frontend code, and seed data. Pilot builds two kinds of frontends, both using the <a href="https://www.palantir.com/docs/foundry/ontology-sdk/overview/">OSDK</a> and React:</p>
+<ul>
+<li><strong>Applications:</strong> Standalone, production-grade applications deployed through <a href="https://www.palantir.com/docs/foundry/developer-console/overview/">Developer Console</a> and hosted at a subdomain.</li>
+<li><strong>Custom widgets:</strong> Sandboxed <a href="https://www.palantir.com/docs/foundry/custom-widgets/overview/">custom widgets</a> that publish to the Widget Registry and embed inside a Workshop application.</li>
+</ul>
+<h2>Key capabilities</h2>
+<p>Pilot manages the full application lifecycle with specialized AI agents that can perform the following operations:</p>
+<ul>
+<li><strong>Ontology generation:</strong> Pilot analyzes your prompt and creates the object types, action types, link types, properties, and relationships that your application needs.</li>
+<li><strong>Design specification:</strong> A design agent produces the design specification covering color palette, typography, layout, and interaction patterns.</li>
+<li><strong>Frontend generation:</strong> An application building agent implements a React application using OSDK hooks, with a live preview inside the Pilot workspace.</li>
+<li><strong>Seed data generation:</strong> Pilot generates sample data in an isolated container, so AI agents never access real enterprise data during the build process.</li>
+<li><strong>Guided deployment:</strong> A step-by-step deployment panel walks you through ontology promotion, Developer Console configuration, CI checks, and release â or, for a custom widget, publishing to the Widget Registry.</li>
+<li><strong>Multiple AI models:</strong> Choose from Claude, GPT, or Gemini model families depending on your enrollment configuration.</li>
+<li><strong>Context attachments:</strong> Provide existing ontology entities, documents, or images to guide how Pilot builds your application.</li>
+</ul>
+<h2>How Pilot works</h2>
+<p>Pilot follows an end-to-end workflow from prompt to production.</p>
+<ol>
+<li><strong>Prompt-driven build:</strong> Describe the application you want to build. Using your description, Pilot creates an isolated container and generates the necessary ontology, design, code, and seed data required to build your application.</li>
+<li><strong>Ontology alignment:</strong> Pilot generates or reuses object types and actions. Those ontology entities are promoted to the main ontology through <a href="https://www.palantir.com/docs/foundry/global-branching/overview/">Global Branching</a> and proposals.</li>
+<li><strong>Developer Console configuration:</strong> Pilot creates a Developer Console application tied to your project, requests a subdomain, and sets application restrictions to include the required ontology entities.</li>
+<li><strong>CI and deployment:</strong> Pilot generates deployment files and CI configuration. CI checks run and must pass before you can tag and release a version.</li>
+<li><strong>Hosted production application:</strong> The application is served at the registered subdomain. Users authorize through OAuth and can immediately use the application with real data.</li>
+</ol>
+<p>The steps above describe building and deploying an application. When you build a <strong>custom widget</strong>, the build process is the same. Deployment, however, publishes a versioned widget set to the Widget Registry and embeds it in a Workshop application instead of hosting it at a subdomain. See <a href="https://www.palantir.com/docs/foundry/pilot/build-a-widget/">Build a custom widget</a> and <a href="https://www.palantir.com/docs/foundry/pilot/deploy-a-widget/">Deploy a custom widget</a>.</p>
+<p><img alt="The Pilot workspace showing a generated application in the Preview tab." src="../../_resources/foundry/pilot/pilot-workspace-overview.png" /></p>
+<h2>Prerequisites</h2>
+<p>Ensure that you meet the criteria below to use Pilot:</p>
+<ul>
+<li>You are on a Foundry enrollment with Pilot enabled.</li>
+<li>You have existing ontology entities or a project with ontology write permissions.</li>
+<li>You have the <code>Editor</code> role or higher on the project, enabling deployment.</li>
+</ul>
+<h2>Next steps</h2>
+<ul>
+<li><strong><a href="https://www.palantir.com/docs/foundry/pilot/getting-started/">Getting started</a>:</strong> Open Pilot, create your first application, and explore the workspace.</li>
+<li><strong><a href="https://www.palantir.com/docs/foundry/pilot/build-an-application/">Build an application</a>:</strong> Walk through the build lifecycle, from ontology generation to seed data.</li>
+<li><strong><a href="https://www.palantir.com/docs/foundry/pilot/build-a-widget/">Build a custom widget</a>:</strong> Build a sandboxed widget that embeds in a Workshop application.</li>
+<li><strong><a href="https://www.palantir.com/docs/foundry/pilot/deploy-an-application/">Deploy an application</a>:</strong> Promote ontology entities, configure Developer Console, run CI checks, and release to production.</li>
+<li><strong><a href="https://www.palantir.com/docs/foundry/pilot/deploy-a-widget/">Deploy a custom widget</a>:</strong> Publish your widget to the Widget Registry and embed it in Workshop.</li>
+</ul>
+</body>
+</html>

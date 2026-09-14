@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Getting started</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Getting started</h1>
+<h2>Set up the dataset</h2>
+<p>This tutorial uses a publicly-available dataset (<a href="/docs/resources/foundry/code-workbook/titanic_dataset.csv">download titanic_dataset.csv</a>) containing information about passengers on the Titanic.</p>
+<p>The dataset includes name, age, sex, and other identifying information about passengers on the Titanic. Navigate to Foundry and open your personal Project. Create a folder named <code>Code Workbook Tutorial</code> and upload the Titanic dataset there, naming it <code>titanic_dataset</code>.</p>
+<h2>Set up a Code Workbook</h2>
+<p>Click the <strong>New</strong> button in the Project and select <strong>Code Workbook</strong> to create a new Workbook.</p>
+<h2>Import a dataset</h2>
+<p>Click <strong>Import Dataset</strong> to begin. In the dialog that appears, search for <code>titanic_dataset</code>. Choose the file you created during the setup process, which should be in <code>/user/Code Workbook Tutorial/titanic_dataset</code>.</p>
+<p>Once you have identified the desired dataset, click on the file and then click Select to add the dataset to your graph.</p>
+<h2>Transforming data using Python</h2>
+<p>Now that <code>titanic_dataset</code> is imported into the workbook, we can transform it using code and pieces of reusable logic. Add a downstream transform by hovering over <code>titanic_dataset</code> and clicking the <strong>+</strong> sign. This brings up a dropdown showing various transformation options - choose Python.</p>
+<p><img alt="Selecting Python as transform language" src="../../_resources/foundry/code-workbook/getting-started-transform-python.png" /></p>
+<p>A Python code node now appears on the graph, with a connecting line showing it is a child of <code>titanic_dataset</code>. Give this transform an alias, <code>titanic_filtered</code>, by clicking into the text box at the top of the logic tab.</p>
+<p>By default, newly created transforms are not saved as datasets in Foundry. You can choose to save the results of a transform as a dataset by clicking on the <strong>Save as dataset</strong> toggle. <a href="https://www.palantir.com/docs/foundry/code-workbook/optional-data-persistence/">Learn more about saving transforms as datasets.</a> Transforms that are saved as datasets have two names: the alias, and the name of the Foundry dataset.</p>
+<h2>Using a Pandas dataframe</h2>
+<p>If you are more comfortable using Pandas syntax, you are able to use Pandas in Python nodes. Update <code>titanic_filtered</code> to use Pandas.</p>
+<p>First, we need to change the input type of <code>titanic_dataset</code>. Click into the Inputs tab in the logic panel and expand the sidebar. You will see that the Input Type is set as Spark dataframe. Click the dropdown and select Pandas dataframe to change the input type of <code>titanic_dataset</code> to a Pandas dataframe.</p>
+<p>Next, update your code to work with a Pandas dataframe, performing the same filter.</p>
+<pre><code class="language-python">def titanic_filtered(titanic_dataset):
+    output_df = titanic_dataset[(titanic_dataset['Survived'] == 1) &amp; (titanic_dataset['Sex'] == 'female')]
+    return output_df
+</code></pre>
+<p>This code will output a Pandas dataframe with the female Titanic survivors.</p>
+<h2>Using Console</h2>
+<p>The console provides a REPL (read-evaluate-print loop) for Code Workbook, enabling rapid, ad-hoc analysis of any transform or input dataset on the graph. To allow for quick iteration in your preferred language, there is a console for each enabled language in your workbook.</p>
+<p>Open the console, located on the right hand side of the page. Choose the Python console:</p>
+<p><img src="../../_resources/external-32554e3510fa.png" alt="Python console" width="300" /></p>
+<p>You can quickly experiment with the data by executing commands in Python. You can also send code from a transform to run in the console by highlighting the code and using the <a href="https://www.palantir.com/docs/foundry/code-workbook/keyboard-shortcuts/">keyboard shortcut</a> <code>Cmd+Shift+Enter</code> (macOS) or <code>Ctrl+Shift+Enter</code> (Windows).</p>
+<p>First, you must import the following PySpark SQL functions in the Python console:</p>
+<pre><code class="language-python">import pyspark.sql.functions as F
+</code></pre>
+<p>Then, determine the maximum age of female Titanic survivors:</p>
+<pre><code class="language-python">titanic_filtered.select(F.max('Age')).show()
+</code></pre>
+<p>You can also use the SQL console to calculate the same statistic:</p>
+<pre><code class="language-sql">SELECT max(Age) AS max_age FROM titanic_filtered
+</code></pre>
+</body>
+</html>

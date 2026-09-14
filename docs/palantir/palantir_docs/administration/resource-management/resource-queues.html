@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Resource queues</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Resource queues</h1>
+<p>Resource queues are used to limit the available compute resources that can be utilized concurrently. Examples of compute resources include virtual CPUs (vCPUs) and virtual GPUs (vGPUs).</p>
+<p><img alt="Overview of resource queues" src="../../_resources/foundry/resource-management/resource-queues.png" /></p>
+<ul>
+<li><strong>Enrollment:</strong> An <a href="https://www.palantir.com/docs/foundry/resource-management/ecosystem/">enrollment</a> is the primary identity of your Organization and establishes your company's identity with Foundry services and the Foundry platform.</li>
+<li><strong>Resource:</strong> A resource queue resource is a compute resource, such as a virtual CPU (vCPU) or virtual GPU (vGPU), that is needed to run a workload in a project.</li>
+<li><strong>Resource queue:</strong> A resource queue is a first in, first out (FIFO) queue for requesting service-level resources (such as vCPUs or vGPUs). See <a href="https://www.palantir.com/docs/foundry/resource-management/resource-queues/#resource-queue-details">resource queue details</a> below for more information.</li>
+<li><strong>Compute group:</strong> A <a href="#compute-group-details">compute group</a> is a group of machines (compute hardware of a specific type) on which Foundry workloads can be run. These machines provide the resources that are used by workloads.</li>
+<li><strong>Project:</strong> A <a href="https://www.palantir.com/docs/foundry/security/projects-and-roles/">project</a> is a collaborative space that brings together users, files, and folders for a particular purpose. Projects are the primary security boundary in Foundry and can be thought of as buckets of shared work. Workloads that require resources run in projects.</li>
+</ul>
+<p>:::callout{theme="warning"}
+Resource queues for streaming resources may not be available in your enrollment. Contact Palantir Support for more information.
+:::</p>
+<h2>Enrollment details</h2>
+<p>Resource queues belong to an enrollment, and an enrollment has a vCPU and a vGPU limit, which limits the total amount of vCPUs and vGPUs allowed through resource queues. In other words, the sum of all vCPU limits of all resource queues in an enrollment must be less than or equal to the enrollment vCPU limit; the same rule applies to the queue vGPU limit and enrollment vGPU limit.</p>
+<p>An enrollment also has a default queue to which all projects are automatically assigned unless otherwise specified. This default queue cannot be deleted.</p>
+<p>Projects in a space are automatically assigned to the space's default resource queue. The space's default resource queue is the same as the enrollment default resource queue unless otherwise configured. Learn more about <a href="https://www.palantir.com/docs/foundry/security/orgs-and-spaces/">Organizations and spaces</a> and how they relate to <a href="https://www.palantir.com/docs/foundry/administration/enrollments-and-organizations/">Organizations and enrollments</a>.</p>
+<h3>Set enrollment limits</h3>
+<p>Contact Palantir Support to modify your enrollment limits.</p>
+<h2>Resource queue details</h2>
+<p><img alt="Resource queue details." src="../../_resources/foundry/resource-management/resource-queueing.png" /></p>
+<p>A resource queue is a first in, first out (FIFO) queue used to limit the number of compute resources that can be used concurrently. A resource queue limits the use of service-level resources like virtual CPUs (vCPUs) and virtual GPUs (vGPUs) that are available in compute groups.</p>
+<p>Resources are requested by workloads running in projects, and those requests are then queued in a resource queue. When a resource queue is full, requests must wait until space is available again in the queue. The queue is first in, first out; requests are processed in the order in which the requests were created.</p>
+<p>Workloads are then sent to run in the compute group specified by the resource queue, and resources are released once the workload completes or is terminated.</p>
+<h3>Create resource queues</h3>
+<p>To create a resource queue, navigate to the Resource Management application, select <strong>Queues</strong> on the left, then select <strong>New</strong>.</p>
+<p><img alt="Create new queue" src="../../_resources/foundry/resource-management/create-new-queues.png" /></p>
+<h3>Resource queue types</h3>
+<p>There are currently two resource queue types: vCPU resource queues and vGPU resource queues. Most workloads will only need CPUs, and so most projects will be backed by a vCPU resource queue. Workloads requiring GPUs must be sent to a vGPU resource queue, and so can only run in projects backed by a vGPU resource queue. The type of GPUs (for example, V100, T4) used by the workload in a project is determined by the compute group to which the workload will be routed. This compute group is associated with the resource queue that backs the project. Learn more about <a href="#compute-group-details">compute groups</a>.</p>
+<h4>Use GPUs</h4>
+<p>If you want to use a GPU in your project, you must create a GPU resource queue and assign your project to that queue. It may be useful to use a GPU when running workloads for training machine learning models, for example. Learn more about <a href="https://www.palantir.com/docs/foundry/model-integration/overview/">model integration</a>. Learn more about how to use GPUs for model training in the <a href="https://www.palantir.com/docs/foundry/model-integration/gpu-training/">GPU training documentation</a>.</p>
+<p><img alt="New GPU queue" src="../../_resources/foundry/resource-management/new-gpu-queue.png" /></p>
+<p>:::callout{theme="warning"}
+Be sure your enrollment level GPU limits are set to allow the creation of GPU resource queues.
+:::</p>
+<p>Once the resource queue is created and your project is assigned, import a GPU profile (such as DRIVER_GPU_ENABLED) into your project and use it in your code repository. Learn more about <a href="https://www.palantir.com/docs/foundry/code-repositories/spark-profiles/#importing-spark-profiles">importing spark profiles</a>.</p>
+<h3>Assign projects to resource queues</h3>
+<p>Each project is assigned to a vCPU resource queue; optionally, projects can also be assigned to a vGPU resource queue. If a project is not assigned to a vGPU queue, then it cannot execute workloads that require GPUs.</p>
+<p>To view and manage the projects that are assigned to a resource queue, select the <strong>Projects</strong> tab while viewing the details for that queue. A project's resource queue assignments can also be viewed in the <strong>Resource management</strong> tab in the platform filesystem sidebar.</p>
+<p><img alt="Project resource queue assignments in the filesystem sidebar." src="../../_resources/foundry/resource-management/project-queues-compass.png" /></p>
+<h4>Priority branches</h4>
+<p>Priority branches are used to support critical workflows that require dedicated compute resources. For example, it may be acceptable for workloads to queue during development but not in production. Consider using a protected branch from <a href="https://www.palantir.com/docs/foundry/code-repositories/branch-settings/#protected-branches">Code Repositories</a> or <a href="https://www.palantir.com/docs/foundry/pipeline-builder/branches-protected-branches/">Pipeline Builder</a> as a priority branch.</p>
+<p>When a priority branch is configured for a project, workloads on that branch use the resource queues that are assigned to the priority branch. All other workloads continue to use the resource queues that are assigned to the project. Like projects, each priority branch is assigned to a vCPU resource queue, and they can also optionally be assigned to a vGPU resource queue.</p>
+<p>To view or manage the priority branch settings for a project, select the branching icon shown below:</p>
+<p><img alt="The branch icon to view or manage priority branch settings." src="../../_resources/foundry/resource-management/manage-priority-branches.png" /></p>
+<p>A project's priority branch settings can also be viewed in the <strong>Resource management</strong> tab in the platform filesystem sidebar.</p>
+<p><img alt="Priority branch resource queue assignments in filesystem sidebar" src="../../_resources/foundry/resource-management/priority-branch-queues-compass.png" /></p>
+<p>To view and manage the priority branches that are assigned to a resource queue, select the <strong>Priority branches</strong> tab while viewing the details for that queue.</p>
+<h2>Compute group details</h2>
+<p>Compute groups are auto scaling groups of hardware resources of homogeneous type. For example, a compute group might have machines with 16GB of memory and 4 compute cores (CPUs) available; another compute group may have machines with a V100 GPU with 16 compute cores and 32GB of memory. Compute groups are available to Foundry users and limited by resource queues.</p>
+<h2>Compute types</h2>
+<p>Each resource queue can guard <strong>Job compute</strong>, <strong>Continuous compute</strong>, and <strong>Session compute</strong>:</p>
+<ul>
+<li>Job compute includes batch transforms, such as the build of a Python transform.</li>
+<li>Continuous compute covers non-transform compute that is often long-lived, such as a compute module or streaming.</li>
+<li>Session compute covers interactive workloads where users are actively waiting for results, such as when coding in a code workspace.</li>
+</ul>
+<p>The Resource Management application shows the granular split of your resource queue usage across different compute types.</p>
+<p><img alt="Resource queue compute types." src="../../_resources/foundry/resource-management/resource-queue-compute-types.png" /></p>
+<p>:::callout{theme="warning"}
+Resource queue utilization does not represent all Foundry compute usage, and resource queues are not spending caps. Ontology indexing (Funnel) compute that is scheduled outside a resource queue does not appear in resource queue utilization, but remains visible in <a href="https://www.palantir.com/docs/foundry/resource-management/analysis/"><strong>Analysis</strong></a>. To inspect this usage, select <strong>Ontology indexing (Funnel)</strong> as the <strong>Source</strong>, or group by <strong>Source</strong>. Use <strong>Analysis</strong> to monitor total usage and <a href="https://www.palantir.com/docs/foundry/resource-management/budgets/"><strong>Budgets</strong></a> to monitor spend.
+:::</p>
+<h2>Utilization history</h2>
+<p>The <strong>Utilization history</strong> option on the resource queue page shows the utilization of the resource queue over the past 7 days. It shows the amount of used vCPU or vGPU cores compared to the maximum available cores on the queue. This can be used to determine whether a resource queue is close to capacity. If the queue is consistently close to being full, consider increasing the amount of cores in the resource queue.</p>
+<p><img alt="Resource queue utilization history." src="../../_resources/foundry/resource-management/utilization-history.png" /></p>
+<h3>Set up utilization monitors</h3>
+<p>A resource queue that reaches capacity causes all new workloads to wait, resulting in delayed builds and poor user experience. To be alerted before this happens, select <strong>Create monitor</strong> to configure a utilization monitor in the Data Health application.</p>
+</body>
+</html>

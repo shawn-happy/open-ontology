@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Navigation</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Navigation</h1>
+<p>There are four main areas of Slate in edit mode:</p>
+<p><img alt="Slate UI divided into four sections labeled 1, 2, 3, 4" src="../../_resources/foundry/slate/slate-ui-annotated.png" /></p>
+<ol>
+<li><strong>Action bar:</strong> This is where you will find the application name, the <strong>Actions</strong> dropdown, exit to view mode, and buttons to open various editing panels.</li>
+<li><strong>Widget List:</strong> The Widget List is where all the widgets in your application are listed. If you have a toolbar in your application, the list is divided into toolbar widgets and canvas widgets.</li>
+<li><strong>Canvas:</strong> This is the workspace for your application. Here you can rearrange widgets and test layout options. You can change the screen size using the dropdown at the top right to preview how your application will look on different screens.</li>
+<li><strong>Widget Editor:</strong> When you select a widget, either from the list or from the canvas, the <a href="#widget-editor">Widget Editor</a> lets you configure that widget.</li>
+</ol>
+<p>Additionally, there are panels that pop out in front of the canvas:</p>
+<ul>
+<li><a href="https://www.palantir.com/docs/foundry/slate/concepts-queries/">Queries editor</a></li>
+<li><a href="https://www.palantir.com/docs/foundry/slate/concepts-functions/">Functions editor</a></li>
+<li>Platform editor</li>
+<li><a href="https://www.palantir.com/docs/foundry/slate/concepts-object-sets/">Object sets</a></li>
+<li><a href="https://www.palantir.com/docs/foundry/slate/concepts-object-context/">Object context</a></li>
+<li><a href="https://www.palantir.com/docs/foundry/slate/concepts-foundry-functions/">Foundry Functions</a></li>
+<li><a href="https://www.palantir.com/docs/foundry/slate/concepts-events/">Events editor</a></li>
+<li><a href="https://www.palantir.com/docs/foundry/slate/applications-dependencies/">Dependency graph</a></li>
+<li><a href="https://www.palantir.com/docs/foundry/slate/concepts-styles/">Styles editor</a></li>
+<li><a href="https://www.palantir.com/docs/foundry/slate/concepts-variables/">Variables editor</a></li>
+</ul>
+<p>The <strong>global search</strong> in editor mode, accessed with the keyboard shortcut <code>Cmd+K</code> (macOS) or <code>Ctrl+K</code> (Windows), allows you to search and go to Slate queries, functions, objects, variables and widgets. Slate's global search will also keep a history of your searches to prioritize recent results. Selecting the result will open up the appropriate Slate editor panel.</p>
+<p><img alt="cmd-k-history" src="../../_resources/foundry/slate/cmd-k-history.png" /></p>
+<h2>Undo support</h2>
+<p>Slate supports undoing deletions for all resource types, including widgets, folders, dataset syncs, functions, object sets, object contexts, variables, queries, partials, event-actions, and container tabs. To undo a deletion, select the undo button in the toast that appears after the deletion, or use the keyboard shortcut <code>Cmd+Z</code> (macOS) or <code>Ctrl+Z</code> (Windows).</p>
+<p>Undoing a widget deletion restores its event and action wirings, including cases where a surviving widget's event was wired to the deleted widget's action. Only one undo toast is displayed at a time: a new deletion replaces the previous toast, and any document edit dismisses the pending toast.</p>
+<h2>Widget Editor</h2>
+<p>The Widget Editor has three tabs with editing options for the selected widget.</p>
+<p><strong>Property tab:</strong> This is the main editing tab. Use this tab to change the widgetâs properties. The options available vary by type of widget.</p>
+<p><img alt="widget-editor-property-tab" src="../../_resources/foundry/slate/widget-editor-property-tab.png" /></p>
+<p><strong>Layout tab:</strong> Set the position and size of your widget, and apply custom styling.</p>
+<p><img alt="widget-editor-layout-tab" src="../../_resources/foundry/slate/widget-editor-layout-tab.png" /></p>
+<p><strong>JSON tab:</strong> If the <strong>Property</strong> tab does not provide the setting you need, edit the widget's raw JSON configuration in this tab. Each widget starts with template code containing the most commonly used attributes, and fields changed in the <strong>Property</strong> tab also appear in the <strong>JSON</strong> tab. The editor displays JSON errors and enables <strong>Update</strong> only after you make a valid change. For interaction properties with long values, select <strong>Show more</strong> to expand or collapse the full content.</p>
+<p>:::callout{theme="warning"}
+State that is not exposed through the <strong>Property</strong> tab is managed internally by Slate, so you should closely review any modifications you make to Slate's default values in the <strong>JSON</strong> tab to avoid unexpected behavior.
+:::</p>
+<p><img alt="widget-editor-json-tab" src="../../_resources/foundry/slate/widget-editor-json-tab.png" /></p>
+<p><strong>Events tab:</strong> Some widgets have associated events, which you can configure here.</p>
+<p><img alt="widget-editor-events-tab" src="../../_resources/foundry/slate/widget-editor-events-tab.png" /></p>
+</body>
+</html>

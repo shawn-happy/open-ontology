@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Embedding a widget in Workshop</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Embedding a widget in Workshop</h1>
+<p>To embed a widget in <a href="https://www.palantir.com/docs/foundry/workshop/overview/">Workshop</a>, start by adding a <strong>custom widget</strong> component to your Workshop:</p>
+<p><img alt="Select custom widget renderer." src="../../_resources/foundry/custom-widgets/workshop-custom-widgets.png" /></p>
+<p>In the new <strong>Widget setup</strong> tab, find <strong>Select</strong> to select the widget set and version to use.</p>
+<p>:::callout{theme="neutral"}
+A brand-new widget must be published at least once before the new widget appears in the widget set and version selector. After the new widget's first release, you can use <a href="https://www.palantir.com/docs/foundry/custom-widgets/development/">dev mode</a> to preview unpublished changes to the widget's code, parameters, and events directly in Workshop.
+:::</p>
+<h2>Configure parameters and events</h2>
+<p>You can bind the <strong>parameters</strong> your widget uses to Workshop variables to allow passing data in and out of the Workshop state. For information on the different parameter types available, see <a href="https://www.palantir.com/docs/foundry/custom-widgets/parameters-and-events/">parameters and events</a>.</p>
+<p>You can use <strong>events</strong> to allow widgets to update the parameter values. You can also bind these events to <a href="https://www.palantir.com/docs/foundry/workshop/concepts-events/">Workshop events</a> such that when a widget fires an event, it will also trigger a Workshop event.</p>
+<p>Widget parameters and events can be bound to Workshop variables and events in the <strong>Widget setup</strong> panel:</p>
+<p><img src="../../_resources/external-4253b9b2fc29.png" alt="Events and parameters configuration." width=350 /></p>
+<h2>Limitations</h2>
+<p>By default, custom widgets reload when they are removed from the page and later displayed again. To preserve local state across navigation, configure <a href="https://www.palantir.com/docs/foundry/workshop/widget-display-optimization/">widget display optimization</a> to keep the widget mounted. You can also store custom widget data in Workshop variables passed to the widget.</p>
+<h2>Troubleshooting</h2>
+<p>For help with browser performance issues, crashes, or unexpected behavior, see <a href="https://www.palantir.com/docs/foundry/custom-widgets/troubleshooting/">Troubleshooting</a>.</p>
+</body>
+</html>

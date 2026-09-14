@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Excel</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Excel</h1>
+<p>This guide will teach you how import a dataset into Excel using the Foundry ODBC driver.</p>
+<h2>Configure a Foundry Connection</h2>
+<ol>
+<li>Open the Windows ODBC Administrator App (search for "odbc" in the Windows search bar and open the 32 or 64 bit version matching your Excel version).</li>
+<li>Create a new User DSN, choosing the FoundrySqlDriver driver. Give it a meaningful name, such as <code>Foundry Excel</code>.</li>
+<li>For the <strong>Server</strong>, enter your Foundry URL (example: <code>myorganization.palantirfoundry.com</code>).</li>
+<li>Optional: If you are using OAuth to authenticate, set the <a href="https://www.palantir.com/docs/foundry/analytics-connectivity/odbc-jdbc-drivers/#use-oauth-to-authenticate">OAuth properties</a>.</li>
+<li>Optional: You can save an authentication token here, but we recommend entering it later in Excel where you will be prompted when importing data.</li>
+<li>Click <strong>OK</strong> to save the DSN.</li>
+</ol>
+<p><img alt="excel-odbc-app" src="../../_resources/foundry/analytics-connectivity/excel_excel_odbc_app.png" /></p>
+<h2>Import data via SQL</h2>
+<ol>
+<li>From Excel, open the <strong>Data</strong> tab and click on <strong>Get data</strong> in the ribbon. Select <strong>From Other Sources -&gt; From ODBC</strong>.</li>
+<li>Choose the DSN you configured in the previous step.</li>
+<li>Under "Advanced Options", enter a SQL query to import data.
+   * If you want to import the dataset <code>/YourProject/yourdataset</code>, you would enter <code>SELECT * FROM "/YourProject/yourdataset"</code>.
+   * If you are familiar with SQL, you can enter more advanced queries such as filters and aggregates here.</li>
+<li>Click <strong>OK</strong>.</li>
+<li>If this is your first time importing data, you will be prompted for credentials.
+   * If using OAuth, select the "Default or Custom" credential type, leave the field blank and click "Connect"
+   * Otherwise, you will need an authentication token. Choose "Database", and enter your username. In the "password" field, enter your token, <em>not</em> your Foundry password.</li>
+<li>Click <strong>Connect</strong>.</li>
+</ol>
+<p><img alt="excel-data-import" src="../../_resources/foundry/analytics-connectivity/excel_excel_data_import.png" /></p>
+<h2>Import data via the table browser</h2>
+<p>By default, if you follow the steps above but do not enter a SQL query, the table browser will display an empty state. This can be resolved by restricting the connection to a single project by adding the <code>catalog</code> property in your DSN and setting it to a full project path, such as <code>MyOrg/MyProject</code>. You can do this by clicking on <strong>Additional Properties</strong> on the Driver DSN Setup window, and then clicking on <strong>Add</strong>. The table browser should then display correctly, although you will be limited to browsing a single project per DSN.</p>
+<h2>Import data into Microsoft Access</h2>
+<p>The same Foundry Connector for Excel can also be used to import data into Access databases.</p>
+<ol>
+<li>From Access, open the <strong>External Data</strong> tab and click on <strong>New Data Source</strong> in the ribbon. Select <strong>From Other Sources -&gt; ODBC Database</strong>.</li>
+<li>Choose whether you want to <strong>Import the source data</strong> or <strong>Link to the source data</strong>.</li>
+<li>Under the <strong>Machine Data Source</strong> tab, select the DSN you configured in the first step of this guide.
+   * You will need to have saved your authentication token in the Driver DSN Setup window.
+   * You will need to have set the <code>catalog</code> property as described in the previous step.
+   * Your project path must conform to <a href="https://support.microsoft.com/en-us/office/guidelines-for-naming-fields-controls-and-objects-120c27fa-7ae1-4182-9baa-dbd183179cc3">Access table name restrictions â</a>.</li>
+<li>Select your table(s) from the table browser and click <strong>OK</strong>.</li>
+</ol>
+</body>
+</html>

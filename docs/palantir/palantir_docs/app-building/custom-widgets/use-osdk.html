@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Use Ontology SDK (OSDK) in a widget set</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Use Ontology SDK (OSDK) in a widget set</h1>
+<p>You can use OSDK in a widget set by following the steps outlined in each section below.</p>
+<h2>Configure an OSDK for your widget set</h2>
+<p>To configure an Ontology SDK (OSDK) for your widget set, navigate to the overview page of your widget set and then select <strong>Configure SDK</strong> in the top bar on the page.</p>
+<p><img alt="Configure SDK options." src="../../_resources/foundry/custom-widgets/configure-sdk.png" /></p>
+<p>Then, select an ontology and the specific resources that you would like to access from your widget.</p>
+<h3>Enable Ontology APIs</h3>
+<p>You also need to enable the Ontology APIs for your widget set so that API calls made from the OSDK can succeed. This action can be performed by a user with the <strong>Information Security Officer</strong> default enrollment role. Alternatively, a user with a custom enrollment role that grants the <strong>Enable widget set unscoped API access</strong> workflow can also perform this action.</p>
+<h2>Install the OSDK in your widget</h2>
+<p>After the above steps have been completed, you can start using your OSDK in your widget set. To do so, ensure that <code>@custom-widget/sdk</code> is listed in your package.json and properly installed using the following JSON:</p>
+<p>```json tab="JSON"
+{
+    // ...
+    "dependencies": {
+        // ...
+        "@custom-widget/sdk": "latest"
+    }
+}</p>
+<pre><code>
+If you selected the **In Foundry** option during creation, then you are using a Foundry code repository. Your project `.npmrc` file should already be set up to resolve NPM dependencies including your OSDK package from Foundry and this file **should not be modified**.
+
+If you selected the **Outside of Foundry** option and did not generate an OSDK package during creation, you must manually configure NPM to be able to resolve your OSDK package from Foundry. This can be done by setting up a `.npmrc` file in your project root with the following contents:
+
+</code></pre>
+<p>//<EXAMPLE>.palantirfoundry.com/artifacts/api/:_authToken=${FOUNDRY_TOKEN}
+@custom-widget:registry=https://<EXAMPLE>.palantirfoundry.com/artifacts/api/repositories/<ri.widgetregistry..widget-set.LOCATOR>/contents/release/npm/</p>
+<pre><code>
+The above snippet tells NPM to resolve the `@custom-widget` scope from Foundry and auth with the `FOUNDRY_TOKEN` environment variable. You should replace the `&lt;EXAMPLE&gt;` and `&lt;ri.widgetregistry..widget-set.LOCATOR&gt;` placeholders with the specific values for your Foundry instance and widget set RID.
+
+## Configure the OSDK in your widget
+
+Ensure that your client is configured with the `baseUrl` set to `window.location.origin`. You can use the `createFoundryWidgetTokenProvider()` helper to provide a placeholder value for the auth token, as any access to the ontology would use the user's token and adhere to the user's permissions at runtime. Review the following code snippet:
+
+```TypeScript tab=&quot;TypeScript&quot;
+import { createClient } from &quot;@osdk/client&quot;;
+import { $ontologyRid } from &quot;@custom-widget/sdk&quot;;
+import { createFoundryWidgetTokenProvider } from &quot;@osdk/widget.client&quot;;
+
+const client = createClient(
+    window.location.origin,
+    $ontologyRid,
+    createFoundryWidgetTokenProvider(),
+);
+</code></pre>
+<h2>Use the OSDK</h2>
+<p>Refer to your OSDK's documentation to learn more about usage by selecting the <strong>SDK docs</strong> option on the top bar of your widget set.</p>
+<p><img alt="SDK docs option." src="../../_resources/foundry/custom-widgets/view-sdk-docs.png" /></p>
+<h2>Refresh host data on action</h2>
+<p>When a widget applies an Ontology action using OSDK that modifies data backing an object set parameter, the host application's data can become stale.</p>
+<p>To address this, you can enable the <code>refreshHostDataOnAction</code> option, which causes the host application (such as Workshop) to automatically refresh any object set parameters passed to the widget after it applies an Ontology action. No additional configuration is required from the application builder in Workshop.</p>
+<p>Newly-created widget sets have this option enabled at the plugin level by default. For existing widget sets, you can enable it manually as described below.</p>
+<p>To set this as the default for all widgets in a widget set, configure the <code>defaults</code> option in the Vite plugin:</p>
+<p>```TypeScript tab="vite.config.ts"
+import FoundryWidgetPlugin from "@osdk/widget.vite-plugin";
+import { defineConfig } from "vite";</p>
+<p>export default defineConfig({
+    plugins: [
+        FoundryWidgetPlugin({
+            defaults: {
+                refreshHostDataOnAction: true,
+            },
+        }),
+    ],
+});</p>
+<pre><code>
+To override the plugin-level default for an individual widget, set `refreshHostDataOnAction` in the widget configuration file:
+
+```TypeScript tab=&quot;myWidget.config.ts&quot;
+import { defineConfig } from &quot;@osdk/widget.client&quot;;
+
+export default defineConfig({
+    id: &quot;myWidget&quot;,
+    name: &quot;My Widget&quot;,
+    description: &quot;An example widget&quot;,
+    type: &quot;workshop&quot;,
+    refreshHostDataOnAction: false, // overrides the plugin-level default
+    parameters: {},
+    events: {},
+});
+</code></pre>
+<h2>Supported endpoints</h2>
+<p>A number of endpoints from the Admin namespace can be used within custom widgets:</p>
+<ul>
+<li><a href="https://www.palantir.com/docs/foundry/api/admin-v2-resources/users/get-user/">Get User</a></li>
+<li><a href="https://www.palantir.com/docs/foundry/api/admin-v2-resources/users/get-users-batch/">Get Users Batch</a></li>
+<li><a href="https://www.palantir.com/docs/foundry/api/admin-v2-resources/users/get-current-user/">Get Current User</a></li>
+<li><a href="https://www.palantir.com/docs/foundry/api/admin-v2-resources/users/get-profile-picture-of-user/">Get Profile Picture Of User</a></li>
+<li><a href="https://www.palantir.com/docs/foundry/api/admin-v2-resources/users/search-users/">Search Users</a></li>
+</ul>
+<p>When Ontology APIs are <a href="#enable-ontology-apis">enabled</a>, additional endpoints can also be used. This includes all endpoints from the following namespaces:</p>
+<ul>
+<li><a href="https://www.palantir.com/docs/foundry/api/ontologies-v2-resources">Ontologies</a></li>
+<li><a href="https://www.palantir.com/docs/foundry/api/functions-v2-resources">Functions</a></li>
+</ul>
+<p>and these individual endpoints:</p>
+<ul>
+<li><a href="https://www.palantir.com/docs/foundry/api/media-sets-v2-resources/media-sets/upload-media/">Upload Media</a></li>
+</ul>
+<h2>Limitations</h2>
+<p>Currently, widgets do not support the following Foundry API features:</p>
+<ul>
+<li>Object set subscriptions</li>
+<li>APIs not listed in the <a href="#supported-endpoints">supported endpoints</a></li>
+</ul>
+</body>
+</html>

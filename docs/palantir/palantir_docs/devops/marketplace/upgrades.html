@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Upgrades</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Upgrades</h1>
+<h2>Manual upgrades</h2>
+<p>When a new version is available for an installation, you can stage it for upgrade from the installation page. The installation will show an <strong>Upgrade</strong> badge and appear in the <strong>Selected</strong> panel on the right.</p>
+<p><img alt="An installation page showing an upgrade available, with the installation added to the Selected panel." src="../../_resources/foundry/marketplace/upgrade-select-single.png" /></p>
+<p>You can stage multiple installations together for an upgrade in the same job by navigating to each installation page and adding them to the selected list. Once all desired installations are selected, select <strong>Create installation job</strong> to begin the upgrade.</p>
+<p><img alt="Multiple installations selected for upgrade in the same job." src="../../_resources/foundry/marketplace/upgrade-select-multiple.png" /></p>
+<p>If you do not want to upgrade to the latest version, or instead want to downgrade to an earlier version, you can select the ellipsis (<strong>...</strong>) and choose <strong>Upgrade or downgrade to version</strong>. See <a href="#downgrades">Downgrades</a> for more information. It is also possible to <strong>Edit</strong> an installation, which will create another installation job at the existing version. This can be used to edit inputs or force re-run an installation job without changing the product version.</p>
+<p>When entering the upgrade draft, you may need to fill in new inputs or resolve any new errors that arise from the upgrade. The <strong>Inputs</strong> page will indicate any mandatory inputs that are not yet fulfilled and any inputs with blocking errors.</p>
+<p><img alt="The Inputs page of an upgrade draft showing new inputs to map and blocking errors to resolve." src="../../_resources/foundry/marketplace/upgrade-inputs.png" /></p>
+<h2>Automatic upgrades [Beta]</h2>
+<p>:::callout{theme="neutral" title="Beta"}
+Automatic upgrades in Marketplace are in the <a href="https://www.palantir.com/docs/foundry/platform-overview/development-life-cycle/">beta</a> phase of development and may not be available on your enrollment. Functionality may change during active development.
+:::</p>
+<p>Automatic upgrades are disabled by default for both <strong><a href="https://www.palantir.com/docs/foundry/foundry-devops/create-products/#installation-mode">Production mode</a></strong> and <strong>Bootstrap mode</strong> products. You can configure automatic upgrade settings in the <a href="https://www.palantir.com/docs/foundry/marketplace/installations/#installation-settings">installation settings</a>. Automatic upgrade settings include the following:</p>
+<ul>
+<li>The <strong>maintenance windows</strong> during which you would like to receive automatic upgrades. Select <strong>Always open</strong> to take upgrades as soon as they are available. Upgrades will cause downtime for installed resources; we recommend adding a maintenance window to avoid downtime.</li>
+<li>The <strong>release channel</strong> your installation should track. During any maintenance windows you have configured, your installation will automatically upgrade to versions tagged to that release channel as long as the upgrade does not require manual action.</li>
+</ul>
+<p>Release channels are hierarchical rather than mutually exclusive. Depending on the track:</p>
+<ul>
+<li><strong>Release:</strong> The installation receives the versions tagged as <strong>Release</strong>, <strong>Test</strong>, or <strong>Stable</strong>.</li>
+<li><strong>Test:</strong> The installation receives the versions tagged as <strong>Test</strong> and <strong>Stable</strong>.</li>
+<li><strong>Stable:</strong> The installation receives the versions tagged as <strong>Stable</strong>.</li>
+</ul>
+<p>Upgrades will still require manual action if the new product version includes new inputs that must be mapped, or if any validation errors arise. If this is the case, you will be guided through the same manual configuration workflow as <a href="#manual-upgrades">manual upgrades</a>.</p>
+<h2>Downgrades</h2>
+<p>To downgrade to a previous version or upgrade to a specific version of a product, start by selecting the ellipsis in the top right corner of the installation page. Then, choose <strong>Upgrade or downgrade to version</strong>.</p>
+<p><img alt="The upgrade or downgrade version button." src="../../_resources/foundry/marketplace/upgrade-or-downgrade-button.png" /></p>
+<p>A dialog will appear where you can choose the version. After making your selection, initiate the upgrading or downgrading process by selecting <strong>Create a draft</strong>.</p>
+<p><img src="../../_resources/external-a6121c564d9f.png" alt="The upgrade/downgrade dialog." width="400"></p>
+</body>
+</html>

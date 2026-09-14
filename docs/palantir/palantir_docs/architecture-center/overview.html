@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Overview</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../index.html">返回目录</a></div>
+<h1>Overview</h1>
+<p>Since its inception, Palantir's software has been shaped by our customers' most demanding missions. From an initial focus on counterterrorism, Palantir's scope now encompasses 50+ verticals spanning everything from healthcare to shipbuilding to energy production to insurance; that is, nearly every core operational environment in the Western-aligned world.</p>
+<p>Palantirâs platforms and offerings are continuously developed through the methodology of Forward Deployed Engineering. This is the human equivalent of backpropagation, in which teams of engineers get as close as possible to a problem while working in concert with core engineering teams to relentlessly synthesize feedback and ship new features.</p>
+<p><img alt="Illustration of FDEs sending feedback from the field." src="../_resources/foundry/architecture-center/overview-fde-feedback.png" /></p>
+<h2>Palantir's platforms</h2>
+<p>Across every sector, Palantir operates with a common architecture consisting of <a href="https://www.palantir.com/docs/foundry/architecture-center/platforms/">three platforms: AIP, Foundry, and Apollo</a>. These platforms are collectively designed to function as an enterprise operating system. Foundry serves as the core Data Operations platform; AIP serves as the Generative AI platform; and Apollo is the continuous delivery platform that underpins them.</p>
+<p>AIP and Foundry collectively consist of 300+ microservices and assets, all running in a highly available and autoscaling compute mesh, atop zero-trust security infrastructure that enforces a rigorous security posture across every component (for instance, aggressive node cycling to guard against advanced persistent threats).</p>
+<p>Domain-specific offerings, such as those in Defense and Intelligence or the increasingly rich set of applications focused on Hospital Operations, extend the underlying capabilities of AIP and Foundry. This complex orchestration of foundational services and comprehensive operational offerings is only possible through Apolloâs autonomous approach to software delivery.</p>
+<p><img alt="Illustration of the relationship between AIP, Foundry, Apollo, and Palantir's products." src="../_resources/foundry/architecture-center/overview-platforms-and-products.png" /></p>
+<h2>The Ontology system</h2>
+<p>The heart of Palantirâs architecture is <a href="https://www.palantir.com/docs/foundry/architecture-center/ontology-system/">the Ontology system</a>. The Ontology integrates an enterpriseâs data, logic, action, and security policies into an intuitive representation that both humans and AI agents can wield.</p>
+<p>In a supply chain context, the Ontology might be used to integrate dozens of fragmented ERP, MES, CRM, customer, edge, and myriad other data sources into a common set of objects, or "nouns" - the manufacturing plants, production lines, customer orders, and other core concepts that constitute the operational world.</p>
+<p>These "nouns" are paired with "verbs", which are actions that must be orchestrated across workflows, such as updating purchase orders, changing distribution strategies, or running multi-step simulations to assess how to address a supply disruption.</p>
+<p>Each of these nouns and verbs can be powered by the full range of logic, from business rules, machine learning models, and optimizers to computations that chain together multiple engines across computing environments.</p>
+<p>Multimodal, military-grade security controls encompass the objects, links, actions, functions, and other semantic and kinetic primitives all modeled inside the Ontology. This ensures that both humans and AI agents can orchestrate across the Ontology, but with the precision and guardrails required to sustain trust.</p>
+<p><a href="https://www.palantir.com/docs/foundry/architecture-center/ontology-system/">Read more about the Ontology and why it is critical for unlocking the value of AI.</a></p>
+<p><img alt="Illustration of the Ontology as a layer; above are applications, automation, and agents, below are governance, data services, logic services, and workflow services." src="../_resources/foundry/architecture-center/overview-ontology-diagram.png" /></p>
+<h2>Data Services, Logic Services, and Workflow Services</h2>
+<p>There are hundreds of services that work in concert with the Ontology system, including Data Services, Logic Services, and Workflow Services.</p>
+<ul>
+<li><em>Data Services</em> encompass data connectivity, data transformation, data virtualization, data storage, data health monitoring, and data management.</li>
+<li><em>Logic Services</em> encompass authoring business rules, training machine learning models, orchestrating external models, integrating LLMs and other forms of Generative AI, end-to-end Model Ops and Agent Ops, and more.</li>
+<li><em>Workflow Services</em> enable interactive compute for analytical and operational use-cases, event-driven automations, scheduled automations, pro-code and low-code workflow authoring tools, and more.</li>
+</ul>
+<p>All of these capabilities are natively connected with the Language, Engine, and Toolchain that constitute the Ontology system. Together, this enables a wide variety of analytics, applications, AI-driven agents and automations, and custom products to be built atop Palantir's architecture, all of which leverage platform-wide approaches to change management and release management, and which adhere to the security and governance controls configured by administrators.</p>
+<p><img alt="Grid of Palantir services and capabilities: the top row has analytics, agents &amp; automations, and product delivery; middle row has Ontology language, Ontology engine, and Ontology toolchain; bottom row has data services, logic services, and workflow services." src="../_resources/foundry/architecture-center/overview-nine-grid.png" /></p>
+<h2>Guide to the Architecture Center</h2>
+<p>This Architecture Center highlights topics that are most relevant for those working in enterprise architecture and digital strategy. These topics include:</p>
+<ul>
+<li>The <a href="https://www.palantir.com/docs/foundry/architecture-center/ontology-system/">Ontology system</a>;</li>
+<li>Palantirâs open data and compute architecture, known as the <a href="https://www.palantir.com/docs/foundry/architecture-center/multimodal-data-plane/">Multimodal Data Plane</a>;</li>
+<li>The <a href="https://www.palantir.com/docs/foundry/architecture-center/aip-architecture/">reference architecture</a> for building AI-driven agentic workflows;</li>
+<li>Details on the <a href="https://www.palantir.com/docs/foundry/architecture-center/interoperability/">infrastructure</a> and <a href="https://www.palantir.com/docs/foundry/architecture-center/rubix/">security</a> paradigms.</li>
+</ul>
+<p>Thanks to the Apollo platform, which orchestrates tens of thousands of releases per week, every deployment is a living environment. Even so, Palantir's commitment to powering our customersâ most important missions means that we want to ensure that stewards and stakeholders of Palantir deployments are always equipped to build, maintain, and scale maximally robust solutions, which can each be counted on to meet their moment.</p>
+<p><img alt="Illustration of the industries powered by Palantir, including healthcare, mission planning, manufacturing, supply chain, force management, energy, financial services, logistics, retail, readiness, life sciences, telecommunications, utilities, disaster response, and construction." src="../_resources/foundry/architecture-center/overview-nine-grid-above.png" /></p>
+</body>
+</html>

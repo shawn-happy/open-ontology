@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Migration instructions: foundry\_ml \[planned deprecation] to palantir\_models</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Migration instructions: foundry_ml [planned deprecation] to palantir_models</h1>
+<p>This page provides best practices and instructions for migrating a model built with <code>foundry_ml</code> to the <code>palantir_models</code> framework. To start, we share some guidance to consider, before providing an <a href="#migration-of-a-model-built-with-foundry_ml-in-code-repositories">example</a> migration. In the example, we provide code for building a model in Code Repositories using <code>foundry_ml</code>, and demonstrate how to rewrite this code using <code>palantir_models</code>.</p>
+<h2>Best practices</h2>
+<p>In the following section, we list guidance on how the migration can be performed and what considerations to take.</p>
+<h3>Migration methods</h3>
+<p>You can build the migrated model in the following ways:</p>
+<ul>
+<li>Build the model in a new code repository or JupyterÂ® code workspace, or;</li>
+<li>Build the model by editing an existing code repository.</li>
+</ul>
+<p>Both methods have advantages and which is best depend on your particular situation, but there are a few things to keep in mind:</p>
+<ul>
+<li>If the initial model was built in Code Workbooks, you will need to build it in a new code repository or JupyterÂ® code workspace as the latter two products support <code>palantir_models</code>.</li>
+<li>It is usually easier to use a model for inference in the code repository or code workspace that it was built in, since importing a model into another repository or workspace requires importing its Python dependencies and may result in environment conflicts.</li>
+</ul>
+<p>To understand how to use a new code repository to build your model, review <a href="#migration-of-a-model-built-with-foundry_ml-in-code-repositories">the following example</a>.</p>
+<h3>How to migrate a modeling repository in place</h3>
+<p>To keep your existing modeling repository and migrate it from <code>foundry_ml</code> to <code>palantir_models</code> in place, follow these steps:</p>
+<ol>
+<li>Comment out or remove any code referencing <code>foundry_ml</code>.</li>
+<li>Remove the <code>foundry_ml</code> library from the <code>Libraries</code> sidebar.</li>
+<li><a href="https://www.palantir.com/docs/foundry/code-repositories/repository-upgrades/">Upgrade the repository to the latest configuration</a>.</li>
+<li>Upgrade Python to a major version of 3.10 of higher by selecting <strong>Recommended</strong> in the <strong>Run with</strong> and <strong>Build with</strong> menus, or by editing the <code>conda_recipe/meta.yaml</code> file directly and updating the existing Python dependency to <code>python &gt;=3.11.*</code> (or <code>3.10.*</code>, if required) in both the <code>build</code> and <code>run</code> blocks. Note that Python 3.9 will be <a href="https://www.palantir.com/docs/foundry/transforms-python/python-versions/">deprecated in October 2025</a> as part of a dedicated migration campaign.</li>
+<li>Install the recommended version of <code>palantir_models</code> from the <code>Libraries</code> sidebar. Do not do this by editing <code>meta.yaml</code> directly as it will not import the required backing repositories.</li>
+</ol>
+<p>:::callout{theme="warning"}
+If using an existing repository of the <code>Pipeline</code> type rather than <code>Model training</code> or <code>Model adapter library</code> to create your Model adapter, you will not benefit from the latest modeling features unless you <a href="https://www.palantir.com/docs/foundry/code-repositories/repository-upgrades/">upgrade your repository</a>. This upgrade action is necessary for your model to support <a href="https://www.palantir.com/docs/foundry/manage-models/create-a-model-deployment/">direct deployments</a>.
+:::</p>
+<h2>Migration of a model built with <code>foundry_ml</code> in Code Repositories</h2>
+<p>The following is an example migration from <code>foundry_ml</code> to <code>palantir_models</code> in Code Repositories.</p>
+<p>The following snippet demonstrates a scikit-learn linear regression model authored to use <code>foundry_ml</code>, which we will migrate to <code>palantir_models</code>:</p>
+<pre><code class="language-python">from transforms.api import transform, Input, Output
+from foundry_ml import Model, Stage
+from sklearn.linear_model import LinearRegression
+from sklearn.pipeline import Pipeline
+from sklearn.preprocessing import StandardScaler
+
+
+@transform(
+    training_data_input=Input(&quot;&lt;YOUR_PROJECT_PATH&gt;/data/housing_train_data&quot;),
+    model_output=Output(&quot;&lt;YOUR_PROJECT_PATH&gt;/models/linear_regression_foundry_ml&quot;),
+)
+def create_model(training_data_input, model_output):
+    training_df = training_data_input.pandas()
+    numeric_features = ['median_income', 'housing_median_age', 'total_rooms']
+
+    pipeline = Pipeline([
+    (&quot;scaler&quot;, StandardScaler()),
+    (&quot;regressor&quot;, LinearRegression())])
+
+    X_train = training_df[numeric_features]
+    y_train = training_df['median_house_value']
+
+    pipeline.fit(X_train, y_train)
+
+    model = Model(Stage(pipeline[&quot;scaler&quot;], output_column_name=&quot;features&quot;),
+            Stage(pipeline[&quot;regressor&quot;]))
+
+    model.save(model_output)
+</code></pre>
+<p>To migrate the above code from <code>foundry_ml</code> to <code>palantir_models</code>, follow the steps outlined below.</p>
+<h3>Step 1: Open a new code repository with the model training template</h3>
+<p>The Palantir platform provides a templated repository for machine learning called the <strong>Model training</strong> template. To access it in Code Repositories, first select <strong>Models</strong> when asked <strong>What are you building?</strong>:</p>
+<p><img alt="Choose a Model Type of Code Repository." src="../../_resources/foundry/migrate-models/models-code-repository.png" /></p>
+<p>Select <strong>Model Training</strong> as the repository type:</p>
+<p><img alt="Initialize the model training template." src="../../_resources/foundry/migrate-models/model-training-template.png" /></p>
+<p>The model training template contains the example structure that we will adapt for this tutorial. You can expand the files on the left side to see an example project:</p>
+<p><img alt="Empty model training template." src="../../_resources/foundry/migrate-models/tutorial_empty_model_training_template.png" /></p>
+<h3>Step 2: Author a model adapter</h3>
+<p><a href="https://www.palantir.com/docs/foundry/integrate-models/model-adapter-overview/">Model adapters</a> provide a standard interface for all models in Foundry. This standard interface ensures that all models can be used immediately in production applications. The Palantir platform will handle the infrastructure to load the model and its Python dependencies, interface with it, and expose its API.</p>
+<p>To enable this, you must create an instance of a <code>ModelAdapter</code> class to act as this communication layer.</p>
+<p>There are three functions to implement:</p>
+<ol>
+<li><strong>Model save and load:</strong> In order to reuse your model, you need to define how your model should be saved and loaded. Palantir provides many <a href="https://www.palantir.com/docs/foundry/integrate-models/serialization/#auto-serialization">default methods</a> of serialization (saving), and in more complex cases you can <a href="https://www.palantir.com/docs/foundry/integrate-models/model-adapter-reference/#model-save-and-load">implement custom serialization</a> logic.</li>
+<li><strong>API:</strong> Defines the model's API and tells the Palantir platform what type of input data your model requires.</li>
+<li><strong>Predict:</strong> Called by the Palantir platform to provide data to your model. This is where you can pass input data to the model and generate inferences (predictions).</li>
+</ol>
+<p>Open the <code>model_adapters/adapter.py</code> file and author the model adapter:</p>
+<pre><code class="language-python">import palantir_models as pm
+from palantir_models.serializers import DillSerializer
+
+
+class SklearnRegressionAdapter(pm.ModelAdapter):
+
+    @pm.auto_serialize(
+        model=DillSerializer()
+    )
+    def __init__(self, model):
+        self.model = model
+
+    @classmethod
+    def api(cls):
+        columns = [
+            ('median_income', float),
+            ('housing_median_age', float),
+            ('total_rooms', float)
+        ]
+        return {'df_in': pm.Pandas(columns=columns)}, \
+                {'df_out': pm.Pandas(columns=columns + [('prediction', float)])}
+
+    def predict(self, df_in):
+        df_in['prediction'] = self.model.predict(df_in[['median_income', 'housing_median_age', 'total_rooms']])
+        return df_in
+</code></pre>
+<p>For more information about model adapter logic, refer to <a href="https://www.palantir.com/docs/foundry/model-integration/tutorial-train-code-repositories/#model-adapter-logic">author a model adapter</a>.</p>
+<h3>Step 3: Write the model training logic</h3>
+<p>In the example below, the <code>train_model</code> function contains an unchanged example of the training logic from <code>foundry_ml</code>. The <code>compute</code> function wraps the model with the model adapter, and publishes the model.</p>
+<pre><code class="language-python">from transforms.api import transform, Input, lightweight
+from palantir_models.transforms import ModelOutput
+from main.model_adapters.adapter import SklearnRegressionAdapter
+from sklearn.linear_model import LinearRegression
+from sklearn.pipeline import Pipeline
+from sklearn.preprocessing import StandardScaler
+
+def train_model(training_df):
+    &quot;&quot;&quot;Training logic is unchanged from the original foundry_ml example.&quot;&quot;&quot;
+
+    numeric_features = ['median_income', 'housing_median_age', 'total_rooms']
+
+
+    pipeline = Pipeline([
+        (&quot;scaler&quot;, StandardScaler()),
+        (&quot;regressor&quot;, LinearRegression())]
+    )
+
+    X_train = training_df[numeric_features]
+    y_train = training_df['median_house_value']
+
+    pipeline.fit(X_train, y_train)
+    return pipeline
+
+
+# Use the lightweight decorator unless your model natively supports Spark inputs
+# (i.e. uses Spark ML). Without it, the input data will first be loaded in Spark
+# and will require conversion to Pandas for use in the model, which is a slow and
+# memory-intensive operation.
+
+# Lightweight requires the foundry-transforms-lib-python package
+# and for the repository to be up-to-date.
+# https://palantir.com/docs/foundry/code-repositories/repository-upgrades
+@lightweight()
+@transform(
+    training_data_input=Input(&quot;&lt;YOUR_PROJECT_PATH&gt;/data/housing_train_data&quot;),
+    model_output=ModelOutput(&quot;&lt;YOUR_PROJECT_PATH&gt;/models/linear_regression_model&quot;),
+)
+def compute(training_data_input, model_output):
+    training_df = training_data_input.pandas()
+
+   # train model
+    model = train_model(training_df)
+
+   # wrap model with model adapter
+    foundry_model = SklearnRegressionAdapter(model)
+
+   # publish the model
+    model_output.publish(model_adapter=foundry_model)
+</code></pre>
+<p>Open the <code>model_training/model_training.py</code> file in your repository and author the <code>compute</code> function for your model. Copy your model's machine learning logic into the <code>train_model</code> function. Update paths to correctly point to the training dataset and model. Select <strong>Build</strong> at the top right to run the code.</p>
+<h3>Step 4: Write the model inference logic</h3>
+<p>Open the <code>model_training/run_inference.py</code> file in your repository and author the model inference logic. Update paths to correctly point to the model and test dataset. Select <strong>Build</strong> at the top right to run the code.</p>
+<p>:::callout{theme="neutral"}
+To run a model within a transform repository in which the model was not defined, set <code>use_sidecar = True</code> in <code>ModelInput</code>. This will automatically import the model adapter and its dependencies while running them in a separate environment to prevent dependency conflicts. <code>use_sidecar</code> is unavailable for Lightweight transforms. Review <a href="https://www.palantir.com/docs/foundry/integrate-models/transform-model-input/">the <code>ModelInput</code> class reference</a> for more details.</p>
+<p>If <code>use_sidecar</code> is not set to <code>True</code>, the model adapter and its dependencies must be imported into or defined within the current code repository.
+:::</p>
+<pre><code class="language-python">from transforms.api import transform, Input, Output, lightweight
+from palantir_models.transforms import ModelInput
+
+
+# Lightweight requires the foundry-transforms-lib-python package
+# and for the repository to be up-to-date.
+# https://palantir.com/docs/foundry/code-repositories/repository-upgrades
+@lightweight()
+@transform(
+    testing_data_input=Input(&quot;&lt;YOUR_PROJECT_PATH&gt;/data/housing_test_data&quot;),
+    model_input=ModelInput(&quot;&lt;YOUR_PROJECT_PATH&gt;/models/linear_regression_model_asset&quot;),
+    predictions_output=Output(&quot;&lt;YOUR_PROJECT_PATH&gt;/data/housing_testing_data_inferences&quot;)
+)
+def compute(testing_data_input, model_input, predictions_output):
+    inference_outputs = model_input.transform(testing_data_input)
+    predictions_output.write_pandas(inference_outputs.df_out)
+</code></pre>
+<p>Following these steps above will complete the migration of your existing <code>foundry_ml</code> model in Code Repositories to <code>palantir_models</code>.</p>
+<h2>Migrating a model using MetricSets</h2>
+<p>We recommend replacing <a href="https://www.palantir.com/docs/foundry/evaluate-models/metric-sets-reference/">MetricSets</a> with <a href="https://www.palantir.com/docs/foundry/model-integration/experiments/">experiments</a> where possible. However, while experiments now support <a href="https://www.palantir.com/docs/foundry/evaluate-models/metric-sets-reference/#image-metrics">image</a> metrics, note they do not yet support <a href="https://www.palantir.com/docs/foundry/evaluate-models/metric-sets-reference/#chart-metrics">chart</a> metrics, contrary to MetricSets. While MetricSets will not appear on the model page for a model built with <code>palantir_models</code>, it is still possible to <a href="https://www.palantir.com/docs/foundry/migrate-models/how-to/#migrating-a-model-using-metricsets">write MetricSets against a model</a> and view the metrics in <a href="https://www.palantir.com/docs/foundry/evaluate-models/model-evaluation-code/">Modeling Objectives</a>.</p>
+<p>To do so, author your model in Code Repositories and add the <code>foundry_ml_metrics</code> library to your environment. Here is an example of how to use a MetricSet in conjunction with <code>palantir_models</code>:</p>
+<pre><code class="language-python">import uuid
+from transforms.api import transform, Input, Output
+from palantir_models.transforms import ModelInput
+
+from foundry_ml_metrics import MetricSet # add foundry_ml_metrics to your environment
+
+@transform(
+    evaluation_data_input=Input(&quot;path_to_input&quot;),
+    model_input=ModelInput(&quot;path_to_model&quot;),
+    metric_set_output=Output(&quot;path_to_output&quot;),
+)
+def compute(training_data_input, model_input, metric_set_output):
+    metric_set = MetricSet(
+        # Pass the &quot;hash&quot; part of the model version identifier, for example, given
+        # ri.models.main.model-version.6c0f17a8-ad73-46a4-b86e-8d0a13327ef2,
+        # only pass 6c0f17a8-ad73-46a4-b86e-8d0a13327ef2.
+        model=uuid.UUID(
+            # The model_version_rid property is only available on the ModelInput class
+            # for versions of palantir_models greater or equal to 0.1602.0.
+            model_input.model_version_rid.replace(&quot;ri.models.main.model-version.&quot;, &quot;&quot;)
+        ),
+        input_data=evaluation_data_input
+    )
+    metric_set.add(name='Accuracy', value=0.8)
+    metric_set.add(name='F1', value=0.95)
+    metric_set.save(metric_set_output)
+</code></pre>
+<p>Next, configure the <code>evaluation_data_input</code> dataset as an evaluation dataset in Modeling Objectives' evaluation configuration. The metrics will then appear under that dataset in Modeling Objectives' evaluation view.</p>
+</body>
+</html>

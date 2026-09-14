@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Workbench</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Workbench</h1>
+<p>The Autopilot workbench provides two coordinated views for visualizing and managing your automation workflows: <a href="https://www.palantir.com/docs/foundry/autopilot/workbench-kanban/">Kanban boards</a> and <a href="https://www.palantir.com/docs/foundry/autopilot/workbench-graph/">dependency graphs</a>. You can switch between these views or display them side by side.</p>
+<p><img alt="View your workflow as a Kanban-style work queue or as a dependency graph." src="../../_resources/foundry/autopilot/autopilot_split_view_ia.png" /></p>
+<p>You can search for any object using <code>Cmd+F</code> (macOS) or <code>Ctrl+F</code> (Windows), filter to objects linked to a selected object, and view live indicators showing which automations are currently executing.</p>
+<h2>Kanban and graph views</h2>
+<p>Use the view selector in the top toolbar to switch between the different options:</p>
+<ul>
+<li><strong><a href="https://www.palantir.com/docs/foundry/autopilot/workbench-kanban/">Kanban view</a></strong>: View your state-based workflow where each column represents a state and each card is an object.</li>
+<li><strong><a href="https://www.palantir.com/docs/foundry/autopilot/workbench-graph/">Graph view</a></strong>: Explore the dependency graph of your automation system, understand automation relationships, and visualize historical paths for each object.</li>
+<li><strong>Split view:</strong> View both the Kanban board and graph simultaneously.</li>
+</ul>
+<h2>States</h2>
+<p>States represent distinct stages in your automation workflow. Each state corresponds to a column in the Kanban board and a node on the graph, and defines where objects are in their lifecycle.</p>
+<p>States are automatically inferred from your automations or can be manually defined. Autopilot analyzes your automation conditions and effects to generate initial states, which you can then customize to match your workflow needs.</p>
+<h3>Manage all states in the sidebar</h3>
+<p>Use the <strong>States</strong> sidebar on the left to manage your workflow states:</p>
+<ul>
+<li><strong>Add states:</strong> Create custom states to represent additional steps in your workflow.</li>
+<li><strong>Reorder states:</strong> Drag and drop states to reorganize the column ordering in your Kanban board.</li>
+<li><strong>Focus a state:</strong> Zoom to a specific state on both the graph and Kanban views.</li>
+<li><strong>Configure a state:</strong> Select a state to open the <a href="#configure-each-state">configuration panel</a>.</li>
+<li><strong>Delete a state:</strong> Remove states that are no longer relevant to your workflow.</li>
+</ul>
+<p><img alt="Manage all of your states in Autopilot." src="../../_resources/foundry/autopilot/autopilot_states_sidebar_ia.png" /></p>
+<h3>Configure each state</h3>
+<p>To configure your state, choose a state in the <strong>States</strong> sidebar or select the cog button in the top right corner of a column header. The right side panel opens to display the following:</p>
+<ul>
+<li><strong>Definition:</strong> Configure which object types belong in this state and conditions for objects to enter or exit. You can also rename the state.</li>
+<li><strong>Display:</strong> Customize the column name, color, icon, and properties displayed on the card.</li>
+<li><strong>Upstream and Downstream:</strong> View historical transitions (last 100 edits) for objects entering this state (<strong>Upstream</strong>) and leaving this state (<strong>Downstream</strong>) with a breakdown of manual and automated transitions to monitor workflow automation levels.</li>
+<li><strong>Preview:</strong> View how the Kanban column appears in your workbench, including the list of objects currently in that column.</li>
+</ul>
+<p><img alt="Autopilot state configuration options." src="../../_resources/foundry/autopilot/autopilot_state_configuration_sidepanel_ia.png" /></p>
+</body>
+</html>

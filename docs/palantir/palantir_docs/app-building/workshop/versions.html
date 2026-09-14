@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Publishing and versioning</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Publishing and versioning</h1>
+<p>Module <strong>versioning</strong> allows builders to safely and iteratively build Workshop applications; the version accessible to end users can be controlled by <strong>publishing</strong> a stable version of the module. This allows for continuous development on a live Workshop application without necessarily exposing changes to end users when the module is saved.</p>
+<h2>Version history and settings</h2>
+<p><img src="../../_resources/external-65b284efd745.png" alt="Versions dialog" width="600"></p>
+<p>The Versions dialog is where builders can view a history of the saved versions for a module. Each saved version displays a timestamp, editor, and description if available. For each saved version, builders have the option to:</p>
+<ul>
+<li><strong>Publish this version:</strong> Publish a saved version of a module that will be accessible to viewers.</li>
+<li><strong>View this version:</strong> View the module at that specific version. When viewing a non-published version, a warning banner will appear at the top of the module.</li>
+</ul>
+<p><img alt="Version warning banner" src="../../_resources/foundry/workshop/version-warning-banner.png" /></p>
+<ul>
+<li><strong>Revert to this version:</strong> Save the historic version as the newest version of the module. A description detailing the revert action will be automatically generated.</li>
+</ul>
+<p>:::callout{theme="neutral" title="Edit a previous version of a module"}
+To edit a previous version of a module, follow the steps below:
+* Ensure the <strong>Automatically publish when saving</strong> toggle switch is off in the Versions dialog.
+* Revert to the version you would like to edit.
+* Create a duplicate copy of the selected version of the module with <strong>File &gt; Duplicate File</strong>.
+* Revert the original module to the newest version, and make any desired edits to the duplicate copy you created.
+:::</p>
+<p>The Versions dialog is also where builders can go to edit settings related to saving and versioning actions:</p>
+<ul>
+<li><strong>Automatically publish when saving:</strong> This toggle controls whether saving will automatically publish a new version.</li>
+<li><strong>Always prompt to add a version description when saving:</strong> This toggle controls whether the builder is prompted to add an optional description when saving a new version. Descriptions can be added to help document the changes being made to modules and build up a richer record of the module's history. Descriptions can be viewed, added, and edited in the moduleâs Versions dialog.</li>
+</ul>
+<p><img src="../../_resources/external-b2f70908733d.png" alt="Version description prompt" width="500"></p>
+<h2>Viewing changes between versions</h2>
+<p>Use the <a href="https://www.palantir.com/docs/foundry/workshop/changelog/">Changelog panel</a> to visualize differences between module versions. You can select:</p>
+<ul>
+<li><strong>Range selection:</strong> Choose a start and end version to see all changes between those versions.</li>
+<li><strong>Single selection:</strong> Select a single version to compare it to the previous version.</li>
+</ul>
+<p>The Changelog panel highlights additions, deletions, changes, moves, and newly unused elements. You can inspect JSON diffs to see the exact modifications and review a visual hierarchy to understand how changes relate to nested components.</p>
+<h2>Branching and rebasing</h2>
+<p>When developing on a branch, you may need to rebase before merging your Workshop changes into <code>main</code> if <code>main</code> has changed since your last save. Rebasing applies your branch's changes to the latest <code>main</code> version of the module and surfaces any merge conflicts that must be resolved.</p>
+<p>The rebasing user interface uses the <a href="https://www.palantir.com/docs/foundry/workshop/changelog/">Changelog panel</a> to visualize changes and highlight conflicts, such as when the same widget was modified on both <code>main</code> and your branch. Once conflicts are resolved, save to finish the rebase, and then proceed to merge your branch into <code>main</code>.</p>
+<p>For a complete walkthrough, see <a href="https://www.palantir.com/docs/foundry/workshop/branching-integration/#rebasing-and-conflict-resolution">Rebasing and conflict resolution</a>.</p>
+</body>
+</html>

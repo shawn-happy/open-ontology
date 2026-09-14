@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Redact mode</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Redact mode</h1>
+<p>Redact mode visually obfuscates the visible content of a Workshop application so you can share the layout and structure of a module without exposing the underlying data. Use redact mode when you take screenshots or share your screen and want to hide the underlying data. Redact mode differs from <a href="https://www.palantir.com/docs/foundry/workshop/kiosk-mode/">kiosk mode</a>, which restricts permissions; redact mode does not.</p>
+<p>:::callout{theme="warning"}
+Redact mode is a visual aid only and is not a security feature. Workshop still loads and processes the underlying data; redact mode only changes how the page renders. Do not rely on redact mode to protect sensitive information from a determined viewer with access to your browser session.
+:::</p>
+<p><img src="../../_resources/external-bc8babbf4c6a.png" alt="A Workshop module with redact mode enabled, showing text replaced with obfuscated glyphs and images replaced with diagonal striped backgrounds." width="900"></p>
+<h2>Enable redact mode</h2>
+<p>Append the query parameter <code>?workshop_enableRedactMode=true</code> to the URL of any Workshop module to enable redact mode. The parameter persists in the URL across in-application navigation, so reloading the page or copying the URL preserves the redacted state.</p>
+<h2>What redact mode changes</h2>
+<p>When redact mode is on, Workshop changes how the page renders in the following ways:</p>
+<ul>
+<li>Workshop renders all text in a custom font that replaces each character with an obfuscated glyph, preserving the approximate length and shape of words.</li>
+<li>Workshop replaces icons and chart plot areas with a diagonal striped background.</li>
+<li>Workshop hides images, SVGs, canvases, videos, audio elements, and embedded iframes.</li>
+</ul>
+<p>Module behavior does not change otherwise. Variables, events, actions, and data fetches run normally, and you can navigate, filter, and interact with the module as you would in any other session â only the page rendering changes.</p>
+</body>
+</html>

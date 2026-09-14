@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kiosk mode</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Kiosk mode</h1>
+<p>Kiosk mode gives builders the ability to enable long-lived, restricted sessions for Workshop applications, allowing them to be safely displayed for extended periods of time.</p>
+<p>Kiosk mode sessions are read-only, meaning that Ontology write backs such as object edits and creations may not be triggered, and have scoped down permissions limiting the content viewable within a session. Details on what entities are included in a Kiosk mode session's scope are available <a href="#kiosk-mode-session-scope">here</a>.</p>
+<p>:::callout{theme="neutral"}
+Kiosk mode restricts permissions and limits content access. If you want to visually hide data for screenshots or screen sharing without changing permissions, see <a href="https://www.palantir.com/docs/foundry/workshop/redact-mode/">redact mode</a> instead.
+:::</p>
+<h2>Configure kiosk mode for a Workshop module</h2>
+<p>Kiosk mode settings can be configured and managed per <a href="https://www.palantir.com/docs/foundry/security/orgs-and-spaces/">Organization</a> from <a href="https://www.palantir.com/docs/foundry/administration/configure-workshop/">Control Panel</a>.</p>
+<p>Once a module has been added to the kiosk mode settingâs allowlist, builders with permissions to launch kiosk mode sessions can do so by navigating to the <strong>Advanced Functionalities</strong> section of the moduleâs <strong>Settings</strong> panel and enabling the <strong>Kiosk Mode</strong> toggle. The <strong>Open kiosk</strong> button will appear in the top right corner of the module. Selecting this button opens a modal that outlines the contents of the currently published version of the module that will be visible for the duration of the session. This includes object types, link types, functions, and other embedded Foundry applications. After reviewing the scope of the moduleâs content, select <strong>Launch session</strong> to start a kiosk mode session.</p>
+<p><img src="../../_resources/external-afd5e8e79206.png" alt="Kiosk mode toggle, launch modal, and button in edit mode" width="700"></p>
+<p>After kiosk mode has been configured and enabled for a module in both Control Panel and Workshop, you can also launch a kiosk mode session in view mode by selecting <strong>Open kiosk</strong>.</p>
+<p><img src="../../_resources/external-02627074eb88.png" alt="Kiosk mode toggle in enabled position." width="350"></p>
+<p>You can end a kiosk mode session by selecting <strong>Exit kiosk mode</strong>. Active kiosk mode sessions can also be ended by Administrators from the <strong>Session Launch History</strong> table found in the <a href="https://www.palantir.com/docs/foundry/administration/configure-workshop/">kiosk mode settings section of Control Panel</a>.</p>
+<h2>Kiosk mode session scope</h2>
+<p>Permissions will be scoped down for a module in kiosk mode to limit the content that is viewable in an active session. As a result, the content you can view when a module is in kiosk mode may differ from the content you can view when in view or edit mode.</p>
+<p>Content that will be viewable and in the scope of a kiosk mode session will be displayed in the <strong>Content in scope</strong> section of the <strong>Launch kiosk session</strong> modal. Note that nested entities from embedded Workshop modules will be automatically included and viewable in a kiosk mode session. However, nested entities from other embedded Foundry applications will be not automatically included.</p>
+<p>Here are two examples to illustrate how Kiosk mode scopes down entity permissions to limit the content viewable in a session:</p>
+<ul>
+<li>A Vertex Graph embedded via the Vertex Graph widget may reference an object type that is not directly present within the Workshop module. This means that when a Kiosk mode session is launched, that object type will not be included in the sessionâs scope and will not be viewable when in Kiosk mode.</li>
+<li>A function that executes search around on an object type within a module may fail in Kiosk mode if the corresponding link type is not present within the Workshop module.</li>
+</ul>
+<p>You can use the <strong>Launch kiosk session</strong> to determine which entities will be present or missing in kiosk mode. To include a missing entity in a kiosk mode session's scope, you can add a direct reference to the entity somewhere within the module.</p>
+<h2>Limitations</h2>
+<ul>
+<li>Object types that are backed by a restricted view data source are not supported in kiosk mode.</li>
+<li>All embedded Slate applications are disabled for security purposes due to their ability to write back to the Ontology.</li>
+<li>When developing OSDK applications, it is the application builder's responsibility to ensure that the iframe's content manages authorization or tokens appropriately so the authorization remain valid for the entire duration of the kiosk session. Review <a href="https://www.palantir.com/docs/foundry/platform-security-third-party/writing-oauth2-clients/#refreshing-an-access-token">refreshing an access token</a> for more information.</li>
+<li>The standard inactivity timeout dialog still appears in kiosk mode sessions. While kiosk sessions are designed to be long-lived, they follow the platform's session timeout policies for security reasons.</li>
+</ul>
+</body>
+</html>

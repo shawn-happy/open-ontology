@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Model Studio</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Model Studio</h1>
+<p>Model Studio is Foundry's no-code model development tool. With Model Studio, users can choose a training task, select input datasets, and optionally configure parameters to train and deploy production-grade machine learning models without writing code.</p>
+<p><img alt="The Model Studio home page." src="../../_resources/foundry/model-studio/model-studio-homepage.png" /></p>
+<h2>Features</h2>
+<ul>
+<li><strong>A streamlined point-and-click interface</strong> for configuring model training jobs; no coding required.</li>
+<li><strong>Built-in production-grade model trainers</strong> tailored for common use cases such as time series forecasting, regression, and classification.</li>
+<li><strong>Smart defaults and guided workflows</strong> that empower you get started quickly, even if you are new to machine learning.</li>
+<li><strong>In-depth experiment tracking</strong> with integrated performance metrics that allow you to monitor and refine your models with confidence.</li>
+<li><strong>Full data lineage and secure access controls</strong> built on top of the Palantir platform, ensuring transparency and security at every step.</li>
+</ul>
+<h2>Workflow</h2>
+<p>Building a model using Model Studio requires the following steps:</p>
+<ol>
+<li><strong>Choose your model trainer:</strong> Built-in trainers are available for common modeling tasks like <a href="https://www.palantir.com/docs/foundry/model-studio/trainers-timeseries-forecasting/">time series forecasting</a>, <a href="https://www.palantir.com/docs/foundry/model-studio/trainers-regression/">regression</a>, and <a href="https://www.palantir.com/docs/foundry/model-studio/trainers-classification/">classification</a>.</li>
+<li><strong>Provide your data:</strong> Choose the datasets to provide as training and optional testing data.</li>
+<li><strong>Configure your model:</strong> Parameters are available for each trainer. You can choose to fine-tune the parameters or stick with the defaults.</li>
+<li><strong>Launch the build:</strong> Launch the transform job and visualize training metrics in the <a href="https://www.palantir.com/docs/foundry/model-integration/experiments/">experiment</a> created at runtime.</li>
+</ol>
+<p>Once model training is complete, the model can be used for inference in downstream applications like <a href="https://www.palantir.com/docs/foundry/integrate-models/transform-model-input/">Python transforms</a>, <a href="https://www.palantir.com/docs/foundry/pipeline-builder/transforms-trained-model/">Pipeline Builder</a>, <a href="https://www.palantir.com/docs/foundry/model-integration/functions-on-models/">functions</a>, and shipped via <a href="https://www.palantir.com/docs/foundry/model-integration/marketplace-models/">Marketplace</a>.</p>
+<p>Model Studio training jobs can also be integrated with <a href="https://www.palantir.com/docs/foundry/data-integration/schedules/">build schedules</a> to automatically retrain the model whenever new data is available.</p>
+<p>Ready to get started? See the <a href="https://www.palantir.com/docs/foundry/model-integration/tutorial-train-model-studio/">guided tutorial</a> or learn more about <a href="https://www.palantir.com/docs/foundry/model-studio/core-concepts/">Model Studio</a>.</p>
+</body>
+</html>

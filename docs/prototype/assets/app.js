@@ -50,6 +50,12 @@
       ],
     },
     {
+      group: '成员管理',
+      items: [
+        { id: 'member-assign', href: ROOT + 'workspace/member-assign.html', icon: '⊕', label: '分配记录' },
+      ],
+    },
+    {
       group: '审计管理',
       items: [
         { id: 'audit-logs', href: ROOT + 'audit/audit-logs.html', icon: '☰', label: '审计日志' },

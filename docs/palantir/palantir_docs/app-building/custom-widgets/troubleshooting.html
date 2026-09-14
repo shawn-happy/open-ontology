@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Troubleshooting</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Troubleshooting</h1>
+<p>This page contains tips for issues that you may encounter while using custom widgets.</p>
+<h2>Page crashes</h2>
+<p>Custom widgets run inside an iframe and may crash if they consume too much memory or block the browser thread. When this occurs, the browser may become unresponsive or show a terminated state. Use the <strong>Performance</strong> tab in Chrome DevTools to record browser execution and look for performance anomalies.</p>
+<p>Review the common anti-patterns described below to mitigate browser page crashing when working with custom widgets.</p>
+<h3>Avoid infinite loops and re-renders</h3>
+<p>Infinite or effectively infinite loops and re-renders are a common class of bug that can cause page crashes.</p>
+<p>In <a href="https://react.dev/">React â</a>, beware of loops that could cause infinite re-renders. Check for:</p>
+<ul>
+<li><code>useEffect</code> hooks that update a dependency of the same hook, causing them to run again.</li>
+<li><code>setTimeout</code>, <code>setInterval</code>, <code>requestAnimationFrame</code> loops that are never cleared.</li>
+<li>Event handlers, such as <code>window.addEventListener</code>, that cause updates which trigger the same handler again.</li>
+<li>Rendering code that performs expensive work for <em>every</em> item on <em>every</em> render.</li>
+</ul>
+<pre><code class="language-typescript">function InfiniteRender({ objects }: { objects: MyObject[] }) {
+    const [data, setData] = useState&lt;MyObject[]&gt;([]);
+
+    // BUG: updating data which is also a dependency
+    useEffect(() =&gt; {
+        setData([...objects]);
+    }, [objects, data]);
+
+    return &lt;MyComponent /&gt;;
+}
+</code></pre>
+<p>Outside of React, avoid creating <code>while</code> loops that never exit:</p>
+<pre><code class="language-typescript">// BUG: infinite loop if condition is never met
+while (true) {
+    doSomething();
+    if (myCondition) {
+        break;
+    }
+}
+</code></pre>
+<p>Additionally, you should not create <code>while</code> loops that are effectively infinite due to an unknown and unexpectedly large number of iterations:</p>
+<pre><code class="language-typescript">const minValue = min(myValues);
+const maxValue = max(myValues);
+let currentValue = minValue;
+
+// BUG: effectively infinite loop if bounds of myValues are unknown and unexpectedly large
+while (currentValue &lt;= maxValue) {
+    doSomething(currentValue);
+    currentValue += 1;
+}
+</code></pre>
+<h3>Avoid loading all data into the browser</h3>
+<p>When an ontology object type has a large number of objects, do not load all objects into the browser for client-side processing. This can exhaust browser resources and transfer large amounts of data over the network, which can be slow for widget users.</p>
+<pre><code class="language-typescript">let pageToken: string | undefined;
+const allObjects = [];
+
+do {
+    const page = await client(MyObject).fetchPage({
+        $pageSize: 1_000,
+        $pageToken: pageToken,
+    });
+
+    allObjects.push(...page.data);
+    pageToken = page.nextPageToken;
+} while (pageToken != null);
+</code></pre>
+<p>Instead:</p>
+<ul>
+<li>Display a single page of data to the user and only load extra pages when needed.</li>
+<li>Apply filtering and sorting in the query rather than in client-side processing.</li>
+<li>Use aggregations when summary statistics, such as a total count, are required.</li>
+<li>Request only the properties required with <code>$select</code> for object types with many properties.</li>
+<li>Use <a href="https://www.palantir.com/docs/foundry/ontology/derived-properties/">derived properties</a> through <code>.withProperties</code> for calculations depending on values of other properties or links on objects.</li>
+</ul>
+</body>
+</html>

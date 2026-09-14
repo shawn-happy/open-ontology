@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Getting started</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Getting started</h1>
+<p>This tutorial walks through how you can use Contour to go from a spreadsheet of raw data to charts that reveal insights into the data.</p>
+<h2>About the dataset</h2>
+<p>This tutorial uses data about neighborhoods in New York City from the <a href="https://data.cityofnewyork.us">2010 U.S. Census â</a>. Follow along with this sample dataset: <a href="/docs/resources/foundry/contour/getting-started-nyc_population_by_neighborhood.csv"><code>Download nyc_population_by_neighborhood dataset</code></a></p>
+<p>Each row in the dataset is a neighborhood in New York City, with information about its Borough, Population, NTA_Name (neighborhood name), and FIPS_County_Code (county code).</p>
+<p>After downloading this dataset, drag and drop it into Foundry to create a dataset. Then, click <strong>Analyze</strong> to start a Contour analysis.</p>
+<hr />
+<h2>Building a chart</h2>
+<p>First, we will visualize the population in each borough of New York City. We can do this by adding a bar chart with X-axis Borough, and Y-axis the sum of Population.</p>
+<p><img alt="chart-tutorial-pt-1" src="../../_resources/foundry/contour/getting-started-chart-tutorial-pt-1.png" /></p>
+<p>To sort the bars in descending order of population, scroll to <strong>Options</strong> and choose <strong>Y axis descending</strong> for Sort Order.</p>
+<p><img alt="chart-tutorial-pt-2" src="../../_resources/foundry/contour/getting-started-chart-tutorial-pt-2.png" /></p>
+<hr />
+<h2>Adding an overlay</h2>
+<p>In addition to information about total population of the borough, you can overlay the average population in each neighborhood as a line. This provides a sense of population density in the boroughs.</p>
+<p>Add an overlay by clicking <strong>+ Add overlay</strong> and selecting a line chart. You can plot this line chart on a new axis.</p>
+<p><img alt="chart-tutorial-pt-3" src="../../_resources/foundry/contour/getting-started-chart-tutorial-pt-3.png" /></p>
+<p>Based on this chart we can see that although Manhattan has the third highest population out of the five boroughs, the mean population per neighborhood in Manhattan is about 55,000 people per neighborhood which is more than any other borough.</p>
+<hr />
+<h2>Formatting the chart</h2>
+<p>Now that we have created the chart, we can change the titles, colors, and number formatting.</p>
+<p>Click on the <strong>Format</strong> tab. Change the left Y-axis title from <strong>Sum of Population</strong> to <strong>Population</strong>, and the right Y-axis title from <strong>Mean of Population</strong> to <strong>Mean of Population per Neighborhood</strong>. Then, toggle off the legend. In this section, you can also choose Number Format options and Scale options.</p>
+<p><img alt="chart-tutorial-pt-4" src="../../_resources/foundry/contour/getting-started-chart-tutorial-pt-4.png" /></p>
+<p>Next, use the color picker to choose a different color for the overlay line. Click on the green square below the label <strong>Overlay 1</strong>, and expand the color picker section. In this popover, you can also choose to make the line dashed.</p>
+<p><img alt="chart-tutorial-pt-5" src="../../_resources/foundry/contour/getting-started-chart-tutorial-pt-5.png" /></p>
+<p>Next, change the Display Units on the Y-axis. The goal is to view the population per Borough in millions. In the format tab under <strong>Number Format Options</strong>, change the <strong>Display Unit</strong> to Millions and specify 2 decimal places. After recomputing, note that the Y-axis title is now "Population (in millions)". This is only a formatting change: all underlying data remains the same.</p>
+<p><img alt="chart-display-units" src="../../_resources/foundry/contour/getting-started-chart-display-units.png" /></p>
+<hr />
+<h2>Segmenting your data</h2>
+<p>We want to investigate the specific neighborhoods that make up each borough's population. To view the population for each neighborhood and see how it contributes toward the sum for its borough, add the neighborhood as a segment in the <strong>Main Chart</strong> tab. Your chart will now look like this:</p>
+<p><img alt="chart-tutorial-pt-6" src="../../_resources/foundry/contour/getting-started-chart-tutorial-pt-6.png" /></p>
+<p>Congratulations - you have successfully made a chart using Contour.</p>
+<hr />
+<h2>Other tips for working with charts</h2>
+<h3>Overlays</h3>
+<p>Note that <em>only the main chart layer is part of the data path</em>. The other layers are solely for presentation purposes. In other words, making a selection or otherwise manipulating the data on an overlay layer will not affect the data downstream in your path.</p>
+<h3>Sorting the segments in your series</h3>
+<p>When you have segmented your series, you can reorder the segments in the series in the <strong>Format</strong> tab. Scroll down and click on the <strong>Format Series</strong> popover. You can choose to sort the segments in ascending or descending order, or a custom sort based on another column. Or, use the drag handles next to each segment name to manually reorder them.</p>
+<p>In the below image, we are visualizing the average trip distance for taxi trips between the <code>start_borough</code> of a taxi trip, and the <code>end_borough</code>. In the example, the segments (<code>end_borough</code>) are sorted by the average trip distance so that the <code>end_borough</code> with the highest average trip distance appears to the left.</p>
+<p><img alt="custom_series_sort" src="../../_resources/foundry/contour/getting-started-custom-series-sort.png" /></p>
+<h3>Advanced: Line chart series sort</h3>
+<p>You may want to control the order in which points in your line chart are plotted. For example, imagine we want to plot the temperature and wind speed at a location over time. Our data looks as below:</p>
+<table>
+<thead>
+<tr>
+<th>day</th>
+<th>temperature</th>
+<th>wind_speed</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>50</td>
+<td>0</td>
+</tr>
+<tr>
+<td>2</td>
+<td>36</td>
+<td>10</td>
+</tr>
+<tr>
+<td>3</td>
+<td>70</td>
+<td>25</td>
+</tr>
+</tbody>
+</table>
+<p>Make a line chart with temperature on the X-axis and wind speed on the Y-axis.</p>
+<p><img alt="line-chart-no-series-sort" src="../../_resources/foundry/contour/getting-started-line-chart-no-series-sort.png" /></p>
+<p>Above, the points are drawn from left to right. We want the points to be drawn in chronological order. To do that, add <code>day</code> in the <strong>Series Sort Options</strong>.</p>
+<p><img alt="line-chart-with-series-sort" src="../../_resources/foundry/contour/getting-started-line-chart-with-series-sort.png" /></p>
+<p>The points in this chart are now drawn in order of day.</p>
+</body>
+</html>

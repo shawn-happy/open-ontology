@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Transaction selectors</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Transaction selectors</h1>
+<p>The following list describes the transaction selectors available for use when configuring retention policies in the Retention application.</p>
+<p>Text in <code>this format</code> represents a parameter that could be defined on each policy.</p>
+<h2>Only in branch</h2>
+<p>Delete transactions that appear <strong>only</strong> in the given branch.</p>
+<p><strong>Takes 1 argument:</strong> <code>branch</code></p>
+<p><strong>Example:</strong> "Only in branch <code>main</code>"</p>
+<p><img alt="Only in branch selector" src="../../_resources/foundry/retention/transaction-selector-only-in-branch.png" /></p>
+<p>Setting "Only in branch <code>main</code>" will not delete the first two <code>SNAPSHOT</code> transactions as they are also the root transaction for the <code>SNAPSHOT</code> transaction on the feature branch.</p>
+<h2>Not in branch</h2>
+<p>Delete all transactions except ones in the given branch.</p>
+<p><strong>Takes 1 argument:</strong> <code>branch</code></p>
+<p><strong>Example:</strong> "Not in branch <code>main</code>"</p>
+<p><img alt="Not in branch selector" src="../../_resources/foundry/retention/transaction-selector-not-in-branch.png" /></p>
+<h2>Transaction count</h2>
+<p>:::callout{theme="warning"}
+The transaction count selector allows you to define the transactions to retain. It is not to indicate the transactions that will be deleted.
+:::</p>
+<p>Retains only the transactions that are among the <code>number of transaction to retain</code> most recent data-containing transactions data on any branch. A transaction is defined to be data-containing if, and only if, the following statements are true:</p>
+<ul>
+<li>The transactions is committed.</li>
+<li>The transaction is not a <code>DELETE</code> transaction.</li>
+</ul>
+<p>All aborted transactions are not data-containing and will be deleted. As this selector does not differentiate between <code>SNAPSHOT</code>, <code>APPEND</code>, or <code>UPDATE</code> transactions, we recommend using the <code>viewCount</code> selector in incremental pipelines.</p>
+<p><strong>Takes 1 argument:</strong> <code>number of transactions to retain</code></p>
+<p><strong>Example:</strong> "transaction count <code>2</code>"</p>
+<p><img alt="Transaction count selector" src="../../_resources/foundry/retention/transaction-selector-transaction-count.png" /></p>
+<p>This selector ensures that at least <code>2</code> <code>SNAPSHOT</code> transactions are available on each branch. The feature branch could have 3 transactions; the oldest transaction is also the 2nd transaction on branch <code>main</code>, so it is not deleted.</p>
+<h2>View count</h2>
+<p>:::callout{theme="warning"}
+The view count selector allows you to define the transactions in views to retain. It is not to indicate the transactions in views that will be deleted.
+:::</p>
+<p>The view count selector retains only transactions in the last <code>number of views to retain</code> <a href="https://www.palantir.com/docs/foundry/data-integration/datasets/#dataset-views">dataset views</a>. As a view is defined to comprise of only committed transactions, any aborted transactions are also deleted. For example, <code>numViewsToRetain: 1</code> means that all transactions prior to the latest view (that is, all transactions prior to the latest <code>SNAPSHOT</code> transaction) and all aborted transactions are deleted.</p>
+<p><strong>Takes 1 argument:</strong> <code>number of views to retain</code></p>
+<p><strong>Example:</strong> "view count <code>1</code>"</p>
+<p><img alt="View count selector" src="../../_resources/foundry/retention/transaction-selector-view-count.png" /></p>
+<h2>Older than a certain duration</h2>
+<p>This selects transactions older than the given duration.</p>
+<p><strong>Takes 1 argument:</strong> <code>duration</code></p>
+<h2>Has been projected (advanced)</h2>
+<p>For datasets with <a href="https://www.palantir.com/docs/foundry/building-pipelines/maintaining-incremental-performance/#dataset-projections">projections</a>, this selector selects the transactions that have been propagated to all projections.</p>
+<h2>No files in active view (advanced)</h2>
+<p>This selector selects all transactions that are not in the latest view (as well as all transactions currently in views where all files have been superseded by files in newer transactions). This is useful for datasets which have many transactions in the latest view, and should only be used with the <code>Allow deletion from latest view</code> flag.</p>
+<h2>Only present in views older than (advanced)</h2>
+<p>Selects transactions only present in views older than a given duration. A view age is defined as time between the close time of the latest transaction in the view and now. If a view has an open transaction, none of the transactions in that view will be deleted.</p>
+<p><strong>Takes 1 argument:</strong> <code>duration</code></p>
+<h2>Is derived (advanced)</h2>
+<p>Selects transactions which are derived. These are transactions generated from running a build. Transactions created from manually uploading data or through Data Connection are not considered derived.</p>
+</body>
+</html>

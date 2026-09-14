@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Add new pages to custom documentation</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Add new pages to custom documentation</h1>
+<p>In-platform custom documentation is written in Markdown. To add a new page to a custom documentation bundle, create a new Markdown file (<code>.md</code>) in the documentation repository and ensure that it meets these requirements:</p>
+<ul>
+<li><a href="#specify-a-page-title">Page must use <code>@title</code> for the page title</a></li>
+<li><a href="#add-the-new-page-to-orderingmd">Page must be listed in <code>ordering.md</code></a></li>
+<li><a href="#optional-use-a-different-label-in-the-table-of-contents">Optional: Specify a label for the table of contents</a></li>
+</ul>
+<p>Each Markdown file (<code>.md</code>) in a documentation repository is published as a separate page of documentation, grouped by bundle and linked via the automatically-generated table of contents.</p>
+<p>To edit the content of a custom docs page, use Code Repositories to create a new branch of the docs repository, modify the Markdown file, and commit/build your changes.</p>
+<h2>Specify a page title</h2>
+<p>All content pages within a documentation bundle require the specification of a page title. This is done using the <code>@title</code> annotation at the top of each Markdown file (other than <code>overview.md</code>, which uses <code>@name</code>).</p>
+<p>For example:</p>
+<pre><code>@title Example title
+
+This is the text of the documentation page named &quot;Example title in sentence case&quot;.
+</code></pre>
+<p>:::callout{theme="neutral"}
+Note that the actual filename and page name specified with the <code>@title</code> annotation do not need to be the same.
+:::</p>
+<h2>Add the new page to <code>ordering.md</code></h2>
+<p>Each page in a documentation bundle (other than the mandatory <code>overview.md</code>) must be specified in an <code>ordering.md</code> file in the documentation repository. The <code>ordering.md</code> enables you to structure and organize the documentation bundle with <a href="https://www.palantir.com/docs/foundry/custom-docs/custom-docs-bundle-structure/">section annotations</a>. The left-hand table of contents is automatically generated with these section annotations.</p>
+<p><a href="https://www.palantir.com/docs/foundry/custom-docs/custom-docs-bundle-structure/">Learn more about organizing your documentation bundle.</a></p>
+<h2>Optional: Use a different label in the table of contents</h2>
+<p>The filename of a content page is used to generate the URL for that page, but the <code>@title</code> page title is used in the left-hand table of contents. If you want a page's label in the table of contents label to be different from the page's title (for instance, if the page title is very long), you can specify a table of contents label using the <code>@toc</code> annotation.</p>
+<p>Building off the example above, we might have a file like:</p>
+<pre><code>@title Example long title in sentence case
+@toc Example
+
+This is the text of the documentation page named &quot;Example long title in sentence case&quot;. The page's title will appear in the table of contents as &quot;Example&quot;.
+</code></pre>
+</body>
+</html>

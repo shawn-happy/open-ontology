@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Next steps by user role</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../index.html">返回目录</a></div>
+<h1>Next steps by user role</h1>
+<p>Now that you are oriented in the Palantir platform and understand its core concepts, you can explore the platform capabilities that are most relevant for your role.</p>
+<p>The boundaries between roles in the Palantir platform can shift, and some responsibilities and workflows may not align perfectly into a single role. You may end up performing different roles; if your organization is just getting started with Palantir, or if you are working on a small implementation team, you may use many parts of the platform in your day-to-day work.</p>
+<p>Alternatively, you can explore the Palantir platform by reviewing the <a href="https://www.palantir.com/docs/foundry/getting-started/application-reference/">application reference</a>, which provides a high-level overview of the major platform applications.</p>
+<h2>Standard user roles</h2>
+<p>With this in mind, the following roles are generally adopted at most organizations using Palantir. Below, we discuss these high-level roles and how each type of user can get started:</p>
+<ul>
+<li><a href="#data-engineer">Data engineer</a></li>
+<li><a href="#application-builder">Application builder</a></li>
+<li><a href="#analyst">Analyst</a></li>
+<li><a href="#data-scientist">Data scientist</a></li>
+<li><a href="#platform-administrator">Platform administrator</a></li>
+<li><a href="#data-governance">Data governance</a></li>
+</ul>
+<p>If you would like to get started right away, <a href="#jump-into-the-platform">jump into the Palantir platform.</a></p>
+<h2>Data engineer</h2>
+<p>Palantir's data integration layer provides the foundation for all the other work that happens in the platform. By building and maintaining data pipelines, data engineers produce datasets that are high-quality, relevant, and frequently updated to serve the needs of the organization. A wide variety of tools are available to maintain the durability of data pipelines over time, including programmatic health checks and transparency into the underlying computation.</p>
+<p>The primary tools used by data engineers include <a href="https://www.palantir.com/docs/foundry/pipeline-builder/overview/"><strong>Pipeline Builder</strong></a> and <a href="https://www.palantir.com/docs/foundry/code-repositories/overview/"><strong>Code Repositories</strong></a> for authoring data pipelines, and <a href="https://www.palantir.com/docs/foundry/data-lineage/overview/"><strong>Data Lineage</strong></a> for visualizing them end-to-end. Data engineers should also understand how to use <a href="https://www.palantir.com/docs/foundry/maintaining-pipelines/recommended-health-checks/">recommended health checks</a>, <a href="https://www.palantir.com/docs/foundry/monitoring-views/overview/">monitoring views</a>, and lineage to operate pipelines after they are deployed. Data engineers will need to be familiar with the concept of data pipelines and develop an understanding of what makes for a high-quality pipeline in the platform.</p>
+<p><a href="https://www.palantir.com/docs/foundry/data-integration/data-pipeline/">Learn more about data pipelines.</a></p>
+<h2>Application builder</h2>
+<p>Palantir's Ontology and application building capabilities enable you to create tailored applications for end users. These end users are usually operators in an organization, making decisions that can be informed by data. Beyond just presenting data to users, you can use custom applications to capture information from users in the form of action types configured in the Ontology.</p>
+<p>Application builders will need to be familiar with the Palantir <a href="https://www.palantir.com/docs/foundry/ontology/overview/"><strong>Ontology</strong></a>, which is usually the layer at which application builders collaborate with data engineers to establish a data foundation for workflow development. Builders can create and maintain their organization's Ontology in <a href="https://www.palantir.com/docs/foundry/ontology-manager/overview/"><strong>Ontology Manager</strong></a>, then use <a href="https://www.palantir.com/docs/foundry/workflow-lineage/overview/"><strong>Workflow Lineage</strong></a> to understand how objects, actions, functions, large language models (LLMs), and applications fit together.</p>
+<p>To create and deliver applications, builders can use <a href="https://www.palantir.com/docs/foundry/workshop/overview/"><strong>Workshop</strong></a> for point-and-click application building on top of the Ontology, extend Workshop with <a href="https://www.palantir.com/docs/foundry/custom-widgets/overview/"><strong>custom widgets</strong></a>, or use <a href="https://www.palantir.com/docs/foundry/pilot/overview/"><strong>Pilot</strong></a> to start from a natural language description. For code-first development, builders can use the <a href="https://www.palantir.com/docs/foundry/ontology-sdk/overview/"><strong>OSDK</strong></a> and <a href="https://www.palantir.com/docs/foundry/ontology-sdk-react-applications/overview/"><strong>OSDK React applications</strong></a>, manage application configuration and SDK generation in <a href="https://www.palantir.com/docs/foundry/developer-console/overview/"><strong>Developer Console</strong></a>, write <a href="https://www.palantir.com/docs/foundry/functions/overview/"><strong>Functions</strong></a> for shared business logic, or build applications in <a href="https://www.palantir.com/docs/foundry/slate/overview/"><strong>Slate</strong></a>. Builders can also create LLM-backed workflows with <a href="https://www.palantir.com/docs/foundry/logic/overview/"><strong>AIP Logic</strong></a> and trigger ontology-driven work with <a href="https://www.palantir.com/docs/foundry/automate/overview/"><strong>Automate</strong></a>.</p>
+<p><a href="https://www.palantir.com/docs/foundry/app-building/overview/">Learn more about application building.</a></p>
+<h2>Data scientist</h2>
+<p>The Palantir platform includes support for analyzing data using code and developing, evaluating, and deploying machine learning models. This functionality builds on top of the rigor of the data integration layer to provide lineage and reproducibility for models in the same way as datasets. The result is an environment where analytics and machine learning can build on high-quality data and shared modeling workflows.</p>
+<p>In the Palantir platform, data scientists often use <a href="https://www.palantir.com/docs/foundry/code-workbook/overview/"><strong>Code Workbook</strong></a>, an application designed to enable code-based analysis and the development of machine learning models. Code Workbook enables you to write code in Python, R, and SQL to access, normalize, and analyze high-quality datasets prepared by data engineers. The resulting analyses and models can then be connected to <a href="https://www.palantir.com/docs/foundry/model-integration/overview/">model integration</a>, shared through <a href="https://www.palantir.com/docs/foundry/model-catalog/overview/"><strong>Model Catalog</strong></a>, evaluated with <a href="https://www.palantir.com/docs/foundry/aip-evals/overview/"><strong>AIP Evals</strong></a>, and integrated into the Ontology for use in applications and workflows.</p>
+<p>As an alternative, data scientists can work in their preferred third-party IDEs with <a href="https://www.palantir.com/docs/foundry/code-workspaces/overview/"><strong>Code Workspaces</strong></a>. Code Workspaces containers are integrated with the rest of the Palantir ecosystem to combine JupyterLabÂ® and RStudioÂ® Workbench IDEs with the security, branching, and resource management benefits of the Palantir platform.</p>
+<p>Learn more about <a href="https://www.palantir.com/docs/foundry/model-integration/overview/">model integration</a> and <a href="https://www.palantir.com/docs/foundry/analytics/types-of-analysis/#code-based-analysis">code-based analysis</a>.</p>
+<h2>Analyst</h2>
+<p>As Palantir can be used to build a secure and high-quality data foundation, analysts can find and explore data that is relevant to the questions they need to answer. A rich set of tools is available for analyzing data in a wide variety of formatsâtabular, relational, temporal, geospatial, and more. Once your analysis yields insight, you can make it repeatable by creating <a href="https://www.palantir.com/docs/foundry/analytics/dashboards/">dashboards</a> or present your findings using <a href="https://www.palantir.com/docs/foundry/analytics/reporting/">reporting</a> tools.</p>
+<p>Analysts typically use <a href="https://www.palantir.com/docs/foundry/contour/overview/"><strong>Contour</strong></a> to explore datasets in the platform and conduct open-ended analysis at high-scale, and use <a href="https://www.palantir.com/docs/foundry/quiver/overview/"><strong>Quiver</strong></a> to analyze data in the Ontology, along with associated time series. Analysts can also use <a href="https://www.palantir.com/docs/foundry/aip-analyst/overview/"><strong>AIP Analyst</strong></a> to explore ontology-backed questions with natural language. These applications support moving from ad-hoc analysis into dashboards, reports, or <a href="https://www.palantir.com/docs/foundry/notepad/overview/"><strong>Notepad</strong></a> documents that share results with colleagues.</p>
+<p><a href="https://www.palantir.com/docs/foundry/analytics/overview/">Learn more about analytics</a>.</p>
+<h2>Platform administrator</h2>
+<p>Platform administrators can use Palantir's dedicated administrative tooling to configure the platform, manage and understand how it is being used, and ensure that the organization's data is being managed securely.</p>
+<p>Platform administrators typically set up <a href="https://www.palantir.com/docs/foundry/authentication/overview/">authentication</a> to connect to an organization's identity provider, configure <a href="https://www.palantir.com/docs/foundry/administration/configure-application-access/">application access</a>, then set up <a href="https://www.palantir.com/docs/foundry/data-connection/overview/"><strong>Data Connection</strong></a> to enable data to flow into the platform. As use of the platform matures, administrators can use <a href="https://www.palantir.com/docs/foundry/resource-management/overview/"><strong>Resource Management</strong></a> to manage resource consumption, <a href="https://www.palantir.com/docs/foundry/developer-console/overview/"><strong>Developer Console</strong></a> to support custom application development, and <a href="https://www.palantir.com/docs/foundry/monitoring-views/overview/">monitoring views</a> to help teams observe operational health. Administrators should also understand access considerations for <a href="https://www.palantir.com/docs/foundry/palantir-mcp/security/"><strong>Palantir MCP</strong></a> and <a href="https://www.palantir.com/docs/foundry/ontology-mcp/overview/"><strong>Ontology MCP</strong></a> when those capabilities are enabled.</p>
+<p><a href="https://www.palantir.com/docs/foundry/administration/overview/">Learn more about platform administration.</a></p>
+<h2>Data governance</h2>
+<p>Palantir provides tools for securing data and providing transparency to data governance leads. These tools provide guarantees about how data is protected as it is transformed in the Palantir platform and used for user-facing applications. They also preserve the ability for you to introspect and validate who has access to what information.</p>
+<p>Users in data governance roles should learn about the broad set of data security workflows in the platform, ranging from <a href="https://www.palantir.com/docs/foundry/security/securing-a-data-foundation/">securing a data foundation</a> to <a href="https://www.palantir.com/docs/foundry/security/protecting-sensitive-data/">protecting sensitive data</a>. These capabilities are built on Palantir's data security concepts, namely <a href="https://www.palantir.com/docs/foundry/security/projects-and-roles/"><strong>Projects</strong></a> and <a href="https://www.palantir.com/docs/foundry/security/markings/"><strong>Markings</strong></a>. Governance leads should also understand <a href="https://www.palantir.com/docs/foundry/object-permissioning/ontology-permissions/">object permissioning</a>, <a href="https://www.palantir.com/docs/foundry/developer-console/application-restrictions/">application restrictions</a>, <a href="https://www.palantir.com/docs/foundry/developer-console/permissions/">OSDK permissions</a>, <a href="https://www.palantir.com/docs/foundry/ontology-mcp/overview/">Ontology MCP restrictions</a>, and <a href="https://www.palantir.com/docs/foundry/workflow-lineage/manage-security/">Workflow Lineage security visibility</a> where those controls are part of their organization's workflows.</p>
+<p><a href="https://www.palantir.com/docs/foundry/security/data-protection-and-governance/">Learn more about data protection and governance.</a></p>
+<h2>Jump into the platform</h2>
+<p>Now that you have learned how to navigate through the platform, start building by:</p>
+<ul>
+<li>Learning with the <a href="https://www.palantir.com/docs/foundry/getting-started/training-application/">Training application, a curated set of courses from learn.palantir.com</a>.</li>
+<li>Using <a href="https://www.palantir.com/docs/foundry/getting-started/start-with-examples/">Examples</a>, a comprehensive library designed to facilitate learning and effective platform usage with reference examples, tutorials, and starter kits.</li>
+</ul>
+</body>
+</html>

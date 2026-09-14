@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>分配记录 · Open Ontology</title>
+<link rel="stylesheet" href="../assets/style.css" />
+<style>
+  .role-extra { font-size: 12px; color: var(--text-3); margin-left: 6px; }
+  .src-badge { font-weight: normal; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+
+<!-- 分配角色 -->
+<div class="mask" id="roleModal" data-close-mask>
+  <div class="modal">
+    <div class="modal-h">分配空间角色 · <span class="text-2" id="roleModalUser"></span><span class="x" onclick="App.closeModal('roleModal')">×</span></div>
+    <div class="modal-b">
+      <div class="tip mb16 text-2" id="roleModalTip">直接分配的成员，修改后立即覆盖默认角色。</div>
+      <div id="roleModalBody"></div>
+    </div>
+    <div class="modal-f">
+      <button class="btn" onclick="App.closeModal('roleModal')">取消</button>
+      <button class="btn btn-primary" onclick="saveRole()">确定</button>
+    </div>
+  </div>
+</div>
+
+<script src="../assets/app.js"></script>
+<script>
+// ===== 空间角色（参考 GitLab 权限模型，与工作空间管理页同一套） =====
+const SPACE_ROLES = [
+  { name: 'Owner', code: 'owner', desc: '空间所有者：空间内全部权限，含成员分配、角色赋予与删除空间' },
+  { name: 'Maintainer', code: 'maintainer', desc: '维护者：本体建模与发布、数据与应用管理、成员分配（不含删除空间）' },
+  { name: 'Developer', code: 'developer', desc: '开发者：本体建模、数据源 / 数据集 / Pipeline 等开发操作' },
+  { name: 'Reporter', code: 'reporter', desc: '报告者：只读访问 + 数据探查、导出与分析报告' },
+  { name: 'Guest', code: 'guest', desc: '访客：最小权限，仅浏览空间内公开资产' },
+];
+const ROLE_NAME = {};
+const ROLE_BADGE = {};
+SPACE_ROLES.forEach((r) => { ROLE_NAME[r.code] = r.name; ROLE_BADGE[r.code] = r.code === 'owner' ? 'b-purple' : r.code === 'maintainer' ? 'b-blue' : r.code === 'developer' ? 'b-green' : r.code === 'reporter' ? 'b-cyan' : 'b-gray'; });
+
+// ===== 部门树（与工作空间管理页一致） =====
+const DEPTS = [
+  { name: '数据平台部', children: [] },
+  { name: '智能制造事业部', children: [{ name: '工艺数字化组' }, { name: '质量分析组' }] },
+  { name: '供应链中心', children: [] },
+  { name: 'IT 基础设施部', children: [] },
+];
+
+// ===== 用户池（含部门 / 是否部门 leader / 系统角色，用于默认角色判定） =====
+const POOL = [
+  { name: '张伟', account: 'zhangwei', dept: '智能制造事业部', leader: true, sysRole: '空间管理员' },
+  { name: '李静', account: 'lijing', dept: '数据平台部', leader: false, sysRole: '空间管理员' },
+  { name: '周杰', account: 'zhoujie', dept: '供应链中心', leader: true, sysRole: '普通成员' },
+  { name: '吴娜', account: 'wuna', dept: '智能制造事业部', leader: false, sysRole: '普通成员' },
+  { name: '王强', account: 'wangqiang', dept: '数据平台部', leader: false, sysRole: '超级管理员' },
+  { name: '赵敏', account: 'zhaomin', dept: '工艺数字化组', leader: true, sysRole: '普通成员' },
+  { name: '孙立', account: 'sunli', dept: 'IT 基础设施部', leader: false, sysRole: '普通成员' },
+  { name: '刘洋', account: 'liuyang', dept: '质量分析组', leader: false, sysRole: '普通成员' },
+  { name: '陈晨', account: 'chenchen', dept: '数据平台部', leader: false, sysRole: '普通成员' },
+  { name: '孙丽', account: 'sunli2', dept: '供应链中心', leader: false, sysRole: '普通成员' },
+  { name: '杨帆', account: 'yangfan', dept: '智能制造事业部', leader: false, sysRole: '普通成员' },
+  { name: '郑洁', account: 'zhengjie', dept: '供应链中心', leader: false, sysRole: '普通成员' },
+];
+
+// ===== 分配记录数据（当前空间） =====
+// 直接分配的用户记录
+let userAssigns = [
+  { account: 'zhangwei', role: 'owner', by: 'shawn', time: '2026-09-01 10:23' },
+  { account: 'lijing', role: 'maintainer', by: 'shawn', time: '2026-09-01 10:25' },
+  { account: 'wuna', role: 'reporter', by: '张伟', time: '2026-09-03 14:11' },
+];
+// 部门分配（渲染时动态展开为该部门及其子部门的所有成员）
+let deptAssigns = [
+  { dept: '智能制造事业部', by: 'shawn', time: '2026-09-02 09:30' },
+  { dept: '供应链中心', by: '张伟', time: '2026-09-05 16:40' },
+];
+// 部门来源成员的个人角色覆盖（分配角色后写入，移除后恢复部门默认 Reporter）
+const personalRoles = {};
+
+// 筛选状态与分配角色弹窗状态
+const filterState = { kw: '', role: '全部' };
+let roleTarget = null; // { account, name, fromDept }
+
+// ===== 工具 =====
+// 部门及其子部门的所有成员（动态：用户池变化时自动反映）
+function deptMembers(name) {
+  const names = [name];
+  const root = DEPTS.find((d) => d.name === name) || { children: [] };
+  const walk = (d) => { names.push(d.name); (d.children || []).forEach(walk); };
+  root.children.forEach(walk);
+  return POOL.filter((u) => names.includes(u.dept));
+}
+
+// 默认角色：部门 leader 或系统角色为超级管理员 / 空间管理员 → Owner，否则 Maintainer
+function defaultRole(u) {
+  return (u.leader || ['超级管理员', '空间管理员'].includes(u.sysRole)) ? 'owner' : 'maintainer';
+}
+
+// 组装成员维度的分配记录：直接分配 + 部门分配动态展开
+function assignRows() {
+  const rows = [];
+  const seen = new Set();
+  userAssigns.forEach((r) => {
+    const u = POOL.find((x) => x.account === r.account);
+    if (!u) return;
+    seen.add(r.account);
+    rows.push({ u, role: r.role, by: r.by, time: r.time, source: '直接分配', fromDept: null, overridden: false, account: r.account });
+  });
+  deptAssigns.forEach((d) => {
+    deptMembers(d.dept).forEach((u) => {
+      if (seen.has(u.account)) return;
+      seen.add(u.account);
+      const pr = personalRoles[u.account];
+      rows.push({ u, role: pr || 'reporter', by: d.by, time: d.time, source: '部门分配 · ' + d.dept, fromDept: d.dept, overridden: !!pr, account: u.account });
+    });
+  });
+  return rows;
+}
+
+// ===== 渲染 =====
+function renderStats() {
+  const rows = assignRows();
+  document.getElementById('statTotal').textContent = rows.length;
+  document.getElementById('statDirect').textContent = userAssigns.length;
+  document.getElementById('statDept').textContent = deptAssigns.length + ' 个部门';
+  document.getElementById('statOwner').textContent = rows.filter((r) => r.role === 'owner').length;
+}
+
+function renderList() {
+  const kw = filterState.kw;
+  const list = assignRows().filter((r) =>
+    filterState.role === '全部' || r.role === filterState.role
+  ).filter((r) =>
+    !kw || r.u.account.includes(kw) || r.u.name.includes(kw) || r.u.dept.includes(kw)
+  );
+  document.getElementById('assignTbody').innerHTML = list.length ? list.map((r) => {
+    const roleTag = r.overridden ? '个人角色' : r.fromDept ? '部门默认' : '';
+    return `
+    <tr>
+      <td class="mono">${r.u.account}</td>
+      <td><b>${r.u.name}</b></td>
+      <td class="text-2">${r.u.dept}</td>
+      <td><span class="badge ${ROLE_BADGE[r.role]}">${ROLE_NAME[r.role]}</span>${roleTag ? `<span class="role-extra">${roleTag}</span>` : ''}</td>
+      <td class="text-2">${r.by}</td>
+      <td class="text-2 mono">${r.time}</td>
+      <td><span class="badge no-dot b-gray src-badge">${r.source}</span></td>
+      <td class="actions-cell">
+        <button class="btn-link btn-sm" onclick="openRoleModal('${r.account}')">分配角色</button>
+        <button class="btn-link btn-sm" onclick="removeAssign('${r.account}')">移除</button>
+      </td>
+    </tr>`;
+  }).join('') : '<tr><td colspan="8"><div class="empty">未找到匹配的分配记录</div></td></tr>';
+}
+
+function renderAll() { renderStats(); renderList(); }
+
+// ===== 操作 =====
+function openRoleModal(account) {
+  const rows = assignRows();
+  const r = rows.find((x) => x.account === account);
+  if (!r) return;
+  roleTarget = { account, fromDept: r.fromDept };
+  document.getElementById('roleModalUser').textContent = r.u.name + '（' + r.u.account + '）';
+  document.getElementById('roleModalTip').textContent = r.fromDept
+    ? '该成员由部门分配引入，默认 Reporter；分配角色后即为个人角色，覆盖部门默认。'
+    : '为该成员选择空间角色，保存后立即生效。';
+  document.getElementById('roleModalBody').innerHTML = SPACE_ROLES.map((s) => `
+    <label class="tp-item" style="padding:6px 4px;">
+      <input type="radio" name="arole" value="${s.code}" ${r.role === s.code ? 'checked' : ''} />
+      <span class="badge ${ROLE_BADGE[s.code]}" style="margin:0 8px;">${s.name}</span>
+      <span class="text-3">${s.desc}</span>
+    </label>`).join('');
+  App.openModal('roleModal');
+}
+
+function saveRole() {
+  const sel = document.querySelector('input[name="arole"]:checked');
+  if (!sel || !roleTarget) { toast('请选择一个空间角色'); return; }
+  if (roleTarget.fromDept) {
+    personalRoles[roleTarget.account] = sel.value;
+    toast('已分配个人角色 ' + ROLE_NAME[sel.value] + '（原型演示）');
+  } else {
+    const rec = userAssigns.find((x) => x.account === roleTarget.account);
+    rec.role = sel.value;
+    toast('已调整角色为 ' + ROLE_NAME[sel.value] + '（原型演示）');
+  }
+  App.closeModal('roleModal');
+  renderAll();
+}
+
+function removeAssign(account) {
+  const r = assignRows().find((x) => x.account === account);
+  if (!r) return;
+  if (!r.fromDept) {
+    if (!confirm('确认将成员「' + r.u.name + '」移出空间？')) return;
+    userAssigns = userAssigns.filter((x) => x.account !== account);
+    delete personalRoles[account];
+    toast('已移除成员：' + r.u.name + '（原型演示）');
+  } else if (r.overridden) {
+    if (!confirm('清除「' + r.u.name + '」的个人角色？清除后恢复部门默认 Reporter。')) return;
+    delete personalRoles[account];
+    toast('已清除个人角色，恢复部门默认 Reporter');
+  } else {
+    toast('该成员由部门分配引入，请在「工作空间 → 分配成员 → 部门」中移除部门 ' + r.fromDept);
+  }
+  renderAll();
+}
+
+App.mount({
+  page: 'member-assign',
+  crumbs: ['智能制造空间', '成员管理', '分配记录'],
+  title: '分配记录',
+  desc: '空间成员分配记录，以成员维度展示：直接分配的成员逐条记录；通过部门分配的成员动态展开为该部门及其子部门下的所有成员。',
+  actions: '',
+  content: `
+  <div class="tip mb16">
+    默认角色规则：空间<b>创建人 / 负责人</b>若为部门 leader，或系统角色为<b>超级管理员 / 空间管理员</b>，默认授予 <span class="badge b-purple">Owner</span>；否则默认 <span class="badge b-blue">Maintainer</span>。其余被拉入的成员默认 <span class="badge b-cyan">Reporter</span>，部门分配引入的成员同样默认 Reporter，可在此调整个人角色。
+  </div>
+  <div class="stat-grid">
+    <div class="stat"><div class="label">空间成员总数</div><div class="val" id="statTotal">0</div></div>
+    <div class="stat"><div class="label">直接分配成员</div><div class="val" id="statDirect">0</div></div>
+    <div class="stat"><div class="label">部门分配</div><div class="val" id="statDept">0</div></div>
+    <div class="stat"><div class="label">Owner 数量</div><div class="val" id="statOwner">0</div></div>
+  </div>
+  <div class="card">
+    <div class="card-h">
+      <h3>成员维度分配记录</h3>
+      <input class="search" type="text" placeholder="搜索：账号 / 姓名 / 部门…"
+        oninput="filterState.kw=this.value.trim(); renderList()" />
+      <div class="right">
+        <select onchange="filterState.role=this.value; renderList()">
+          <option>全部角色</option><option>owner</option><option>maintainer</option><option>developer</option><option>reporter</option><option>guest</option>
+        </select>
+      </div>
+    </div>
+    <table class="table">
+      <tr><th>用户账号</th><th>用户名字</th><th>部门</th><th>空间角色</th><th>分配人</th><th>分配时间</th><th>来源</th><th class="actions-cell">操作</th></tr>
+      <tbody id="assignTbody"></tbody>
+    </table>
+    <div class="tip text-3" style="margin:12px 16px;">部门分配来源的成员为动态展开：部门及其子部门下的成员变化时，记录自动同步；「个人角色」标记表示已单独分配角色并覆盖部门默认。</div>
+  </div>`,
+  onMount() {
+    renderAll();
+  },
+});
+</script>
+</body>
+</html>

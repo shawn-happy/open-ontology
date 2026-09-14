@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Introductory concepts</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../index.html">返回目录</a></div>
+<h1>Introductory concepts</h1>
+<p>As you get started in the Palantir platform, it can be helpful to think about data in the platform living in two places: the <em>data layer</em> and the <em>object layer</em>.</p>
+<h2>Data Layer</h2>
+<p><img alt="Data layer" src="../_resources/external-2d962190de7e.svg" width="400"></p>
+<p>In the data layer, data is stored inside <strong>datasets</strong>, which typically represent tabular data like you might find in a spreadsheet, but support data at any scale. Datasets usually come from organizational data sources that are synced into the platform, but you can also create your own datasets by uploading approved or notional data.</p>
+<p>Every dataset in the Palantir platform maintains a record of how it was produced, so that the origins of data are always preserved and accessible. This concept is known as <strong>data lineage</strong>.</p>
+<ul>
+<li>Palantir keeps track of which <strong>input datasets</strong> were used to produce which <strong>output datasets</strong>. This allows you to always know where a piece of data came from, and understand how data is used.</li>
+<li>Palantir tracks the <strong>logic</strong> that was applied to produce each output dataset. For example, an input dataset might be <em>filtered</em> to produce a smaller output dataset; that filtering logic is preserved and visible in the platform. There are many ways to write logic in the platform, ranging from code repositories to point-and-click tools.</li>
+</ul>
+<p>You can interact with data using one of Palantir's many <strong>applications</strong>. When you use applications, anything you produce, whether it is a dataset, code, or analysis, is stored in the platform as a <strong>resource</strong>. Resources are organized into <strong>Projects</strong>, which serve as permission boundaries for grouping and organizing related work. We will cover the details of how to access and use Projects in one of the upcoming sections.</p>
+<h2>Object Layer (Ontology)</h2>
+<p><img alt="Object layer" src="../_resources/external-c9e0985f72dd.svg" width="400"></p>
+<p>In the object layer, or Ontology, data is stored in <strong>objects</strong> and <strong>links</strong>. Objects represent real-world concepts like an airplane, vehicle, or customer, while links represent the relationships between objects. The object layer takes the data stored in tabular datasetsârows and columns of dataâand converts it into a series of concepts that anyone in the organization can understand.</p>
+<p>In addition to helping make data more understandable, converting data from datasets into objects and links unlocks a broad set of tools for interacting with objects. You can define <strong>actions</strong> that describe how objects can be changed by people in your organization. This enables you to build <strong>applications</strong> that access data from objects and capture user decisions back into the system.</p>
+<p>The definitions of objects, links, and actions together make up what is called the Ontology, a digital representation of your organization. Developing and using the Ontology to translate data into operational outcomes is a key part of getting value out of the Palantir platform.</p>
+</body>
+</html>

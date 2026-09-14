@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Service logs and debugging</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Service logs and debugging</h1>
+<p>To access detailed logging information, navigate to the <strong>Details</strong> view after selecting the <strong>View log details</strong> option for a specific execution.</p>
+<p>The service logs provide:</p>
+<ul>
+<li><strong>Chronological log entries:</strong> All log messages generated during execution.</li>
+<li><strong>Log levels:</strong> <code>INFO</code>, <code>WARN</code>, <code>ERROR</code>, <code>DEBUG</code>, and <code>TRACE</code> messages.</li>
+<li><strong>Custom log messages:</strong> Any console.log() or logging statements from your functions or models.</li>
+</ul>
+<p><img alt="Example Workflow Lineage with service logs" src="../../_resources/foundry/aip-observability/workflow-lineage-service-logs.png" /></p>
+<h2>Permission required</h2>
+<p>To view traces and service logs, an administrator must enable <a href="https://www.palantir.com/docs/foundry/aip-observability/log-permissioning/">log access</a> for the relevant project. Users always have access to logs for their own executions from the past 24 hours, except on <a href="https://www.palantir.com/docs/foundry/security/classification-based-access-controls/">CBAC stacks</a>, where log access must be enabled to view trace and service logs.</p>
+<h2>Filtering logs</h2>
+<p>To filter for specific log levels, use the <strong>log levels</strong> selector at the top of the table:</p>
+<p><img alt="Example Workflow Lineage with service log filter" src="../../_resources/foundry/aip-observability/workflow-lineage-service-log-filter.png" /></p>
+<p>Available log levels:</p>
+<ul>
+<li><strong>ERROR:</strong> Error messages and stack traces</li>
+<li><strong>WARN:</strong> Warnings about potential issues</li>
+<li><strong>INFO:</strong> General information about execution flow</li>
+<li><strong>DEBUG:</strong> Detailed debugging information</li>
+<li><strong>TRACE:</strong> Detailed trace information</li>
+</ul>
+<p>To see the full details of any log entry, select the <strong>Content</strong> field:</p>
+<p><img alt="Example Workflow Lineage with service log details" src="../../_resources/foundry/aip-observability/workflow-lineage-service-log-details.png" /></p>
+<h2>Writing effective logs in your functions</h2>
+<p>Effective logging helps you debug issues quickly and understand your function's behavior in production. Follow these best practices:</p>
+<h3>Choose appropriate log levels</h3>
+<ul>
+<li><strong>INFO:</strong> Use for normal operation flow and key business events.</li>
+<li><strong>WARN:</strong> Use for recoverable issues or unexpected conditions that do not prevent execution.</li>
+<li><strong>ERROR:</strong> Use for failures that prevent normal operation.</li>
+<li><strong>DEBUG:</strong> Use for detailed diagnostic information (avoid in production).</li>
+</ul>
+<h3>Include relevant context</h3>
+<p>We recommend including identifiers and relevant data that can help you understand what has happened:</p>
+<p>```typescript tab="TypeScript v1"
+// TypeScript v1 example - Good logging practices
+console.log("Processing order", orderId, "for user", userId); // Include relevant IDs
+console.log("Retrieved", results.length, "items from Ontology"); // Include counts/metrics
+console.warn("Retry attempt", attemptNumber, "of", maxRetries, "for operation", operationId); // Include retry context
+console.error("Failed to process order", orderId, "Error:", error.message); // Include error details</p>
+<pre><code>
+```typescript tab=&quot;TypeScript v2&quot;
+import { logs } from &quot;@opentelemetry/api-logs&quot;;
+const logger = logs.getLogger(&quot;my-function&quot;);
+
+// TypeScript v2 example - Good logging practices
+logger.emit({
+    severityText: &quot;INFO&quot;,
+    attributes: { LOG_MESSAGE: `Processing order ${orderId} for user ${userId}` }, // Include relevant IDs
+    body: { orderId, userId },
+});
+logger.emit({
+    severityText: &quot;WARN&quot;,
+    attributes: { LOG_MESSAGE: `Retry attempt ${attemptNumber} of ${maxRetries} for operation ${operationId}` }, // Include retry context
+    body: { attemptNumber, maxRetries, operationId },
+});
+logger.emit({
+    severityText: &quot;ERROR&quot;,
+    attributes: { LOG_MESSAGE: `Failed to process order ${orderId}. Error: ${error.message}` }, // Include error details
+    body: { orderId, error: error.message },
+});
+</code></pre>
+<h3>Avoid logging sensitive data</h3>
+<p>Never log sensitive information that could compromise security:</p>
+<pre><code class="language-typescript">// â Don't do this
+console.log(&quot;User credentials&quot;, username, password);
+console.log(&quot;API response&quot;, fullApiResponse); // May contain sensitive data
+
+// â Do this instead
+console.log(&quot;Authentication attempt for user&quot;, username);
+console.log(&quot;API call completed with status&quot;, response.status);
+</code></pre>
+<h2>See also</h2>
+<ul>
+<li><a href="https://www.palantir.com/docs/foundry/aip-observability/log-search/">Log search</a>: Search across logs from all executions for a source executor.</li>
+<li><a href="https://www.palantir.com/docs/foundry/aip-observability/log-permissioning/">Log permissions</a>: Configure who can view logs.</li>
+<li><a href="https://www.palantir.com/docs/foundry/aip-observability/trace-view/">Trace view</a>: Correlate logs with execution timeline.</li>
+</ul>
+</body>
+</html>

@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Getting started with Automate</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 900px; margin: 0 auto; padding: 24px; line-height: 1.65; color: #1c2b33; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f4f6f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  code { background: #f4f6f8; padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #d5dce2; padding: 6px 10px; text-align: left; }
+  th { background: #f0f3f6; }
+  h1, h2, h3 { color: #0e3a2f; }
+  a { color: #0e6f5c; }
+  .site-header { border-bottom: 1px solid #e2e7eb; padding-bottom: 12px; margin-bottom: 24px;
+                  font-size: 0.9em; color: #5b6b74; }
+</style>
+</head>
+<body>
+<div class="site-header">Palantir Foundry 文档镜像 · <a href="../../index.html">返回目录</a></div>
+<h1>Getting started with Automate</h1>
+<p>:::callout{theme="neutral"}
+This tutorial assumes you already have data integrated into your Foundry Ontology. If you have not yet done this, learn how to <a href="https://www.palantir.com/docs/foundry/ontology/overview/">create your Ontology</a>.
+:::</p>
+<p>This tutorial will walk you through creating your first simple automation with the Automate application.</p>
+<h2>Create from the Automate application</h2>
+<p>Start by opening the Automate application from the application sidebar. This will take you to the <strong>Overview</strong> page of the Automate application.</p>
+<p>The <strong>Overview</strong> page shows a list of your recent automation activity, including counts of total automations you can see, automations owned by you, automations of which you are a recipient, and paused automations. You can also see lists of recently viewed automations, failures within the last four weeks, and recently triggered automations.</p>
+<p><img alt="The Overview page for the Automate application." src="../../_resources/foundry/automate/automate-overview-page.png" /></p>
+<p>To create your first automation, select <strong>+ New automation</strong> in the top right of the page. Alternatively, you can:</p>
+<ul>
+<li>Hover over the Automate application icon in the Foundry sidebar and select <strong>+ New automation</strong>; or</li>
+<li>Select <strong>+ New</strong> from within a Compass folder and select <strong>Automation</strong>.</li>
+</ul>
+<p><img alt="Create a new automation from the application sidebar or from within a Compass folder." src="../../_resources/foundry/automate/getting-started-automate-create-automation.png" /></p>
+<p>You will be taken to the automation creation wizard (shown below) where you can start to define your automation conditions. In this example, you will add a simple <strong>Time</strong> condition.</p>
+<p><img alt="Add a condition to a new automation." src="../../_resources/foundry/automate/getting-started-add-condition.png" /></p>
+<p>For now, leave the time configuration page as is and continue on to the <strong>Effect</strong> page by selecting <strong>Next</strong> as shown in the image below.</p>
+<p><img alt="Configuring a time condition for a new automation." src="../../_resources/foundry/automate/getting-started-time-condition.png" /></p>
+<p>From the <strong>Effect</strong> page, you can add one or more effects to execute when the time condition is met. Choose <strong>Add</strong> on the <strong>Notification</strong> card to proceed to the <strong>Notification</strong> effect configuration page.</p>
+<p><img alt="The Effect page for a new automation." src="../../_resources/foundry/automate/getting-started-add-effects.png" /></p>
+<p>The <a href="https://www.palantir.com/docs/foundry/automate/effect-notification/">notification effect</a> offers many configuration options. For now, add yourself as a static recipient in the <strong>Recipients</strong> text input. Define a heading and message for your notification, then choose <strong>Preview</strong> to view how the message will appear to recipients. Select <strong>Next</strong> to return to the <strong>Effect</strong> page.</p>
+<p><img alt="Configure a notification effect and view the message preview." src="../../_resources/foundry/automate/getting-started-notification-effect.png" /></p>
+<p>You can choose to add additional effects to your notification, but for this example you will continue to the automation <strong>Summary</strong> page by selecting <strong>Next</strong> again.</p>
+<p>The <strong>Summary</strong> page shows a condensed view of the conditions and effects configured for your automation. Select <strong>Create automation</strong> to add a file name, save location, and expiration date (<strong>Indefinitely</strong>, <strong>Immediately</strong>, or <strong>Until</strong> a certain date), and <a href="https://www.palantir.com/docs/foundry/automate/permissions/">permissions for the automation</a>.</p>
+<p>Upon successful creation, you will be redirected to the detail screen of your newly created automation, where a success banner will be displayed.</p>
+<p>Select the Automate icon in the top toolbar to return to the Automate overview page. The <strong>Recent activities</strong> section will populate with events once your automations trigger.</p>
+<p><img alt="A newly created automation displaying a success banner." src="../../_resources/foundry/automate/getting-started-created-automation-success.png" /></p>
+<p>To inspect your newly created automation, navigate to the <strong>Automations</strong> tab to view the table of all automations visible with your current permissions. Use the filter pane on the left to search for specific automations, such as the one you just created.</p>
+<p><img alt="The table of viewable automations, filtered by active automations." src="../../_resources/foundry/automate/getting-started-automations-table-filtered.png" /></p>
+<p>For more information about configuration options, review the various conditions and effects documentation. Alternatively, explore the <a href="https://www.palantir.com/docs/foundry/automate/example-weekly-report/">examples section</a> for more complex Automate use cases.</p>
+</body>
+</html>
