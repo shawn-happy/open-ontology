@@ -13,33 +13,123 @@ App.mount({
   page: 'app-skills',
   crumbs: ['智能制造空间', '应用管理', 'Skills'],
   title: 'Skills',
-  desc: '基于本体资产与函数封装的高层能力单元，可被应用、Workflow 与对话式入口调用。',
+  desc: '基于本体资产与函数封装的高层能力单元，支持 Agent 化配置（对标 Palantir AIP Chatbot Studio）：LLM、工具挂载、RAG 上下文与会话评估。',
   actions: `<button class="btn" onclick="toast('从 Skill 市场安装')">Skill 市场</button><button class="btn btn-primary" onclick="toast('注册本地 Skill')">+ 注册 Skill</button>`,
   content: `
-  <div class="card">
-    <div class="card-h">
-      <input class="search" type="text" placeholder="搜索 Skill…" />
-      <select><option>全部状态</option><option>已启用</option><option>审核中</option><option>已停用</option></select>
+  <div class="tabs" data-group="sk">
+    <div class="tab active" data-pane="list" data-group="sk">Skill 列表</div>
+    <div class="tab" data-pane="agent" data-group="sk">Agent 配置</div>
+    <div class="tab" data-pane="session" data-group="sk">会话与评估</div>
+  </div>
+
+  <!-- Skill 列表 -->
+  <div class="tab-pane active" data-group="sk" data-pane="list">
+    <div class="card" style="border-radius:0 0 8px 8px;">
+      <div class="card-h">
+        <input class="search" type="text" placeholder="搜索 Skill…" />
+        <select><option>全部状态</option><option>已启用</option><option>审核中</option><option>已停用</option></select>
+      </div>
+      <div class="card-b">
+        <div class="grid-3">
+          ${[
+            ['良率分析 Skill', '输入设备对象，输出良率诊断报告与改进建议', 'ƒ calcEquipmentYield', '已启用', '调用 320 次'],
+            ['故障根因推荐', '基于故障知识图谱推荐根因与处置方案', '⇄ queryFaultGraph', '已启用', '调用 156 次'],
+            ['成本核算助手', '汇总物料 BOM 成本，支持 What-if 模拟', 'ƒ sumMaterialCost', '已启用', '调用 89 次'],
+            ['工艺路线优化', '基于历史质检数据推荐最优工艺路线', 'ƒ recommendProcessRoute', '审核中', '—'],
+            ['自然语言查数', 'NL2Object：自然语言转对象点查/关联查询', 'API only', '已启用', '调用 1,042 次'],
+            ['供应商风险扫描', '结合供应链空间数据生成风险画像', '跨空间只读', '已停用', '—'],
+          ].map(s => `
+          <div style="border:1px solid var(--border);border-radius:8px;padding:14px;">
+            <div class="flex"><b>${s[0]}</b><span class="badge ${s[3]==='已启用' ? 'b-green' : s[3]==='审核中' ? 'b-orange' : 'b-gray'}" style="margin-left:auto">${s[3]}</span></div>
+            <div class="fs12 text-2 mt8" style="min-height:48px">${s[1]}</div>
+            <div class="fs12 mono text-3">${s[2]}</div>
+            <div class="flex mt8" style="justify-content:space-between;">
+              <span class="fs12 text-3">${s[4]}</span>
+              <span><button class="btn-link btn-sm" onclick="toast('配置 Skill')">配置</button><button class="btn-link btn-sm btn-danger" onclick="toast('${s[3]==='已停用' ? '删除' : '停用'} Skill')">${s[3]==='已停用' ? '删除' : '停用'}</button></span>
+            </div>
+          </div>`).join('')}
+        </div>
+      </div>
     </div>
-    <div class="card-b">
-      <div class="grid-3">
-        ${[
-          ['良率分析 Skill', '输入设备对象，输出良率诊断报告与改进建议', 'ƒ calcEquipmentYield', '已启用', '调用 320 次'],
-          ['故障根因推荐', '基于故障知识图谱推荐根因与处置方案', '⇄ queryFaultGraph', '已启用', '调用 156 次'],
-          ['成本核算助手', '汇总物料 BOM 成本，支持 What-if 模拟', 'ƒ sumMaterialCost', '已启用', '调用 89 次'],
-          ['工艺路线优化', '基于历史质检数据推荐最优工艺路线', 'ƒ recommendProcessRoute', '审核中', '—'],
-          ['自然语言查数', 'NL2Object：自然语言转对象点查/关联查询', 'API only', '已启用', '调用 1,042 次'],
-          ['供应商风险扫描', '结合供应链空间数据生成风险画像', '跨空间只读', '已停用', '—'],
-        ].map(s => `
-        <div style="border:1px solid var(--border);border-radius:8px;padding:14px;">
-          <div class="flex"><b>${s[0]}</b><span class="badge ${s[3]==='已启用' ? 'b-green' : s[3]==='审核中' ? 'b-orange' : 'b-gray'}" style="margin-left:auto">${s[3]}</span></div>
-          <div class="fs12 text-2 mt8" style="min-height:48px">${s[1]}</div>
-          <div class="fs12 mono text-3">${s[2]}</div>
-          <div class="flex mt8" style="justify-content:space-between;">
-            <span class="fs12 text-3">${s[4]}</span>
-            <span><button class="btn-link btn-sm" onclick="toast('配置 Skill')">配置</button><button class="btn-link btn-sm btn-danger" onclick="toast('${s[3]==='已停用' ? '删除' : '停用'} Skill')">${s[3]==='已停用' ? '删除' : '停用'}</button></span>
+  </div>
+
+  <!-- Agent 配置 -->
+  <div class="tab-pane" data-group="sk" data-pane="agent">
+    <div class="row mt16">
+      <div class="card col" style="flex:1.2;">
+        <div class="card-h"><h3>基础配置 · 智能质检助手</h3><span class="sub">对标 AIP Chatbot Studio</span>
+          <div class="right"><span class="badge b-green no-dot">已发布</span></div>
+        </div>
+        <div class="card-b">
+          <div class="form-row">
+            <div class="form-item"><label>Agent 名称</label><input type="text" value="智能质检助手" /></div>
+            <div class="form-item"><label>模型（LLM）</label>
+              <select><option>通义千问-Max</option><option>DeepSeek-V3</option><option>Qwen-Plus（低成本）</option></select>
+            </div>
+            <div class="form-item"><label>温度</label><input type="number" value="0.3" step="0.1" /></div>
           </div>
-        </div>`).join('')}
+          <div class="form-item"><label>System Prompt（输入 / 引用工具与变量）</label>
+            <div class="code-editor"><span class="cm">你是智能制造空间的质检助手，基于本体对象回答并执行操作。</span>
+可用工具：<span class="kw">/queryFaultGraph</span>（故障图谱查询）、<span class="kw">/reportEquipmentFault</span>（提交报修动作）、<span class="kw">/calcEquipmentYield</span>（良率计算）
+当前上下文变量：<span class="fn">$selectedEquipments</span>（应用中选中的设备对象集）
+规则：涉及写操作必须先向用户确认；数据引用必须标注对象主键。</div>
+          </div>
+          <div class="form-row">
+            <div class="form-item"><label>会话引导语（开场白）</label><textarea rows="2">您好，我是质检助手。可以帮您查询设备故障、分析良率，或提交报修工单。</textarea></div>
+            <div class="form-item"><label>发布范围</label>
+              <select><option>空间内应用 + OSDK / API</option><option>仅空间内应用</option><option>全局（跨空间）</option></select>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="card col">
+        <div class="card-h"><h3>工具挂载（Tools）</h3><div class="right"><button class="btn btn-sm" onclick="toast('添加工具：动作 / 函数 / 查询')">+ 添加工具</button></div></div>
+        <div class="card-b" style="padding-top:8px;">
+          <table class="table">
+            <tr><th>工具</th><th>类型</th><th>Agent 调用说明（Tool Description）</th></tr>
+            <tr><td class="mono fs12">queryFaultGraph</td><td><span class="badge b-blue no-dot">函数</span></td><td class="fs12 text-2">输入设备主键，返回故障图谱邻接关系；用户询问故障原因时优先调用</td></tr>
+            <tr><td class="mono fs12">reportEquipmentFault</td><td><span class="badge b-purple no-dot">动作</span></td><td class="fs12 text-2">提交报修工单；调用前必须复述参数并向用户确认</td></tr>
+            <tr><td class="mono fs12">calcEquipmentYield</td><td><span class="badge b-blue no-dot">函数</span></td><td class="fs12 text-2">计算近 N 天综合良率，默认 30 天</td></tr>
+            <tr><td class="mono fs12">qualityKnowledge</td><td><span class="badge b-cyan no-dot">RAG</span></td><td class="fs12 text-2">质检标准知识库检索（向量）</td></tr>
+          </table>
+          <div class="tip mt8">工具描述会编译进 System Prompt，指导模型何时 / 如何调用；受应用授权范围约束（见开发者平台）。</div>
+          <div class="form-item mt8"><label>检索上下文（RAG）</label>
+            <div class="form-inline"><span class="tag blue">质检标准库 v2（向量）</span><span class="tag blue">设备手册库</span><button class="btn btn-sm" onclick="toast('添加知识库')">+ 知识库</button></div>
+          </div>
+          <div class="form-item"><label>应用变量（Application State）</label>
+            <div class="form-inline"><span class="tag blue">$selectedEquipments（选中设备对象集）</span><span class="tag blue">$currentLine（当前产线）</span><button class="btn btn-sm" onclick="toast('绑定应用变量')">+ 变量</button></div>
+            <div class="tip">应用变量承载调用方上下文（如应用中选中的对象集），随会话传入模型。</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 会话与评估 -->
+  <div class="tab-pane" data-group="sk" data-pane="session">
+    <div class="row mt16">
+      <div class="card col">
+        <div class="card-h"><h3>最近会话（Sessions）</h3><div class="right"><button class="btn btn-sm" onclick="toast('新建调试会话')">+ 新建会话</button></div></div>
+        <div class="card-b" style="padding-top:8px;">
+          <table class="table">
+            <tr><th>会话</th><th>用户</th><th>轮次</th><th>工具调用</th><th>反馈</th><th class="actions-cell">操作</th></tr>
+            <tr><td class="fs12">EQP-0045 故障排查</td><td class="fs12">wangm</td><td class="mono fs12">6</td><td class="mono fs12">3</td><td><span class="badge b-green no-dot">👍</span></td><td class="actions-cell"><button class="btn-link btn-sm" onclick="toast('Trace 回放：查看模型推理步骤与工具调用链')">Trace</button></td></tr>
+            <tr><td class="fs12">L2 良率下降分析</td><td class="fs12">liqi</td><td class="mono fs12">4</td><td class="mono fs12">2</td><td><span class="badge b-green no-dot">👍</span></td><td class="actions-cell"><button class="btn-link btn-sm" onclick="toast('Trace 回放')">Trace</button></td></tr>
+            <tr><td class="fs12">「帮我下线所有故障设备」</td><td class="fs12">test01</td><td class="mono fs12">2</td><td class="mono fs12">0</td><td><span class="badge b-red no-dot">👎</span></td><td class="actions-cell"><button class="btn-link btn-sm" onclick="toast('Trace 回放')">Trace</button></td></tr>
+          </table>
+          <div class="tip mt8">Trace 支持逐步回放：模型输入 → 工具调用与返回 → 最终响应，可实时轮询进行中的会话。</div>
+        </div>
+      </div>
+      <div class="card col">
+        <div class="card-h"><h3>Evals（评估）</h3><div class="right"><button class="btn btn-sm btn-primary" onclick="toast('运行评估集（12 用例）')">运行评估</button></div></div>
+        <div class="card-b" style="padding-top:8px;">
+          <table class="table">
+            <tr><th>评估集</th><th>用例</th><th>通过</th><th>失败根因归类</th></tr>
+            <tr><td class="fs12">报修流程回归</td><td class="mono fs12">5</td><td class="mono fs12">4</td><td class="fs12 text-2">1 例：未先确认参数即调用动作 → 建议 Prompt 增加确认规则</td></tr>
+            <tr><td class="fs12">良率问答</td><td class="mono fs12">7</td><td class="mono fs12">6</td><td class="fs12 text-2">1 例：良率口径未标注统计窗口 → 建议强制引用 calcEquipmentYield 返回</td></tr>
+          </table>
+          <div class="tip mt8">评估按根因归类失败并给出 Prompt / 工具改进建议，支持版本间对比。</div>
+        </div>
       </div>
     </div>
   </div>`,

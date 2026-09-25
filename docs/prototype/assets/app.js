@@ -1,12 +1,13 @@
 /* ============ Open Ontology 原型 · 共享布局与交互 ============ */
 (function () {
   // 子目录页面（platform/ ontology/ data/ …）相对根目录前缀，保证侧边栏链接在任何页面都正确
-  const ROOT = /\/(platform|ontology|data|security|application|audit|workspace)\//.test(location.pathname) ? '../' : '';
+  const ROOT = /\/(platform|ontology|data|security|application|audit|workspace|developer|approval)\//.test(location.pathname) ? '../' : '';
   // 公共菜单：平台层左上角图标栏（icon rail），仅展示图标，悬停显示名称
   const GLOBAL_NAV = [
     { id: 'home', href: ROOT + 'index.html', icon: '⌂', label: '首页' },
     { id: 'workspace', href: ROOT + 'platform/workspace.html', icon: '▦', label: '工作空间' },
     { id: 'system', href: ROOT + 'platform/system.html', icon: '⚙', label: '系统管理' },
+    { id: 'approval', href: ROOT + 'approval/approval-config.html', icon: '✓', label: '审批中心' },
   ];
 
   // 空间内菜单：统一放到左侧边栏，仅在空间内页面展示
@@ -21,6 +22,8 @@
         { id: 'ontology-constraints', href: ROOT + 'ontology/ontology-constraints.html', icon: '⌗', label: '值约束规则' },
         { id: 'ontology-actions', href: ROOT + 'ontology/ontology-actions.html', icon: '▶', label: '动作' },
         { id: 'ontology-functions', href: ROOT + 'ontology/ontology-functions.html', icon: 'ƒ', label: '函数' },
+        { id: 'ontology-migrations', href: ROOT + 'ontology/ontology-migrations.html', icon: '⇅', label: 'Schema 迁移' },
+        { id: 'ontology-branching', href: ROOT + 'ontology/ontology-branching.html', icon: '⑂', label: '本体分支' },
       ],
     },
     {
@@ -47,6 +50,14 @@
         { id: 'app-apikeys', href: ROOT + 'application/app-apikeys.html', icon: '⚿', label: 'API Key' },
         { id: 'app-workflow', href: ROOT + 'application/app-workflow.html', icon: '❖', label: 'Workflow 编排' },
         { id: 'app-skills', href: ROOT + 'application/app-skills.html', icon: '✦', label: 'Skills' },
+      ],
+    },
+    {
+      group: '开发者平台',
+      items: [
+        { id: 'dev-console', href: ROOT + 'developer/dev-console.html', icon: '⌗', label: 'Developer Console' },
+        { id: 'dev-sdk', href: ROOT + 'developer/dev-sdk.html', icon: '⇉', label: 'SDK 与开放 API' },
+        { id: 'dev-code', href: ROOT + 'developer/dev-code.html', icon: '⌨', label: '代码化本体' },
       ],
     },
     {
@@ -121,9 +132,43 @@
     `;
   }
 
-  // 顶栏右侧：个人用户信息
+  // 顶栏右侧：审批通知铃铛 + 个人用户信息
+  // 审批通知演示数据（持久化到 localStorage，审批记录页的操作会追加通知）
+  const DEFAULT_NOTIFS = [
+    { t: 'submit', txt: '张伟 提交了动作「batchArchiveFaults」的发布审批', time: '09-24 10:12' },
+    { t: 'ok', txt: '您发起的函数「calcEquipmentYield」发布审批已通过', time: '09-23 18:40' },
+    { t: 'reject', txt: '李静 驳回了共享属性「asset_no」的发布申请', time: '09-23 14:05' },
+  ];
+  function getNotifs() {
+    try {
+      const saved = JSON.parse(localStorage.getItem('oo-notifs'));
+      return Array.isArray(saved) ? saved : DEFAULT_NOTIFS.slice();
+    } catch (e) { return DEFAULT_NOTIFS.slice(); }
+  }
+  function saveNotifs(list) { localStorage.setItem('oo-notifs', JSON.stringify(list)); }
+
+  function notifyBell() {
+    const list = getNotifs();
+    const unread = list.filter((n) => !n.read).length;
+    return `
+      <div class="notify-bell" onclick="App.toggleNotify(event)" title="审批通知">
+        <span class="ico">✉</span>${unread ? `<span class="bell-dot">${unread}</span>` : ''}
+        <div class="notify-menu" id="notify-menu">
+          <div class="notify-h">审批通知</div>
+          ${list.length ? list.slice(0, 6).map((n) => `
+          <a class="notify-item" href="${ROOT}approval/approval-records.html" onclick="App.readAllNotifs()">
+            <span class="n-dot ${n.t}"></span>
+            <span class="n-txt">${n.txt}<em>${n.time}</em></span>
+          </a>`).join('') : '<div class="notify-empty">暂无通知</div>'}
+          <a class="notify-all" href="${ROOT}approval/approval-records.html" onclick="App.readAllNotifs()">查看全部 →</a>
+        </div>
+      </div>
+    `;
+  }
+
   function userInfo() {
     return `
+      ${notifyBell()}
       <div class="user-info" title="shawn（超级管理员）">
         <div class="avatar">S</div>
         <div class="user-meta"><b>shawn</b><span>超级管理员</span></div>
@@ -139,7 +184,7 @@
      * @param cfg { page, crumbs: [..], title, desc, actions, content (HTML), onMount }
      */
     mount(cfg) {
-      const inSpace = !['home', 'workspace', 'system'].includes(cfg.page);
+      const inSpace = !['home', 'workspace', 'system', 'approval'].includes(cfg.page);
       this._lastCfg = cfg; 
       // 空间切换后整页重挂载使用
       // 空间内页面：面包屑首位动态替换为当前空间名
@@ -199,10 +244,12 @@
       document.querySelectorAll('[data-close-mask]').forEach((el) => {
         el.addEventListener('click', (e) => { if (e.target === el) App.closeAll(); });
       });
-      // 点击空白处关闭空间下拉菜单
+      // 点击空白处关闭空间下拉菜单与通知下拉
       document.addEventListener('click', () => {
         const menu = document.getElementById('ws-menu');
         if (menu) menu.classList.remove('open');
+        const nm = document.getElementById('notify-menu');
+        if (nm) nm.classList.remove('open');
       });
       bindTabs();
       if (cfg.onMount) cfg.onMount();
@@ -211,6 +258,33 @@
     toggleWsMenu(e) {
       e && e.stopPropagation();
       document.getElementById('ws-menu').classList.toggle('open');
+    },
+
+    /** 顶栏审批通知铃铛 */
+    toggleNotify(e) {
+      e && e.stopPropagation();
+      const nm = document.getElementById('notify-menu');
+      if (nm) nm.classList.toggle('open');
+    },
+
+    /** 点击通知项后全部标记已读（红点清零） */
+    readAllNotifs() {
+      const list = getNotifs();
+      list.forEach((n) => (n.read = true));
+      saveNotifs(list);
+      // 铃铛红点由页面跳转后重新渲染，无需手动移除
+    },
+
+    /** 追加一条审批通知（供审批记录页的操作调用） */
+    pushNotif(t, txt) {
+      const list = getNotifs();
+      const now = new Date();
+      const pad = (v) => String(v).padStart(2, '0');
+      list.unshift({ t, txt, time: `${pad(now.getMonth() + 1)}-${pad(now.getDate())} ${pad(now.getHours())}:${pad(now.getMinutes())}` });
+      saveNotifs(list);
+      // 重新渲染铃铛红点
+      const bell = document.querySelector('.notify-bell');
+      if (bell) { bell.outerHTML = notifyBell(); }
     },
 
     selectWs(name, e) {

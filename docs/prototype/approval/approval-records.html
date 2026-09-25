@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<title>审批记录 · Open Ontology</title>
+<link rel="stylesheet" href="../assets/style.css" />
+<style>
+  .res-link { color: var(--primary); cursor: pointer; }
+  .res-link:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+
+<!-- 通过 / 驳回（审批意见） -->
+<div class="mask" id="actModal" data-close-mask>
+  <div class="modal sm">
+    <div class="modal-h"><span id="actTitle">通过审批</span><span class="x" onclick="App.closeModal('actModal')">×</span></div>
+    <div class="modal-b">
+      <div class="fs13 mb8" id="actTarget"></div>
+      <div class="form-item"><label>审批意见</label><textarea id="actComment" rows="3" placeholder="填写审批意见（可选）"></textarea></div>
+    </div>
+    <div class="modal-f"><button class="btn" onclick="App.closeModal('actModal')">取消</button><button class="btn btn-primary" id="actConfirmBtn" onclick="actConfirm()">确定</button></div>
+  </div>
+</div>
+
+<!-- 审批详情抽屉 -->
+<div class="drawer-mask" id="apvDrawer-mask" onclick="App.closeDrawer('apvDrawer')"></div>
+<div class="drawer" id="apvDrawer">
+  <div class="drawer-h">
+    <h3>审批详情 · <span class="mono" id="ddId"></span></h3>
+    <span id="ddStatus"></span>
+    <span class="x" onclick="App.closeDrawer('apvDrawer')">×</span>
+  </div>
+  <div class="drawer-b" id="ddBody"></div>
+  <div class="drawer-f" id="ddFoot"></div>
+</div>
+
+<script src="../assets/app.js"></script>
+<script>
+// ===== 演示数据 =====
+const RES_META = {
+  'object':      { label: '对象类型',   href: '../ontology/ontology-graph.html', icon: '◈', badge: 'b-blue' },
+  'shared-prop': { label: '共享属性',   href: '../ontology/ontology-shared-props.html', icon: '⧉', badge: 'b-cyan' },
+  'constraint':  { label: '值约束规则', href: '../ontology/ontology-constraints.html', icon: '⌗', badge: 'b-purple' },
+  'action':      { label: '动作',       href: '../ontology/ontology-actions.html', icon: '▶', badge: 'b-orange' },
+  'function':    { label: '函数',       href: '../ontology/ontology-functions.html', icon: 'ƒ', badge: 'b-green' },
+};
+const ST = {
+  pending:  { label: '待审批', badge: 'b-orange' },
+  approved: { label: '通过',   badge: 'b-green' },
+  rejected: { label: '驳回',   badge: 'b-red' },
+};
+const CUR_USER = 'shawn'; // 当前登录用户（超级管理员，兼审批人）
+
+// status: pending 待办 / approved rejected 已办；mine = submitter === CUR_USER
+let RECORDS = [
+  { id: 'AP-20260924-003', res: 'action', resName: 'batchArchiveFaults 批量故障归档', ver: 'v2 → v3（调整批量上限与校验规则）', scope: '全局', submitter: 'zhangwei', submitTime: '2026-09-24 10:12', status: 'pending', apvUsers: ['shawn'], apvRoles: ['空间管理员'] },
+  { id: 'AP-20260924-001', res: 'shared-prop', resName: 'asset_no 资产编号', ver: 'v1 → v2（新增唯一性约束）', scope: '全局', submitter: 'lijing', submitTime: '2026-09-24 09:03', status: 'pending', apvUsers: [], apvRoles: ['空间管理员'] },
+  { id: 'AP-20260923-008', res: 'constraint', resName: 'contact_phone 手机号格式校验', ver: 'v1（新建正则约束）', scope: '智能制造空间', submitter: 'wuna', submitTime: '2026-09-23 16:40', status: 'pending', apvUsers: ['lijing'], apvRoles: [] },
+  { id: 'AP-20260923-006', res: 'object', resName: 'Equipment 设备', ver: 'v3 → v4（新增衍生属性 yield_grade）', scope: '全局', submitter: 'zhangwei', submitTime: '2026-09-23 14:20', status: 'approved', apvUsers: ['shawn'], apvRoles: ['空间管理员'], approver: 'shawn', doneTime: '2026-09-23 15:02', comment: '映射校验已通过，同意发布。' },
+  { id: 'AP-20260923-002', res: 'shared-prop', resName: 'asset_no 资产编号', ver: 'v1（发布首个版本）', scope: '全局', submitter: 'wuna', submitTime: '2026-09-23 10:05', status: 'rejected', apvUsers: [], apvRoles: ['空间管理员'], approver: 'shawn', doneTime: '2026-09-23 11:18', comment: '唯一性约束未覆盖历史数据，请先补充清洗方案后重新提交。' },
+  { id: 'AP-20260922-011', res: 'function', resName: 'calcEquipmentYield 计算设备综合良率', ver: 'v2 → v3（窗口期参数默认 30 天）', scope: '智能制造空间', submitter: 'shawn', submitTime: '2026-09-22 17:30', status: 'approved', apvUsers: ['lijing'], apvRoles: ['本体建模员'], approver: 'lijing', doneTime: '2026-09-23 08:55', comment: '单测全部通过，同意。' },
+  { id: 'AP-20260922-004', res: 'action', resName: 'updateUnitCost 更新单位成本', ver: 'v1 → v2（增加权限校验）', scope: '全局', submitter: 'shawn', submitTime: '2026-09-22 09:12', status: 'pending', apvUsers: ['shawn'], apvRoles: ['空间管理员'] },
+];
+
+let curTab = 'pending';   // pending | done | mine
+let actRecordId = null;   // 当前通过/驳回的记录
+let actType = 'approved'; // approved | rejected
+let detailId = null;      // 当前详情记录
+
+App.mount({
+  page: 'approval',
+  crumbs: ['平台管理', '审批中心', '审批记录'],
+  title: '审批记录',
+  desc: '本体资源发布审批的单据流转记录：审批人可见待办 / 已办 / 我发起的，普通用户仅可见「我发起的」。',
+  actions: `<a class="btn" href="approval-config.html">← 审批流程配置</a>`,
+  content: `
+  <div class="tip mb16 text-2">审批人（被配置为审批用户或审批角色成员的用户）可看到 <b>待办审批</b>、<b>已办审批</b>、<b>我发起的</b> 三个列表；普通用户只能看到「我发起的」。当前登录：shawn（超级管理员 · 兼审批人视角）。</div>
+  <div class="card" style="border-radius:0 0 8px 8px;">
+    <div class="tabs" data-group="apv">
+      <div class="tab active" data-pane="pending" data-group="apv">待办审批 <span class="cnt" id="cntPending"></span></div>
+      <div class="tab" data-pane="done" data-group="apv">已办审批 <span class="cnt" id="cntDone"></span></div>
+      <div class="tab" data-pane="mine" data-group="apv">我发起的 <span class="cnt" id="cntMine"></span></div>
+    </div>
+    <div class="tab-pane active" data-group="apv" data-pane="pending">
+      <table class="table"><thead><tr><th>审批单号</th><th>资源类型</th><th>资源名称</th><th>变更摘要</th><th>作用域</th><th>发起人</th><th>提交时间</th><th>状态</th><th class="actions-cell">操作</th></tr></thead><tbody id="tbPending"></tbody></table>
+    </div>
+    <div class="tab-pane" data-group="apv" data-pane="done">
+      <table class="table"><thead><tr><th>审批单号</th><th>资源类型</th><th>资源名称</th><th>作用域</th><th>发起人</th><th>审批人</th><th>审批时间</th><th>状态</th><th>审批意见</th><th class="actions-cell">操作</th></tr></thead><tbody id="tbDone"></tbody></table>
+    </div>
+    <div class="tab-pane" data-group="apv" data-pane="mine">
+      <table class="table"><thead><tr><th>审批单号</th><th>资源类型</th><th>资源名称</th><th>作用域</th><th>提交时间</th><th>状态</th><th class="actions-cell">操作</th></tr></thead><tbody id="tbMine"></tbody></table>
+    </div>
+  </div>`,
+
+  onMount() { renderAll(); },
+});
+
+const resBadge = (r) => { const m = RES_META[r.res]; return `<span class="badge ${m.badge} no-dot">${m.label}</span>`; };
+const resLink = (r) => `<a class="res-link" href="${RES_META[r.res].href}" title="跳转到物料详情页">${r.resName}</a>`;
+const stBadge = (r) => `<span class="badge ${ST[r.status].badge}">${ST[r.status].label}</span>`;
+
+function renderAll() {
+  renderCounts();
+  renderPending(); renderDone(); renderMine();
+}
+
+function renderCounts() {
+  document.getElementById('cntPending').textContent = RECORDS.filter((r) => r.status === 'pending').length;
+  document.getElementById('cntDone').textContent = RECORDS.filter((r) => r.status !== 'pending').length;
+  document.getElementById('cntMine').textContent = RECORDS.filter((r) => r.submitter === CUR_USER).length;
+}
+
+// ===== 待办审批（审批人）=====
+function renderPending() {
+  const tb = document.getElementById('tbPending');
+  const list = RECORDS.filter((r) => r.status === 'pending');
+  if (!list.length) { tb.innerHTML = '<tr><td colspan="9" class="empty">暂无待办审批</td></tr>'; return; }
+  tb.innerHTML = list.map((r) => `
+    <tr>
+      <td class="mono">${r.id}</td>
+      <td>${resBadge(r)}</td>
+      <td><b>${resLink(r)}</b></td>
+      <td class="fs12 text-2">${r.ver}</td>
+      <td>${r.scope === '全局' ? '<span class="badge b-purple no-dot">全局</span>' : r.scope}</td>
+      <td>${r.submitter}</td>
+      <td class="text-2 fs12">${r.submitTime}</td>
+      <td>${stBadge(r)}</td>
+      <td class="actions-cell">
+        <button class="btn-link btn-sm" onclick="openDetail('${r.id}')">详情</button>
+        <button class="btn-link btn-sm" onclick="openAct('${r.id}','approved')">通过</button>
+        <button class="btn-link btn-sm btn-danger" onclick="openAct('${r.id}','rejected')">驳回</button>
+      </td>
+    </tr>`).join('');
+}
+
+// ===== 已办审批 =====
+function renderDone() {
+  const tb = document.getElementById('tbDone');
+  const list = RECORDS.filter((r) => r.status !== 'pending');
+  if (!list.length) { tb.innerHTML = '<tr><td colspan="10" class="empty">暂无已办记录</td></tr>'; return; }
+  tb.innerHTML = list.map((r) => `
+    <tr>
+      <td class="mono">${r.id}</td>
+      <td>${resBadge(r)}</td>
+      <td><b>${resLink(r)}</b></td>
+      <td>${r.scope === '全局' ? '<span class="badge b-purple no-dot">全局</span>' : r.scope}</td>
+      <td>${r.submitter}</td>
+      <td>${r.approver || '—'}</td>
+      <td class="text-2 fs12">${r.doneTime || '—'}</td>
+      <td>${stBadge(r)}</td>
+      <td class="fs12 text-2" style="max-width:220px;">${r.comment || '—'}</td>
+      <td class="actions-cell"><button class="btn-link btn-sm" onclick="openDetail('${r.id}')">详情</button></td>
+    </tr>`).join('');
+}
+
+// ===== 我发起的 =====
+function renderMine() {
+  const tb = document.getElementById('tbMine');
+  const list = RECORDS.filter((r) => r.submitter === CUR_USER);
+  if (!list.length) { tb.innerHTML = '<tr><td colspan="7" class="empty">暂无发起记录</td></tr>'; return; }
+  tb.innerHTML = list.map((r) => `
+    <tr>
+      <td class="mono">${r.id}</td>
+      <td>${resBadge(r)}</td>
+      <td><b>${resLink(r)}</b></td>
+      <td>${r.scope === '全局' ? '<span class="badge b-purple no-dot">全局</span>' : r.scope}</td>
+      <td class="text-2 fs12">${r.submitTime}</td>
+      <td>${stBadge(r)}</td>
+      <td class="actions-cell"><button class="btn-link btn-sm" onclick="openDetail('${r.id}')">详情</button></td>
+    </tr>`).join('');
+}
+
+// ===== 通过 / 驳回 =====
+function openAct(id, type) {
+  actRecordId = id; actType = type;
+  const r = RECORDS.find((x) => x.id === id);
+  document.getElementById('actTitle').textContent = type === 'approved' ? '通过审批' : '驳回审批';
+  document.getElementById('actTarget').innerHTML = `<b class="mono">${r.id}</b> · ${r.resName}`;
+  document.getElementById('actComment').value = '';
+  const btn = document.getElementById('actConfirmBtn');
+  btn.textContent = type === 'approved' ? '确认通过' : '确认驳回';
+  btn.className = 'btn ' + (type === 'approved' ? 'btn-primary' : 'btn-danger');
+  App.openModal('actModal');
+}
+
+function actConfirm() {
+  const r = RECORDS.find((x) => x.id === actRecordId);
+  if (!r) return;
+  const comment = document.getElementById('actComment').value.trim();
+  r.status = actType;
+  r.approver = CUR_USER;
+  r.doneTime = '2026-09-24 11:20';
+  r.comment = comment || (actType === 'approved' ? '同意发布。' : '不符合发布要求，请修改后重新提交。');
+  App.closeModal('actModal');
+  renderAll();
+  // 追加站内通知（顶栏铃铛红点 +1）
+  App.pushNotif(actType, actType === 'approved'
+    ? `您通过了 ${r.submitter} 发起的${RES_META[r.res].label}「${r.resName}」发布审批（${r.id}）`
+    : `您驳回了 ${r.submitter} 发起的${RES_META[r.res].label}「${r.resName}」发布申请（${r.id}）`);
+  toast(`审批完成：${ST[actType].label} · ${r.id}`);
+  if (detailId === r.id) openDetail(r.id); // 详情抽屉若开着则刷新
+}
+
+// ===== 审批详情抽屉 =====
+function openDetail(id) {
+  const r = RECORDS.find((x) => x.id === id);
+  if (!r) return;
+  detailId = id;
+  const m = RES_META[r.res];
+  document.getElementById('ddId').textContent = r.id;
+  document.getElementById('ddStatus').innerHTML = stBadge(r);
+  const apvTags =
+    (r.apvUsers || []).map((a) => `<span class="tag blue">用户 · ${a}</span>`).join('') +
+    (r.apvRoles || []).map((x) => `<span class="tag role">角色 · ${x}（成员动态计算）</span>`).join('');
+  const flow =
+    `<div class="tl-item"><div class="tl-time">${r.submitTime}</div><div class="tl-title">${r.submitter} 提交发布申请</div><div class="tl-desc">${r.ver}</div></div>` +
+    (r.status === 'pending'
+      ? `<div class="tl-item warn"><div class="tl-time">—</div><div class="tl-title">等待审批</div><div class="tl-desc">审批人：${apvTags}</div></div>`
+      : `<div class="tl-item ${r.status === 'rejected' ? 'err' : ''}"><div class="tl-time">${r.doneTime}</div><div class="tl-title">${r.approver} ${ST[r.status].label}</div><div class="tl-desc">${r.comment || ''}</div></div>`);
+
+  document.getElementById('ddBody').innerHTML = `
+    <dl class="desc-list mb16">
+      <dt>资源类型</dt><dd>${resBadge(r)}</dd>
+      <dt>资源名称</dt><dd><b>${resLink(r)}</b></dd>
+      <dt>变更摘要</dt><dd class="fs13">${r.ver}</dd>
+      <dt>作用范围</dt><dd>${r.scope === '全局' ? '全局（平台级，全部空间生效）' : r.scope + '（仅该工作空间生效）'}</dd>
+      <dt>发起人</dt><dd>${r.submitter}</dd>
+      <dt>提交时间</dt><dd>${r.submitTime}</dd>
+      <dt>审批人</dt><dd><span class="apv-tags">${apvTags || '—'}</span></dd>
+    </dl>
+    <div class="fs13 bold mb8">审批流程</div>
+    <div class="timeline">${flow}</div>`;
+
+  const isPending = r.status === 'pending';
+  document.getElementById('ddFoot').innerHTML = `
+    <a class="btn" href="${m.href}">查看物料详情 →</a>
+    <button class="btn" onclick="App.closeDrawer('apvDrawer')">关闭</button>
+    ${isPending ? `<button class="btn btn-danger" onclick="App.closeDrawer('apvDrawer');openAct('${r.id}','rejected')">驳回</button>
+    <button class="btn btn-primary" onclick="App.closeDrawer('apvDrawer');openAct('${r.id}','approved')">通过</button>` : ''}`;
+  App.openDrawer('apvDrawer');
+}
+</script>
+</body>
+</html>

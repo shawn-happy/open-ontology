@@ -15,6 +15,8 @@ const pipelines = [
   ['pl-graph-import', '数据集成 · 故障图谱构建', '集成', 'Doris → NebulaGraph', '每小时', '正常', '09-09 10:00'],
   ['pl-dq-check', '数据质量 · BOM 外键校验', '质量', '值约束规则回刷', '每日 02:00', '昨日 3 条隔离', '09-09 02:05'],
   ['pl-lineage', '数据治理 · 血缘采集', '治理', '元数据血缘解析', '每日 03:00', '正常', '09-09 03:02'],
+  ['pl-iot-stream', '数据集成 · IoT 指标流式入仓', '集成', 'Kafka → 流式 Pipeline（常驻）', '常驻运行', '正常', '常驻'],
+  ['pl-eqp-incr', '数据开发 · 设备日增量加工', '开发', 'Python 增量 Transform', '每日 00:30', '正常', '09-09 00:31'],
 ];
 
 App.mount({
@@ -47,7 +49,7 @@ App.mount({
         </td>
       </tr>`).join('')}
     </table>
-    <div class="pager">共 5 条<span style="flex:1"></span><span class="pg">‹</span><span class="pg cur">1</span><span class="pg">›</span></div>
+    <div class="pager">共 7 条<span style="flex:1"></span><span class="pg">‹</span><span class="pg cur">1</span><span class="pg">›</span></div>
   </div>
 
   <div class="card mt16">
@@ -60,6 +62,45 @@ App.mount({
         <div class="tl-item warn"><div class="tl-time">09-09 02:05:00 → 02:09:47</div><div class="tl-title">pl-dq-check · 部分失败</div><div class="tl-desc">3 条记录未通过「物料外键校验」进入隔离区，已通知 @周杰</div></div>
         <div class="tl-item"><div class="tl-time">09-09 01:00:00 → 01:12:33（12m33s）</div><div class="tl-title">pl-quality-clean · 成功</div><div class="tl-desc">清洗 246,802 行 · 产出 dwd_quality_detail</div></div>
       </div>
+    </div>
+  </div>
+
+  <div class="row mt16">
+    <div class="card col">
+      <div class="card-h"><h3>Pipeline 形态选择</h3><span class="sub">按延迟 / 复杂度 / 算力 / 数据规模权衡（对标 Palantir）</span></div>
+      <div class="card-b">
+        <table class="table">
+          <tr><th>形态</th><th>典型任务</th><th>说明</th></tr>
+          <tr><td><span class="badge b-blue no-dot">批量</span></td><td class="fs12">T+1 分层清洗、全量回刷</td><td class="fs12 text-2">SQL / Python 均可，调度触发</td></tr>
+          <tr><td><span class="badge b-cyan no-dot">增量</span></td><td class="fs12">日增量加工（pl-eqp-incr）</td><td class="fs12 text-2">仅 Python / Java，处理变更分区</td></tr>
+          <tr><td><span class="badge b-green no-dot">流式</span></td><td class="fs12">IoT 指标实时入仓（pl-iot-stream）</td><td class="fs12 text-2">常驻运行，Kafka / CDC 源，支持 Metrics 与逐步 Debug</td></tr>
+        </table>
+      </div>
+    </div>
+    <div class="card col">
+      <div class="card-h"><h3>Data Expectations（数据校验规则）</h3><span class="sub">输入前置 / 输出后置校验</span></div>
+      <div class="card-b">
+        <table class="table">
+          <tr><th>Pipeline</th><th>校验</th><th>失败动作</th><th>结果</th></tr>
+          <tr><td class="mono fs12">pl-quality-clean</td><td class="fs12">输出：grade 非空且在枚举内 · 行数波动 < ±20%</td><td>中止 Build，阻断下游</td><td><span class="badge b-green no-dot">通过</span></td></tr>
+          <tr><td class="mono fs12">pl-eqp-incr</td><td class="fs12">输入：源分区就绪 · 主键唯一</td><td>中止并告警责任人</td><td><span class="badge b-green no-dot">通过</span></td></tr>
+          <tr><td class="mono fs12">pl-iot-stream</td><td class="fs12">输出：metric_value 非空</td><td>仅上报 Data Health</td><td><span class="badge b-orange no-dot">2 条违规</span></td></tr>
+        </table>
+        <div class="tip mt8">校验结果上报数据健康中心，规则变更走版本评审。</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card mt16">
+    <div class="card-h"><h3>健康检查监控（以调度为单元）</h3><div class="right"><a href="../audit/audit-pipelines.html" class="fs12">运行明细 →</a></div></div>
+    <div class="card-b" style="padding-top:0;">
+      <table class="table">
+        <tr><th>调度单元</th><th>freshness（新鲜度）</th><th>任务状态</th><th>时长监控</th><th>告警</th></tr>
+        <tr><td class="mono fs12">pl-equipment-cdc</td><td><span class="badge b-green no-dot">12 分钟前</span></td><td class="fs12">近 7 天成功率 100%</td><td class="fs12">p95 48s（阈值 2min）</td><td class="fs12 text-2">超阈值通知 @周杰</td></tr>
+        <tr><td class="mono fs12">pl-quality-clean</td><td><span class="badge b-green no-dot">9 小时前</span></td><td class="fs12">近 7 天成功率 100%</td><td class="fs12">p95 13m（阈值 20min）</td><td class="fs12 text-2">失败自动通知责任人</td></tr>
+        <tr><td class="mono fs12">pl-iot-stream</td><td><span class="badge b-orange no-dot">延迟 12min</span></td><td class="fs12">消费者组积压 4.6 万条</td><td class="fs12">常驻</td><td class="fs12"><span class="badge b-orange no-dot">已触发告警</span></td></tr>
+      </table>
+      <div class="tip mt8">血缘图上可直接配置调度与构建策略：仅构建选中节点 / 构建区间 / 含全部祖先。构建历史含日志与 schema 变更。</div>
     </div>
   </div>`,
 });

@@ -13,16 +13,19 @@
   <div class="modal">
     <div class="modal-h">新建数据源<span class="x" onclick="App.closeModal('dsModal')">×</span></div>
     <div class="modal-b">
-      <div class="form-item"><label><span class="req">*</span>类型</label>
-        <select><option>Doris（MySQL 协议）</option><option>NebulaGraph</option><option>Kafka</option><option>API 数据源</option></select>
+      <div class="form-item"><label><span class="req">*</span>类型（Connector）</label>
+        <select><option>Doris（MySQL 协议）</option><option>NebulaGraph</option><option>Kafka</option><option>通用 JDBC（Oracle / Postgres / SQL Server / 达梦…）</option><option>对象存储（S3 / OSS / MinIO）</option><option>REST API（push 推送接入）</option><option>API 数据源</option></select>
       </div>
-      <div class="form-item"><label><span class="req">*</span>名称</label><input type="text" placeholder="如：Doris-生产" /></div>
+      <div class="form-item"><label><span class="req">*</span>名称（Source）</label><input type="text" placeholder="如：Doris-生产" /><div class="tip">对标 Palantir 三要素：Source 连接实例 = Connector 类型 + Credential 凭据 + Worker 网络出口</div></div>
       <div class="form-row">
         <div class="form-item"><label><span class="req">*</span>地址</label><input type="text" class="mono" placeholder="fe-host:9030" /></div>
         <div class="form-item"><label>账号</label><input type="text" /></div>
       </div>
-      <div class="form-item"><label>密码</label><input type="password" /><div class="tip">密码加密存储于平台凭据库（见 安全管理 → 加密）</div></div>
-      <div class="form-item"><label>密级标记</label><select><option>L2 / 内部</option><option>L3 / 秘密</option></select></div>
+      <div class="form-item"><label>密码</label><input type="password" /><div class="tip">作为加密凭据（Credential）存储于平台凭据库，支持 OIDC / 云身份免密（见 安全管理 → 加密）</div></div>
+      <div class="form-row">
+        <div class="form-item"><label>网络出口（Worker）</label><select><option>平台内置 Worker（云上容器）</option><option>Agent Worker（客户内网代理）</option></select></div>
+        <div class="form-item"><label>密级标记</label><select><option>L2 / 内部</option><option>L3 / 秘密</option></select></div>
+      </div>
     </div>
     <div class="modal-f"><button class="btn" onclick="toast('连接测试通过')">测试连接</button><button class="btn" onclick="App.closeModal('dsModal')">取消</button><button class="btn btn-primary" onclick="App.closeModal('dsModal');toast('数据源已创建')">确定</button></div>
   </div>
@@ -43,12 +46,29 @@ App.mount({
       <select><option>全部类型</option><option>Doris</option><option>NebulaGraph</option><option>Kafka</option></select>
     </div>
     <table class="table">
-      <tr><th>名称</th><th>类型</th><th>地址</th><th>数据集数</th><th>密级</th><th>状态</th><th class="actions-cell">操作</th></tr>
-      <tr><td><b>Doris-生产</b></td><td><span class="badge b-blue no-dot">Doris</span></td><td class="mono fs12">doris-prod.fe:9030</td><td>5</td><td><span class="badge b-orange">L2</span></td><td><span class="badge b-green">连接正常</span></td><td class="actions-cell"><button class="btn-link btn-sm" onclick="toast('连接测试通过')">测试</button><button class="btn-link btn-sm" onclick="toast('编辑数据源')">编辑</button><button class="btn-link btn-sm btn-danger" onclick="toast('删除数据源')">删除</button></td></tr>
-      <tr><td><b>NebulaGraph-图空间</b></td><td><span class="badge b-purple no-dot">NebulaGraph</span></td><td class="mono fs12">nebula-graphd:9669 · space mfg</td><td>1</td><td><span class="badge b-red">L3</span></td><td><span class="badge b-green">连接正常</span></td><td class="actions-cell"><button class="btn-link btn-sm" onclick="toast('连接测试通过')">测试</button><button class="btn-link btn-sm" onclick="toast('编辑数据源')">编辑</button><button class="btn-link btn-sm btn-danger" onclick="toast('删除数据源')">删除</button></td></tr>
-      <tr><td><b>Kafka-IoT</b></td><td><span class="badge b-cyan no-dot">Kafka</span></td><td class="mono fs12">kafka:9092 · topic iot_metric</td><td>—</td><td><span class="badge b-orange">L2</span></td><td><span class="badge b-orange">消费者组延迟</span></td><td class="actions-cell"><button class="btn-link btn-sm" onclick="toast('连接测试通过')">测试</button><button class="btn-link btn-sm" onclick="toast('编辑数据源')">编辑</button><button class="btn-link btn-sm btn-danger" onclick="toast('删除数据源')">删除</button></td></tr>
+      <tr><th>名称</th><th>类型</th><th>地址</th><th>接入方式</th><th>数据集数</th><th>密级</th><th>状态</th><th class="actions-cell">操作</th></tr>
+      <tr><td><b>Doris-生产</b></td><td><span class="badge b-blue no-dot">Doris</span></td><td class="mono fs12">doris-prod.fe:9030</td><td class="fs12">实时 CDC + T+1 批量</td><td>5</td><td><span class="badge b-orange">L2</span></td><td><span class="badge b-green">连接正常</span></td><td class="actions-cell"><button class="btn-link btn-sm" onclick="toast('连接测试通过')">测试</button><button class="btn-link btn-sm" onclick="toast('编辑数据源')">编辑</button><button class="btn-link btn-sm btn-danger" onclick="toast('删除数据源')">删除</button></td></tr>
+      <tr><td><b>NebulaGraph-图空间</b></td><td><span class="badge b-purple no-dot">NebulaGraph</span></td><td class="mono fs12">nebula-graphd:9669 · space mfg</td><td class="fs12">图边同步</td><td>1</td><td><span class="badge b-red">L3</span></td><td><span class="badge b-green">连接正常</span></td><td class="actions-cell"><button class="btn-link btn-sm" onclick="toast('连接测试通过')">测试</button><button class="btn-link btn-sm" onclick="toast('编辑数据源')">编辑</button><button class="btn-link btn-sm btn-danger" onclick="toast('删除数据源')">删除</button></td></tr>
+      <tr><td><b>Kafka-IoT</b></td><td><span class="badge b-cyan no-dot">Kafka</span></td><td class="mono fs12">kafka:9092 · topic iot_metric</td><td class="fs12">Streaming</td><td>—</td><td><span class="badge b-orange">L2</span></td><td><span class="badge b-orange">消费者组延迟</span></td><td class="actions-cell"><button class="btn-link btn-sm" onclick="toast('连接测试通过')">测试</button><button class="btn-link btn-sm" onclick="toast('编辑数据源')">编辑</button><button class="btn-link btn-sm btn-danger" onclick="toast('删除数据源')">删除</button></td></tr>
+      <tr><td><b>Oracle-MES</b></td><td><span class="badge b-blue no-dot">通用 JDBC</span></td><td class="mono fs12">mes-db:1521/ORCL · Agent Worker</td><td class="fs12">T+1 批量 + CDC</td><td>3</td><td><span class="badge b-orange">L2</span></td><td><span class="badge b-green">连接正常</span></td><td class="actions-cell"><button class="btn-link btn-sm" onclick="toast('连接测试通过')">测试</button><button class="btn-link btn-sm" onclick="toast('编辑数据源')">编辑</button><button class="btn-link btn-sm btn-danger" onclick="toast('删除数据源')">删除</button></td></tr>
+      <tr><td><b>MinIO-工艺文件</b></td><td><span class="badge b-cyan no-dot">对象存储</span></td><td class="mono fs12">s3://mfg-process-docs</td><td class="fs12">批量（文件式）</td><td>2</td><td><span class="badge b-orange">L2</span></td><td><span class="badge b-green">连接正常</span></td><td class="actions-cell"><button class="btn-link btn-sm" onclick="toast('连接测试通过')">测试</button><button class="btn-link btn-sm" onclick="toast('编辑数据源')">编辑</button><button class="btn-link btn-sm btn-danger" onclick="toast('删除数据源')">删除</button></td></tr>
+      <tr><td><b>REST-Push-质检仪</b></td><td><span class="badge b-cyan no-dot">REST API</span></td><td class="mono fs12">/api/v1/push/quality · Token</td><td class="fs12">Push 推送</td><td>1</td><td><span class="badge b-orange">L2</span></td><td><span class="badge b-green">正常接收</span></td><td class="actions-cell"><button class="btn-link btn-sm" onclick="toast('查看推送密钥')">密钥</button><button class="btn-link btn-sm" onclick="toast('编辑数据源')">编辑</button><button class="btn-link btn-sm btn-danger" onclick="toast('删除数据源')">删除</button></td></tr>
     </table>
-    <div class="pager">共 3 条<span style="flex:1"></span><span class="pg">‹</span><span class="pg cur">1</span><span class="pg">›</span></div>
+    <div class="pager">共 6 条<span style="flex:1"></span><span class="pg">‹</span><span class="pg cur">1</span><span class="pg">›</span></div>
+  </div>
+
+  <div class="card mt16">
+    <div class="card-h"><h3>连接三要素模型</h3><span class="sub">对标 Palantir Data Connection</span></div>
+    <div class="card-b">
+      <table class="table">
+        <tr><th>要素</th><th>说明</th><th>本平台实现</th></tr>
+        <tr><td>Connector（源类型）</td><td class="fs12 text-2">定义连接协议与能力矩阵（batch / CDC / streaming / push）</td><td class="fs12">Doris / NebulaGraph / Kafka / 通用 JDBC / 对象存储 / REST push</td></tr>
+        <tr><td>Source（连接实例）</td><td class="fs12 text-2">定位地址 + 凭据 + 指定网络出口</td><td class="fs12">数据源列表中的每条记录</td></tr>
+        <tr><td>Credential（凭据）</td><td class="fs12 text-2">加密存储的密码 / Token / API Key，支持 OIDC、云身份</td><td class="fs12">平台凭据库（安全管理 → 加密）</td></tr>
+        <tr><td>Worker（网络出口）</td><td class="fs12 text-2">决定采集计算运行位置</td><td class="fs12">平台内置 Worker / 客户内网 Agent Worker</td></tr>
+      </table>
+      <div class="tip mt8">接入原则（对标 Palantir "as-is"）：源端不做预处理，原样接入；转换全部留在平台 Pipeline 内。同步前可交互式浏览外部库表与 schema，验证连通性与凭据。</div>
+    </div>
   </div>`,
 });
 </script>

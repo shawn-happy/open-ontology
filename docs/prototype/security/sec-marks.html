@@ -14,8 +14,17 @@
     <div class="modal-h">新建标记<span class="x" onclick="App.closeModal('markModal')">×</span></div>
     <div class="modal-b">
       <div class="form-item"><label><span class="req">*</span>标记名称</label><input type="text" placeholder="如：PII / 商密 / 财务敏感" /></div>
-      <div class="form-item"><label>标记类型</label><select><option>密级标记（L1-L4）</option><option>业务标记（PII / 财务 / 商密）</option><option>自定义标记</option></select></div>
+      <div class="form-row">
+        <div class="form-item"><label>所属分类（Marking Category）</label><select><option>密级分类（密级标记）</option><option>合规分类（PII / 财务 / 商密）</option><option>业务自定义分类</option></select>
+          <div class="tip">对标 Palantir：分类用于组织标记，可设可见 / 隐藏；分类与标记创建后不可删除或移动。</div>
+        </div>
+        <div class="form-item"><label>分类可见性</label><select><option>Visible（成员可见标记名）</option><option>Hidden（对非成员隐藏存在性）</option></select></div>
+      </div>
       <div class="form-item"><label>默认策略</label><select><option>仅授权角色可见</option><option>可见但脱敏</option><option>可见但不可导出</option></select></div>
+      <div class="form-item"><label>成员（Members）</label>
+        <div class="form-inline"><span class="tag blue">设备维护组</span><span class="tag blue">质量工程师</span><button class="btn btn-sm" onclick="toast('添加成员（组 / 用户）')">+ 添加成员</button></div>
+        <div class="tip">用户必须同时是资源上<b>所有</b>标记的成员才可见（all-or-nothing 强制控制）。「能打标（Apply）」≠「能看数据（Member）」。</div>
+      </div>
       <div class="form-item"><label>说明</label><textarea rows="2"></textarea></div>
     </div>
     <div class="modal-f"><button class="btn" onclick="App.closeModal('markModal')">取消</button><button class="btn btn-primary" onclick="App.closeModal('markModal');toast('标记已创建')">确定</button></div>
@@ -37,16 +46,57 @@ App.mount({
       <select><option>全部类型</option><option>密级标记</option><option>业务标记</option><option>自定义标记</option></select>
     </div>
     <table class="table">
-      <tr><th>标记</th><th>类型</th><th>默认策略</th><th>已打标对象</th><th>启用</th><th class="actions-cell">操作</th></tr>
-      <tr><td><span class="badge b-gray">L1 公开</span></td><td>密级</td><td>全部可见</td><td>12</td><td><span class="switch on" onclick="this.classList.toggle('on')"></span></td><td class="actions-cell"><button class="btn-link btn-sm" onclick="toast('编辑标记')">编辑</button></td></tr>
-      <tr><td><span class="badge b-orange">L2 内部</span></td><td>密级</td><td>空间成员可见</td><td>38</td><td><span class="switch on" onclick="this.classList.toggle('on')"></span></td><td class="actions-cell"><button class="btn-link btn-sm" onclick="toast('编辑标记')">编辑</button></td></tr>
-      <tr><td><span class="badge b-red">L3 秘密</span></td><td>密级</td><td>仅授权角色可见</td><td>9</td><td><span class="switch on" onclick="this.classList.toggle('on')"></span></td><td class="actions-cell"><button class="btn-link btn-sm" onclick="toast('编辑标记')">编辑</button></td></tr>
-      <tr><td><span class="badge b-purple">PII 个人信息</span></td><td>业务标记</td><td>可见但脱敏</td><td>4</td><td><span class="switch on" onclick="this.classList.toggle('on')"></span></td><td class="actions-cell"><button class="btn-link btn-sm" onclick="toast('编辑标记')">编辑</button></td></tr>
-      <tr><td><span class="badge b-cyan">FIN 财务敏感</span></td><td>业务标记</td><td>可见但不可导出</td><td>6</td><td><span class="switch on" onclick="this.classList.toggle('on')"></span></td><td class="actions-cell"><button class="btn-link btn-sm" onclick="toast('编辑标记')">编辑</button></td></tr>
-      <tr><td><span class="badge b-blue">EQP-COST 成本类</span></td><td>自定义</td><td>仅授权角色可见</td><td>3</td><td><span class="switch on" onclick="this.classList.toggle('on')"></span></td><td class="actions-cell"><button class="btn-link btn-sm" onclick="toast('编辑标记')">编辑</button></td></tr>
+      <tr><th>标记</th><th>分类</th><th>类型</th><th>默认策略</th><th>成员</th><th>已打标对象</th><th>启用</th><th class="actions-cell">操作</th></tr>
+      <tr><td><span class="badge b-gray">L1 公开</span></td><td class="fs12">密级分类</td><td>密级</td><td>全部可见</td><td class="mono fs12">全部</td><td>12</td><td><span class="switch on" onclick="this.classList.toggle('on')"></span></td><td class="actions-cell"><button class="btn-link btn-sm" onclick="toast('编辑标记')">编辑</button><button class="btn-link btn-sm" onclick="toast('配置四权：管理 / 打标 / 移除 / 成员')">权限</button></td></tr>
+      <tr><td><span class="badge b-orange">L2 内部</span></td><td class="fs12">密级分类</td><td>密级</td><td>空间成员可见</td><td class="mono fs12">全空间</td><td>38</td><td><span class="switch on" onclick="this.classList.toggle('on')"></span></td><td class="actions-cell"><button class="btn-link btn-sm" onclick="toast('编辑标记')">编辑</button><button class="btn-link btn-sm" onclick="toast('配置四权')">权限</button></td></tr>
+      <tr><td><span class="badge b-red">L3 秘密</span></td><td class="fs12">密级分类</td><td>密级</td><td>仅授权角色可见</td><td class="mono fs12">3 组 · 8 人</td><td>9</td><td><span class="switch on" onclick="this.classList.toggle('on')"></span></td><td class="actions-cell"><button class="btn-link btn-sm" onclick="toast('编辑标记')">编辑</button><button class="btn-link btn-sm" onclick="toast('配置四权')">权限</button></td></tr>
+      <tr><td><span class="badge b-purple">PII 个人信息</span></td><td class="fs12">合规分类</td><td>业务</td><td>可见但脱敏</td><td class="mono fs12">2 组 · 15 人</td><td>4</td><td><span class="switch on" onclick="this.classList.toggle('on')"></span></td><td class="actions-cell"><button class="btn-link btn-sm" onclick="toast('编辑标记')">编辑</button><button class="btn-link btn-sm" onclick="toast('配置四权')">权限</button></td></tr>
+      <tr><td><span class="badge b-cyan">FIN 财务敏感</span></td><td class="fs12">合规分类</td><td>业务</td><td>可见但不可导出</td><td class="mono fs12">1 组 · 4 人</td><td>6</td><td><span class="switch on" onclick="this.classList.toggle('on')"></span></td><td class="actions-cell"><button class="btn-link btn-sm" onclick="toast('编辑标记')">编辑</button><button class="btn-link btn-sm" onclick="toast('配置四权')">权限</button></td></tr>
+      <tr><td><span class="badge b-blue">EQP-COST 成本类</span></td><td class="fs12">业务自定义分类</td><td>自定义</td><td>仅授权角色可见</td><td class="mono fs12">2 组 · 3 人</td><td>3</td><td><span class="switch on" onclick="this.classList.toggle('on')"></span></td><td class="actions-cell"><button class="btn-link btn-sm" onclick="toast('编辑标记')">编辑</button><button class="btn-link btn-sm" onclick="toast('配置四权')">权限</button></td></tr>
     </table>
     <div class="pager">共 6 条<span style="flex:1"></span><span class="pg">‹</span><span class="pg cur">1</span><span class="pg">›</span></div>
   </div>
+
+  <div class="row mt16">
+    <div class="card col">
+      <div class="card-h"><h3>标记权限四权分离</h3><span class="sub">对标 Palantir Marking Permissions</span></div>
+      <div class="card-b">
+        <table class="table">
+          <tr><th>权限</th><th>含义</th><th>授权示例（L3 秘密）</th></tr>
+          <tr><td>Manage permissions</td><td class="fs12 text-2">管理标记的权限配置与成员</td><td class="fs12">超级管理员</td></tr>
+          <tr><td>Apply</td><td class="fs12 text-2">将标记打在资源上</td><td class="fs12">数据工程师（能打标 <b>≠</b> 能看数据）</td></tr>
+          <tr><td>Remove</td><td class="fs12 text-2">从资源上移除标记</td><td class="fs12">空间管理员</td></tr>
+          <tr><td>Members</td><td class="fs12 text-2">可见被标记数据（强制控制生效身份）</td><td class="fs12">成本分析员等授权组 / 用户</td></tr>
+        </table>
+        <div class="tip mt8">权限可授给组并随组继承；Organization 是特殊标记类别，另有 Apply organization / Expand access 权限。</div>
+      </div>
+    </div>
+    <div class="card col">
+      <div class="card-h"><h3>标记传播与血缘</h3></div>
+      <div class="card-b">
+        <table class="table">
+          <tr><th>场景</th><th>行为</th></tr>
+          <tr><td>Pipeline 派生数据集</td><td class="fs12 text-2">标记沿数据血缘自动传播（事务级）</td></tr>
+          <tr><td>本体对象 / 属性</td><td class="fs12 text-2">继承来源数据集标记，物化时按最严格原则叠加</td></tr>
+          <tr><td>脱敏 / 加密节点</td><td class="fs12 text-2">可配置 <span class="mono fs12">stop_propagating</span> 切断下游继承</td></tr>
+          <tr><td>打标操作</td><td class="fs12 text-2">建议先在分支上模拟血缘影响，再正式上标</td></tr>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="card mt16">
+    <div class="card-h"><h3>CBAC 密级组合校验</h3><span class="sub">定义哪些标记组合构成合法密级（对标 Palantir Classification-Based Access Control）</span></div>
+    <div class="card-b">
+      <table class="table">
+        <tr><th>密级组合</th><th>构成标记</th><th>合法性</th><th>校验结果</th></tr>
+        <tr><td>机密-客户数据</td><td><span class="tag">L4 机密</span><span class="tag">PII 个人信息</span></td><td><span class="badge b-green no-dot">合法</span></td><td class="fs12 text-2">成员需同时满足两个标记</td></tr>
+        <tr><td>秘密-财务</td><td><span class="tag">L3 秘密</span><span class="tag">FIN 财务敏感</span></td><td><span class="badge b-green no-dot">合法</span></td><td class="fs12 text-2">导出需 Checkpoint 理由</td></tr>
+        <tr><td>内部-PII</td><td><span class="tag">L2 内部</span><span class="tag">PII 个人信息</span></td><td><span class="badge b-red no-dot">非法</span></td><td class="fs12 text-2">PII 数据密级不得低于 L3，打标时阻断并提示</td></tr>
+      </table>
+    </div>
+  </div>
+
   <div class="card mt16">
     <div class="card-h"><h3>打标范围说明</h3></div>
     <div class="card-b text-2 fs13">标记可打在：数据源 / 数据集 / 字段 / 本体类 / 属性 / 动作 上，策略在查询与 Pipeline 执行时统一生效。</div>

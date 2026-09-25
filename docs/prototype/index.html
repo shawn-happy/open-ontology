@@ -30,15 +30,17 @@
 <script src="assets/app.js"></script>
 <script>
 const modules = [
-  ['▦', '平台管理', '工作空间与系统级配置', 'platform/workspace.html', ['工作空间（列表 / CRUD / 成员分配）', '系统管理（用户 / 角色 / 权限 / 部门）'], ''],
+  ['▦', '平台管理', '工作空间与系统级配置', 'platform/workspace.html', ['工作空间（列表 / CRUD / 成员分配）', '系统管理（用户 / 角色 / 权限 / 部门）', '审批中心（发布审批 · 流程配置 / 审批记录）'], ''],
   ['◈', '本体资产管理', '类 / 属性 / 关系 / 规则 / 动作 / 函数', 'ontology/ontology-graph.html',
-    ['本体图谱', '关联关系（含 RDF）', '共享属性 · 枚举类 · 值约束规则', '动作 · 函数'], 'c2'],
+    ['本体图谱', '关联关系（含 RDF）', '共享属性 · 枚举类 · 值约束规则', '动作 · 函数', 'Schema 迁移 · 本体分支'], 'c2'],
   ['⛃', '数据管理', '数据源 / 数据集 / Pipeline / 探查', 'data/data-sources.html',
     ['数据源管理', '数据集管理', 'Pipeline 管理', '数据探查'], 'c3'],
   ['⛨', '安全管理', '标记 / 数据权限 / 加密 / 脱敏', 'security/sec-marks.html',
     ['标记管理', '数据权限', '加密 · 脱敏'], 'c4'],
   ['❖', '应用管理', 'API Key / Workflow / Skills', 'application/app-apikeys.html',
-    ['API Key', 'Workflow 编排', 'Skills'], 'c5'],
+    ['API Key', 'Workflow 编排', 'Skills（Agent 化）'], 'c5'],
+  ['⌗', '开发者平台', 'Developer Console / SDK / 代码化本体', 'developer/dev-console.html',
+    ['Developer Console（应用注册 · 资源授权）', 'SDK 与开放 API（OSDK · MCP 暴露）', '代码化本体（Git 双向同步 · CI 发布）'], ''],
   ['☰', '审计管理', '日志 / 资产统计 / 运行与调用', 'audit/audit-logs.html',
     ['审计日志', '本体资产统计', 'Pipeline 运行 · 应用调用'], 'c6'],
 ];

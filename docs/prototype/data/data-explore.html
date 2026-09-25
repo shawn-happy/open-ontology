@@ -18,7 +18,15 @@ App.mount({
     <button class="btn" onclick="toast('已保存到我的脚本')">保存脚本</button>
     <button class="btn btn-primary" onclick="toast('查询完成 · 3.2s')">▶ 运行（Limit 200）</button>`,
   content: `
-  <div class="card">
+  <div class="tabs" data-group="exp">
+    <div class="tab active" data-pane="sql" data-group="exp">SQL 探查</div>
+    <div class="tab" data-pane="profile" data-group="exp">数据 Profiling</div>
+    <div class="tab" data-pane="tt" data-group="exp">Time Travel</div>
+    <div class="tab" data-pane="cmp" data-group="exp">Compare 对比</div>
+  </div>
+
+  <div class="tab-pane active" data-group="exp" data-pane="sql">
+  <div class="card" style="border-radius:0 0 8px 8px;">
     <div class="card-h">
       <select><option>Doris-生产</option><option>NebulaGraph-图空间</option></select>
       <select><option>我的脚本</option><option>各产线故障良率.sql</option><option>设备清单.sql</option></select>
@@ -62,6 +70,86 @@ App.mount({
         <tr><td class="mono fs12">10:11:32</td><td class="fs12">设备清单.sql</td><td>Doris-生产</td><td class="mono">0.4s</td><td><span class="badge b-green">成功</span></td></tr>
         <tr><td class="mono fs12">09:47:10</td><td class="fs12">（临时查询）故障图谱邻接探查</td><td>NebulaGraph-图空间</td><td class="mono">1.1s</td><td><span class="badge b-orange">部分字段已脱敏</span></td></tr>
       </table>
+    </div>
+  </div>
+  </div>
+
+  <!-- 数据 Profiling -->
+  <div class="tab-pane" data-group="exp" data-pane="profile">
+    <div class="card mt16" style="border-radius:0 0 8px 8px;">
+      <div class="card-h">
+        <h3>列统计 · <span class="mono">quality_report</span></h3>
+        <div class="right">
+          <select><option>quality_report</option><option>equipment_master</option><option>iot_metric_wide</option></select>
+          <button class="btn btn-sm" onclick="toast('已重新采样分析')">重新分析</button>
+        </div>
+      </div>
+      <div class="card-b">
+        <div class="stat-grid" style="margin-bottom:12px;">
+          <div class="stat" style="box-shadow:none;border:1px solid var(--border);"><div class="label">总行数</div><div class="val">890 <span class="fs13">万</span></div></div>
+          <div class="stat" style="box-shadow:none;border:1px solid var(--border);"><div class="label">列数</div><div class="val">45</div></div>
+          <div class="stat" style="box-shadow:none;border:1px solid var(--border);"><div class="label">高空值列</div><div class="val" style="color:var(--warning)">3</div></div>
+          <div class="stat" style="box-shadow:none;border:1px solid var(--border);"><div class="label">疑似主键</div><div class="val">report_id</div></div>
+        </div>
+        <table class="table">
+          <tr><th>字段</th><th>类型</th><th>空值率</th><th>唯一值</th><th>分布（min / avg / max）</th><th>样本值</th><th>柱状预览</th></tr>
+          <tr><td class="mono">yield_rate</td><td class="mono">DOUBLE</td><td class="mono">0.2%</td><td class="mono">8,412</td><td class="mono fs12">62.5 / 94.7 / 100.0</td><td class="mono fs12">96.88 · 93.21 · 98.40</td><td><div style="height:8px;width:80%;background:linear-gradient(90deg,#60a5fa,#2563eb);border-radius:4px;"></div></td></tr>
+          <tr><td class="mono">grade</td><td class="mono">VARCHAR(2)</td><td class="mono">0.0%</td><td class="mono">4</td><td class="fs12 text-2">A 68% · B 24% · C 7% · D 1%</td><td class="mono fs12">A · A · B · C</td><td><div style="height:8px;width:68%;background:linear-gradient(90deg,#a78bfa,#7c3aed);border-radius:4px;"></div></td></tr>
+          <tr><td class="mono">eqp_id</td><td class="mono">VARCHAR(16)</td><td class="mono">0.0%</td><td class="mono">1,286</td><td class="fs12 text-2">Top: EQP-0012 (1.2%)</td><td class="mono fs12">EQP-0012 · EQP-0045</td><td><div style="height:8px;width:40%;background:linear-gradient(90deg,#5eead4,#0891b2);border-radius:4px;"></div></td></tr>
+          <tr><td class="mono">inspector</td><td class="mono">VARCHAR(32)</td><td class="mono" style="color:var(--warning)">34.6%</td><td class="mono">56</td><td class="fs12 text-2">Top: 周杰 (12.4%)</td><td class="mono fs12">周杰 · 李琦 · —</td><td><div style="height:8px;width:34%;background:linear-gradient(90deg,#fbbf24,#d97706);border-radius:4px;"></div></td></tr>
+        </table>
+        <div class="tip mt8">列统计（null 率 / 唯一值 / 分布 / 样本）用于快速定位数据质量问题，可一键从 Profiling 跳转到对应值约束规则。</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Time Travel -->
+  <div class="tab-pane" data-group="exp" data-pane="tt">
+    <div class="card mt16" style="border-radius:0 0 8px 8px;">
+      <div class="card-h"><h3>事务版本时间轴 · <span class="mono">equipment_master</span></h3><span class="sub">对标 Palantir Time Travel：按事务版本回看数据与 schema</span></div>
+      <div class="card-b">
+        <div class="timeline">
+          <div class="tl-item">
+            <div class="tl-time">事务 txn-10231 · 09-21 10:30</div>
+            <div class="tl-title">pl-equipment-cdc 增量写入</div>
+            <div class="tl-desc">+ 1,204 行变更（新增 82 / 更新 1,122）· schema 无变化 <button class="btn-link btn-sm" onclick="toast('已切换到该版本查询')">以此版本查询</button></div>
+          </div>
+          <div class="tl-item">
+            <div class="tl-time">事务 txn-10190 · 09-20 10:30</div>
+            <div class="tl-title">pl-equipment-cdc 增量写入</div>
+            <div class="tl-desc">+ 1,088 行变更 <button class="btn-link btn-sm" onclick="toast('已切换到该版本查询')">以此版本查询</button></div>
+          </div>
+          <div class="tl-item warn">
+            <div class="tl-time">事务 txn-10124 · 09-19 16:02</div>
+            <div class="tl-title">迁移 mig-0039：删除属性 legacy_remark</div>
+            <div class="tl-desc">schema 变更：- 1 列 · Range 视图可见该事务删除列 <button class="btn-link btn-sm" onclick="toast('Range 视图：展示增 / 删 / 改行与 schema diff')">Range 视图</button></div>
+          </div>
+        </div>
+        <div class="tip mt8">Bisect 二分定位：可自动二分历史事务，定位某行 / 某值首次发生变化的事务版本。</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Compare -->
+  <div class="tab-pane" data-group="exp" data-pane="cmp">
+    <div class="card mt16" style="border-radius:0 0 8px 8px;">
+      <div class="card-h">
+        <h3>数据对比</h3>
+        <div class="right">
+          <select><option>跨事务对比（txn-10231 vs txn-10190）</option><option>跨分支对比（main vs dev-eqp-v13）</option><option>跨数据集对比（equipment_master vs equip_bak）</option></select>
+          <button class="btn btn-sm btn-primary" onclick="toast('对比完成')">运行对比</button>
+        </div>
+      </div>
+      <div class="card-b">
+        <table class="table">
+          <tr><th>维度</th><th>txn-10190（09-20）</th><th>txn-10231（09-21）</th><th>差异</th></tr>
+          <tr><td>总行数</td><td class="mono">128,540</td><td class="mono">129,744</td><td><span class="badge b-green no-dot">+ 1,204</span></td></tr>
+          <tr><td>status = "故障"</td><td class="mono">18</td><td class="mono">23</td><td><span class="badge b-orange no-dot">+ 5</span></td></tr>
+          <tr><td>schema</td><td class="mono fs12">38 列</td><td class="mono fs12">38 列</td><td><span class="badge b-gray no-dot">无变化</span></td></tr>
+          <tr><td>unit_cost 均值</td><td class="mono fs12">¥ 12,480.22</td><td class="mono fs12">¥ 12,517.86</td><td><span class="badge b-orange no-dot">+ 0.3%</span></td></tr>
+        </table>
+        <div class="tip mt8">支持跨数据集 / 跨事务 / 跨分支三种对比，差异行可下钻查看明细。</div>
+      </div>
     </div>
   </div>`,
 });

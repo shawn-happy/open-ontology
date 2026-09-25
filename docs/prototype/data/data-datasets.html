@@ -16,6 +16,8 @@ const datasets = [
   ['eqp_proc_rel', 'Doris-生产', '设备-工艺关联表', '21 万行', '5 字段', '实时 CDC', 'L2', '正常'],
   ['eqp_fault_graph', 'NebulaGraph-图空间', '设备故障知识图谱', '12.4 万点 / 30 万边', '6 标签 / 9 边类型', '实时写入', 'L3', '正常'],
   ['iot_metric_wide', 'Doris-分析', 'IoT 指标宽表', '2.1 亿行', '120 字段', '分钟级', 'L2', '延迟 12min'],
+  ['oracle_mes_orders', 'Oracle-MES', 'MES 工单（虚拟表，不复制数据）', '—', '18 字段', '虚拟表 · 查询下推', 'L2', '正常'],
+  ['quality_push_stream', 'REST-Push-质检仪', '质检仪推送流', '今日 4.2 万条', '9 字段', 'Push 推送', 'L3', '正常'],
 ];
 
 App.mount({
@@ -28,7 +30,7 @@ App.mount({
   <div class="card">
     <div class="card-h">
       <input class="search" type="text" placeholder="搜索数据集…" />
-      <select><option>全部数据源</option><option>Doris-生产</option><option>NebulaGraph-图空间</option></select>
+      <select><option>全部数据源</option><option>Doris-生产</option><option>NebulaGraph-图空间</option><option>Oracle-MES</option><option>REST-Push-质检仪</option></select>
       <select><option>全部健康状态</option><option>正常</option><option>异常</option></select>
     </div>
     <table class="table">
@@ -48,7 +50,7 @@ App.mount({
         </td>
       </tr>`).join('')}
     </table>
-    <div class="pager">共 6 条<span style="flex:1"></span><span class="pg">‹</span><span class="pg cur">1</span><span class="pg">›</span></div>
+    <div class="pager">共 8 条<span style="flex:1"></span><span class="pg">‹</span><span class="pg cur">1</span><span class="pg">›</span></div>
   </div>
 
   <div class="card mt16">
@@ -62,6 +64,34 @@ App.mount({
         <tr><td class="mono">unit_cost</td><td class="mono">DECIMAL(12,2)</td><td>单位成本</td><td><span class="badge b-blue">EQP-COST</span></td><td class="mono fs12">Equipment.unit_cost（控制属性）</td></tr>
         <tr><td class="mono">owner_phone</td><td class="mono">VARCHAR(16)</td><td>责任人电话</td><td><span class="badge b-purple">PII</span></td><td class="mono fs12">—（未映射）</td></tr>
       </table>
+    </div>
+  </div>
+
+  <div class="row mt16">
+    <div class="card col">
+      <div class="card-h"><h3>事务与版本模型</h3><span class="sub">对标 Palantir Dataset Transactions</span></div>
+      <div class="card-b">
+        <table class="table">
+          <tr><th>机制</th><th>说明</th></tr>
+          <tr><td>快照事务（SNAPSHOT）</td><td class="fs12 text-2">每次同步 / Pipeline 写入为一个事务，失败整体回滚，不落部分数据</td></tr>
+          <tr><td>历史事务可寻址</td><td class="fs12 text-2">任意历史事务版本可读取（Time Travel），见数据探查</td></tr>
+          <tr><td>Schema 自动推断</td><td class="fs12 text-2">注册数据集时从 CSV / JSON 样例自动推断类型、编码与解析选项</td></tr>
+          <tr><td>数据集分支</td><td class="fs12 text-2">支持从历史事务建分支，同步配置可在分支沙箱验证后合入</td></tr>
+          <tr><td>元数据管理</td><td class="fs12 text-2">创建 / 更新人、大小、标签、自定义元数据、用量图表</td></tr>
+        </table>
+      </div>
+    </div>
+    <div class="card col">
+      <div class="card-h"><h3>虚拟表（Virtual Tables）</h3><span class="sub">不复制数据的外部表注册</span></div>
+      <div class="card-b">
+        <table class="table">
+          <tr><th>能力</th><th>说明</th></tr>
+          <tr><td>注册外部库表</td><td class="fs12 text-2">外部数仓表注册为虚拟表，查询时实时读取源端</td></tr>
+          <tr><td>动态发现</td><td class="fs12 text-2">自动发现库内全部表并批量注册（oracle_mes_orders × 18）</td></tr>
+          <tr><td>计算下推</td><td class="fs12 text-2">过滤聚合下推到源端执行，减少传输</td></tr>
+          <tr><td>适用场景</td><td class="fs12 text-2">低频查询 / 大表探查；高频本体映射建议实体同步</td></tr>
+        </table>
+      </div>
     </div>
   </div>`,
 });

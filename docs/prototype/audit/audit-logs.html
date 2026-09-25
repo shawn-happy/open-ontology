@@ -17,6 +17,7 @@ const logs = [
   ['09-09 10:12:33', '张伟', '动作', '执行动作 reportEquipmentFault → 工单 WO-20260909-031', '写入', '通过'],
   ['09-09 10:05:19', 'API Key bi-report', '应用 API', '关联查询被拒：越权访问 L3 数据集', '鉴权', '<b style="color:var(--danger)">拒绝</b>'],
   ['09-09 09:58:02', 'shawn', '安全管理', '修改脱敏规则「成本数值区间化」豁免角色', '变更', '已留痕'],
+  ['09-09 09:51:44', '李静', 'Checkpoint', '导出 quality_report（L3）：理由「月度质量例会材料」', '导出', '已批准'],
 ];
 
 App.mount({
@@ -53,6 +54,43 @@ App.mount({
       </tr>`).join('')}
     </table>
     <div class="pager">共 48,210 条<span style="flex:1"></span><span class="pg">‹</span><span class="pg cur">1</span><span class="pg">2</span><span class="pg">3</span><span class="pg">…</span><span class="pg">›</span></div>
+  </div>
+
+  <div class="row mt16">
+    <div class="card col">
+      <div class="card-h"><h3>Checkpoint（敏感操作管控）</h3><span class="sub">对标 Palantir Checkpoints</span></div>
+      <div class="card-b" style="padding-top:8px;">
+        <table class="table">
+          <tr><th>触发操作</th><th>操作者</th><th>理由</th><th>状态</th><th class="actions-cell">操作</th></tr>
+          <tr><td class="fs12">导出 quality_report（L3）</td><td class="fs12">李静</td><td class="fs12 text-2">月度质量例会材料</td><td><span class="badge b-green no-dot">已批准</span></td><td class="actions-cell"><button class="btn-link btn-sm" onclick="toast('查看资源引用与复核记录')">复核</button></td></tr>
+          <tr><td class="fs12">批量导出 Equipment 成本字段</td><td class="fs12">API Key bi-report</td><td class="fs12 text-2">未填写（Key 不支持 Checkpoint，已阻断）</td><td><span class="badge b-red no-dot">已阻断</span></td><td class="actions-cell"><button class="btn-link btn-sm" onclick="toast('查看阻断详情')">详情</button></td></tr>
+        </table>
+        <div class="tip mt8">导出等敏感操作强制提交理由；理由文本、操作者、时间与涉及资源引用一并留痕，供事后复核。</div>
+      </div>
+    </div>
+    <div class="card col">
+      <div class="card-h"><h3>Check Access（权限可解释性）</h3><div class="right"><button class="btn btn-sm btn-primary" onclick="toast('已生成访问报告')">生成报告</button></div></div>
+      <div class="card-b" style="padding-top:8px;">
+        <div class="form-inline mb8">
+          <select style="min-width:130px"><option>用户：李静</option><option>组：质量工程师</option></select>
+          <span class="text-3 fs12">对</span>
+          <select style="min-width:150px"><option>对象：quality_report</option><option>对象：Equipment.unit_cost</option></select>
+          <button class="btn btn-sm" onclick="toast('解释生成：3 条允许链路 · 1 条拒绝原因')">解释</button>
+        </div>
+        <table class="table">
+          <tr><th>链路</th><th>结果</th><th>依据</th></tr>
+          <tr><td class="fs12">数据集权限</td><td><span class="badge b-green no-dot">允许</span></td><td class="fs12 text-2">质量工程师组 · Editor 角色</td></tr>
+          <tr><td class="fs12">标记 Member</td><td><span class="badge b-green no-dot">允许</span></td><td class="fs12 text-2">L3 秘密成员（继承自质量工程师组）</td></tr>
+          <tr><td class="fs12">行级策略</td><td><span class="badge b-orange no-dot">部分</span></td><td class="fs12 text-2">domain = 'QUALITY' 过滤后可见 92%</td></tr>
+          <tr><td class="fs12">导出</td><td><span class="badge b-red no-dot">拒绝</span></td><td class="fs12 text-2">L3 导出需 Checkpoint + 空间管理员审批</td></tr>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="card mt16">
+    <div class="card-h"><h3>Action Log（动作留痕）</h3><span class="sub">动作日志自动链接被编辑对象，支持撤销溯源 → <a href="../ontology/ontology-actions.html">动作管理</a></span></div>
+    <div class="card-b text-2 fs13">动作提交日志在「动作」页面单独维护（含被编辑对象链路与 Revert 记录）；此处汇总其提交事件流，可按动作类型 / 提交者 / 被编辑对象筛选。</div>
   </div>`,
 });
 </script>

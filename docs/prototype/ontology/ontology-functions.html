@@ -47,8 +47,10 @@
 <script>
 const fns = [
   ['计算设备综合良率', 'calcEquipmentYield', 'Python', '衍生属性 / 动作', 'v3', '正常', '今天 1.2K 次'],
+  ['故障批量归档', 'archiveFaultBatch', 'TypeScript', '函数背书动作', 'v2', '正常', '今天 45 次'],
   ['推荐工艺路线', 'recommendProcessRoute', 'Python', 'Workflow / API', 'v1', '正常', '今天 86 次'],
   ['关联设备故障图谱查询', 'queryFaultGraph', 'SQL(Nebula nGQL)', 'Workflow', 'v2', '正常', '今天 214 次'],
+  ['富化供应商主数据', 'enrichSupplier', 'Python', 'External Function', 'v1', '正常', '今天 12 次'],
   ['物料成本汇总', 'sumMaterialCost', 'Python', '衍生属性', 'v1', '正常', '今天 512 次'],
   ['批量校验 BOM 外键', 'validateBomRef', 'Python', '值约束 / Pipeline', 'v1', '停用', '—'],
 ];
@@ -63,7 +65,7 @@ App.mount({
   <div class="card">
     <div class="card-h">
       <input class="search" type="text" placeholder="搜索函数…" />
-      <select><option>全部语言</option><option>Python</option><option>SQL</option></select>
+      <select><option>全部语言</option><option>Python</option><option>TypeScript</option><option>SQL</option></select>
       <div class="right"><button class="btn" onclick="toast('运行全部单元测试')">运行全部测试</button></div>
     </div>
     <table class="table">
@@ -84,6 +86,37 @@ App.mount({
       </tr>`).join('')}
     </table>
     <div class="pager">共 5 条<span style="flex:1"></span><span class="pg">‹</span><span class="pg cur">1</span><span class="pg">›</span></div>
+  </div>
+
+  <div class="row mt16">
+    <div class="card col">
+      <div class="card-h"><h3>函数背书动作（Function-backed Action）</h3><span class="sub">函数作为动作的唯一规则</span></div>
+      <div class="card-b">
+        <table class="table">
+          <tr><th>函数</th><th>绑定动作</th><th>参数策略</th><th>版本策略</th><th>批量</th></tr>
+          <tr><td class="mono fs12">archiveFaultBatch</td><td class="mono fs12">batchArchiveFaults</td><td class="fs12">函数每个输入自动成为动作参数</td><td><span class="badge b-blue no-dot">auto-upgrade</span></td><td class="mono fs12">≤ 20 次 / 批</td></tr>
+        </table>
+        <ul class="fs13 text-2 mt8" style="padding-left:18px;line-height:2;">
+          <li>绑定后函数<b>独占</b>该动作（不能再配置 Ontology 规则），动作输入即函数签名</li>
+          <li>版本可<b>固定</b>或 <b>auto-upgrade</b>（跟随函数最新发布版）</li>
+          <li>函数内执行本体编辑（Edits）须声明写入来源，自动进入 Action Log</li>
+        </ul>
+      </div>
+    </div>
+    <div class="card col">
+      <div class="card-h"><h3>一等本体能力</h3><span class="sub">对标 Palantir Functions Types Reference</span></div>
+      <div class="card-b">
+        <table class="table">
+          <tr><th>能力</th><th>说明</th><th>语言</th></tr>
+          <tr><td>本体对象 / ObjectSet 输入</td><td class="fs12 text-2">签名直接引用类、接口、ObjectSet</td><td class="fs12">Python / TS</td></tr>
+          <tr><td>返回 ObjectSet</td><td class="fs12 text-2">函数结果可继续被过滤 / 聚合</td><td class="fs12">Python / TS</td></tr>
+          <tr><td>本体编辑（Edits）</td><td class="fs12 text-2">函数内可产生待提交的对象编辑</td><td class="fs12">Python / TS</td></tr>
+          <tr><td>External Function</td><td class="fs12 text-2">调用外部系统 enrich（enrichSupplier）</td><td class="fs12">Python / TS</td></tr>
+          <tr><td>流式输出</td><td class="fs12 text-2">Streaming 响应（LLM / 长任务）</td><td class="fs12">TS</td></tr>
+          <tr><td>Struct / 自定义类型</td><td class="fs12 text-2">dataclass（Python）或 interface（TS）</td><td class="fs12">Python / TS</td></tr>
+        </table>
+      </div>
+    </div>
   </div>
 
   <div class="card mt16">

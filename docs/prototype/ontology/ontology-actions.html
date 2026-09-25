@@ -21,21 +21,54 @@
         <select><option>对象写入（创建 / 编辑 / 删除对象）</option><option>调用函数（执行业务逻辑）</option><option>发送通知</option><option>调用外部系统 API</option></select>
       </div>
       <div class="card-b card mb16" style="box-shadow:none;border:1px solid var(--border);">
-        <div class="bold mb8">参数定义</div>
+        <div class="bold mb8">参数定义<span class="fs12 text-2" style="font-weight:400;margin-left:8px;">支持标量 / Struct / 对象引用 / 对象集（批量）/ 接口引用 / 附件媒体，任意参数可勾选「允许多值」变为列表</span></div>
         <table class="table">
-          <tr><th>参数</th><th>API 名称</th><th>类型</th><th>必填</th><th>默认值 / 约束</th></tr>
-          <tr><td>目标设备</td><td class="mono">equipment</td><td class="mono">Equipment（对象引用）</td><td><span class="badge b-green">是</span></td><td class="mono fs12">—</td></tr>
-          <tr><td>故障类型</td><td class="mono">faultType</td><td class="mono">Enum: FaultType</td><td><span class="badge b-green">是</span></td><td class="mono fs12">枚举校验</td></tr>
-          <tr><td>故障描述</td><td class="mono">description</td><td class="mono">String</td><td><span class="badge b-gray">否</span></td><td class="mono fs12">≤ 500 字</td></tr>
+          <tr><th>参数</th><th>API 名称</th><th>类型</th><th>多值</th><th>必填</th><th>默认值 / 约束</th></tr>
+          <tr><td>目标设备</td><td class="mono">equipment</td><td class="mono">Equipment（对象引用）</td><td><span class="badge b-gray no-dot">否</span></td><td><span class="badge b-green">是</span></td><td class="mono fs12">—</td></tr>
+          <tr><td>故障类型</td><td class="mono">faultType</td><td class="mono">Enum: FaultType</td><td><span class="badge b-gray no-dot">否</span></td><td><span class="badge b-green">是</span></td><td class="mono fs12">枚举校验</td></tr>
+          <tr><td>故障描述</td><td class="mono">description</td><td class="mono">String</td><td><span class="badge b-gray no-dot">否</span></td><td><span class="badge b-gray">否</span></td><td class="mono fs12">≤ 500 字</td></tr>
+          <tr><td>现场照片</td><td class="mono">photos</td><td class="mono">Media（媒体引用）</td><td><span class="badge b-blue no-dot">允许多值</span></td><td><span class="badge b-gray">否</span></td><td class="mono fs12">≤ 9 张</td></tr>
         </table>
-        <div class="mt8"><button class="btn btn-sm" onclick="toast('添加参数')">+ 添加参数</button></div>
+        <div class="mt8"><button class="btn btn-sm" onclick="toast('添加参数')">+ 添加参数</button><button class="btn btn-sm" onclick="toast('添加 Struct 参数（各字段可单独配约束）')">+ Struct 参数</button></div>
       </div>
-      <div class="form-item"><label>提交校验（规则）</label>
-        <select multiple size="3" style="height:auto;"><option selected>设备编号格式（通过）</option><option selected>非空校验：description（通过）</option><option>自定义：设备必须处于运行/空闲状态</option></select>
+
+      <div class="card-b card mb16" style="box-shadow:none;border:1px solid var(--border);">
+        <div class="bold mb8">Ontology 规则（对象写入映射）<span class="fs12 text-2" style="font-weight:400;margin-left:8px;">属性赋值四种来源：动作参数 / 对象引用的属性 / 静态值 / 当前用户 · 提交时间</span></div>
+        <table class="table">
+          <tr><th>规则</th><th>类型</th><th>属性赋值</th></tr>
+          <tr><td class="mono">Create WorkOrder</td><td><span class="badge b-blue no-dot">创建对象</span></td><td class="fs12">work_order_id = 静态前缀+时间戳 · fault_type = <span class="mono">$faultType</span> · reporter = <span class="badge b-purple no-dot">当前用户</span> · created_at = <span class="badge b-purple no-dot">提交时间</span></td></tr>
+          <tr><td class="mono">Modify Equipment</td><td><span class="badge b-blue no-dot">修改对象</span></td><td class="fs12">status = <span class="str mono">"故障"</span>（取自对象引用 equipment 的属性可切换）</td></tr>
+          <tr><td class="mono">Create Link</td><td><span class="badge b-cyan no-dot">创建链接</span></td><td class="fs12">WorkOrder → Equipment（仅多对多链接可建删；1:1 / 1:N 走修改外键）</td></tr>
+        </table>
+      </div>
+
+      <div class="card-b card mb16" style="box-shadow:none;border:1px solid var(--border);">
+        <div class="bold mb8">提交条件（Submission Criteria）<span class="fs12 text-2" style="font-weight:400;margin-left:8px;">结构化条件模板，可嵌套 all / any / none；每条失败消息会展示在所有调用入口</span></div>
+        <table class="table">
+          <tr><th>条件类别</th><th>表达式</th><th>操作符</th><th>失败消息</th></tr>
+          <tr><td><span class="badge b-blue no-dot">参数</span></td><td class="mono fs12">faultType in RunStatus 允许值</td><td class="mono fs12">in</td><td class="fs12">故障类型不在允许范围内</td></tr>
+          <tr><td><span class="badge b-blue no-dot">参数</span></td><td class="mono fs12">equipment.status each is "运行中" | "空闲"</td><td class="mono fs12">each is</td><td class="fs12">仅运行中 / 空闲的设备允许报修</td></tr>
+          <tr><td><span class="badge b-purple no-dot">当前用户</span></td><td class="mono fs12">currentUser.groups includes "设备维护组"</td><td class="mono fs12">includes</td><td class="fs12">仅设备维护组成员可提交报修</td></tr>
+          <tr><td><span class="badge b-cyan no-dot">执行上下文</span></td><td class="mono fs12">isInScenario = false</td><td class="mono fs12">is</td><td class="fs12">场景沙箱内禁止真实报修</td></tr>
+        </table>
+        <div class="mt8 flex">
+          <button class="btn btn-sm" onclick="toast('添加提交条件')">+ 添加条件</button>
+          <span class="fs12 text-2">对标 Palantir Submission Criteria：附件 / 对象集参数不支持作为条件输入</span>
+        </div>
       </div>
       <div class="form-row">
         <div class="form-item"><label>审批流</label><select><option>无（直接执行）</option><option>需空间管理员审批</option><option>自定义审批流…</option></select></div>
-        <div class="form-item"><label>执行后事件</label><select><option>创建故障工单 + 发送通知</option><option>仅写入审计日志</option></select></div>
+        <div class="form-item"><label>实现方式</label><select><option>规则式（Ontology-backed）</option><option>函数背书（Function-backed，独占）</option><option>Webhook 动作</option></select></div>
+      </div>
+      <div class="form-item"><label>副作用规则（按执行顺序）</label>
+        <div class="form-inline">
+          <span class="tag blue">① 写回 Webhook（编辑前发送 · 失败阻断 · 输出参数供后续规则使用）</span>
+          <span class="tag blue">② 创建 WorkOrder + Link</span>
+          <span class="tag blue">③ 发送通知（收件人可取自对象属性）</span>
+          <span class="tag blue">④ 触发 Pipeline 构建（Schedule）</span>
+          <span class="tag blue">⑤ 应用场景合并（Scenario）</span>
+        </div>
+        <div class="tip">写回 Webhook 最多 1 个且失败将阻断整个动作；编辑后 Webhook 可多个、失败仅告警不回滚。</div>
       </div>
     </div>
     <div class="modal-f"><button class="btn" onclick="App.closeModal('actionModal')">取消</button><button class="btn btn-primary" onclick="App.closeModal('actionModal');toast('动作已创建')">确定</button></div>
@@ -108,10 +141,43 @@ App.mount({
     <div class="card-b">
       <table class="table">
         <tr><th>动作</th><th>绑定校验规则</th><th>绑定函数</th><th>副作用</th></tr>
-        <tr><td><b>报修设备</b></td><td><span class="tag mono">设备编号格式</span><span class="tag mono">设备状态检查(自定义)</span></td><td class="mono fs12">createWorkOrder()</td><td>创建工单对象 + 站内通知</td></tr>
+        <tr><td><b>报修设备</b></td><td><span class="tag mono">设备编号格式</span><span class="tag mono">设备状态检查(自定义)</span></td><td class="mono fs12">createWorkOrder()</td><td>写回 Webhook → 创建工单 + Link → 通知（编辑后 · 失败告警）</td></tr>
         <tr><td><b>变更运行状态</b></td><td><span class="tag mono">ref: RunStatus 枚举</span></td><td class="mono fs12">—</td><td>写审计日志</td></tr>
-        <tr><td><b>调整单位成本</b></td><td><span class="tag mono">cost ≤ 5000</span></td><td class="mono fs12">recalcYield()</td><td>触发衍生属性重算 + 审批留痕</td></tr>
+        <tr><td><b>调整单位成本</b></td><td><span class="tag mono">cost ≤ 5000</span></td><td class="mono fs12">recalcYield()</td><td>触发衍生属性重算 + Pipeline 构建（Schedule）+ 审批留痕</td></tr>
       </table>
+    </div>
+  </div>
+
+  <div class="row mt16">
+    <div class="card col">
+      <div class="card-h"><h3>Action Log（动作日志）</h3><span class="sub">每次成功提交自动生成日志对象并链接全部被编辑对象</span></div>
+      <div class="card-b">
+        <table class="table">
+          <tr><th>动作</th><th>提交人</th><th>被编辑对象</th><th>溯源</th><th class="actions-cell">操作</th></tr>
+          <tr><td class="mono fs12">reportEquipmentFault</td><td class="fs12">wangm</td><td class="mono fs12">WO-20260921-031 ← EQP-0045</td><td class="fs12 text-2">Webhook ✓ · 通知 ✓</td><td class="actions-cell"><button class="btn-link btn-sm" onclick="toast('查看动作日志详情')">详情</button></td></tr>
+          <tr><td class="mono fs12">changeRunStatus</td><td class="fs12">liqi</td><td class="mono fs12">EQP-0013</td><td class="fs12 text-2">—</td><td class="actions-cell">
+            <button class="btn-link btn-sm" onclick="toast('查看动作日志详情')">详情</button>
+            <button class="btn-link btn-sm" onclick="toast('撤销：仅提交者本人且为该对象最后一次编辑时可撤销')">撤销</button></td></tr>
+          <tr><td class="mono fs12">updateUnitCost</td><td class="fs12">shawn</td><td class="mono fs12">EQP-0012（待审批）</td><td class="fs12 text-2">审批流</td><td class="actions-cell"><button class="btn-link btn-sm" onclick="toast('查看审批详情')">审批</button></td></tr>
+        </table>
+        <div class="tip mt8">撤销（Revert）规则：仅提交者本人、仅当该动作是被编辑对象的最后一次编辑、不回滚 Webhook / 通知等副作用。</div>
+      </div>
+    </div>
+    <div class="card col">
+      <div class="card-h"><h3>动作监控（近 24 小时）</h3></div>
+      <div class="card-b">
+        <div class="stat-grid" style="margin-bottom:12px;">
+          <div class="stat" style="box-shadow:none;border:1px solid var(--border);"><div class="label">提交成功率</div><div class="val" style="color:var(--success)">99.2%</div></div>
+          <div class="stat" style="box-shadow:none;border:1px solid var(--border);"><div class="label">p95 耗时</div><div class="val">420 <span class="fs13">ms</span></div></div>
+        </div>
+        <table class="table">
+          <tr><th>动作</th><th>调用量</th><th>失败</th><th>p95</th></tr>
+          <tr><td class="mono fs12">changeRunStatus</td><td class="mono fs12">412</td><td class="mono fs12">2</td><td class="mono fs12">180 ms</td></tr>
+          <tr><td class="mono fs12">reportEquipmentFault</td><td class="mono fs12">36</td><td class="mono fs12">0</td><td class="mono fs12">640 ms</td></tr>
+          <tr><td class="mono fs12">createQualityReport</td><td class="mono fs12">58</td><td class="mono fs12">1</td><td class="mono fs12">520 ms</td></tr>
+        </table>
+        <div class="tip mt8">p95 耗时 / 失败数超阈值自动告警责任人。</div>
+      </div>
     </div>
   </div>`,
 });

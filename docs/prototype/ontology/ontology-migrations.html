@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<title>Schema 迁移 · Open Ontology</title>
+<link rel="stylesheet" href="../assets/style.css" />
+<style>
+.cast-cell { text-align: center; padding: 7px 10px !important; font-size: 12px; white-space: nowrap; }
+.cast-ok { color: var(--success); font-weight: 600; }
+.cast-user { color: var(--warning); font-weight: 600; }
+.cast-no { color: var(--text-3); }
+.cast-head { background: #f9fafb; font-weight: 600; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+
+<!-- 执行迁移确认 -->
+<div class="mask" id="migRunModal" data-close-mask>
+  <div class="modal">
+    <div class="modal-h">执行迁移 · <span class="mono">mig-0041</span><span class="x" onclick="App.closeModal('migRunModal')">×</span></div>
+    <div class="modal-b">
+      <div class="tip mb8 text-2">迁移将按「备份快照 → 逐条变更 → 重建索引 → 校验」顺序执行，期间对象数据只读。</div>
+      <table class="table">
+        <tr><th>#</th><th>变更内容</th><th>影响</th></tr>
+        <tr><td>1</td><td class="mono">unit_cost: Double → Decimal(12,4)</td><td>重建 1 个属性索引</td></tr>
+        <tr><td>2</td><td class="mono">legacy_remark 移动至 archive_remark</td><td>数据保留，字段重命名</td></tr>
+        <tr><td>3</td><td class="mono">equipment_name 设置 render hint: Prominent</td><td class="text-2">非破坏性</td></tr>
+      </table>
+      <div class="form-item mt16"><label>失败策略</label>
+        <select><option>整体回滚（事务性，对标 Palantir Migration）</option><option>继续执行并隔离失败记录</option></select>
+      </div>
+    </div>
+    <div class="modal-f"><button class="btn" onclick="App.closeModal('migRunModal')">取消</button><button class="btn btn-primary" onclick="App.closeModal('migRunModal');toast('迁移 mig-0041 已提交，预计 3 分钟')">执行迁移</button></div>
+  </div>
+</div>
+
+<!-- 回滚确认 -->
+<div class="mask" id="migRevertModal" data-close-mask>
+  <div class="modal sm">
+    <div class="modal-h">回滚迁移<span class="x" onclick="App.closeModal('migRevertModal')">×</span></div>
+    <div class="modal-b">
+      <p class="fs13">将回滚迁移 <span class="mono">mig-0039</span>（删除属性 archive_remark），数据将从迁移前快照恢复。</p>
+      <div class="form-item mt8"><label>回滚原因（必填，写入审计）</label><textarea rows="2" placeholder="如：下游报表仍依赖该字段"></textarea></div>
+    </div>
+    <div class="modal-f"><button class="btn" onclick="App.closeModal('migRevertModal')">取消</button><button class="btn btn-danger" onclick="App.closeModal('migRevertModal');toast('回滚已提交，恢复中…')">确认回滚</button></div>
+  </div>
+</div>
+
+<script src="../assets/app.js"></script>
+<script>
+const migrations = [
+  ['mig-0041', 'Equipment', '类型 cast：Double → Decimal(12,4)', '破坏性', '待执行', 'shawn', '2026-09-21 10:24'],
+  ['mig-0040', 'QualityReport', '新增可选属性 inspector_sign', '非破坏性', '已执行', 'shawn', '2026-09-20 16:02'],
+  ['mig-0039', 'Equipment', '删除属性 legacy_remark', '破坏性', '已执行', 'shawn', '2026-09-19 09:11'],
+  ['mig-0038', 'Process', '字段移动：route_code 移至共享属性 processCode', '非破坏性', '已执行', 'shawn', '2026-09-18 14:47'],
+  ['mig-0037', 'Material', '修改主键：material_no → material_id', '破坏性', '已回滚', 'shawn', '2026-09-17 11:30'],
+];
+
+const statusBadge = s => ({ '待执行': 'b-orange', '待审批': 'b-blue', '已执行': 'b-green', '已回滚': 'b-gray' }[s] || 'b-gray');
+const kindBadge = k => k === '破坏性' ? '<span class="badge b-red no-dot">破坏性</span>' : '<span class="badge b-green no-dot">非破坏性</span>';
+
+App.mount({
+  page: 'ontology-migrations',
+  crumbs: ['智能制造空间', '本体资产管理', 'Schema 迁移'],
+  title: 'Schema 迁移',
+  desc: '管理本体类型定义的结构变更（对标 Palantir Schema Migrations）：类型 cast、字段移动、破坏性变更检测与迁移回滚。',
+  actions: `<button class="btn" onclick="toast('打开变更对比视图')">变更对比</button><button class="btn btn-primary" onclick="toast('从草稿变更生成迁移计划')">+ 生成迁移计划</button>`,
+  content: `
+  <div class="stat-grid">
+    <div class="stat"><div class="label">待迁移变更</div><div class="val">3</div><div class="delta down">▲ 1 个破坏性</div></div>
+    <div class="stat"><div class="label">本月已执行迁移</div><div class="val">12</div><div class="delta up">成功率 100%</div></div>
+    <div class="stat"><div class="label">可回滚迁移</div><div class="val">12 / 12</div><div class="label" style="margin-top:4px">均带迁移前快照</div></div>
+    <div class="stat"><div class="label">平均迁移耗时</div><div class="val">2.6 <span class="fs13">min</span></div></div>
+  </div>
+
+  <div class="card">
+    <div class="card-h">
+      <h3>迁移计划列表</h3>
+      <div class="right">
+        <select><option>全部状态</option><option>待执行</option><option>待审批</option><option>已执行</option><option>已回滚</option></select>
+        <select><option>全部类型</option><option>破坏性</option><option>非破坏性</option></select>
+        <input class="search" type="text" placeholder="搜索迁移 ID / 类…" />
+      </div>
+    </div>
+    <table class="table">
+      <tr><th>迁移 ID</th><th>目标类型</th><th>变更内容</th><th>变更性质</th><th>状态</th><th>提交人</th><th>时间</th><th class="actions-cell">操作</th></tr>
+      ${migrations.map(m => `
+      <tr>
+        <td class="mono"><b>${m[0]}</b></td><td class="mono">${m[1]}</td>
+        <td class="fs12">${m[2]}</td><td>${kindBadge(m[3])}</td>
+        <td><span class="badge ${statusBadge(m[4])} no-dot">${m[4]}</span></td>
+        <td class="fs12">${m[5]}</td><td class="mono fs12">${m[6]}</td>
+        <td class="actions-cell">
+          <button class="btn-link btn-sm" onclick="toast('查看变更 Diff')">Diff</button>
+          ${m[4] === '待执行' ? `<button class="btn-link btn-sm" onclick="App.openModal('migRunModal')">执行</button>` : ''}
+          ${m[4] === '已执行' ? `<button class="btn-link btn-sm btn-danger" onclick="App.openModal('migRevertModal')">回滚</button>` : ''}
+          ${m[4] === '待执行' ? `<button class="btn-link btn-sm btn-danger" onclick="toast('已废弃该迁移计划')">废弃</button>` : ''}
+        </td>
+      </tr>`).join('')}
+    </table>
+    <div class="pager">共 5 条<span style="flex:1"></span><span class="pg">‹</span><span class="pg cur">1</span><span class="pg">›</span></div>
+  </div>
+
+  <div class="row mt16">
+    <div class="card col">
+      <div class="card-h"><h3>破坏性变更检测规则</h3><span class="sub">发布审批时自动校验</span></div>
+      <div class="card-b">
+        <table class="table">
+          <tr><th>变更</th><th>性质</th><th>说明</th></tr>
+          <tr><td class="mono">修改属性类型</td><td><span class="badge b-red no-dot">破坏性</span></td><td class="fs12 text-2">需 cast 兼容，否则拒绝</td></tr>
+          <tr><td class="mono">修改主键属性</td><td><span class="badge b-red no-dot">破坏性</span></td><td class="fs12 text-2">全量重建对象索引</td></tr>
+          <tr><td class="mono">修改背书数据源</td><td><span class="badge b-red no-dot">破坏性</span></td><td class="fs12 text-2">对象身份可能变化</td></tr>
+          <tr><td class="mono">删除属性</td><td><span class="badge b-red no-dot">破坏性</span></td><td class="fs12 text-2">检查下游衍生属性 / 函数引用</td></tr>
+          <tr><td class="mono">接口新增必需属性</td><td><span class="badge b-red no-dot">破坏性</span></td><td class="fs12 text-2">需同步更新全部实现类</td></tr>
+          <tr><td class="mono">修改标题属性 / 显示名</td><td><span class="badge b-green no-dot">非破坏性</span></td><td class="fs12 text-2">仅影响展示</td></tr>
+          <tr><td class="mono">修改值格式 / render hint</td><td><span class="badge b-green no-dot">非破坏性</span></td><td class="fs12 text-2">仅影响渲染</td></tr>
+          <tr><td class="mono">新增可选属性</td><td><span class="badge b-green no-dot">非破坏性</span></td><td class="fs12 text-2">历史数据为空值</td></tr>
+        </table>
+      </div>
+    </div>
+    <div class="card col">
+      <div class="card-h"><h3>类型 Cast 矩阵</h3><span class="sub">列 → 行</span></div>
+      <div class="card-b" style="overflow-x:auto;">
+        <table class="table">
+          <tr><th></th><th class="cast-head">Integer</th><th class="cast-head">Long</th><th class="cast-head">Decimal</th><th class="cast-head">Double</th><th class="cast-head">String</th><th class="cast-head">Date</th><th class="cast-head">Timestamp</th></tr>
+          <tr><td class="cast-head">Integer</td><td class="cast-cell cast-ok">✓ 自动</td><td class="cast-cell cast-ok">✓ 自动</td><td class="cast-cell cast-ok">✓ 自动</td><td class="cast-cell cast-user">⚠ 精度</td><td class="cast-cell cast-ok">✓ 自动</td><td class="cast-cell cast-no">—</td><td class="cast-cell cast-no">—</td></tr>
+          <tr><td class="cast-head">Long</td><td class="cast-cell cast-user">⚠ 溢出</td><td class="cast-cell cast-ok">✓ 自动</td><td class="cast-cell cast-ok">✓ 自动</td><td class="cast-cell cast-user">⚠ 精度</td><td class="cast-cell cast-ok">✓ 自动</td><td class="cast-cell cast-no">—</td><td class="cast-cell cast-no">—</td></tr>
+          <tr><td class="cast-head">Decimal</td><td class="cast-cell cast-user">⚠ 截断</td><td class="cast-cell cast-user">⚠ 截断</td><td class="cast-cell cast-ok">✓ 自动</td><td class="cast-cell cast-user">⚠ 精度</td><td class="cast-cell cast-ok">✓ 自动</td><td class="cast-cell cast-no">—</td><td class="cast-cell cast-no">—</td></tr>
+          <tr><td class="cast-head">Double</td><td class="cast-cell cast-user">⚠ 精度</td><td class="cast-cell cast-user">⚠ 精度</td><td class="cast-cell cast-user">⚠ 精度</td><td class="cast-cell cast-ok">✓ 自动</td><td class="cast-cell cast-ok">✓ 自动</td><td class="cast-cell cast-no">—</td><td class="cast-cell cast-no">—</td></tr>
+          <tr><td class="cast-head">String</td><td class="cast-cell cast-user">⚠ 解析</td><td class="cast-cell cast-user">⚠ 解析</td><td class="cast-cell cast-user">⚠ 解析</td><td class="cast-cell cast-user">⚠ 解析</td><td class="cast-cell cast-ok">✓ 自动</td><td class="cast-cell cast-user">⚠ 格式</td><td class="cast-cell cast-user">⚠ 格式</td></tr>
+          <tr><td class="cast-head">Date</td><td class="cast-cell cast-no">—</td><td class="cast-cell cast-no">—</td><td class="cast-cell cast-no">—</td><td class="cast-cell cast-no">—</td><td class="cast-cell cast-user">⚠ 格式</td><td class="cast-cell cast-ok">✓ 自动</td><td class="cast-cell cast-ok">✓ 自动</td></tr>
+        </table>
+        <div class="tip mt8"><span class="cast-ok">✓ 自动</span>：发布时自动执行 · <span class="cast-user">⚠</span>：需用户编辑转换表达式并预览 · <span class="cast-no">—</span>：不支持，需新建属性迁移数据</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card mt16">
+    <div class="card-h"><h3>最近迁移记录</h3><div class="right"><button class="btn btn-sm" onclick="toast('导出迁移历史 CSV')">导出</button></div></div>
+    <div class="card-b">
+      <div class="timeline">
+        <div class="tl-item">
+          <div class="tl-time">2026-09-20 16:02 · shawn</div>
+          <div class="tl-title">mig-0040 执行成功 · QualityReport 新增可选属性 inspector_sign</div>
+          <div class="tl-desc">耗时 1 分 12 秒 · 重建索引 1 个 · 快照 snap-8821</div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-time">2026-09-19 09:11 · shawn</div>
+          <div class="tl-title">mig-0039 执行成功 · Equipment 删除属性 legacy_remark</div>
+          <div class="tl-desc">耗时 3 分 05 秒 · 2 个衍生属性引用检查通过 · 快照 snap-8790</div>
+        </div>
+        <div class="tl-item warn">
+          <div class="tl-time">2026-09-17 11:30 · shawn</div>
+          <div class="tl-title">mig-0037 已回滚 · Material 修改主键 material_no → material_id</div>
+          <div class="tl-desc">原因：图数据库（NebulaGraph）边映射未同步更新 · 回滚原因已写入审计</div>
+        </div>
+      </div>
+    </div>
+  </div>`,
+});
+</script>
+</body>
+</html>

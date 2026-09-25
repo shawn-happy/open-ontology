@@ -20,7 +20,7 @@
       </div>
       <div class="form-row">
         <div class="form-item"><label><span class="req">*</span>源对象类型</label><select><option>设备 Equipment</option></select></div>
-        <div class="form-item"><label><span class="req">*</span>目标对象类型</label><select><option>工艺 Process</option><option>物料 Material</option><option>质检报告 QualityReport</option></select></div>
+        <div class="form-item"><label><span class="req">*</span>目标对象类型</label><select><option>工艺 Process</option><option>物料 Material</option><option>质检报告 QualityReport</option><option>«接口» Asset（抽象约束，任意实现类）</option></select></div>
       </div>
       <div class="form-row">
         <div class="form-item"><label><span class="req">*</span>正向语义（源→目标）</label><input type="text" value="uses（使用）" /></div>
@@ -32,6 +32,22 @@
       </div>
       <div class="form-item"><label>关系类型</label>
         <select><option>外键关联（FK，基于数据集字段）</option><option>多对多关联表</option><option>图边（NebulaGraph Edge）</option><option>衍生关联（基于函数计算）</option></select>
+      </div>
+      <div class="form-item">
+        <label class="ck"><input type="checkbox" id="lkObjBacked" onchange="document.getElementById('lkObjSec').style.display = this.checked ? '' : 'none'" /> 对象化链接（Object-backed Link：关系自身携带属性）</label>
+        <div class="tip">当关系需要承载元数据（如开始日期、分配比例）时，引入中间对象类型承载关系属性，而不是仅靠共享外键建链。</div>
+      </div>
+      <div id="lkObjSec" style="display:none" class="card-b card mb16" >
+        <div class="form-row">
+          <div class="form-item"><label>中间对象类型</label><input type="text" value="EquipmentProcessRel（自动生成）" /></div>
+          <div class="form-item"><label>背书数据集</label><input type="text" class="mono" value="doris.eqp_proc_rel" /></div>
+        </div>
+        <table class="table">
+          <tr><th>关系属性</th><th>API 名称</th><th>类型</th><th>必填</th></tr>
+          <tr><td>开始日期</td><td class="mono">start_date</td><td class="mono">Date</td><td><span class="badge b-green no-dot">是</span></td></tr>
+          <tr><td>分配比例</td><td class="mono">allocation</td><td class="mono">Decimal(5,2)</td><td><span class="badge b-gray no-dot">否</span></td></tr>
+        </table>
+        <div class="mt8"><button class="btn btn-sm" onclick="toast('添加关系属性')">+ 添加关系属性</button></div>
       </div>
       <div class="form-item"><label>RDF 谓词（可选）</label><input type="text" class="mono" placeholder="oo:uses" /></div>
     </div>
@@ -85,6 +101,40 @@ App.mount({
           </td>
         </tr>`).join('')}
       </table>
+    </div>
+    <div class="card mt16">
+      <div class="card-h"><h3>对象化链接（Object-backed Link）</h3><span class="sub">关系自身带属性时，用中间对象承载关系元数据（对标 Palantir Object-backed Link）</span></div>
+      <div class="card-b">
+        <div class="grid-2">
+          <div>
+            <table class="table">
+              <tr><th>关系</th><th>中间对象</th><th>关系属性</th><th>状态</th></tr>
+              <tr><td class="mono fs12">Equipment ↔ Process</td><td class="mono fs12">EquipmentProcessRel</td><td class="mono fs12">start_date · allocation</td><td><span class="badge b-green no-dot">启用</span></td></tr>
+              <tr><td class="mono fs12">Equipment ↔ ProductionLine</td><td class="mono fs12">LineAssignment</td><td class="mono fs12">role · assigned_at</td><td><span class="badge b-green no-dot">启用</span></td></tr>
+              <tr><td class="mono fs12">Material ↔ Warehouse</td><td class="mono fs12">StockRecord</td><td class="mono fs12">qty · batch_no</td><td><span class="badge b-orange no-dot">草稿</span></td></tr>
+            </table>
+          </div>
+          <div>
+            <div class="tip mb8">建模规范（对标 Palantir Ontology Structural Guidance）：</div>
+            <ul class="fs13 text-2" style="padding-left:18px;line-height:2;">
+              <li>关系需要携带<b>自身元数据</b>（日期 / 角色 / 数量）时 → 对象化链接</li>
+              <li>仅因共享外键而建链是<b>反模式</b>，应保留为简单 Link Type</li>
+              <li>对象化链接的中间对象同样支持动作写入、权限管控与衍生属性</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card mt16">
+      <div class="card-h"><h3>接口链接约束（Interface Link Types）</h3><span class="sub">Link 的目标可以是接口，约束任意实现类（对标 Palantir Interface Link Types）</span></div>
+      <div class="card-b">
+        <table class="table">
+          <tr><th>约束来源</th><th>链接</th><th>目标（抽象）</th><th>基数</th><th>必需</th><th>实现类满足情况</th></tr>
+          <tr><td class="mono fs12">Asset（接口）</td><td class="mono fs12">located_in</td><td class="mono fs12">«接口» Location</td><td class="mono fs12">0..n → 1..n</td><td><span class="badge b-red no-dot">必需</span></td><td class="fs12">Equipment ✓ · Material ✓ · Supplier ✗（待补）</td></tr>
+          <tr><td class="mono fs12">Traceable（接口）</td><td class="mono fs12">traces_to</td><td class="mono fs12">«接口» Traceable</td><td class="mono fs12">0..n → 0..n</td><td><span class="badge b-gray no-dot">可选</span></td><td class="fs12">Equipment ✓ · QualityReport ✓</td></tr>
+        </table>
+        <div class="tip mt8">接口链接约束的目标可以是接口（抽象对抽象）或具体对象类型；新增「必需」约束属 Breaking Change，需同步检查全部实现类。</div>
+      </div>
     </div>
     <div class="card mt16">
       <div class="card-h"><h3>关系图预览</h3><span class="sub"> Equipment 与 Process 的多对多关联（经关联表 eqp_proc_rel）</span></div>

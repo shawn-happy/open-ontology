@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<title>SDK 与开放 API · Open Ontology</title>
+<link rel="stylesheet" href="../assets/style.css" />
+</head>
+<body>
+<div id="root"></div>
+<script src="../assets/app.js"></script>
+<script>
+App.mount({
+  page: 'dev-sdk',
+  crumbs: ['智能制造空间', '开发者平台', 'SDK 与开放 API'],
+  title: 'SDK 与开放 API',
+  desc: '基于授权资源子集生成强类型 SDK（对标 Palantir OSDK），浏览开放 API 全景并获取调用示例。',
+  actions: `<button class="btn" onclick="toast('查看 API 参考文档')">API 参考</button><button class="btn btn-primary" onclick="toast('SDK 生成任务已提交')">生成 SDK</button>`,
+  content: `
+  <div class="card">
+    <div class="card-h"><h3>SDK 生成</h3><span class="sub">应用 mes-gateway · 已授权 2 个对象类型 / 1 个动作</span></div>
+    <div class="card-b">
+      <div class="form-row">
+        <div class="form-item"><label>目标应用</label><select><option>mes-gateway（2 对象 · 1 动作）</option><option>bi-report</option><option>mobile-patrol（待授权）</option></select></div>
+        <div class="form-item"><label>语言 / 包管理</label><select><option>TypeScript（npm）</option><option>Python（pip / conda）</option><option>Java（Maven）</option><option>OpenAPI Spec（其他语言）</option></select></div>
+        <div class="form-item"><label>版本策略</label><select><option>随本体发布自动升级</option><option>锁定当前版本</option></select></div>
+      </div>
+      <div class="result-meta"><span>上次生成：09-20 18:02 · v1.4.0</span><span>自动 API 文档与代码示例：已生成</span><span>本地开发：SDK 随类型变更增量重生成</span></div>
+    </div>
+  </div>
+
+  <div class="row mt16">
+    <div class="card col">
+      <div class="card-h"><h3>开放 API 全景</h3><span class="sub">对标 Foundry Ontology API v2</span></div>
+      <div class="card-b" style="padding-top:8px;">
+        <table class="table">
+          <tr><th>能力</th><th>端点（示例）</th><th>Scope</th></tr>
+          <tr><td>对象点查 / 元数据</td><td class="mono fs12">GET /objects/Equipment/{pk}</td><td class="fs12">ontology:read</td></tr>
+          <tr><td>对象集搜索 / 聚合</td><td class="mono fs12">POST /objects/Equipment/search</td><td class="fs12">ontology:read</td></tr>
+          <tr><td>关联查询（Link）</td><td class="mono fs12">GET /objects/Equipment/{pk}/links/process</td><td class="fs12">ontology:read</td></tr>
+          <tr><td>动作应用 / 批量</td><td class="mono fs12">POST /actions/changeRunStatus/apply · /applyBatch</td><td class="fs12">ontology:action:execute</td></tr>
+          <tr><td>函数 / Query 调用</td><td class="mono fs12">POST /queries/calcEquipmentYield/execute</td><td class="fs12">ontology:query:execute</td></tr>
+          <tr><td>对象集变更订阅</td><td class="mono fs12">WS /subscriptions/objectSet（WebSocket）</td><td class="fs12">ontology:subscribe</td></tr>
+        </table>
+      </div>
+    </div>
+    <div class="card col">
+      <div class="card-h"><h3>调用示例（TypeScript OSDK）</h3></div>
+      <div class="card-b">
+        <div class="code-editor"><span class="cm">// 点查 + 关联遍历</span>
+<span class="kw">const</span> eqp = <span class="kw">await</span> client.Equipment.<span class="fn">where</span>(p => p.status == <span class="str">"故障"</span>);
+<span class="kw">const</span> procs = <span class="kw">await</span> eqp.<span class="fn">process</span>.<span class="fn">allAsync</span>();
+
+<span class="cm">// 应用动作（VALIDATE_AND_EXECUTE）</span>
+<span class="kw">await</span> client.<span class="fn">applyAction</span>(changeRunStatus, {
+  equipment: <span class="str">"EQP-0045"</span>, runStatus: <span class="str">"维护中"</span>
+});
+
+<span class="cm">// 调用 Query Function</span>
+<span class="kw">const</span> y = <span class="kw">await</span> client.<span class="fn">executeQuery</span>(calcEquipmentYield, {
+  equipment: <span class="str">"EQP-0012"</span>, windowDays: <span class="num">30</span>
+});</div>
+        <div class="tip mt8">批量动作单次 ≤ 10,000 次；函数批量调用 ≤ 20 次 / 批。写操作自动经过 Submission Criteria 与标记校验。</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card mt16">
+    <div class="card-h"><h3>MCP 暴露（Ontology MCP）</h3><span class="sub">把本体能力一键发布为 MCP Server，供外部 AI Agent 受控调用</span></div>
+    <div class="card-b" style="padding-top:0;">
+      <table class="table">
+        <tr><th>MCP Server</th><th>暴露工具</th><th>作用域约束</th><th>状态</th><th class="actions-cell">操作</th></tr>
+        <tr><td class="mono fs12">mfg-ontology</td><td class="fs12"><span class="tag mono">searchObjects</span><span class="tag mono">applyAction</span><span class="tag mono">executeQuery</span></td><td class="fs12 text-2">同 mes-gateway 授权范围，写操作需用户会话确认</td><td><span class="badge b-green no-dot">已启用</span></td><td class="actions-cell"><button class="btn-link btn-sm" onclick="toast('复制 MCP 接入配置')">接入配置</button><button class="btn-link btn-sm" onclick="toast('编辑工具范围')">编辑</button></td></tr>
+      </table>
+      <div class="tip mt8">外部 Agent（如企业 Copilot）通过 MCP 协议点查对象 / 调用动作 / 执行函数，鉴权与限流同开放 API。</div>
+    </div>
+  </div>`,
+});
+</script>
+</body>
+</html>

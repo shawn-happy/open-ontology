@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<title>本体分支 · Open Ontology</title>
+<link rel="stylesheet" href="../assets/style.css" />
+<style>
+.branch-chip { display: inline-flex; align-items: center; gap: 6px; padding: 3px 10px; border-radius: 14px; font-size: 12px; border: 1px solid var(--border); background: #fff; cursor: pointer; }
+.branch-chip.on { border-color: var(--primary); color: var(--primary); background: var(--primary-light); }
+.diff-add { color: var(--success); background: #f0fdf4; border-radius: 3px; padding: 0 3px; }
+.diff-del { color: var(--danger); background: #fef2f2; border-radius: 3px; padding: 0 3px; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+
+<!-- 新建分支 -->
+<div class="mask" id="branchModal" data-close-mask>
+  <div class="modal">
+    <div class="modal-h">新建本体分支<span class="x" onclick="App.closeModal('branchModal')">×</span></div>
+    <div class="modal-b">
+      <div class="form-item"><label><span class="req">*</span>分支名称</label><input type="text" placeholder="如：feat-supplier-credit" /></div>
+      <div class="form-item"><label>基于</label><select><option>main（v12 已发布）</option><option>dev-eqp-v13</option></select></div>
+      <div class="form-item"><label>用途说明</label><textarea rows="2" placeholder="如：新增供应商信用评级属性，验证后合入 main"></textarea></div>
+      <div class="tip">对标 Palantir Global Branching：分支上可索引对象类型、试运行动作；分支编辑不自动合并回 main，需通过发布流程合入。</div>
+    </div>
+    <div class="modal-f"><button class="btn" onclick="App.closeModal('branchModal')">取消</button><button class="btn btn-primary" onclick="App.closeModal('branchModal');toast('分支 feat-supplier-credit 已创建')">创建</button></div>
+  </div>
+</div>
+
+<!-- 试运行动作 -->
+<div class="mask" id="branchTryModal" data-close-mask>
+  <div class="modal">
+    <div class="modal-h">分支试运行 · <span class="mono">decommissionSupplier</span><span class="x" onclick="App.closeModal('branchTryModal')">×</span></div>
+    <div class="modal-b">
+      <div class="result-meta"><span>分支：dev-eqp-v13</span><span>动作版本：v3（分支草稿）</span></div>
+      <div class="code-editor"><span class="cm">// 试运行结果（沙箱索引，不影响 main）</span>
+<span class="kw">✔</span> Submission Criteria 全部通过
+<span class="kw">✔</span> 将编辑对象：SUP-0102 · 华东金属（Delete）
+<span class="kw">✔</span> 将创建 2 个 Link 编辑记录
+<span class="fn">副作用：</span>Webhook 已阻断（分支上默认禁用外部调用）
+<span class="fn">副作用：</span>通知已模拟发送（0 个真实收件人）</div>
+      <div class="tip mt8">对标 Palantir：分支上的动作试运行自动关闭 Webhook / 通知 / Schedule 等外部副作用。</div>
+    </div>
+    <div class="modal-f"><button class="btn" onclick="App.closeModal('branchTryModal')">关闭</button><button class="btn btn-primary" onclick="App.closeModal('branchTryModal');toast('已记录试运行结果')">保存试运行</button></div>
+  </div>
+</div>
+
+<script src="../assets/app.js"></script>
+<script>
+let curBranch = 'main';
+
+const branches = [
+  { name: 'main', base: '—', ver: 'v12 已发布', owner: 'shawn', updated: '2026-09-20 18:00', types: 38, note: '生产分支，空间内所有应用读取此分支', main: true },
+  { name: 'dev-eqp-v13', base: 'main', ver: '草稿 v13', owner: 'shawn', updated: '2026-09-21 10:24', types: 39, note: '设备类型 v13：新增 Struct 地址属性 + GeoPoint' },
+  { name: 'feat-supplier-credit', base: 'main', ver: '草稿', owner: 'liqi', updated: '2026-09-19 15:40', types: 38, note: '供应商信用评级属性验证' },
+  { name: 'fix-link-cascade', base: 'main', ver: '草稿', owner: 'wangm', updated: '2026-09-16 09:12', types: 38, note: '修复删除工艺时级联删除质检报告的问题' },
+];
+
+App.mount({
+  page: 'ontology-branching',
+  crumbs: ['智能制造空间', '本体资产管理', '本体分支'],
+  title: '本体分支',
+  desc: '在不影响生产本体的情况下并行演进类型定义（对标 Palantir Global Branching）：分支索引对象类型、试运行动作、验证后合入 main。',
+  actions: `<button class="btn btn-primary" onclick="App.openModal('branchModal')">+ 新建分支</button>`,
+  content: `
+  <div class="card">
+    <div class="card-h">
+      <h3>分支列表</h3>
+      <span class="sub">当前查看：<b class="mono">${curBranch}</b></span>
+      <div class="right"><input class="search" type="text" placeholder="搜索分支…" /></div>
+    </div>
+    <table class="table">
+      <tr><th>分支</th><th>基于</th><th>版本状态</th><th>类型数</th><th>负责人</th><th>更新时间</th><th>说明</th><th class="actions-cell">操作</th></tr>
+      ${branches.map(b => `
+      <tr style="${b.name === curBranch ? 'background:#f8faff;' : ''}">
+        <td><span class="branch-chip ${b.name === curBranch ? 'on' : ''}" onclick="toast('已切换查看分支 ${b.name}')">${b.main ? '⌂' : '⑂'} <b class="mono">${b.name}</b>${b.main ? '<span class="badge b-blue no-dot" style="margin-left:4px">默认</span>' : ''}</span></td>
+        <td class="mono fs12">${b.base}</td>
+        <td><span class="badge ${b.main ? 'b-green' : 'b-orange'} no-dot">${b.ver}</span></td>
+        <td class="mono">${b.types}</td>
+        <td class="fs12">${b.owner}</td>
+        <td class="mono fs12">${b.updated}</td>
+        <td class="fs12 text-2">${b.note}</td>
+        <td class="actions-cell">
+          <button class="btn-link btn-sm" onclick="toast('查看分支变更 Diff（vs main）')">Diff</button>
+          <button class="btn-link btn-sm" onclick="App.openModal('branchTryModal')">试运行动作</button>
+          ${b.main ? '' : `<button class="btn-link btn-sm" onclick="toast('已发起合入 main 审批')">合入</button>
+          <button class="btn-link btn-sm btn-danger" onclick="toast('分支已删除')">删除</button>`}
+        </td>
+      </tr>`).join('')}
+    </table>
+  </div>
+
+  <div class="row mt16">
+    <div class="card col">
+      <div class="card-h"><h3>分支变更预览 · <span class="mono">dev-eqp-v13</span> vs main</h3></div>
+      <div class="card-b">
+        <table class="table">
+          <tr><th>对象</th><th>变更</th><th>Diff</th></tr>
+          <tr><td class="mono">Equipment.install_addr</td><td><span class="badge b-green no-dot">新增属性</span></td><td class="mono fs12"><span class="diff-add">+ Struct{province,city,detail}</span></td></tr>
+          <tr><td class="mono">Equipment.geo_location</td><td><span class="badge b-green no-dot">新增属性</span></td><td class="mono fs12"><span class="diff-add">+ GeoPoint</span></td></tr>
+          <tr><td class="mono">Equipment.version</td><td><span class="badge b-blue no-dot">版本</span></td><td class="mono fs12"><span class="diff-del">v12</span> → <span class="diff-add">v13</span></td></tr>
+          <tr><td class="mono">Supplier.credit_level</td><td><span class="badge b-gray no-dot">无变更</span></td><td class="fs12 text-2">—</td></tr>
+        </table>
+      </div>
+    </div>
+    <div class="card col">
+      <div class="card-h"><h3>分支行为约定</h3></div>
+      <div class="card-b">
+        <table class="table">
+          <tr><th>能力</th><th>分支上</th><th>main</th></tr>
+          <tr><td>索引对象类型</td><td><span class="badge b-green no-dot">支持</span>（沙箱数据）</td><td><span class="badge b-green no-dot">支持</span></td></tr>
+          <tr><td>试运行动作</td><td><span class="badge b-green no-dot">支持</span> · 副作用关闭</td><td><span class="badge b-green no-dot">支持</span></td></tr>
+          <tr><td>对象数据查询</td><td>分支版本 schema</td><td>发布版本 schema</td></tr>
+          <tr><td>Webhook / 通知 / Schedule</td><td><span class="badge b-red no-dot">默认阻断</span></td><td><span class="badge b-green no-dot">正常</span></td></tr>
+          <tr><td>自动合并回 main</td><td class="fs12 text-2" colspan="2"><span class="badge b-orange no-dot">不自动合并</span> · 需走发布审批流程（Diff 评审 + 破坏性变更检测）</td></tr>
+        </table>
+      </div>
+    </div>
+  </div>`,
+});
+</script>
+</body>
+</html>

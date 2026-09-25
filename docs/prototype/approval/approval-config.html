@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<title>审批流程配置 · Open Ontology</title>
+<link rel="stylesheet" href="../assets/style.css" />
+<style>
+  .res-item { padding: 9px 12px; border-radius: 6px; display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 13px; }
+  .res-item:hover { background: #f3f4f6; }
+  .res-item.sel { background: var(--primary-light); color: var(--primary); }
+  .res-item .st { margin-left: auto; }
+  .cfg-list .cfg-item { border: 1px solid var(--border); border-radius: 8px; padding: 12px 14px; margin-bottom: 10px; }
+  .cfg-item:last-child { margin-bottom: 0; }
+  .cfg-item .cfg-top { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+  .cfg-item .cfg-top b { font-size: 13.5px; }
+  .cfg-item .cfg-top .ops { margin-left: auto; }
+  .radio-line { display: flex; gap: 18px; align-items: center; }
+  .radio-line label { display: flex; align-items: center; gap: 6px; font-size: 13px; cursor: pointer; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+
+<!-- 新增/编辑审批流程 -->
+<div class="mask" id="cfgModal" data-close-mask>
+  <div class="modal lg">
+    <div class="modal-h"><span id="cfgTitle">新增审批流程</span><span class="x" onclick="App.closeModal('cfgModal')">×</span></div>
+    <div class="modal-b">
+      <div class="form-row">
+        <div class="form-item"><label><span class="req">*</span>资源类型</label><input type="text" id="cfgRes" disabled /></div>
+        <div class="form-item"><label>流程名称</label><input type="text" id="cfgName" placeholder="如：对象类型发布审批" /></div>
+      </div>
+      <div class="form-item"><label><span class="req">*</span>作用范围</label>
+        <div class="radio-line">
+          <label><input type="radio" name="cfgScope" value="GLOBAL" onchange="onScopeChange()" /> 全局有效</label>
+          <label><input type="radio" name="cfgScope" value="WS" onchange="onScopeChange()" /> 工作空间内有效</label>
+          <select id="cfgWs" style="display:none;width:200px;" onchange="renderRoleChecks();renderApproverResult()"></select>
+        </div>
+        <div class="tip">全局有效：审批人与角色取平台级用户/角色；工作空间内有效：仅该空间内的用户/角色可被选为审批人。</div>
+      </div>
+      <div class="form-row">
+        <div class="form-item"><label>审批人 · 指定用户</label>
+          <div class="apv-group" id="cfgUserChecks"></div>
+          <div class="tip">所选用户可直接审批。</div>
+        </div>
+        <div class="form-item"><label>审批人 · 按角色</label>
+          <div class="apv-group" id="cfgRoleChecks"></div>
+          <div class="tip">角色成员动态计算：该角色下的全部用户均可审批，成员变化实时生效。</div>
+        </div>
+      </div>
+      <div class="apv-result" id="cfgResult"></div>
+      <div class="tip mt8">同一资源类型的审批流程只能配置一次：已配置全局流程后不可再配置空间级流程；已配置空间级流程后不可再配置全局流程（可为其他空间添加）。</div>
+    </div>
+    <div class="modal-f"><button class="btn" onclick="App.closeModal('cfgModal')">取消</button><button class="btn btn-primary" onclick="cfgSave()">确定</button></div>
+  </div>
+</div>
+
+<script src="../assets/app.js"></script>
+<script>
+// ===== 演示数据（与 platform/system.html 口径一致）=====
+const RES_TYPES = [
+  { id: 'object',     label: '对象类型',   icon: '◈', href: '../ontology/ontology-graph.html' },
+  { id: 'shared-prop',label: '共享属性',   icon: '⧉', href: '../ontology/ontology-shared-props.html' },
+  { id: 'constraint', label: '值约束规则', icon: '⌗', href: '../ontology/ontology-constraints.html' },
+  { id: 'action',     label: '动作',       icon: '▶', href: '../ontology/ontology-actions.html' },
+  { id: 'function',   label: '函数',       icon: 'ƒ', href: '../ontology/ontology-functions.html' },
+];
+const WORKSPACES = ['智能制造空间', '供应链分析空间', '设备运维空间'];
+
+const USERS = [
+  { name: 'shawn', account: 'shawn',    dept: '数据平台部',     roles: ['超级管理员'] },
+  { name: '张伟',   account: 'zhangwei', dept: '智能制造事业部', roles: ['空间管理员'] },
+  { name: '李静',   account: 'lijing',   dept: '数据平台部',     roles: ['空间管理员'] },
+  { name: '周杰',   account: 'zhoujie',  dept: '供应链中心',     roles: ['普通用户'] },
+  { name: '吴娜',   account: 'wuna',     dept: '智能制造事业部', roles: ['普通用户', '本体建模员'] },
+  { name: '王强',   account: 'wangqiang',dept: '数据平台部',     roles: ['普通用户'] },
+  { name: '赵敏',   account: 'zhaomin',  dept: '工艺数字化组',   roles: ['本体建模员'] },
+  { name: '孙立',   account: 'sunli',    dept: 'IT 基础设施部',  roles: ['系统运维'] },
+];
+const GLOBAL_ROLES = ['超级管理员', '系统运维', '空间管理员', '本体建模员', '数据工程师', '只读访客'];
+// 空间成员（账号），用于空间级流程的审批人范围
+const WS_MEMBERS = {
+  '智能制造空间': ['shawn', 'zhangwei', 'wuna', 'zhaomin'],
+  '供应链分析空间': ['zhoujie', 'lijing'],
+  '设备运维空间': ['sunli', 'wangqiang'],
+};
+const WS_ROLES = {
+  '智能制造空间': ['空间管理员', '本体建模员', '数据工程师', '只读访客'],
+  '供应链分析空间': ['空间管理员', '数据工程师', '只读访客'],
+  '设备运维空间': ['空间管理员', '数据工程师', '只读访客'],
+};
+
+// 已配置的审批流程（对象类型=全局；函数=空间级）
+let CONFIGS = [
+  { id: 'c1', res: 'object', scope: 'GLOBAL', ws: '', name: '对象类型发布审批（全局）', users: ['shawn'], roles: ['空间管理员'] },
+  { id: 'c2', res: 'function', scope: 'WS', ws: '智能制造空间', name: '函数发布审批（智能制造空间）', users: ['lijing'], roles: ['本体建模员'] },
+];
+let curRes = 'object';
+let editingCfgId = null;
+
+// ===== 审批人动态计算：指定用户 ∪ 角色成员（按作用域限定用户池）=====
+function userPool(scope, ws) {
+  return scope === 'GLOBAL' ? USERS : USERS.filter((u) => WS_MEMBERS[ws].includes(u.account));
+}
+function computeApprovers(cfg) {
+  const pool = userPool(cfg.scope, cfg.ws);
+  const map = new Map();
+  (cfg.users || []).forEach((a) => { const u = pool.find((x) => x.account === a); if (u) map.set(a, u); });
+  (cfg.roles || []).forEach((r) => pool.filter((u) => u.roles.includes(r)).forEach((u) => map.set(u.account, u)));
+  return [...map.values()];
+}
+const resLabel = (id) => (RES_TYPES.find((t) => t.id === id) || {}).label || id;
+
+App.mount({
+  page: 'approval',
+  crumbs: ['平台管理', '审批中心', '审批流程配置'],
+  title: '审批流程配置',
+  desc: '对对象类型、共享属性、值约束规则、动作、函数五类本体资源的「发布」动作配置审批流程，支持全局或工作空间作用域。',
+  actions: `<a class="btn" href="approval-records.html">审批记录 →</a>`,
+  content: `
+  <div class="row" style="margin-top:0;">
+    <div class="card col" style="max-width:260px;">
+      <div class="card-h"><h3>资源类型</h3></div>
+      <div class="card-b">
+        <div id="resList"></div>
+        <div class="tip text-2" style="margin-top:10px;">点击资源类型查看 / 维护其发布审批流程；同一资源类型全局与空间级流程互斥。</div>
+      </div>
+    </div>
+    <div class="card col">
+      <div class="card-h">
+        <h3>审批流程 · <span id="curResName" class="text-2">对象类型</span></h3>
+        <div class="right">
+          <a class="btn btn-sm" id="goResPage" href="../ontology/ontology-graph.html">查看物料页面</a>
+          <button class="btn btn-sm btn-primary" id="addCfgBtn" onclick="cfgOpenCreate()">+ 新增配置</button>
+        </div>
+      </div>
+      <div class="card-b">
+        <div class="cfg-list" id="cfgList"></div>
+        <div class="tip mt16" id="cfgListTip"></div>
+      </div>
+    </div>
+  </div>`,
+
+  onMount() {
+    renderResList();
+    renderCfgPanel();
+  },
+});
+
+// ===== 左侧资源类型列表 =====
+function renderResList() {
+  document.getElementById('resList').innerHTML = RES_TYPES.map((t) => {
+    const list = CONFIGS.filter((c) => c.res === t.id);
+    const st = !list.length
+      ? '<span class="badge b-gray">未配置</span>'
+      : list.some((c) => c.scope === 'GLOBAL')
+        ? '<span class="badge b-purple">全局生效</span>'
+        : `<span class="badge b-blue">空间级 ×${list.length}</span>`;
+    return `
+    <div class="res-item ${t.id === curRes ? 'sel' : ''}" onclick="selectRes('${t.id}')">
+      <span>${t.icon}</span>${t.label}<span class="st">${st}</span>
+    </div>`;
+  }).join('');
+}
+
+function selectRes(id) {
+  curRes = id;
+  renderResList();
+  renderCfgPanel();
+}
+
+// ===== 右侧配置面板 =====
+function renderCfgPanel() {
+  const t = RES_TYPES.find((x) => x.id === curRes);
+  document.getElementById('curResName').textContent = t.label;
+  document.getElementById('goResPage').href = t.href;
+  const list = CONFIGS.filter((c) => c.res === curRes);
+  const el = document.getElementById('cfgList');
+  const addBtn = document.getElementById('addCfgBtn');
+  // 唯一性规则：有全局配置 → 不可新增；有空间级配置 → 不可新增全局（只能逐条编辑/添加其他空间，原型中统一引导在弹窗内校验）
+  addBtn.disabled = list.some((c) => c.scope === 'GLOBAL');
+  addBtn.title = addBtn.disabled ? '该资源类型已配置全局流程，不可再新增' : '';
+
+  if (!list.length) {
+    el.innerHTML = '<div class="empty">该资源类型尚未配置审批流程，发布动作将直接生效（不需审批）</div>';
+    document.getElementById('cfgListTip').textContent = '点击右上角「+ 新增配置」创建发布审批流程。';
+    return;
+  }
+  el.innerHTML = list.map((c) => {
+    const scopeBadge = c.scope === 'GLOBAL'
+      ? '<span class="badge b-purple">全局生效</span>'
+      : `<span class="badge b-blue">空间 · ${c.ws}</span>`;
+    const apv = computeApprovers(c);
+    const tags = (c.users || []).map((a) => {
+      const u = USERS.find((x) => x.account === a);
+      return `<span class="tag blue">用户 · ${u ? u.name : a}</span>`;
+    }).join('') + (c.roles || []).map((r) => `<span class="tag role">角色 · ${r}（动态）</span>`).join('');
+    return `
+    <div class="cfg-item">
+      <div class="cfg-top">
+        <b>${c.name || resLabel(c.res) + '发布审批'}</b>
+        ${scopeBadge}
+        <span class="text-3 fs12">审批人 ${apv.length} 人</span>
+        <span class="ops">
+          <button class="btn-link btn-sm" onclick="cfgOpenEdit('${c.id}')">编辑</button>
+          <button class="btn-link btn-sm btn-danger" onclick="cfgDelete('${c.id}')">删除</button>
+        </span>
+      </div>
+      <div class="apv-tags">${tags || '<span class="text-3 fs12">未设置审批人</span>'}</div>
+    </div>`;
+  }).join('');
+  document.getElementById('cfgListTip').textContent = list.some((c) => c.scope === 'GLOBAL')
+    ? '已配置全局流程：该资源类型在所有空间内统一按此流程审批，不可再添加空间级流程。'
+    : '已配置空间级流程：可为其他工作空间继续添加，但不可再配置全局流程。';
+}
+
+// ===== 新增 / 编辑弹窗 =====
+function checkedVals(containerId, attr) {
+  return [...document.querySelectorAll(`#${containerId} input:checked`)].map((el) => el.getAttribute(attr));
+}
+
+function cfgOpenCreate() {
+  editingCfgId = null;
+  document.getElementById('cfgTitle').textContent = `新增审批流程 · ${resLabel(curRes)}`;
+  document.getElementById('cfgRes').value = resLabel(curRes);
+  document.getElementById('cfgName').value = '';
+  const hasWsCfg = CONFIGS.some((c) => c.res === curRes && c.scope === 'WS');
+  // 已存在空间级配置 → 只能配全局；否则默认全局
+  document.querySelector('input[name="cfgScope"][value="WS"]').disabled = hasWsCfg;
+  document.querySelector('input[name="cfgScope"][value="GLOBAL"]').checked = true;
+  onScopeChange(true);
+  App.openModal('cfgModal');
+}
+
+function cfgOpenEdit(id) {
+  const c = CONFIGS.find((x) => x.id === id);
+  if (!c) return;
+  editingCfgId = id;
+  document.getElementById('cfgTitle').textContent = `编辑审批流程 · ${resLabel(c.res)}`;
+  document.getElementById('cfgRes').value = resLabel(c.res);
+  document.getElementById('cfgName').value = c.name || '';
+  document.querySelector(`input[name="cfgScope"][value="${c.scope}"]`).checked = true;
+  onScopeChange(true, c);
+  App.openModal('cfgModal');
+}
+
+function onScopeChange(keepSelection, cfg) {
+  const scope = document.querySelector('input[name="cfgScope"]:checked').value;
+  const wsSel = document.getElementById('cfgWs');
+  wsSel.style.display = scope === 'WS' ? '' : 'none';
+  wsSel.innerHTML = WORKSPACES.map((w) => `<option>${w}</option>`).join('');
+  if (scope === 'WS' && cfg && cfg.ws) wsSel.value = cfg.ws;
+  renderUserChecks(scope, wsSel.value, keepSelection ? cfg : null);
+  renderRoleChecks(scope, wsSel.value, keepSelection ? cfg : null);
+  renderApproverResult();
+}
+
+function renderUserChecks(scope, ws, cfg) {
+  const pool = userPool(scope, ws);
+  document.getElementById('cfgUserChecks').innerHTML = pool.map((u) => `
+    <label><input type="checkbox" data-acc="${u.account}" ${cfg && cfg.users.includes(u.account) ? 'checked' : ''}
+      onchange="renderApproverResult()" /> ${u.name}<span class="sub">${u.account}</span></label>`).join('');
+}
+
+function renderRoleChecks(scope, ws, cfg) {
+  const roles = scope === 'GLOBAL' ? GLOBAL_ROLES : WS_ROLES[ws] || [];
+  document.getElementById('cfgRoleChecks').innerHTML = roles.map((r) => `
+    <label><input type="checkbox" data-role="${r}" ${cfg && cfg.roles.includes(r) ? 'checked' : ''}
+      onchange="renderApproverResult()" /> ${r}</label>`).join('');
+}
+
+// 实时展示审批人并集（角色成员动态计算）
+function renderApproverResult() {
+  const scope = document.querySelector('input[name="cfgScope"]:checked').value;
+  const ws = document.getElementById('cfgWs').value;
+  const cfg = { scope, ws, users: checkedVals('cfgUserChecks', 'data-acc'), roles: checkedVals('cfgRoleChecks', 'data-role') };
+  const apv = computeApprovers(cfg);
+  document.getElementById('cfgResult').innerHTML = apv.length
+    ? `当前审批人共 <b>${apv.length}</b> 人（用户 ∪ 角色成员，动态计算）：${apv.map((u) => u.name).join('、')}`
+    : '尚未选择审批人：未指定任何审批人时，该流程无法通过（建议至少配置一名用户或一个角色）';
+}
+
+function cfgSave() {
+  const scope = document.querySelector('input[name="cfgScope"]:checked').value;
+  const ws = document.getElementById('cfgWs').value;
+  const users = checkedVals('cfgUserChecks', 'data-acc');
+  const roles = checkedVals('cfgRoleChecks', 'data-role');
+  if (!users.length && !roles.length) { toast('请至少选择一名审批用户或一个审批角色'); return; }
+
+  // 唯一性校验：同一资源类型，全局与空间级互斥；同空间不可重复
+  const others = CONFIGS.filter((c) => c.res === curRes && c.id !== editingCfgId);
+  if (scope === 'GLOBAL' && others.length) { toast('该资源类型已存在空间级流程，不可再配置全局流程'); return; }
+  if (scope === 'WS') {
+    if (others.some((c) => c.scope === 'GLOBAL')) { toast('该资源类型已配置全局流程，不可再配置空间级流程'); return; }
+    if (others.some((c) => c.ws === ws)) { toast(`「${ws}」已存在该资源类型的审批流程，同空间不可重复配置`); return; }
+  }
+
+  const name = document.getElementById('cfgName').value.trim() ||
+    `${resLabel(curRes)}发布审批（${scope === 'GLOBAL' ? '全局' : ws}）`;
+  if (editingCfgId) {
+    Object.assign(CONFIGS.find((c) => c.id === editingCfgId), { scope, ws, users, roles, name });
+    toast('审批流程已更新（原型演示）');
+  } else {
+    CONFIGS.push({ id: 'c' + Date.now(), res: curRes, scope, ws, users, roles, name });
+    toast('审批流程已创建，发布动作将进入审批（原型演示）');
+  }
+  App.closeModal('cfgModal');
+  renderResList();
+  renderCfgPanel();
+}
+
+function cfgDelete(id) {
+  const c = CONFIGS.find((x) => x.id === id);
+  if (!c) return;
+  if (!confirm(`确认删除「${c.name}」？删除后该资源类型的发布将不再需要审批。`)) return;
+  CONFIGS = CONFIGS.filter((x) => x.id !== id);
+  renderResList();
+  renderCfgPanel();
+  toast('审批流程已删除（原型演示）');
+}
+</script>
+</body>
+</html>

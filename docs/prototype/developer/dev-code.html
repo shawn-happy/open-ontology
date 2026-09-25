@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<title>代码化本体 · Open Ontology</title>
+<link rel="stylesheet" href="../assets/style.css" />
+</head>
+<body>
+<div id="root"></div>
+<script src="../assets/app.js"></script>
+<script>
+App.mount({
+  page: 'dev-code',
+  crumbs: ['智能制造空间', '开发者平台', '代码化本体'],
+  title: '代码化本体',
+  desc: '本体类型以代码声明并纳入 Git 管理（对标 Palantir SuperRepo）：UI 建模与代码双向同步，经 CI 发布到多环境。',
+  actions: `<button class="btn" onclick="toast('导入 UI 变更为代码')">导入 UI 变更</button><button class="btn btn-primary" onclick="toast('新建本体代码仓库')">+ 新建代码仓库</button>`,
+  content: `
+  <div class="card">
+    <div class="card-h"><h3>本体代码仓库</h3><span class="sub">monorepo：对象 / 链接 / 动作类型声明 + 函数 + 前端同仓</span></div>
+    <div class="card-b">
+      <table class="table">
+        <tr><th>仓库</th><th>内容</th><th>分支</th><th>最近提交</th><th>同步状态</th><th class="actions-cell">操作</th></tr>
+        <tr>
+          <td><b class="mono">mfg-ontology</b></td>
+          <td class="fs12">38 个类型声明 · 7 个函数 · 5 个动作类型</td>
+          <td class="mono fs12">main · dev-eqp-v13</td>
+          <td class="mono fs12">e3f21c8 · 09-20 17:44</td>
+          <td><span class="badge b-green no-dot">UI ↔ 代码 已同步</span></td>
+          <td class="actions-cell"><button class="btn-link btn-sm" onclick="toast('打开 Web IDE')">打开</button><button class="btn-link btn-sm" onclick="toast('查看双向往来记录')">同步记录</button></td>
+        </tr>
+        <tr>
+          <td><b class="mono">mfg-transforms</b></td>
+          <td class="fs12">Pipeline Python / SQL Transform · 12 个作业</td>
+          <td class="mono fs12">main</td>
+          <td class="mono fs12">a91b02d · 09-19 10:08</td>
+          <td><span class="badge b-orange no-dot">2 个提交待评审</span></td>
+          <td class="actions-cell"><button class="btn-link btn-sm" onclick="toast('打开 Web IDE')">打开</button><button class="btn-link btn-sm" onclick="toast('查看 PR 列表')">PR（2）</button></td>
+        </tr>
+      </table>
+    </div>
+  </div>
+
+  <div class="row mt16">
+    <div class="card col">
+      <div class="card-h"><h3>类型声明示例（YAML）</h3></div>
+      <div class="card-b">
+        <div class="code-editor"><span class="cm"># ontology/equipment.yaml —— UI 修改亦可自动生成本文件</span>
+<span class="kw">objectType</span>: Equipment
+<span class="kw">displayName</span>: 设备
+<span class="kw">primaryKey</span>: equipment_id
+<span class="kw">titleKey</span>: equipment_name
+<span class="kw">backingDataset</span>: doris.equipment_master
+<span class="kw">implements</span>: [Asset]
+<span class="kw">properties</span>:
+  - <span class="kw">apiName</span>: install_addr
+    <span class="kw">baseType</span>: Struct
+    <span class="kw">struct</span>: { province: string, city: string, detail: string }
+  - <span class="kw">apiName</span>: geo_location
+    <span class="kw">baseType</span>: GeoPoint
+    <span class="kw">valueFormat</span>: map-preview
+  - <span class="kw">apiName</span>: acceptance_note
+    <span class="kw">baseType</span>: String
+    <span class="kw">editOnly</span>: <span class="num">true</span></div>
+      </div>
+    </div>
+    <div class="card col">
+      <div class="card-h"><h3>CI 发布流水线</h3><span class="sub">多环境晋升</span></div>
+      <div class="card-b" style="padding-top:0;">
+        <div class="steps mb16">
+          <div class="step done"><div><div class="dot">✓</div>分支验证</div></div>
+          <div class="step done"><div><div class="dot">✓</div>破坏性变更检测</div></div>
+          <div class="step cur"><div><div class="dot">3</div>测试环境</div></div>
+          <div class="step"><div><div class="dot">4</div>生产合入审批</div></div>
+        </div>
+        <table class="table">
+          <tr><th>阶段</th><th>内容</th><th>状态</th></tr>
+          <tr><td>PR 评审</td><td class="fs12 text-2">dev-eqp-v13 → main · 2 个新增属性</td><td><span class="badge b-green no-dot">已批准</span></td></tr>
+          <tr><td>破坏性检测</td><td class="fs12 text-2">无破坏性变更（新增可选属性）</td><td><span class="badge b-green no-dot">通过</span></td></tr>
+          <tr><td>测试环境部署</td><td class="fs12 text-2">沙箱索引重建 · 动作试运行</td><td><span class="badge b-orange no-dot">进行中</span></td></tr>
+          <tr><td>生产发布</td><td class="fs12 text-2">需空间管理员审批 + Schema 迁移计划</td><td><span class="badge b-gray no-dot">待执行</span></td></tr>
+        </table>
+        <div class="tip mt8">UI 上直接建模的变更可一键「导入 UI 变更」生成代码提交；代码变更发布后亦在 UI 可见（双向互通）。</div>
+      </div>
+    </div>
+  </div>`,
+});
+</script>
+</body>
+</html>

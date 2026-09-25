@@ -47,12 +47,49 @@ App.mount({
         <td><span class="badge b-green">生效中</span></td>
         <td class="actions-cell"><button class="btn-link btn-sm" onclick="toast('编辑策略')">编辑</button><button class="btn-link btn-sm btn-danger" onclick="toast('停用策略')">停用</button></td>
       </tr>
+      <tr>
+        <td><b>行级标记列校验</b></td><td>equipment_master.marking_level</td>
+        <td><span class="badge b-cyan no-dot">标记列</span></td>
+        <td class="fs12">逐行校验当前用户满足该行标记列（Mandatory Control Property）</td>
+        <td><span class="tag blue">全部角色</span></td>
+        <td><span class="badge b-green">生效中</span></td>
+        <td class="actions-cell"><button class="btn-link btn-sm" onclick="toast('编辑策略')">编辑</button><button class="btn-link btn-sm btn-danger" onclick="toast('停用策略')">停用</button></td>
+      </tr>
     </table>
-    <div class="pager">共 3 条<span style="flex:1"></span><span class="pg">‹</span><span class="pg cur">1</span><span class="pg">›</span></div>
+    <div class="pager">共 4 条<span style="flex:1"></span><span class="pg">‹</span><span class="pg cur">1</span><span class="pg">›</span></div>
   </div>
+
+  <div class="row mt16">
+    <div class="card col">
+      <div class="card-h"><h3>行级标记列（Mandatory Control Property）</h3><span class="sub">对标 Palantir Object Security Policies</span></div>
+      <div class="card-b">
+        <div class="tip mb8 text-2">将对象类型的某一属性声明为「标记列」，查询时逐行校验当前用户是否满足该行标记（成员关系 + 密级组合），不满足则该行不可见。</div>
+        <table class="table">
+          <tr><th class="mono">equipment_id</th><th class="mono">name</th><th class="mono">marking_level</th><th>shawn 可见</th></tr>
+          <tr><td class="mono">EQP-0012</td><td>CNC 加工中心 A12</td><td><span class="tag">L2 内部</span></td><td><span class="badge b-green no-dot">✓</span></td></tr>
+          <tr><td class="mono">EQP-0045</td><td>老化测试台 T2（军品线）</td><td><span class="tag">L3 秘密</span><span class="tag">EQP-COST</span></td><td><span class="badge b-green no-dot">✓ 满足全部标记</span></td></tr>
+          <tr><td class="mono">EQP-0077</td><td>出口检测设备 X1</td><td><span class="tag">L3 秘密</span><span class="tag">PII</span></td><td><span class="badge b-red no-dot">✗ 缺少 PII 成员身份</span></td></tr>
+        </table>
+        <div class="tip mt8">对象安全策略默认继承数据源的全部强制控制（Organization + Marking + 密级组合），物化数据按最严格原则叠加，可在策略中显式增删。</div>
+      </div>
+    </div>
+    <div class="card col">
+      <div class="card-h"><h3>策略继承与读写边界</h3></div>
+      <div class="card-b">
+        <table class="table">
+          <tr><th>规则</th><th>说明</th></tr>
+          <tr><td>继承数据源强制控制</td><td class="fs12 text-2">对象策略默认继承来源数据集的 Organization / Marking，可增不可默认删</td></tr>
+          <tr><td>读取时生效</td><td class="fs12 text-2">行 / 列过滤仅在<b>读取</b>时生效，不延伸到导出与下游</td></tr>
+          <tr><td>写入需标记兜底</td><td class="fs12 text-2">通过动作写回 marked 数据时，须同步配置标记，否则阻断</td></tr>
+          <tr><td>禁止 NOT 条件</td><td class="fs12 text-2">不允许对组 / 标记 / 组织使用 NOT（缺属性会放大权限）</td></tr>
+        </table>
+      </div>
+    </div>
+  </div>
+
   <div class="card mt16">
     <div class="card-h"><h3>校验优先级说明</h3></div>
-    <div class="card-b text-2 fs13">权限校验优先级：对象权限（本体图谱）&gt; 数据集权限 &gt; 字段 / 标记策略，全部通过才放行，命中即记录<a href="../audit/audit-logs.html">审计日志</a>。</div>
+    <div class="card-b text-2 fs13">权限校验优先级：对象权限（本体图谱）&gt; 数据集权限 &gt; 字段 / 标记策略，全部通过才放行，命中即记录<a href="../audit/audit-logs.html">审计日志</a>。权限可解释性见<a href="../audit/audit-logs.html">审计日志 → Check Access</a>。</div>
   </div>`,
 });
 </script>
