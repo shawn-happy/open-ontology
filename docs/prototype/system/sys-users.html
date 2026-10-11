@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>用户管理 - Open Ontology</title>
+<link rel="stylesheet" href="../assets/style.css" />
+<style>
+  .user-link { color: var(--primary); cursor: pointer; }
+  .user-link:hover { text-decoration: underline; }
+  .check-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .check-grid label { display: flex; align-items: center; gap: 8px; font-size: 13px; cursor: pointer; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+
+<!-- 新增/编辑用户 -->
+<div class="mask" id="userModal" data-close-mask>
+  <div class="modal">
+    <div class="modal-h"><span id="userModalTitle">新增用户</span><span class="x" onclick="App.closeModal('userModal')">&#215;</span></div>
+    <div class="modal-b">
+      <div class="form-row">
+        <div class="form-item"><label><span class="req">*</span>用户名</label><input type="text" id="uUsername" placeholder="如：wangqiang" /></div>
+        <div class="form-item"><label><span class="req">*</span>姓名</label><input type="text" id="uName" placeholder="如：王强" /></div>
+      </div>
+      <div class="form-row">
+        <div class="form-item"><label><span class="req">*</span>手机号</label><input type="text" id="uPhone" placeholder="如：138 0000 0000" /></div>
+        <div class="form-item"><label>邮箱</label><input type="text" id="uEmail" placeholder="name@company.com" /></div>
+      </div>
+      <div class="form-row">
+        <div class="form-item"><label><span class="req">*</span>所属部门</label>
+          <select id="uDept">
+            <option>数据平台部</option><option>智能制造事业部</option><option>工艺数字化组</option>
+            <option>质量分析组</option><option>供应链中心</option><option>IT 基础设施部</option>
+          </select>
+        </div>
+        <div class="form-item"><label>状态</label>
+          <select id="uStatus"><option value="1">启用</option><option value="0">停用</option></select>
+        </div>
+      </div>
+      <div class="tip">新用户初始密码由系统统一生成，首次登录后强制修改。</div>
+    </div>
+    <div class="modal-f">
+      <button class="btn" onclick="App.closeModal('userModal')">取消</button>
+      <button class="btn btn-primary" onclick="userSave()">确定</button>
+    </div>
+  </div>
+</div>
+
+<!-- 查看用户详情 -->
+<div class="mask" id="userViewModal" data-close-mask>
+  <div class="modal">
+    <div class="modal-h">用户详情<span class="x" onclick="App.closeModal('userViewModal')">&#215;</span></div>
+    <div class="modal-b">
+      <dl class="desc-list">
+        <dt>用户名</dt><dd class="mono" id="vUsername"></dd>
+        <dt>姓名</dt><dd id="vName"></dd>
+        <dt>手机号</dt><dd class="mono" id="vPhone"></dd>
+        <dt>邮箱</dt><dd class="mono" id="vEmail"></dd>
+        <dt>所属部门</dt><dd id="vDept"></dd>
+        <dt>角色</dt><dd id="vRoles"></dd>
+        <dt>状态</dt><dd id="vStatus"></dd>
+        <dt>创建时间</dt><dd id="vCreated"></dd>
+        <dt>最近登录</dt><dd id="vLast"></dd>
+      </dl>
+    </div>
+    <div class="modal-f">
+      <button class="btn" onclick="App.closeModal('userViewModal')">关闭</button>
+      <button class="btn btn-primary" onclick="App.closeModal('userViewModal');userEdit(viewIndex)">编辑</button>
+    </div>
+  </div>
+</div>
+
+<!-- 分配角色 -->
+<div class="mask" id="roleModal" data-close-mask>
+  <div class="modal">
+    <div class="modal-h">分配角色 - <span id="roleAssignName"></span><span class="x" onclick="App.closeModal('roleModal')">&#215;</span></div>
+    <div class="modal-b">
+      <div class="tip mb16 text-2">勾选该用户拥有的角色。超级管理员角色仅可分配给 admin 用户。</div>
+      <div class="check-grid" id="roleCheckList"></div>
+    </div>
+    <div class="modal-f">
+      <button class="btn" onclick="App.closeModal('roleModal')">取消</button>
+      <button class="btn btn-primary" onclick="App.closeModal('roleModal');toast('角色分配已保存（原型演示）')">确定</button>
+    </div>
+  </div>
+</div>
+
+<!-- 分配部门 -->
+<div class="mask" id="deptAssignModal" data-close-mask>
+  <div class="modal">
+    <div class="modal-h">分配部门 - <span id="deptAssignName"></span><span class="x" onclick="App.closeModal('deptAssignModal')">&#215;</span></div>
+    <div class="modal-b">
+      <div class="tip mb16 text-2">选择用户所属部门（支持多部门，第一个为主部门）。</div>
+      <div class="check-grid" id="deptCheckList"></div>
+    </div>
+    <div class="modal-f">
+      <button class="btn" onclick="App.closeModal('deptAssignModal')">取消</button>
+      <button class="btn btn-primary" onclick="App.closeModal('deptAssignModal');toast('部门分配已保存（原型演示）')">确定</button>
+    </div>
+  </div>
+</div>
+
+<!-- 重置密码 -->
+<div class="mask" id="resetPwdModal" data-close-mask>
+  <div class="modal sm">
+    <div class="modal-h">重置密码 - <span id="resetPwdName"></span><span class="x" onclick="App.closeModal('resetPwdModal')">&#215;</span></div>
+    <div class="modal-b">
+      <div class="form-item">
+        <label>新密码</label>
+        <input type="password" id="newPwd" placeholder="请输入新密码（至少 8 位）" />
+        <div class="tip">密码需包含大小写字母、数字和特殊字符，至少 8 位。</div>
+      </div>
+      <div class="form-item">
+        <label>确认密码</label>
+        <input type="password" id="confirmPwd" placeholder="请再次输入新密码" />
+      </div>
+    </div>
+    <div class="modal-f">
+      <button class="btn" onclick="App.closeModal('resetPwdModal')">取消</button>
+      <button class="btn btn-primary" onclick="doResetPwd()">确认重置</button>
+    </div>
+  </div>
+</div>
+
+<script src="../assets/app.js"></script>
+<script>
+// ===== 用户数据 =====
+var USERS = [
+  { username: 'admin', name: '超级管理员', phone: '138 0000 0001', email: 'admin@company.com', dept: '数据平台部', roles: ['超级管理员'], on: true, created: '2026-01-01', last: '2026-09-29 08:15' },
+  { username: 'zhangwei', name: '张伟', phone: '139 1234 5678', email: 'zhangwei@company.com', dept: '智能制造事业部', roles: ['空间管理员'], on: true, created: '2026-02-15', last: '2026-09-29 09:47' },
+  { username: 'lijing', name: '李静', phone: '137 2345 6789', email: 'lijing@company.com', dept: '数据平台部', roles: ['空间管理员', '本体建模员'], on: true, created: '2026-02-20', last: '2026-09-28 17:32' },
+  { username: 'zhoujie', name: '周杰', phone: '136 3456 7890', email: 'zhoujie@company.com', dept: '供应链中心', roles: ['数据工程师'], on: true, created: '2026-03-10', last: '2026-09-28 14:05' },
+  { username: 'wuna', name: '吴娜', phone: '135 4567 8901', email: 'wuna@company.com', dept: '智能制造事业部', roles: ['本体建模员'], on: true, created: '2026-03-15', last: '2026-09-27 11:58' },
+  { username: 'wangqiang', name: '王强', phone: '134 5678 9012', email: 'wangqiang@company.com', dept: '数据平台部', roles: ['数据工程师'], on: false, created: '2026-04-01', last: '2026-08-12 16:40' },
+  { username: 'zhaomin', name: '赵敏', phone: '133 6789 0123', email: 'zhaomin@company.com', dept: '工艺数字化组', roles: ['本体建模员'], on: true, created: '2026-04-10', last: '2026-09-25 09:12' },
+  { username: 'sunli', name: '孙立', phone: '132 7890 1234', email: 'sunli@company.com', dept: 'IT 基础设施部', roles: ['系统运维'], on: true, created: '2026-04-15', last: '2026-09-22 15:44' },
+  { username: 'liuyang', name: '刘洋', phone: '131 8901 2345', email: 'liuyang@company.com', dept: '质量分析组', roles: ['数据工程师'], on: true, created: '2026-05-01', last: '2026-09-28 10:30' },
+  { username: 'chenchen', name: '陈晨', phone: '130 9012 3456', email: 'chenchen@company.com', dept: '数据平台部', roles: ['数据工程师'], on: true, created: '2026-05-10', last: '2026-09-27 16:20' },
+  { username: 'sunli2', name: '孙丽', phone: '158 0123 4567', email: 'sunli2@company.com', dept: '供应链中心', roles: ['只读访客'], on: true, created: '2026-06-01', last: '2026-09-26 14:10' },
+  { username: 'yangfan', name: '杨帆', phone: '159 1234 5670', email: 'yangfan@company.com', dept: '智能制造事业部', roles: ['本体建模员', '数据工程师'], on: true, created: '2026-06-15', last: '2026-09-29 07:55' },
+];
+
+var ALL_ROLES = ['超级管理员', '系统运维', '空间管理员', '本体建模员', '数据工程师', '只读访客'];
+var ALL_DEPTS = ['数据平台部', '智能制造事业部', '工艺数字化组', '质量分析组', '供应链中心', 'IT 基础设施部'];
+
+var filter = { kw: '', dept: '', status: '' };
+var editingIndex = null;
+var viewIndex = null;
+var currentPage = 1;
+var pageSize = 10;
+
+function getFiltered() {
+  return USERS.filter(function(u) {
+    if (filter.dept && u.dept !== filter.dept) return false;
+    if (filter.status === '1' && !u.on) return false;
+    if (filter.status === '0' && u.on) return false;
+    if (filter.kw) {
+      var k = filter.kw.toLowerCase();
+      if (u.username.toLowerCase().indexOf(k) < 0 &&
+          u.name.indexOf(k) < 0 &&
+          u.phone.indexOf(k) < 0 &&
+          u.email.toLowerCase().indexOf(k) < 0) return false;
+    }
+    return true;
+  });
+}
+
+function renderUsers() {
+  var list = getFiltered();
+  var totalPages = Math.max(1, Math.ceil(list.length / pageSize));
+  if (currentPage > totalPages) currentPage = totalPages;
+  var start = (currentPage - 1) * pageSize;
+  var rows = list.slice(start, start + pageSize);
+  var tb = document.getElementById('userTbody');
+
+  document.getElementById('userCount').textContent = '共 ' + list.length + ' 条';
+
+  if (!rows.length) {
+    tb.innerHTML = '<tr><td colspan="10" class="empty">暂无符合条件的用户</td></tr>';
+    renderPager(0, totalPages);
+    return;
+  }
+
+  tb.innerHTML = rows.map(function(u) {
+    var i = USERS.indexOf(u);
+    var isAdmin = u.username === 'admin';
+    return '<tr>' +
+      '<td><input type="checkbox" /></td>' +
+      '<td><a class="user-link" href="javascript:void(0)" onclick="userView(' + i + ')"><b>' + u.name + '</b></a></td>' +
+      '<td class="mono">' + u.username + '</td>' +
+      '<td class="mono">' + u.phone + '</td>' +
+      '<td class="mono fs12">' + u.email + '</td>' +
+      '<td>' + u.dept + '</td>' +
+      '<td>' + u.roles.map(function(r) { return '<span class="tag' + (r === '超级管理员' ? ' blue' : '') + '">' + r + '</span>'; }).join(' ') + '</td>' +
+      '<td>' + (isAdmin
+        ? '<span class="badge b-green" title="超级管理员不可停用">启用</span>'
+        : '<span class="switch ' + (u.on ? 'on' : '') + '" onclick="userToggle(' + i + ')"></span>') + '</td>' +
+      '<td class="text-2 fs12">' + u.last + '</td>' +
+      '<td class="actions-cell">' +
+        '<button class="btn-link btn-sm" onclick="userEdit(' + i + ')">编辑</button>' +
+        '<button class="btn-link btn-sm" onclick="userAssignRole(' + i + ')">分配角色</button>' +
+        '<button class="btn-link btn-sm" onclick="userAssignDept(' + i + ')">分配部门</button>' +
+        (isAdmin ? '' : '<button class="btn-link btn-sm" onclick="userResetPwd(' + i + ')">重置密码</button>') +
+      '</td>' +
+    '</tr>';
+  }).join('');
+
+  renderPager(list.length, totalPages);
+}
+
+function renderPager(total, totalPages) {
+  var el = document.getElementById('userPager');
+  if (totalPages <= 1) { el.innerHTML = ''; return; }
+  var html = '';
+  html += '<span class="pg ' + (currentPage === 1 ? 'dis' : '') + '" onclick="goPage(' + (currentPage - 1) + ')">&#8249;</span>';
+  for (var p = 1; p <= totalPages; p++) {
+    html += '<span class="pg ' + (currentPage === p ? 'cur' : '') + '" onclick="goPage(' + p + ')">' + p + '</span>';
+  }
+  html += '<span class="pg ' + (currentPage === totalPages ? 'dis' : '') + '" onclick="goPage(' + (currentPage + 1) + ')">&#8250;</span>';
+  el.innerHTML = html;
+}
+
+function goPage(p) {
+  var list = getFiltered();
+  var totalPages = Math.max(1, Math.ceil(list.length / pageSize));
+  if (p < 1 || p > totalPages) return;
+  currentPage = p;
+  renderUsers();
+}
+
+// ===== 新增/编辑 =====
+function userOpenCreate() {
+  editingIndex = null;
+  document.getElementById('userModalTitle').textContent = '新增用户';
+  ['uUsername', 'uName', 'uPhone', 'uEmail'].forEach(function(id) { document.getElementById(id).value = ''; });
+  document.getElementById('uUsername').disabled = false;
+  document.getElementById('uStatus').value = '1';
+  App.openModal('userModal');
+}
+
+function userEdit(i) {
+  editingIndex = i;
+  var u = USERS[i];
+  document.getElementById('userModalTitle').textContent = '编辑用户 - ' + u.name;
+  document.getElementById('uUsername').value = u.username;
+  document.getElementById('uUsername').disabled = (u.username === 'admin');
+  document.getElementById('uName').value = u.name;
+  document.getElementById('uPhone').value = u.phone;
+  document.getElementById('uEmail').value = u.email;
+  document.getElementById('uDept').value = u.dept;
+  document.getElementById('uStatus').value = u.on ? '1' : '0';
+  App.openModal('userModal');
+}
+
+function userSave() {
+  var username = document.getElementById('uUsername').value.trim();
+  var name = document.getElementById('uName').value.trim();
+  var phone = document.getElementById('uPhone').value.trim();
+  if (!username || !name || !phone) { toast('请填写用户名、姓名和手机号'); return; }
+
+  var data = {
+    username: username, name: name, phone: phone,
+    email: document.getElementById('uEmail').value.trim(),
+    dept: document.getElementById('uDept').value,
+    on: document.getElementById('uStatus').value === '1'
+  };
+
+  if (editingIndex != null) {
+    Object.assign(USERS[editingIndex], data);
+    toast('用户已更新（原型演示）');
+  } else {
+    if (USERS.some(function(u) { return u.username === username; })) { toast('用户名已存在'); return; }
+    USERS.push({ username: username, name: name, phone: phone, email: data.email, dept: data.dept, roles: [], on: true, created: '2026-09-29', last: '—' });
+    toast('用户已创建，初始密码已生成（原型演示）');
+  }
+  App.closeModal('userModal');
+  currentPage = 1;
+  renderUsers();
+}
+
+// ===== 查看详情 =====
+function userView(i) {
+  viewIndex = i;
+  var u = USERS[i];
+  document.getElementById('vUsername').textContent = u.username;
+  document.getElementById('vName').textContent = u.name;
+  document.getElementById('vPhone').textContent = u.phone;
+  document.getElementById('vEmail').textContent = u.email || '—';
+  document.getElementById('vDept').textContent = u.dept;
+  document.getElementById('vRoles').innerHTML = u.roles.length ? u.roles.map(function(r) { return '<span class="tag blue">' + r + '</span>'; }).join(' ') : '<span class="text-3">未分配</span>';
+  document.getElementById('vStatus').innerHTML = u.on ? '<span class="badge b-green">启用</span>' : '<span class="badge b-gray">停用</span>';
+  document.getElementById('vCreated').textContent = u.created;
+  document.getElementById('vLast').textContent = u.last;
+  App.openModal('userViewModal');
+}
+
+// ===== 启停用 =====
+function userToggle(i) {
+  var u = USERS[i];
+  if (u.username === 'admin') { toast('超级管理员不可停用'); return; }
+  u.on = !u.on;
+  renderUsers();
+  toast(u.name + (u.on ? ' 已启用' : ' 已停用'));
+}
+
+// ===== 分配角色 =====
+function userAssignRole(i) {
+  viewIndex = i;
+  var u = USERS[i];
+  document.getElementById('roleAssignName').textContent = u.name + '（' + u.username + '）';
+  var html = ALL_ROLES.map(function(r) {
+    var checked = u.roles.indexOf(r) >= 0 ? 'checked' : '';
+    var disabled = '';
+    if (r === '超级管理员' && u.username !== 'admin') {
+      disabled = 'disabled';
+    }
+    if (r === '超级管理员' && u.username === 'admin') {
+      disabled = 'disabled';
+    }
+    return '<label><input type="checkbox" ' + checked + ' ' + disabled + ' value="' + r + '" /> ' + r +
+      (r === '超级管理员' ? ' <span class="text-3 fs12">(仅 admin)</span>' : '') + '</label>';
+  }).join('');
+  document.getElementById('roleCheckList').innerHTML = html;
+  App.openModal('roleModal');
+}
+
+// ===== 分配部门 =====
+function userAssignDept(i) {
+  viewIndex = i;
+  var u = USERS[i];
+  document.getElementById('deptAssignName').textContent = u.name + '（' + u.username + '）';
+  var html = ALL_DEPTS.map(function(d) {
+    var checked = (u.dept === d) ? 'checked' : '';
+    return '<label><input type="radio" name="deptRadio" value="' + d + '" ' + checked + ' /> ' + d + '</label>';
+  }).join('');
+  document.getElementById('deptCheckList').innerHTML = html;
+  App.openModal('deptAssignModal');
+}
+
+// ===== 重置密码 =====
+function userResetPwd(i) {
+  viewIndex = i;
+  var u = USERS[i];
+  if (u.username === 'admin') { toast('超级管理员密码请通过安全渠道重置'); return; }
+  document.getElementById('resetPwdName').textContent = u.name + '（' + u.username + '）';
+  document.getElementById('newPwd').value = '';
+  document.getElementById('confirmPwd').value = '';
+  App.openModal('resetPwdModal');
+}
+
+function doResetPwd() {
+  var pwd = document.getElementById('newPwd').value;
+  var confirm = document.getElementById('confirmPwd').value;
+  if (!pwd || pwd.length < 8) { toast('密码至少 8 位'); return; }
+  if (pwd !== confirm) { toast('两次密码不一致'); return; }
+  App.closeModal('resetPwdModal');
+  toast('密码已重置（原型演示）');
+}
+
+// ===== 部门树 =====
+function renderDeptTree() {
+  var treeData = {
+    name: '全部部门', children: [
+      { name: '数据平台部' },
+      { name: '智能制造事业部', children: [{ name: '工艺数字化组' }, { name: '质量分析组' }] },
+      { name: '供应链中心' },
+      { name: 'IT 基础设施部' },
+    ]
+  };
+  var el = document.getElementById('deptTree');
+  el.innerHTML = '';
+  walkTree(el, treeData, 0);
+}
+
+function walkTree(parent, node, depth) {
+  var wrap = document.createElement('div');
+  if (depth > 0) wrap.className = 'tree-children';
+  var item = document.createElement('div');
+  item.className = 'tree-node' + (filter.dept === '' && node.name === '全部部门' ? ' sel' : filter.dept === node.name ? ' sel' : '');
+  var hasKids = node.children && node.children.length;
+  item.innerHTML = '<span class="text-3">' + (hasKids ? '&#9662;' : '&middot;') + '</span> ' + node.name;
+  item.onclick = function() {
+    filter.dept = (node.name === '全部部门') ? '' : node.name;
+    currentPage = 1;
+    el.querySelectorAll('.tree-node').forEach(function(n) { n.classList.remove('sel'); });
+    item.classList.add('sel');
+    renderUsers();
+  };
+  wrap.appendChild(item);
+  if (hasKids) {
+    var kids = document.createElement('div');
+    kids.className = 'tree-children';
+    node.children.forEach(function(c) { walkTree(kids, c, 1); });
+    wrap.appendChild(kids);
+  }
+  parent.appendChild(wrap);
+  var el = parent;
+}
+
+App.mount({
+  page: 'sys-users',
+  crumbs: ['平台管理', '系统管理', '用户管理'],
+  title: '用户管理',
+  desc: '管理平台用户账号。支持新增、编辑、启停用、重置密码、分配角色与部门。初始管理员 admin 拥有最高权限。',
+  actions: '<button class="btn btn-primary" onclick="userOpenCreate()">+ 新增用户</button>',
+  content:
+    '<div class="stat-grid">' +
+      '<div class="stat"><div class="label">用户总数</div><div class="val" id="statTotal">23</div></div>' +
+      '<div class="stat"><div class="label">启用用户</div><div class="val" style="color:var(--success)" id="statActive">21</div></div>' +
+      '<div class="stat"><div class="label">停用用户</div><div class="val" id="statDisabled">2</div></div>' +
+      '<div class="stat"><div class="label">今日登录</div><div class="val">142</div></div>' +
+    '</div>' +
+    '<div class="row">' +
+      '<div class="card col" style="max-width:240px;">' +
+        '<div class="card-h"><h3>部门筛选</h3></div>' +
+        '<div class="card-b"><div class="tree" id="deptTree"></div></div>' +
+      '</div>' +
+      '<div class="card col">' +
+        '<div class="card-h">' +
+          '<input class="search" type="text" placeholder="搜索用户名 / 姓名 / 手机号 / 邮箱..." oninput="filter.kw=this.value.trim();currentPage=1;renderUsers()" />' +
+          '<select onchange="filter.status=this.value;currentPage=1;renderUsers()"><option value="">全部状态</option><option value="1">启用</option><option value="0">停用</option></select>' +
+        '</div>' +
+        '<table class="table">' +
+          '<tr><th style="width:30px"><input type="checkbox" /></th><th>姓名</th><th>用户名</th><th>手机号</th><th>邮箱</th><th>部门</th><th>角色</th><th>状态</th><th>最近登录</th><th class="actions-cell">操作</th></tr>' +
+          '<tbody id="userTbody"></tbody>' +
+        '</table>' +
+        '<div class="pager"><span id="userCount">共 0 条</span><span style="flex:1"></span><span id="userPager"></span></div>' +
+      '</div>' +
+    '</div>',
+  onMount: function() {
+    renderDeptTree();
+    renderUsers();
+    var active = USERS.filter(function(u) { return u.on; }).length;
+    document.getElementById('statTotal').textContent = USERS.length;
+    document.getElementById('statActive').textContent = active;
+    document.getElementById('statDisabled').textContent = USERS.length - active;
+  }
+});
+</script>
+</body>
+</html>

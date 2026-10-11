@@ -10,6 +10,35 @@
 .tree-ops { display: none; gap: 2px; }
 .tree-node:hover .tree-ops { display: inline-flex; }
 .tree-ops .btn-link { padding: 0 3px; }
+.mono { font-family: "SF Mono", Menlo, Consolas, monospace; font-size: 12px; }
+/* 新建属性表单：构建类型卡片 / 开关卡片 / 规则列表 */
+.pm-cards { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+.pm-card { border: 1px solid var(--border); border-radius: 8px; padding: 12px 14px; cursor: pointer; background: #fff; }
+.pm-card b { display: block; font-size: 14px; font-weight: 600; margin-bottom: 4px; }
+.pm-card span { font-size: 12px; color: var(--text-2); }
+.pm-card.on { border-color: #1f2937; background: #f6f7f8; box-shadow: inset 0 0 0 1px #1f2937; }
+.pm-box { border: 1px solid var(--border); border-radius: 8px; background: #fbfcfd; padding: 14px 16px; margin-bottom: 14px; }
+.pm-box-h { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+.pm-box-h b { font-size: 14px; }
+.pm-box-h .tip { margin-top: 3px; }
+.pm-box .pm-body { margin-top: 12px; }
+.pm-rule-list { border: 1px solid var(--border); border-radius: 8px; background: #fff; padding: 2px 12px; display: flex; flex-direction: column; }
+.pm-rule-list .ck { padding: 8px 0; border-bottom: 1px solid #f3f4f6; }
+.pm-rule-list .ck:last-child { border-bottom: none; }
+/* 字段映射：双栏 + SVG 连线 */
+.map-wrap { position: relative; display: grid; grid-template-columns: 1fr 1fr; gap: 110px; }
+.map-svg { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1; }
+.map-col { border: 1px solid var(--border); border-radius: 8px; background: #fff; overflow: hidden; }
+.map-col-h { padding: 8px 12px; background: #f9fafb; border-bottom: 1px solid var(--border); font-size: 13px; font-weight: 600; }
+.map-nodes { padding: 10px; display: flex; flex-direction: column; gap: 8px; position: relative; z-index: 2; }
+.map-node { display: flex; align-items: center; gap: 8px; border: 1px solid var(--border); border-radius: 6px; background: #fff; padding: 7px 10px; font-size: 12.5px; cursor: pointer; }
+.map-node:hover { border-color: var(--primary); }
+.map-node.sel { border-color: var(--primary); box-shadow: 0 0 0 2px var(--primary-light); }
+.map-node.linked { border-color: var(--primary); background: var(--primary-light); }
+.map-node .un { margin-left: auto; color: var(--text-3); display: none; font-size: 14px; line-height: 1; }
+.map-node.linked .un { display: inline; }
+.map-node .un:hover { color: var(--danger); }
+.map-node .inh { font-size: 10px; color: var(--purple); background: #f5f3ff; border-radius: 4px; padding: 1px 6px; white-space: nowrap; }
 </style>
 </head>
 <body>
@@ -25,11 +54,9 @@
   <div class="drawer-b">
     <div class="tabs" data-group="cls">
       <div class="tab active" data-pane="base" data-group="cls">基本信息</div>
-      <div class="tab" data-pane="iface" data-group="cls">接口</div>
-      <div class="tab" data-pane="props" data-group="cls">属性管理 <span class="cnt">16</span></div>
-      <div class="tab" data-pane="mapping" data-group="cls">数据映射</div>
+      <div class="tab" data-pane="props" data-group="cls">属性管理 <span class="cnt" id="propCnt">0</span></div>
+      <div class="tab" data-pane="mapping" data-group="cls">字段映射</div>
       <div class="tab" data-pane="data" data-group="cls">对象数据查询</div>
-      <div class="tab" data-pane="perm" data-group="cls">控制属性权限</div>
     </div>
 
     <!-- 基本信息 -->
@@ -45,38 +72,46 @@
         <dt>版本</dt><dd>v3 · <span class="badge b-green">已发布</span>（草稿 v4）</dd>
         <dt>描述</dt><dd>产线设备实体，关联工艺、物料与质量检测数据。</dd>
       </dl>
-      <div class="flex mt16"><button class="btn btn-sm" onclick="toast('保存为新版本草稿')">另存新版本</button><button class="btn btn-sm btn-primary" onclick="toast('已提交发布审批')">提交发布</button></div>
-    </div>
-
-    <!-- 接口（类=实现映射 / 接口=属性定义，openClass 时动态渲染） -->
-    <div class="tab-pane" data-group="cls" data-pane="iface">
-      <div id="ifacePane"></div>
     </div>
 
     <!-- 属性管理 -->
     <div class="tab-pane" data-group="cls" data-pane="props">
-      <div class="flex mt16 mb8">
+      <div class="form-inline mt16 mb8">
+        <input class="search" id="propKw" type="text" placeholder="搜索属性名称 / API Name / 属性种类…" style="flex:1;min-width:180px" />
+        <select id="propKind" style="width:140px">
+          <option value="">全部属性种类</option>
+          <option>普通属性</option><option>对象属性</option><option>主键属性</option><option>控制属性</option><option>衍生属性</option>
+        </select>
         <button class="btn btn-sm btn-primary" onclick="openPropModal()">+ 新建属性</button>
-        <button class="btn btn-sm" onclick="toast('关联共享属性')">关联共享属性</button>
-        <button class="btn btn-sm" onclick="toast('新建衍生属性')">+ 衍生属性</button>
       </div>
       <table class="table">
-        <tr><th>属性名</th><th>API 名称</th><th>数据类型</th><th>属性种类</th><th>必填</th><th>约束</th><th class="actions-cell">操作</th></tr>
+        <tr><th>属性标识</th><th>属性名称</th><th>属性种类</th><th>属性来源</th><th>数据类型</th><th>必填</th><th>主键</th><th class="actions-cell">操作</th></tr>
         <tbody id="propRows"></tbody>
       </table>
+      <div class="result-meta"><span id="propMeta"></span></div>
     </div>
 
-    <!-- 数据映射 -->
+    <!-- 字段映射 -->
     <div class="tab-pane" data-group="cls" data-pane="mapping">
-      <div class="tip mt16 text-2">将类 / 属性映射到数据源数据集与字段，支持 Doris（结构化）与 NebulaGraph（图数据）。</div>
-      <table class="table mt8">
-        <tr><th>属性</th><th>数据源</th><th>数据集</th><th>字段</th><th>同步策略</th><th class="actions-cell">操作</th></tr>
-        <tr><td>equipment_id</td><td>Doris-生产</td><td class="mono">equipment_master</td><td class="mono">eqp_id</td><td><span class="badge b-green">实时 CDC</span></td><td class="actions-cell"><button class="btn-link btn-sm">编辑</button></td></tr>
-        <tr><td>equipment_name</td><td>Doris-生产</td><td class="mono">equipment_master</td><td class="mono">eqp_name</td><td><span class="badge b-green">实时 CDC</span></td><td class="actions-cell"><button class="btn-link btn-sm">编辑</button></td></tr>
-        <tr><td>status</td><td>Doris-生产</td><td class="mono">equipment_master</td><td class="mono">run_status</td><td><span class="badge b-blue">每日 T+1</span></td><td class="actions-cell"><button class="btn-link btn-sm">编辑</button></td></tr>
-        <tr><td>related_process</td><td>NebulaGraph</td><td class="mono">eqp_proc_edge</td><td class="mono">dst_id</td><td><span class="badge b-purple">图关系</span></td><td class="actions-cell"><button class="btn-link btn-sm">编辑</button></td></tr>
-      </table>
-      <div class="mt8"><button class="btn btn-sm" onclick="toast('打开映射向导')">+ 添加映射</button></div>
+      <div class="form-inline mt16 mb8">
+        <label class="fs13 bold">数据集</label>
+        <select id="mapDs" style="width:280px"></select>
+        <span class="tip">仅可选择一个数据集作为当前对象的背书数据集</span>
+        <span style="flex:1"></span>
+        <span class="fs12 text-2" id="mapStat"></span>
+      </div>
+      <div class="map-wrap" id="mapWrap">
+        <svg class="map-svg" id="mapSvg"></svg>
+        <div class="map-col">
+          <div class="map-col-h">数据集字段 <span class="fs12 text-3" id="mapLeftCnt"></span></div>
+          <div class="map-nodes" id="mapLeft"></div>
+        </div>
+        <div class="map-col">
+          <div class="map-col-h">对象属性（含继承） <span class="fs12 text-3" id="mapRightCnt"></span></div>
+          <div class="map-nodes" id="mapRight"></div>
+        </div>
+      </div>
+      <div class="tip mt8">操作方式：先点击左侧数据集字段，再点击右侧对象属性，即创建一一对应的映射连线；点击已映射节点上的「×」可解除映射。</div>
     </div>
 
     <!-- 对象数据查询 -->
@@ -97,16 +132,6 @@
       <div class="result-meta"><span>返回 4 / 1,286 条</span><span>耗时 38 ms</span><span>数据来源：Doris-生产</span></div>
     </div>
 
-    <!-- 控制属性权限 -->
-    <div class="tab-pane" data-group="cls" data-pane="perm">
-      <div class="tip mt16 text-2">控制属性（Mandatory Control Properties）：标记为控制的属性仅授权角色可见/可用，常用于成本、良率等敏感指标。</div>
-      <table class="table mt8">
-        <tr><th>属性</th><th>控制标记</th><th>可见角色</th><th class="actions-cell">操作</th></tr>
-        <tr><td class="mono">unit_cost</td><td><span class="badge b-red">控制属性</span></td><td><span class="tag blue">空间管理员</span><span class="tag blue">成本分析员</span></td><td class="actions-cell"><button class="btn-link btn-sm">配置</button></td></tr>
-        <tr><td class="mono">yield_rate</td><td><span class="badge b-red">控制属性</span></td><td><span class="tag blue">空间管理员</span><span class="tag blue">质量工程师</span></td><td class="actions-cell"><button class="btn-link btn-sm">配置</button></td></tr>
-        <tr><td class="mono">equipment_name</td><td><span class="badge b-gray">普通</span></td><td>全部空间成员</td><td class="actions-cell"><button class="btn-link btn-sm">配置</button></td></tr>
-      </table>
-    </div>
   </div>
   <div class="drawer-f">
     <button class="btn" onclick="App.closeDrawer('classDrawer')">关闭</button>
@@ -129,11 +154,24 @@
   </div>
 </div>
 
-<!-- 新建类型（类 / 接口 / 枚举类，对标 Palantir：无抽象类，类间不继承） -->
+<!-- 新建类型（类 / 接口 / 枚举类） -->
+<style>
+  #classModal .modal { max-width: 560px; }
+  #classModal .modal-b { padding: 16px 20px; }
+  #classModal .form-row { gap: 14px; margin-bottom: 12px; }
+  #classModal .form-item { margin-bottom: 10px; }
+  #classModal .form-item label { font-size: 13px; font-weight: 500; margin-bottom: 4px; }
+  #classModal .form-item .tip { font-size: 11.5px; margin-top: 3px; }
+  #classModal .sec-divider { border-top: 1px solid var(--border); margin: 14px 0; }
+  #classModal .sec-label { font-size: 12px; font-weight: 600; color: var(--text-2); margin-bottom: 8px; text-transform: uppercase; letter-spacing: .5px; }
+  #classModal .check-grid label { padding: 4px 8px; border-radius: 4px; border: 1px solid var(--border); }
+  #classModal .check-grid label:hover { border-color: var(--primary); background: var(--primary-light); }
+</style>
 <div class="mask" id="classModal" data-close-mask>
   <div class="modal">
     <div class="modal-h"><span id="classModalTitle">新建类型</span><span class="x" onclick="App.closeModal('classModal')">×</span></div>
     <div class="modal-b">
+      <div class="sec-label">基本信息</div>
       <div class="form-row">
         <div class="form-item"><label><span class="req">*</span>显示名</label><input type="text" id="ncName" placeholder="如：供应商" /></div>
         <div class="form-item"><label><span class="req">*</span>API 名称</label><input type="text" id="ncApi" placeholder="如：Supplier" /><div class="tip">PascalCase，空间内唯一，创建后不可修改</div></div>
@@ -142,215 +180,433 @@
         <div class="form-item"><label><span class="req">*</span>类型</label><select id="ncKind" onchange="ncKindChange()"><option>类</option><option>接口</option><option>枚举类</option></select></div>
         <div class="form-item"><label><span class="req">*</span>所属类目</label><select id="ncCat"></select></div>
       </div>
+      <div class="sec-divider"></div>
       <div id="ncSecCls">
+        <div class="sec-label">类配置</div>
         <div class="form-row">
-          <div class="form-item"><label>主键属性</label><input type="text" id="ncPk" value="id" /><div class="tip">API 名称，默认 id。GeoPoint / GeoShape / Array / Vector / Decimal / Float / Double 类型不可作主键</div></div>
+          <div class="form-item"><label>主键属性</label><input type="text" id="ncPk" value="id" /><div class="tip">API 名称，默认 id</div></div>
           <div class="form-item"><label>标题属性</label><input type="text" id="ncTitle" placeholder="如：name" /></div>
         </div>
-        <div class="form-item"><label>主数据集</label><input type="text" id="ncDs" placeholder="如：doris.supplier_master" /><div class="tip">留空则按约定生成 doris.{api 小写}，可在类详情「数据映射」中调整</div></div>
+        <div class="form-item"><label>主数据集</label><input type="text" id="ncDs" placeholder="留空自动生成 doris.{api 小写}" /><div class="tip">可在详情「数据映射」中调整</div></div>
         <div class="form-item">
-          <label class="ck"><input type="checkbox" id="ncNoBacking" onchange="document.getElementById('ncDs').disabled = this.checked" /> 无背书数据源（纯动作写入，对标 Palantir Backing Dataset 可选）</label>
-          <div class="tip">勾选后该类不映射任何数据集，对象实例仅能通过「动作」创建 / 编辑（如人工录入的供应商、工单类），写入路径走写回数据集。</div>
+          <label class="ck"><input type="checkbox" id="ncNoBacking" onchange="document.getElementById('ncDs').disabled = this.checked" /> 无背书数据源（纯动作写入）</label>
         </div>
       </div>
       <div class="form-item" id="ncSecEnum" style="display:none">
+        <div class="sec-label">枚举配置</div>
         <label>枚举值</label><textarea id="ncEnum" rows="4" placeholder="每行一个，如：&#10;CNC&#10;注塑机&#10;SMT"></textarea>
-        <div class="tip">枚举类不可实例化，每行生成一个枚举选项，可在「枚举类」页面维护。</div>
       </div>
       <div class="form-item" id="ncSecIface">
+        <div class="sec-label">接口实现</div>
         <label>实现接口（implements）</label>
-        <div class="check-grid" id="ncIfaces"></div>
-        <div class="tip">对标 Palantir：实现接口需将本地属性映射到接口必需属性（可选属性可跳过），并满足链接与动作类型约束。</div>
+        <select id="ncIfaceSelect"><option value="">— 不实现接口 —</option></select>
       </div>
       <div class="form-item" id="ncSecExt" style="display:none">
+        <div class="sec-label">接口继承</div>
         <label>继承接口（extends）</label>
-        <div class="check-grid" id="ncExts"></div>
-        <div class="tip">对标 Palantir：接口可继承多个其他接口，自动获得其共享属性、链接类型约束与动作类型约束；接口为抽象类型，不可实例化、无主数据集。</div>
+        <select id="ncExtSelect"><option value="">— 不继承接口 —</option></select>
       </div>
       <div class="form-item" id="ncSecIfaceProps" style="display:none">
-        <div class="tip">对标 Palantir：接口属性无需在创建时定义，创建后可在详情抽屉「接口」Tab 中继续添加（本地定义或关联共享属性）。</div>
+        <div class="tip">接口属性可在创建后于接口详情的「属性管理」中维护。</div>
       </div>
+      <div class="sec-divider"></div>
       <div class="form-item"><label>描述</label><textarea id="ncDesc" rows="2" placeholder="类的业务含义说明"></textarea></div>
-      <div class="tip">提交后生成草稿 v1，可在类详情中继续配置属性、数据映射并提交发布。</div>
     </div>
     <div class="modal-f"><button class="btn" onclick="App.closeModal('classModal')">取消</button><button class="btn btn-primary" onclick="saveClass()">创建</button></div>
   </div>
 </div>
 
-<!-- 属性 新增/编辑（高级类型 / 值格式 / edit-only，对标 Palantir Property Types） -->
+<!-- 属性 新建/编辑/查看（构建类型：对象属性 / 共享属性；值约束规则 / 权限控制 / 主键，对标原型图） -->
 <div class="mask" id="propModal" data-close-mask>
   <div class="modal lg">
-    <div class="modal-h"><span id="propModalTitle">新建属性</span><span class="x" onclick="App.closeModal('propModal')">×</span></div>
-    <div class="modal-b">
-      <div class="form-row">
-        <div class="form-item"><label><span class="req">*</span>显示名</label><input type="text" id="pmName" placeholder="如：安装位置" /></div>
-        <div class="form-item"><label><span class="req">*</span>API 名称</label><input type="text" id="pmApi" placeholder="如：install_addr" /><div class="tip">snake_case，类内唯一</div></div>
-      </div>
-      <div class="form-row">
-        <div class="form-item">
-          <label>基础类型（Base Type）</label>
-          <select id="pmType" onchange="pmTypeChange()">
-            <optgroup label="标量类型">
-              <option>String</option><option>Boolean</option><option>Integer</option><option>Long</option>
-              <option>Float</option><option>Double</option><option>Decimal</option><option>Date</option><option>Timestamp</option>
-              <option>Byte</option><option>Short</option><option>Binary</option>
-            </optgroup>
-            <optgroup label="集合类型">
-              <option>Array&lt;String&gt;</option><option>Array&lt;Double&gt;</option><option>Map&lt;String,String&gt;</option><option>Set&lt;String&gt;</option>
-            </optgroup>
-            <optgroup label="高级类型">
-              <option>Struct（结构体）</option>
-              <option>GeoPoint（经纬度点）</option>
-              <option>GeoShape（GeoJSON 面 / 线）</option>
-              <option>Vector（向量）</option>
-              <option>Attachment（附件）</option>
-              <option>Media（媒体引用）</option>
-              <option>User / UserGroup 引用</option>
-              <option>Enum 引用</option>
-            </optgroup>
-          </select>
-          <div class="tip">对标 Palantir：Base Type 平台内置不可自建；带取值约束的语义类型（邮箱 / URL / UUID）请用「值约束规则」或枚举引用。</div>
-        </div>
-        <div class="form-item">
-          <label>属性种类</label>
-          <select id="pmKind" onchange="pmTypeChange()">
-            <option>普通属性</option><option>主键属性</option><option>对象属性（Link）</option>
-            <option>共享属性</option><option>衍生属性</option><option>控制属性</option>
-          </select>
-        </div>
-      </div>
-
-      <!-- Struct 结构体字段定义 -->
-      <div id="pmSecStruct" style="display:none" class="card-b card mb16">
-        <div class="bold mb8">结构体字段定义<span class="fs12 text-2" style="font-weight:400;margin-left:8px;">对标 Palantir Struct：语义分组多字段属性（如地址 = 省 / 市 / 详情）</span></div>
-        <table class="table">
-          <tr><th>字段名</th><th>API 名称</th><th>类型</th><th>必填</th></tr>
-          <tr><td>省份</td><td class="mono">province</td><td class="mono">String</td><td><span class="badge b-green no-dot">是</span></td></tr>
-          <tr><td>城市</td><td class="mono">city</td><td class="mono">String</td><td><span class="badge b-green no-dot">是</span></td></tr>
-          <tr><td>详细地址</td><td class="mono">detail</td><td class="mono">String</td><td><span class="badge b-gray no-dot">否</span></td></tr>
-        </table>
-        <div class="mt8 flex">
-          <button class="btn btn-sm" onclick="toast('添加结构体字段')">+ 添加字段</button>
-          <span class="fs12 text-2">主字段（Main Field）：将结构体退化为简单属性展示</span>
-        </div>
-      </div>
-
-      <!-- Vector 向量配置 -->
-      <div id="pmSecVector" style="display:none">
-        <div class="form-row">
-          <div class="form-item"><label>向量维度</label><input type="number" value="768" /></div>
-          <div class="form-item"><label>距离度量</label><select><option>余弦相似度</option><option>欧氏距离</option><option>内积</option></select></div>
-          <div class="form-item"><label>来源</label><select><option>嵌入模型生成</option><option>外部写入</option></select></div>
-        </div>
-        <div class="tip mb16">向量属性用于语义检索 / 相似对象搜索（RAG 场景），由嵌入模型在 Pipeline 中回填。</div>
-      </div>
-
-      <div class="form-row">
-        <div class="form-item">
-          <label>值格式（Value Format）</label>
-          <select id="pmFormat">
-            <option>无</option><option>百分比（0.986 → 98.6%）</option><option>货币（¥ 千分位）</option>
-            <option>URL → 超链接</option><option>RID → 资源链接</option><option>附件 → 下载按钮</option>
-            <option>经纬度 → 地图预览</option><option>日期时间（本地化）</option>
-          </select>
-        </div>
-        <div class="form-item">
-          <label>渲染可见性（Render Hint）</label>
-          <select><option>Prominent（突出显示）</option><option selected>Standard（标准）</option><option>Hidden（隐藏，仅 API 可见）</option></select>
-        </div>
-      </div>
+    <div class="modal-h"><span id="propModalTitle">创建属性</span><span class="x" onclick="App.closeModal('propModal')">×</span></div>
+    <div class="modal-b" id="propModalBody">
+      <div class="fs13 text-2 mb16">为当前对象类新增属性定义</div>
       <div class="form-item">
-        <label class="ck"><input type="checkbox" id="pmEditOnly" /> 仅动作可编辑（Edit-only Property，对标 Palantir）</label>
-        <div class="tip">勾选后该属性不可被数据源同步覆盖，仅能通过「动作」修改，适合人工确认字段（如验收结论、审核意见）。</div>
+        <label><span class="req">*</span>构建类型</label>
+        <div class="pm-cards" id="pmBuild">
+          <div class="pm-card on" data-v="对象属性" onclick="pmBuildChange(this)"><b>对象属性</b><span>本对象独立属性</span></div>
+          <div class="pm-card" data-v="共享属性" onclick="pmBuildChange(this)"><b>共享属性</b><span>引用共享属性定义</span></div>
+        </div>
       </div>
-      <div class="tip" id="pmPkTip" style="display:none">主键属性要求：事务内唯一、非空；GeoPoint / GeoShape / Array / Vector / Decimal / Float / Double / 时间序列类型不可设为主键。</div>
+      <div class="form-item" id="pmSecShared" style="display:none">
+        <label><span class="req">*</span>共享属性</label>
+        <select id="pmShared" onchange="pmSharedChange()">
+          <option value="">请选择共享属性</option>
+          <option value="assetNo">assetNo（资产编号）</option>
+          <option value="traceId">traceId（追溯码）</option>
+          <option value="orgCode">orgCode（所属组织）</option>
+        </select>
+        <div class="tip">选择后属性 ID、中文显示名等参数将继承共享属性定义，仅作展示不可编辑</div>
+        <div class="pm-box" id="pmSharedInfo" style="display:none;margin-top:10px;margin-bottom:0">
+          <div class="form-row">
+            <div class="form-item"><label>属性 ID</label><input type="text" id="pmSharedApi" disabled /></div>
+            <div class="form-item"><label>中文显示名</label><input type="text" id="pmSharedName" disabled /></div>
+          </div>
+          <div class="form-item" style="margin-bottom:0"><label>字段类型</label><input type="text" id="pmSharedType" disabled /></div>
+        </div>
+      </div>
+      <div class="form-row pm-obj">
+        <div class="form-item"><label><span class="req">*</span>属性 ID</label><input type="text" id="pmApi" placeholder="例如：orderNo" /></div>
+        <div class="form-item"><label><span class="req">*</span>中文显示名</label><input type="text" id="pmName" placeholder="例如：订单编号" /></div>
+      </div>
+      <div class="form-row pm-obj">
+        <div class="form-item">
+          <label><span class="req">*</span>属性类型</label>
+          <select id="pmType" onchange="pmTypeChange()"><option>原始属性</option><option>对象属性（Link）</option><option>枚举属性</option></select>
+        </div>
+        <div class="form-item">
+          <label><span class="req">*</span>字段类型</label>
+          <select id="pmField"><option>string</option></select>
+        </div>
+      </div>
+      <div class="form-row pm-obj">
+        <div class="form-item"><label>默认值</label><input type="text" id="pmDefault" placeholder="可选" /></div>
+        <div class="form-item"><label>是否必填</label><div style="height:32px;display:flex;align-items:center"><label class="ck"><input type="checkbox" id="pmReq" /> 必填</label></div></div>
+      </div>
+      <div class="pm-box pm-obj">
+        <div class="pm-box-h">
+          <div><b>值约束规则</b><div class="tip">开启后引用与字段类型一致的值约束规则，约束实例写入值</div></div>
+          <span class="switch" id="pmVcSw" onclick="pmToggle('pmVcSw','pmVcBody')"></span>
+        </div>
+        <div class="pm-body" id="pmVcBody" style="display:none">
+          <div class="form-item">
+            <label><span class="req">*</span>选择规则</label>
+            <div class="tip mb8">可选择多条规则，多条规则按「满足所有（AND）」逻辑校验</div>
+            <div class="pm-rule-list" id="pmVcRules">
+              <label class="ck"><input type="checkbox" value="VC-1001" /> 手机号格式 <span class="mono text-3">VC-1001</span></label>
+              <label class="ck"><input type="checkbox" value="VC-1002" /> 订单编号长度 <span class="mono text-3">VC-1002</span></label>
+              <label class="ck"><input type="checkbox" value="VC-1003" /> 邮箱格式 <span class="mono text-3">VC-1003</span></label>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="pm-box">
+        <div class="pm-box-h">
+          <div><b>权限控制属性</b><div class="tip">开启后该属性作为 Mandatory Control Property</div></div>
+          <span class="switch" id="pmCtrlSw" onclick="pmToggle('pmCtrlSw','pmCtrlBody')"></span>
+        </div>
+        <div class="pm-body" id="pmCtrlBody" style="display:none">
+          <div class="form-row">
+            <div class="form-item"><label><span class="req">*</span>用户范围</label><select id="pmCtrlScope"><option>用户名 / 账号</option><option>用户组</option><option>角色</option></select><div class="tip">选择控制该属性的用户范围</div></div>
+            <div class="form-item"><label><span class="req">*</span>控制值</label><select id="pmCtrlVal"><option value="">请选择控制值</option><option>shawn</option><option>liujing</option><option>zhangwei</option></select><div class="tip">设置该范围下的具体值</div></div>
+          </div>
+        </div>
+      </div>
+      <div class="pm-box pm-obj">
+        <div class="pm-box-h">
+          <div><b>设定为主键</b><div class="tip">开启后该属性作为对象主键，字段类型仅支持 string / decimal，且一个对象仅一个主键</div></div>
+          <span class="switch" id="pmPkSw" onclick="pmToggle('pmPkSw', null)"></span>
+        </div>
+      </div>
+      <div class="form-item pm-obj"><label>备注</label><textarea id="pmDesc" rows="2" placeholder="属性的业务含义说明（可选）"></textarea></div>
     </div>
-    <div class="modal-f"><button class="btn" onclick="App.closeModal('propModal')">取消</button><button class="btn btn-primary" onclick="saveProp()">确定</button></div>
-  </div>
-</div>
-
-<!-- 接口属性 新增/编辑 -->
-<div class="mask" id="ifPropModal" data-close-mask>
-  <div class="modal sm">
-    <div class="modal-h"><span id="ifPropModalTitle">添加接口属性</span><span class="x" onclick="App.closeModal('ifPropModal')">×</span></div>
-    <div class="modal-b">
-      <div class="form-row">
-        <div class="form-item"><label><span class="req">*</span>显示名</label><input type="text" id="ipmName" placeholder="如：资产编号" /></div>
-        <div class="form-item"><label><span class="req">*</span>API 名称</label><input type="text" id="ipmApi" placeholder="如：asset_no" /></div>
-      </div>
-      <div class="form-row">
-        <div class="form-item"><label>基础类型</label><select id="ipmType"></select></div>
-        <div class="form-item"><label>映射要求</label><select id="ipmReq"><option>必需</option><option>可选</option></select></div>
-      </div>
-      <div class="tip">必需：实现该接口的类必须映射本地属性；可选：可跳过映射。接口已发布后新增「必需」属性属 Breaking Change，需同步更新全部实现。</div>
-    </div>
-    <div class="modal-f"><button class="btn" onclick="App.closeModal('ifPropModal')">取消</button><button class="btn btn-primary" onclick="saveIfProp()">确定</button></div>
+    <div class="modal-f"><button class="btn" onclick="App.closeModal('propModal')">取消</button><button class="btn btn-primary" id="pmSaveBtn" onclick="saveProp()">保存</button></div>
   </div>
 </div>
 
 <script src="../assets/app.js"></script>
 <script>
-const pRows = [
-  ['设备编号','equipment_id','String','主键属性','<span class="badge b-green">是</span>','值约束: EQP-####','<button class="btn-link btn-sm">编辑</button>'],
-  ['设备名称','equipment_name','String','普通属性','<span class="badge b-green">是</span>','值格式: 标准文本','<button class="btn-link btn-sm">编辑</button>'],
-  ['设备类型','type','Enum: EquipmentType','普通属性','<span class="badge b-green">是</span>','枚举类','<button class="btn-link btn-sm">编辑</button>'],
-  ['运行状态','status','Enum: RunStatus','普通属性','<span class="badge b-gray">否</span>','枚举类','<button class="btn-link btn-sm">编辑</button>'],
-  ['所属产线','line','Link → ProductionLine','对象属性','<span class="badge b-gray">否</span>','基数 1..1','<button class="btn-link btn-sm">编辑</button>'],
-  ['工艺路线','related_process','Link → Process[]','对象属性','<span class="badge b-gray">否</span>','基数 0..n','<button class="btn-link btn-sm">编辑</button>'],
-  ['安装位置','install_addr','Struct{province,city,detail}','普通属性','<span class="badge b-gray">否</span>','结构体 3 字段 · 主字段 detail','<button class="btn-link btn-sm">编辑</button>'],
-  ['地理位置','geo_location','GeoPoint','普通属性','<span class="badge b-gray">否</span>','值格式: 地图预览 · 不可作主键','<button class="btn-link btn-sm">编辑</button>'],
-  ['厂区平面图','geo_shape','GeoShape','普通属性','<span class="badge b-gray">否</span>','GeoJSON Polygon','<button class="btn-link btn-sm">编辑</button>'],
-  ['语义向量','desc_embedding','Vector(768)','普通属性','<span class="badge b-gray">否</span>','余弦相似度 · 嵌入模型回填','<button class="btn-link btn-sm">编辑</button>'],
-  ['验收结论','acceptance_note','String','普通属性','<span class="badge b-gray">否</span>','仅动作可编辑（Edit-only）','<button class="btn-link btn-sm">编辑</button>'],
-  ['出厂附件','manuals','Media','普通属性','<span class="badge b-gray">否</span>','值格式: 下载按钮','<button class="btn-link btn-sm">编辑</button>'],
-  ['责任人','owner','User 引用','普通属性','<span class="badge b-gray">否</span>','平台账号引用','<button class="btn-link btn-sm">编辑</button>'],
-  ['资产编号','asset_no','String','共享属性','<span class="badge b-gray">否</span>','来自 SharedProp: assetNo','<button class="btn-link btn-sm">编辑</button>'],
-  ['综合良率','yield_rate','Double','衍生属性','<span class="badge b-gray">否</span>','函数: calcYield() · 值格式: 百分比','<button class="btn-link btn-sm">编辑</button>'],
-  ['单位成本','unit_cost','Decimal','控制属性','<span class="badge b-gray">否</span>','权限控制 · 值格式: 货币','<button class="btn-link btn-sm">编辑</button>'],
-];
+/* ---------- 属性管理（搜索 / 新建 / 编辑 / 查看 / 删除） ---------- */
+const FIELD_TYPES = ['string', 'integer', 'long', 'double', 'decimal', 'boolean', 'date', 'timestamp'];
+const KIND_BADGE = { '普通属性': 'b-gray', '对象属性': 'b-blue', '主键属性': 'b-orange', '控制属性': 'b-red', '衍生属性': 'b-purple' };
 
-function renderProps() {
-  document.getElementById('propRows').innerHTML = pRows.map(r =>
-    `<tr><td><b>${r[0]}</b></td><td class="mono">${r[1]}</td><td class="mono fs12">${r[2]}</td><td>${r[3]}</td><td>${r[4]}</td><td class="fs12 text-2">${r[5]}</td><td class="actions-cell">${r[6]}<button class="btn-link btn-sm btn-danger">删除</button></td></tr>`
-  ).join('');
+let pRows = [
+  { api: 'equipment_id', name: '设备编号', kind: '主键属性', src: '对象', type: 'String', req: true, pk: true },
+  { api: 'equipment_name', name: '设备名称', kind: '普通属性', src: '对象', type: 'String', req: true, pk: false },
+  { api: 'type', name: '设备类型', kind: '普通属性', src: '对象', type: 'Enum: EquipmentType', req: true, pk: false },
+  { api: 'status', name: '运行状态', kind: '普通属性', src: '对象', type: 'Enum: RunStatus', req: false, pk: false },
+  { api: 'line', name: '所属产线', kind: '对象属性', src: '对象', type: 'Link → ProductionLine', req: false, pk: false },
+  { api: 'related_process', name: '工艺路线', kind: '对象属性', src: '对象', type: 'Link → Process[]', req: false, pk: false },
+  { api: 'install_addr', name: '安装位置', kind: '普通属性', src: '对象', type: 'Struct', req: false, pk: false },
+  { api: 'geo_location', name: '地理位置', kind: '普通属性', src: '对象', type: 'GeoPoint', req: false, pk: false },
+  { api: 'acceptance_note', name: '验收结论', kind: '普通属性', src: '对象', type: 'String', req: false, pk: false },
+  { api: 'manuals', name: '出厂附件', kind: '普通属性', src: '对象', type: 'Media', req: false, pk: false },
+  { api: 'owner', name: '责任人', kind: '普通属性', src: '接口', from: 'Asset', type: 'String', req: false, pk: false },
+  { api: 'asset_no', name: '资产编号', kind: '普通属性', src: '共享属性', from: 'assetNo', type: 'String', req: false, pk: false },
+  { api: 'yield_rate', name: '综合良率', kind: '衍生属性', src: '对象', type: 'Double', req: false, pk: false },
+  { api: 'unit_cost', name: '单位成本', kind: '控制属性', src: '对象', type: 'Decimal', req: false, pk: false },
+];
+const propFilter = { kw: '', kind: '' };
+let pmEditIdx = null; // 正在编辑的属性下标，null = 新建
+let pmView = false;   // 属性弹窗是否为查看模式
+
+function srcBadge(r) {
+  if (r.src === '接口') return `<span class="badge b-blue no-dot">接口 · ${r.from || ''}</span>`;
+  if (r.src === '共享属性') return `<span class="badge b-purple no-dot">共享属性 · ${r.from || ''}</span>`;
+  return `<span class="badge b-gray no-dot">对象</span>`;
 }
 
-function openPropModal() {
-  document.getElementById('pmName').value = '';
-  document.getElementById('pmApi').value = '';
-  document.getElementById('pmType').value = 'String';
-  document.getElementById('pmKind').value = '普通属性';
-  document.getElementById('pmFormat').value = '无';
-  document.getElementById('pmEditOnly').checked = false;
+function filteredProps() {
+  let list = pRows.slice();
+  if (propFilter.kw) {
+    const k = propFilter.kw.toLowerCase();
+    list = list.filter(r => r.name.toLowerCase().includes(k) || r.api.toLowerCase().includes(k) || r.kind.toLowerCase().includes(k));
+  }
+  if (propFilter.kind) list = list.filter(r => r.kind === propFilter.kind);
+  return list;
+}
+
+function renderProps() {
+  const list = filteredProps();
+  document.getElementById('propCnt').textContent = pRows.length;
+  document.getElementById('propRows').innerHTML = list.map(r => {
+    const i = pRows.indexOf(r);
+    return `<tr>
+      <td class="mono">${r.api}</td>
+      <td><b>${r.name}</b></td>
+      <td><span class="badge ${KIND_BADGE[r.kind] || 'b-gray'} no-dot">${r.kind}</span></td>
+      <td>${srcBadge(r)}</td>
+      <td class="mono fs12">${r.type}</td>
+      <td>${r.req ? '<span class="badge b-green no-dot">是</span>' : '<span class="badge b-gray no-dot">否</span>'}</td>
+      <td>${r.pk ? '<span class="badge b-orange no-dot">是</span>' : '<span class="badge b-gray no-dot">否</span>'}</td>
+      <td class="actions-cell">
+        <button class="btn-link btn-sm" onclick="openPropModal(${i})">编辑</button>
+        <button class="btn-link btn-sm btn-danger" onclick="delProp(${i})">删除</button>
+        <button class="btn-link btn-sm" onclick="openPropModal(${i}, true)">查看</button>
+      </td>
+    </tr>`;
+  }).join('') || `<tr><td colspan="8" style="text-align:center;color:var(--text-3);padding:24px;">暂无符合条件的属性</td></tr>`;
+  document.getElementById('propMeta').textContent =
+    `共 ${list.length} 个属性 · 主键 ${pRows.filter(r => r.pk).length} · 控制 ${pRows.filter(r => r.kind === '控制属性').length} · 衍生 ${pRows.filter(r => r.kind === '衍生属性').length} · 对象属性 ${pRows.filter(r => r.kind === '对象属性').length}`;
+}
+
+function delProp(i) {
+  const r = pRows[i];
+  if (!r) return;
+  if (!confirm(`确定删除属性「${r.name}」（${r.api}）？`)) return;
+  pRows.splice(i, 1);
+  renderProps();
+  renderMapping();
+  toast(`属性「${r.name}」已删除`);
+}
+
+/* ---------- 新建/编辑属性表单 ---------- */
+function swOn(id) { return document.getElementById(id).classList.contains('on'); }
+function setSw(id, on, bodyId) {
+  document.getElementById(id).classList.toggle('on', !!on);
+  if (bodyId) document.getElementById(bodyId).style.display = on ? '' : 'none';
+}
+function pmToggle(swId, bodyId) {
+  setSw(swId, !swOn(swId), bodyId);
+  if (swId === 'pmPkSw') pmTypeChange();
+}
+/* 共享属性定义：选中后属性 ID / 中文显示名 / 字段类型继承展示，不可编辑 */
+const SHARED_PROPS = {
+  assetNo: { api: 'asset_no', name: '资产编号', type: 'String' },
+  traceId: { api: 'trace_id', name: '追溯码', type: 'String' },
+  orgCode: { api: 'org_code', name: '所属组织', type: 'String' },
+};
+function pmBuildChange(el) {
+  document.querySelectorAll('#pmBuild .pm-card').forEach(c => c.classList.toggle('on', c === el));
+  const shared = el.dataset.v === '共享属性';
+  document.getElementById('pmSecShared').style.display = shared ? '' : 'none';
+  document.querySelectorAll('#propModalBody .pm-obj').forEach(n => { n.style.display = shared ? 'none' : ''; });
+  if (shared) { setSw('pmVcSw', false, 'pmVcBody'); setSw('pmPkSw', false, null); }
+}
+function pmSharedChange() {
+  const def = SHARED_PROPS[document.getElementById('pmShared').value];
+  document.getElementById('pmSharedInfo').style.display = def ? '' : 'none';
+  if (def) {
+    document.getElementById('pmSharedApi').value = def.api;
+    document.getElementById('pmSharedName').value = def.name;
+    document.getElementById('pmSharedType').value = def.type;
+  }
+}
+function pmBuild() { return document.querySelector('#pmBuild .pm-card.on').dataset.v; }
+function pmSetBuild(v) { pmBuildChange(document.querySelector(`#pmBuild .pm-card[data-v="${v}"]`)); }
+
+/* 字段类型候选：Link → 目标对象类；枚举 → 枚举类；主键开启时仅 string / decimal */
+function pmTypeChange() {
+  const at = document.getElementById('pmType').value;
+  const opts = at === '对象属性（Link）' ? ['ProductionLine', 'Process', 'Material', 'QualityReport']
+    : at === '枚举属性' ? ['EquipmentType', 'RunStatus']
+    : (swOn('pmPkSw') ? ['string', 'decimal'] : FIELD_TYPES);
+  const cur = document.getElementById('pmField').value;
+  document.getElementById('pmField').innerHTML = opts.map(o => `<option ${o === cur ? 'selected' : ''}>${o}</option>`).join('');
+}
+
+function openPropModal(idx, view) {
+  pmEditIdx = (idx === undefined || idx === null) ? null : idx;
+  pmView = !!view;
+  const r = pmEditIdx !== null ? pRows[pmEditIdx] : null;
+  document.getElementById('propModalTitle').textContent = pmView ? '查看属性' : (r ? '编辑属性' : '创建属性');
+  pmSetBuild(r && r.src === '共享属性' ? '共享属性' : '对象属性');
+  document.getElementById('pmShared').value = r && r.src === '共享属性' ? (r.from || '') : '';
+  pmSharedChange();
+  document.getElementById('pmApi').value = r ? r.api : '';
+  document.getElementById('pmName').value = r ? r.name : '';
+  document.getElementById('pmType').value = r ? (r.type.startsWith('Link') ? '对象属性（Link）' : r.type.startsWith('Enum') ? '枚举属性' : '原始属性') : '原始属性';
   pmTypeChange();
+  const stripped = r ? r.type.replace(/^(Link → |Enum: )/, '') : '';
+  const optsNow = [...document.getElementById('pmField').options].map(o => o.value);
+  document.getElementById('pmField').value = !r ? 'string' : optsNow.includes(stripped) ? stripped : (optsNow.includes(stripped.toLowerCase()) ? stripped.toLowerCase() : 'string');
+  document.getElementById('pmDefault').value = r && r.def ? r.def : '';
+  document.getElementById('pmReq').checked = r ? !!r.req : false;
+  setSw('pmVcSw', !!(r && r.vc && r.vc.length), 'pmVcBody');
+  document.querySelectorAll('#pmVcRules input').forEach(cb => { cb.checked = !!(r && r.vc && r.vc.includes(cb.value)); });
+  setSw('pmCtrlSw', r ? r.kind === '控制属性' : false, 'pmCtrlBody');
+  document.getElementById('pmCtrlScope').value = '用户名 / 账号';
+  document.getElementById('pmCtrlVal').value = r && r.ctrlVal ? r.ctrlVal : '';
+  setSw('pmPkSw', r ? !!r.pk : false, null);
+  document.getElementById('pmDesc').value = r && r.desc ? r.desc : '';
+  // 查看模式：禁用全部输入并隐藏保存按钮
+  const body = document.getElementById('propModalBody');
+  body.querySelectorAll('input, select, textarea').forEach(el => { el.disabled = pmView; });
+  ['pmSharedApi', 'pmSharedName', 'pmSharedType'].forEach(id => { document.getElementById(id).disabled = true; }); // 继承参数始终只读
+  body.querySelectorAll('.pm-card, .switch').forEach(el => { el.style.pointerEvents = pmView ? 'none' : ''; });
+  document.getElementById('pmSaveBtn').style.display = pmView ? 'none' : '';
   App.openModal('propModal');
 }
 
-function pmTypeChange() {
-  const t = document.getElementById('pmType').value;
-  document.getElementById('pmSecStruct').style.display = t.startsWith('Struct') ? '' : 'none';
-  document.getElementById('pmSecVector').style.display = t.startsWith('Vector') ? '' : 'none';
-  const isPk = document.getElementById('pmKind').value === '主键属性';
-  document.getElementById('pmPkTip').style.display = isPk ? '' : 'none';
+function saveProp() {
+  const build = pmBuild();
+  const old = pmEditIdx !== null ? pRows[pmEditIdx] : null;
+  const ctrl = swOn('pmCtrlSw');
+  if (ctrl && !document.getElementById('pmCtrlVal').value) { toast('请选择权限控制属性的控制值'); return; }
+  let row;
+  if (build === '共享属性') {
+    // 共享属性：ID / 显示名 / 字段类型均继承共享属性定义，仅可配置权限控制
+    const sv = document.getElementById('pmShared').value;
+    if (!sv) { toast('请选择共享属性'); return; }
+    const def = SHARED_PROPS[sv];
+    if (pRows.some((r, i) => i !== pmEditIdx && r.api.toLowerCase() === def.api.toLowerCase())) { toast(`属性 ID「${def.api}」已存在`); return; }
+    row = {
+      api: def.api, name: def.name, type: def.type,
+      kind: ctrl ? '控制属性' : '普通属性', src: '共享属性', from: sv,
+      req: false, pk: false,
+      ctrlVal: ctrl ? document.getElementById('pmCtrlVal').value : undefined,
+    };
+  } else {
+    const api = document.getElementById('pmApi').value.trim();
+    const name = document.getElementById('pmName').value.trim();
+    if (!api || !name) { toast('请填写属性 ID 与中文显示名'); return; }
+    if (pRows.some((r, i) => i !== pmEditIdx && r.api.toLowerCase() === api.toLowerCase())) { toast(`属性 ID「${api}」已存在`); return; }
+    const at = document.getElementById('pmType').value;
+    const ft = document.getElementById('pmField').value;
+    const pk = swOn('pmPkSw');
+    if (pk && !['string', 'decimal'].includes(ft)) { toast('主键字段类型仅支持 string / decimal'); return; }
+    if (pk && pRows.some((r, i) => i !== pmEditIdx && r.pk)) { toast('一个对象仅一个主键，请先关闭现有主键属性'); return; }
+    if (swOn('pmVcSw') && ![...document.querySelectorAll('#pmVcRules input')].some(cb => cb.checked)) { toast('请至少选择一条值约束规则'); return; }
+    const kind = pk ? '主键属性' : ctrl ? '控制属性' : (old && old.kind === '衍生属性' ? '衍生属性' : at === '对象属性（Link）' ? '对象属性' : '普通属性');
+    const src = old && old.src === '接口' ? '接口' : '对象';
+    const from = old && old.src === '接口' ? old.from : undefined;
+    const type = at === '对象属性（Link）' ? `Link → ${ft}` : at === '枚举属性' ? `Enum: ${ft}` : ft.charAt(0).toUpperCase() + ft.slice(1);
+    row = {
+      api, name, kind, src, type,
+      req: document.getElementById('pmReq').checked, pk, from,
+      vc: swOn('pmVcSw') ? [...document.querySelectorAll('#pmVcRules input')].filter(cb => cb.checked).map(cb => cb.value) : [],
+      ctrlVal: ctrl ? document.getElementById('pmCtrlVal').value : undefined,
+      def: document.getElementById('pmDefault').value.trim() || undefined,
+      desc: document.getElementById('pmDesc').value.trim() || undefined,
+    };
+  }
+  if (old) pRows[pmEditIdx] = row; else pRows.push(row);
+  renderProps();
+  renderMapping();
+  App.closeModal('propModal');
+  toast(`属性「${row.name}」已保存为草稿变更`);
 }
 
-function saveProp() {
-  const name = document.getElementById('pmName').value.trim();
-  const api = document.getElementById('pmApi').value.trim();
-  if (!name || !api) { toast('请填写显示名与 API 名称'); return; }
-  if (pRows.some(r => r[1].toLowerCase() === api.toLowerCase())) { toast(`属性 API 名称「${api}」已存在`); return; }
-  const type = document.getElementById('pmType').value;
-  const kind = document.getElementById('pmKind').value;
-  const fmt = document.getElementById('pmFormat').value;
-  const editOnly = document.getElementById('pmEditOnly').checked;
-  const constraint = (type.startsWith('Struct') ? '结构体字段见编辑弹窗' : type.startsWith('Vector') ? '向量配置见编辑弹窗' : fmt !== '无' ? `值格式: ${fmt.split('（')[0]}` : '—')
-    + (editOnly ? ' · 仅动作可编辑（Edit-only）' : '');
-  pRows.push([name, api, type, kind,
-    kind === '主键属性' ? '<span class="badge b-green">是</span>' : '<span class="badge b-gray">否</span>',
-    constraint, '<button class="btn-link btn-sm">编辑</button>']);
-  renderProps();
-  App.closeModal('propModal');
-  toast(`属性「${name}」已保存为草稿变更`);
+/* ---------- 字段映射（单选数据集 · 字段↔属性连线一一对应） ---------- */
+const DS_FIELDS = {
+  'doris.equipment_master': [
+    { f: 'eqp_id', t: 'string' }, { f: 'eqp_name', t: 'string' }, { f: 'eqp_type', t: 'string' },
+    { f: 'run_status', t: 'string' }, { f: 'line_code', t: 'string' }, { f: 'install_addr', t: 'string' },
+    { f: 'lng_lat', t: 'string' }, { f: 'cost_amt', t: 'decimal' }, { f: 'yield_pct', t: 'double' },
+    { f: 'owner_account', t: 'string' }, { f: 'asset_code', t: 'string' },
+  ],
+  'doris.equipment_status_log': [
+    { f: 'log_id', t: 'string' }, { f: 'eqp_code', t: 'string' }, { f: 'evt_status', t: 'string' },
+    { f: 'evt_time', t: 'timestamp' }, { f: 'operator', t: 'string' },
+  ],
+  'nebula.equipment_graph': [
+    { f: 'node_id', t: 'string' }, { f: 'node_name', t: 'string' }, { f: 'edge_dst', t: 'string' }, { f: 'edge_type', t: 'string' },
+  ],
+};
+let mapDs = 'doris.equipment_master';
+let mapSel = null; // 当前选中待连线的数据集字段
+const mapLinks = {
+  'doris.equipment_master': {
+    eqp_id: 'equipment_id', eqp_name: 'equipment_name', eqp_type: 'type', run_status: 'status',
+    cost_amt: 'unit_cost', yield_pct: 'yield_rate', owner_account: 'owner', asset_code: 'asset_no',
+  },
+  'doris.equipment_status_log': {},
+  'nebula.equipment_graph': {},
+};
+
+function onMapDsChange() {
+  mapDs = document.getElementById('mapDs').value;
+  mapSel = null;
+  renderMapping();
+  toast(`已切换数据集：${mapDs}`);
+}
+
+function renderMapping() {
+  const left = document.getElementById('mapLeft'), right = document.getElementById('mapRight');
+  if (!left) return;
+  const fields = DS_FIELDS[mapDs] || [];
+  const links = mapLinks[mapDs] || (mapLinks[mapDs] = {});
+  const linkedAttrs = Object.values(links);
+  left.innerHTML = fields.map(fd => `
+    <div class="map-node ${links[fd.f] ? 'linked' : ''} ${mapSel === fd.f ? 'sel' : ''}" data-side="l" data-key="${fd.f}" onclick="mapClick('l','${fd.f}')">
+      <span class="mono">${fd.f}</span><span class="fs12 text-3">${fd.t}</span>
+      <span class="un" title="解除映射" onclick="event.stopPropagation();mapUnlink('l','${fd.f}')">×</span>
+    </div>`).join('');
+  right.innerHTML = pRows.map(r => `
+    <div class="map-node ${linkedAttrs.includes(r.api) ? 'linked' : ''}" data-side="r" data-key="${r.api}" onclick="mapClick('r','${r.api}')">
+      <b>${r.name}</b><span class="mono fs12 text-3">${r.api}</span>
+      ${r.src === '接口' ? `<span class="inh">继承 · ${r.from || '接口'}</span>` : r.src === '共享属性' ? '<span class="inh">共享属性</span>' : ''}
+      <span class="un" title="解除映射" onclick="event.stopPropagation();mapUnlink('r','${r.api}')">×</span>
+    </div>`).join('');
+  document.getElementById('mapLeftCnt').textContent = `（${fields.length}）`;
+  document.getElementById('mapRightCnt').textContent = `（${pRows.length}）`;
+  requestAnimationFrame(drawMapLines);
+}
+
+function mapClick(side, key) {
+  const links = mapLinks[mapDs];
+  if (side === 'l') { mapSel = mapSel === key ? null : key; renderMapping(); return; }
+  if (!mapSel) { toast('请先点击左侧数据集字段，再点击右侧对象属性创建映射'); return; }
+  // 一一对应：同一字段 / 同一属性上的旧连线先移除
+  Object.keys(links).forEach(f => { if (f === mapSel || links[f] === key) delete links[f]; });
+  links[mapSel] = key;
+  const f = mapSel;
+  mapSel = null;
+  renderMapping();
+  toast(`已创建映射：${f} → ${key}`);
+}
+
+function mapUnlink(side, key) {
+  const links = mapLinks[mapDs];
+  if (side === 'l') delete links[key];
+  else Object.keys(links).forEach(f => { if (links[f] === key) delete links[f]; });
+  renderMapping();
+  toast('已解除映射');
+}
+
+function drawMapLines() {
+  const wrap = document.getElementById('mapWrap');
+  const svg = document.getElementById('mapSvg');
+  if (!wrap || !svg || !wrap.offsetParent) return; // Tab 未激活时不绘制
+  const wr = wrap.getBoundingClientRect();
+  if (!wr.width) return;
+  svg.setAttribute('viewBox', `0 0 ${wr.width} ${wr.height}`);
+  const links = mapLinks[mapDs] || {};
+  let inner = '';
+  Object.keys(links).forEach(f => {
+    const le = wrap.querySelector(`.map-node[data-side="l"][data-key="${f}"]`);
+    const re = wrap.querySelector(`.map-node[data-side="r"][data-key="${links[f]}"]`);
+    if (!le || !re) return;
+    const lr = le.getBoundingClientRect(), rr = re.getBoundingClientRect();
+    const x1 = lr.right - wr.left, y1 = lr.top + lr.height / 2 - wr.top;
+    const x2 = rr.left - wr.left, y2 = rr.top + rr.height / 2 - wr.top;
+    const mx = (x1 + x2) / 2;
+    inner += `<path d="M${x1},${y1} C ${mx},${y1} ${mx},${y2} ${x2},${y2}" stroke="#2563eb" stroke-width="1.6" fill="none" opacity=".75"/>
+      <circle cx="${x1}" cy="${y1}" r="3" fill="#2563eb"/><circle cx="${x2}" cy="${y2}" r="3" fill="#2563eb"/>`;
+  });
+  svg.innerHTML = inner;
+  document.getElementById('mapStat').textContent = `已映射 ${Object.keys(links).length} / ${DS_FIELDS[mapDs].length} 个字段 · 一一对应`;
 }
 
 /* ---------- 数据（声明需在 App.mount 之前，避免 TDZ 错误） ---------- */
@@ -381,7 +637,6 @@ let classes = [
 
 const clsFilter = { cat: null, kw: '', kind: '', status: '' };
 let curClass = null;   // 当前抽屉打开的类/接口
-let ifPropEditIdx = null; // 正在编辑的接口属性下标，null = 新增
 
 App.mount({
   page: 'ontology-graph',
@@ -461,6 +716,15 @@ App.mount({
     window.openClass = openClass;
     document.getElementById('propRows').innerHTML = '';
     renderProps();
+    document.getElementById('propKw').addEventListener('input', (e) => { propFilter.kw = e.target.value.trim(); renderProps(); });
+    document.getElementById('propKind').addEventListener('change', (e) => { propFilter.kind = e.target.value; renderProps(); });
+    const dsSel = document.getElementById('mapDs');
+    dsSel.innerHTML = Object.keys(DS_FIELDS).map(k => `<option value="${k}">${k}</option>`).join('');
+    dsSel.value = mapDs;
+    dsSel.addEventListener('change', onMapDsChange);
+    document.querySelector('.tab[data-pane="mapping"][data-group="cls"]').addEventListener('click', () => setTimeout(drawMapLines, 60));
+    window.addEventListener('resize', drawMapLines);
+    renderMapping();
     document.getElementById('clsKw').addEventListener('input', (e) => { clsFilter.kw = e.target.value.trim(); renderClasses(); });
     document.getElementById('clsKind').addEventListener('change', (e) => { clsFilter.kind = e.target.value; renderClasses(); });
     document.getElementById('clsStatus').addEventListener('change', (e) => { clsFilter.status = e.target.value; renderClasses(); });
@@ -475,7 +739,6 @@ function openClass(name, api, kind) {
   document.getElementById('ddName').textContent = name;
   document.getElementById('ddApi').textContent = api;
   document.getElementById('drawerClassKind').textContent = kind + ' Type';
-  renderIfacePane();
   App.openDrawer('classDrawer');
 }
 function viewToggle(btn, v) {
@@ -624,13 +887,14 @@ function openClassModal() {
   catSel.innerHTML = opts || '<option value="">请先创建类目</option>';
   catSel.value = clsFilter.cat || '';
   if (!catSel.value && catSel.options.length) catSel.value = catSel.options[0].value;
-  // 实现接口（类 implements）/ 继承接口（接口 extends）：候选均来自已有接口
+  // 实现接口（类 implements）/ 继承接口（接口 extends）：候选均来自已有接口，单选
   const ifaces = classes.filter(c => c.kind === '接口');
-  const ifaceCbs = ifaces.map(i => `<label><input type="checkbox" class="nc-iface" value="${i.api}" /> ${i.name}（${i.api}）</label>`).join('');
-  document.getElementById('ncIfaces').innerHTML = ifaceCbs || '<span class="fs12 text-2">暂无可用接口</span>';
-  document.getElementById('ncExts').innerHTML = ifaceCbs
-    ? ifaces.map(i => `<label><input type="checkbox" class="nc-ext" value="${i.api}" /> ${i.name}（${i.api}）</label>`).join('')
-    : '<span class="fs12 text-2">暂无可继承接口</span>';
+  const ifOpts = '<option value="">— 不实现接口 —</option>' +
+    ifaces.map(i => `<option value="${i.api}">${i.name}（${i.api}）</option>`).join('');
+  const extOpts = '<option value="">— 不继承接口 —</option>' +
+    ifaces.map(i => `<option value="${i.api}">${i.name}（${i.api}）</option>`).join('');
+  document.getElementById('ncIfaceSelect').innerHTML = ifOpts;
+  document.getElementById('ncExtSelect').innerHTML = extOpts;
   ncKindChange();
   App.openModal('classModal');
 }
@@ -652,13 +916,15 @@ function saveClass() {
   if (!cat) { toast('请选择所属类目'); return; }
   if (classes.some(c => c.api.toLowerCase() === api.toLowerCase())) { toast(`API 名称「${api}」已存在`); return; }
   if (kind === '枚举类' && !val('ncEnum')) { toast('枚举类请至少填写一个枚举值'); return; }
-  const impl = [...document.querySelectorAll('.nc-iface:checked')].map(cb => cb.value);
-  const ext = [...document.querySelectorAll('.nc-ext:checked')].map(cb => cb.value);
+  const implVal = document.getElementById('ncIfaceSelect').value;
+  const impl = implVal ? [implVal] : [];
+  const extVal = document.getElementById('ncExtSelect').value;
+  const ext = extVal ? [extVal] : [];
   const noBacking = document.getElementById('ncNoBacking').checked;
   const ds = kind === '类'
     ? (noBacking ? '—（无背书数据源，纯动作写入）' : (val('ncDs') || 'doris.' + api.toLowerCase()))
     : '—（不可实例化）';
-  // 对标 Palantir：接口属性无需创建时定义，创建后在详情抽屉「接口」Tab 中维护
+  // 对标 Palantir：接口属性无需创建时定义，创建后在详情抽屉「属性管理」Tab 中维护
   classes.push({ name, api, kind, cat, props: 0, status: 'v1 草稿', ds, impl, ext, ifProps: [] });
   clsFilter.cat = cat;
   App.closeModal('classModal');
@@ -668,104 +934,6 @@ function saveClass() {
   if (impl.length) extra += '，实现接口：' + impl.join(' / ');
   if (ext.length) extra += '，继承接口：' + ext.join(' / ');
   toast(`${kind}「${name}」已创建为草稿 v1${extra}`);
-}
-
-/* ---------- 详情抽屉「接口」Tab ---------- */
-const IFACE_PROP_TYPES = ['String', 'Integer', 'Double', 'Decimal', 'Boolean', 'Date', 'Timestamp'];
-
-function renderIfacePane() {
-  const pane = document.getElementById('ifacePane');
-  if (!curClass) { pane.innerHTML = ''; return; }
-  // 类：展示实现映射（属性 / 链接约束 / 动作约束）
-  if (curClass.kind !== '接口') {
-    pane.innerHTML = `
-      <div class="tip mt16 text-2">对标 Palantir：实现接口需完成属性映射、链接类型约束与动作类型约束映射；标记为可选的项可跳过映射，接口属性本身不落数据集，值来自实现类的本地属性。</div>
-      <div class="flex mt8">
-        <span class="tag blue">Asset（资产）</span>
-        <span class="badge b-green no-dot">实现校验通过</span>
-        <span style="flex:1"></span>
-        <button class="btn btn-sm" onclick="toast('选择要实现的接口')">+ 实现新接口</button>
-      </div>
-      <h4 style="margin:14px 0 6px;">属性映射</h4>
-      <table class="table">
-        <tr><th>接口属性</th><th>基础类型</th><th>必需</th><th>映射到本地属性</th><th>状态</th><th class="actions-cell">操作</th></tr>
-        <tr><td class="mono">asset_no</td><td class="mono">String</td><td><span class="badge b-red no-dot">必需</span></td><td class="mono">asset_no</td><td><span class="badge b-green no-dot">已映射</span></td><td class="actions-cell"><button class="btn-link btn-sm">编辑</button></td></tr>
-        <tr><td class="mono">owner</td><td class="mono">String</td><td><span class="badge b-gray no-dot">可选</span></td><td class="text-2">—（已跳过）</td><td><span class="badge b-gray no-dot">未映射</span></td><td class="actions-cell"><button class="btn-link btn-sm">映射</button></td></tr>
-      </table>
-      <h4 style="margin:14px 0 6px;">链接类型约束</h4>
-      <table class="table">
-        <tr><th>约束</th><th>必需</th><th>满足方式（链接类型）</th><th>状态</th><th class="actions-cell">操作</th></tr>
-        <tr><td class="mono">located_in → Location</td><td><span class="badge b-red no-dot">必需</span></td><td class="mono">belongs_to_line</td><td><span class="badge b-green no-dot">已满足</span></td><td class="actions-cell"><button class="btn-link btn-sm">编辑</button></td></tr>
-      </table>
-      <h4 style="margin:14px 0 6px;">动作类型约束</h4>
-      <table class="table">
-        <tr><th>约束</th><th>必需</th><th>满足方式（动作类型）</th><th>状态</th><th class="actions-cell">操作</th></tr>
-        <tr><td class="mono">decommission_asset</td><td><span class="badge b-gray no-dot">可选</span></td><td class="mono">设备下线</td><td><span class="badge b-green no-dot">已满足</span></td><td class="actions-cell"><button class="btn-link btn-sm">编辑</button></td></tr>
-      </table>`;
-    return;
-  }
-  // 接口：接口属性定义（对标 Palantir Interface Properties）
-  const props = curClass.ifProps || [];
-  const reqCnt = props.filter(p => p.req === '必需').length;
-  pane.innerHTML = `
-    <div class="tip mt16 text-2">对标 Palantir：接口属性可本地定义（推荐）或引用共享属性；「必需」属性的实现类必须映射本地属性，「可选」可跳过。接口属性不落数据集，值来自实现类。</div>
-    <div class="flex mt8">
-      ${(curClass.ext || []).map(e => `<span class="tag blue">extends: ${e}</span>`).join('')}
-      <span style="flex:1"></span>
-      <button class="btn btn-sm" onclick="toast('关联共享属性')">+ 关联共享属性</button>
-      <button class="btn btn-sm btn-primary" onclick="openIfPropModal()">+ 添加接口属性</button>
-    </div>
-    <table class="table mt8">
-      <tr><th>显示名</th><th>API 名称</th><th>基础类型</th><th>映射要求</th><th class="actions-cell">操作</th></tr>
-      ${props.map((p, i) => `
-      <tr>
-        <td><b>${p.name}</b></td><td class="mono">${p.api}</td><td class="mono">${p.type}</td>
-        <td>${p.req === '必需' ? '<span class="badge b-red no-dot">必需</span>' : '<span class="badge b-gray no-dot">可选</span>'}</td>
-        <td class="actions-cell">
-          <button class="btn-link btn-sm" onclick="openIfPropModal(${i})">编辑</button>
-          <button class="btn-link btn-sm btn-danger" onclick="delIfProp(${i})">删除</button>
-        </td>
-      </tr>`).join('') || '<tr><td colspan="5" style="text-align:center;color:var(--text-3);padding:24px;">暂无接口属性，点击右上角「添加接口属性」</td></tr>'}
-    </table>
-    ${props.length ? `<div class="result-meta"><span>必需 ${reqCnt} 项 · 可选 ${props.length - reqCnt} 项</span></div>` : ''}
-    <div class="tip mt8">已发布接口后续新增「必需」属性属 Breaking Change，需在同一本体变更中更新全部实现类。</div>`;
-}
-
-function openIfPropModal(idx) {
-  ifPropEditIdx = (idx === undefined || idx === null) ? null : idx;
-  const p = ifPropEditIdx !== null ? (curClass.ifProps || [])[ifPropEditIdx] : null;
-  document.getElementById('ifPropModalTitle').textContent = p ? '编辑接口属性' : '添加接口属性';
-  document.getElementById('ipmName').value = p ? p.name : '';
-  document.getElementById('ipmApi').value = p ? p.api : '';
-  document.getElementById('ipmType').innerHTML = IFACE_PROP_TYPES.map(t => `<option ${t === (p ? p.type : 'String') ? 'selected' : ''}>${t}</option>`).join('');
-  document.getElementById('ipmReq').value = p ? p.req : '必需';
-  App.openModal('ifPropModal');
-}
-
-function saveIfProp() {
-  const name = document.getElementById('ipmName').value.trim();
-  const api = document.getElementById('ipmApi').value.trim();
-  if (!name || !api) { toast('请填写显示名与 API 名称'); return; }
-  const props = curClass.ifProps || (curClass.ifProps = []);
-  if (props.some((p, i) => i !== ifPropEditIdx && p.api.toLowerCase() === api.toLowerCase())) { toast('接口属性 API 名称重复'); return; }
-  const p = { name, api, type: document.getElementById('ipmType').value, req: document.getElementById('ipmReq').value };
-  if (ifPropEditIdx !== null) props[ifPropEditIdx] = p; else props.push(p);
-  curClass.props = props.length;
-  App.closeModal('ifPropModal');
-  renderIfacePane();
-  renderClasses();
-  toast(`接口属性「${name}」已保存`);
-}
-
-function delIfProp(idx) {
-  const p = (curClass.ifProps || [])[idx];
-  if (!p) return;
-  if (!confirm(`确定删除接口属性「${p.name}」？删除后需同步更新实现类的属性映射。`)) return;
-  curClass.ifProps.splice(idx, 1);
-  curClass.props = curClass.ifProps.length;
-  renderIfacePane();
-  renderClasses();
-  toast(`接口属性「${p.name}」已删除`);
 }
 </script>
 </body>

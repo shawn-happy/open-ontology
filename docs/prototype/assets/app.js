@@ -1,12 +1,17 @@
 /* ============ Open Ontology 原型 · 共享布局与交互 ============ */
 (function () {
   // 子目录页面（platform/ ontology/ data/ …）相对根目录前缀，保证侧边栏链接在任何页面都正确
-  const ROOT = /\/(platform|ontology|data|security|application|audit|workspace|developer|approval)\//.test(location.pathname) ? '../' : '';
+  const ROOT = /\/(platform|ontology|data|security|application|audit|workspace|developer|approval|system)\//.test(location.pathname) ? '../' : '';
   // 公共菜单：平台层左上角图标栏（icon rail），仅展示图标，悬停显示名称
   const GLOBAL_NAV = [
     { id: 'home', href: ROOT + 'index.html', icon: '⌂', label: '首页' },
     { id: 'workspace', href: ROOT + 'platform/workspace.html', icon: '▦', label: '工作空间' },
-    { id: 'system', href: ROOT + 'platform/system.html', icon: '⚙', label: '系统管理' },
+    { id: 'system', href: ROOT + 'system/system.html', icon: '⚙', label: '系统管理' },
+    { id: 'sys-users', href: ROOT + 'system/sys-users.html', icon: '⊙', label: '用户管理' },
+    { id: 'sys-roles', href: ROOT + 'system/sys-roles.html', icon: '⊛', label: '角色管理' },
+    { id: 'sys-perms', href: ROOT + 'system/sys-perms.html', icon: '☰', label: '权限管理' },
+    { id: 'sys-depts', href: ROOT + 'system/sys-depts.html', icon: '▥', label: '部门管理' },
+    { id: 'sys-logs', href: ROOT + 'system/sys-logs.html', icon: '☷', label: '日志管理' },
     { id: 'approval', href: ROOT + 'approval/approval-config.html', icon: '✓', label: '审批中心' },
   ];
 
@@ -169,9 +174,12 @@
   function userInfo() {
     return `
       ${notifyBell()}
-      <div class="user-info" title="shawn（超级管理员）">
+      <div class="user-info" title="shawn（超级管理员）" onclick="App.toggleUserMenu(event)">
         <div class="avatar">S</div>
-        <div class="user-meta"><b>shawn</b><span>超级管理员</span></div>
+        <div class="user-meta"><b>shawn</b><span>超级管理员</span><span class="caret" style="margin-left:4px;">⌄</span></div>
+        <div class="user-menu" id="user-menu">
+          <a class="user-menu-item" href="${ROOT}system/login.html" onclick="App.doLogout(event)">退出登录</a>
+        </div>
       </div>
     `;
   }
@@ -184,7 +192,7 @@
      * @param cfg { page, crumbs: [..], title, desc, actions, content (HTML), onMount }
      */
     mount(cfg) {
-      const inSpace = !['home', 'workspace', 'system', 'approval'].includes(cfg.page);
+      const inSpace = !['home', 'workspace', 'system', 'sys-users', 'sys-roles', 'sys-perms', 'sys-depts', 'sys-logs', 'approval'].includes(cfg.page);
       this._lastCfg = cfg; 
       // 空间切换后整页重挂载使用
       // 空间内页面：面包屑首位动态替换为当前空间名
@@ -244,12 +252,14 @@
       document.querySelectorAll('[data-close-mask]').forEach((el) => {
         el.addEventListener('click', (e) => { if (e.target === el) App.closeAll(); });
       });
-      // 点击空白处关闭空间下拉菜单与通知下拉
+      // 点击空白处关闭空间下拉菜单、通知下拉与用户菜单
       document.addEventListener('click', () => {
         const menu = document.getElementById('ws-menu');
         if (menu) menu.classList.remove('open');
         const nm = document.getElementById('notify-menu');
         if (nm) nm.classList.remove('open');
+        const um = document.getElementById('user-menu');
+        if (um) um.classList.remove('open');
       });
       bindTabs();
       if (cfg.onMount) cfg.onMount();
@@ -265,6 +275,21 @@
       e && e.stopPropagation();
       const nm = document.getElementById('notify-menu');
       if (nm) nm.classList.toggle('open');
+    },
+
+    /** 顶栏用户菜单展开/收起 */
+    toggleUserMenu(e) {
+      e && e.stopPropagation();
+      const um = document.getElementById('user-menu');
+      if (um) um.classList.toggle('open');
+    },
+
+    /** 退出登录：清除登录态后跳转至登录页 */
+    doLogout(e) {
+      e && e.preventDefault();
+      localStorage.removeItem('oo-ws');
+      localStorage.removeItem('oo-logged');
+      location.href = ROOT + 'system/login.html';
     },
 
     /** 点击通知项后全部标记已读（红点清零） */

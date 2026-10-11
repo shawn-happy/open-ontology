@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.prism.platform.mapper.SystemUserMapper">
+
+    <select id="selectByUsername" resultType="com.prism.platform.entity.SystemUser">
+        SELECT * FROM system_user
+        WHERE username = #{username} AND is_deleted = 0
+        LIMIT 1
+    </select>
+
+    <select id="selectByPhone" resultType="com.prism.platform.entity.SystemUser">
+        SELECT * FROM system_user
+        WHERE phone = #{phone} AND is_deleted = 0
+        LIMIT 1
+    </select>
+
+    <select id="selectByEmail" resultType="com.prism.platform.entity.SystemUser">
+        SELECT * FROM system_user
+        WHERE email = #{email} AND is_deleted = 0
+        LIMIT 1
+    </select>
+
+    <update id="updateLoginInfo">
+        UPDATE system_user
+        SET last_login_at = #{loginAt}, last_login_ip = #{ip}, updated_at = NOW()
+        WHERE id = #{id} AND is_deleted = 0
+    </update>
+
+    <update id="updateFailCount">
+        UPDATE system_user
+        SET login_fail_count = #{count}, lock_until = #{lockUntil}, updated_at = NOW()
+        WHERE id = #{id} AND is_deleted = 0
+    </update>
+
+</mapper>

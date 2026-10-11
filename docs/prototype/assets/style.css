@@ -104,10 +104,14 @@ a { color: var(--primary); text-decoration: none; }
 .ws-item:hover { background: #f1f5f9; }
 .ws-item.cur { color: var(--primary); background: var(--primary-light); }
 .ws-item .ws-check { margin-left: auto; font-size: 12px; }
-.user-info { display: flex; align-items: center; gap: 8px; cursor: pointer; flex-shrink: 0; }
+.user-info { display: flex; align-items: center; gap: 8px; cursor: pointer; flex-shrink: 0; position: relative; }
 .user-meta { line-height: 1.25; }
 .user-meta b { display: block; font-size: 13px; font-weight: 600; color: var(--text); }
 .user-meta span { font-size: 11px; color: var(--text-2); }
+.user-menu { display: none; position: absolute; top: calc(100% + 6px); right: 0; min-width: 120px; background: #fff; border: 1px solid var(--border); border-radius: 8px; box-shadow: var(--shadow-lg); padding: 4px; z-index: 200; }
+.user-menu.open { display: block; }
+.user-menu-item { display: block; padding: 8px 12px; font-size: 13px; color: var(--text); text-decoration: none; border-radius: 6px; cursor: pointer; }
+.user-menu-item:hover { background: #f1f5f9; color: var(--danger); }
 
 /* 审批通知铃铛（顶栏，平台级与空间级页面通用） */
 .notify-bell {

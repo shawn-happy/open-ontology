@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>登录 - Open Ontology</title>
+<link rel="stylesheet" href="../assets/style.css" />
+<style>
+  body { display: flex; align-items: center; justify-content: center; min-height: 100vh; background: linear-gradient(135deg, #0f172a 0%, #1e3a5f 50%, #0f172a 100%); }
+  .login-wrap { width: 400px; }
+  .login-brand { text-align: center; margin-bottom: 32px; color: #fff; }
+  .login-brand .logo { width: 56px; height: 56px; border-radius: 14px; background: linear-gradient(135deg, #2563eb, #7c3aed); display: inline-flex; align-items: center; justify-content: center; font-size: 24px; color: #fff; margin-bottom: 12px; }
+  .login-brand h1 { font-size: 22px; font-weight: 600; letter-spacing: 1px; }
+  .login-brand p { font-size: 13px; color: #94a3b8; margin-top: 6px; }
+  .login-card { background: #fff; border-radius: 12px; padding: 32px; box-shadow: 0 20px 60px rgba(0,0,0,.3); }
+  .login-card h2 { font-size: 17px; font-weight: 600; margin-bottom: 24px; text-align: center; color: var(--text); }
+  .login-tabs { display: flex; border-bottom: 1px solid var(--border); margin-bottom: 20px; }
+  .login-tab { flex: 1; text-align: center; padding: 10px 0; font-size: 13px; color: var(--text-2); cursor: pointer; border-bottom: 2px solid transparent; transition: .15s; }
+  .login-tab.active { color: var(--primary); border-bottom-color: var(--primary); font-weight: 500; }
+  .login-pane { display: none; }
+  .login-pane.active { display: block; }
+  .login-card .form-item { margin-bottom: 16px; }
+  .login-card .form-item label { font-size: 13px; margin-bottom: 6px; display: block; color: var(--text); }
+  .login-card input { width: 100%; padding: 10px 12px; border: 1px solid var(--border); border-radius: 8px; font-size: 14px; }
+  .login-card input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(37,99,235,.1); }
+  .login-btn { width: 100%; padding: 11px 0; background: var(--primary); color: #fff; border: none; border-radius: 8px; font-size: 15px; font-weight: 500; cursor: pointer; transition: .15s; margin-top: 8px; }
+  .login-btn:hover { background: var(--primary-hover); }
+  .login-foot { display: flex; justify-content: space-between; align-items: center; margin-top: 16px; font-size: 12px; color: var(--text-3); }
+  .login-foot a { color: var(--primary); }
+  .login-hint { background: #f8fafc; border-radius: 8px; padding: 12px 14px; margin-top: 20px; font-size: 12px; color: var(--text-2); line-height: 1.8; }
+  .login-hint b { color: var(--text); }
+  .input-prefix { position: relative; }
+  .input-prefix .ico { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--text-3); font-size: 14px; }
+  .input-prefix input { padding-left: 36px; }
+
+  /* 验证码行 */
+  .captcha-row { display: flex; gap: 10px; align-items: stretch; }
+  .captcha-row .input-prefix { flex: 1; }
+  .captcha-img { width: 110px; height: 42px; border-radius: 8px; cursor: pointer; background: #f1f5f9; flex-shrink: 0; }
+  .captcha-hint { font-size: 11px; color: var(--text-3); margin-top: 4px; }
+
+  /* 强制修改密码弹窗 */
+  .force-pwd-mask { position: fixed; inset: 0; background: rgba(0,0,0,.55); z-index: 999; display: none; align-items: center; justify-content: center; }
+  .force-pwd-mask.open { display: flex; }
+  .force-pwd-modal { background: #fff; border-radius: 12px; padding: 32px; width: 420px; box-shadow: 0 20px 60px rgba(0,0,0,.3); }
+  .force-pwd-modal h3 { font-size: 16px; font-weight: 600; margin-bottom: 6px; color: var(--text); }
+  .force-pwd-modal .warn-tip { background: #fff7ed; border: 1px solid #fed7aa; border-radius: 8px; padding: 10px 14px; font-size: 12px; color: #c2410c; margin-bottom: 20px; line-height: 1.6; }
+  .force-pwd-modal .form-item { margin-bottom: 14px; }
+  .force-pwd-modal .form-item label { font-size: 13px; margin-bottom: 5px; display: block; color: var(--text); font-weight: 500; }
+  .force-pwd-modal input { width: 100%; padding: 9px 12px; border: 1px solid var(--border); border-radius: 8px; font-size: 14px; }
+  .force-pwd-modal input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(37,99,235,.1); outline: none; }
+  .force-pwd-modal .pwd-rule { font-size: 11px; color: var(--text-3); margin-top: 4px; line-height: 1.5; }
+  .force-pwd-modal .btn-row { display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px; }
+  .force-pwd-modal .btn-confirm { padding: 9px 28px; background: var(--primary); color: #fff; border: none; border-radius: 8px; font-size: 14px; cursor: pointer; }
+  .force-pwd-modal .btn-confirm:hover { background: var(--primary-hover); }
+</style>
+</head>
+<body>
+
+<div class="login-wrap">
+  <div class="login-brand">
+    <div class="logo">Prism</div>
+    <h1>Open Ontology</h1>
+    <p>本体语义平台 - 将散乱数据折射为有序语义对象</p>
+  </div>
+
+  <div class="login-card">
+    <h2>账号登录</h2>
+
+    <div class="login-tabs">
+      <div class="login-tab active" onclick="switchLogin('user')">用户名登录</div>
+      <div class="login-tab" onclick="switchLogin('phone')">手机号登录</div>
+      <div class="login-tab" onclick="switchLogin('email')">邮箱登录</div>
+    </div>
+
+    <div class="login-pane active" id="pane-user">
+      <div class="form-item">
+        <label>用户名</label>
+        <div class="input-prefix"><span class="ico">⊙</span><input type="text" id="loginUser" placeholder="请输入用户名" value="admin" /></div>
+      </div>
+      <div class="form-item">
+        <label>密码</label>
+        <div class="input-prefix"><span class="ico">⚿</span><input type="password" id="loginPwd" placeholder="请输入密码" value="onto12345678!" /></div>
+      </div>
+      <div class="form-item">
+        <label>验证码</label>
+        <div class="captcha-row">
+          <div class="input-prefix"><span class="ico">⊞</span><input type="text" id="captchaUser" placeholder="请输入验证码" maxlength="4" /></div>
+          <canvas class="captcha-img" id="captcha-user-canvas" width="110" height="42" onclick="refreshCaptcha('user')" title="点击刷新验证码"></canvas>
+        </div>
+        <div class="captcha-hint">点击图片刷新验证码</div>
+      </div>
+    </div>
+
+    <div class="login-pane" id="pane-phone">
+      <div class="form-item">
+        <label>手机号</label>
+        <div class="input-prefix"><span class="ico">☎</span><input type="text" id="loginPhone" placeholder="请输入手机号" /></div>
+      </div>
+      <div class="form-item">
+        <label>密码</label>
+        <div class="input-prefix"><span class="ico">⚿</span><input type="password" placeholder="请输入密码" /></div>
+      </div>
+      <div class="form-item">
+        <label>验证码</label>
+        <div class="captcha-row">
+          <div class="input-prefix"><span class="ico">⊞</span><input type="text" id="captchaPhone" placeholder="请输入验证码" maxlength="4" /></div>
+          <canvas class="captcha-img" id="captcha-phone-canvas" width="110" height="42" onclick="refreshCaptcha('phone')" title="点击刷新验证码"></canvas>
+        </div>
+        <div class="captcha-hint">点击图片刷新验证码</div>
+      </div>
+    </div>
+
+    <div class="login-pane" id="pane-email">
+      <div class="form-item">
+        <label>邮箱地址</label>
+        <div class="input-prefix"><span class="ico">✉</span><input type="text" id="loginEmail" placeholder="请输入邮箱" /></div>
+      </div>
+      <div class="form-item">
+        <label>密码</label>
+        <div class="input-prefix"><span class="ico">⚿</span><input type="password" placeholder="请输入密码" /></div>
+      </div>
+      <div class="form-item">
+        <label>验证码</label>
+        <div class="captcha-row">
+          <div class="input-prefix"><span class="ico">⊞</span><input type="text" id="captchaEmail" placeholder="请输入验证码" maxlength="4" /></div>
+          <canvas class="captcha-img" id="captcha-email-canvas" width="110" height="42" onclick="refreshCaptcha('email')" title="点击刷新验证码"></canvas>
+        </div>
+        <div class="captcha-hint">点击图片刷新验证码</div>
+      </div>
+    </div>
+
+    <button class="login-btn" onclick="doLogin()">登 录</button>
+
+    <div class="login-foot">
+      <label class="ck"><input type="checkbox" checked /> 记住我</label>
+      <a href="javascript:void(0)" onclick="alert('请联系系统管理员重置密码')">忘记密码？</a>
+    </div>
+
+    <div class="login-hint">
+      <b>初始管理员账号</b>：admin / onto12345678!<br />
+      首次登录将强制修改密码，不可跳过。
+    </div>
+  </div>
+
+  <div style="text-align:center;margin-top:24px;font-size:11px;color:#64748b;">
+    Open Ontology v0.1 · 本体语义平台
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<!-- 首次登录强制修改密码弹窗（不可关闭、不可跳过） -->
+<div class="force-pwd-mask" id="force-pwd-mask">
+  <div class="force-pwd-modal">
+    <h3>首次登录 - 强制修改密码</h3>
+    <div class="warn-tip">为保障账号安全，首次登录必须修改初始密码，此步骤不可跳过。</div>
+    <div class="form-item">
+      <label>当前密码</label>
+      <input type="password" id="fp-old" placeholder="请输入当前初始密码" />
+    </div>
+    <div class="form-item">
+      <label>新密码</label>
+      <input type="password" id="fp-new" placeholder="请输入新密码" oninput="document.getElementById('fp-rule-msg').textContent='';document.getElementById('fp-rule-msg').style.color='#94a3b8'" />
+      <div class="pwd-rule" id="fp-rule-msg">至少 8 位，包含大写字母、小写字母、数字和特殊字符</div>
+    </div>
+    <div class="form-item">
+      <label>确认新密码</label>
+      <input type="password" id="fp-confirm" placeholder="请再次输入新密码" />
+    </div>
+    <div class="btn-row">
+      <button class="btn-confirm" onclick="forceChangePwd()">确认修改并登录</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ========== 验证码 ========== */
+var captchaStore = { user: '', phone: '', email: '' };
+var CHAR_POOL = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789';
+
+function randomChar() {
+  return CHAR_POOL.charAt(Math.floor(Math.random() * CHAR_POOL.length));
+}
+
+function generateCaptchaCode() {
+  return randomChar() + randomChar() + randomChar() + randomChar();
+}
+
+function drawCaptcha(canvasId, code) {
+  var canvas = document.getElementById(canvasId);
+  if (!canvas) return;
+  var ctx = canvas.getContext('2d');
+  var w = canvas.width, h = canvas.height;
+
+  // 背景
+  ctx.fillStyle = '#f1f5f9';
+  ctx.fillRect(0, 0, w, h);
+
+  // 干扰线
+  for (var i = 0; i < 4; i++) {
+    ctx.strokeStyle = 'rgba(' + Math.random()*200 + ',' + Math.random()*200 + ',' + Math.random()*200 + ',0.5)';
+    ctx.beginPath();
+    ctx.moveTo(Math.random() * w, Math.random() * h);
+    ctx.lineTo(Math.random() * w, Math.random() * h);
+    ctx.stroke();
+  }
+
+  // 噪点
+  for (var j = 0; j < 30; j++) {
+    ctx.fillStyle = 'rgba(' + Math.random()*255 + ',' + Math.random()*255 + ',' + Math.random()*255 + ',0.6)';
+    ctx.beginPath();
+    ctx.arc(Math.random() * w, Math.random() * h, 1, 0, 2 * Math.PI);
+    ctx.fill();
+  }
+
+  // 字符
+  var colors = ['#2563eb', '#7c3aed', '#dc2626', '#059669', '#d97706', '#0891b2'];
+  for (var k = 0; k < code.length; k++) {
+    ctx.font = 'bold ' + (18 + Math.random() * 6) + 'px sans-serif';
+    ctx.fillStyle = colors[Math.floor(Math.random() * colors.length)];
+    ctx.save();
+    ctx.translate(18 + k * 22, 28 + Math.random() * 6 - 3);
+    ctx.rotate((Math.random() - 0.5) * 0.4);
+    ctx.fillText(code[k], 0, 0);
+    ctx.restore();
+  }
+}
+
+function refreshCaptcha(type) {
+  var code = generateCaptchaCode();
+  captchaStore[type] = code;
+  drawCaptcha('captcha-' + type + '-canvas', code);
+  var inputEl = document.getElementById('captcha' + type.charAt(0).toUpperCase() + type.slice(1));
+  if (inputEl) inputEl.value = '';
+}
+
+function getCurrentLoginType() {
+  if (document.getElementById('pane-user').classList.contains('active')) return 'user';
+  if (document.getElementById('pane-phone').classList.contains('active')) return 'phone';
+  return 'email';
+}
+
+function validateCaptcha() {
+  var type = getCurrentLoginType();
+  var inputId = 'captcha' + type.charAt(0).toUpperCase() + type.slice(1);
+  var inputEl = document.getElementById(inputId);
+  var val = inputEl ? inputEl.value.trim() : '';
+
+  if (!val) {
+    toast('请输入验证码');
+    return false;
+  }
+  if (val.toLowerCase() !== captchaStore[type].toLowerCase()) {
+    toast('验证码错误，已刷新');
+    refreshCaptcha(type);
+    return false;
+  }
+  return true;
+}
+
+/* ========== 登录 Tab 切换 ========== */
+function switchLogin(type) {
+  document.querySelectorAll('.login-tab').forEach(function(t, i) {
+    var types = ['user', 'phone', 'email'];
+    t.classList.toggle('active', types[i] === type);
+  });
+  document.querySelectorAll('.login-pane').forEach(function(p) {
+    p.classList.toggle('active', p.id === 'pane-' + type);
+  });
+  // 切换登录方式时刷新对应验证码
+  refreshCaptcha(type);
+}
+
+/* ========== Toast ========== */
+function toast(msg) {
+  var t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(t._timer);
+  t._timer = setTimeout(function() { t.classList.remove('show'); }, 1800);
+}
+
+/* ========== Enter 键 ========== */
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') {
+    var mask = document.getElementById('force-pwd-mask');
+    if (mask && mask.classList.contains('open')) { forceChangePwd(); }
+    else { doLogin(); }
+  }
+});
+
+/* ========== 登录 ========== */
+function doLogin() {
+  // 验证码校验
+  if (!validateCaptcha()) return;
+
+  // 模拟首次登录检测：实际项目中后端通过 pwd_update_time 判断
+  var isFirstLogin = true;
+  if (isFirstLogin) {
+    document.getElementById('force-pwd-mask').classList.add('open');
+    toast('首次登录，请修改初始密码');
+  } else {
+    toast('登录成功，正在跳转...');
+    setTimeout(function() { location.href = '../index.html'; }, 800);
+  }
+}
+
+/* ========== 强制修改密码 ========== */
+function forceChangePwd() {
+  var oldPwd = document.getElementById('fp-old').value;
+  var newPwd = document.getElementById('fp-new').value;
+  var confirmPwd = document.getElementById('fp-confirm').value;
+  var ruleEl = document.getElementById('fp-rule-msg');
+
+  if (!oldPwd) { toast('请输入当前密码'); return; }
+  if (!newPwd) { toast('请输入新密码'); return; }
+
+  // 密码复杂度校验：至少 8 位，含大写、小写、数字、特殊字符
+  var rule = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^a-zA-Z0-9]).{8,}$/;
+  if (!rule.test(newPwd)) {
+    ruleEl.textContent = '密码不满足复杂度要求：至少 8 位，包含大写字母、小写字母、数字和特殊字符';
+    ruleEl.style.color = '#dc2626';
+    return;
+  }
+  if (newPwd === oldPwd) {
+    ruleEl.textContent = '新密码不能与当前密码相同';
+    ruleEl.style.color = '#dc2626';
+    return;
+  }
+  if (newPwd !== confirmPwd) {
+    toast('两次输入的密码不一致');
+    return;
+  }
+
+  toast('密码修改成功，正在跳转...');
+  document.getElementById('force-pwd-mask').classList.remove('open');
+  setTimeout(function() { location.href = '../index.html'; }, 800);
+}
+
+/* ========== 页面初始化：生成三个验证码 ========== */
+(function init() {
+  refreshCaptcha('user');
+  refreshCaptcha('phone');
+  refreshCaptcha('email');
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.prism.platform.mapper.SystemDeptMapper">
+
+    <select id="selectByCode" resultType="com.prism.platform.entity.SystemDept">
+        SELECT * FROM system_dept
+        WHERE code = #{code} AND is_deleted = 0
+        LIMIT 1
+    </select>
+
+    <select id="selectByParentId" resultType="com.prism.platform.entity.SystemDept">
+        SELECT * FROM system_dept
+        WHERE parent_id = #{parentId} AND is_deleted = 0
+        ORDER BY sort_order ASC
+    </select>
+
+    <select id="selectChildrenByPath" resultType="com.prism.platform.entity.SystemDept">
+        SELECT * FROM system_dept
+        WHERE path LIKE CONCAT(#{pathPrefix}, '%') AND is_deleted = 0
+    </select>
+
+</mapper>

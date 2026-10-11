@@ -130,7 +130,6 @@ App.mount({
       <div class="card-h">
         <h3>审批流程 · <span id="curResName" class="text-2">对象类型</span></h3>
         <div class="right">
-          <a class="btn btn-sm" id="goResPage" href="../ontology/ontology-graph.html">查看物料页面</a>
           <button class="btn btn-sm btn-primary" id="addCfgBtn" onclick="cfgOpenCreate()">+ 新增配置</button>
         </div>
       </div>
@@ -173,7 +172,6 @@ function selectRes(id) {
 function renderCfgPanel() {
   const t = RES_TYPES.find((x) => x.id === curRes);
   document.getElementById('curResName').textContent = t.label;
-  document.getElementById('goResPage').href = t.href;
   const list = CONFIGS.filter((c) => c.res === curRes);
   const el = document.getElementById('cfgList');
   const addBtn = document.getElementById('addCfgBtn');

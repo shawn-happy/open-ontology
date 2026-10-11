@@ -4,24 +4,71 @@
 <meta charset="UTF-8" />
 <title>共享属性 · Open Ontology</title>
 <link rel="stylesheet" href="../assets/style.css" />
+<style>
+  /* 共享属性表单：控制属性区块 */
+  #spModal .pm-box { border: 1px solid var(--border); border-radius: 8px; background: #fbfcfd; padding: 14px 16px; margin-bottom: 14px; }
+  #spModal .pm-box-h { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+  #spModal .pm-box-h b { font-size: 14px; }
+  #spModal .pm-box-h .tip { margin-top: 3px; }
+  #spModal .pm-box .pm-body { margin-top: 12px; }
+  #spModal .form-item label { font-size: 13px; font-weight: 500; }
+</style>
 </head>
 <body>
 <div id="root"></div>
 
 <!-- 新建共享属性 -->
 <div class="mask" id="spModal" data-close-mask>
-  <div class="modal">
+  <div class="modal lg">
     <div class="modal-h">新建共享属性<span class="x" onclick="App.closeModal('spModal')">×</span></div>
     <div class="modal-b">
       <div class="form-item"><label><span class="req">*</span>属性名称</label><input type="text" placeholder="如：资产编号" /></div>
       <div class="form-item"><label><span class="req">*</span>API 名称</label><input type="text" class="mono" placeholder="如：asset_no" /></div>
       <div class="form-row">
-        <div class="form-item"><label><span class="req">*</span>数据类型</label><select><option>String</option><option>Integer</option><option>Double</option><option>Date</option><option>Boolean</option><option>Enum</option></select></div>
+        <div class="form-item">
+          <label><span class="req">*</span>属性类型</label>
+          <select id="spType" onchange="spTypeChange()">
+            <option>原始属性</option>
+            <option>对象属性（Link）</option>
+            <option>枚举属性</option>
+          </select>
+          <div class="tip">原始：基础字段；对象属性：引用其它对象；枚举：受限于枚举类</div>
+        </div>
+        <div class="form-item">
+          <label><span class="req">*</span>数据类型</label>
+          <select id="spField"><option>String</option><option>Integer</option><option>Long</option><option>Double</option><option>Decimal</option><option>Boolean</option><option>Date</option><option>Timestamp</option></select>
+          <div class="tip" id="spFieldTip"></div>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-item"><label>默认值</label><input type="text" placeholder="可选" /></div>
         <div class="form-item"><label>值约束</label><select><option>无</option><option>关联值约束规则…</option></select></div>
       </div>
+
+      <div class="pm-box">
+        <div class="pm-box-h">
+          <div><b>权限控制属性</b><div class="tip">开启后该共享属性在各对象类型中均作为 Mandatory Control Property 生效</div></div>
+          <span class="switch" id="spCtrlSw" onclick="spToggleCtrl()"></span>
+        </div>
+        <div class="pm-body" id="spCtrlBody" style="display:none">
+          <div class="form-row">
+            <div class="form-item">
+              <label><span class="req">*</span>用户范围</label>
+              <select><option>用户名 / 账号</option><option>用户组</option><option>角色</option></select>
+              <div class="tip">选择控制该属性的用户范围</div>
+            </div>
+            <div class="form-item">
+              <label><span class="req">*</span>控制值</label>
+              <select id="spCtrlVal"><option value="">请选择控制值</option><option>shawn</option><option>liujing</option><option>zhangwei</option></select>
+              <div class="tip">设置该范围下的具体值</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <div class="form-item"><label>说明</label><textarea rows="2" placeholder="共享属性可被多个对象类型复用，修改一处全局生效"></textarea></div>
     </div>
-    <div class="modal-f"><button class="btn" onclick="App.closeModal('spModal')">取消</button><button class="btn btn-primary" onclick="App.closeModal('spModal');toast('共享属性已创建')">确定</button></div>
+    <div class="modal-f"><button class="btn" onclick="App.closeModal('spModal')">取消</button><button class="btn btn-primary" onclick="saveSp()">确定</button></div>
   </div>
 </div>
 
@@ -61,6 +108,37 @@
 
 <script src="../assets/app.js"></script>
 <script>
+/* ---------- 新建共享属性表单 ---------- */
+const SP_FIELD_OPTIONS = {
+  '原始属性': ['String', 'Integer', 'Long', 'Double', 'Decimal', 'Boolean', 'Date', 'Timestamp'],
+  '对象属性（Link）': ['Equipment', 'Process', 'Material', 'ProductionLine', 'QualityReport'],
+  '枚举属性': ['EquipmentType', 'RunStatus', 'DataLevel'],
+};
+function spTypeChange() {
+  const t = document.getElementById('spType').value;
+  const opts = SP_FIELD_OPTIONS[t] || SP_FIELD_OPTIONS['原始属性'];
+  const sel = document.getElementById('spField');
+  sel.innerHTML = opts.map(o => `<option>${o}</option>`).join('');
+  document.getElementById('spFieldTip').textContent =
+    t === '对象属性（Link）' ? '选择目标对象类型，引用该类型实例'
+    : t === '枚举属性' ? '字段值受限于所选枚举类'
+    : '';
+}
+function spToggleCtrl() {
+  const sw = document.getElementById('spCtrlSw');
+  const on = !sw.classList.contains('on');
+  sw.classList.toggle('on', on);
+  document.getElementById('spCtrlBody').style.display = on ? '' : 'none';
+}
+function saveSp() {
+  if (document.getElementById('spCtrlSw').classList.contains('on')
+      && !document.getElementById('spCtrlVal').value) {
+    toast('请选择权限控制属性的控制值'); return;
+  }
+  App.closeModal('spModal');
+  toast('共享属性已创建');
+}
+
 const sps = [
   ['资产编号', 'asset_no', 'String', 'EQP-{SEQ}', 3, '张伟', '2026-08-02'],
   ['责任人', 'owner', 'String', '—', 5, '李静', '2026-07-15'],

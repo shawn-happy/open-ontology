@@ -1,0 +1,40 @@
+server:
+  port: 8100
+
+spring:
+  # Nacos 配置导入（可选，开发环境无需 Nacos 服务）
+  config:
+    import:
+      - optional:nacos:prism-platform-dev.yml?refreshEnabled=true&namespace=ONTOLOGY&group=DEFAULT_GROUP
+
+  application:
+    name: prism-platform
+  threads:
+    virtual:
+      enabled: true
+
+  # Jackson 全局配置
+  jackson:
+    property-naming-strategy: LOWER_CAMEL_CASE
+    default-property-inclusion: NON_NULL
+    time-zone: Asia/Shanghai
+    serialization:
+      write-dates-as-timestamps: false
+    deserialization:
+      fail-on-unknown-properties: false
+
+# Swagger / OpenAPI
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /doc.html
+
+# Logging
+logging:
+  level:
+    root: INFO
+    com.prism: DEBUG
+    com.baomidou.mybatisplus: DEBUG
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"

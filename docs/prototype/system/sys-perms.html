@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>权限管理 - Open Ontology</title>
+<link rel="stylesheet" href="../assets/style.css" />
+</style>
+</head>
+<body>
+<div id="root"></div>
+
+<!-- 新增/编辑权限节点 -->
+<div class="mask" id="menuModal" data-close-mask>
+  <div class="modal">
+    <div class="modal-h"><span id="menuModalTitle">新增权限节点</span><span class="x" onclick="App.closeModal('menuModal')">&#215;</span></div>
+    <div class="modal-b">
+      <div class="form-row">
+        <div class="form-item"><label><span class="req">*</span>节点名称</label><input type="text" id="mName" placeholder="如：导出本体定义" /></div>
+        <div class="form-item"><label><span class="req">*</span>节点类型</label>
+          <select id="mType"><option>目录</option><option>菜单</option><option>按钮</option></select>
+        </div>
+      </div>
+      <div class="form-item"><label>上级节点</label><select id="mParent"></select></div>
+      <div class="form-item"><label>权限标识</label>
+        <input type="text" id="mAuth" placeholder="如：ontology:export" />
+        <div class="tip">目录节点可留空；菜单节点用于路由鉴权；按钮节点用于接口鉴权（如 ontology:type:create）。</div>
+      </div>
+      <div class="form-item"><label>排序</label><input type="text" id="mSort" value="1" /></div>
+      <div class="form-item"><label>图标</label>
+        <input type="text" id="mIcon" placeholder="如：&#9672;（可选）" />
+      </div>
+    </div>
+    <div class="modal-f">
+      <button class="btn" onclick="App.closeModal('menuModal')">取消</button>
+      <button class="btn btn-primary" onclick="menuSave()">确定</button>
+    </div>
+  </div>
+</div>
+
+<!-- 编辑权限节点 -->
+<div class="mask" id="editModal" data-close-mask>
+  <div class="modal">
+    <div class="modal-h">编辑权限节点<span class="x" onclick="App.closeModal('editModal')">&#215;</span></div>
+    <div class="modal-b">
+      <div class="form-row">
+        <div class="form-item"><label>节点名称</label><input type="text" id="eName" /></div>
+        <div class="form-item"><label>节点类型</label><input type="text" id="eType" disabled /></div>
+      </div>
+      <div class="form-item"><label>权限标识</label><input type="text" id="eAuth" /></div>
+      <div class="form-item"><label>排序</label><input type="text" id="eSort" /></div>
+    </div>
+    <div class="modal-f">
+      <button class="btn" onclick="App.closeModal('editModal')">取消</button>
+      <button class="btn btn-primary" onclick="editSave()">保存</button>
+    </div>
+  </div>
+</div>
+
+<script src="../assets/app.js"></script>
+<script>
+var PERM_DATA = {
+  name: '平台管理', type: '目录', auth: '', sort: 0, on: true, children: [
+    { name: '工作空间管理', type: '菜单', auth: 'platform:ws:list', sort: 1, on: true, children: [
+      { name: '新建空间', type: '按钮', auth: 'platform:ws:create', sort: 1, on: true },
+      { name: '编辑空间', type: '按钮', auth: 'platform:ws:update', sort: 2, on: true },
+      { name: '停用空间', type: '按钮', auth: 'platform:ws:disable', sort: 3, on: true },
+      { name: '分配成员', type: '按钮', auth: 'platform:ws:member', sort: 4, on: true },
+    ]},
+    { name: '系统管理', type: '目录', auth: '', sort: 2, on: true, children: [
+      { name: '用户管理', type: '菜单', auth: 'system:user:list', sort: 1, on: true, children: [
+        { name: '新增用户', type: '按钮', auth: 'system:user:create', sort: 1, on: true },
+        { name: '编辑用户', type: '按钮', auth: 'system:user:update', sort: 2, on: true },
+        { name: '重置密码', type: '按钮', auth: 'system:user:resetPwd', sort: 3, on: true },
+        { name: '启停用用户', type: '按钮', auth: 'system:user:toggle', sort: 4, on: true },
+        { name: '分配角色', type: '按钮', auth: 'system:user:assignRole', sort: 5, on: true },
+        { name: '分配部门', type: '按钮', auth: 'system:user:assignDept', sort: 6, on: true },
+      ]},
+      { name: '角色管理', type: '菜单', auth: 'system:role:list', sort: 2, on: true, children: [
+        { name: '新增角色', type: '按钮', auth: 'system:role:create', sort: 1, on: true },
+        { name: '编辑角色', type: '按钮', auth: 'system:role:update', sort: 2, on: true },
+        { name: '配置权限', type: '按钮', auth: 'system:role:perm', sort: 3, on: true },
+        { name: '分配用户', type: '按钮', auth: 'system:role:assignUser', sort: 4, on: true },
+      ]},
+      { name: '权限管理', type: '菜单', auth: 'system:menu:list', sort: 3, on: true, children: [
+        { name: '新增节点', type: '按钮', auth: 'system:menu:create', sort: 1, on: true },
+        { name: '编辑节点', type: '按钮', auth: 'system:menu:update', sort: 2, on: true },
+        { name: '启停用节点', type: '按钮', auth: 'system:menu:toggle', sort: 3, on: true },
+        { name: '删除节点', type: '按钮', auth: 'system:menu:delete', sort: 4, on: false },
+      ]},
+      { name: '部门管理', type: '菜单', auth: 'system:dept:list', sort: 4, on: true, children: [
+        { name: '新增部门', type: '按钮', auth: 'system:dept:create', sort: 1, on: true },
+        { name: '编辑部门', type: '按钮', auth: 'system:dept:update', sort: 2, on: true },
+        { name: '启停用部门', type: '按钮', auth: 'system:dept:toggle', sort: 3, on: true },
+      ]},
+    ]},
+    { name: '审批中心', type: '目录', auth: '', sort: 3, on: true, children: [
+      { name: '审批流程配置', type: '菜单', auth: 'approval:config:list', sort: 1, on: true },
+      { name: '审批记录', type: '菜单', auth: 'approval:record:list', sort: 2, on: true },
+    ]},
+  ]
+};
+
+var PERM_DATA2 = {
+  name: '本体资产管理', type: '目录', auth: '', sort: 0, on: true, children: [
+    { name: '本体图谱', type: '菜单', auth: 'ontology:list', sort: 1, on: true, children: [
+      { name: '新建类', type: '按钮', auth: 'ontology:type:create', sort: 1, on: true },
+      { name: '编辑类', type: '按钮', auth: 'ontology:type:update', sort: 2, on: true },
+      { name: '删除类', type: '按钮', auth: 'ontology:type:delete', sort: 3, on: false },
+      { name: '发布', type: '按钮', auth: 'ontology:type:publish', sort: 4, on: true },
+      { name: '对象数据查询', type: '按钮', auth: 'ontology:data:query', sort: 5, on: true },
+    ]},
+    { name: '关联关系', type: '菜单', auth: 'ontology:relation:list', sort: 2, on: true },
+    { name: '共享属性', type: '菜单', auth: 'ontology:sharedProp:list', sort: 3, on: true },
+    { name: '枚举类', type: '菜单', auth: 'ontology:enum:list', sort: 4, on: true },
+    { name: '值约束规则', type: '菜单', auth: 'ontology:constraint:list', sort: 5, on: true },
+    { name: '动作', type: '菜单', auth: 'ontology:action:list', sort: 6, on: true, children: [
+      { name: '执行动作', type: '按钮', auth: 'ontology:action:execute', sort: 1, on: true },
+    ]},
+    { name: '函数', type: '菜单', auth: 'ontology:function:list', sort: 7, on: true },
+  ]
+};
+
+var PERM_DATA3 = {
+  name: '数据管理', type: '目录', auth: '', sort: 0, on: true, children: [
+    { name: '数据源管理', type: '菜单', auth: 'data:source:list', sort: 1, on: true },
+    { name: '数据集管理', type: '菜单', auth: 'data:dataset:list', sort: 2, on: true },
+    { name: 'Pipeline 管理', type: '菜单', auth: 'data:pipeline:list', sort: 3, on: true },
+    { name: '数据探查', type: '菜单', auth: 'data:explore', sort: 4, on: true },
+  ]
+};
+
+var PERM_DATA4 = {
+  name: '安全管理', type: '目录', auth: '', sort: 0, on: true, children: [
+    { name: '标记管理', type: '菜单', auth: 'security:mark:list', sort: 1, on: true },
+    { name: '数据权限', type: '菜单', auth: 'security:permission:list', sort: 2, on: true },
+    { name: '加密', type: '菜单', auth: 'security:encryption:list', sort: 3, on: true },
+    { name: '脱敏', type: '菜单', auth: 'security:masking:list', sort: 4, on: true },
+  ]
+};
+
+var PERM_DATA5 = {
+  name: '审计管理', type: '目录', auth: '', sort: 0, on: true, children: [
+    { name: '审计日志', type: '菜单', auth: 'audit:log:list', sort: 1, on: true },
+    { name: '本体资产统计', type: '菜单', auth: 'audit:asset:list', sort: 2, on: true },
+    { name: 'Pipeline 运行', type: '菜单', auth: 'audit:pipeline:list', sort: 3, on: true },
+    { name: '应用调用', type: '菜单', auth: 'audit:app:list', sort: 4, on: true },
+  ]
+};
+
+var ALL_ROOTS = [PERM_DATA, PERM_DATA2, PERM_DATA3, PERM_DATA4, PERM_DATA5];
+var PERM_INDEX = {};
+var curNode = null;
+var editingNode = null;
+
+function buildIndex() {
+  PERM_INDEX = {};
+  ALL_ROOTS.forEach(function(root) {
+    (function walk(n) { PERM_INDEX[n.name] = n; (n.children || []).forEach(walk); })(root);
+  });
+}
+
+function countNodes() {
+  var cnt = { dir: 0, menu: 0, btn: 0, total: 0 };
+  ALL_ROOTS.forEach(function(root) {
+    (function walk(n) {
+      cnt.total++;
+      if (n.type === '目录') cnt.dir++;
+      else if (n.type === '菜单') cnt.menu++;
+      else if (n.type === '按钮') cnt.btn++;
+      (n.children || []).forEach(walk);
+    })(root);
+  });
+  return cnt;
+}
+
+function renderTree() {
+  var el = document.getElementById('permTree');
+  el.innerHTML = '';
+  ALL_ROOTS.forEach(function(root) {
+    renderTreeNode(el, root, 0);
+  });
+}
+
+function renderTreeNode(parent, node, depth) {
+  var wrap = document.createElement('div');
+  if (depth > 0) wrap.className = 'tree-children';
+  var item = document.createElement('div');
+  item.className = 'tree-node' + (curNode === node ? ' sel' : '');
+  var hasKids = node.children && node.children.length;
+  var badge = '<span class="badge ' + (node.type === '目录' ? 'b-purple' : node.type === '菜单' ? 'b-blue' : 'b-cyan') + '" style="margin-left:6px;">' + node.type + '</span>';
+  var auth = node.auth ? '<span class="mono text-3" style="margin-left:6px;font-size:11px;">' + node.auth + '</span>' : '';
+  var statusIcon = node.on === false ? '<span style="color:var(--text-3);margin-left:4px;" title="已停用">[停]</span>' : '';
+  item.innerHTML = '<span class="text-3">' + (hasKids ? '&#9662;' : '&middot;') + '</span> ' + node.name + badge + auth + statusIcon;
+  item.onclick = function(e) {
+    e.stopPropagation();
+    document.querySelectorAll('#permTree .tree-node').forEach(function(n) { n.classList.remove('sel'); });
+    item.classList.add('sel');
+    curNode = node;
+    renderDetail();
+  };
+  wrap.appendChild(item);
+  if (hasKids) {
+    var kids = document.createElement('div');
+    kids.className = 'tree-children';
+    node.children.forEach(function(c) { renderTreeNode(kids, c, 1); });
+    wrap.appendChild(kids);
+  }
+  parent.appendChild(wrap);
+}
+
+function renderDetail() {
+  if (!curNode) return;
+  var n = curNode;
+  var badge = '<span class="badge ' + (n.type === '目录' ? 'b-purple' : n.type === '菜单' ? 'b-blue' : 'b-cyan') + '">' + n.type + '</span>';
+  document.getElementById('detailType').innerHTML = badge;
+  document.getElementById('detailName').textContent = n.name;
+  document.getElementById('detailAuth').textContent = n.auth || '—';
+  document.getElementById('detailSort').textContent = n.sort != null ? n.sort : '—';
+  document.getElementById('detailStatus').innerHTML = n.on !== false
+    ? '<span class="badge b-green">启用</span>'
+    : '<span class="badge b-gray">停用</span>';
+
+  var kids = n.children || [];
+  var tb = document.getElementById('childTbody');
+  if (!kids.length) {
+    tb.innerHTML = '<tr><td colspan="5" class="empty">暂无下级节点</td></tr>';
+    return;
+  }
+  tb.innerHTML = kids.map(function(k) {
+    var kBadge = '<span class="badge ' + (k.type === '目录' ? 'b-purple' : k.type === '菜单' ? 'b-blue' : 'b-cyan') + '">' + k.type + '</span>';
+    return '<tr>' +
+      '<td><b>' + k.name + '</b></td>' +
+      '<td>' + kBadge + '</td>' +
+      '<td class="mono fs12">' + (k.auth || '—') + '</td>' +
+      '<td>' + (k.sort != null ? k.sort : '—') + '</td>' +
+      '<td><span class="switch ' + (k.on !== false ? 'on' : '') + '" onclick="toggleChild(\'' + k.name + '\')"></span></td>' +
+    '</tr>';
+  }).join('');
+}
+
+function toggleChild(name) {
+  var n = PERM_INDEX[name];
+  if (!n) return;
+  n.on = n.on === false;
+  renderTree();
+  renderDetail();
+  toast(n.name + (n.on ? ' 已启用' : ' 已停用'));
+}
+
+function menuOpenCreate(type) {
+  document.getElementById('menuModalTitle').textContent = '新增' + type;
+  document.getElementById('mType').value = type;
+  document.getElementById('mName').value = '';
+  document.getElementById('mAuth').value = '';
+  document.getElementById('mSort').value = '1';
+  document.getElementById('mIcon').value = '';
+  var sel = document.getElementById('mParent');
+  sel.innerHTML = Object.keys(PERM_INDEX).map(function(n) { return '<option>' + n + '</option>'; }).join('');
+  if (curNode) sel.value = curNode.name;
+  App.openModal('menuModal');
+}
+
+function menuSave() {
+  var name = document.getElementById('mName').value.trim();
+  if (!name) { toast('请填写节点名称'); return; }
+  if (PERM_INDEX[name]) { toast('节点名称已存在'); return; }
+  var parentName = document.getElementById('mParent').value;
+  var parent = PERM_INDEX[parentName];
+  if (!parent) { toast('请选择上级节点'); return; }
+  if (!parent.children) parent.children = [];
+  parent.children.push({
+    name: name,
+    type: document.getElementById('mType').value,
+    auth: document.getElementById('mAuth').value.trim(),
+    sort: Number(document.getElementById('mSort').value) || 1,
+    on: true
+  });
+  buildIndex();
+  renderTree();
+  App.closeModal('menuModal');
+  toast('权限节点已创建（原型演示）');
+}
+
+function openEdit() {
+  if (!curNode) { toast('请先选择节点'); return; }
+  editingNode = curNode;
+  document.getElementById('eName').value = curNode.name;
+  document.getElementById('eType').value = curNode.type;
+  document.getElementById('eAuth').value = curNode.auth || '';
+  document.getElementById('eSort').value = curNode.sort != null ? curNode.sort : '';
+  App.openModal('editModal');
+}
+
+function editSave() {
+  if (!editingNode) return;
+  editingNode.name = document.getElementById('eName').value.trim() || editingNode.name;
+  editingNode.auth = document.getElementById('eAuth').value.trim();
+  editingNode.sort = Number(document.getElementById('eSort').value) || 0;
+  buildIndex();
+  renderTree();
+  renderDetail();
+  App.closeModal('editModal');
+  toast('节点已更新（原型演示）');
+}
+
+function deleteNode() {
+  if (!curNode) { toast('请先选择节点'); return; }
+  if (curNode.children && curNode.children.length) { toast('请先删除所有下级节点'); return; }
+  if (!confirm('确认删除节点「' + curNode.name + '」？')) return;
+  ALL_ROOTS.forEach(function(root) {
+    (function walk(n) {
+      if (n.children) {
+        n.children = n.children.filter(function(c) { return c !== curNode; });
+        n.children.forEach(walk);
+      }
+    })(root);
+  });
+  buildIndex();
+  curNode = ALL_ROOTS[0];
+  renderTree();
+  renderDetail();
+  toast('节点已删除（原型演示）');
+}
+
+App.mount({
+  page: 'sys-perms',
+  crumbs: ['平台管理', '系统管理', '权限管理'],
+  title: '权限管理',
+  desc: '管理系统菜单资源（目录、菜单、按钮）。目录和菜单决定导航结构，按钮用于接口鉴权。支持新增、修改、启停用。',
+  actions: '',
+  content:
+    '<div class="stat-grid" id="permStats"></div>' +
+    '<div class="row">' +
+      '<div class="card col" style="max-width:500px;">' +
+        '<div class="card-h"><h3>菜单资源树</h3>' +
+          '<div class="right">' +
+            '<button class="btn btn-sm" onclick="menuOpenCreate(\'目录\')">+ 目录</button>' +
+            '<button class="btn btn-sm" onclick="menuOpenCreate(\'菜单\')">+ 菜单</button>' +
+            '<button class="btn btn-sm" onclick="menuOpenCreate(\'按钮\')">+ 按钮</button>' +
+          '</div>' +
+        '</div>' +
+        '<div class="card-b">' +
+          '<div class="tree" id="permTree"></div>' +
+          '<div class="tip text-2" style="margin-top:10px;">目录 - 菜单 - 按钮三级结构。目录/菜单用于导航路由，按钮用于接口鉴权。</div>' +
+        '</div>' +
+      '</div>' +
+      '<div class="card col">' +
+        '<div class="card-h"><h3><span id="detailType"></span> <span id="detailName" class="text-2">—</span></h3>' +
+          '<div class="right">' +
+            '<button class="btn btn-sm" onclick="openEdit()">编辑</button>' +
+            '<button class="btn btn-sm btn-danger" onclick="deleteNode()">删除</button>' +
+          '</div>' +
+        '</div>' +
+        '<div class="card-b">' +
+          '<dl class="desc-list mb16">' +
+            '<dt>类型</dt><dd id="detailType"></dd>' +
+            '<dt>权限标识</dt><dd class="mono" id="detailAuth">—</dd>' +
+            '<dt>排序</dt><dd id="detailSort">—</dd>' +
+            '<dt>状态</dt><dd id="detailStatus">—</dd>' +
+          '</dl>' +
+          '<div class="fs13 bold mb8">下级节点</div>' +
+          '<table class="table">' +
+            '<tr><th>名称</th><th>类型</th><th>权限标识</th><th>排序</th><th>启用</th></tr>' +
+            '<tbody id="childTbody"><tr><td colspan="5" class="empty">请选择左侧节点</td></tr></tbody>' +
+          '</table>' +
+        '</div>' +
+      '</div>' +
+    '</div>',
+  onMount: function() {
+    buildIndex();
+    var cnt = countNodes();
+    document.getElementById('permStats').innerHTML =
+      '<div class="stat"><div class="label">节点总数</div><div class="val">' + cnt.total + '</div></div>' +
+      '<div class="stat"><div class="label">目录</div><div class="val">' + cnt.dir + '</div></div>' +
+      '<div class="stat"><div class="label">菜单</div><div class="val">' + cnt.menu + '</div></div>' +
+      '<div class="stat"><div class="label">按钮</div><div class="val">' + cnt.btn + '</div></div>';
+    curNode = PERM_DATA;
+    renderTree();
+    renderDetail();
+  }
+});
+</script>
+</body>
+</html>

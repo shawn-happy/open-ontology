@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>系统管理 - Open Ontology</title>
+<link rel="stylesheet" href="../assets/style.css" />
+<style>
+  .sys-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  .sys-card {
+    background: #fff; border-radius: 10px; box-shadow: var(--shadow); padding: 20px;
+    display: block; color: var(--text); transition: .15s; border-left: 4px solid var(--primary);
+  }
+  .sys-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-lg); }
+  .sys-card .ico { font-size: 24px; margin-bottom: 10px; }
+  .sys-card h3 { font-size: 15px; font-weight: 600; margin-bottom: 6px; display: flex; align-items: center; }
+  .sys-card h3 .arrow { margin-left: auto; color: var(--text-3); font-weight: 400; font-size: 13px; }
+  .sys-card:hover h3 .arrow { color: var(--primary); }
+  .sys-card .desc { font-size: 12.5px; color: var(--text-2); line-height: 1.7; }
+  .sys-card .meta { margin-top: 12px; padding-top: 10px; border-top: 1px dashed var(--border); font-size: 12px; color: var(--text-3); display: flex; gap: 16px; }
+  .sys-card.c2 { border-left-color: var(--purple); }
+  .sys-card.c3 { border-left-color: var(--cyan); }
+  .sys-card.c4 { border-left-color: var(--warning); }
+  .sys-card.c5 { border-left-color: var(--success); }
+  @media (max-width: 1100px) { .sys-grid { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script src="../assets/app.js"></script>
+<script>
+App.mount({
+  page: 'system',
+  crumbs: ['平台管理', '系统管理'],
+  title: '系统管理',
+  desc: '平台级用户、角色、权限、部门与日志管理。点击功能卡片进入对应管理页面。',
+  actions: '',
+  content: `
+  <div class="stat-grid">
+    <div class="stat"><div class="label">用户总数</div><div class="val">23</div><div class="delta up">本月新增 +3</div></div>
+    <div class="stat"><div class="label">角色总数</div><div class="val">6</div></div>
+    <div class="stat"><div class="label">部门总数</div><div class="val">7</div></div>
+    <div class="stat"><div class="label">今日登录次数</div><div class="val">142</div></div>
+  </div>
+
+  <div class="sys-grid">
+    <a class="sys-card" href="sys-users.html">
+      <div class="ico">⊙</div>
+      <h3>用户管理 <span class="arrow">→</span></h3>
+      <div class="desc">管理平台用户账号，支持新增、编辑、启停用、重置密码、分配角色与部门。支持按用户名、手机号、邮箱模糊搜索。</div>
+      <div class="meta"><span>用户数 23</span><span>启用 21</span></div>
+    </a>
+    <a class="sys-card c2" href="sys-roles.html">
+      <div class="ico">⊛</div>
+      <h3>角色管理 <span class="arrow">→</span></h3>
+      <div class="desc">管理全局角色与空间角色，配置菜单、按钮权限及空间内数据权限。超级管理员角色不可修改或停用。</div>
+      <div class="meta"><span>角色数 6</span><span>内置角色 3</span></div>
+    </a>
+    <a class="sys-card c3" href="sys-perms.html">
+      <div class="ico">☰</div>
+      <h3>权限管理 <span class="arrow">→</span></h3>
+      <div class="desc">管理菜单资源（目录、菜单、按钮），维护权限标识用于接口鉴权。支持三级菜单结构。</div>
+      <div class="meta"><span>菜单节点 28</span></div>
+    </a>
+    <a class="sys-card c4" href="sys-depts.html">
+      <div class="ico">▥</div>
+      <h3>部门管理 <span class="arrow">→</span></h3>
+      <div class="desc">维护组织架构部门树，支持新增、编辑、启停用部门，分配用户与部门负责人。</div>
+      <div class="meta"><span>部门数 7</span><span>层级 3 级</span></div>
+    </a>
+    <a class="sys-card c5" href="sys-logs.html">
+      <div class="ico">☷</div>
+      <h3>日志管理 <span class="arrow">→</span></h3>
+      <div class="desc">审计日志（本体资源操作）、登录日志（用户登录记录）、执行日志（Action / Function / Pipeline 执行记录）。</div>
+      <div class="meta"><span>今日日志 3,842</span></div>
+    </a>
+    <a class="sys-card" href="login.html" style="border-left-color: #94a3b8;">
+      <div class="ico">⚿</div>
+      <h3>登录页面 <span class="arrow">→</span></h3>
+      <div class="desc">系统登录入口，支持用户名、手机号、邮箱 + 密码三种登录方式。初始管理员账号 admin。</div>
+      <div class="meta"><span>独立页面</span></div>
+    </a>
+  </div>
+
+  <div class="card mt16">
+    <div class="card-h"><h3>系统说明</h3></div>
+    <div class="card-b" style="font-size:13px;color:var(--text-2);line-height:2;">
+      <div>1. 系统管理为平台级共享功能，不属于任何工作空间内菜单，通过左上角图标栏访问。</div>
+      <div>2. 初始系统包含一个 admin 超级管理员用户，拥有平台最高权限，不可停用或修改。</div>
+      <div>3. 超级管理员角色仅支持分配给 admin 用户，其余用户不可分配该角色。</div>
+      <div>4. 权限粒度支持菜单、按钮两级，按钮权限标识用于后端接口鉴权。</div>
+      <div>5. 部门支持无限层级，停用部门时其下用户自动迁移至上级部门。</div>
+    </div>
+  </div>`,
+});
+</script>
+</body>
+</html>

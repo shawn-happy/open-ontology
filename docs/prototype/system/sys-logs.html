@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>日志管理 - Open Ontology</title>
+<link rel="stylesheet" href="../assets/style.css" />
+</head>
+<body>
+<div id="root"></div>
+
+<!-- 日志详情 -->
+<div class="mask" id="logDetailModal" data-close-mask>
+  <div class="modal lg">
+    <div class="modal-h">日志详情<span class="x" onclick="App.closeModal('logDetailModal')">&#215;</span></div>
+    <div class="modal-b">
+      <dl class="desc-list" id="logDetailContent"></dl>
+    </div>
+    <div class="modal-f"><button class="btn" onclick="App.closeModal('logDetailModal')">关闭</button></div>
+  </div>
+</div>
+
+<script src="../assets/app.js"></script>
+<script>
+// ===== 审计日志 =====
+var AUDIT_LOGS = [
+  { time: '2026-09-29 10:42:11', user: '李静', module: '本体图谱', action: '编辑属性 Equipment.yield_rate（衍生属性函数变更）', type: '变更', result: '已留痕', ip: '10.0.1.52' },
+  { time: '2026-09-29 10:31:07', user: '张伟', module: '动作', action: '执行动作 reportEquipmentFault 生成工单 WO-20260929-031', type: '写入', result: '通过', ip: '10.0.1.33' },
+  { time: '2026-09-29 10:29:55', user: '吴娜', module: '数据探查', action: '执行 SQL 查询（L2 数据集，自动脱敏 2 字段）', type: '查询', result: '通过', ip: '10.0.1.45' },
+  { time: '2026-09-29 10:12:33', user: 'shawn', module: '安全管理', action: '修改脱敏规则「成本数值区间化」豁免角色', type: '变更', result: '已留痕', ip: '10.0.1.10' },
+  { time: '2026-09-29 10:05:19', user: 'bi-report（API Key）', module: '应用 API', action: '关联查询被拒：越权访问 L3 数据集', type: '鉴权', result: '拒绝', ip: '10.0.2.100' },
+  { time: '2026-09-29 09:58:02', user: '李静', module: '本体图谱', action: '发布对象类型 Equipment v2.1', type: '变更', result: '已留痕', ip: '10.0.1.52' },
+  { time: '2026-09-29 09:51:44', user: '王强', module: '数据集', action: '修改数据集 ds_quality_report 同步策略为实时 CDC', type: '变更', result: '已留痕', ip: '10.0.1.61' },
+  { time: '2026-09-29 09:40:15', user: '周杰', module: 'Pipeline', action: '删除 Pipeline pl-temp-migration（已确认无依赖）', type: '删除', result: '已留痕', ip: '10.0.1.40' },
+];
+
+// ===== 登录日志 =====
+var LOGIN_LOGS = [
+  { time: '2026-09-29 10:21:33', user: 'admin', name: '超级管理员', ip: '10.0.1.10', location: '内网', browser: 'Chrome 128', os: 'Windows 11', result: '成功' },
+  { time: '2026-09-29 09:47:12', user: 'zhangwei', name: '张伟', ip: '10.0.1.33', location: '内网', browser: 'Chrome 128', os: 'macOS 14', result: '成功' },
+  { time: '2026-09-29 09:32:05', user: 'lijing', name: '李静', ip: '10.0.1.52', location: '内网', browser: 'Firefox 130', os: 'Windows 11', result: '成功' },
+  { time: '2026-09-29 09:15:44', user: 'unknown_user', name: '—', ip: '203.0.113.55', location: '外网（异常）', browser: 'Chrome 128', os: 'Linux', result: '失败（用户不存在）' },
+  { time: '2026-09-29 08:58:20', user: 'wangqiang', name: '王强', ip: '10.0.1.61', location: '内网', browser: 'Edge 128', os: 'Windows 11', result: '失败（密码错误）' },
+  { time: '2026-09-29 08:55:11', user: 'wangqiang', name: '王强', ip: '10.0.1.61', location: '内网', browser: 'Edge 128', os: 'Windows 11', result: '失败（密码错误）' },
+  { time: '2026-09-29 08:52:33', user: 'wangqiang', name: '王强', ip: '10.0.1.61', location: '内网', browser: 'Edge 128', os: 'Windows 11', result: '成功' },
+  { time: '2026-09-28 18:40:02', user: 'zhoujie', name: '周杰', ip: '10.0.1.40', location: '内网', browser: 'Chrome 128', os: 'macOS 14', result: '成功' },
+];
+
+// ===== 执行日志 =====
+var EXEC_LOGS = [
+  { time: '2026-09-29 10:35:22', type: 'Action', name: 'reportEquipmentFault', trigger: '张伟', status: '成功', duration: '1.2s', detail: '生成工单 WO-20260929-031，通知运维组 3 人' },
+  { time: '2026-09-29 10:30:41', type: 'Pipeline', name: 'pl-equipment-cdc', trigger: '定时调度', status: '成功', duration: '45s', detail: 'Flink CDC 同步 1,204 行到 Doris' },
+  { time: '2026-09-29 10:28:15', type: 'Function', name: 'calcEquipmentYield', trigger: 'Workflow wf-daily-report', status: '成功', duration: '0.8s', detail: '计算 42 台设备良率，结果写入 Equipment.yield_rate' },
+  { time: '2026-09-29 10:15:30', type: 'Pipeline', name: 'pl-quality-clean', trigger: '定时调度', status: '成功', duration: '128s', detail: 'ODS 到 DWD 清洗 8,456 行质检数据' },
+  { time: '2026-09-29 10:02:18', type: 'Action', name: 'batchArchiveFaults', trigger: '李静', status: '失败', duration: '3.5s', detail: '参数校验失败：equipment_id EQP-9999 不存在' },
+  { time: '2026-09-29 09:55:44', type: 'Function', name: 'checkValueConstraint', trigger: 'Pipeline pl-dq-check', status: '成功', duration: '2.1s', detail: '校验 2,100 条记录，拦截 3 条异常' },
+  { time: '2026-09-29 09:40:05', type: 'Pipeline', name: 'pl-dq-check', trigger: '定时调度', status: '部分失败', duration: '67s', detail: '数据质量校验完成，3 条进入隔离区' },
+  { time: '2026-09-29 09:30:22', type: 'Action', name: 'updateMaterialStatus', trigger: 'Workflow wf-supply-chain', status: '成功', duration: '0.5s', detail: '更新 15 条物料状态为已入库' },
+];
+
+var logFilter = { kw: '', type: '', module: '' };
+
+function renderAuditLogs() {
+  var list = AUDIT_LOGS.filter(function(l) {
+    if (logFilter.kw && l.action.indexOf(logFilter.kw) < 0 && l.user.indexOf(logFilter.kw) < 0) return false;
+    if (logFilter.type && l.type !== logFilter.type) return false;
+    if (logFilter.module && l.module !== logFilter.module) return false;
+    return true;
+  });
+  var tb = document.getElementById('auditTbody');
+  if (!list.length) { tb.innerHTML = '<tr><td colspan="7" class="empty">暂无符合条件的日志</td></tr>'; return; }
+  tb.innerHTML = list.map(function(l) {
+    var i = AUDIT_LOGS.indexOf(l);
+    var resultClass = l.result === '拒绝' ? 'b-red' : l.result === '已留痕' ? 'b-orange' : 'b-green';
+    return '<tr>' +
+      '<td class="mono fs12">' + l.time + '</td>' +
+      '<td><b>' + l.user + '</b></td>' +
+      '<td><span class="tag">' + l.module + '</span></td>' +
+      '<td class="fs12">' + l.action + '</td>' +
+      '<td><span class="badge b-gray no-dot">' + l.type + '</span></td>' +
+      '<td><span class="badge ' + resultClass + '">' + l.result + '</span></td>' +
+      '<td class="actions-cell"><button class="btn-link btn-sm" onclick="viewAuditLog(' + i + ')">详情</button></td>' +
+    '</tr>';
+  }).join('');
+}
+
+function renderLoginLogs() {
+  var list = LOGIN_LOGS.filter(function(l) {
+    if (logFilter.kw && l.user.indexOf(logFilter.kw) < 0 && l.name.indexOf(logFilter.kw) < 0) return false;
+    return true;
+  });
+  var tb = document.getElementById('loginTbody');
+  if (!list.length) { tb.innerHTML = '<tr><td colspan="8" class="empty">暂无符合条件的日志</td></tr>'; return; }
+  tb.innerHTML = list.map(function(l) {
+    var resultBadge = l.result === '成功' ? '<span class="badge b-green">成功</span>' : '<span class="badge b-red">' + l.result + '</span>';
+    return '<tr>' +
+      '<td class="mono fs12">' + l.time + '</td>' +
+      '<td class="mono">' + l.user + '</td>' +
+      '<td>' + l.name + '</td>' +
+      '<td class="mono fs12">' + l.ip + '</td>' +
+      '<td class="fs12">' + l.location + '</td>' +
+      '<td class="fs12">' + l.browser + ' / ' + l.os + '</td>' +
+      '<td>' + resultBadge + '</td>' +
+      '<td class="actions-cell"><button class="btn-link btn-sm" onclick="toast(\'查看登录上下文\')">详情</button></td>' +
+    '</tr>';
+  }).join('');
+}
+
+function renderExecLogs() {
+  var list = EXEC_LOGS.filter(function(l) {
+    if (logFilter.kw && l.name.indexOf(logFilter.kw) < 0 && l.trigger.indexOf(logFilter.kw) < 0) return false;
+    if (logFilter.type && l.type !== logFilter.type) return false;
+    return true;
+  });
+  var tb = document.getElementById('execTbody');
+  if (!list.length) { tb.innerHTML = '<tr><td colspan="7" class="empty">暂无符合条件的日志</td></tr>'; return; }
+  tb.innerHTML = list.map(function(l) {
+    var statusClass = l.status === '成功' ? 'b-green' : l.status === '部分失败' ? 'b-orange' : 'b-red';
+    var typeClass = l.type === 'Action' ? 'b-blue' : l.type === 'Pipeline' ? 'b-purple' : 'b-cyan';
+    return '<tr>' +
+      '<td class="mono fs12">' + l.time + '</td>' +
+      '<td><span class="badge ' + typeClass + '">' + l.type + '</span></td>' +
+      '<td class="mono"><b>' + l.name + '</b></td>' +
+      '<td>' + l.trigger + '</td>' +
+      '<td><span class="badge ' + statusClass + '">' + l.status + '</span></td>' +
+      '<td class="mono fs12">' + l.duration + '</td>' +
+      '<td class="fs12">' + l.detail + '</td>' +
+    '</tr>';
+  }).join('');
+}
+
+function viewAuditLog(i) {
+  var l = AUDIT_LOGS[i];
+  document.getElementById('logDetailContent').innerHTML =
+    '<dt>时间</dt><dd class="mono">' + l.time + '</dd>' +
+    '<dt>操作者</dt><dd>' + l.user + '</dd>' +
+    '<dt>模块</dt><dd>' + l.module + '</dd>' +
+    '<dt>操作内容</dt><dd>' + l.action + '</dd>' +
+    '<dt>类型</dt><dd>' + l.type + '</dd>' +
+    '<dt>结果</dt><dd>' + l.result + '</dd>' +
+    '<dt>IP 地址</dt><dd class="mono">' + l.ip + '</dd>' +
+    '<dt>请求 ID</dt><dd class="mono">req-' + Math.random().toString(36).substr(2, 12) + '</dd>' +
+    '<dt>User-Agent</dt><dd class="mono fs12">Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/128.0</dd>';
+  App.openModal('logDetailModal');
+}
+
+App.mount({
+  page: 'sys-logs',
+  crumbs: ['平台管理', '系统管理', '日志管理'],
+  title: '日志管理',
+  desc: '审计日志（本体资源与数据操作留痕）、登录日志（用户登录记录与安全审计）、执行日志（Action / Function / Pipeline 运行记录）。',
+  actions: '<button class="btn" onclick="toast(\'导出 CSV（原型演示）\')">导出</button>',
+  content:
+    '<div class="stat-grid">' +
+      '<div class="stat"><div class="label">今日审计日志</div><div class="val">3,842</div></div>' +
+      '<div class="stat"><div class="label">今日登录次数</div><div class="val">142</div><div class="delta down" style="color:var(--danger)">失败 3 次</div></div>' +
+      '<div class="stat"><div class="label">今日执行任务</div><div class="val">267</div><div class="delta up">成功率 97.4%</div></div>' +
+      '<div class="stat"><div class="label">日志保留策略</div><div class="val fs13" style="font-size:18px;">180 天</div></div>' +
+    '</div>' +
+
+    '<div class="tabs" data-group="logs">' +
+      '<div class="tab active" data-pane="audit" data-group="logs">审计日志 <span class="cnt">3,842</span></div>' +
+      '<div class="tab" data-pane="login" data-group="logs">登录日志 <span class="cnt">142</span></div>' +
+      '<div class="tab" data-pane="exec" data-group="logs">执行日志 <span class="cnt">267</span></div>' +
+    '</div>' +
+
+    '<div class="tab-pane active" data-group="logs" data-pane="audit">' +
+      '<div class="card" style="border-radius:0 0 8px 8px;">' +
+        '<div class="card-h">' +
+          '<input class="search" type="text" placeholder="搜索操作内容 / 操作者..." oninput="logFilter.kw=this.value.trim();renderAuditLogs()" />' +
+          '<select onchange="logFilter.module=this.value;renderAuditLogs()"><option value="">全部模块</option><option>本体图谱</option><option>动作</option><option>数据探查</option><option>安全管理</option><option>应用 API</option><option>数据集</option><option>Pipeline</option></select>' +
+          '<select onchange="logFilter.type=this.value;renderAuditLogs()"><option value="">全部类型</option><option>查询</option><option>写入</option><option>变更</option><option>删除</option><option>鉴权</option></select>' +
+        '</div>' +
+        '<table class="table">' +
+          '<tr><th>时间</th><th>操作者</th><th>模块</th><th>操作内容</th><th>类型</th><th>结果</th><th class="actions-cell">操作</th></tr>' +
+          '<tbody id="auditTbody"></tbody>' +
+        '</table>' +
+        '<div class="pager">共 48,210 条<span style="flex:1"></span><span class="pg dis">&#8249;</span><span class="pg cur">1</span><span class="pg">2</span><span class="pg">3</span><span class="pg">...</span><span class="pg">&#8250;</span></div>' +
+      '</div>' +
+    '</div>' +
+
+    '<div class="tab-pane" data-group="logs" data-pane="login">' +
+      '<div class="card" style="border-radius:0 0 8px 8px;">' +
+        '<div class="card-h">' +
+          '<input class="search" type="text" placeholder="搜索用户名 / 姓名..." oninput="logFilter.kw=this.value.trim();renderLoginLogs()" />' +
+          '<div class="right"><span class="text-2 fs12">登录失败超过 5 次将自动锁定账号 30 分钟</span></div>' +
+        '</div>' +
+        '<table class="table">' +
+          '<tr><th>时间</th><th>用户名</th><th>姓名</th><th>IP</th><th>位置</th><th>浏览器 / 系统</th><th>结果</th><th class="actions-cell">操作</th></tr>' +
+          '<tbody id="loginTbody"></tbody>' +
+        '</table>' +
+        '<div class="pager">共 12,480 条<span style="flex:1"></span><span class="pg dis">&#8249;</span><span class="pg cur">1</span><span class="pg">2</span><span class="pg">3</span><span class="pg">...</span><span class="pg">&#8250;</span></div>' +
+      '</div>' +
+    '</div>' +
+
+    '<div class="tab-pane" data-group="logs" data-pane="exec">' +
+      '<div class="card" style="border-radius:0 0 8px 8px;">' +
+        '<div class="card-h">' +
+          '<input class="search" type="text" placeholder="搜索任务名称 / 触发者..." oninput="logFilter.kw=this.value.trim();renderExecLogs()" />' +
+          '<select onchange="logFilter.type=this.value;renderExecLogs()"><option value="">全部类型</option><option>Action</option><option>Function</option><option>Pipeline</option></select>' +
+        '</div>' +
+        '<table class="table">' +
+          '<tr><th>时间</th><th>类型</th><th>任务名称</th><th>触发者</th><th>状态</th><th>耗时</th><th>详情</th></tr>' +
+          '<tbody id="execTbody"></tbody>' +
+        '</table>' +
+        '<div class="pager">共 8,642 条<span style="flex:1"></span><span class="pg dis">&#8249;</span><span class="pg cur">1</span><span class="pg">2</span><span class="pg">3</span><span class="pg">...</span><span class="pg">&#8250;</span></div>' +
+      '</div>' +
+    '</div>',
+  onMount: function() {
+    renderAuditLogs();
+    renderLoginLogs();
+    renderExecLogs();
+  }
+});
+</script>
+</body>
+</html>

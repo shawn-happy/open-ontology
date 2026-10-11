@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>部门管理 - Open Ontology</title>
+<link rel="stylesheet" href="../assets/style.css" />
+</head>
+<body>
+<div id="root"></div>
+
+<!-- 新增/编辑部门 -->
+<div class="mask" id="deptModal" data-close-mask>
+  <div class="modal">
+    <div class="modal-h"><span id="deptModalTitle">新增部门</span><span class="x" onclick="App.closeModal('deptModal')">&#215;</span></div>
+    <div class="modal-b">
+      <div class="form-row">
+        <div class="form-item"><label><span class="req">*</span>部门名称</label><input type="text" id="dName" placeholder="如：质量分析组" /></div>
+        <div class="form-item"><label><span class="req">*</span>部门编码</label><input type="text" id="dCode" placeholder="如：quality-analysis" /></div>
+      </div>
+      <div class="form-row">
+        <div class="form-item"><label>上级部门</label><select id="dParent"></select></div>
+        <div class="form-item"><label>部门负责人</label><select id="dLeader">
+          <option value="">请选择</option>
+          <option>admin（超级管理员）</option>
+          <option>张伟</option><option>李静</option><option>周杰</option>
+          <option>吴娜</option><option>王强</option><option>赵敏</option><option>孙立</option>
+        </select></div>
+      </div>
+      <div class="form-item"><label>排序</label><input type="text" id="dSort" value="1" /><div class="tip">数值越小排序越靠前</div></div>
+    </div>
+    <div class="modal-f">
+      <button class="btn" onclick="App.closeModal('deptModal')">取消</button>
+      <button class="btn btn-primary" onclick="deptSave()">确定</button>
+    </div>
+  </div>
+</div>
+
+<!-- 分配用户 -->
+<div class="mask" id="assignUserModal" data-close-mask>
+  <div class="modal">
+    <div class="modal-h">分配用户 - <span id="assignDeptName"></span><span class="x" onclick="App.closeModal('assignUserModal')">&#215;</span></div>
+    <div class="modal-b">
+      <div class="tip mb16 text-2">勾选属于该部门的用户。</div>
+      <div class="check-grid" id="assignUserList"></div>
+    </div>
+    <div class="modal-f">
+      <button class="btn" onclick="App.closeModal('assignUserModal')">取消</button>
+      <button class="btn btn-primary" onclick="App.closeModal('assignUserModal');toast('用户分配已保存（原型演示）')">确定</button>
+    </div>
+  </div>
+</div>
+
+<script src="../assets/app.js"></script>
+<script>
+var DEPT_TREE = {
+  name: 'XX 集团', code: 'group', leader: 'admin', sort: 0, on: true, children: [
+    { name: '数据平台部', code: 'data-platform', leader: 'admin', sort: 1, on: true },
+    { name: '智能制造事业部', code: 'smart-mfg', leader: '张伟', sort: 2, on: true, children: [
+      { name: '工艺数字化组', code: 'craft-digital', leader: '吴娜', sort: 1, on: true },
+      { name: '质量分析组', code: 'quality', leader: '赵敏', sort: 2, on: true },
+    ]},
+    { name: '供应链中心', code: 'scm', leader: '周杰', sort: 3, on: true },
+    { name: 'IT 基础设施部', code: 'it-infra', leader: '孙立', sort: 4, on: true },
+  ]
+};
+
+var DEPT_USERS = {
+  '数据平台部': [
+    { name: 'admin', username: 'admin', role: '超级管理员' },
+    { name: '李静', username: 'lijing', role: '空间管理员' },
+    { name: '王强', username: 'wangqiang', role: '数据工程师' },
+    { name: '陈晨', username: 'chenchen', role: '数据工程师' },
+  ],
+  '智能制造事业部': [
+    { name: '张伟', username: 'zhangwei', role: '空间管理员' },
+    { name: '吴娜', username: 'wuna', role: '本体建模员' },
+    { name: '杨帆', username: 'yangfan', role: '本体建模员' },
+  ],
+  '工艺数字化组': [
+    { name: '赵敏', username: 'zhaomin', role: '本体建模员' },
+  ],
+  '质量分析组': [
+    { name: '刘洋', username: 'liuyang', role: '数据工程师' },
+  ],
+  '供应链中心': [
+    { name: '周杰', username: 'zhoujie', role: '数据工程师' },
+    { name: '孙丽', username: 'sunli2', role: '只读访客' },
+  ],
+  'IT 基础设施部': [
+    { name: '孙立', username: 'sunli', role: '系统运维' },
+  ],
+};
+
+var ALL_USERS = [
+  { name: 'admin', username: 'admin', dept: '数据平台部' },
+  { name: '张伟', username: 'zhangwei', dept: '智能制造事业部' },
+  { name: '李静', username: 'lijing', dept: '数据平台部' },
+  { name: '周杰', username: 'zhoujie', dept: '供应链中心' },
+  { name: '吴娜', username: 'wuna', dept: '智能制造事业部' },
+  { name: '王强', username: 'wangqiang', dept: '数据平台部' },
+  { name: '赵敏', username: 'zhaomin', dept: '工艺数字化组' },
+  { name: '孙立', username: 'sunli', dept: 'IT 基础设施部' },
+  { name: '刘洋', username: 'liuyang', dept: '质量分析组' },
+  { name: '陈晨', username: 'chenchen', dept: '数据平台部' },
+  { name: '孙丽', username: 'sunli2', dept: '供应链中心' },
+  { name: '杨帆', username: 'yangfan', dept: '智能制造事业部' },
+];
+
+var curDeptName = '数据平台部';
+var deptEditName = null;
+
+function findDept(node, name) {
+  if (node.name === name) return node;
+  for (var i = 0; i < (node.children || []).length; i++) {
+    var r = findDept(node.children[i], name);
+    if (r) return r;
+  }
+  return null;
+}
+
+function findParent(node, name) {
+  for (var i = 0; i < (node.children || []).length; i++) {
+    if (node.children[i].name === name) return node;
+    var r = findParent(node.children[i], name);
+    if (r) return r;
+  }
+  return null;
+}
+
+function deptDescendants(node) {
+  var names = [node.name];
+  (node.children || []).forEach(function(c) { names = names.concat(deptDescendants(c)); });
+  return names;
+}
+
+function countAllDepts(node) {
+  var cnt = 1;
+  (node.children || []).forEach(function(c) { cnt += countAllDepts(c); });
+  return cnt;
+}
+
+function renderDeptTree() {
+  var el = document.getElementById('deptTree');
+  el.innerHTML = '';
+  walkDeptTree(el, DEPT_TREE, 0);
+}
+
+function walkDeptTree(parent, node, depth) {
+  var wrap = document.createElement('div');
+  if (depth > 0) wrap.className = 'tree-children';
+  var item = document.createElement('div');
+  item.className = 'tree-node' + (curDeptName === node.name ? ' sel' : '');
+  var hasKids = node.children && node.children.length;
+  var statusIcon = node.on === false ? ' <span style="color:var(--text-3);">[停]</span>' : '';
+  item.innerHTML = '<span class="text-3">' + (hasKids ? '&#9662;' : '&middot;') + '</span> ' + node.name + statusIcon;
+  item.onclick = function() {
+    curDeptName = node.name;
+    renderDeptTree();
+    renderDeptDetail();
+  };
+  wrap.appendChild(item);
+  if (hasKids) {
+    var kids = document.createElement('div');
+    kids.className = 'tree-children';
+    node.children.forEach(function(c) { walkDeptTree(kids, c, 1); });
+    wrap.appendChild(kids);
+  }
+  parent.appendChild(wrap);
+}
+
+function renderDeptDetail() {
+  var node = findDept(DEPT_TREE, curDeptName);
+  if (!node) return;
+  var parent = findParent(DEPT_TREE, curDeptName);
+  var isRoot = !parent;
+
+  document.getElementById('deptName').textContent = curDeptName;
+  document.getElementById('deptCode').textContent = node.code || '—';
+  document.getElementById('deptLeader').textContent = node.leader || '—';
+  document.getElementById('deptSort').textContent = node.sort != null ? node.sort : '—';
+
+  var descNames = deptDescendants(node);
+  var memberCount = 0;
+  descNames.forEach(function(dn) { memberCount += (DEPT_USERS[dn] || []).length; });
+  document.getElementById('deptMemberCount').textContent = memberCount + ' 人（含子部门）';
+
+  document.getElementById('deptStatus').innerHTML = node.on !== false
+    ? '<span class="badge b-green">启用</span>'
+    : '<span class="badge b-gray">停用</span>';
+
+  var sw = document.getElementById('deptToggleSwitch');
+  var tip = document.getElementById('deptDisableTip');
+  if (isRoot) {
+    sw.style.display = 'none';
+    tip.style.display = 'none';
+  } else {
+    sw.style.display = '';
+    sw.className = 'switch' + (node.on !== false ? ' on' : '');
+    tip.style.display = node.on !== false ? '' : 'none';
+  }
+
+  // 成员列表
+  var members = DEPT_USERS[curDeptName] || [];
+  var tb = document.getElementById('memberTbody');
+  if (!members.length) {
+    tb.innerHTML = '<tr><td colspan="4" class="empty">该部门暂无直属成员</td></tr>';
+    return;
+  }
+  tb.innerHTML = members.map(function(u) {
+    return '<tr>' +
+      '<td><b>' + u.name + '</b></td>' +
+      '<td class="mono">' + u.username + '</td>' +
+      '<td>' + u.role + '</td>' +
+      '<td class="actions-cell"><button class="btn-link btn-sm" onclick="toast(\'已移出部门（原型演示）\')">移出部门</button></td>' +
+    '</tr>';
+  }).join('');
+}
+
+function fillParentOptions(selected) {
+  var sel = document.getElementById('dParent');
+  sel.innerHTML = deptDescendants(DEPT_TREE).map(function(n) { return '<option>' + n + '</option>'; }).join('');
+  if (selected) sel.value = selected;
+}
+
+function deptOpenCreate(parentName) {
+  deptEditName = null;
+  document.getElementById('deptModalTitle').textContent = '新增部门';
+  document.getElementById('dName').value = '';
+  document.getElementById('dCode').value = '';
+  document.getElementById('dSort').value = '1';
+  fillParentOptions(parentName || curDeptName);
+  App.openModal('deptModal');
+}
+
+function deptOpenEdit() {
+  var node = findDept(DEPT_TREE, curDeptName);
+  if (!node) return;
+  var parent = findParent(DEPT_TREE, curDeptName);
+  if (!parent) { toast('根节点不可编辑'); return; }
+  deptEditName = curDeptName;
+  document.getElementById('deptModalTitle').textContent = '编辑部门 - ' + curDeptName;
+  document.getElementById('dName').value = curDeptName;
+  document.getElementById('dCode').value = node.code || '';
+  document.getElementById('dSort').value = node.sort != null ? node.sort : 1;
+  document.getElementById('dLeader').value = node.leader || '';
+  fillParentOptions(parent ? parent.name : 'XX 集团');
+  App.openModal('deptModal');
+}
+
+function deptSave() {
+  var name = document.getElementById('dName').value.trim();
+  var code = document.getElementById('dCode').value.trim();
+  if (!name || !code) { toast('请填写部门名称和编码'); return; }
+
+  if (deptEditName) {
+    var node = findDept(DEPT_TREE, deptEditName);
+    if (!node) return;
+    Object.assign(node, {
+      name: name, code: code,
+      leader: document.getElementById('dLeader').value,
+      sort: Number(document.getElementById('dSort').value) || 1
+    });
+    if (name !== deptEditName) {
+      DEPT_USERS[name] = DEPT_USERS[deptEditName] || [];
+      delete DEPT_USERS[deptEditName];
+      curDeptName = name;
+    }
+    toast('部门已更新（原型演示）');
+  } else {
+    if (findDept(DEPT_TREE, name)) { toast('部门名称已存在'); return; }
+    var parent = findDept(DEPT_TREE, document.getElementById('dParent').value);
+    if (!parent) { toast('请选择上级部门'); return; }
+    if (!parent.children) parent.children = [];
+    parent.children.push({
+      name: name, code: code,
+      leader: document.getElementById('dLeader').value,
+      sort: Number(document.getElementById('dSort').value) || 1,
+      on: true
+    });
+    DEPT_USERS[name] = [];
+    curDeptName = name;
+    toast('部门已创建（原型演示）');
+  }
+  App.closeModal('deptModal');
+  renderDeptTree();
+  renderDeptDetail();
+}
+
+function deptToggleStatus() {
+  var node = findDept(DEPT_TREE, curDeptName);
+  if (!node) return;
+  var parent = findParent(DEPT_TREE, curDeptName);
+  if (!parent) { toast('根节点不可停用'); return; }
+
+  if (node.on === false) {
+    node.on = true;
+    renderDeptTree();
+    renderDeptDetail();
+    toast('部门已启用');
+    return;
+  }
+
+  var descNames = deptDescendants(node);
+  var moverCount = 0;
+  descNames.forEach(function(dn) { moverCount += (DEPT_USERS[dn] || []).length; });
+
+  if (!confirm('确认停用「' + curDeptName + '」？\n该部门及子部门下 ' + moverCount + ' 名用户将迁移至上级部门「' + parent.name + '」。')) return;
+
+  // 迁移用户
+  descNames.forEach(function(dn) {
+    var users = DEPT_USERS[dn] || [];
+    if (!DEPT_USERS[parent.name]) DEPT_USERS[parent.name] = [];
+    users.forEach(function(u) { DEPT_USERS[parent.name].push(u); });
+    DEPT_USERS[dn] = [];
+  });
+
+  node.on = false;
+  renderDeptTree();
+  renderDeptDetail();
+  toast('部门已停用，' + moverCount + ' 名用户已迁移至「' + parent.name + '」（原型演示）');
+}
+
+function assignUser() {
+  document.getElementById('assignDeptName').textContent = curDeptName;
+  var currentMembers = (DEPT_USERS[curDeptName] || []).map(function(u) { return u.username; });
+  var html = ALL_USERS.map(function(u) {
+    var checked = currentMembers.indexOf(u.username) >= 0 ? 'checked' : '';
+    return '<label><input type="checkbox" ' + checked + ' /> ' + u.name + '（' + u.username + ' · ' + u.dept + '）</label>';
+  }).join('');
+  document.getElementById('assignUserList').innerHTML = html;
+  App.openModal('assignUserModal');
+}
+
+function assignLeader() {
+  toast('请在编辑部门弹窗中设置部门负责人');
+  deptOpenEdit();
+}
+
+App.mount({
+  page: 'sys-depts',
+  crumbs: ['平台管理', '系统管理', '部门管理'],
+  title: '部门管理',
+  desc: '维护组织架构部门树。支持新增、编辑、启停用部门，分配用户与部门负责人。停用部门时下属用户自动迁移至上级部门。',
+  actions: '',
+  content:
+    '<div class="stat-grid" id="deptStats"></div>' +
+    '<div class="row">' +
+      '<div class="card col" style="max-width:380px;">' +
+        '<div class="card-h"><h3>部门树</h3><div class="right"><button class="btn btn-sm btn-primary" onclick="deptOpenCreate(\'XX 集团\')">+ 一级部门</button></div></div>' +
+        '<div class="card-b"><div class="tree" id="deptTree"></div></div>' +
+      '</div>' +
+      '<div class="card col">' +
+        '<div class="card-h"><h3>部门详情 - <span id="deptName" class="text-2">—</span></h3>' +
+          '<div class="right">' +
+            '<button class="btn btn-sm" onclick="deptOpenCreate(curDeptName)">+ 子部门</button>' +
+            '<button class="btn btn-sm" onclick="deptOpenEdit()">编辑</button>' +
+            '<button class="btn btn-sm" onclick="assignUser()">分配用户</button>' +
+            '<button class="btn btn-sm" onclick="assignLeader()">设置负责人</button>' +
+          '</div>' +
+        '</div>' +
+        '<div class="card-b">' +
+          '<dl class="desc-list mb16">' +
+            '<dt>部门编码</dt><dd class="mono" id="deptCode">—</dd>' +
+            '<dt>部门负责人</dt><dd id="deptLeader">—</dd>' +
+            '<dt>成员数</dt><dd id="deptMemberCount">—</dd>' +
+            '<dt>排序</dt><dd id="deptSort">—</dd>' +
+            '<dt>状态</dt><dd><span id="deptStatus">—</span> <span class="switch" id="deptToggleSwitch" onclick="deptToggleStatus()"></span></dd>' +
+          '</dl>' +
+          '<div class="tip mb16 text-2" id="deptDisableTip">停用部门后，该部门（含子部门）下的用户将自动迁移至上级部门。</div>' +
+          '<table class="table">' +
+            '<tr><th>姓名</th><th>用户名</th><th>角色</th><th class="actions-cell">操作</th></tr>' +
+            '<tbody id="memberTbody"><tr><td colspan="4" class="empty">请选择左侧部门</td></tr></tbody>' +
+          '</table>' +
+        '</div>' +
+      '</div>' +
+    '</div>',
+  onMount: function() {
+    var total = countAllDepts(DEPT_TREE);
+    var levels = 0;
+    (function walkLevel(n, d) { if (d > levels) levels = d; (n.children || []).forEach(function(c) { walkLevel(c, d + 1); }); })(DEPT_TREE, 0);
+    var totalUsers = 0;
+    Object.keys(DEPT_USERS).forEach(function(k) { totalUsers += DEPT_USERS[k].length; });
+    document.getElementById('deptStats').innerHTML =
+      '<div class="stat"><div class="label">部门总数</div><div class="val">' + total + '</div></div>' +
+      '<div class="stat"><div class="label">层级深度</div><div class="val">' + levels + ' 级</div></div>' +
+      '<div class="stat"><div class="label">用户总数</div><div class="val">' + totalUsers + '</div></div>' +
+      '<div class="stat"><div class="label">启用部门</div><div class="val" style="color:var(--success)">' + total + '</div></div>';
+    renderDeptTree();
+    renderDeptDetail();
+  }
+});
+</script>
+</body>
+</html>

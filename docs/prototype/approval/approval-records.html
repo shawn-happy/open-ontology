@@ -7,6 +7,12 @@
 <style>
   .res-link { color: var(--primary); cursor: pointer; }
   .res-link:hover { text-decoration: underline; }
+  .role-switch { display: inline-flex; align-items: center; gap: 8px; padding: 6px 14px; border-radius: 6px; background: #f3f4f6; font-size: 13px; margin-bottom: 16px; }
+  .role-switch b { color: var(--primary); }
+  .role-switch button { font-size: 12px; padding: 2px 10px; border-radius: 4px; border: 1px solid var(--border); background: #fff; cursor: pointer; }
+  .role-switch button:hover { background: var(--primary-light); color: var(--primary); border-color: var(--primary); }
+  .role-switch button.active { background: var(--primary); color: #fff; border-color: var(--primary); }
+  .apv-hint { font-size: 12px; color: var(--text-3); margin-left: 4px; }
 </style>
 </head>
 <body>
@@ -21,6 +27,18 @@
       <div class="form-item"><label>审批意见</label><textarea id="actComment" rows="3" placeholder="填写审批意见（可选）"></textarea></div>
     </div>
     <div class="modal-f"><button class="btn" onclick="App.closeModal('actModal')">取消</button><button class="btn btn-primary" id="actConfirmBtn" onclick="actConfirm()">确定</button></div>
+  </div>
+</div>
+
+<!-- 撤回确认 -->
+<div class="mask" id="withdrawModal" data-close-mask>
+  <div class="modal sm">
+    <div class="modal-h"><span>撤回审批</span><span class="x" onclick="App.closeModal('withdrawModal')">×</span></div>
+    <div class="modal-b">
+      <div class="fs13 mb8" id="withdrawTarget"></div>
+      <div class="form-item"><label>撤回原因</label><textarea id="withdrawReason" rows="3" placeholder="填写撤回原因（可选）"></textarea></div>
+    </div>
+    <div class="modal-f"><button class="btn" onclick="App.closeModal('withdrawModal')">取消</button><button class="btn btn-danger" onclick="withdrawConfirm()">确认撤回</button></div>
   </div>
 </div>
 
@@ -46,28 +64,135 @@ const RES_META = {
   'action':      { label: '动作',       href: '../ontology/ontology-actions.html', icon: '▶', badge: 'b-orange' },
   'function':    { label: '函数',       href: '../ontology/ontology-functions.html', icon: 'ƒ', badge: 'b-green' },
 };
-const ST = {
-  pending:  { label: '待审批', badge: 'b-orange' },
-  approved: { label: '通过',   badge: 'b-green' },
-  rejected: { label: '驳回',   badge: 'b-red' },
-};
-const CUR_USER = 'shawn'; // 当前登录用户（超级管理员，兼审批人）
 
-// status: pending 待办 / approved rejected 已办；mine = submitter === CUR_USER
+// 审批状态枚举
+const ST = {
+  pending:   { label: '待审批', badge: 'b-orange' },
+  approved:  { label: '已通过', badge: 'b-green' },
+  rejected:  { label: '已驳回', badge: 'b-red' },
+  withdrawn: { label: '已撤回', badge: 'b-gray' },
+};
+
+// 角色视角：approver（审批人）可看全部三个 Tab；user（普通用户）只看"我发起的"
+let viewRole = 'approver'; // approver | user
+
+// ===== 模拟数据（丰富版）=====
+// 当前登录用户（可通过角色切换按钮切换视角）
+const APPROVER_USER = 'shawn';   // 超级管理员 + 审批人
+const NORMAL_USER   = 'wuna';    // 普通用户
+
 let RECORDS = [
-  { id: 'AP-20260924-003', res: 'action', resName: 'batchArchiveFaults 批量故障归档', ver: 'v2 → v3（调整批量上限与校验规则）', scope: '全局', submitter: 'zhangwei', submitTime: '2026-09-24 10:12', status: 'pending', apvUsers: ['shawn'], apvRoles: ['空间管理员'] },
-  { id: 'AP-20260924-001', res: 'shared-prop', resName: 'asset_no 资产编号', ver: 'v1 → v2（新增唯一性约束）', scope: '全局', submitter: 'lijing', submitTime: '2026-09-24 09:03', status: 'pending', apvUsers: [], apvRoles: ['空间管理员'] },
-  { id: 'AP-20260923-008', res: 'constraint', resName: 'contact_phone 手机号格式校验', ver: 'v1（新建正则约束）', scope: '智能制造空间', submitter: 'wuna', submitTime: '2026-09-23 16:40', status: 'pending', apvUsers: ['lijing'], apvRoles: [] },
-  { id: 'AP-20260923-006', res: 'object', resName: 'Equipment 设备', ver: 'v3 → v4（新增衍生属性 yield_grade）', scope: '全局', submitter: 'zhangwei', submitTime: '2026-09-23 14:20', status: 'approved', apvUsers: ['shawn'], apvRoles: ['空间管理员'], approver: 'shawn', doneTime: '2026-09-23 15:02', comment: '映射校验已通过，同意发布。' },
-  { id: 'AP-20260923-002', res: 'shared-prop', resName: 'asset_no 资产编号', ver: 'v1（发布首个版本）', scope: '全局', submitter: 'wuna', submitTime: '2026-09-23 10:05', status: 'rejected', apvUsers: [], apvRoles: ['空间管理员'], approver: 'shawn', doneTime: '2026-09-23 11:18', comment: '唯一性约束未覆盖历史数据，请先补充清洗方案后重新提交。' },
-  { id: 'AP-20260922-011', res: 'function', resName: 'calcEquipmentYield 计算设备综合良率', ver: 'v2 → v3（窗口期参数默认 30 天）', scope: '智能制造空间', submitter: 'shawn', submitTime: '2026-09-22 17:30', status: 'approved', apvUsers: ['lijing'], apvRoles: ['本体建模员'], approver: 'lijing', doneTime: '2026-09-23 08:55', comment: '单测全部通过，同意。' },
-  { id: 'AP-20260922-004', res: 'action', resName: 'updateUnitCost 更新单位成本', ver: 'v1 → v2（增加权限校验）', scope: '全局', submitter: 'shawn', submitTime: '2026-09-22 09:12', status: 'pending', apvUsers: ['shawn'], apvRoles: ['空间管理员'] },
+  // ---------- 待审批（分配给 shawn）----------
+  {
+    id: 'AP-20260924-003', res: 'action', resName: 'batchArchiveFaults 批量故障归档',
+    ver: 'v2 → v3（调整批量上限与校验规则）', scope: '全局',
+    submitter: 'zhangwei', submitTime: '2026-09-24 10:12',
+    status: 'pending', apvUsers: ['shawn'], apvRoles: ['空间管理员'],
+  },
+  {
+    id: 'AP-20260924-001', res: 'shared-prop', resName: 'asset_no 资产编号',
+    ver: 'v1 → v2（新增唯一性约束）', scope: '全局',
+    submitter: 'lijing', submitTime: '2026-09-24 09:03',
+    status: 'pending', apvUsers: [], apvRoles: ['空间管理员'],
+  },
+  {
+    id: 'AP-20260924-007', res: 'object', resName: 'Material 物料主数据',
+    ver: 'v1 → v2（新增属性 material_category、unit_weight）', scope: '智能制造空间',
+    submitter: 'zhaomin', submitTime: '2026-09-24 14:25',
+    status: 'pending', apvUsers: ['shawn'], apvRoles: [],
+  },
+  {
+    id: 'AP-20260925-002', res: 'constraint', resName: 'email_format 邮箱格式校验',
+    ver: 'v1（新建正则约束）', scope: '全局',
+    submitter: 'lijing', submitTime: '2026-09-25 08:30',
+    status: 'pending', apvUsers: ['shawn'], apvRoles: ['空间管理员'],
+  },
+  // ---------- 待审批（非 shawn 审批，shawn 不可操作）----------
+  {
+    id: 'AP-20260923-008', res: 'constraint', resName: 'contact_phone 手机号格式校验',
+    ver: 'v1（新建正则约束）', scope: '智能制造空间',
+    submitter: 'wuna', submitTime: '2026-09-23 16:40',
+    status: 'pending', apvUsers: ['lijing'], apvRoles: [],
+  },
+  {
+    id: 'AP-20260925-005', res: 'function', resName: 'calcOEE 计算设备 OEE',
+    ver: 'v1（新建函数）', scope: '智能制造空间',
+    submitter: 'zhangwei', submitTime: '2026-09-25 11:05',
+    status: 'pending', apvUsers: ['lijing'], apvRoles: ['本体建模员'],
+  },
+  // ---------- 已通过 ----------
+  {
+    id: 'AP-20260923-006', res: 'object', resName: 'Equipment 设备',
+    ver: 'v3 → v4（新增衍生属性 yield_grade）', scope: '全局',
+    submitter: 'zhangwei', submitTime: '2026-09-23 14:20',
+    status: 'approved', apvUsers: ['shawn'], apvRoles: ['空间管理员'],
+    approver: 'shawn', doneTime: '2026-09-23 15:02', comment: '映射校验已通过，同意发布。',
+  },
+  {
+    id: 'AP-20260922-011', res: 'function', resName: 'calcEquipmentYield 计算设备综合良率',
+    ver: 'v2 → v3（窗口期参数默认 30 天）', scope: '智能制造空间',
+    submitter: 'shawn', submitTime: '2026-09-22 17:30',
+    status: 'approved', apvUsers: ['lijing'], apvRoles: ['本体建模员'],
+    approver: 'lijing', doneTime: '2026-09-23 08:55', comment: '单测全部通过，同意。',
+  },
+  {
+    id: 'AP-20260921-009', res: 'shared-prop', resName: 'location_code 位置编码',
+    ver: 'v1 → v2（增加枚举值约束）', scope: '全局',
+    submitter: 'zhangwei', submitTime: '2026-09-21 11:40',
+    status: 'approved', apvUsers: ['shawn'], apvRoles: ['空间管理员'],
+    approver: 'shawn', doneTime: '2026-09-21 14:20', comment: '枚举值已核对，通过。',
+  },
+  // ---------- 已驳回 ----------
+  {
+    id: 'AP-20260923-002', res: 'shared-prop', resName: 'asset_no 资产编号',
+    ver: 'v1（发布首个版本）', scope: '全局',
+    submitter: 'wuna', submitTime: '2026-09-23 10:05',
+    status: 'rejected', apvUsers: [], apvRoles: ['空间管理员'],
+    approver: 'shawn', doneTime: '2026-09-23 11:18',
+    comment: '唯一性约束未覆盖历史数据，请先补充清洗方案后重新提交。',
+  },
+  {
+    id: 'AP-20260920-006', res: 'action', resName: 'syncExternalData 外部数据同步',
+    ver: 'v1（新建动作）', scope: '供应链分析空间',
+    submitter: 'zhoujie', submitTime: '2026-09-20 09:15',
+    status: 'rejected', apvUsers: ['shawn'], apvRoles: ['空间管理员'],
+    approver: 'shawn', doneTime: '2026-09-20 16:30',
+    comment: '缺少异常重试机制与幂等校验，请补充后重新提交。',
+  },
+  {
+    id: 'AP-20260922-008', res: 'object', resName: 'Supplier 供应商',
+    ver: 'v2 → v3（新增关联关系 supplier_contracts）', scope: '供应链分析空间',
+    submitter: 'lijing', submitTime: '2026-09-22 15:10',
+    status: 'rejected', apvUsers: ['shawn'], apvRoles: ['空间管理员'],
+    approver: 'shawn', doneTime: '2026-09-22 17:45',
+    comment: '关联关系命名不符合规范，建议使用 has_contracts。',
+  },
+  // ---------- 已撤回（发起人主动撤回）----------
+  {
+    id: 'AP-20260924-005', res: 'function', resName: 'detectAnomaly 异常检测函数',
+    ver: 'v1（新建函数）', scope: '设备运维空间',
+    submitter: 'shawn', submitTime: '2026-09-24 13:50',
+    status: 'withdrawn', apvUsers: ['sunli'], apvRoles: ['空间管理员'],
+    withdrawer: 'shawn', withdrawTime: '2026-09-24 16:10', withdrawReason: '发现逻辑缺陷，需修复后重新提交。',
+  },
+  {
+    id: 'AP-20260922-004', res: 'action', resName: 'updateUnitCost 更新单位成本',
+    ver: 'v1 → v2（增加权限校验）', scope: '全局',
+    submitter: 'shawn', submitTime: '2026-09-22 09:12',
+    status: 'withdrawn', apvUsers: ['shawn'], apvRoles: ['空间管理员'],
+    withdrawer: 'shawn', withdrawTime: '2026-09-22 10:30', withdrawReason: '需求变更，暂停发布。',
+  },
 ];
 
-let curTab = 'pending';   // pending | done | mine
-let actRecordId = null;   // 当前通过/驳回的记录
-let actType = 'approved'; // approved | rejected
-let detailId = null;      // 当前详情记录
+let curTab = 'pending';
+let actRecordId = null;
+let actType = 'approved';
+let detailId = null;
+let withdrawId = null;
+
+function resBadge(r) { const m = RES_META[r.res]; return `<span class="badge ${m.badge} no-dot">${m.label}</span>`; }
+function resLink(r) { return `<a class="res-link" onclick="openDetail('${r.id}')" title="点击查看详情，物料详情在审批详情页中查看">${r.resName}</a>`; }
+function stBadge(r) { return `<span class="badge ${ST[r.status].badge}">${ST[r.status].label}</span>`; }
 
 App.mount({
   page: 'approval',
@@ -76,30 +201,78 @@ App.mount({
   desc: '本体资源发布审批的单据流转记录：审批人可见待办 / 已办 / 我发起的，普通用户仅可见「我发起的」。',
   actions: `<a class="btn" href="approval-config.html">← 审批流程配置</a>`,
   content: `
-  <div class="tip mb16 text-2">审批人（被配置为审批用户或审批角色成员的用户）可看到 <b>待办审批</b>、<b>已办审批</b>、<b>我发起的</b> 三个列表；普通用户只能看到「我发起的」。当前登录：shawn（超级管理员 · 兼审批人视角）。</div>
+  <div class="role-switch">
+    <span>当前视角：</span>
+    <button id="btnApprover" class="active" onclick="switchRole('approver')">审批人（shawn · 超级管理员）</button>
+    <button id="btnUser" onclick="switchRole('user')">普通用户（wuna · 本体建模员）</button>
+    <span class="apv-hint">切换视角以查看不同用户的审批体验</span>
+  </div>
+  <div id="roleTip" class="tip mb16 text-2"></div>
   <div class="card" style="border-radius:0 0 8px 8px;">
-    <div class="tabs" data-group="apv">
-      <div class="tab active" data-pane="pending" data-group="apv">待办审批 <span class="cnt" id="cntPending"></span></div>
-      <div class="tab" data-pane="done" data-group="apv">已办审批 <span class="cnt" id="cntDone"></span></div>
-      <div class="tab" data-pane="mine" data-group="apv">我发起的 <span class="cnt" id="cntMine"></span></div>
+    <div class="tabs" data-group="apv" id="apvTabs">
+      <div class="tab active" data-pane="pending" data-group="apv" id="tabPending">待办审批 <span class="cnt" id="cntPending"></span></div>
+      <div class="tab" data-pane="done" data-group="apv" id="tabDone">已办审批 <span class="cnt" id="cntDone"></span></div>
+      <div class="tab" data-pane="mine" data-group="apv" id="tabMine">我发起的 <span class="cnt" id="cntMine"></span></div>
     </div>
-    <div class="tab-pane active" data-group="apv" data-pane="pending">
+    <div class="tab-pane active" data-group="apv" data-pane="pending" id="panePending">
       <table class="table"><thead><tr><th>审批单号</th><th>资源类型</th><th>资源名称</th><th>变更摘要</th><th>作用域</th><th>发起人</th><th>提交时间</th><th>状态</th><th class="actions-cell">操作</th></tr></thead><tbody id="tbPending"></tbody></table>
     </div>
-    <div class="tab-pane" data-group="apv" data-pane="done">
+    <div class="tab-pane" data-group="apv" data-pane="done" id="paneDone">
       <table class="table"><thead><tr><th>审批单号</th><th>资源类型</th><th>资源名称</th><th>作用域</th><th>发起人</th><th>审批人</th><th>审批时间</th><th>状态</th><th>审批意见</th><th class="actions-cell">操作</th></tr></thead><tbody id="tbDone"></tbody></table>
     </div>
-    <div class="tab-pane" data-group="apv" data-pane="mine">
+    <div class="tab-pane" data-group="apv" data-pane="mine" id="paneMine">
       <table class="table"><thead><tr><th>审批单号</th><th>资源类型</th><th>资源名称</th><th>作用域</th><th>提交时间</th><th>状态</th><th class="actions-cell">操作</th></tr></thead><tbody id="tbMine"></tbody></table>
     </div>
   </div>`,
 
-  onMount() { renderAll(); },
+  onMount() { switchRole('approver'); },
 });
 
-const resBadge = (r) => { const m = RES_META[r.res]; return `<span class="badge ${m.badge} no-dot">${m.label}</span>`; };
-const resLink = (r) => `<a class="res-link" href="${RES_META[r.res].href}" title="跳转到物料详情页">${r.resName}</a>`;
-const stBadge = (r) => `<span class="badge ${ST[r.status].badge}">${ST[r.status].label}</span>`;
+// ===== 角色切换 =====
+function switchRole(role) {
+  viewRole = role;
+  document.getElementById('btnApprover').className = role === 'approver' ? 'active' : '';
+  document.getElementById('btnUser').className = role === 'user' ? 'active' : '';
+
+  if (role === 'approver') {
+    document.getElementById('roleTip').innerHTML =
+      '当前以 <b>shawn（超级管理员 · 审批人）</b> 视角查看：可见待办审批、已办审批、我发起的三个列表；待办中仅当前用户为指定审批人或匹配审批角色时，才可执行通过/驳回操作。';
+    // 显示全部 Tab
+    document.getElementById('tabPending').style.display = '';
+    document.getElementById('tabDone').style.display = '';
+    document.getElementById('tabMine').style.display = '';
+    curTab = 'pending';
+    activateTab('pending');
+  } else {
+    document.getElementById('roleTip').innerHTML =
+      '当前以 <b>wuna（本体建模员 · 普通用户）</b> 视角查看：仅可见「我发起的」列表，无法看到待办/已办审批；待审批状态下可撤回申请。';
+    // 隐藏审批人专属 Tab
+    document.getElementById('tabPending').style.display = 'none';
+    document.getElementById('tabDone').style.display = 'none';
+    document.getElementById('tabMine').style.display = '';
+    curTab = 'mine';
+    activateTab('mine');
+  }
+  renderAll();
+}
+
+function activateTab(pane) {
+  document.querySelectorAll('#apvTabs .tab').forEach((el) => el.classList.toggle('active', el.dataset.pane === pane));
+  document.querySelectorAll('.tab-pane[data-group="apv"]').forEach((el) => el.classList.toggle('active', el.dataset.pane === pane));
+}
+
+// ===== 当前用户 =====
+function currentUser() { return viewRole === 'approver' ? APPROVER_USER : NORMAL_USER; }
+
+// ===== 判断当前用户是否为指定审批人 =====
+function isApproverOf(r) {
+  const u = currentUser();
+  if ((r.apvUsers || []).includes(u)) return true;
+  // 角色匹配简化：shawn 拥有全部角色，lijing 拥有空间管理员
+  const roleMap = { shawn: ['超级管理员','空间管理员','本体建模员','数据工程师'], lijing: ['空间管理员','本体建模员'], zhangwei: ['空间管理员'], zhaomin: ['本体建模员'] };
+  const uRoles = roleMap[u] || [];
+  return (r.apvRoles || []).some((role) => uRoles.includes(role));
+}
 
 function renderAll() {
   renderCounts();
@@ -107,17 +280,25 @@ function renderAll() {
 }
 
 function renderCounts() {
-  document.getElementById('cntPending').textContent = RECORDS.filter((r) => r.status === 'pending').length;
-  document.getElementById('cntDone').textContent = RECORDS.filter((r) => r.status !== 'pending').length;
-  document.getElementById('cntMine').textContent = RECORDS.filter((r) => r.submitter === CUR_USER).length;
+  const u = currentUser();
+  document.getElementById('cntPending').textContent = RECORDS.filter((r) => r.status === 'pending' && isApproverOf(r)).length;
+  document.getElementById('cntDone').textContent = RECORDS.filter((r) => r.status !== 'pending' && isApproverOf(r)).length;
+  document.getElementById('cntMine').textContent = RECORDS.filter((r) => r.submitter === u).length;
 }
 
-// ===== 待办审批（审批人）=====
+// ===== 待办审批（仅审批人视角可见，且只显示分配给当前用户的）=====
 function renderPending() {
   const tb = document.getElementById('tbPending');
-  const list = RECORDS.filter((r) => r.status === 'pending');
+  const u = currentUser();
+  const list = RECORDS.filter((r) => r.status === 'pending' && isApproverOf(r));
   if (!list.length) { tb.innerHTML = '<tr><td colspan="9" class="empty">暂无待办审批</td></tr>'; return; }
-  tb.innerHTML = list.map((r) => `
+  tb.innerHTML = list.map((r) => {
+    const canAct = isApproverOf(r); // 当前用户可操作
+    const actBtns = canAct
+      ? `<button class="btn-link btn-sm" onclick="openAct('${r.id}','approved')">通过</button>
+         <button class="btn-link btn-sm btn-danger" onclick="openAct('${r.id}','rejected')">驳回</button>`
+      : '<span class="apv-hint">非指定审批人</span>';
+    return `
     <tr>
       <td class="mono">${r.id}</td>
       <td>${resBadge(r)}</td>
@@ -129,16 +310,16 @@ function renderPending() {
       <td>${stBadge(r)}</td>
       <td class="actions-cell">
         <button class="btn-link btn-sm" onclick="openDetail('${r.id}')">详情</button>
-        <button class="btn-link btn-sm" onclick="openAct('${r.id}','approved')">通过</button>
-        <button class="btn-link btn-sm btn-danger" onclick="openAct('${r.id}','rejected')">驳回</button>
+        ${actBtns}
       </td>
-    </tr>`).join('');
+    </tr>`;
+  }).join('');
 }
 
 // ===== 已办审批 =====
 function renderDone() {
   const tb = document.getElementById('tbDone');
-  const list = RECORDS.filter((r) => r.status !== 'pending');
+  const list = RECORDS.filter((r) => r.status !== 'pending' && r.status !== 'withdrawn' && isApproverOf(r));
   if (!list.length) { tb.innerHTML = '<tr><td colspan="10" class="empty">暂无已办记录</td></tr>'; return; }
   tb.innerHTML = list.map((r) => `
     <tr>
@@ -158,9 +339,14 @@ function renderDone() {
 // ===== 我发起的 =====
 function renderMine() {
   const tb = document.getElementById('tbMine');
-  const list = RECORDS.filter((r) => r.submitter === CUR_USER);
+  const u = currentUser();
+  const list = RECORDS.filter((r) => r.submitter === u);
   if (!list.length) { tb.innerHTML = '<tr><td colspan="7" class="empty">暂无发起记录</td></tr>'; return; }
-  tb.innerHTML = list.map((r) => `
+  tb.innerHTML = list.map((r) => {
+    const canWithdraw = r.status === 'pending';
+    const withdrawBtn = canWithdraw ? `<button class="btn-link btn-sm btn-danger" onclick="openWithdraw('${r.id}')">撤回</button>` : '';
+    const resubmitBtn = r.status === 'rejected' ? `<button class="btn-link btn-sm" onclick="toast('已重新提交（原型演示）')">重新提交</button>` : '';
+    return `
     <tr>
       <td class="mono">${r.id}</td>
       <td>${resBadge(r)}</td>
@@ -168,9 +354,21 @@ function renderMine() {
       <td>${r.scope === '全局' ? '<span class="badge b-purple no-dot">全局</span>' : r.scope}</td>
       <td class="text-2 fs12">${r.submitTime}</td>
       <td>${stBadge(r)}</td>
-      <td class="actions-cell"><button class="btn-link btn-sm" onclick="openDetail('${r.id}')">详情</button></td>
-    </tr>`).join('');
+      <td class="actions-cell">
+        <button class="btn-link btn-sm" onclick="openDetail('${r.id}')">详情</button>
+        ${withdrawBtn}${resubmitBtn}
+      </td>
+    </tr>`;
+  }).join('');
 }
+
+// ===== Tab 点击 =====
+document.addEventListener('click', (e) => {
+  const tab = e.target.closest('.tab[data-group="apv"]');
+  if (!tab) return;
+  curTab = tab.dataset.pane;
+  activateTab(curTab);
+});
 
 // ===== 通过 / 驳回 =====
 function openAct(id, type) {
@@ -190,17 +388,39 @@ function actConfirm() {
   if (!r) return;
   const comment = document.getElementById('actComment').value.trim();
   r.status = actType;
-  r.approver = CUR_USER;
-  r.doneTime = '2026-09-24 11:20';
+  r.approver = currentUser();
+  r.doneTime = '2026-09-25 14:30';
   r.comment = comment || (actType === 'approved' ? '同意发布。' : '不符合发布要求，请修改后重新提交。');
   App.closeModal('actModal');
   renderAll();
-  // 追加站内通知（顶栏铃铛红点 +1）
   App.pushNotif(actType, actType === 'approved'
     ? `您通过了 ${r.submitter} 发起的${RES_META[r.res].label}「${r.resName}」发布审批（${r.id}）`
     : `您驳回了 ${r.submitter} 发起的${RES_META[r.res].label}「${r.resName}」发布申请（${r.id}）`);
   toast(`审批完成：${ST[actType].label} · ${r.id}`);
-  if (detailId === r.id) openDetail(r.id); // 详情抽屉若开着则刷新
+  if (detailId === r.id) openDetail(r.id);
+}
+
+// ===== 撤回 =====
+function openWithdraw(id) {
+  withdrawId = id;
+  const r = RECORDS.find((x) => x.id === id);
+  document.getElementById('withdrawTarget').innerHTML = `<b class="mono">${r.id}</b> · ${r.resName}<br><span class="fs12 text-2">撤回后审批单将关闭，如需发布请重新提交。</span>`;
+  document.getElementById('withdrawReason').value = '';
+  App.openModal('withdrawModal');
+}
+
+function withdrawConfirm() {
+  const r = RECORDS.find((x) => x.id === withdrawId);
+  if (!r) return;
+  const reason = document.getElementById('withdrawReason').value.trim();
+  r.status = 'withdrawn';
+  r.withdrawer = currentUser();
+  r.withdrawTime = '2026-09-25 14:30';
+  r.withdrawReason = reason || '发起人主动撤回。';
+  App.closeModal('withdrawModal');
+  renderAll();
+  toast(`已撤回：${r.id}`);
+  if (detailId === r.id) openDetail(r.id);
 }
 
 // ===== 审批详情抽屉 =====
@@ -209,21 +429,31 @@ function openDetail(id) {
   if (!r) return;
   detailId = id;
   const m = RES_META[r.res];
+  const u = currentUser();
+
   document.getElementById('ddId').textContent = r.id;
   document.getElementById('ddStatus').innerHTML = stBadge(r);
+
   const apvTags =
     (r.apvUsers || []).map((a) => `<span class="tag blue">用户 · ${a}</span>`).join('') +
     (r.apvRoles || []).map((x) => `<span class="tag role">角色 · ${x}（成员动态计算）</span>`).join('');
-  const flow =
-    `<div class="tl-item"><div class="tl-time">${r.submitTime}</div><div class="tl-title">${r.submitter} 提交发布申请</div><div class="tl-desc">${r.ver}</div></div>` +
-    (r.status === 'pending'
-      ? `<div class="tl-item warn"><div class="tl-time">—</div><div class="tl-title">等待审批</div><div class="tl-desc">审批人：${apvTags}</div></div>`
-      : `<div class="tl-item ${r.status === 'rejected' ? 'err' : ''}"><div class="tl-time">${r.doneTime}</div><div class="tl-title">${r.approver} ${ST[r.status].label}</div><div class="tl-desc">${r.comment || ''}</div></div>`);
+
+  // 审批流程时间线
+  let flow = `<div class="tl-item"><div class="tl-time">${r.submitTime}</div><div class="tl-title">${r.submitter} 提交发布申请</div><div class="tl-desc">${r.ver}</div></div>`;
+
+  if (r.status === 'pending') {
+    flow += `<div class="tl-item warn"><div class="tl-time">—</div><div class="tl-title">等待审批</div><div class="tl-desc">审批人：${apvTags}</div></div>`;
+  } else if (r.status === 'withdrawn') {
+    flow += `<div class="tl-item err"><div class="tl-time">${r.withdrawTime}</div><div class="tl-title">${r.withdrawer} 撤回了申请</div><div class="tl-desc">${r.withdrawReason || ''}</div></div>`;
+  } else {
+    const cls = r.status === 'rejected' ? 'err' : '';
+    flow += `<div class="tl-item ${cls}"><div class="tl-time">${r.doneTime}</div><div class="tl-title">${r.approver} ${ST[r.status].label}</div><div class="tl-desc">${r.comment || ''}</div></div>`;
+  }
 
   document.getElementById('ddBody').innerHTML = `
     <dl class="desc-list mb16">
       <dt>资源类型</dt><dd>${resBadge(r)}</dd>
-      <dt>资源名称</dt><dd><b>${resLink(r)}</b></dd>
+      <dt>资源名称</dt><dd><b>${r.resName}</b></dd>
       <dt>变更摘要</dt><dd class="fs13">${r.ver}</dd>
       <dt>作用范围</dt><dd>${r.scope === '全局' ? '全局（平台级，全部空间生效）' : r.scope + '（仅该工作空间生效）'}</dd>
       <dt>发起人</dt><dd>${r.submitter}</dd>
@@ -233,12 +463,21 @@ function openDetail(id) {
     <div class="fs13 bold mb8">审批流程</div>
     <div class="timeline">${flow}</div>`;
 
+  // 底部按钮：根据角色和状态动态生成
   const isPending = r.status === 'pending';
-  document.getElementById('ddFoot').innerHTML = `
-    <a class="btn" href="${m.href}">查看物料详情 →</a>
-    <button class="btn" onclick="App.closeDrawer('apvDrawer')">关闭</button>
-    ${isPending ? `<button class="btn btn-danger" onclick="App.closeDrawer('apvDrawer');openAct('${r.id}','rejected')">驳回</button>
-    <button class="btn btn-primary" onclick="App.closeDrawer('apvDrawer');openAct('${r.id}','approved')">通过</button>` : ''}`;
+  const canApprove = isPending && isApproverOf(r) && viewRole === 'approver';
+  const canWithdraw = isPending && r.submitter === u;
+
+  let footBtns = `<a class="btn" href="${m.href}" title="查看该资源的物料详情页">查看物料详情 →</a>
+    <button class="btn" onclick="App.closeDrawer('apvDrawer')">关闭</button>`;
+  if (canApprove) {
+    footBtns = `<button class="btn btn-danger" onclick="App.closeDrawer('apvDrawer');openAct('${r.id}','rejected')">驳回</button>
+    <button class="btn btn-primary" onclick="App.closeDrawer('apvDrawer');openAct('${r.id}','approved')">通过</button>` + footBtns;
+  }
+  if (canWithdraw) {
+    footBtns = `<button class="btn btn-danger" onclick="App.closeDrawer('apvDrawer');openWithdraw('${r.id}')">撤回申请</button>` + footBtns;
+  }
+  document.getElementById('ddFoot').innerHTML = footBtns;
   App.openDrawer('apvDrawer');
 }
 </script>

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.prism.platform.mapper.SystemUserRoleMapper">
+
+    <select id="selectByUserId" resultType="com.prism.platform.entity.SystemUserRole">
+        SELECT * FROM system_user_role
+        WHERE user_id = #{userId} AND is_deleted = 0
+    </select>
+
+    <update id="deleteByUserId">
+        UPDATE system_user_role
+        SET is_deleted = 1, updated_at = NOW()
+        WHERE user_id = #{userId} AND is_deleted = 0
+    </update>
+
+    <update id="deleteByRoleId">
+        UPDATE system_user_role
+        SET is_deleted = 1, updated_at = NOW()
+        WHERE role_id = #{roleId} AND is_deleted = 0
+    </update>
+
+</mapper>

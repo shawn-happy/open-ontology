@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>角色管理 - Open Ontology</title>
+<link rel="stylesheet" href="../assets/style.css" />
+<style>
+  .check-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .check-grid label { display: flex; align-items: center; gap: 8px; font-size: 13px; cursor: pointer; }
+  .perm-tree label { display: flex; align-items: center; gap: 6px; padding: 3px 4px; font-size: 13px; cursor: pointer; }
+  .perm-tree .pt-children { margin-left: 22px; }
+  .radio-col { display: flex; flex-direction: column; gap: 8px; }
+  .radio-col label { display: flex; align-items: center; gap: 8px; font-size: 13px; cursor: pointer; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+
+<!-- 新增/编辑角色 -->
+<div class="mask" id="roleModal" data-close-mask>
+  <div class="modal">
+    <div class="modal-h"><span id="roleModalTitle">新增角色</span><span class="x" onclick="App.closeModal('roleModal')">&#215;</span></div>
+    <div class="modal-b">
+      <div class="form-row">
+        <div class="form-item"><label><span class="req">*</span>角色名称</label><input type="text" id="rName" placeholder="如：本体建模员" /></div>
+        <div class="form-item"><label><span class="req">*</span>角色编码</label><input type="text" id="rCode" placeholder="如：ont_modeler" /></div>
+      </div>
+      <div class="form-item"><label>角色类型</label>
+        <select id="rType"><option>全局角色</option><option>空间角色</option></select>
+        <div class="tip">全局角色对所有空间生效；空间角色仅在其所属空间内生效。</div>
+      </div>
+      <div class="form-item"><label>备注</label><textarea id="rRemark" rows="2" placeholder="角色用途说明"></textarea></div>
+    </div>
+    <div class="modal-f">
+      <button class="btn" onclick="App.closeModal('roleModal')">取消</button>
+      <button class="btn btn-primary" onclick="roleSave()">确定</button>
+    </div>
+  </div>
+</div>
+
+<!-- 配置权限（菜单/按钮 + 空间数据权限） -->
+<div class="mask" id="permModal" data-close-mask>
+  <div class="modal lg">
+    <div class="modal-h">配置权限 - <span id="permRoleName"></span><span class="x" onclick="App.closeModal('permModal')">&#215;</span></div>
+    <div class="modal-b">
+      <h4 style="margin:0 0 10px;">菜单与按钮权限</h4>
+      <div class="perm-tree" style="border:1px solid var(--border);border-radius:8px;padding:12px 14px;max-height:280px;overflow:auto;" id="permTreeWrap"></div>
+
+      <h4 style="margin:20px 0 10px;">空间数据权限 <span class="text-3 fs12">（决定该角色可见的空间范围）</span></h4>
+      <div class="radio-col">
+        <label><input type="radio" name="wsScope" value="ALL" /> 全部空间</label>
+        <label><input type="radio" name="wsScope" value="ALL_SUB" checked /> 本部门及子部门空间</label>
+        <label><input type="radio" name="wsScope" value="DEPT_ONLY" /> 仅本部门空间</label>
+        <label><input type="radio" name="wsScope" value="OWN_ONLY" /> 仅自己创建的空间</label>
+        <label><input type="radio" name="wsScope" value="CUSTOM" /> 自定义（指定空间列表）</label>
+      </div>
+    </div>
+    <div class="modal-f">
+      <button class="btn" onclick="App.closeModal('permModal')">取消</button>
+      <button class="btn btn-primary" onclick="App.closeModal('permModal');toast('权限配置已保存（原型演示）')">确定</button>
+    </div>
+  </div>
+</div>
+
+<!-- 分配用户 -->
+<div class="mask" id="userModal" data-close-mask>
+  <div class="modal">
+    <div class="modal-h">分配用户 - <span id="assignRoleName"></span><span class="x" onclick="App.closeModal('userModal')">&#215;</span></div>
+    <div class="modal-b">
+      <div class="tip mb16 text-2">勾选拥有该角色的用户。超级管理员角色仅可分配给 admin 用户。</div>
+      <div class="check-grid" id="userCheckList"></div>
+    </div>
+    <div class="modal-f">
+      <button class="btn" onclick="App.closeModal('userModal')">取消</button>
+      <button class="btn btn-primary" onclick="App.closeModal('userModal');toast('用户分配已保存（原型演示）')">确定</button>
+    </div>
+  </div>
+</div>
+
+<script src="../assets/app.js"></script>
+<script>
+var ROLES = [
+  { name: '超级管理员', code: 'super_admin', type: '全局', members: 1, remark: '拥有平台全部权限，内置不可修改不可停用', builtin: true, on: true, scope: 'ALL' },
+  { name: '系统运维', code: 'sys_ops', type: '全局', members: 2, remark: '平台监控、审计与系统配置', builtin: true, on: true, scope: 'ALL_SUB' },
+  { name: '空间管理员', code: 'ws_admin', type: '全局', members: 3, remark: '可创建空间并管理空间内全部资源', builtin: true, on: true, scope: 'DEPT_ONLY' },
+  { name: '本体建模员', code: 'ont_modeler', type: '空间', members: 4, remark: '空间内本体资产建模与管理', on: true, scope: 'OWN_ONLY' },
+  { name: '数据工程师', code: 'data_eng', type: '空间', members: 3, remark: '空间内数据源、数据集、Pipeline 管理', on: true, scope: 'OWN_ONLY' },
+  { name: '只读访客', code: 'viewer', type: '空间', members: 2, remark: '空间内全部资源只读访问', on: true, scope: 'OWN_ONLY' },
+];
+
+var SCOPE_LABEL = { ALL: '全部空间', ALL_SUB: '本部门及子部门空间', DEPT_ONLY: '本部门空间', OWN_ONLY: '仅自己创建的空间', CUSTOM: '自定义空间' };
+
+var ALL_USERS = [
+  { username: 'admin', name: '超级管理员', dept: '数据平台部' },
+  { username: 'zhangwei', name: '张伟', dept: '智能制造事业部' },
+  { username: 'lijing', name: '李静', dept: '数据平台部' },
+  { username: 'zhoujie', name: '周杰', dept: '供应链中心' },
+  { username: 'wuna', name: '吴娜', dept: '智能制造事业部' },
+  { username: 'wangqiang', name: '王强', dept: '数据平台部' },
+  { username: 'zhaomin', name: '赵敏', dept: '工艺数字化组' },
+  { username: 'sunli', name: '孙立', dept: 'IT 基础设施部' },
+  { username: 'liuyang', name: '刘洋', dept: '质量分析组' },
+  { username: 'chenchen', name: '陈晨', dept: '数据平台部' },
+];
+
+// 权限树数据
+var PERM_TREE = [
+  { name: '平台管理', checked: true, children: [
+    { name: '工作空间管理', checked: true, children: [
+      { name: '新建空间', type: '按钮', checked: true },
+      { name: '编辑空间', type: '按钮', checked: true },
+      { name: '停用空间', type: '按钮', checked: true },
+      { name: '分配成员', type: '按钮', checked: true },
+    ]},
+    { name: '系统管理', checked: true, children: [
+      { name: '用户管理', checked: true, children: [
+        { name: '新增用户', type: '按钮', checked: true },
+        { name: '编辑用户', type: '按钮', checked: true },
+        { name: '重置密码', type: '按钮', checked: true },
+        { name: '启停用', type: '按钮', checked: true },
+      ]},
+      { name: '角色管理', checked: true, children: [
+        { name: '新增角色', type: '按钮', checked: true },
+        { name: '配置权限', type: '按钮', checked: true },
+        { name: '分配用户', type: '按钮', checked: true },
+      ]},
+      { name: '权限管理', checked: true, children: [
+        { name: '新增节点', type: '按钮', checked: true },
+        { name: '编辑节点', type: '按钮', checked: true },
+        { name: '启停用', type: '按钮', checked: true },
+      ]},
+      { name: '部门管理', checked: true, children: [
+        { name: '新增部门', type: '按钮', checked: true },
+        { name: '编辑部门', type: '按钮', checked: true },
+        { name: '启停用', type: '按钮', checked: true },
+      ]},
+    ]},
+    { name: '审批中心', checked: true, children: [
+      { name: '审批流程配置', type: '菜单', checked: true },
+      { name: '审批记录', type: '菜单', checked: true },
+    ]},
+  ]},
+  { name: '本体资产管理', checked: true, children: [
+    { name: '本体图谱', checked: true, children: [
+      { name: '新建类', type: '按钮', checked: true },
+      { name: '编辑类', type: '按钮', checked: true },
+      { name: '发布', type: '按钮', checked: true },
+      { name: '对象查询', type: '按钮', checked: true },
+    ]},
+    { name: '关联关系', checked: true },
+    { name: '共享属性', checked: true },
+    { name: '枚举类', checked: true },
+    { name: '值约束规则', checked: true },
+    { name: '动作', checked: true, children: [
+      { name: '执行动作', type: '按钮', checked: true },
+      { name: '管理动作', type: '按钮', checked: true },
+    ]},
+    { name: '函数', checked: true },
+  ]},
+  { name: '数据管理', checked: true, children: [
+    { name: '数据源管理', checked: true },
+    { name: '数据集管理', checked: true },
+    { name: 'Pipeline 管理', checked: true },
+    { name: '数据探查', checked: true },
+  ]},
+  { name: '安全管理', checked: true, children: [
+    { name: '标记管理', checked: true },
+    { name: '数据权限', checked: true },
+    { name: '加密', checked: true },
+    { name: '脱敏', checked: true },
+  ]},
+  { name: '应用管理', checked: false, children: [
+    { name: 'API Key', checked: false },
+    { name: 'Workflow 编排', checked: false },
+    { name: 'Skills', checked: false },
+  ]},
+  { name: '审计管理', checked: true, children: [
+    { name: '审计日志', checked: true },
+    { name: '本体资产统计', checked: true },
+    { name: 'Pipeline 运行', checked: true },
+    { name: '应用调用', checked: true },
+  ]},
+];
+
+var filter = '';
+var editingIndex = null;
+
+function getFiltered() {
+  return ROLES.filter(function(r) {
+    if (!filter) return true;
+    var k = filter.toLowerCase();
+    return r.name.toLowerCase().indexOf(k) >= 0 || r.code.toLowerCase().indexOf(k) >= 0;
+  });
+}
+
+function renderRoles() {
+  var list = getFiltered();
+  var tb = document.getElementById('roleTbody');
+  document.getElementById('roleCount').textContent = '共 ' + list.length + ' 条';
+
+  if (!list.length) {
+    tb.innerHTML = '<tr><td colspan="9" class="empty">暂无符合条件的角色</td></tr>';
+    return;
+  }
+
+  tb.innerHTML = list.map(function(r) {
+    var i = ROLES.indexOf(r);
+    var isSuperAdmin = r.code === 'super_admin';
+    return '<tr>' +
+      '<td><b>' + r.name + '</b>' + (r.builtin ? ' <span class="tag blue">内置</span>' : '') + '</td>' +
+      '<td class="mono">' + r.code + '</td>' +
+      '<td><span class="badge ' + (r.type === '全局' ? 'b-purple' : 'b-blue') + '">' + r.type + '</span></td>' +
+      '<td class="text-2 fs12">' + (SCOPE_LABEL[r.scope] || '—') + '</td>' +
+      '<td>' + r.members + '</td>' +
+      '<td>' + (isSuperAdmin
+        ? '<span class="badge b-green" title="超级管理员角色不可停用">启用</span>'
+        : '<span class="switch ' + (r.on ? 'on' : '') + '" onclick="roleToggle(' + i + ')"></span>') + '</td>' +
+      '<td class="text-2 fs12">' + r.remark + '</td>' +
+      '<td class="text-2 fs12">' + (r.on ? '2026-09-28' : '—') + '</td>' +
+      '<td class="actions-cell">' +
+        (isSuperAdmin ? '<span class="text-3 fs12">不可操作</span>' :
+          '<button class="btn-link btn-sm" onclick="rolePerm(' + i + ')">配置权限</button>' +
+          '<button class="btn-link btn-sm" onclick="roleAssignUser(' + i + ')">分配用户</button>' +
+          '<button class="btn-link btn-sm" onclick="roleEdit(' + i + ')">编辑</button>') +
+      '</td>' +
+    '</tr>';
+  }).join('');
+}
+
+// ===== 新增/编辑 =====
+function roleOpenCreate() {
+  editingIndex = null;
+  document.getElementById('roleModalTitle').textContent = '新增角色';
+  document.getElementById('rName').value = '';
+  document.getElementById('rCode').value = '';
+  document.getElementById('rRemark').value = '';
+  document.getElementById('rType').selectedIndex = 0;
+  App.openModal('roleModal');
+}
+
+function roleEdit(i) {
+  editingIndex = i;
+  var r = ROLES[i];
+  if (r.builtin) { toast('内置角色不可编辑'); return; }
+  document.getElementById('roleModalTitle').textContent = '编辑角色 - ' + r.name;
+  document.getElementById('rName').value = r.name;
+  document.getElementById('rCode').value = r.code;
+  document.getElementById('rType').value = r.type === '全局' ? '全局角色' : '空间角色';
+  document.getElementById('rRemark').value = r.remark;
+  App.openModal('roleModal');
+}
+
+function roleSave() {
+  var name = document.getElementById('rName').value.trim();
+  var code = document.getElementById('rCode').value.trim();
+  if (!name || !code) { toast('请填写角色名称和编码'); return; }
+
+  var data = {
+    name: name, code: code,
+    type: document.getElementById('rType').value === '全局角色' ? '全局' : '空间',
+    remark: document.getElementById('rRemark').value.trim()
+  };
+
+  if (editingIndex != null) {
+    Object.assign(ROLES[editingIndex], data);
+    toast('角色已更新（原型演示）');
+  } else {
+    if (ROLES.some(function(r) { return r.code === code; })) { toast('角色编码已存在'); return; }
+    ROLES.push({ name: name, code: code, type: data.type, members: 0, remark: data.remark, on: true, scope: 'OWN_ONLY' });
+    toast('角色已创建（原型演示）');
+  }
+  App.closeModal('roleModal');
+  renderRoles();
+}
+
+function roleToggle(i) {
+  var r = ROLES[i];
+  if (r.builtin) { toast('内置角色不可停用'); return; }
+  r.on = !r.on;
+  renderRoles();
+  toast('角色「' + r.name + '」已' + (r.on ? '启用' : '停用'));
+}
+
+// ===== 配置权限 =====
+function rolePerm(i) {
+  var r = ROLES[i];
+  document.getElementById('permRoleName').textContent = r.name;
+  var radio = document.querySelector('input[name="wsScope"][value="' + r.scope + '"]');
+  if (radio) radio.checked = true;
+
+  // 渲染权限树
+  document.getElementById('permTreeWrap').innerHTML = renderPermNodes(PERM_TREE);
+  App.openModal('permModal');
+}
+
+function renderPermNodes(nodes) {
+  return nodes.map(function(n) {
+    var hasKids = n.children && n.children.length;
+    var typeTag = n.type ? '<span class="badge b-cyan" style="margin-left:4px;">' + n.type + '</span>' : '';
+    var html = '<label><input type="checkbox" ' + (n.checked ? 'checked' : '') + ' /> ' + n.name + typeTag + '</label>';
+    if (hasKids) {
+      html += '<div class="pt-children">' + renderPermNodes(n.children) + '</div>';
+    }
+    return html;
+  }).join('');
+}
+
+// ===== 分配用户 =====
+function roleAssignUser(i) {
+  var r = ROLES[i];
+  document.getElementById('assignRoleName').textContent = r.name;
+  var isSuperAdmin = r.code === 'super_admin';
+
+  var html = ALL_USERS.map(function(u) {
+    var disabled = '';
+    if (isSuperAdmin && u.username !== 'admin') {
+      disabled = 'disabled';
+    }
+    return '<label><input type="checkbox" ' + disabled + ' /> ' + u.name + '（' + u.username + ' · ' + u.dept + '）' +
+      (isSuperAdmin && u.username !== 'admin' ? ' <span class="text-3 fs12">(不可分配)</span>' : '') + '</label>';
+  }).join('');
+  document.getElementById('userCheckList').innerHTML = html;
+  App.openModal('userModal');
+}
+
+App.mount({
+  page: 'sys-roles',
+  crumbs: ['平台管理', '系统管理', '角色管理'],
+  title: '角色管理',
+  desc: '管理全局角色与空间角色。超级管理员角色为内置角色，仅支持 admin 用户，不可修改或停用。支持配置菜单、按钮权限及空间内数据权限。',
+  actions: '<button class="btn btn-primary" onclick="roleOpenCreate()">+ 新增角色</button>',
+  content:
+    '<div class="stat-grid">' +
+      '<div class="stat"><div class="label">角色总数</div><div class="val">6</div></div>' +
+      '<div class="stat"><div class="label">全局角色</div><div class="val">3</div></div>' +
+      '<div class="stat"><div class="label">空间角色</div><div class="val">3</div></div>' +
+      '<div class="stat"><div class="label">内置角色</div><div class="val">3</div></div>' +
+    '</div>' +
+    '<div class="card">' +
+      '<div class="card-h">' +
+        '<input class="search" type="text" placeholder="搜索角色名称 / 编码..." oninput="filter=this.value.trim();renderRoles()" />' +
+        '<div class="right"><span class="text-2 fs12">超级管理员角色不可修改、不可停用、仅 admin 可分配</span></div>' +
+      '</div>' +
+      '<table class="table">' +
+        '<tr><th>角色名称</th><th>编码</th><th>类型</th><th>空间权限</th><th>成员数</th><th>状态</th><th>备注</th><th>更新时间</th><th class="actions-cell">操作</th></tr>' +
+        '<tbody id="roleTbody"></tbody>' +
+      '</table>' +
+      '<div class="pager"><span id="roleCount">共 0 条</span></div>' +
+    '</div>',
+  onMount: function() {
+    renderRoles();
+  }
+});
+</script>
+</body>
+</html>
