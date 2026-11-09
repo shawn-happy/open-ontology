@@ -1,0 +1,109 @@
+.workspaceLayout {
+  min-height: 100vh;
+
+  .header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 56px;
+    line-height: 56px;
+    padding: 0 24px;
+    background: #fff;
+    border-bottom: 1px solid #f0f0f0;
+    box-shadow: 0 1px 4px rgba(0, 21, 41, 0.04);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
+  .headerLeft {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-width: 0;
+  }
+
+  .backLink {
+    color: rgba(0, 0, 0, 0.65);
+    font-size: 14px;
+    white-space: nowrap;
+
+    &:hover {
+      color: #1677ff;
+    }
+  }
+
+  .divider {
+    width: 1px;
+    height: 20px;
+    background: #e8e8e8;
+  }
+
+  .workspaceSwitch {
+    min-width: 140px;
+    max-width: 280px;
+
+    :global(.ant-select-selector) {
+      font-size: 16px;
+      font-weight: 600;
+      color: rgba(0, 0, 0, 0.88);
+    }
+
+    :global(.ant-select-selection-item) {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+  }
+
+  .roleTag {
+    margin-inline-end: 0;
+  }
+
+  .userArea {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    padding: 0 8px;
+    border-radius: 6px;
+
+    &:hover {
+      background: rgba(0, 0, 0, 0.025);
+    }
+  }
+
+  .userName {
+    font-size: 14px;
+    color: rgba(0, 0, 0, 0.65);
+  }
+
+  .sider {
+    border-inline-end: 1px solid #f0f0f0 !important;
+  }
+
+  .menu {
+    padding-top: 8px;
+    border-inline-end: none !important;
+  }
+
+  .content {
+    padding: 16px 24px;
+    background: #f5f7fa;
+    min-height: calc(100vh - 56px);
+  }
+
+  .loadingWrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    min-height: 400px;
+  }
+
+  .loadingText {
+    color: rgba(0, 0, 0, 0.45);
+    font-size: 14px;
+  }
+}

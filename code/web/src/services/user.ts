@@ -62,7 +62,7 @@ export interface ImportResultVO {
 
 /** 用户列表分页查询 */
 export async function getUserPage(params: UserPageQuery) {
-  return request<Result<PageResult<UserListVO>>>('/web/platform/system/users', {
+  return request<Result<PageResult<UserListVO>>>('/web/system/users', {
     method: 'GET',
     params,
   });
@@ -70,14 +70,14 @@ export async function getUserPage(params: UserPageQuery) {
 
 /** 获取用户详情 */
 export async function getUserDetail(id: string) {
-  return request<Result<UserDetailVO>>(`/web/platform/system/users/${id}`, {
+  return request<Result<UserDetailVO>>(`/web/system/users/${id}`, {
     method: 'GET',
   });
 }
 
 /** 创建用户 */
 export async function createUser(data: CreateUserDTO) {
-  return request<Result<void>>('/web/platform/system/users/create', {
+  return request<Result<void>>('/web/system/users/create', {
     method: 'POST',
     data,
   });
@@ -85,7 +85,7 @@ export async function createUser(data: CreateUserDTO) {
 
 /** 更新用户 */
 export async function updateUser(data: UpdateUserDTO) {
-  return request<Result<void>>('/web/platform/system/users/update', {
+  return request<Result<void>>('/web/system/users/update', {
     method: 'POST',
     data,
   });
@@ -93,14 +93,14 @@ export async function updateUser(data: UpdateUserDTO) {
 
 /** 删除用户 */
 export async function deleteUser(id: string) {
-  return request<Result<void>>(`/web/platform/system/users/${id}/delete`, {
+  return request<Result<void>>(`/web/system/users/${id}/delete`, {
     method: 'POST',
   });
 }
 
 /** 启用/停用用户 */
 export async function enableDisableUser(id: string, status: string) {
-  return request<Result<void>>('/web/platform/system/users/enable-disable', {
+  return request<Result<void>>('/web/system/users/enable-disable', {
     method: 'POST',
     data: { id, status },
   });
@@ -108,14 +108,14 @@ export async function enableDisableUser(id: string, status: string) {
 
 /** 重置密码 */
 export async function resetPassword(id: string) {
-  return request<Result<void>>(`/web/platform/system/users/${id}/reset-password`, {
+  return request<Result<void>>(`/web/system/users/${id}/reset-password`, {
     method: 'POST',
   });
 }
 
 /** 分配角色 */
 export async function assignRoles(userId: string, roleIds: string[]) {
-  return request<Result<void>>('/web/platform/system/users/assign-roles', {
+  return request<Result<void>>('/web/system/users/assign-roles', {
     method: 'POST',
     data: { userId, roleIds },
   });
@@ -123,7 +123,7 @@ export async function assignRoles(userId: string, roleIds: string[]) {
 
 /** 分配部门 */
 export async function assignDept(userId: string, deptId: string) {
-  return request<Result<void>>('/web/platform/system/users/assign-dept', {
+  return request<Result<void>>('/web/system/users/assign-dept', {
     method: 'POST',
     data: { userId, deptId },
   });
@@ -133,7 +133,7 @@ export async function assignDept(userId: string, deptId: string) {
 export async function importUsers(file: File) {
   const formData = new FormData();
   formData.append('file', file);
-  return request<Result<ImportResultVO>>('/web/platform/system/users/import', {
+  return request<Result<ImportResultVO>>('/web/system/users/import', {
     method: 'POST',
     data: formData,
     requestType: 'form',
@@ -142,7 +142,7 @@ export async function importUsers(file: File) {
 
 /** 批量导出用户 */
 export async function exportUsers(params: UserPageQuery) {
-  return request('/web/platform/system/users/export', {
+  return request('/web/system/users/export', {
     method: 'GET',
     params,
     responseType: 'blob',
@@ -151,7 +151,7 @@ export async function exportUsers(params: UserPageQuery) {
 
 /** 下载导入模板 */
 export async function downloadTemplate() {
-  return request('/web/platform/system/users/import-template', {
+  return request('/web/system/users/import-template', {
     method: 'GET',
     responseType: 'blob',
   });

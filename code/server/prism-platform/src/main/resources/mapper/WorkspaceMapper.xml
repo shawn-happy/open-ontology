@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.prism.platform.mapper.WorkspaceMapper">
+
+    <select id="selectByCode" resultType="com.prism.platform.entity.Workspace">
+        SELECT * FROM platform_workspace
+        WHERE code = #{code} AND is_deleted = 0
+        LIMIT 1
+    </select>
+
+    <!-- 批量统计各空间有效成员数（COUNT(DISTINCT) 去重口径，与窗口函数 rn=1 等价） -->
+    <select id="countEffectiveMembersBatch" resultType="com.prism.platform.vo.WorkspaceMemberCountVO">
+        SELECT x.workspace_code AS workspace_code,
+               COUNT(DISTINCT x.user_id) AS member_count
+        FROM (
+            SELECT m.workspace_code AS workspace_code, m.user_id AS user_id
+            FROM platform_workspace_member m
+            WHERE m.source = 'DIRECT'
+              AND m.is_deleted = 0
+              AND m.workspace_code IN
+              <foreach collection="codes" item="code" open="(" separator="," close=")">#{code}</foreach>
+
+            UNION ALL
+
+            SELECT wd.workspace_code AS workspace_code, ud.user_id AS user_id
+            FROM platform_workspace_dept wd
+            JOIN system_dept root
+                ON root.id = wd.dept_id AND root.is_deleted = 0
+            JOIN system_dept sub
+                ON (sub.id = root.id OR sub.path LIKE CONCAT(root.path, root.id, '/%'))
+               AND sub.is_deleted = 0
+            JOIN system_user_dept ud
+                ON ud.dept_id = sub.id AND ud.is_deleted = 0
+            WHERE wd.is_deleted = 0
+              AND wd.workspace_code IN
+              <foreach collection="codes" item="code" open="(" separator="," close=")">#{code}</foreach>
+              AND NOT EXISTS (
+                  SELECT 1 FROM platform_workspace_member ex
+                  WHERE ex.workspace_code = wd.workspace_code
+                    AND ex.user_id = ud.user_id
+                    AND ex.source = 'EXCLUDED'
+                    AND ex.is_deleted = 0
+              )
+        ) x
+        JOIN system_user u
+            ON u.id = x.user_id AND u.is_deleted = 0 AND u.status = 'ENABLED'
+        GROUP BY x.workspace_code
+    </select>
+
+    <select id="countActiveSpaces30d" resultType="int">
+        SELECT COUNT(*)
+        FROM platform_workspace
+        WHERE status = 'ENABLED'
+          AND is_deleted = 0
+          AND last_active_at IS NOT NULL
+          AND last_active_at &gt;= DATE_SUB(NOW(), INTERVAL 30 DAY)
+    </select>
+
+</mapper>

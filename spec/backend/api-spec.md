@@ -1,7 +1,7 @@
 ---
 name: backend-api-spec
 description: Open Ontology 后端 API 设计规范，定义 URL 路径、HTTP Method、Response 结构、错误编码、分页、DTO 校验与 Swagger 接入等强制约束
-version: "1.0"
+version: "1.1"
 status: enforced
 tech_stack: Java 21 + Spring Boot 3.3 + Spring Cloud Alibaba
 created: 2026-09-29
@@ -16,33 +16,34 @@ tags: [api, spec, backend, rest, swagger]
 
 | 类型 | 前缀 | 说明 | 示例 |
 |---|---|---|---|
-| **平台级管理端** | `/web` | 平台全局资源，不归属任何工作空间 | `/web/platform/users` |
-| **空间级管理端** | `/web/{workspaceCode}` | 工作空间内资源，路径变量携带空间编码 | `/web/SMART-MFG/ontology/classes` |
+| **平台级管理端** | `/web` | 平台全局资源，不归属任何工作空间 | `/web/users` |
+| **空间级管理端** | `/web/workspace/{workspaceCode}` | 工作空间内资源，路径变量携带空间编码 | `/web/workspace/SMART-MFG/ontology/classes` |
 | **对外 Open API** | `/api/v1` | 对外开放接口，供第三方系统调用 | `/api/v1/objects/query` |
 
 ### 1.2 路径命名规则
 
 - **全部小写**，单词间以 **短横线（kebab-case）** 分隔：`/object-types` ✅ `/objectTypes` ❌
 - **资源名使用复数**：`/classes` ✅ `/class` ❌
-- **路径层级不超过 4 层**：`/web/{workspaceCode}/data/pipelines` ✅
+- **路径层级不超过 4 层**：`/web/workspace/{workspaceCode}/data/pipelines` ✅
 - **空间编码通过路径变量传递**，禁止放在 query 参数中
+- **`/web/workspace` 为空间级保留段**：平台级路径（直接挂在 `/web` 下）的一级段禁止使用 `workspace`，工作空间编码也不得取值为 `workspace`，避免路由歧义
 
 ### 1.3 路径示例
 
 ```
 # 平台级
-GET  /web/platform/users                    # 用户列表
-GET  /web/platform/users/{userId}            # 用户详情
-POST /web/platform/users/create              # 创建用户
-POST /web/platform/users/update              # 更新用户
-POST /web/platform/users/delete              # 删除用户
+GET  /web/users                    # 用户列表
+GET  /web/users/{userId}            # 用户详情
+POST /web/users/create              # 创建用户
+POST /web/users/update              # 更新用户
+POST /web/users/delete              # 删除用户
 
 # 空间级
-GET  /web/{workspaceCode}/ontology/classes                # 类列表
-GET  /web/{workspaceCode}/ontology/classes/{classId}       # 类详情
-POST /web/{workspaceCode}/ontology/classes/create          # 创建类
-POST /web/{workspaceCode}/ontology/classes/update          # 更新类
-POST /web/{workspaceCode}/ontology/classes/{classId}/props # 属性列表
+GET  /web/workspace/{workspaceCode}/ontology/classes                # 类列表
+GET  /web/workspace/{workspaceCode}/ontology/classes/{classId}       # 类详情
+POST /web/workspace/{workspaceCode}/ontology/classes/create          # 创建类
+POST /web/workspace/{workspaceCode}/ontology/classes/update          # 更新类
+POST /web/workspace/{workspaceCode}/ontology/classes/{classId}/props # 属性列表
 
 # 对外 Open API
 GET  /api/v1/objects/{objectType}             # 对象查询
@@ -59,8 +60,8 @@ POST /api/v1/workflows/{workflowId}/trigger    # 触发 Workflow
 
 | Method | 用途 | 示例 |
 |---|---|---|
-| **GET** | 查询（列表、详情、搜索、统计） | `GET /web/{ws}/ontology/classes` |
-| **POST** | 写操作（创建、更新、删除）+ 复杂查询 | `POST /web/{ws}/ontology/classes/create` |
+| **GET** | 查询（列表、详情、搜索、统计） | `GET /web/workspace/{ws}/ontology/classes` |
+| **POST** | 写操作（创建、更新、删除）+ 复杂查询 | `POST /web/workspace/{ws}/ontology/classes/create` |
 
 ### GET vs POST 选择
 
@@ -79,6 +80,8 @@ POST /api/v1/workflows/{workflowId}/trigger    # 触发 Workflow
 ## 3. Response Body 规范
 
 ### 3.1 统一响应结构
+
+> Java 实现：`@prism-common/src/main/java/com/prism/common/result/Result.java`，Controller 统一返回 `Result<T>`，通过 `Result.ok(data)` / `Result.ok()` / `Result.fail(ErrorCode)` 静态工厂方法构建，`requestId` 由 `RequestContextHolder` 自动注入。
 
 所有 API 返回统一的 JSON 结构：
 
@@ -136,22 +139,28 @@ POST /api/v1/workflows/{workflowId}/trigger    # 触发 Workflow
 
 ### 4.1 分页响应结构
 
+> Java 实现：`@prism-common/src/main/java/com/prism/common/result/PageResult.java`。分页接口统一返回 `Result<PageResult<T>>`，即 `data` + `pageInfo` 嵌套在外层 `Result.data` 中，**禁止**将 `pageInfo` 提升到与 `code`/`msg` 同级。
+
 ```json
 {
     "code": "000000",
     "msg": "操作成功",
-    "data": [],
-    "pageInfo": {
-        "currentPage": 1,
-        "pageSize": 10,
-        "total": 100,
-        "totalPages": 10,
-        "hasNext": true,
-        "hasPrevious": false
+    "data": {
+        "data": [],
+        "pageInfo": {
+            "currentPage": 1,
+            "pageSize": 10,
+            "total": 100,
+            "totalPages": 10,
+            "hasNext": true,
+            "hasPrevious": false
+        }
     },
     "requestId": "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
 }
 ```
+
+Service 层通过 `PageResult.from(page)` 或 `PageResult.from(page, voList)`（Entity→VO 转换场景）从 MyBatis-Plus 的 `IPage` 对象构建。
 
 ### 4.2 pageInfo 字段定义
 
@@ -166,18 +175,27 @@ POST /api/v1/workflows/{workflowId}/trigger    # 触发 Workflow
 
 ### 4.3 分页请求参数
 
+> Java 实现：`@prism-common/src/main/java/com/prism/common/result/PageQuery.java`。分页查询 DTO 必须继承 `PageQuery` 基类（子类按 lombok-spec 要求标注 `@EqualsAndHashCode(callSuper = true)`）。
+
 通过 GET query string 传递：
 
 ```
-GET /web/{ws}/ontology/classes?currentPage=1&pageSize=20&keyword=设备
+GET /web/workspace/{ws}/ontology/classes?currentPage=1&pageSize=20&keyword=设备
 ```
 
-| 参数 | 类型 | 必填 | 默认值 | 说明 |
-|---|---|---|---|---|
-| `currentPage` | int | 否 | 1 | 页码，从 1 开始 |
-| `pageSize` | int | 否 | 20 | 每页条数，最大 100 |
+| 参数 | 类型 | 必填 | 默认值 | 校验 | 说明 |
+|---|---|---|---|---|---|
+| `currentPage` | int | 否 | 1 | `@Min(1)` | 页码，从 1 开始 |
+| `pageSize` | int | 否 | 20 | `@Min(1)` `@Max(100)` | 每页条数，最大 100 |
+| `keyword` | String | 否 | — | — | 搜索关键词 |
 
-> 4.4 Java 实现（PageQuery / PageResult）：待代码实现后以源码引用方式补充。
+### 4.4 Java 实现源码索引
+
+| 类 | 路径 | 职责 |
+|---|---|---|
+| `Result<T>` | `prism-common/.../result/Result.java` | 统一响应封装（code/msg/data/requestId），静态工厂 `ok` / `fail` |
+| `PageResult<T>` | `prism-common/.../result/PageResult.java` | 分页响应（data + pageInfo），静态工厂 `from(IPage)` / `from(IPage, List)` |
+| `PageQuery` | `prism-common/.../result/PageQuery.java` | 分页请求基类（currentPage/pageSize/keyword，含校验注解） |
 
 ---
 
@@ -221,7 +239,7 @@ GET /web/{ws}/ontology/classes?currentPage=1&pageSize=20&keyword=设备
 
 ### 代码审查时必须验证
 
-- [ ] URL 前缀正确（`/web` / `/web/{workspaceCode}` / `/api/v1`）
+- [ ] URL 前缀正确（`/web` / `/web/workspace/{workspaceCode}` / `/api/v1`）
 - [ ] HTTP Method 仅使用 GET / POST
 - [ ] Response 使用 `Result<T>` 包装，code/msg/data/requestId 四字段齐全
 - [ ] data 字段使用强类型 VO，禁止 Map / JsonObject / JSONArray
@@ -231,4 +249,5 @@ GET /web/{ws}/ontology/classes?currentPage=1&pageSize=20&keyword=设备
 - [ ] VO / DTO 字段标注 `@Schema`
 - [ ] 错误码符合 6 位编码规则（成功 `000000`）
 - [ ] requestId 自动注入（Filter 层 + MDC）
-- [ ] 分页接口返回 `PageResult<T>`，包含完整 pageInfo
+- [ ] 分页接口返回 `Result<PageResult<T>>`，pageInfo 嵌套在 data 内且字段完整
+- [ ] 分页查询 DTO 继承 `PageQuery` 基类

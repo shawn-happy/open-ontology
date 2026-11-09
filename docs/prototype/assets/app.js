@@ -5,12 +5,12 @@
   // 公共菜单：平台层左上角图标栏（icon rail），仅展示图标，悬停显示名称
   const GLOBAL_NAV = [
     { id: 'home', href: ROOT + 'index.html', icon: '⌂', label: '首页' },
-    { id: 'workspace', href: ROOT + 'platform/workspace.html', icon: '▦', label: '工作空间' },
     { id: 'system', href: ROOT + 'system/system.html', icon: '⚙', label: '系统管理' },
     { id: 'sys-users', href: ROOT + 'system/sys-users.html', icon: '⊙', label: '用户管理' },
     { id: 'sys-roles', href: ROOT + 'system/sys-roles.html', icon: '⊛', label: '角色管理' },
     { id: 'sys-perms', href: ROOT + 'system/sys-perms.html', icon: '☰', label: '权限管理' },
     { id: 'sys-depts', href: ROOT + 'system/sys-depts.html', icon: '▥', label: '部门管理' },
+    { id: 'sys-workspaces', href: ROOT + 'system/sys-workspaces.html', icon: '▦', label: '空间管理' },
     { id: 'sys-logs', href: ROOT + 'system/sys-logs.html', icon: '☷', label: '日志管理' },
     { id: 'approval', href: ROOT + 'approval/approval-config.html', icon: '✓', label: '审批中心' },
   ];
@@ -192,7 +192,7 @@
      * @param cfg { page, crumbs: [..], title, desc, actions, content (HTML), onMount }
      */
     mount(cfg) {
-      const inSpace = !['home', 'workspace', 'system', 'sys-users', 'sys-roles', 'sys-perms', 'sys-depts', 'sys-logs', 'approval'].includes(cfg.page);
+      const inSpace = !['home', 'system', 'sys-users', 'sys-roles', 'sys-perms', 'sys-depts', 'sys-workspaces', 'sys-logs', 'approval'].includes(cfg.page);
       this._lastCfg = cfg; 
       // 空间切换后整页重挂载使用
       // 空间内页面：面包屑首位动态替换为当前空间名

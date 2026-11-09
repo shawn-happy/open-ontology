@@ -4,6 +4,7 @@ import com.prism.platform.dto.ChangePasswordDTO;
 import com.prism.platform.dto.ForgotPasswordDTO;
 import com.prism.platform.dto.LoginDTO;
 import com.prism.platform.dto.RefreshTokenDTO;
+import com.prism.platform.dto.SendVerifyCodeDTO;
 import com.prism.platform.vo.LoginVO;
 
 /**
@@ -27,7 +28,12 @@ public interface AuthService {
     String refreshToken(RefreshTokenDTO dto);
 
     /**
-     * 忘记密码（重置为初始密码）
+     * 发送忘记密码验证码（手机号/邮箱）
+     */
+    void sendVerifyCode(SendVerifyCodeDTO dto);
+
+    /**
+     * 忘记密码（校验验证码后重置为初始密码）
      */
     void forgotPassword(ForgotPasswordDTO dto);
 

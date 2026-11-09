@@ -30,9 +30,9 @@
 <script src="assets/app.js"></script>
 <script>
 const modules = [
-  ['▦', '平台管理', '工作空间与系统级配置', 'platform/workspace.html', ['工作空间（列表 / CRUD / 成员分配）', '审批中心（发布审批 · 流程配置 / 审批记录）'], ''],
-  ['⚙', '系统管理', '用户 / 角色 / 权限 / 部门 / 日志', 'system/system.html',
-    ['用户管理（CRUD / 分配角色 · 部门 · 重置密码）', '角色管理（菜单 · 按钮 · 数据权限配置）', '权限管理（目录 / 菜单 / 按钮三级）', '部门管理（部门树 · 分配用户 · 负责人）', '日志管理（审计 · 登录 · 执行日志）', '登录页面（用户名 / 手机号 / 邮箱登录）'], ''],
+  ['✓', '平台管理', '平台级审批配置', 'approval/approval-config.html', ['审批中心（发布审批 · 流程配置 / 审批记录）'], ''],
+  ['⚙', '系统管理', '用户 / 角色 / 权限 / 部门 / 空间 / 日志', 'system/system.html',
+    ['用户管理（CRUD / 分配角色 · 部门 · 重置密码）', '角色管理（菜单 · 按钮 · 数据权限配置）', '权限管理（目录 / 菜单 / 按钮三级）', '部门管理（部门树 · 分配用户 · 负责人）', '空间管理（卡片 / 列表双视图 · 进入空间 / 分配管理 / 编辑）', '日志管理（审计 · 登录 · 执行日志）', '登录页面（用户名 / 手机号 / 邮箱登录）'], ''],
   ['◈', '本体资产管理', '类 / 属性 / 关系 / 规则 / 动作 / 函数', 'ontology/ontology-graph.html',
     ['本体图谱', '关联关系（含 RDF）', '共享属性 · 枚举类 · 值约束规则', '动作 · 函数', 'Schema 迁移 · 本体分支'], 'c2'],
   ['⛃', '数据管理', '数据源 / 数据集 / Pipeline / 探查', 'data/data-sources.html',
@@ -51,8 +51,8 @@ App.mount({
   page: 'home',
   crumbs: ['首页'],
   title: '欢迎使用 Open Ontology 本体语义平台',
-  desc: '以本体为核心，将多源数据映射为可查询、可关联、可写回的业务对象。点击「工作空间」进入空间列表，选择空间后即可开始工作。',
-  actions: `<a class="btn btn-primary" href="platform/workspace.html">进入工作空间列表 →</a>`,
+  desc: '以本体为核心，将多源数据映射为可查询、可关联、可写回的业务对象。点击「空间管理」进入空间列表，选择空间后即可开始工作。',
+  actions: `<a class="btn btn-primary" href="system/sys-workspaces.html">进入空间管理列表 →</a>`,
   content: `
   <div class="stat-grid">
     <div class="stat"><div class="label">工作空间</div><div class="val">4</div></div>

@@ -10,6 +10,7 @@ import com.prism.platform.dto.ChangePasswordDTO;
 import com.prism.platform.dto.ForgotPasswordDTO;
 import com.prism.platform.dto.LoginDTO;
 import com.prism.platform.dto.RefreshTokenDTO;
+import com.prism.platform.dto.SendVerifyCodeDTO;
 import com.prism.platform.entity.SystemUser;
 import com.prism.platform.exception.SystemErrorCode;
 import com.prism.platform.mapper.SystemUserMapper;
@@ -26,6 +27,7 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.security.SecureRandom;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -40,6 +42,11 @@ import java.util.regex.Pattern;
 public class AuthServiceImpl implements AuthService {
 
     private static final Pattern PWD_PATTERN = Pattern.compile("^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[^a-zA-Z0-9]).{8,20}$");
+
+    private static final SecureRandom SECURE_RANDOM = new SecureRandom();
+
+    /** 忘记密码验证方式：邮箱 */
+    private static final String ACCOUNT_TYPE_EMAIL = "email";
 
     private final SystemUserMapper systemUserMapper;
     private final PasswordEncoder passwordEncoder;
@@ -212,23 +219,90 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    public void forgotPassword(ForgotPasswordDTO dto) {
-        // 根据手机号或邮箱查找用户
-        SystemUser user = systemUserMapper.selectByPhone(dto.getContact());
-        if (user == null) {
-            user = systemUserMapper.selectByEmail(dto.getContact());
+    public void sendVerifyCode(SendVerifyCodeDTO dto) {
+        String accountType = normalizeAccountType(dto.getAccountType());
+        String account = StringUtils.trimToEmpty(dto.getAccount());
+
+        // 频控：同一账号 60 秒内只允许发送一次
+        String limitKey = SystemConstants.REDIS_VERIFY_CODE_LIMIT_PREFIX + account;
+        Boolean first = stringRedisTemplate.opsForValue().setIfAbsent(
+                limitKey, "1", SystemConstants.VERIFY_CODE_SEND_INTERVAL_SECONDS, TimeUnit.SECONDS);
+        if (!Boolean.TRUE.equals(first)) {
+            throw new BusinessException(SystemErrorCode.VERIFY_CODE_SEND_TOO_FREQUENT.getCode(),
+                    SystemErrorCode.VERIFY_CODE_SEND_TOO_FREQUENT.getMessage());
         }
+
+        // 查找用户；不存在时不暴露账号是否存在，静默返回成功
+        SystemUser user = findUserByAccount(accountType, account);
         if (user == null) {
-            // 不暴露用户是否存在，统一返回成功
+            log.info("忘记密码验证码：账号不存在，跳过发送, accountType={}", accountType);
             return;
         }
-        // 重置密码为初始密码
+
+        // 生成 6 位数字验证码，写入 Redis（5 分钟有效）
+        String code = String.format("%06d", SECURE_RANDOM.nextInt(1_000_000));
+        stringRedisTemplate.opsForValue().set(
+                verifyCodeKey(accountType, account),
+                code,
+                SystemConstants.VERIFY_CODE_TTL_SECONDS,
+                TimeUnit.SECONDS
+        );
+
+        // TODO: 接入短信/邮件通道后改为真实发送并移除本日志
+        log.info("忘记密码验证码已生成: accountType={}, account={}, code={}", accountType, account, code);
+    }
+
+    @Override
+    public void forgotPassword(ForgotPasswordDTO dto) {
+        String accountType = normalizeAccountType(dto.getAccountType());
+        String account = StringUtils.trimToEmpty(dto.getAccount());
+
+        // 根据验证方式查找用户；不存在时不暴露账号是否存在，静默返回成功
+        SystemUser user = findUserByAccount(accountType, account);
+        if (user == null) {
+            return;
+        }
+
+        // 校验验证码（Redis 中缓存的验证码与提交值比对）
+        String codeKey = verifyCodeKey(accountType, account);
+        String cachedCode = stringRedisTemplate.opsForValue().get(codeKey);
+        if (cachedCode == null || !cachedCode.equals(StringUtils.trimToEmpty(dto.getVerifyCode()))) {
+            throw new BusinessException(SystemErrorCode.VERIFY_CODE_ERROR.getCode(),
+                    SystemErrorCode.VERIFY_CODE_ERROR.getMessage());
+        }
+
+        // 验证码一次性消费，防止重放
+        stringRedisTemplate.delete(codeKey);
+
+        // 重置密码为初始密码，并清空 pwdUpdateTime 触发下次登录强制改密
         String encodedPwd = passwordEncoder.encode(SystemConstants.INITIAL_PASSWORD);
         SystemUser update = new SystemUser();
         update.setId(user.getId());
         update.setPassword(encodedPwd);
         update.setPwdUpdateTime(null);
         systemUserMapper.updateById(update);
+    }
+
+    /**
+     * 按验证方式（phone/email）查找用户
+     */
+    private SystemUser findUserByAccount(String accountType, String account) {
+        return ACCOUNT_TYPE_EMAIL.equals(accountType)
+                ? systemUserMapper.selectByEmail(account)
+                : systemUserMapper.selectByPhone(account);
+    }
+
+    /**
+     * 验证方式归一化：非 email 一律按 phone 处理
+     */
+    private String normalizeAccountType(String accountType) {
+        return ACCOUNT_TYPE_EMAIL.equalsIgnoreCase(StringUtils.trimToEmpty(accountType))
+                ? ACCOUNT_TYPE_EMAIL
+                : "phone";
+    }
+
+    private String verifyCodeKey(String accountType, String account) {
+        return SystemConstants.REDIS_VERIFY_CODE_PREFIX + accountType + ":" + account;
     }
 
     @Override

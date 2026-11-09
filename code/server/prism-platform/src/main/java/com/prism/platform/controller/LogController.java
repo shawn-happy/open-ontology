@@ -24,7 +24,7 @@ import java.util.List;
  */
 @Tag(name = "日志管理")
 @RestController
-@RequestMapping("/web/platform")
+@RequestMapping("/web")
 @RequiredArgsConstructor
 public class LogController {
 

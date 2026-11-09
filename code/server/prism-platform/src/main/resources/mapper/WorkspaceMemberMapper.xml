@@ -1,0 +1,219 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.prism.platform.mapper.WorkspaceMemberMapper">
+
+    <!--
+      有效成员核心片段：动态展开 + 窗口函数去重
+      内层 UNION ALL：
+        ① DIRECT 直接分配（priority=2，直接分配优先 FR-11）
+        ② 部门展开（root→sub 按 path 前缀含子部门）→ system_user_dept；
+           LEFT JOIN PERSONAL 覆盖（COALESCE 角色/分配人/时间，priority=覆盖?1:0）；
+           NOT EXISTS 排除 EXCLUDED
+      外层：ROW_NUMBER() PARTITION BY user_id ORDER BY priority DESC, 角色等级 DESC，取 rn=1
+    -->
+    <sql id="effectiveMemberCore">
+        SELECT ranked.* FROM (
+            SELECT t.user_id,
+                   t.workspace_role,
+                   t.is_personal_role,
+                   t.source_type,
+                   t.source_dept_id,
+                   t.assigned_by_id,
+                   t.assigned_at,
+                   ROW_NUMBER() OVER (
+                       PARTITION BY t.user_id
+                       ORDER BY t.priority DESC,
+                                FIELD(t.workspace_role, 'OWNER', 'MAINTAINER', 'DEVELOPER', 'REPORTER')
+                   ) AS rn
+            FROM (
+                SELECT m.user_id                       AS user_id,
+                       m.workspace_role                AS workspace_role,
+                       0                               AS is_personal_role,
+                       'DIRECT'                        AS source_type,
+                       NULL                            AS source_dept_id,
+                       m.created_by                    AS assigned_by_id,
+                       m.created_at                    AS assigned_at,
+                       2                               AS priority
+                FROM platform_workspace_member m
+                WHERE m.workspace_code = #{workspaceCode}
+                  AND m.source = 'DIRECT'
+                  AND m.is_deleted = 0
+
+                UNION ALL
+
+                SELECT ud.user_id                                        AS user_id,
+                       COALESCE(p.workspace_role, wd.default_role)       AS workspace_role,
+                       CASE WHEN p.id IS NOT NULL THEN 1 ELSE 0 END      AS is_personal_role,
+                       'DEPT'                                            AS source_type,
+                       wd.dept_id                                        AS source_dept_id,
+                       COALESCE(p.created_by, wd.created_by)             AS assigned_by_id,
+                       COALESCE(p.created_at, wd.created_at)             AS assigned_at,
+                       CASE WHEN p.id IS NOT NULL THEN 1 ELSE 0 END      AS priority
+                FROM platform_workspace_dept wd
+                JOIN system_dept root
+                    ON root.id = wd.dept_id AND root.is_deleted = 0
+                JOIN system_dept sub
+                    ON (sub.id = root.id OR sub.path LIKE CONCAT(root.path, root.id, '/%'))
+                   AND sub.is_deleted = 0
+                JOIN system_user_dept ud
+                    ON ud.dept_id = sub.id AND ud.is_deleted = 0
+                LEFT JOIN platform_workspace_member p
+                    ON p.workspace_code = #{workspaceCode}
+                   AND p.user_id = ud.user_id
+                   AND p.source = 'PERSONAL'
+                   AND p.is_deleted = 0
+                WHERE wd.workspace_code = #{workspaceCode}
+                  AND wd.is_deleted = 0
+                  AND NOT EXISTS (
+                      SELECT 1 FROM platform_workspace_member ex
+                      WHERE ex.workspace_code = #{workspaceCode}
+                        AND ex.user_id = ud.user_id
+                        AND ex.source = 'EXCLUDED'
+                        AND ex.is_deleted = 0
+                  )
+            ) t
+        ) ranked
+    </sql>
+
+    <!-- 有效成员查询的公共过滤条件（作用于 ranked 去重结果 + 关联用户/部门） -->
+    <sql id="effectiveMemberFilters">
+        r.rn = 1
+        AND u.status = 'ENABLED'
+        <if test="query.keyword != null and query.keyword != ''">
+            AND (u.username LIKE CONCAT(#{query.keyword}, '%')
+                 OR u.name LIKE CONCAT(#{query.keyword}, '%')
+                 OR d.name LIKE CONCAT(#{query.keyword}, '%'))
+        </if>
+        <if test="query.workspaceRole != null and query.workspaceRole != ''">
+            AND r.workspace_role = #{query.workspaceRole}
+        </if>
+        <if test="query.source != null and query.source != ''">
+            AND r.source_type = #{query.source}
+        </if>
+    </sql>
+
+    <select id="pageEffectiveMembers" resultType="com.prism.platform.vo.MemberListVO">
+        SELECT r.user_id                AS user_id,
+               u.username               AS username,
+               u.name                   AS name,
+               d.name                   AS dept_name,
+               r.workspace_role         AS workspace_role,
+               r.is_personal_role       AS is_personal_role,
+               r.source_type            AS source,
+               sd.name                  AS source_dept_name,
+               r.assigned_by_id         AS assigned_by_id,
+               au.name                  AS assigned_by_name,
+               r.assigned_at            AS assigned_at
+        FROM (
+            <include refid="effectiveMemberCore"/>
+        ) r
+        JOIN system_user u
+            ON u.id = r.user_id AND u.is_deleted = 0
+        LEFT JOIN system_user_dept ud2
+            ON ud2.user_id = r.user_id AND ud2.is_deleted = 0
+        LEFT JOIN system_dept d
+            ON d.id = ud2.dept_id AND d.is_deleted = 0
+        LEFT JOIN system_dept sd
+            ON sd.id = r.source_dept_id
+        LEFT JOIN system_user au
+            ON au.id = r.assigned_by_id AND au.is_deleted = 0
+        WHERE <include refid="effectiveMemberFilters"/>
+        ORDER BY FIELD(r.workspace_role, 'OWNER', 'MAINTAINER', 'DEVELOPER', 'REPORTER'),
+                 r.assigned_at DESC
+    </select>
+
+    <select id="pageEffectiveMembers_mpCount" resultType="java.lang.Long">
+        SELECT COUNT(*)
+        FROM (
+            <include refid="effectiveMemberCore"/>
+        ) r
+        JOIN system_user u
+            ON u.id = r.user_id AND u.is_deleted = 0
+        LEFT JOIN system_user_dept ud2
+            ON ud2.user_id = r.user_id AND ud2.is_deleted = 0
+        LEFT JOIN system_dept d
+            ON d.id = ud2.dept_id AND d.is_deleted = 0
+        WHERE <include refid="effectiveMemberFilters"/>
+    </select>
+
+    <select id="countEffectiveMembers" resultType="int">
+        SELECT COUNT(*)
+        FROM (
+            <include refid="effectiveMemberCore"/>
+        ) r
+        JOIN system_user u
+            ON u.id = r.user_id AND u.is_deleted = 0 AND u.status = 'ENABLED'
+        WHERE r.rn = 1
+        <if test="workspaceRole != null and workspaceRole != ''">
+            AND r.workspace_role = #{workspaceRole}
+        </if>
+        <if test="source != null and source != ''">
+            AND r.source_type = #{source}
+        </if>
+    </select>
+
+    <select id="selectEffectiveRole" resultType="java.lang.String">
+        SELECT r.workspace_role
+        FROM (
+            <include refid="effectiveMemberCore"/>
+        ) r
+        JOIN system_user u
+            ON u.id = r.user_id AND u.is_deleted = 0 AND u.status = 'ENABLED'
+        WHERE r.rn = 1
+          AND r.user_id = #{userId}
+        LIMIT 1
+    </select>
+
+    <select id="selectOwnersForUpdate" resultType="com.prism.platform.entity.WorkspaceMember">
+        SELECT *
+        FROM platform_workspace_member
+        WHERE workspace_code = #{workspaceCode}
+          AND workspace_role = 'OWNER'
+          AND source IN ('DIRECT', 'PERSONAL')
+          AND is_deleted = 0
+        FOR UPDATE
+    </select>
+
+    <!-- 用户作为有效成员（直接分配 / 部门展开未被排除）的空间编码集合 -->
+    <select id="selectMemberWorkspaceCodes" resultType="java.lang.String">
+        SELECT DISTINCT x.workspace_code FROM (
+            SELECT m.workspace_code AS workspace_code
+            FROM platform_workspace_member m
+            WHERE m.user_id = #{userId}
+              AND m.source IN ('DIRECT', 'PERSONAL')
+              AND m.is_deleted = 0
+
+            UNION
+
+            SELECT wd.workspace_code AS workspace_code
+            FROM platform_workspace_dept wd
+            JOIN system_dept root
+                ON root.id = wd.dept_id AND root.is_deleted = 0
+            JOIN system_dept sub
+                ON (sub.id = root.id OR sub.path LIKE CONCAT(root.path, root.id, '/%'))
+               AND sub.is_deleted = 0
+            JOIN system_user_dept ud
+                ON ud.dept_id = sub.id AND ud.user_id = #{userId} AND ud.is_deleted = 0
+            WHERE wd.is_deleted = 0
+              AND NOT EXISTS (
+                  SELECT 1 FROM platform_workspace_member ex
+                  WHERE ex.workspace_code = wd.workspace_code
+                    AND ex.user_id = #{userId}
+                    AND ex.source = 'EXCLUDED'
+                    AND ex.is_deleted = 0
+              )
+        ) x
+    </select>
+
+    <insert id="batchInsert">
+        INSERT INTO platform_workspace_member
+            (workspace_code, user_id, workspace_role, source, dept_id,
+             is_deleted, created_by, updated_by, created_at, updated_at)
+        VALUES
+        <foreach collection="list" item="item" separator=",">
+            (#{item.workspaceCode}, #{item.userId}, #{item.workspaceRole}, #{item.source}, #{item.deptId},
+             0, #{item.createdBy}, #{item.updatedBy}, NOW(), NOW())
+        </foreach>
+    </insert>
+
+</mapper>

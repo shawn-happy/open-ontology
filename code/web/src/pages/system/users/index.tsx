@@ -18,12 +18,14 @@ import {
 } from '@ant-design/icons';
 import { ProTable } from '@ant-design/pro-components';
 import type { ActionType, ProColumns } from '@ant-design/pro-components';
+import { useAccess } from '@umijs/max';
 import { getDeptTree } from '@/services/dept';
 import type { DeptTreeVO } from '@/services/dept';
 import {
   getUserPage,
   enableDisableUser,
   resetPassword,
+  deleteUser,
   exportUsers,
 } from '@/services/user';
 import type { UserListVO } from '@/services/user';
@@ -34,6 +36,7 @@ import ImportUsersModal from './components/ImportUsers';
 import styles from './index.less';
 
 export default function UsersPage() {
+  const access = useAccess();
   const actionRef = useRef<ActionType>();
   const [deptTree, setDeptTree] = useState<any[]>([]);
   const [selectedDeptId, setSelectedDeptId] = useState<string | undefined>();
@@ -90,7 +93,7 @@ export default function UsersPage() {
       window.URL.revokeObjectURL(url);
       message.success('导出成功');
     } catch {
-      message.error('导出失败');
+      // 异常已由全局请求层统一提示
     }
   };
 
@@ -110,11 +113,9 @@ export default function UsersPage() {
           if (res.code === '000000') {
             message.success(`${checked ? '启用' : '停用'}成功`);
             actionRef.current?.reload();
-          } else {
-            message.error(res.msg);
           }
-        } catch (error: any) {
-          message.error(error?.message || '操作失败');
+        } catch {
+          // 异常已由全局请求层统一提示
         }
       },
     });
@@ -135,11 +136,34 @@ export default function UsersPage() {
           const res = await resetPassword(record.id);
           if (res.code === '000000') {
             message.success('密码已重置');
-          } else {
-            message.error(res.msg);
           }
-        } catch (error: any) {
-          message.error(error?.message || '操作失败');
+        } catch {
+          // 异常已由全局请求层统一提示
+        }
+      },
+    });
+  };
+
+  // 删除用户
+  const handleDelete = (record: UserListVO) => {
+    if (record.username === 'admin') {
+      message.warning('admin 账号不可删除');
+      return;
+    }
+    Modal.confirm({
+      title: '确认删除该用户？',
+      content: `删除后用户「${record.name || record.username}」将无法登录，此操作不可恢复。`,
+      icon: <ExclamationCircleOutlined />,
+      okButtonProps: { danger: true },
+      onOk: async () => {
+        try {
+          const res = await deleteUser(record.id);
+          if (res.code === '000000') {
+            message.success('删除成功');
+            actionRef.current?.reload();
+          }
+        } catch {
+          // 异常已由全局请求层统一提示
         }
       },
     });
@@ -218,7 +242,7 @@ export default function UsersPage() {
         <Switch
           checked={record.status === 'ENABLED'}
           onChange={(checked) => handleToggleStatus(record, checked)}
-          disabled={record.username === 'admin'}
+          disabled={record.username === 'admin' || !access.hasPerm('system:user:update')}
           size="small"
         />
       ),
@@ -233,35 +257,51 @@ export default function UsersPage() {
     {
       title: '操作',
       valueType: 'option',
-      width: 280,
+      width: 330,
       fixed: 'right',
       render: (_, record) => (
         <Space size="small">
-          <a
-            onClick={() => {
-              setEditingUser(record);
-              setUserFormVisible(true);
-            }}
-          >
-            编辑
-          </a>
-          <a
-            onClick={() => {
-              setCurrentUser(record);
-              setAssignRoleVisible(true);
-            }}
-          >
-            分配角色
-          </a>
-          <a
-            onClick={() => {
-              setCurrentUser(record);
-              setAssignDeptVisible(true);
-            }}
-          >
-            分配部门
-          </a>
-          <a onClick={() => handleResetPassword(record)}>重置密码</a>
+          {access.hasPerm('system:user:update') && (
+            <a
+              onClick={() => {
+                setEditingUser(record);
+                setUserFormVisible(true);
+              }}
+            >
+              编辑
+            </a>
+          )}
+          {access.hasPerm('system:user:update') && (
+            <a
+              onClick={() => {
+                setCurrentUser(record);
+                setAssignRoleVisible(true);
+              }}
+            >
+              分配角色
+            </a>
+          )}
+          {access.hasPerm('system:user:update') && (
+            <a
+              onClick={() => {
+                setCurrentUser(record);
+                setAssignDeptVisible(true);
+              }}
+            >
+              分配部门
+            </a>
+          )}
+          {access.hasPerm('system:user:update') && (
+            <a onClick={() => handleResetPassword(record)}>重置密码</a>
+          )}
+          {access.hasPerm('system:user:delete') && (
+            <a
+              style={{ color: '#ff4d4f' }}
+              onClick={() => handleDelete(record)}
+            >
+              删除
+            </a>
+          )}
         </Space>
       ),
     },
@@ -344,28 +384,34 @@ export default function UsersPage() {
             return { data: [], total: 0, success: true };
           }}
           toolBarRender={() => [
-            <Button
-              key="create"
-              type="primary"
-              icon={<PlusOutlined />}
-              onClick={() => {
-                setEditingUser(null);
-                setUserFormVisible(true);
-              }}
-            >
-              新增用户
-            </Button>,
-            <Button
-              key="import"
-              icon={<UploadOutlined />}
-              onClick={() => setImportVisible(true)}
-            >
-              批量导入
-            </Button>,
-            <Button key="export" icon={<DownloadOutlined />} onClick={handleExport}>
-              批量导出
-            </Button>,
-          ]}
+            access.hasPerm('system:user:create') && (
+              <Button
+                key="create"
+                type="primary"
+                icon={<PlusOutlined />}
+                onClick={() => {
+                  setEditingUser(null);
+                  setUserFormVisible(true);
+                }}
+              >
+                新增用户
+              </Button>
+            ),
+            access.hasPerm('system:user:create') && (
+              <Button
+                key="import"
+                icon={<UploadOutlined />}
+                onClick={() => setImportVisible(true)}
+              >
+                批量导入
+              </Button>
+            ),
+            access.hasPerm('system:user:export') && (
+              <Button key="export" icon={<DownloadOutlined />} onClick={handleExport}>
+                批量导出
+              </Button>
+            ),
+          ].filter(Boolean) as React.ReactElement[]}
           pagination={{
             defaultPageSize: 10,
             showSizeChanger: true,

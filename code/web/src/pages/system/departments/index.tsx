@@ -19,6 +19,7 @@ import {
   SwapOutlined,
   ExclamationCircleOutlined,
 } from '@ant-design/icons';
+import { useAccess } from '@umijs/max';
 import { getDeptTree, enableDisableDept, deleteDept } from '@/services/dept';
 import type { DeptTreeVO } from '@/services/dept';
 import DeptForm from './components/DeptForm';
@@ -28,6 +29,7 @@ import styles from './index.less';
 const { Title, Text } = Typography;
 
 export default function DepartmentsPage() {
+  const access = useAccess();
   const [deptTree, setDeptTree] = useState<any[]>([]);
   const [rawDeptData, setRawDeptData] = useState<DeptTreeVO[]>([]);
   const [selectedNode, setSelectedNode] = useState<DeptTreeVO | null>(null);
@@ -110,11 +112,9 @@ export default function DepartmentsPage() {
         if (selectedNode?.id === id) {
           setSelectedNode({ ...selectedNode, status });
         }
-      } else {
-        message.error(res.msg);
       }
-    } catch (error: any) {
-      message.error(error?.message || '操作失败');
+    } catch {
+      // 异常已由全局请求层统一提示
     }
   };
 
@@ -137,11 +137,9 @@ export default function DepartmentsPage() {
             if (selectedNode?.id === record.id) {
               setSelectedNode(null);
             }
-          } else {
-            message.error(res.msg);
           }
-        } catch (error: any) {
-          message.error(error?.message || '操作失败');
+        } catch {
+          // 异常已由全局请求层统一提示
         }
       },
     });
@@ -197,16 +195,18 @@ export default function DepartmentsPage() {
       <Card className={styles.deptTree} size="small" loading={loading}>
         <div className={styles.deptTreeHeader}>
           <span className={styles.deptTreeTitle}>部门组织</span>
-          <Button type="primary" size="small" onClick={handleAddRoot}>
-            新增一级部门
-          </Button>
+          {access.hasPerm('system:dept:create') && (
+            <Button type="primary" size="small" onClick={handleAddRoot}>
+              新增一级部门
+            </Button>
+          )}
         </div>
         <Tree
           treeData={deptTree}
           onSelect={handleSelect}
           defaultExpandAll
           showLine
-          draggable
+          draggable={access.hasPerm('system:dept:update')}
         />
       </Card>
 
@@ -222,26 +222,34 @@ export default function DepartmentsPage() {
                 </Tag>
               </Space>
               <Space>
-                <Button icon={<PlusOutlined />} onClick={handleAddChild}>
-                  新增子部门
-                </Button>
-                <Button icon={<EditOutlined />} onClick={handleEdit} disabled={selectedNode.depth === 0}>
-                  编辑
-                </Button>
-                <Button
-                  icon={<UserSwitchOutlined />}
-                  onClick={() => setAssignVisible(true)}
-                >
-                  分配用户
-                </Button>
-                <Button
-                  icon={<DeleteOutlined />}
-                  danger
-                  onClick={() => handleDelete(selectedNode)}
-                  disabled={selectedNode.depth === 0}
-                >
-                  删除
-                </Button>
+                {access.hasPerm('system:dept:create') && (
+                  <Button icon={<PlusOutlined />} onClick={handleAddChild}>
+                    新增子部门
+                  </Button>
+                )}
+                {access.hasPerm('system:dept:update') && (
+                  <Button icon={<EditOutlined />} onClick={handleEdit} disabled={selectedNode.depth === 0}>
+                    编辑
+                  </Button>
+                )}
+                {access.hasPerm('system:dept:update') && (
+                  <Button
+                    icon={<UserSwitchOutlined />}
+                    onClick={() => setAssignVisible(true)}
+                  >
+                    分配用户
+                  </Button>
+                )}
+                {access.hasPerm('system:dept:delete') && (
+                  <Button
+                    icon={<DeleteOutlined />}
+                    danger
+                    onClick={() => handleDelete(selectedNode)}
+                    disabled={selectedNode.depth === 0}
+                  >
+                    删除
+                  </Button>
+                )}
               </Space>
             </div>
 
@@ -272,7 +280,7 @@ export default function DepartmentsPage() {
                   <Switch
                     checked={selectedNode.status === 'ENABLED'}
                     onChange={(checked) => handleToggleStatus(selectedNode, checked)}
-                    disabled={selectedNode.depth === 0}
+                    disabled={selectedNode.depth === 0 || !access.hasPerm('system:dept:update')}
                     size="small"
                   />
                 </div>

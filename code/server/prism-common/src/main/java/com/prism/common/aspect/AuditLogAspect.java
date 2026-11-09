@@ -11,6 +11,9 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
+import java.lang.reflect.Method;
+import java.util.List;
+
 /**
  * 审计日志切面
  */
@@ -54,6 +57,46 @@ public class AuditLogAspect {
     }
 
     /**
+     * 拦截 @LoginLog 注解方法（登录/登出）
+     * <p>
+     * 用户身份解析：登出走安全上下文；登录成功时上下文尚未建立，从返回结果反射提取
+     * （LoginVO.userInfo.id/username）；登录失败从入参反射提取账号标识（username/phone/email）。
+     */
+    @Around("@annotation(loginLog)")
+    public Object aroundLogin(ProceedingJoinPoint joinPoint, LoginLog loginLog) throws Throwable {
+        Object result = null;
+        Throwable failure = null;
+        try {
+            result = joinPoint.proceed();
+            return result;
+        } catch (Throwable e) {
+            failure = e;
+            throw e;
+        } finally {
+            try {
+                Long userId = com.prism.common.security.SecurityUtils.getCurrentUserId();
+                String username = com.prism.common.security.SecurityUtils.getCurrentUsername();
+                if (failure == null) {
+                    if (userId == null) {
+                        userId = extractUserId(result);
+                    }
+                    if (username == null) {
+                        username = extractUsername(result);
+                    }
+                } else if (username == null) {
+                    username = extractUsernameFromArgs(joinPoint.getArgs());
+                }
+                String failReason = failure == null ? null : failure.getMessage();
+                asyncSaveLoginLog(userId, username, getClientIp(), getUserAgent(),
+                        failure == null ? "SUCCESS" : "FAIL", failReason,
+                        com.prism.common.context.RequestContextHolder.getRequestId());
+            } catch (Exception e) {
+                log.error("登录日志记录失败", e);
+            }
+        }
+    }
+
+    /**
      * 异步保存审计日志
      */
     @Async("asyncExecutor")
@@ -78,6 +121,48 @@ public class AuditLogAspect {
             auditLogService.saveLoginLog(userId, username, ip, userAgent, result, failReason, requestId);
         } catch (Exception e) {
             log.error("异步保存登录日志失败", e);
+        }
+    }
+
+    /** 从登录返回结果提取用户 ID（LoginVO.userInfo.id，反射避免 common 模块依赖业务 VO） */
+    private Long extractUserId(Object result) {
+        Object userInfo = invokeGetter(result, "getUserInfo");
+        Object id = invokeGetter(userInfo != null ? userInfo : result, "getId");
+        return id instanceof Number number ? number.longValue() : null;
+    }
+
+    /** 从登录返回结果提取用户名（LoginVO.userInfo.username） */
+    private String extractUsername(Object result) {
+        Object userInfo = invokeGetter(result, "getUserInfo");
+        Object username = invokeGetter(userInfo != null ? userInfo : result, "getUsername");
+        return username != null ? username.toString() : null;
+    }
+
+    /** 从入参提取账号标识（用户名/手机号/邮箱，登录失败时安全上下文无用户信息） */
+    private String extractUsernameFromArgs(Object[] args) {
+        if (args == null) {
+            return null;
+        }
+        for (Object arg : args) {
+            for (String getter : List.of("getUsername", "getPhone", "getEmail")) {
+                Object value = invokeGetter(arg, getter);
+                if (value instanceof String str && !str.isBlank()) {
+                    return str;
+                }
+            }
+        }
+        return null;
+    }
+
+    private Object invokeGetter(Object target, String getterName) {
+        if (target == null) {
+            return null;
+        }
+        try {
+            Method method = target.getClass().getMethod(getterName);
+            return method.invoke(target);
+        } catch (Exception e) {
+            return null;
         }
     }
 

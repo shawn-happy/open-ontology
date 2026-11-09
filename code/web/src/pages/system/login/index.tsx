@@ -1,12 +1,13 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Form, Input, Button, Checkbox, message, Modal, Tabs } from 'antd';
 import { UserOutlined, LockOutlined, SafetyOutlined } from '@ant-design/icons';
-import { history } from '@umijs/max';
+import { history, useModel } from '@umijs/max';
 import { login, getCaptcha, changePasswordFirstTime, forgotPassword, sendVerifyCode } from '@/services/auth';
 import type { LoginDTO, CaptchaVO } from '@/services/auth';
 import styles from './index.less';
 
 export default function LoginPage() {
+  const { setInitialState } = useModel('@@initialState');
   const [captcha, setCaptcha] = useState<CaptchaVO | null>(null);
   const [loading, setLoading] = useState(false);
   const [form] = Form.useForm();
@@ -98,6 +99,9 @@ export default function LoginPage() {
         localStorage.setItem('userInfo', JSON.stringify(userInfo));
         localStorage.setItem('permissions', JSON.stringify(permissions));
 
+        // 刷新全局初始状态，使 Access 权限（菜单/按钮）立即生效
+        await setInitialState({ userInfo, permissions });
+
         if (firstLogin || passwordExpired) {
           // 首次登录或密码过期，弹出强制修改密码弹窗
           setFirstLoginToken(accessToken);
@@ -107,12 +111,11 @@ export default function LoginPage() {
           history.push('/welcome');
         }
       } else {
-        message.error(res.msg || '登录失败');
         loadCaptcha();
         form.setFieldsValue({ captchaCode: '' });
       }
-    } catch (error: any) {
-      message.error(error?.message || '登录失败，请重试');
+    } catch {
+      // 异常已由全局请求层统一提示，此处仅刷新验证码并清空输入
       loadCaptcha();
       form.setFieldsValue({ captchaCode: '' });
     } finally {
@@ -134,11 +137,9 @@ export default function LoginPage() {
         setFirstLoginModalVisible(false);
         form.resetFields();
         loadCaptcha();
-      } else {
-        message.error(res.msg || '密码修改失败');
       }
-    } catch (error: any) {
-      message.error(error?.message || '密码修改失败');
+    } catch {
+      // 异常已由全局请求层统一提示
     }
   };
 
@@ -157,11 +158,9 @@ export default function LoginPage() {
       if (res.code === '000000') {
         message.success('验证码已发送');
         setCountdown(60);
-      } else {
-        message.error(res.msg || '发送失败');
       }
-    } catch (error: any) {
-      message.error(error?.message || '发送失败');
+    } catch {
+      // 异常已由全局请求层统一提示
     }
   };
 
@@ -179,11 +178,9 @@ export default function LoginPage() {
         setForgotModalVisible(false);
         forgotForm.resetFields();
         loadCaptcha();
-      } else {
-        message.error(res.msg || '重置失败');
       }
-    } catch (error: any) {
-      message.error(error?.message || '重置失败');
+    } catch {
+      // 异常已由全局请求层统一提示
     }
   };
 
@@ -382,13 +379,15 @@ export default function LoginPage() {
             <Input placeholder="请输入已绑定的手机号或邮箱" />
           </Form.Item>
 
-          <Form.Item
-            name="verifyCode"
-            label="验证码"
-            rules={[{ required: true, message: '请输入验证码' }]}
-          >
+          <Form.Item label="验证码" required>
             <div className={styles.captchaRow}>
-              <Input placeholder="请输入验证码" className={styles.captchaInput} />
+              <Form.Item
+                name="verifyCode"
+                noStyle
+                rules={[{ required: true, message: '请输入验证码' }]}
+              >
+                <Input placeholder="请输入验证码" className={styles.captchaInput} />
+              </Form.Item>
               <Button
                 type="primary"
                 ghost

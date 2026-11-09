@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.prism.platform.mapper.WorkspaceDeptMapper">
+
+    <select id="selectDeptAssignments" resultType="com.prism.platform.vo.WorkspaceDeptVO">
+        SELECT wd.dept_id       AS dept_id,
+               d.name           AS dept_name,
+               wd.default_role  AS default_role,
+               au.name          AS assigned_by_name,
+               wd.created_at    AS assigned_at
+        FROM platform_workspace_dept wd
+        LEFT JOIN system_dept d
+            ON d.id = wd.dept_id
+        LEFT JOIN system_user au
+            ON au.id = wd.created_by AND au.is_deleted = 0
+        WHERE wd.workspace_code = #{workspaceCode}
+          AND wd.is_deleted = 0
+        ORDER BY wd.created_at DESC
+    </select>
+
+    <!-- 覆盖指定用户的分配部门 ID（部门子树展开命中用户所在部门；excludeDeptId 可选排除） -->
+    <select id="selectCoveringDeptIds" resultType="java.lang.Long">
+        SELECT DISTINCT wd.dept_id
+        FROM platform_workspace_dept wd
+        JOIN system_dept root
+            ON root.id = wd.dept_id AND root.is_deleted = 0
+        JOIN system_dept sub
+            ON (sub.id = root.id OR sub.path LIKE CONCAT(root.path, root.id, '/%'))
+           AND sub.is_deleted = 0
+        JOIN system_user_dept ud
+            ON ud.dept_id = sub.id AND ud.user_id = #{userId} AND ud.is_deleted = 0
+        WHERE wd.workspace_code = #{workspaceCode}
+          AND wd.is_deleted = 0
+        <if test="excludeDeptId != null">
+            AND wd.dept_id != #{excludeDeptId}
+        </if>
+    </select>
+
+    <insert id="batchInsert">
+        INSERT INTO platform_workspace_dept
+            (workspace_code, dept_id, default_role,
+             is_deleted, created_by, updated_by, created_at, updated_at)
+        VALUES
+        <foreach collection="list" item="item" separator=",">
+            (#{item.workspaceCode}, #{item.deptId}, #{item.defaultRole},
+             0, #{item.createdBy}, #{item.updatedBy}, NOW(), NOW())
+        </foreach>
+    </insert>
+
+</mapper>

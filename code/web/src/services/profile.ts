@@ -30,14 +30,14 @@ export interface ChangePasswordDTO {
 
 /** 获取个人信息 */
 export async function getProfile() {
-  return request<Result<UserProfileVO>>('/web/platform/system/profile', {
+  return request<Result<UserProfileVO>>('/web/system/profile', {
     method: 'GET',
   });
 }
 
 /** 更新个人信息 */
 export async function updateProfile(data: UpdateProfileDTO) {
-  return request<Result<void>>('/web/platform/system/profile/update', {
+  return request<Result<void>>('/web/system/profile/update', {
     method: 'POST',
     data,
   });
@@ -45,7 +45,7 @@ export async function updateProfile(data: UpdateProfileDTO) {
 
 /** 修改密码 */
 export async function changePassword(data: ChangePasswordDTO) {
-  return request<Result<void>>('/web/platform/system/profile/change-password', {
+  return request<Result<void>>('/web/system/profile/change-password', {
     method: 'POST',
     data,
   });
@@ -55,7 +55,7 @@ export async function changePassword(data: ChangePasswordDTO) {
 export async function uploadAvatar(file: File) {
   const formData = new FormData();
   formData.append('file', file);
-  return request<Result<string>>('/web/platform/system/profile/upload-avatar', {
+  return request<Result<string>>('/web/system/profile/upload-avatar', {
     method: 'POST',
     data: formData,
     requestType: 'form',

@@ -6,9 +6,11 @@ import {
 } from '@ant-design/icons';
 import { ProTable } from '@ant-design/pro-components';
 import type { ActionType, ProColumns } from '@ant-design/pro-components';
+import { useAccess } from '@umijs/max';
 import {
   getRolePage,
   enableDisableRole,
+  deleteRole,
 } from '@/services/role';
 import type { RoleListVO } from '@/services/role';
 import RoleForm from './components/RoleForm';
@@ -17,6 +19,7 @@ import AssignUsers from './components/AssignUsers';
 import styles from './index.less';
 
 export default function RolesPage() {
+  const access = useAccess();
   const actionRef = useRef<ActionType>();
   const [roleFormVisible, setRoleFormVisible] = useState(false);
   const [editingRole, setEditingRole] = useState<RoleListVO | null>(null);
@@ -40,11 +43,34 @@ export default function RolesPage() {
           if (res.code === '000000') {
             message.success(`${checked ? '启用' : '停用'}成功`);
             actionRef.current?.reload();
-          } else {
-            message.error(res.msg);
           }
-        } catch (error: any) {
-          message.error(error?.message || '操作失败');
+        } catch {
+          // 异常已由全局请求层统一提示
+        }
+      },
+    });
+  };
+
+  // 删除角色
+  const handleDelete = (record: RoleListVO) => {
+    if (record.builtIn) {
+      message.warning('内置角色不可删除');
+      return;
+    }
+    Modal.confirm({
+      title: '确认删除该角色？',
+      content: `删除后角色「${record.name}」下已关联的用户将失去对应权限，此操作不可恢复。`,
+      icon: <ExclamationCircleOutlined />,
+      okButtonProps: { danger: true },
+      onOk: async () => {
+        try {
+          const res = await deleteRole(record.id);
+          if (res.code === '000000') {
+            message.success('删除成功');
+            actionRef.current?.reload();
+          }
+        } catch {
+          // 异常已由全局请求层统一提示
         }
       },
     });
@@ -110,7 +136,7 @@ export default function RolesPage() {
         <Switch
           checked={record.status === 'ENABLED'}
           onChange={(checked) => handleToggleStatus(record, checked)}
-          disabled={record.builtIn}
+          disabled={record.builtIn || !access.hasPerm('system:role:update')}
           size="small"
         />
       ),
@@ -132,37 +158,51 @@ export default function RolesPage() {
     {
       title: '操作',
       valueType: 'option',
-      width: 240,
+      width: 280,
       render: (_, record) => {
         if (record.code === 'super_admin') {
           return <span style={{ color: '#999' }}>不可操作</span>;
         }
         return (
           <Space size="small">
-            <a
-              onClick={() => {
-                setEditingRole(record);
-                setRoleFormVisible(true);
-              }}
-            >
-              编辑
-            </a>
-            <a
-              onClick={() => {
-                setCurrentRole(record);
-                setPermVisible(true);
-              }}
-            >
-              配置权限
-            </a>
-            <a
-              onClick={() => {
-                setCurrentRole(record);
-                setAssignVisible(true);
-              }}
-            >
-              分配用户
-            </a>
+            {access.hasPerm('system:role:update') && (
+              <a
+                onClick={() => {
+                  setEditingRole(record);
+                  setRoleFormVisible(true);
+                }}
+              >
+                编辑
+              </a>
+            )}
+            {access.hasPerm('system:role:update') && (
+              <a
+                onClick={() => {
+                  setCurrentRole(record);
+                  setPermVisible(true);
+                }}
+              >
+                配置权限
+              </a>
+            )}
+            {access.hasPerm('system:role:update') && (
+              <a
+                onClick={() => {
+                  setCurrentRole(record);
+                  setAssignVisible(true);
+                }}
+              >
+                分配用户
+              </a>
+            )}
+            {access.hasPerm('system:role:delete') && (
+              <a
+                style={{ color: '#ff4d4f' }}
+                onClick={() => handleDelete(record)}
+              >
+                删除
+              </a>
+            )}
           </Space>
         );
       },
@@ -197,18 +237,20 @@ export default function RolesPage() {
           return { data: [], total: 0, success: true };
         }}
         toolBarRender={() => [
-          <Button
-            key="create"
-            type="primary"
-            icon={<PlusOutlined />}
-            onClick={() => {
-              setEditingRole(null);
-              setRoleFormVisible(true);
-            }}
-          >
-            新增角色
-          </Button>,
-        ]}
+          access.hasPerm('system:role:create') && (
+            <Button
+              key="create"
+              type="primary"
+              icon={<PlusOutlined />}
+              onClick={() => {
+                setEditingRole(null);
+                setRoleFormVisible(true);
+              }}
+            >
+              新增角色
+            </Button>
+          ),
+        ].filter(Boolean) as React.ReactElement[]}
         pagination={{
           defaultPageSize: 10,
           showSizeChanger: true,

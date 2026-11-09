@@ -59,6 +59,12 @@ public final class SystemConstants {
     /** 单点登录当前 Token Hash：prism:token:session:{userId} */
     public static final String REDIS_TOKEN_SESSION_PREFIX = REDIS_PREFIX + "token:session:";
 
+    /** 忘记密码验证码 Key 前缀：prism:auth:verify-code:{accountType}:{account} */
+    public static final String REDIS_VERIFY_CODE_PREFIX = REDIS_PREFIX + "auth:verify-code:";
+
+    /** 忘记密码验证码发送频控 Key 前缀：prism:auth:verify-code-limit:{account} */
+    public static final String REDIS_VERIFY_CODE_LIMIT_PREFIX = REDIS_PREFIX + "auth:verify-code-limit:";
+
     // ===== 登录安全 =====
     /** 默认最大登录失败次数 */
     public static final int DEFAULT_MAX_FAIL_COUNT = 5;
@@ -68,6 +74,12 @@ public final class SystemConstants {
 
     /** 验证码有效期（秒） */
     public static final long CAPTCHA_TTL_SECONDS = 300L;
+
+    /** 忘记密码验证码有效期（秒） */
+    public static final long VERIFY_CODE_TTL_SECONDS = 300L;
+
+    /** 忘记密码验证码发送最小间隔（秒） */
+    public static final long VERIFY_CODE_SEND_INTERVAL_SECONDS = 60L;
 
     // ===== 登录类型 =====
     public static final String LOGIN_TYPE_USERNAME = "USERNAME";

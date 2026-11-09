@@ -1,11 +1,6 @@
 ---
 name: backend-jackson-spec
 description: Open Ontology 后端 Jackson 序列化/反序列化使用规范，定义命名策略、时间格式、空值处理、多态与类型安全约束
-version: "1.0"
-status: enforced
-tech_stack: Java 21 + Spring Boot 3.3 + Jackson 2.x
-created: 2026-09-29
-tags: [jackson, json, serialization, spec, backend]
 ---
 
 # Jackson 使用规范

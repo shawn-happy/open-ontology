@@ -41,12 +41,10 @@ export default function ChangePasswordModal({ visible, onCancel, onSuccess }: Ch
         message.success('密码修改成功');
         onSuccess();
         return true;
-      } else {
-        message.error(res.msg);
-        return false;
       }
-    } catch (error: any) {
-      message.error(error?.message || '密码修改失败');
+      return false;
+    } catch {
+      // 异常已由全局请求层统一提示
       return false;
     }
   };

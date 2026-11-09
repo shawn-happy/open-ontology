@@ -1,0 +1,141 @@
+.homePage {
+  .pageHeader {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: 16px;
+  }
+
+  .pageTitle {
+    font-size: 18px;
+    font-weight: 600;
+    margin: 0 0 4px;
+    color: rgba(0, 0, 0, 0.88);
+  }
+
+  .pageDesc {
+    font-size: 13px;
+    color: rgba(0, 0, 0, 0.45);
+    max-width: 720px;
+  }
+
+  .statRow {
+    margin-bottom: 16px;
+  }
+
+  .statLabel {
+    font-size: 13px;
+    color: rgba(0, 0, 0, 0.45);
+  }
+
+  .statValue {
+    font-size: 26px;
+    font-weight: 600;
+    color: rgba(0, 0, 0, 0.88);
+    margin: 4px 0;
+  }
+
+  .deltaUp {
+    font-size: 12px;
+    color: #52c41a;
+  }
+
+  .deltaDown {
+    font-size: 12px;
+    color: #ff4d4f;
+  }
+
+  // ===== 功能模块卡片（色条：紫 / 青 / 红 / 绿 / 橙） =====
+  .modGrid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin-bottom: 16px;
+
+    @media (max-width: 1100px) {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .modCard {
+    border-top: 3px solid #1677ff;
+    border-radius: 10px;
+
+    &.c1 {
+      border-top-color: #722ed1; // 紫
+    }
+
+    &.c2 {
+      border-top-color: #13c2c2; // 青
+    }
+
+    &.c3 {
+      border-top-color: #ff4d4f; // 红
+    }
+
+    &.c4 {
+      border-top-color: #52c41a; // 绿
+    }
+
+    &.c5 {
+      border-top-color: #fa8c16; // 橙
+    }
+  }
+
+  .modIcon {
+    font-size: 20px;
+  }
+
+  .modTitle {
+    margin: 8px 0 6px;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+  }
+
+  .modArrow {
+    margin-left: auto;
+    color: rgba(0, 0, 0, 0.25);
+    font-size: 12px;
+    font-weight: 400;
+  }
+
+  .modDesc {
+    font-size: 12px;
+    color: rgba(0, 0, 0, 0.45);
+    margin-bottom: 8px;
+  }
+
+  .modItems {
+    margin: 0;
+    padding-left: 16px;
+    font-size: 12px;
+    color: rgba(0, 0, 0, 0.65);
+    line-height: 2;
+  }
+
+  // ===== 底部区块 =====
+  .bottomRow {
+    margin-top: 0;
+  }
+
+  .halfCard {
+    border-radius: 10px;
+    min-height: 240px;
+  }
+
+  .tlTime {
+    font-size: 12px;
+    color: rgba(0, 0, 0, 0.45);
+  }
+
+  .tlTitle {
+    font-size: 13px;
+    color: rgba(0, 0, 0, 0.88);
+  }
+
+  .tlDesc {
+    font-size: 12px;
+    color: rgba(0, 0, 0, 0.45);
+  }
+}

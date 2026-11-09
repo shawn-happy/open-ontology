@@ -1,11 +1,6 @@
 ---
 name: backend-database-spec
 description: Open Ontology 后端数据库设计规范，定义命名、索引、多租户隔离、字段类型选择与 DDL 管理约束
-version: "1.0"
-status: enforced
-tech_stack: MySQL 8.0+ + MyBatis-Plus 3.5.x
-created: 2026-09-29
-tags: [database, mysql, ddl, spec, backend]
 ---
 
 # 数据库设计规范
@@ -24,24 +19,26 @@ tags: [database, mysql, ddl, spec, backend]
 
 每张表必须包含：`id BIGINT AUTO_INCREMENT`（主键）、`created_at`、`updated_at`、`created_by`、`updated_by`、`is_deleted TINYINT(1) DEFAULT 0`。
 
+**每次设计表时，必须调用 `AskUserQuestion`，询问用户该表是否属于空间级资源或全局资源。**
+
 **空间级资源**（本体类、Pipeline、数据集等）额外包含 `workspace_code VARCHAR(64) NOT NULL`；**全局资源**（用户、角色、枚举类等）不含此字段。
 
 ---
 
 ## 3. 字段类型
 
-| 场景 | MySQL 类型 | Java 类型 |
-|---|---|---|
+| 场景 | MySQL 类型                | Java 类型 |
+|---|-------------------------|---|
 | 主键 | `BIGINT AUTO_INCREMENT` | `Long` |
-| 工作空间编码 | `VARCHAR(64)` | `String` |
-| 短文本 | `VARCHAR(n)` | `String` |
-| 长文本 | `TEXT` | `String` |
-| JSON | `JSON` | `String`（配合 TypeHandler） |
-| 整数 | `INT` / `BIGINT` | `Integer` / `Long` |
-| 小数/金额 | `DECIMAL(p,s)` | `BigDecimal` |
-| 布尔 | `TINYINT(1)` | `Boolean` |
-| 日期时间 | `DATETIME` | `LocalDateTime` |
-| 枚举 | `VARCHAR(32)` | `Enum`（配合 TypeHandler） |
+| 工作空间编码 | `VARCHAR(64)`           | `String` |
+| 短文本 | `VARCHAR(n)`            | `String` |
+| 长文本 | `TEXT`                  | `String` |
+| JSON | `LongText`              | `String`（配合 TypeHandler） |
+| 整数 | `INT` / `BIGINT`        | `Integer` / `Long` |
+| 小数/金额 | `DECIMAL(p,s)`          | `BigDecimal` |
+| 布尔 | `TINYINT(1)`            | `Boolean` |
+| 日期时间 | `DATETIME`              | `LocalDateTime` |
+| 枚举 | `VARCHAR(32)`           | `Enum`（配合 TypeHandler） |
 
 **禁止类型**：`FLOAT`/`DOUBLE`（精度丢失）、`TIMESTAMP`（时区问题）、MySQL `ENUM`（变更需 ALTER）、`BLOB`/`LONGBLOB`（大文件走 MinIO）、`BIT`（可读性差）。
 
@@ -102,7 +99,7 @@ CREATE TABLE ontology_class (
 
 - [ ] 表名 `{模块}_{实体}`，snake_case，单数
 - [ ] 主键 `BIGINT AUTO_INCREMENT`
-- [ ] 包含公共字段（id、created_at、updated_at、is_deleted 等）
+- [ ] 包含公共字段（id、created_at、created_by、updated_at、updated_by、is_deleted 等）
 - [ ] 空间级资源含 `workspace_code VARCHAR(64)`；全局资源不含
 - [ ] 金额用 `DECIMAL`，时间用 `DATETIME`，禁止 FLOAT/TIMESTAMP/ENUM/BLOB
 - [ ] 仅普通索引，禁止 UNIQUE KEY / FOREIGN KEY / CHECK

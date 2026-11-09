@@ -3,10 +3,12 @@ import { Button, Tag, message, Modal, Descriptions } from 'antd';
 import { DownloadOutlined } from '@ant-design/icons';
 import { ProTable } from '@ant-design/pro-components';
 import type { ActionType, ProColumns } from '@ant-design/pro-components';
+import { useAccess } from '@umijs/max';
 import { getExecLogPage, exportLogs } from '@/services/log';
 import type { ExecLogVO } from '@/services/log';
 
 export default function ExecLogTab() {
+  const access = useAccess();
   const actionRef = useRef<ActionType>();
   const [detailVisible, setDetailVisible] = useState(false);
   const [currentLog, setCurrentLog] = useState<ExecLogVO | null>(null);
@@ -23,7 +25,7 @@ export default function ExecLogTab() {
       window.URL.revokeObjectURL(url);
       message.success('导出成功');
     } catch {
-      message.error('导出失败');
+      // 异常已由全局请求层统一提示
     }
   };
 
@@ -156,10 +158,12 @@ export default function ExecLogTab() {
           return { data: [], total: 0, success: true };
         }}
         toolBarRender={() => [
-          <Button key="export" icon={<DownloadOutlined />} onClick={handleExport}>
-            导出
-          </Button>,
-        ]}
+          access.hasPerm('system:log:export') && (
+            <Button key="export" icon={<DownloadOutlined />} onClick={handleExport}>
+              导出
+            </Button>
+          ),
+        ].filter(Boolean) as React.ReactElement[]}
         pagination={{
           defaultPageSize: 10,
           showSizeChanger: true,

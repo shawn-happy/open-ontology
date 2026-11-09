@@ -77,12 +77,10 @@ export default function UserForm({ visible, initialValues, onCancel, onSuccess }
         message.success(isEdit ? '编辑成功' : '新增成功');
         onSuccess();
         return true;
-      } else {
-        message.error(res.msg);
-        return false;
       }
-    } catch (error: any) {
-      message.error(error?.message || '操作失败');
+      return false;
+    } catch {
+      // 异常已由全局请求层统一提示
       return false;
     }
   };

@@ -13,12 +13,12 @@ export function generateRequestId(): string {
  * 获取当前工作空间编码（从 URL 或 localStorage）
  */
 export function getWorkspaceCode(): string | null {
-  // 从 URL 路径中提取 /web/{workspaceCode}/...
-  const match = window.location.pathname.match(/^\/web\/([^\/]+)/);
+  // 从 URL 路径中提取 /workspace/{workspaceCode}/...
+  const match = window.location.pathname.match(/^\/workspace\/([^\/]+)/);
   if (match) {
     return match[1];
   }
-  // 从 localStorage 获取
+  // 从 localStorage 获取（兜底）
   return localStorage.getItem('workspaceCode');
 }
 

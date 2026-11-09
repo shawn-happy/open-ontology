@@ -57,11 +57,9 @@ export default function ProfilePage() {
       if (res.code === '000000') {
         message.success('头像上传成功');
         loadProfile();
-      } else {
-        message.error(res.msg);
       }
-    } catch (error: any) {
-      message.error(error?.message || '上传失败');
+    } catch {
+      // 异常已由全局请求层统一提示
     }
     return false;
   };

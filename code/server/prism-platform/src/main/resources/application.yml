@@ -1,34 +1,61 @@
-server:
-  port: 8100
-
 spring:
   # Nacos 配置导入（可选，开发环境无需 Nacos 服务）
+  cloud:
+    nacos:
+      config:
+        server-addr: ${NACOS_SERVER_ADDR:localhost:8848}
+        file-extension: yaml
+        namespace: ${NACOS_NAMESPACE:prism}
+        username: ${NACOS_USERNAME:nacos}
+        password: ${NACOS_PASSWORD:nacos}
+      discovery:
+        server-addr: ${NACOS_SERVER_ADDR:localhost:8848}
+        group: DEFAULT_GROUP
+        username: ${NACOS_USERNAME:nacos}
+        password: ${NACOS_PASSWORD:nacos}
+        namespace: ${NACOS_NAMESPACE:prism}
+
   config:
     import:
-      - optional:nacos:prism-platform-dev.yml?refreshEnabled=true&namespace=ONTOLOGY&group=DEFAULT_GROUP
+      - optional:nacos:prism.yaml
 
   application:
     name: prism-platform
   threads:
     virtual:
       enabled: true
-
-  # Jackson 全局配置
-  jackson:
-    property-naming-strategy: LOWER_CAMEL_CASE
-    default-property-inclusion: NON_NULL
-    time-zone: Asia/Shanghai
-    serialization:
-      write-dates-as-timestamps: false
-    deserialization:
-      fail-on-unknown-properties: false
+# 多租户配置（独立前缀，避免与 MyBatis-Plus 自带的 mybatis-plus 前缀冲突）
+prism:
+  tenant:
+    enabled: true
+    column: workspace_code
+    ignore-tables:
+      - system_user
+      - system_role
+      - system_menu
+      - system_dept
+      - system_user_role
+      - system_role_menu
+      - system_user_dept
+      - system_audit_log
+      - system_login_log
+      - system_exec_log
+      # 工作空间管理表（Service 层显式按 workspace_code 过滤）
+      - platform_workspace
+      - platform_workspace_member
+      - platform_workspace_dept
 
 # Swagger / OpenAPI
 springdoc:
   api-docs:
     path: /v3/api-docs
-  swagger-ui:
-    path: /doc.html
+
+# JWT 配置（RS256，密钥文件位于 classpath:keys/）
+jwt:
+  access-expire-hours: 2
+  refresh-expire-days: 7
+  remember-refresh-expire-days: 30
+
 
 # Logging
 logging:

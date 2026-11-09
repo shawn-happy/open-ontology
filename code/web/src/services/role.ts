@@ -54,7 +54,7 @@ export interface RolePageQuery extends PageQuery {}
 
 /** 角色列表分页查询 */
 export async function getRolePage(params: RolePageQuery) {
-  return request<Result<PageResult<RoleListVO>>>('/web/platform/system/roles', {
+  return request<Result<PageResult<RoleListVO>>>('/web/system/roles', {
     method: 'GET',
     params,
   });
@@ -62,7 +62,7 @@ export async function getRolePage(params: RolePageQuery) {
 
 /** 获取全部角色（不分页，用于下拉选择） */
 export async function getAllRoles(keyword?: string) {
-  return request<Result<RoleListVO[]>>('/web/platform/system/roles/all', {
+  return request<Result<RoleListVO[]>>('/web/system/roles/all', {
     method: 'GET',
     params: keyword ? { keyword } : {},
   });
@@ -70,14 +70,14 @@ export async function getAllRoles(keyword?: string) {
 
 /** 获取角色详情 */
 export async function getRoleDetail(id: string) {
-  return request<Result<RoleDetailVO>>(`/web/platform/system/roles/${id}`, {
+  return request<Result<RoleDetailVO>>(`/web/system/roles/${id}`, {
     method: 'GET',
   });
 }
 
 /** 创建角色 */
 export async function createRole(data: CreateRoleDTO) {
-  return request<Result<void>>('/web/platform/system/roles/create', {
+  return request<Result<void>>('/web/system/roles/create', {
     method: 'POST',
     data,
   });
@@ -85,7 +85,7 @@ export async function createRole(data: CreateRoleDTO) {
 
 /** 更新角色 */
 export async function updateRole(data: UpdateRoleDTO) {
-  return request<Result<void>>('/web/platform/system/roles/update', {
+  return request<Result<void>>('/web/system/roles/update', {
     method: 'POST',
     data,
   });
@@ -93,14 +93,14 @@ export async function updateRole(data: UpdateRoleDTO) {
 
 /** 删除角色 */
 export async function deleteRole(id: string) {
-  return request<Result<void>>(`/web/platform/system/roles/${id}/delete`, {
+  return request<Result<void>>(`/web/system/roles/${id}/delete`, {
     method: 'POST',
   });
 }
 
 /** 启用/停用角色 */
 export async function enableDisableRole(id: string, status: string) {
-  return request<Result<void>>('/web/platform/system/roles/enable-disable', {
+  return request<Result<void>>('/web/system/roles/enable-disable', {
     method: 'POST',
     data: { id, status },
   });
@@ -108,7 +108,7 @@ export async function enableDisableRole(id: string, status: string) {
 
 /** 配置权限 */
 export async function configurePermissions(data: RolePermissionDTO) {
-  return request<Result<void>>('/web/platform/system/roles/configure-permissions', {
+  return request<Result<void>>('/web/system/roles/configure-permissions', {
     method: 'POST',
     data,
   });
@@ -116,7 +116,7 @@ export async function configurePermissions(data: RolePermissionDTO) {
 
 /** 分配用户 */
 export async function assignUsersToRole(roleId: string, userIds: string[]) {
-  return request<Result<void>>('/web/platform/system/roles/assign-users', {
+  return request<Result<void>>('/web/system/roles/assign-users', {
     method: 'POST',
     data: { targetId: roleId, userIds },
   });

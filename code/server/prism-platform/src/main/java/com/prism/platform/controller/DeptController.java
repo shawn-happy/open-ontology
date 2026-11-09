@@ -30,7 +30,7 @@ import java.util.List;
  */
 @Tag(name = "部门管理")
 @RestController
-@RequestMapping("/web/platform")
+@RequestMapping("/web")
 @RequiredArgsConstructor
 public class DeptController {
 

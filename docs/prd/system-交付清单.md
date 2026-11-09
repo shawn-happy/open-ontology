@@ -133,14 +133,14 @@
 
 ### 7.1 后端 API 路径
 
-根据 `spec/backend/api-spec.md`，系统管理相关 API 统一使用 `/web/platform` 前缀：
+根据 `spec/backend/api-spec.md`，系统管理相关 API 统一使用 `/web` 前缀：
 
-- 用户管理：`/web/platform/user/{action}`
-- 角色管理：`/web/platform/role/{action}`
-- 权限管理：`/web/platform/menu/{action}`
-- 部门管理：`/web/platform/dept/{action}`
-- 日志查询：`/web/platform/log/{type}/list`
-- 登录认证：`/web/platform/auth/login`
+- 用户管理：`/web/user/{action}`
+- 角色管理：`/web/role/{action}`
+- 权限管理：`/web/menu/{action}`
+- 部门管理：`/web/dept/{action}`
+- 日志查询：`/web/log/{type}/list`
+- 登录认证：`/web/auth/login`
 
 ### 7.2 数据库表设计
 

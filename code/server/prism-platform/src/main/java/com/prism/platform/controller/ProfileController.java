@@ -22,7 +22,7 @@ import org.springframework.web.multipart.MultipartFile;
  */
 @Tag(name = "个人中心")
 @RestController
-@RequestMapping("/web/platform")
+@RequestMapping("/web")
 @RequiredArgsConstructor
 public class ProfileController {
 

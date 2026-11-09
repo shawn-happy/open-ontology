@@ -8,10 +8,20 @@
         LIMIT 1
     </select>
 
-    <select id="selectByUserId" resultType="com.prism.platform.entity.SystemRole">
+    <!-- resultMap 引用 MyBatis-Plus autoResultMap，确保 custom_workspace_codes JSON 类型转换器生效 -->
+    <select id="selectByUserId" resultMap="mybatis-plus_SystemRole">
         SELECT r.* FROM system_role r
         INNER JOIN system_user_role ur ON r.id = ur.role_id AND ur.is_deleted = 0
         WHERE ur.user_id = #{userId} AND r.is_deleted = 0
+    </select>
+
+    <select id="selectCustomWorkspaceRoles" resultMap="mybatis-plus_SystemRole">
+        SELECT * FROM system_role
+        WHERE type = 'WORKSPACE'
+          AND status = 'ENABLED'
+          AND is_deleted = 0
+          AND custom_workspace_codes IS NOT NULL
+          AND JSON_CONTAINS(custom_workspace_codes, JSON_QUOTE(#{workspaceCode}))
     </select>
 
 </mapper>

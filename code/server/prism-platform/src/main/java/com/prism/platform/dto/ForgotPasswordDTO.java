@@ -18,9 +18,13 @@ import lombok.NoArgsConstructor;
 @Schema(description = "忘记密码请求")
 public class ForgotPasswordDTO {
 
-    @NotBlank(message = "联系方式不能为空")
-    @Schema(description = "手机号或邮箱")
-    private String contact;
+    @NotBlank(message = "验证方式不能为空")
+    @Schema(description = "验证方式：phone / email")
+    private String accountType;
+
+    @NotBlank(message = "手机号或邮箱不能为空")
+    @Schema(description = "已绑定的手机号或邮箱")
+    private String account;
 
     @NotBlank(message = "验证码不能为空")
     @Size(max = 6, message = "验证码为 6 位")

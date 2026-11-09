@@ -507,7 +507,7 @@
 - 📝 新建：`code/server/prism-platform/src/main/java/com/prism/platform/controller/ProfileController.java`
 
 **实现要点**：
-- 使用 `@RestController`、`@RequestMapping("/web/platform")`
+- 使用 `@RestController`、`@RequestMapping("/web")`
 - 方法使用 `@GetMapping`（仅 GET 请求）或 `@PostMapping`（其他请求）
 - 使用 `@Valid` 校验请求参数
 - 使用 `@RequirePermission` 注解控制权限
@@ -527,7 +527,7 @@
 
 **验收标准**：
 - [ ] `mvn clean compile` 通过
-- [ ] API 路径符合 `spec/backend/api-spec.md`（仅 GET/POST、`/web/platform` 前缀）
+- [ ] API 路径符合 `spec/backend/api-spec.md`（仅 GET/POST、`/web` 前缀）
 - [ ] 权限注解正确配置
 - [ ] 日志注解正确配置
 
@@ -572,7 +572,7 @@
 - 首次登录强制修改密码弹窗
 - 忘记密码流程（手机号/邮箱验证码）
 - 记住我勾选框
-- 调用 `POST /web/platform/auth/login`、`GET /web/platform/auth/captcha` 等接口
+- 调用 `POST /web/auth/login`、`GET /web/auth/captcha` 等接口
 
 **依赖**：任务 4.1、后端任务 3.1、3.3
 
@@ -604,7 +604,7 @@
 - 右侧用户列表（ProTable）：分页、搜索、状态筛选
 - 操作列：编辑、启停用、重置密码、分配角色、分配部门
 - 顶部按钮：新增用户、批量导入、批量导出
-- 调用 `GET /web/platform/system/users`、`POST /web/platform/system/users/create` 等接口
+- 调用 `GET /web/system/users`、`POST /web/system/users/create` 等接口
 
 **依赖**：任务 4.1、后端任务 3.4、3.5、3.7
 
@@ -635,7 +635,7 @@
 - 顶部按钮：新增角色
 - 权限配置弹窗：左侧菜单树（Tree 组件），右侧数据权限单选
 - 超管角色行：显示"不可操作"，禁用编辑/权限/分配按钮
-- 调用 `GET /web/platform/system/roles`、`POST /web/platform/system/roles/create` 等接口
+- 调用 `GET /web/system/roles`、`POST /web/system/roles/create` 等接口
 
 **依赖**：任务 4.1、后端任务 3.5、3.6
 
@@ -662,7 +662,7 @@
 - 左侧菜单树（Tree 组件，可展开/折叠）
 - 右侧详情区：节点类型徽标、名称、权限标识、排序、状态、编辑/删除按钮、下级节点表格
 - 顶部按钮：新增目录/菜单/按钮
-- 调用 `GET /web/platform/system/menus/tree`、`POST /web/platform/system/menus/create` 等接口
+- 调用 `GET /web/system/menus/tree`、`POST /web/system/menus/create` 等接口
 
 **依赖**：任务 4.1、后端任务 3.6
 
@@ -689,7 +689,7 @@
 - 左侧部门树（Tree 组件，支持拖拽排序）
 - 右侧详情区：编码、负责人、成员数、排序、状态、操作按钮（新增子部门/编辑/分配用户/设置负责人/部门转移）、直属成员表格
 - 停用时弹出确认框，提示将迁移用户至上级部门
-- 调用 `GET /web/platform/system/depts/tree`、`POST /web/platform/system/depts/create` 等接口
+- 调用 `GET /web/system/depts/tree`、`POST /web/system/depts/create` 等接口
 
 **依赖**：任务 4.1、后端任务 3.4、3.7
 
@@ -720,7 +720,7 @@
 - 审计日志：模块、类型、时间范围筛选
 - 登录日志：用户名、时间范围、结果筛选
 - 执行日志：类型、状态、时间范围筛选
-- 调用 `GET /web/platform/system/logs/audit`、`GET /web/platform/system/logs/login`、`GET /web/platform/system/logs/exec` 等接口
+- 调用 `GET /web/system/logs/audit`、`GET /web/system/logs/login`、`GET /web/system/logs/exec` 等接口
 
 **依赖**：任务 4.1、后端任务 3.8
 
@@ -748,7 +748,7 @@
 - 修改个人信息弹窗：手机号、邮箱
 - 修改密码弹窗：旧密码、新密码、确认新密码（含密码复杂度实时校验）
 - 头像上传：点击头像触发文件选择，上传后刷新页面
-- 调用 `GET /web/platform/system/profile`、`POST /web/platform/system/profile/update`、`POST /web/platform/system/profile/change-password` 等接口
+- 调用 `GET /web/system/profile`、`POST /web/system/profile/update`、`POST /web/system/profile/change-password` 等接口
 
 **依赖**：任务 4.1、后端任务 3.9
 

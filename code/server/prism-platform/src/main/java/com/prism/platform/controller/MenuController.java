@@ -25,7 +25,7 @@ import java.util.List;
  */
 @Tag(name = "菜单权限管理")
 @RestController
-@RequestMapping("/web/platform")
+@RequestMapping("/web")
 @RequiredArgsConstructor
 public class MenuController {
 

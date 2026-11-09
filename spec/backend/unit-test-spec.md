@@ -181,7 +181,7 @@ class OrderControllerTest {
     void getById_whenExists_thenReturnOrder() throws Exception {
         when(orderService.getById(1L)).thenReturn(new OrderDetailVO(1L, "订单A"));
 
-        mockMvc.perform(get("/web/platform/orders/1"))
+        mockMvc.perform(get("/web/orders/1"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value("000000"))
                 .andExpect(jsonPath("$.data.name").value("订单A"));

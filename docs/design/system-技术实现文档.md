@@ -6,7 +6,7 @@
 | 编制日期 | 2026-09-29 |
 | 配套 PRD | `docs/prd/system-需求设计.md` |
 | 配套原型 | `docs/prototype/system/` |
-| 所属服务 | prism-platform（端口 8100，URL 前缀 `/web/platform`） |
+| 所属服务 | prism-platform（端口 8100，URL 前缀 `/web`） |
 | 技术栈 | Java 21 + Spring Boot 3.5 + MyBatis-Plus 3.5 + MySQL 8.0 + Redis 7 + Spring Security Starter + JWT |
 
 ---
@@ -1758,7 +1758,7 @@ WHERE NOT EXISTS (SELECT 1 FROM system_role_menu rm WHERE rm.role_id = 1 AND rm.
 
 | 项 | 值 |
 |---|---|
-| URL | `GET /web/platform/auth/captcha` |
+| URL | `GET /web/auth/captcha` |
 | 认证 | 不需要 |
 
 **请求参数**：无
@@ -1781,7 +1781,7 @@ WHERE NOT EXISTS (SELECT 1 FROM system_role_menu rm WHERE rm.role_id = 1 AND rm.
 
 | 项 | 值 |
 |---|---|
-| URL | `POST /web/platform/auth/login` |
+| URL | `POST /web/auth/login` |
 | 认证 | 不需要 |
 
 **请求 DTO**：
@@ -1860,7 +1860,7 @@ public class LoginDTO {
 
 | 项 | 值 |
 |---|---|
-| URL | `POST /web/platform/auth/logout` |
+| URL | `POST /web/auth/logout` |
 | 认证 | 需要 |
 
 **请求 DTO**：无（从 Authorization Header 获取 Token）
@@ -1871,7 +1871,7 @@ public class LoginDTO {
 
 | 项 | 值 |
 |---|---|
-| URL | `POST /web/platform/auth/refresh-token` |
+| URL | `POST /web/auth/refresh-token` |
 | 认证 | 不需要（携带 refreshToken） |
 
 **请求 DTO**：
@@ -1902,7 +1902,7 @@ public class RefreshTokenDTO {
 
 | 项 | 值 |
 |---|---|
-| URL | `POST /web/platform/auth/change-password-first` |
+| URL | `POST /web/auth/change-password-first` |
 | 认证 | 需要（携带登录后的 accessToken） |
 
 **请求 DTO**：
@@ -1936,7 +1936,7 @@ public class ChangePasswordDTO {
 
 | 项 | 值 |
 |---|---|
-| URL | `POST /web/platform/auth/forgot-password` |
+| URL | `POST /web/auth/forgot-password` |
 | 认证 | 不需要 |
 
 **请求 DTO**：
@@ -1962,7 +1962,7 @@ public class ForgotPasswordDTO {
 
 | 项 | 值 |
 |---|---|
-| URL | `POST /web/platform/auth/send-verify-code` |
+| URL | `POST /web/auth/send-verify-code` |
 | 认证 | 不需要 |
 
 **请求 DTO**：
@@ -1988,7 +1988,7 @@ public class SendVerifyCodeDTO {
 
 | 项 | 值 |
 |---|---|
-| URL | `GET /web/platform/system/users` |
+| URL | `GET /web/system/users` |
 | 权限 | `system:user:list` |
 
 **请求参数**（Query）：
@@ -2007,7 +2007,7 @@ public class SendVerifyCodeDTO {
 
 | 项 | 值 |
 |---|---|
-| URL | `GET /web/platform/system/users/{userId}` |
+| URL | `GET /web/system/users/{userId}` |
 | 权限 | `system:user:detail` |
 
 **响应**：`Result<UserDetailVO>`（含角色列表、部门信息、登录记录）
@@ -2016,7 +2016,7 @@ public class SendVerifyCodeDTO {
 
 | 项 | 值 |
 |---|---|
-| URL | `POST /web/platform/system/users/create` |
+| URL | `POST /web/system/users/create` |
 | 权限 | `system:user:create` |
 
 **请求 DTO**：
@@ -2060,7 +2060,7 @@ public class CreateUserDTO {
 
 | 项 | 值 |
 |---|---|
-| URL | `POST /web/platform/system/users/update` |
+| URL | `POST /web/system/users/update` |
 | 权限 | `system:user:update` |
 
 **请求 DTO**：
@@ -2106,7 +2106,7 @@ public class UpdateUserDTO {
 
 | 项 | 值 |
 |---|---|
-| URL | `POST /web/platform/system/users/delete` |
+| URL | `POST /web/system/users/delete` |
 | 权限 | `system:user:delete` |
 
 **请求 DTO**：
@@ -2126,7 +2126,7 @@ public class DeleteDTO {
 
 | 项 | 值 |
 |---|---|
-| URL | `POST /web/platform/system/users/enable-disable` |
+| URL | `POST /web/system/users/enable-disable` |
 | 权限 | `system:user:status` |
 
 **请求 DTO**：
@@ -2149,7 +2149,7 @@ public class EnableDisableDTO {
 
 | 项 | 值 |
 |---|---|
-| URL | `POST /web/platform/system/users/reset-password` |
+| URL | `POST /web/system/users/reset-password` |
 | 权限 | `system:user:reset-pwd` |
 
 **请求 DTO**：
@@ -2169,7 +2169,7 @@ public class ResetPasswordDTO {
 
 | 项 | 值 |
 |---|---|
-| URL | `POST /web/platform/system/users/assign-roles` |
+| URL | `POST /web/system/users/assign-roles` |
 | 权限 | `system:user:assign-role` |
 
 **请求 DTO**：
@@ -2192,7 +2192,7 @@ public class AssignRolesDTO {
 
 | 项 | 值 |
 |---|---|
-| URL | `POST /web/platform/system/users/assign-dept` |
+| URL | `POST /web/system/users/assign-dept` |
 | 权限 | `system:user:assign-dept` |
 
 **请求 DTO**：
@@ -2213,7 +2213,7 @@ public class AssignDeptDTO {
 
 | 项 | 值 |
 |---|---|
-| URL | `POST /web/platform/system/users/import` |
+| URL | `POST /web/system/users/import` |
 | 权限 | `system:user:import` |
 | Content-Type | multipart/form-data |
 
@@ -2242,7 +2242,7 @@ public class AssignDeptDTO {
 
 | 项 | 值 |
 |---|---|
-| URL | `GET /web/platform/system/users/export` |
+| URL | `GET /web/system/users/export` |
 | 权限 | `system:user:export` |
 
 **请求参数**：同用户列表查询参数
@@ -2253,7 +2253,7 @@ public class AssignDeptDTO {
 
 | 项 | 值 |
 |---|---|
-| URL | `GET /web/platform/system/users/import-template` |
+| URL | `GET /web/system/users/import-template` |
 | 权限 | `system:user:import` |
 
 **响应**：Excel 模板文件流下载
@@ -2266,7 +2266,7 @@ public class AssignDeptDTO {
 
 | 项 | 值 |
 |---|---|
-| URL | `GET /web/platform/system/roles` |
+| URL | `GET /web/system/roles` |
 | 权限 | `system:role:list` |
 
 **请求参数**：currentPage、pageSize、keyword
@@ -2277,7 +2277,7 @@ public class AssignDeptDTO {
 
 | 项 | 值 |
 |---|---|
-| URL | `GET /web/platform/system/roles/{roleId}` |
+| URL | `GET /web/system/roles/{roleId}` |
 | 权限 | `system:role:detail` |
 
 **响应**：`Result<RoleDetailVO>`（含关联菜单 ID 列表、数据权限范围、成员数）
@@ -2286,7 +2286,7 @@ public class AssignDeptDTO {
 
 | 项 | 值 |
 |---|---|
-| URL | `POST /web/platform/system/roles/create` |
+| URL | `POST /web/system/roles/create` |
 | 权限 | `system:role:create` |
 
 **请求 DTO**：
@@ -2319,7 +2319,7 @@ public class CreateRoleDTO {
 
 | 项 | 值 |
 |---|---|
-| URL | `POST /web/platform/system/roles/update` |
+| URL | `POST /web/system/roles/update` |
 | 权限 | `system:role:update` |
 
 **请求 DTO**：
@@ -2349,7 +2349,7 @@ public class UpdateRoleDTO {
 
 | 项 | 值 |
 |---|---|
-| URL | `POST /web/platform/system/roles/delete` |
+| URL | `POST /web/system/roles/delete` |
 | 权限 | `system:role:delete` |
 
 **请求 DTO**：`DeleteDTO { Long id }`
@@ -2362,7 +2362,7 @@ public class UpdateRoleDTO {
 
 | 项 | 值 |
 |---|---|
-| URL | `POST /web/platform/system/roles/enable-disable` |
+| URL | `POST /web/system/roles/enable-disable` |
 | 权限 | `system:role:status` |
 
 **请求 DTO**：`EnableDisableDTO { Long id, String status }`
@@ -2375,7 +2375,7 @@ public class UpdateRoleDTO {
 
 | 项 | 值 |
 |---|---|
-| URL | `POST /web/platform/system/roles/configure-permissions` |
+| URL | `POST /web/system/roles/configure-permissions` |
 | 权限 | `system:role:config-perm` |
 
 **请求 DTO**：
@@ -2405,7 +2405,7 @@ public class RolePermissionDTO {
 
 | 项 | 值 |
 |---|---|
-| URL | `POST /web/platform/system/roles/assign-users` |
+| URL | `POST /web/system/roles/assign-users` |
 | 权限 | `system:role:assign-user` |
 
 **请求 DTO**：
@@ -2428,7 +2428,7 @@ public class AssignUsersDTO {
 
 | 项 | 值 |
 |---|---|
-| URL | `GET /web/platform/system/roles/{roleId}/users` |
+| URL | `GET /web/system/roles/{roleId}/users` |
 | 权限 | `system:role:detail` |
 
 **响应**：`Result<List<UserListVO>>`
@@ -2441,7 +2441,7 @@ public class AssignUsersDTO {
 
 | 项 | 值 |
 |---|---|
-| URL | `GET /web/platform/system/menus/tree` |
+| URL | `GET /web/system/menus/tree` |
 | 权限 | `system:menu:list` |
 
 **响应**：`Result<List<MenuTreeVO>>`（三级嵌套树结构）
@@ -2450,7 +2450,7 @@ public class AssignUsersDTO {
 
 | 项 | 值 |
 |---|---|
-| URL | `GET /web/platform/system/menus/{menuId}` |
+| URL | `GET /web/system/menus/{menuId}` |
 | 权限 | `system:menu:detail` |
 
 **响应**：`Result<MenuDetailVO>`（含下级节点列表）
@@ -2459,7 +2459,7 @@ public class AssignUsersDTO {
 
 | 项 | 值 |
 |---|---|
-| URL | `POST /web/platform/system/menus/create` |
+| URL | `POST /web/system/menus/create` |
 | 权限 | `system:menu:create` |
 
 **请求 DTO**：
@@ -2507,7 +2507,7 @@ public class CreateMenuDTO {
 
 | 项 | 值 |
 |---|---|
-| URL | `POST /web/platform/system/menus/update` |
+| URL | `POST /web/system/menus/update` |
 | 权限 | `system:menu:update` |
 
 **请求 DTO**：
@@ -2546,7 +2546,7 @@ public class UpdateMenuDTO {
 
 | 项 | 值 |
 |---|---|
-| URL | `POST /web/platform/system/menus/delete` |
+| URL | `POST /web/system/menus/delete` |
 | 权限 | `system:menu:delete` |
 
 **请求 DTO**：`DeleteDTO { Long id }`
@@ -2559,7 +2559,7 @@ public class UpdateMenuDTO {
 
 | 项 | 值 |
 |---|---|
-| URL | `POST /web/platform/system/menus/enable-disable` |
+| URL | `POST /web/system/menus/enable-disable` |
 | 权限 | `system:menu:status` |
 
 **请求 DTO**：`EnableDisableDTO { Long id, String status }`
@@ -2570,7 +2570,7 @@ public class UpdateMenuDTO {
 
 | 项 | 值 |
 |---|---|
-| URL | `GET /web/platform/system/menus/check-permission` |
+| URL | `GET /web/system/menus/check-permission` |
 | 权限 | `system:menu:create` 或 `system:menu:update` |
 
 **请求参数**：`permission`（String）、`excludeId`（Long，编辑时排除自身）
@@ -2585,7 +2585,7 @@ public class UpdateMenuDTO {
 
 | 项 | 值 |
 |---|---|
-| URL | `GET /web/platform/system/depts/tree` |
+| URL | `GET /web/system/depts/tree` |
 | 权限 | `system:dept:list` |
 
 **响应**：`Result<List<DeptTreeVO>>`
@@ -2594,7 +2594,7 @@ public class UpdateMenuDTO {
 
 | 项 | 值 |
 |---|---|
-| URL | `GET /web/platform/system/depts/{deptId}` |
+| URL | `GET /web/system/depts/{deptId}` |
 | 权限 | `system:dept:detail` |
 
 **响应**：`Result<DeptDetailVO>`（含直属成员列表）
@@ -2603,7 +2603,7 @@ public class UpdateMenuDTO {
 
 | 项 | 值 |
 |---|---|
-| URL | `POST /web/platform/system/depts/create` |
+| URL | `POST /web/system/depts/create` |
 | 权限 | `system:dept:create` |
 
 **请求 DTO**：
@@ -2642,7 +2642,7 @@ public class CreateDeptDTO {
 
 | 项 | 值 |
 |---|---|
-| URL | `POST /web/platform/system/depts/update` |
+| URL | `POST /web/system/depts/update` |
 | 权限 | `system:dept:update` |
 
 **请求 DTO**：
@@ -2672,7 +2672,7 @@ public class UpdateDeptDTO {
 
 | 项 | 值 |
 |---|---|
-| URL | `POST /web/platform/system/depts/delete` |
+| URL | `POST /web/system/depts/delete` |
 | 权限 | `system:dept:delete` |
 
 **请求 DTO**：`DeleteDTO { Long id }`
@@ -2685,7 +2685,7 @@ public class UpdateDeptDTO {
 
 | 项 | 值 |
 |---|---|
-| URL | `POST /web/platform/system/depts/enable-disable` |
+| URL | `POST /web/system/depts/enable-disable` |
 | 权限 | `system:dept:status` |
 
 **请求 DTO**：`EnableDisableDTO { Long id, String status }`
@@ -2698,7 +2698,7 @@ public class UpdateDeptDTO {
 
 | 项 | 值 |
 |---|---|
-| URL | `POST /web/platform/system/depts/assign-users` |
+| URL | `POST /web/system/depts/assign-users` |
 | 权限 | `system:dept:assign-user` |
 
 **请求 DTO**：
@@ -2719,7 +2719,7 @@ public class DeptAssignUsersDTO {
 
 | 项 | 值 |
 |---|---|
-| URL | `POST /web/platform/system/depts/set-leader` |
+| URL | `POST /web/system/depts/set-leader` |
 | 权限 | `system:dept:set-leader` |
 
 **请求 DTO**：
@@ -2742,7 +2742,7 @@ public class SetLeaderDTO {
 
 | 项 | 值 |
 |---|---|
-| URL | `POST /web/platform/system/depts/transfer` |
+| URL | `POST /web/system/depts/transfer` |
 | 权限 | `system:dept:transfer` |
 
 **请求 DTO**：
@@ -2765,7 +2765,7 @@ public class TransferDeptDTO {
 
 | 项 | 值 |
 |---|---|
-| URL | `POST /web/platform/system/depts/update-sort` |
+| URL | `POST /web/system/depts/update-sort` |
 | 权限 | `system:dept:update` |
 
 **请求 DTO**：
@@ -2793,7 +2793,7 @@ public class UpdateSortDTO {
 
 | 项 | 值 |
 |---|---|
-| URL | `GET /web/platform/system/logs/audit` |
+| URL | `GET /web/system/logs/audit` |
 | 权限 | `system:log:audit` |
 
 **请求参数**：
@@ -2814,7 +2814,7 @@ public class UpdateSortDTO {
 
 | 项 | 值 |
 |---|---|
-| URL | `GET /web/platform/system/logs/login` |
+| URL | `GET /web/system/logs/login` |
 | 权限 | `system:log:login` |
 
 **请求参数**：currentPage、pageSize、keyword、result、startTime、endTime
@@ -2825,7 +2825,7 @@ public class UpdateSortDTO {
 
 | 项 | 值 |
 |---|---|
-| URL | `GET /web/platform/system/logs/exec` |
+| URL | `GET /web/system/logs/exec` |
 | 权限 | `system:log:exec` |
 
 **请求参数**：currentPage、pageSize、keyword、execType、status、startTime、endTime
@@ -2836,7 +2836,7 @@ public class UpdateSortDTO {
 
 | 项 | 值 |
 |---|---|
-| URL | `GET /web/platform/system/logs/{logType}/{logId}` |
+| URL | `GET /web/system/logs/{logType}/{logId}` |
 | 权限 | `system:log:audit` / `system:log:login` / `system:log:exec` |
 
 **响应**：`Result<LogDetailVO>`
@@ -2845,7 +2845,7 @@ public class UpdateSortDTO {
 
 | 项 | 值 |
 |---|---|
-| URL | `GET /web/platform/system/logs/export` |
+| URL | `GET /web/system/logs/export` |
 | 权限 | `system:log:export` |
 
 **请求参数**：logType（audit/login/exec）+ 同对应列表查询的筛选参数
@@ -2860,7 +2860,7 @@ public class UpdateSortDTO {
 
 | 项 | 值 |
 |---|---|
-| URL | `GET /web/platform/system/profile` |
+| URL | `GET /web/system/profile` |
 | 认证 | 需要（当前登录用户） |
 
 **响应**：`Result<UserProfileVO>`（含用户名、姓名、手机号、邮箱、头像、角色、部门）
@@ -2869,7 +2869,7 @@ public class UpdateSortDTO {
 
 | 项 | 值 |
 |---|---|
-| URL | `POST /web/platform/system/profile/update` |
+| URL | `POST /web/system/profile/update` |
 | 认证 | 需要 |
 
 **请求 DTO**：
@@ -2893,7 +2893,7 @@ public class UpdateProfileDTO {
 
 | 项 | 值 |
 |---|---|
-| URL | `POST /web/platform/system/profile/change-password` |
+| URL | `POST /web/system/profile/change-password` |
 | 认证 | 需要 |
 
 **请求 DTO**：`ChangePasswordDTO`（同 8.1.5）
@@ -2904,7 +2904,7 @@ public class UpdateProfileDTO {
 
 | 项 | 值 |
 |---|---|
-| URL | `POST /web/platform/system/profile/upload-avatar` |
+| URL | `POST /web/system/profile/upload-avatar` |
 | 认证 | 需要 |
 | Content-Type | multipart/form-data |
 
@@ -3077,12 +3077,12 @@ public class SecurityConfig {
             .authorizeHttpRequests(auth -> auth
                 // 公开路径白名单
                 .requestMatchers(
-                    "/web/platform/auth/captcha",
-                    "/web/platform/auth/login",
-                    "/web/platform/auth/refresh-token",
-                    "/web/platform/auth/forgot-password",
-                    "/web/platform/auth/send-verify-code",
-                    "/web/platform/health",
+                    "/web/auth/captcha",
+                    "/web/auth/login",
+                    "/web/auth/refresh-token",
+                    "/web/auth/forgot-password",
+                    "/web/auth/send-verify-code",
+                    "/web/health",
                     "/v3/api-docs/**",
                     "/doc.html/**"
                 ).permitAll()
@@ -3156,12 +3156,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 **公开路径白名单**（在 SecurityFilterChain 中配置 permitAll）：
 
 ```
-/web/platform/auth/captcha
-/web/platform/auth/login
-/web/platform/auth/refresh-token
-/web/platform/auth/forgot-password
-/web/platform/auth/send-verify-code
-/web/platform/health
+/web/auth/captcha
+/web/auth/login
+/web/auth/refresh-token
+/web/auth/forgot-password
+/web/auth/send-verify-code
+/web/health
 /v3/api-docs/**
 /doc.html/**
 ```
@@ -3280,7 +3280,7 @@ public void cleanExpiredLogs() {
 
 | 规范 | 检查项 | 结论 |
 |---|---|---|
-| api-spec | URL 前缀 `/web/platform` | 符合 |
+| api-spec | URL 前缀 `/web` | 符合 |
 | api-spec | 仅使用 GET/POST | 符合 |
 | api-spec | 统一响应 Result（code/msg/data/requestId） | 符合 |
 | api-spec | 分页使用 PageResult | 符合 |
@@ -3349,60 +3349,60 @@ public void cleanExpiredLogs() {
 
 | 序号 | 接口 | Method | URL |
 |---|---|---|---|
-| 1 | 获取验证码 | GET | /web/platform/auth/captcha |
-| 2 | 登录 | POST | /web/platform/auth/login |
-| 3 | 退出登录 | POST | /web/platform/auth/logout |
-| 4 | 刷新Token | POST | /web/platform/auth/refresh-token |
-| 5 | 首次修改密码 | POST | /web/platform/auth/change-password-first |
-| 6 | 忘记密码 | POST | /web/platform/auth/forgot-password |
-| 7 | 发送验证码 | POST | /web/platform/auth/send-verify-code |
-| 8 | 用户列表 | GET | /web/platform/system/users |
-| 9 | 用户详情 | GET | /web/platform/system/users/{userId} |
-| 10 | 新增用户 | POST | /web/platform/system/users/create |
-| 11 | 编辑用户 | POST | /web/platform/system/users/update |
-| 12 | 删除用户 | POST | /web/platform/system/users/delete |
-| 13 | 启停用用户 | POST | /web/platform/system/users/enable-disable |
-| 14 | 重置密码 | POST | /web/platform/system/users/reset-password |
-| 15 | 分配角色 | POST | /web/platform/system/users/assign-roles |
-| 16 | 分配部门 | POST | /web/platform/system/users/assign-dept |
-| 17 | 导入用户 | POST | /web/platform/system/users/import |
-| 18 | 导出用户 | GET | /web/platform/system/users/export |
-| 19 | 下载导入模板 | GET | /web/platform/system/users/import-template |
-| 20 | 角色列表 | GET | /web/platform/system/roles |
-| 21 | 角色详情 | GET | /web/platform/system/roles/{roleId} |
-| 22 | 新增角色 | POST | /web/platform/system/roles/create |
-| 23 | 编辑角色 | POST | /web/platform/system/roles/update |
-| 24 | 删除角色 | POST | /web/platform/system/roles/delete |
-| 25 | 启停用角色 | POST | /web/platform/system/roles/enable-disable |
-| 26 | 配置权限 | POST | /web/platform/system/roles/configure-permissions |
-| 27 | 分配用户 | POST | /web/platform/system/roles/assign-users |
-| 28 | 角色用户列表 | GET | /web/platform/system/roles/{roleId}/users |
-| 29 | 菜单树 | GET | /web/platform/system/menus/tree |
-| 30 | 菜单详情 | GET | /web/platform/system/menus/{menuId} |
-| 31 | 新增菜单 | POST | /web/platform/system/menus/create |
-| 32 | 编辑菜单 | POST | /web/platform/system/menus/update |
-| 33 | 删除菜单 | POST | /web/platform/system/menus/delete |
-| 34 | 启停用菜单 | POST | /web/platform/system/menus/enable-disable |
-| 35 | 校验权限标识 | GET | /web/platform/system/menus/check-permission |
-| 36 | 部门树 | GET | /web/platform/system/depts/tree |
-| 37 | 部门详情 | GET | /web/platform/system/depts/{deptId} |
-| 38 | 新增部门 | POST | /web/platform/system/depts/create |
-| 39 | 编辑部门 | POST | /web/platform/system/depts/update |
-| 40 | 删除部门 | POST | /web/platform/system/depts/delete |
-| 41 | 启停用部门 | POST | /web/platform/system/depts/enable-disable |
-| 42 | 分配用户 | POST | /web/platform/system/depts/assign-users |
-| 43 | 设置负责人 | POST | /web/platform/system/depts/set-leader |
-| 44 | 部门转移 | POST | /web/platform/system/depts/transfer |
-| 45 | 部门排序 | POST | /web/platform/system/depts/update-sort |
-| 46 | 审计日志 | GET | /web/platform/system/logs/audit |
-| 47 | 登录日志 | GET | /web/platform/system/logs/login |
-| 48 | 执行日志 | GET | /web/platform/system/logs/exec |
-| 49 | 日志详情 | GET | /web/platform/system/logs/{logType}/{logId} |
-| 50 | 日志导出 | GET | /web/platform/system/logs/export |
-| 51 | 个人信息 | GET | /web/platform/system/profile |
-| 52 | 修改个人信息 | POST | /web/platform/system/profile/update |
-| 53 | 修改密码 | POST | /web/platform/system/profile/change-password |
-| 54 | 上传头像 | POST | /web/platform/system/profile/upload-avatar |
+| 1 | 获取验证码 | GET | /web/auth/captcha |
+| 2 | 登录 | POST | /web/auth/login |
+| 3 | 退出登录 | POST | /web/auth/logout |
+| 4 | 刷新Token | POST | /web/auth/refresh-token |
+| 5 | 首次修改密码 | POST | /web/auth/change-password-first |
+| 6 | 忘记密码 | POST | /web/auth/forgot-password |
+| 7 | 发送验证码 | POST | /web/auth/send-verify-code |
+| 8 | 用户列表 | GET | /web/system/users |
+| 9 | 用户详情 | GET | /web/system/users/{userId} |
+| 10 | 新增用户 | POST | /web/system/users/create |
+| 11 | 编辑用户 | POST | /web/system/users/update |
+| 12 | 删除用户 | POST | /web/system/users/delete |
+| 13 | 启停用用户 | POST | /web/system/users/enable-disable |
+| 14 | 重置密码 | POST | /web/system/users/reset-password |
+| 15 | 分配角色 | POST | /web/system/users/assign-roles |
+| 16 | 分配部门 | POST | /web/system/users/assign-dept |
+| 17 | 导入用户 | POST | /web/system/users/import |
+| 18 | 导出用户 | GET | /web/system/users/export |
+| 19 | 下载导入模板 | GET | /web/system/users/import-template |
+| 20 | 角色列表 | GET | /web/system/roles |
+| 21 | 角色详情 | GET | /web/system/roles/{roleId} |
+| 22 | 新增角色 | POST | /web/system/roles/create |
+| 23 | 编辑角色 | POST | /web/system/roles/update |
+| 24 | 删除角色 | POST | /web/system/roles/delete |
+| 25 | 启停用角色 | POST | /web/system/roles/enable-disable |
+| 26 | 配置权限 | POST | /web/system/roles/configure-permissions |
+| 27 | 分配用户 | POST | /web/system/roles/assign-users |
+| 28 | 角色用户列表 | GET | /web/system/roles/{roleId}/users |
+| 29 | 菜单树 | GET | /web/system/menus/tree |
+| 30 | 菜单详情 | GET | /web/system/menus/{menuId} |
+| 31 | 新增菜单 | POST | /web/system/menus/create |
+| 32 | 编辑菜单 | POST | /web/system/menus/update |
+| 33 | 删除菜单 | POST | /web/system/menus/delete |
+| 34 | 启停用菜单 | POST | /web/system/menus/enable-disable |
+| 35 | 校验权限标识 | GET | /web/system/menus/check-permission |
+| 36 | 部门树 | GET | /web/system/depts/tree |
+| 37 | 部门详情 | GET | /web/system/depts/{deptId} |
+| 38 | 新增部门 | POST | /web/system/depts/create |
+| 39 | 编辑部门 | POST | /web/system/depts/update |
+| 40 | 删除部门 | POST | /web/system/depts/delete |
+| 41 | 启停用部门 | POST | /web/system/depts/enable-disable |
+| 42 | 分配用户 | POST | /web/system/depts/assign-users |
+| 43 | 设置负责人 | POST | /web/system/depts/set-leader |
+| 44 | 部门转移 | POST | /web/system/depts/transfer |
+| 45 | 部门排序 | POST | /web/system/depts/update-sort |
+| 46 | 审计日志 | GET | /web/system/logs/audit |
+| 47 | 登录日志 | GET | /web/system/logs/login |
+| 48 | 执行日志 | GET | /web/system/logs/exec |
+| 49 | 日志详情 | GET | /web/system/logs/{logType}/{logId} |
+| 50 | 日志导出 | GET | /web/system/logs/export |
+| 51 | 个人信息 | GET | /web/system/profile |
+| 52 | 修改个人信息 | POST | /web/system/profile/update |
+| 53 | 修改密码 | POST | /web/system/profile/change-password |
+| 54 | 上传头像 | POST | /web/system/profile/upload-avatar |
 
 **关键设计决策**：
 

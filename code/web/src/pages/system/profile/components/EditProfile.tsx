@@ -30,12 +30,10 @@ export default function EditProfileModal({ visible, profile, onCancel, onSuccess
         message.success('个人信息修改成功');
         onSuccess();
         return true;
-      } else {
-        message.error(res.msg);
-        return false;
       }
-    } catch (error: any) {
-      message.error(error?.message || '操作失败');
+      return false;
+    } catch {
+      // 异常已由全局请求层统一提示
       return false;
     }
   };

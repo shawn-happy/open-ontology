@@ -31,7 +31,7 @@ export default function ImportUsersModal({ visible, onCancel, onSuccess }: Impor
       a.click();
       window.URL.revokeObjectURL(url);
     } catch {
-      message.error('下载模板失败');
+      // 异常已由全局请求层统一提示
     }
   };
 
@@ -56,11 +56,9 @@ export default function ImportUsersModal({ visible, onCancel, onSuccess }: Impor
         } else {
           message.warning(`导入完成，成功 ${res.data.successCount} 条，失败 ${res.data.failCount} 条`);
         }
-      } else {
-        message.error(res.msg);
       }
-    } catch (error: any) {
-      message.error(error?.message || '导入失败');
+    } catch {
+      // 异常已由全局请求层统一提示
     } finally {
       setLoading(false);
     }

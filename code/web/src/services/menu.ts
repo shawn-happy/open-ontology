@@ -41,21 +41,21 @@ export interface UpdateMenuDTO {
 
 /** 获取菜单树 */
 export async function getMenuTree() {
-  return request<Result<MenuTreeVO[]>>('/web/platform/system/menus/tree', {
+  return request<Result<MenuTreeVO[]>>('/web/system/menus/tree', {
     method: 'GET',
   });
 }
 
 /** 获取菜单详情 */
 export async function getMenuDetail(id: string) {
-  return request<Result<MenuTreeVO>>(`/web/platform/system/menus/${id}`, {
+  return request<Result<MenuTreeVO>>(`/web/system/menus/${id}`, {
     method: 'GET',
   });
 }
 
 /** 创建菜单 */
 export async function createMenu(data: CreateMenuDTO) {
-  return request<Result<void>>('/web/platform/system/menus/create', {
+  return request<Result<void>>('/web/system/menus/create', {
     method: 'POST',
     data,
   });
@@ -63,7 +63,7 @@ export async function createMenu(data: CreateMenuDTO) {
 
 /** 更新菜单 */
 export async function updateMenu(data: UpdateMenuDTO) {
-  return request<Result<void>>('/web/platform/system/menus/update', {
+  return request<Result<void>>('/web/system/menus/update', {
     method: 'POST',
     data,
   });
@@ -71,14 +71,14 @@ export async function updateMenu(data: UpdateMenuDTO) {
 
 /** 删除菜单 */
 export async function deleteMenu(id: string) {
-  return request<Result<void>>(`/web/platform/system/menus/${id}/delete`, {
+  return request<Result<void>>(`/web/system/menus/${id}/delete`, {
     method: 'POST',
   });
 }
 
 /** 启用/停用菜单 */
 export async function enableDisableMenu(id: string, status: string) {
-  return request<Result<void>>('/web/platform/system/menus/enable-disable', {
+  return request<Result<void>>('/web/system/menus/enable-disable', {
     method: 'POST',
     data: { id, status },
   });

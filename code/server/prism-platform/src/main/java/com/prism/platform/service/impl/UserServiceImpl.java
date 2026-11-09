@@ -37,7 +37,11 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -233,13 +237,16 @@ public class UserServiceImpl implements UserService {
         if (StringUtils.isNotBlank(query.getStatus())) {
             wrapper.eq(SystemUser::getStatus, query.getStatus());
         }
+
+        // 按部门筛选（含子部门）：子查询下推给数据库，避免搬运用户 ID 列表
+        if (query.getDeptId() != null) {
+            applyDeptSubtreeFilter(wrapper, query.getDeptId());
+        }
         wrapper.orderByDesc(SystemUser::getCreatedAt);
 
         IPage<SystemUser> result = systemUserMapper.selectPage(page, wrapper);
 
-        List<UserListVO> list = result.getRecords().stream()
-                .map(this::convertToListVO)
-                .collect(Collectors.toList());
+        List<UserListVO> list = convertToListVOs(result.getRecords());
 
         return PageResult.from(result, list);
     }
@@ -410,43 +417,92 @@ public class UserServiceImpl implements UserService {
         if (StringUtils.isNotBlank(query.getStatus())) {
             wrapper.eq(SystemUser::getStatus, query.getStatus());
         }
+        // 与分页查询保持一致：按部门筛选（含子部门）
+        if (query.getDeptId() != null) {
+            applyDeptSubtreeFilter(wrapper, query.getDeptId());
+        }
         wrapper.orderByDesc(SystemUser::getCreatedAt);
 
         List<SystemUser> users = systemUserMapper.selectList(wrapper);
-        return users.stream().map(this::convertToListVO).collect(Collectors.toList());
+        return convertToListVOs(users);
     }
 
-    private UserListVO convertToListVO(SystemUser user) {
-        // 查询角色
-        List<SystemRole> roles = systemRoleMapper.selectByUserId(user.getId());
-        List<Long> roleIds = roles.stream().map(SystemRole::getId).collect(Collectors.toList());
-        List<String> roleNames = roles.stream().map(SystemRole::getName).collect(Collectors.toList());
-
-        // 查询部门
-        SystemUserDept userDept = systemUserDeptMapper.selectByUserId(user.getId());
-        Long deptId = null;
-        String deptName = null;
-        if (userDept != null) {
-            deptId = userDept.getDeptId();
-            SystemDept dept = systemDeptMapper.selectById(deptId);
-            if (dept != null) {
-                deptName = dept.getName();
-            }
+    /**
+     * 追加「部门子树」过滤条件（含子部门），子查询下推给数据库执行
+     *
+     * <p>部门树通过 system_dept.path 物化路径维护：子孙部门的 path 以
+     * {@code 父path + 父id + "/"} 为前缀（如部门 3、path=/1/ 的前缀为 /1/3/），
+     * 据此在子查询中圈定整棵子树，再关联 system_user_dept 过滤用户。
+     * 子查询为原生 SQL，需显式携带 is_deleted = 0（逻辑删除不会自动生效）。
+     */
+    private void applyDeptSubtreeFilter(LambdaQueryWrapper<SystemUser> wrapper, Long deptId) {
+        SystemDept dept = systemDeptMapper.selectById(deptId);
+        if (dept == null) {
+            throw new BusinessException("999904", "部门不存在");
         }
+        // path 仅由系统生成（数字与 /），此处仍对单引号做防御性转义
+        String subtreePrefix = (dept.getPath() + dept.getId() + "/").replace("'", "''");
+        wrapper.inSql(SystemUser::getId,
+                "SELECT user_id FROM system_user_dept WHERE is_deleted = 0 AND dept_id IN ("
+                        + "SELECT id FROM system_dept WHERE is_deleted = 0 AND (id = " + deptId
+                        + " OR path LIKE '" + subtreePrefix + "%'))");
+    }
 
-        return UserListVO.builder()
-                .id(user.getId())
-                .username(user.getUsername())
-                .name(user.getName())
-                .phone(user.getPhone())
-                .email(user.getEmail())
-                .avatar(user.getAvatar())
-                .status(user.getStatus())
-                .deptId(deptId)
-                .deptName(deptName)
-                .roleIds(roleIds)
-                .roleNames(roleNames)
-                .lastLoginAt(user.getLastLoginAt())
-                .build();
+    /**
+     * 批量转换用户列表 VO：固定 4 条 SQL 查出角色与部门关联，避免逐行 N+1 查询
+     */
+    private List<UserListVO> convertToListVOs(List<SystemUser> users) {
+        if (users.isEmpty()) {
+            return List.of();
+        }
+        List<Long> userIds = users.stream().map(SystemUser::getId).collect(Collectors.toList());
+
+        // 批量查角色关联及角色名
+        List<SystemUserRole> userRoles = systemUserRoleMapper.selectList(
+                new LambdaQueryWrapper<SystemUserRole>().in(SystemUserRole::getUserId, userIds));
+        Map<Long, List<Long>> userRoleIdsMap = userRoles.stream()
+                .collect(Collectors.groupingBy(SystemUserRole::getUserId,
+                        Collectors.mapping(SystemUserRole::getRoleId, Collectors.toList())));
+        Set<Long> allRoleIds = userRoles.stream()
+                .map(SystemUserRole::getRoleId).collect(Collectors.toSet());
+        Map<Long, String> roleNameMap = allRoleIds.isEmpty() ? Map.of()
+                : systemRoleMapper.selectBatchIds(allRoleIds).stream()
+                        .collect(Collectors.toMap(SystemRole::getId, SystemRole::getName));
+
+        // 批量查部门关联及部门名
+        List<SystemUserDept> userDepts = systemUserDeptMapper.selectList(
+                new LambdaQueryWrapper<SystemUserDept>().in(SystemUserDept::getUserId, userIds));
+        Map<Long, Long> userDeptIdMap = userDepts.stream()
+                .collect(Collectors.toMap(SystemUserDept::getUserId, SystemUserDept::getDeptId,
+                        (first, second) -> first));
+        Set<Long> allDeptIds = new HashSet<>(userDeptIdMap.values());
+        Map<Long, String> deptNameMap = allDeptIds.isEmpty() ? Map.of()
+                : systemDeptMapper.selectBatchIds(allDeptIds).stream()
+                        .collect(Collectors.toMap(SystemDept::getId, SystemDept::getName));
+
+        return users.stream().map(user -> {
+            List<Long> roleIds = userRoleIdsMap.getOrDefault(user.getId(), List.of());
+            List<String> roleNames = roleIds.stream()
+                    .map(roleNameMap::get)
+                    .filter(Objects::nonNull)
+                    .collect(Collectors.toList());
+            Long deptId = userDeptIdMap.get(user.getId());
+            String deptName = deptId != null ? deptNameMap.get(deptId) : null;
+
+            return UserListVO.builder()
+                    .id(user.getId())
+                    .username(user.getUsername())
+                    .name(user.getName())
+                    .phone(user.getPhone())
+                    .email(user.getEmail())
+                    .avatar(user.getAvatar())
+                    .status(user.getStatus())
+                    .deptId(deptId)
+                    .deptName(deptName)
+                    .roleIds(roleIds)
+                    .roleNames(roleNames)
+                    .lastLoginAt(user.getLastLoginAt())
+                    .build();
+        }).collect(Collectors.toList());
     }
 }

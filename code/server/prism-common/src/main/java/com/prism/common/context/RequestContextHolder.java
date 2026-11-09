@@ -39,4 +39,8 @@ public class RequestContextHolder {
         WORKSPACE_CODE.remove();
         USER_ID.remove();
     }
+
+    public static void clearWorkspace(){
+        WORKSPACE_CODE.remove();
+    }
 }

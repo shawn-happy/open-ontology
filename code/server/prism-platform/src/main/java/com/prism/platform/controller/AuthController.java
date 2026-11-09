@@ -5,6 +5,7 @@ import com.prism.platform.dto.ChangePasswordDTO;
 import com.prism.platform.dto.ForgotPasswordDTO;
 import com.prism.platform.dto.LoginDTO;
 import com.prism.platform.dto.RefreshTokenDTO;
+import com.prism.platform.dto.SendVerifyCodeDTO;
 import com.prism.platform.service.AuthService;
 import com.prism.platform.service.CaptchaService;
 import com.prism.platform.vo.CaptchaVO;
@@ -26,7 +27,7 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @Tag(name = "认证管理")
 @RestController
-@RequestMapping("/web/platform")
+@RequestMapping("/web")
 @RequiredArgsConstructor
 public class AuthController {
 
@@ -59,6 +60,13 @@ public class AuthController {
     public Result<CaptchaVO> captcha() {
         CaptchaVO vo = captchaService.generateCaptcha();
         return Result.ok(vo);
+    }
+
+    @Operation(summary = "发送忘记密码验证码")
+    @PostMapping("/auth/send-verify-code")
+    public Result<Void> sendVerifyCode(@Valid @RequestBody SendVerifyCodeDTO dto) {
+        authService.sendVerifyCode(dto);
+        return Result.ok();
     }
 
     @Operation(summary = "忘记密码")

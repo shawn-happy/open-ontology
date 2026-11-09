@@ -33,7 +33,7 @@ import java.util.List;
  */
 @Tag(name = "用户管理")
 @RestController
-@RequestMapping("/web/platform")
+@RequestMapping("/web")
 @RequiredArgsConstructor
 public class UserController {
 

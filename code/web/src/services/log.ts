@@ -73,7 +73,7 @@ export interface ExecLogQuery extends PageQuery {
 
 /** 审计日志分页查询 */
 export async function getAuditLogPage(params: AuditLogQuery) {
-  return request<Result<PageResult<AuditLogVO>>>('/web/platform/system/logs/audit', {
+  return request<Result<PageResult<AuditLogVO>>>('/web/system/logs/audit', {
     method: 'GET',
     params,
   });
@@ -81,7 +81,7 @@ export async function getAuditLogPage(params: AuditLogQuery) {
 
 /** 登录日志分页查询 */
 export async function getLoginLogPage(params: LoginLogQuery) {
-  return request<Result<PageResult<LoginLogVO>>>('/web/platform/system/logs/login', {
+  return request<Result<PageResult<LoginLogVO>>>('/web/system/logs/login', {
     method: 'GET',
     params,
   });
@@ -89,7 +89,7 @@ export async function getLoginLogPage(params: LoginLogQuery) {
 
 /** 执行日志分页查询 */
 export async function getExecLogPage(params: ExecLogQuery) {
-  return request<Result<PageResult<ExecLogVO>>>('/web/platform/system/logs/exec', {
+  return request<Result<PageResult<ExecLogVO>>>('/web/system/logs/exec', {
     method: 'GET',
     params,
   });
@@ -97,7 +97,7 @@ export async function getExecLogPage(params: ExecLogQuery) {
 
 /** 导出日志 */
 export async function exportLogs(type: 'audit' | 'login' | 'exec', params?: any) {
-  return request('/web/platform/system/logs/export', {
+  return request('/web/system/logs/export', {
     method: 'GET',
     params: { type, ...params },
     responseType: 'blob',

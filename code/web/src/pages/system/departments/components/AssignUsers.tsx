@@ -52,11 +52,9 @@ export default function AssignUsersModal({ visible, dept, onCancel, onSuccess }:
       if (res.code === '000000') {
         message.success('用户分配成功');
         onSuccess();
-      } else {
-        message.error(res.msg);
       }
-    } catch (error: any) {
-      message.error(error?.message || '操作失败');
+    } catch {
+      // 异常已由全局请求层统一提示
     } finally {
       setSubmitting(false);
     }

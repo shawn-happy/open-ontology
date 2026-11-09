@@ -36,7 +36,6 @@ const SPACE_ROLES = [
   { name: 'Maintainer', code: 'maintainer', desc: '维护者：本体建模与发布、数据与应用管理、成员分配（不含删除空间）' },
   { name: 'Developer', code: 'developer', desc: '开发者：本体建模、数据源 / 数据集 / Pipeline 等开发操作' },
   { name: 'Reporter', code: 'reporter', desc: '报告者：只读访问 + 数据探查、导出与分析报告' },
-  { name: 'Guest', code: 'guest', desc: '访客：最小权限，仅浏览空间内公开资产' },
 ];
 const ROLE_NAME = {};
 const ROLE_BADGE = {};
@@ -233,7 +232,7 @@ App.mount({
         oninput="filterState.kw=this.value.trim(); renderList()" />
       <div class="right">
         <select onchange="filterState.role=this.value; renderList()">
-          <option>全部角色</option><option>owner</option><option>maintainer</option><option>developer</option><option>reporter</option><option>guest</option>
+          <option>全部角色</option><option>owner</option><option>maintainer</option><option>developer</option><option>reporter</option>
         </select>
       </div>
     </div>

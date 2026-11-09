@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @Tag(name = "健康检查", description = "服务健康状态")
 @RestController
-@RequestMapping("/web/platform")
+@RequestMapping("/web")
 public class HealthController {
 
     @Operation(summary = "健康检查", description = "返回服务健康状态")

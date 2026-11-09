@@ -38,7 +38,7 @@ export interface PageQuery {
  * 健康检查
  */
 export async function healthCheck() {
-  return request<Result<string>>('/web/platform/health', {
+  return request<Result<string>>('/web/health', {
     method: 'GET',
   });
 }

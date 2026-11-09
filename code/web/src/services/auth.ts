@@ -67,7 +67,7 @@ export interface SendVerifyCodeDTO {
 
 /** 登录 */
 export async function login(data: LoginDTO) {
-  return request<Result<LoginVO>>('/web/platform/auth/login', {
+  return request<Result<LoginVO>>('/web/auth/login', {
     method: 'POST',
     data,
   });
@@ -75,21 +75,21 @@ export async function login(data: LoginDTO) {
 
 /** 登出 */
 export async function logout() {
-  return request<Result<void>>('/web/platform/auth/logout', {
+  return request<Result<void>>('/web/auth/logout', {
     method: 'POST',
   });
 }
 
 /** 获取图形验证码 */
 export async function getCaptcha() {
-  return request<Result<CaptchaVO>>('/web/platform/auth/captcha', {
+  return request<Result<CaptchaVO>>('/web/auth/captcha', {
     method: 'GET',
   });
 }
 
 /** 刷新Token */
 export async function refreshToken(data: RefreshTokenDTO) {
-  return request<Result<string>>('/web/platform/auth/refresh-token', {
+  return request<Result<string>>('/web/auth/refresh-token', {
     method: 'POST',
     data,
   });
@@ -97,7 +97,7 @@ export async function refreshToken(data: RefreshTokenDTO) {
 
 /** 首次登录强制修改密码 */
 export async function changePasswordFirstTime(data: ChangePasswordDTO) {
-  return request<Result<void>>('/web/platform/auth/change-password-first-time', {
+  return request<Result<void>>('/web/auth/change-password-first-time', {
     method: 'POST',
     data,
   });
@@ -105,7 +105,7 @@ export async function changePasswordFirstTime(data: ChangePasswordDTO) {
 
 /** 忘记密码 */
 export async function forgotPassword(data: ForgotPasswordDTO) {
-  return request<Result<void>>('/web/platform/auth/forgot-password', {
+  return request<Result<void>>('/web/auth/forgot-password', {
     method: 'POST',
     data,
   });
@@ -113,7 +113,7 @@ export async function forgotPassword(data: ForgotPasswordDTO) {
 
 /** 发送验证码（忘记密码用） */
 export async function sendVerifyCode(data: SendVerifyCodeDTO) {
-  return request<Result<void>>('/web/platform/auth/send-verify-code', {
+  return request<Result<void>>('/web/auth/send-verify-code', {
     method: 'POST',
     data,
   });

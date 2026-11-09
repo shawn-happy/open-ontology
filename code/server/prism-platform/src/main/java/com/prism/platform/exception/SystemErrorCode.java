@@ -19,6 +19,8 @@ public enum SystemErrorCode {
     REFRESH_TOKEN_EXPIRED("010106", "Refresh Token 已过期"),
     FIRST_LOGIN_CHANGE_PWD("010107", "首次登录须修改密码"),
     PASSWORD_EXPIRED("010108", "密码已过期须修改"),
+    VERIFY_CODE_SEND_TOO_FREQUENT("010109", "验证码发送过于频繁，请稍后再试"),
+    VERIFY_CODE_ERROR("010110", "验证码错误或已过期"),
 
     // ===== 用户管理 (0102xx) =====
     USERNAME_EXISTS("010201", "用户名已存在"),
@@ -57,14 +59,4 @@ public enum SystemErrorCode {
         this.message = message;
     }
 
-    /**
-     * 转换为通用 ErrorCode 接口兼容的 BusinessException 参数
-     */
-    public String getCode() {
-        return code;
-    }
-
-    public String getMessage() {
-        return message;
-    }
 }

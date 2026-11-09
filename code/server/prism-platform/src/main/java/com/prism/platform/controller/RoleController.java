@@ -31,7 +31,7 @@ import java.util.List;
  */
 @Tag(name = "角色管理")
 @RestController
-@RequestMapping("/web/platform")
+@RequestMapping("/web")
 @RequiredArgsConstructor
 public class RoleController {
 

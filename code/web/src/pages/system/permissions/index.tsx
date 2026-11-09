@@ -21,6 +21,7 @@ import {
   FileOutlined,
   ControlOutlined,
 } from '@ant-design/icons';
+import { useAccess } from '@umijs/max';
 import { getMenuTree, deleteMenu, enableDisableMenu } from '@/services/menu';
 import type { MenuTreeVO } from '@/services/menu';
 import MenuForm from './components/MenuForm';
@@ -29,6 +30,7 @@ import styles from './index.less';
 const { Title, Text } = Typography;
 
 export default function PermissionsPage() {
+  const access = useAccess();
   const [menuTree, setMenuTree] = useState<any[]>([]);
   const [rawMenuData, setRawMenuData] = useState<MenuTreeVO[]>([]);
   const [selectedNode, setSelectedNode] = useState<MenuTreeVO | null>(null);
@@ -141,11 +143,9 @@ export default function PermissionsPage() {
             if (selectedNode?.id === record.id) {
               setSelectedNode({ ...record, status });
             }
-          } else {
-            message.error(res.msg);
           }
-        } catch (error: any) {
-          message.error(error?.message || '操作失败');
+        } catch {
+          // 异常已由全局请求层统一提示
         }
       },
     });
@@ -166,11 +166,9 @@ export default function PermissionsPage() {
             if (selectedNode?.id === record.id) {
               setSelectedNode(null);
             }
-          } else {
-            message.error(res.msg);
           }
-        } catch (error: any) {
-          message.error(error?.message || '操作失败');
+        } catch {
+          // 异常已由全局请求层统一提示
         }
       },
     });
@@ -224,6 +222,7 @@ export default function PermissionsPage() {
         <Switch
           checked={status === 'ENABLED'}
           onChange={(checked) => handleToggleStatus(record, checked)}
+          disabled={!access.hasPerm('system:menu:update')}
           size="small"
         />
       ),
@@ -233,15 +232,19 @@ export default function PermissionsPage() {
       width: 120,
       render: (_: any, record: MenuTreeVO) => (
         <Space size="small">
-          <a
-            onClick={() => {
-              setEditingNode(record);
-              setFormVisible(true);
-            }}
-          >
-            编辑
-          </a>
-          <a onClick={() => handleDelete(record)}>删除</a>
+          {access.hasPerm('system:menu:update') && (
+            <a
+              onClick={() => {
+                setEditingNode(record);
+                setFormVisible(true);
+              }}
+            >
+              编辑
+            </a>
+          )}
+          {access.hasPerm('system:menu:delete') && (
+            <a onClick={() => handleDelete(record)}>删除</a>
+          )}
         </Space>
       ),
     },
@@ -253,17 +256,19 @@ export default function PermissionsPage() {
       <Card className={styles.menuTree} size="small" loading={loading}>
         <div className={styles.menuTreeHeader}>
           <span className={styles.menuTreeTitle}>菜单资源树</span>
-          <div className={styles.menuTreeActions}>
-            <Button size="small" onClick={() => handleAdd('DIRECTORY')}>
-              目录
-            </Button>
-            <Button size="small" onClick={() => handleAdd('MENU')}>
-              菜单
-            </Button>
-            <Button size="small" onClick={() => handleAdd('BUTTON')}>
-              按钮
-            </Button>
-          </div>
+          {access.hasPerm('system:menu:create') && (
+            <div className={styles.menuTreeActions}>
+              <Button size="small" onClick={() => handleAdd('DIRECTORY')}>
+                目录
+              </Button>
+              <Button size="small" onClick={() => handleAdd('MENU')}>
+                菜单
+              </Button>
+              <Button size="small" onClick={() => handleAdd('BUTTON')}>
+                按钮
+              </Button>
+            </div>
+          )}
         </div>
         <Tree
           treeData={menuTree}
@@ -286,16 +291,20 @@ export default function PermissionsPage() {
                 </Tag>
               </Space>
               <Space>
-                <Button icon={<EditOutlined />} onClick={handleEdit}>
-                  编辑
-                </Button>
-                <Button
-                  icon={<DeleteOutlined />}
-                  danger
-                  onClick={() => handleDelete(selectedNode)}
-                >
-                  删除
-                </Button>
+                {access.hasPerm('system:menu:update') && (
+                  <Button icon={<EditOutlined />} onClick={handleEdit}>
+                    编辑
+                  </Button>
+                )}
+                {access.hasPerm('system:menu:delete') && (
+                  <Button
+                    icon={<DeleteOutlined />}
+                    danger
+                    onClick={() => handleDelete(selectedNode)}
+                  >
+                    删除
+                  </Button>
+                )}
               </Space>
             </div>
 
@@ -326,6 +335,7 @@ export default function PermissionsPage() {
                     onChange={(checked) =>
                       handleToggleStatus(selectedNode, checked)
                     }
+                    disabled={!access.hasPerm('system:menu:update')}
                     size="small"
                   />
                 </div>

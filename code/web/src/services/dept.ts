@@ -14,6 +14,13 @@ export interface DeptTreeVO {
   sortOrder: number;
   status: string;
   children?: DeptTreeVO[];
+  /** 直属成员列表（注意：当前后端树接口未返回该字段，页面表格暂为空） */
+  members?: {
+    id: string;
+    name: string;
+    username: string;
+    roleNames: string[];
+  }[];
 }
 
 /** 创建部门请求 */
@@ -42,21 +49,21 @@ export interface SortItem {
 
 /** 获取部门树 */
 export async function getDeptTree() {
-  return request<Result<DeptTreeVO[]>>('/web/platform/system/depts/tree', {
+  return request<Result<DeptTreeVO[]>>('/web/system/depts/tree', {
     method: 'GET',
   });
 }
 
 /** 获取部门详情 */
 export async function getDeptDetail(id: string) {
-  return request<Result<DeptTreeVO>>(`/web/platform/system/depts/${id}`, {
+  return request<Result<DeptTreeVO>>(`/web/system/depts/${id}`, {
     method: 'GET',
   });
 }
 
 /** 创建部门 */
 export async function createDept(data: CreateDeptDTO) {
-  return request<Result<void>>('/web/platform/system/depts/create', {
+  return request<Result<void>>('/web/system/depts/create', {
     method: 'POST',
     data,
   });
@@ -64,7 +71,7 @@ export async function createDept(data: CreateDeptDTO) {
 
 /** 更新部门 */
 export async function updateDept(data: UpdateDeptDTO) {
-  return request<Result<void>>('/web/platform/system/depts/update', {
+  return request<Result<void>>('/web/system/depts/update', {
     method: 'POST',
     data,
   });
@@ -72,14 +79,14 @@ export async function updateDept(data: UpdateDeptDTO) {
 
 /** 删除部门 */
 export async function deleteDept(id: string) {
-  return request<Result<void>>(`/web/platform/system/depts/${id}/delete`, {
+  return request<Result<void>>(`/web/system/depts/${id}/delete`, {
     method: 'POST',
   });
 }
 
 /** 启用/停用部门 */
 export async function enableDisableDept(id: string, status: string) {
-  return request<Result<void>>('/web/platform/system/depts/enable-disable', {
+  return request<Result<void>>('/web/system/depts/enable-disable', {
     method: 'POST',
     data: { id, status },
   });
@@ -87,7 +94,7 @@ export async function enableDisableDept(id: string, status: string) {
 
 /** 分配用户 */
 export async function assignUsersToDept(deptId: string, userIds: string[]) {
-  return request<Result<void>>('/web/platform/system/depts/assign-users', {
+  return request<Result<void>>('/web/system/depts/assign-users', {
     method: 'POST',
     data: { targetId: deptId, userIds },
   });
@@ -95,7 +102,7 @@ export async function assignUsersToDept(deptId: string, userIds: string[]) {
 
 /** 设置负责人 */
 export async function setDeptLeader(deptId: string, leaderId: string) {
-  return request<Result<void>>('/web/platform/system/depts/set-leader', {
+  return request<Result<void>>('/web/system/depts/set-leader', {
     method: 'POST',
     data: { deptId, leaderId },
   });
@@ -103,7 +110,7 @@ export async function setDeptLeader(deptId: string, leaderId: string) {
 
 /** 部门转移 */
 export async function transferDept(id: string, targetParentId: string) {
-  return request<Result<void>>('/web/platform/system/depts/transfer', {
+  return request<Result<void>>('/web/system/depts/transfer', {
     method: 'POST',
     data: { sourceDeptId: id, targetDeptId: targetParentId },
   });
@@ -111,7 +118,7 @@ export async function transferDept(id: string, targetParentId: string) {
 
 /** 更新排序 */
 export async function updateDeptSort(sortList: SortItem[]) {
-  return request<Result<void>>('/web/platform/system/depts/update-sort', {
+  return request<Result<void>>('/web/system/depts/update-sort', {
     method: 'POST',
     data: { sortList },
   });
